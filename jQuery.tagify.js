@@ -51,7 +51,7 @@
 		events : function(){
 				this.DOM.input.on('focus blur', this.callbacks.onFocus.bind(this))
 						      .on('input', this.callbacks.onInput.bind(this))
-							  .on('keypress', this.callbacks.onKeypress.bind(this));
+							  .on('keydown', this.callbacks.onKeydown.bind(this));
 
 				this.DOM.scope.on('click', 'tag', this.callbacks.onClickRemove.bind(this))
 							  .on('click', this.callbacks.onClickScope.bind(this))
@@ -73,7 +73,7 @@
 				}
 			},
 
-			onKeypress : function(e){
+			onKeydown : function(e){
 				var s = e.target.textContent;
 				if( e.key == "Backspace" && (s == "" || s.charCodeAt(0) == 8203) ){
 					this.removeTag(-1);
