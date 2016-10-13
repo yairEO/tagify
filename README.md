@@ -19,6 +19,8 @@ I've created this plugin in 2 hours, after seeing what the internet had to offer
 * JS weights less than ~5kb
 * SCSS file is ~2kb of highly readable and flexible code
 * No other inputs are used beside the original, and its value is kept in sync
+* Can paste in multiple values ("tag 1, tag 2, tag 3")
+* Tags can be created by a comma or by pressing the "Enter" key
 * very easy to customize
 
 ### Basic usage
