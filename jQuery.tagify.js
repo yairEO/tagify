@@ -27,7 +27,7 @@
     Tags.prototype = {
         build : function($input){
             var that = this,
-                    value = $input.val();
+                value = $input.val();
 
             this.DOM = {};
             this.DOM.originalInput = $input;
@@ -40,6 +40,7 @@
             // Chrome bug: http://stackoverflow.com/q/34354085/104380
             this.DOM.input.wrap('<div>');
 
+            // if already has any value, convert to tags
             if( value ){
                 value = value.split(',');
                 value.forEach(function(v){
