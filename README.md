@@ -47,5 +47,5 @@ Now markup be like:
 </tags>
 ```
 
-Don't forget to actually include in your code the script & css files :)
+Don't forget to actually include the script & css files in your code  :)
 
