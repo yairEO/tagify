@@ -1,0 +1,91 @@
+tags {
+  display: inline-block;
+  border: 1px solid #DDD;
+  overflow: hidden;
+  cursor: text;
+}
+
+tags:hover {
+  border-color: #CCC;
+}
+
+@keyframes tags--bump {
+  30% {
+    box-shadow: 0 0 0 4px #DDD;
+  }
+
+}
+
+tags tag {
+  display: inline-block;
+  vertical-align: top;
+  margin: 5px 0 5px 5px;
+  padding: 0.3em 0.5em;
+  border-radius: 3px;
+  background: #DDD;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: .13s ease-out;
+  animation: .3s tags--bump 1 ease-out;
+}
+
+tags tag:hover {
+  background: #D39494;
+  color: white;
+  transition: 50ms;
+}
+
+tags tag.noAnim {
+  animation: none;
+}
+
+tags tag.hide {
+  pointer-events: none;
+  width: 0 !important;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+  opacity: 0;
+  transform: scale(0);
+  transition: .3s;
+}
+
+tags tag::after {
+  content: "\00D7";
+  line-height: 1.2;
+  position: absolute;
+  right: -20px;
+  color: white;
+  transition: .13s ease-out;
+}
+
+tags input {
+  border: 0;
+  display: none;
+}
+
+tags div {
+  display: inline-block;
+  min-width: 50px;
+  margin: 5px;
+  padding: 0.3em 0.5em;
+}
+
+tags span {
+  display: block;
+}
+
+tags span.placeholder {
+  color: #999;
+}
+
+tags span::before {
+  content: '\200B';
+}
+
+tags span:focus {
+  outline: none;
+}
