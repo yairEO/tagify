@@ -1,7 +1,7 @@
 Tagify - lightweight jQuery input "tags" plugin
 ========
 
-Want to simlpy convert an input field into a tags element, in a easy customizable way,
+Want to simply convert an input field into a tags element, in a easy customizable way,
 with good performance and smallest code footprint? You are in the right place my friend.
 
 ### Why jQuery and not just plain JS?
