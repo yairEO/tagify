@@ -29,12 +29,13 @@ Lets say this is your markup, and you already have a value set on the input (whi
 
 ```html
 <input name='tags' placeholder='write some tags' value='foo, bar,buzz'>
+<textarea name='tags' placeholder='write some tags'>foo, bar,buzz</textarea>
 ```
 
-what you need to do to convert that nice input into "tags" is simply select your input and run `tagify()`:
+what you need to do to convert that nice input into "tags" is simply select your input/textarea and run `tagify()`:
 
 ```javascript
-$('input[name=tags]').tagify()
+$('[name=tags]').tagify()
 ```
 
 Now markup be like:
