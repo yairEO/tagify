@@ -1,69 +1,69 @@
 // Tagify
 tags{
-	$tagMargin : 5px;
-	$tagPad    : .3em .5em;
-	$tagColor  : #DDD, #D39494; // primary color & hover color
-	$showX     : false; // show/hide the X icon when hovering a tag
+    $tagMargin : 5px;
+    $tagPad    : .3em .5em;
+    $tagColor  : #DDD, #D39494; // primary color & hover color
+    $showX     : false; // show/hide the X icon when hovering a tag
 
-	display:inline-block;
-	border:1px solid #DDD;
-	overflow:hidden;
-	cursor:text;
+    display:inline-block;
+    border:1px solid #DDD;
+    overflow:hidden;
+    cursor:text;
 
-	&:hover{ border-color:#CCC; }
+    &:hover{ border-color:#CCC; }
 
-	@keyframes tags--bump{
-		30% { box-shadow:0 0 0 4px nth($tagColor,1); }
-	}
+    @keyframes tags--bump{
+        30% { box-shadow:0 0 0 4px nth($tagColor,1); }
+    }
 
-	tag{
-		display:inline-block;
-		vertical-align:top;
-		margin:$tagMargin 0 $tagMargin $tagMargin;
-		padding:$tagPad;
-		border-radius:3px;
-		background:nth($tagColor,1);
-		position:relative;
-		cursor:pointer;
-		overflow:hidden;
-		white-space:nowrap;
-		transition:.13s ease-out;
-		animation:.3s tags--bump 1 ease-out;
+    tag{
+        display:inline-block;
+        vertical-align:top;
+        margin:$tagMargin 0 $tagMargin $tagMargin;
+        padding:$tagPad;
+        border-radius:3px;
+        background:nth($tagColor,1);
+        position:relative;
+        cursor:pointer;
+        overflow:hidden;
+        white-space:nowrap;
+        transition:.13s ease-out;
+        animation:.3s tags--bump 1 ease-out;
 
-		&:hover{
-			background:nth($tagColor,2);
-			color:white;
-			transition:50ms;
+        &:hover{
+            background:nth($tagColor,2);
+            color:white;
+            transition:50ms;
 
-			@if $showX {
-				padding-right:22px;
-				&::after{ right:5px;  }
-			}
-		}
+            @if $showX {
+                padding-right:22px;
+                &::after{ right:5px;  }
+            }
+        }
 
-		&.noAnim{ animation:none; }
+        &.noAnim{ animation:none; }
 
-		&.hide{
-			pointer-events:none;
-			width:0 !important;
-			padding-left:0; padding-right:0;
-			margin-left:0; margin-right:0;
-			opacity:0;
-			transform:scale(0);
-			transition:.3s;
-		}
+        &.hide{
+            pointer-events:none;
+            width:0 !important;
+            padding-left:0; padding-right:0;
+            margin-left:0; margin-right:0;
+            opacity:0;
+            transform:scale(0);
+            transition:.3s;
+        }
 
-		&::after{ content:"\00D7"; line-height:1.2; position:absolute; right:-20px; color:white; transition:.13s ease-out; }
-	}
+        &::after{ content:"\00D7"; line-height:1.2; position:absolute; right:-20px; color:white; transition:.13s ease-out; }
+    }
 
-	input, textarea{ border:0; display:none; }
-	// contenteditable wrapper (for Chome bug: http://stackoverflow.com/q/34354085/104380)
-	div{ display:inline-block; min-width:50px; margin:$tagMargin; padding:$tagPad; }
-	// actual contenteditable element
-	span{
-		display:block;
-		&.placeholder{ color:#999; }
-		&::before{ content:'\200B'; }
-		&:focus{ outline:none; }
-	}
+    input, textarea{ border:0; display:none; }
+    // contenteditable wrapper (for Chome bug: http://stackoverflow.com/q/34354085/104380)
+    div{ display:inline-block; min-width:50px; margin:$tagMargin; padding:$tagPad; }
+    // actual contenteditable element
+    span{
+        display:block;
+        &.placeholder{ color:#999; }
+        &::before{ content:'\200B'; }
+        &:focus{ outline:none; }
+    }
 }
