@@ -11,7 +11,7 @@ tags:hover {
 
 @keyframes tags--bump {
   30% {
-    box-shadow: 0 0 0 4px #DDD;
+    box-shadow: 0 0 0 4px #E5E5E5;
   }
 
 }
@@ -22,7 +22,8 @@ tags tag {
   margin: 5px 0 5px 5px;
   padding: 0.3em 0.5em;
   border-radius: 3px;
-  background: #DDD;
+  color: black;
+  background: #E5E5E5;
   position: relative;
   cursor: pointer;
   overflow: hidden;
@@ -32,8 +33,7 @@ tags tag {
 }
 
 tags tag:hover {
-  background: #D39494;
-  color: white;
+  box-shadow: 0 0 0 2px #D39494 inset;
   transition: 50ms;
 }
 
@@ -58,7 +58,7 @@ tags tag::after {
   line-height: 1.2;
   position: absolute;
   right: -20px;
-  color: white;
+  color: #af4848;
   transition: .13s ease-out;
 }
 

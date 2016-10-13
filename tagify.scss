@@ -1,9 +1,10 @@
-// Tagify
 tags{
-    $tagMargin : 5px;
-    $tagPad    : .3em .5em;
-    $tagColor  : #DDD, #D39494; // primary color & hover color
-    $showX     : false; // show/hide the X icon when hovering a tag
+    $tagMargin      : 5px;
+    $tagPad         : .3em .5em;
+    $tag-text-color : black;
+    $tag-bg         : #E5E5E5;
+    $tag-bg-hover   : #D39494;
+    $showX          : false;
 
     display:inline-block;
     border:1px solid #DDD;
@@ -13,7 +14,7 @@ tags{
     &:hover{ border-color:#CCC; }
 
     @keyframes tags--bump{
-        30% { box-shadow:0 0 0 4px nth($tagColor,1); }
+        30% { box-shadow:0 0 0 4px $tag-bg; }
     }
 
     tag{
@@ -22,7 +23,8 @@ tags{
         margin:$tagMargin 0 $tagMargin $tagMargin;
         padding:$tagPad;
         border-radius:3px;
-        background:nth($tagColor,1);
+        color:$tag-text-color;
+        background:$tag-bg;
         position:relative;
         cursor:pointer;
         overflow:hidden;
@@ -31,13 +33,13 @@ tags{
         animation:.3s tags--bump 1 ease-out;
 
         &:hover{
-            background:nth($tagColor,2);
-            color:white;
+            // background:nth($tagColor,2);
+            //background:none;
+            box-shadow: 0 0 0 2px $tag-bg-hover inset;
             transition:50ms;
-
             @if $showX {
                 padding-right:22px;
-                &::after{ right:5px;  }
+                &::after{ right:9px;  }
             }
         }
 
@@ -53,15 +55,21 @@ tags{
             transition:.3s;
         }
 
-        &::after{ content:"\00D7"; line-height:1.2; position:absolute; right:-20px; color:white; transition:.13s ease-out; }
+        &::after{
+            content:"\00D7";
+            line-height:1.2;
+            position:absolute;
+            right:-20px;
+            color:darken($tag-bg-hover,22);
+            transition:.13s ease-out;
+        }
     }
 
     input, textarea{ border:0; display:none; }
     // contenteditable wrapper (for Chome bug: http://stackoverflow.com/q/34354085/104380)
     div{ display:inline-block; min-width:50px; margin:$tagMargin; padding:$tagPad; }
-    // actual contenteditable element
     span{
-        display:block;
+        display:block; //padding:4px; white-space:nowrap;
         &.placeholder{ color:#999; }
         &::before{ content:'\200B'; }
         &:focus{ outline:none; }
