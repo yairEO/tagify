@@ -56,7 +56,7 @@ tags{
 		&::after{ content:"\00D7"; line-height:1.2; position:absolute; right:-20px; color:white; transition:.13s ease-out; }
 	}
 
-	input{ border:0; display:none; }
+	input, textarea{ border:0; display:none; }
 	// contenteditable wrapper (for Chome bug: http://stackoverflow.com/q/34354085/104380)
 	div{ display:inline-block; min-width:50px; margin:$tagMargin; padding:$tagPad; }
 	// actual contenteditable element

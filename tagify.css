@@ -62,7 +62,8 @@ tags tag::after {
   transition: .13s ease-out;
 }
 
-tags input {
+tags input,
+tags textarea {
   border: 0;
   display: none;
 }
