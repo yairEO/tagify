@@ -43,9 +43,9 @@ tags{
             }
         }
 
-        &.noAnim{ animation:none; }
+        &.tagify--noAnim{ animation:none; }
 
-        &.hide{
+        &.tagify--hide{
             pointer-events:none;
             width:0 !important;
             padding-left:0; padding-right:0;

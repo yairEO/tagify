@@ -13,7 +13,6 @@ tags:hover {
   30% {
     box-shadow: 0 0 0 4px #E5E5E5;
   }
-
 }
 
 tags tag {
@@ -37,11 +36,11 @@ tags tag:hover {
   transition: 50ms;
 }
 
-tags tag.noAnim {
+tags tag.tagify--noAnim {
   animation: none;
 }
 
-tags tag.hide {
+tags tag.tagify--hide {
   pointer-events: none;
   width: 0 !important;
   padding-left: 0;
