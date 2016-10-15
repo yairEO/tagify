@@ -69,7 +69,7 @@
             onKeydown : function(e){
                 var s = e.target.textContent;
                 if( e.key == "Backspace" && (s == "" || s.charCodeAt(0) == 8203) ){
-                    this.removeTag( this.DOM.scope.querySelectorAll('tag:not(.hide)').length - 1 );
+                    this.removeTag( this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)').length - 1 );
                 }
                 if( e.key == "Escape" ){
                     e.target.textContent = '';
