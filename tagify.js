@@ -21,7 +21,7 @@ Tagify.prototype = {
         this.DOM.scope = document.createElement('tags');
         // need to wrap the input with a DIV
         // Chrome bug: http://stackoverflow.com/q/34354085/104380
-        this.DOM.scope.innerHTML = '<div><span class="placeholder" contenteditable>'+ input.placeholder +'</span></div>';
+        this.DOM.scope.innerHTML = '<div><span class="placeholder" data-placeholder="'+ input.placeholder +'" contenteditable></span></div>';
         this.DOM.input = this.DOM.scope.querySelector('span');
         input.parentNode.insertBefore(this.DOM.scope, input);
         this.DOM.scope.appendChild(input);
@@ -44,17 +44,12 @@ Tagify.prototype = {
     // DOM events callbacks
     callbacks : {
         onFocusBlur : function(e){
-            var text =  e.target.textContent.replace(/\u200B/g,'').trim(),
-                    placeholder = this.DOM.originalInput.placeholder;
+            var text =  e.target.textContent.replace(/\u200B/g,'').trim();
 
-            if( e.type == "focus" && text == placeholder){
+            if( e.type == "focus" )
                 e.target.className = '';
-                e.target.innerHTML = '&#8203;';
-            }
-            else if( e.type == "blur" && text == "" ){
+            else if( e.type == "blur" && text == "" )
                 e.target.className = 'placeholder';
-                e.target.innerHTML = placeholder;
-            }
         },
 
         onKeydown : function(e){

@@ -1,6 +1,7 @@
 tags {
   display: inline-block;
   border: 1px solid #DDD;
+  padding-right: 0.3em 0.5em;
   overflow: hidden;
   cursor: text;
 }
@@ -13,6 +14,7 @@ tags:hover {
   30% {
     box-shadow: 0 0 0 4px #E5E5E5;
   }
+
 }
 
 tags tag {
@@ -20,6 +22,7 @@ tags tag {
   vertical-align: top;
   margin: 5px 0 5px 5px;
   padding: 0.3em 0.5em;
+  padding-right: 1.5em;
   border-radius: 3px;
   color: black;
   background: #E5E5E5;
@@ -34,6 +37,10 @@ tags tag {
 tags tag:hover {
   box-shadow: 0 0 0 2px #D39494 inset;
   transition: 50ms;
+}
+
+tags tag:hover::after {
+  color: #923c3c;
 }
 
 tags tag.tagify--noAnim {
@@ -56,9 +63,8 @@ tags tag::after {
   content: "\00D7";
   line-height: 1.2;
   position: absolute;
-  right: -20px;
-  color: #af4848;
-  transition: .13s ease-out;
+  right: 0.5em;
+  transition: .1s;
 }
 
 tags input,
@@ -69,17 +75,33 @@ tags textarea {
 
 tags div {
   display: inline-block;
-  min-width: 50px;
+  min-width: 10px;
   margin: 5px;
   padding: 0.3em 0.5em;
 }
 
 tags span {
   display: block;
+  position: relative;
+  white-space: nowrap;
 }
 
 tags span.placeholder {
   color: #999;
+}
+
+tags span.placeholder::after {
+  opacity: 1;
+  transform: none;
+}
+
+tags span::after {
+  content: attr(data-placeholder);
+  display: inline-block;
+  opacity: 0;
+  width: 0;
+  transform: translatex(6px);
+  transition: .15s ease-out;
 }
 
 tags span::before {

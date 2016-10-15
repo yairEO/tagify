@@ -4,10 +4,11 @@ tags{
     $tag-text-color : black;
     $tag-bg         : #E5E5E5;
     $tag-bg-hover   : #D39494;
-    $showX          : false;
+    $showX          : true;
 
     display:inline-block;
     border:1px solid #DDD;
+    padding-right:$tagPad;
     overflow:hidden;
     cursor:text;
 
@@ -22,6 +23,9 @@ tags{
         vertical-align:top;
         margin:$tagMargin 0 $tagMargin $tagMargin;
         padding:$tagPad;
+        @if $showX {
+                padding-right:nth($tagPad, 2) * 3;
+        }
         border-radius:3px;
         color:$tag-text-color;
         background:$tag-bg;
@@ -38,8 +42,7 @@ tags{
             box-shadow: 0 0 0 2px $tag-bg-hover inset;
             transition:50ms;
             @if $showX {
-                padding-right:22px;
-                &::after{ right:9px;  }
+             &::after{ color:darken($tag-bg-hover,30); }
             }
         }
 
@@ -59,18 +62,20 @@ tags{
             content:"\00D7";
             line-height:1.2;
             position:absolute;
-            right:-20px;
-            color:darken($tag-bg-hover,22);
-            transition:.13s ease-out;
+            right:nth($tagPad, 2);
+            transition:.1s;
         }
     }
 
     input, textarea{ border:0; display:none; }
     // contenteditable wrapper (for Chome bug: http://stackoverflow.com/q/34354085/104380)
-    div{ display:inline-block; min-width:50px; margin:$tagMargin; padding:$tagPad; }
+    div{ display:inline-block; min-width:10px; margin:$tagMargin; padding:$tagPad; }
     span{
-        display:block; //padding:4px; white-space:nowrap;
-        &.placeholder{ color:#999; }
+        display:block; position:relative; white-space:nowrap;
+        &.placeholder{ color:#999;
+            &::after{ opacity:1; transform:none; }
+        }
+        &::after{ content:attr(data-placeholder); display:inline-block; opacity:0; width:0; transform:translatex(6px); transition:.15s ease-out; }
         &::before{ content:'\200B'; }
         &:focus{ outline:none; }
     }
