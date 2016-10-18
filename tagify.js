@@ -21,7 +21,7 @@ Tagify.prototype = {
         this.DOM.scope = document.createElement('tags');
         // need to wrap the input with a DIV
         // Chrome bug: http://stackoverflow.com/q/34354085/104380
-        this.DOM.scope.innerHTML = '<div><span class="placeholder" data-placeholder="'+ input.placeholder +'" contenteditable></span></div>';
+        this.DOM.scope.innerHTML = '<div><span class="input placeholder" data-placeholder="'+ input.placeholder +'" contenteditable></span></div>';
         this.DOM.input = this.DOM.scope.querySelector('span');
         input.parentNode.insertBefore(this.DOM.scope, input);
         this.DOM.scope.appendChild(input);
@@ -47,9 +47,9 @@ Tagify.prototype = {
             var text =  e.target.textContent.replace(/\u200B/g,'').trim();
 
             if( e.type == "focus" )
-                e.target.className = '';
+                e.target.className = 'input';
             else if( e.type == "blur" && text == "" )
-                e.target.className = 'placeholder';
+                e.target.className = 'input placeholder';
         },
 
         onKeydown : function(e){
@@ -82,8 +82,8 @@ Tagify.prototype = {
         onClickScope : function(e){
             if( e.target.tagName == "TAGS" )
                 this.DOM.input.focus();
-            if( e.target.tagName == "TAG" ){
-                this.removeTag( this.getNodeindex(e.target) );
+            if( e.target.tagName == "X" ){
+                this.removeTag( this.getNodeindex(e.target.parentNode) );
             }
         }
     },
@@ -104,7 +104,7 @@ Tagify.prototype = {
 
         return value.split(',').filter(function(v){ return !!v }).map(function(v){
             var tagElm = document.createElement('tag');
-            tagElm.textContent = v;
+            tagElm.innerHTML = "<x></x><span>"+ v +" </span>"; // the space is important - http://stackoverflow.com/a/19668740/104380
             that.DOM.scope.insertBefore(tagElm, that.DOM.input.parentNode);
 
             that.value.push(v);

@@ -21,26 +21,27 @@ tags tag {
   display: inline-block;
   vertical-align: top;
   margin: 5px 0 5px 5px;
-  padding: 0.3em 0.5em;
-  padding-right: 1.5em;
-  border-radius: 3px;
-  color: black;
-  background: #E5E5E5;
   position: relative;
-  cursor: pointer;
+  cursor: default;
   overflow: hidden;
   white-space: nowrap;
   transition: .13s ease-out;
   animation: .3s tags--bump 1 ease-out;
 }
 
-tags tag:hover {
-  box-shadow: 0 0 0 2px #D39494 inset;
-  transition: 50ms;
+tags tag > span {
+  display: inline-block;
+  padding: 0.3em 0.5em;
+  padding-right: 1.5em;
+  border-radius: 3px;
+  color: black;
+  background: #E5E5E5;
+  transition: .13s ease-out;
 }
 
-tags tag:hover::after {
-  color: #923c3c;
+tags tag:hover span {
+  box-shadow: 0 0 0 2px #7AC3FF inset;
+  transition: 50ms;
 }
 
 tags tag.tagify--noAnim {
@@ -59,12 +60,32 @@ tags tag.tagify--hide {
   transition: .3s;
 }
 
-tags tag::after {
-  content: "\00D7";
-  line-height: 1.2;
+tags tag x {
+  font: 14px/15px Serif;
+  width: 14px;
+  height: 14px;
+  text-align: center;
+  border-radius: 50px;
   position: absolute;
-  right: 0.5em;
-  transition: .1s;
+  right: calc(0.5em - 2px);
+  top: 50%;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: .2s;
+}
+
+tags tag x::after {
+  content: "\00D7";
+}
+
+tags tag x:hover {
+  color: white;
+  background: #cc8282;
+}
+
+tags tag x:hover + span {
+  box-shadow: 0 0 0 2px #D39494 inset;
+  transition: .2s;
 }
 
 tags input,
@@ -80,34 +101,35 @@ tags div {
   padding: 0.3em 0.5em;
 }
 
-tags span {
+tags .input {
   display: block;
   position: relative;
   white-space: nowrap;
 }
 
-tags span.placeholder {
+tags .input.placeholder {
   color: #999;
 }
 
-tags span.placeholder::after {
+tags .input.placeholder::after {
   opacity: 1;
   transform: none;
+  max-width: 200px;
 }
 
-tags span::after {
+tags .input::after {
   content: attr(data-placeholder);
   display: inline-block;
   opacity: 0;
-  width: 0;
+  max-width: 0;
   transform: translatex(6px);
   transition: .15s ease-out;
 }
 
-tags span::before {
+tags .input::before {
   content: '\200B';
 }
 
-tags span:focus {
+tags .input:focus {
   outline: none;
 }

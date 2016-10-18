@@ -1,10 +1,11 @@
 tags{
-    $tagMargin      : 5px;
-    $tagPad         : .3em .5em;
-    $tag-text-color : black;
-    $tag-bg         : #E5E5E5;
-    $tag-bg-hover   : #D39494;
-    $showX          : true;
+    $tagMargin        : 5px;
+    $tagPad           : .3em .5em;
+    $tag-text-color   : black;
+    $tag-bg           : #E5E5E5;
+    $tag-hover        : #7AC3FF;
+    $tag-remove       : #D39494;
+    $showX            : true;
 
     display:inline-block;
     border:1px solid #DDD;
@@ -22,27 +23,32 @@ tags{
         display:inline-block;
         vertical-align:top;
         margin:$tagMargin 0 $tagMargin $tagMargin;
-        padding:$tagPad;
-        @if $showX {
-                padding-right:nth($tagPad, 2) * 3;
-        }
-        border-radius:3px;
-        color:$tag-text-color;
-        background:$tag-bg;
+
         position:relative;
-        cursor:pointer;
+        cursor:default;
         overflow:hidden;
         white-space:nowrap;
         transition:.13s ease-out;
         animation:.3s tags--bump 1 ease-out;
 
-        &:hover{
-            // background:nth($tagColor,2);
-            //background:none;
-            box-shadow: 0 0 0 2px $tag-bg-hover inset;
-            transition:50ms;
+        > span{
+            display:inline-block;
+            padding:$tagPad;
             @if $showX {
-             &::after{ color:darken($tag-bg-hover,30); }
+                    padding-right:nth($tagPad, 2) * 3;
+            }
+            border-radius:3px;
+            color:$tag-text-color;
+            background:$tag-bg;
+            transition:.13s ease-out;
+        }
+
+        &:hover{
+            span{
+                // background:nth($tagColor,2);
+                //background:none;
+                box-shadow: 0 0 0 2px $tag-hover inset;
+                transition:50ms;
             }
         }
 
@@ -58,24 +64,46 @@ tags{
             transition:.3s;
         }
 
-        &::after{
-            content:"\00D7";
-            line-height:1.2;
+        x{
+            $size: 14px;
+            font:#{$size}/#{$size + 1} Serif;
+            width:$size;
+            height:$size;
+            text-align:center;
+            border-radius:50px;
             position:absolute;
-            right:nth($tagPad, 2);
-            transition:.1s;
+            right:calc(#{nth($tagPad, 2)} - 2px);
+            top: 50%;
+            cursor:pointer;
+            transform: translateY(-50%);
+            transition:.2s;
+            &::after{
+                content:"\00D7";
+            }
+            &:hover{
+                color:white;
+                background:darken($tag-remove, 5);
+                + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
+            }
         }
     }
 
     input, textarea{ border:0; display:none; }
     // contenteditable wrapper (for Chome bug: http://stackoverflow.com/q/34354085/104380)
     div{ display:inline-block; min-width:10px; margin:$tagMargin; padding:$tagPad; }
-    span{
+    .input{
         display:block; position:relative; white-space:nowrap;
         &.placeholder{ color:#999;
-            &::after{ opacity:1; transform:none; }
+            &::after{ opacity:1; transform:none; max-width:200px; }
         }
-        &::after{ content:attr(data-placeholder); display:inline-block; opacity:0; width:0; transform:translatex(6px); transition:.15s ease-out; }
+        &::after{
+            content:attr(data-placeholder);
+            display:inline-block;
+            opacity:0;
+            max-width:0;
+            transform:translatex(6px);
+            transition:.15s ease-out;
+        }
         &::before{ content:'\200B'; }
         &:focus{ outline:none; }
     }
