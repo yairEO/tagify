@@ -99,25 +99,31 @@ Tagify.prototype = {
         return index;
     },
 
+    markTagByValue(value){
+        var tagIdx = this.value.indexOf(value),
+            tag = this.DOM.scope.querySelectorAll('tag')[tagIdx];
+
+        if( tag ){
+            tag.classList.add('tagify--mark');
+            setTimeout(()=>{ tag.classList.remove('tagify--mark') }, 2000);
+            return true;
+        }
+        return false;
+    },
+
     addTag : function( value ){
-        var that = this,
-            dupTag,
-            dupTagIdx = this.value.indexOf(value);
+        var that = this;
 
         value = value.replace(/\u200B/g,'');
         if( !value ) return;
 
-
-        if( !this.settings.duplicates && dupTagIdx != -1 ){
-            dupTag = this.DOM.scope.querySelectorAll('tag')[dupTagIdx];
-            dupTag.classList.add('tagify--mark');
-            setTimeout(()=>{ dupTag.classList.remove('tagify--mark') }, 2000);
-            return false;
-        }
-
         return value.split(',').filter(function(v){ return !!v }).map(function(v){
             var tagElm = document.createElement('tag');
             v = v.trim();
+
+            if( !that.settings.duplicates && that.markTagByValue(v) )
+              return false;
+
             // the space below is important - http://stackoverflow.com/a/19668740/104380
             tagElm.innerHTML = "<x></x><span>"+ v +" </span>";
             that.DOM.scope.insertBefore(tagElm, that.DOM.input.parentNode);
