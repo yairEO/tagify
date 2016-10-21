@@ -52,16 +52,25 @@ tags{
             }
         }
 
-        &.tagify--noAnim{ animation:none; }
+        &.tagify{
+            &--noAnim{ animation:none; }
 
-        &.tagify--hide{
-            pointer-events:none;
-            width:0 !important;
-            padding-left:0; padding-right:0;
-            margin-left:0; margin-right:0;
-            opacity:0;
-            transform:scale(0);
-            transition:.3s;
+            &--hide{
+                pointer-events:none;
+                width:0 !important;
+                padding-left:0; padding-right:0;
+                margin-left:0; margin-right:0;
+                opacity:0;
+                transform:scale(0);
+                transition:.3s;
+            }
+
+            &--mark{
+                @keyframes tagify--pulse{
+                    50%{ box-shadow: 0 0 0 2px $tag-hover inset; }
+                }
+                span{ animation:.4s tagify--pulse 3 ease-out; }
+            }
         }
 
         x{

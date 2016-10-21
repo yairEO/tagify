@@ -5,7 +5,10 @@
  * https://github.com/yairEO/tagify
  */
 
-function Tagify(input){
+function Tagify(input, settings){
+    this.settings = Object.assign({
+      duplicates : false
+    }, settings);
     this.value = [];
     this.build(input);
     this.events();
@@ -28,7 +31,7 @@ Tagify.prototype = {
 
         if( value )
             this.addTag(value).forEach(function(tag){
-                tag.classList.add('tagify--noAnim');
+                tag && tag.classList.add('tagify--noAnim');
             });
     },
 
@@ -63,8 +66,8 @@ Tagify.prototype = {
             }
             if( e.key == "Enter" ){
                 e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                this.addTag(s);
-                e.target.innerHTML = '';
+                if( this.addTag(s) )
+                  e.target.innerHTML = '';
                 return false;
             }
         },
@@ -97,14 +100,26 @@ Tagify.prototype = {
     },
 
     addTag : function( value ){
-        var that = this;
+        var that = this,
+            dupTag,
+            dupTagIdx = this.value.indexOf(value);
 
-        value = value.replace(/\u200B/g,'').trim();
+        value = value.replace(/\u200B/g,'');
         if( !value ) return;
+
+
+        if( !this.settings.duplicates && dupTagIdx != -1 ){
+            dupTag = this.DOM.scope.querySelectorAll('tag')[dupTagIdx];
+            dupTag.classList.add('tagify--mark');
+            setTimeout(()=>{ dupTag.classList.remove('tagify--mark') }, 2000);
+            return false;
+        }
 
         return value.split(',').filter(function(v){ return !!v }).map(function(v){
             var tagElm = document.createElement('tag');
-            tagElm.innerHTML = "<x></x><span>"+ v +" </span>"; // the space is important - http://stackoverflow.com/a/19668740/104380
+            v = v.trim();
+            // the space below is important - http://stackoverflow.com/a/19668740/104380
+            tagElm.innerHTML = "<x></x><span>"+ v +" </span>";
             that.DOM.scope.insertBefore(tagElm, that.DOM.input.parentNode);
 
             that.value.push(v);

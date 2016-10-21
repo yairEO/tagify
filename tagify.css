@@ -60,6 +60,17 @@ tags tag.tagify--hide {
   transition: .3s;
 }
 
+@keyframes tagify--pulse {
+  50% {
+    box-shadow: 0 0 0 2px #7AC3FF inset;
+  }
+
+}
+
+tags tag.tagify--mark span {
+  animation: .4s tagify--pulse 3 ease-out;
+}
+
 tags tag x {
   font: 14px/15px Serif;
   width: 14px;
