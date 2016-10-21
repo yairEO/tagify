@@ -1,4 +1,4 @@
-Tagify - lightweight input "tags" plugin
+Tagify - lightweight input "tags" script
 ========
 
 Want to simply convert an input field into a tags element, in a easy customizable way,
