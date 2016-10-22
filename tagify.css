@@ -23,7 +23,6 @@ tags tag {
   margin: 5px 0 5px 5px;
   position: relative;
   cursor: default;
-  overflow: hidden;
   white-space: nowrap;
   transition: .13s ease-out;
   animation: .3s tags--bump 1 ease-out;

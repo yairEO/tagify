@@ -53,5 +53,5 @@ Now markup be like:
 ### Settings
 
 Name          | Type       | Default     | Info
-------------- | ---------- | ----------- | -------------------------------------------
+------------- | ---------- | ----------- | --------------------------------------------------------------------------
 duplicates    | Boolean    | false       | should duplicate tags be allowed or not
