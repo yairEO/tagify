@@ -12,11 +12,11 @@ with good performance and smallest code footprint? You are in the right place my
 * SCSS file is ~2kb of highly readable and flexible code
 * No other inputs are used beside the original, and its value is kept in sync
 * Can paste in multiple values ("tag 1, tag 2, tag 3")
+* Automatically disallow duplicate tags (vis "settings" object)
 * Tags can be created by commas or by pressing the "Enter" key
 * Easily customized
 
 ### Basic usage
-
 Lets say this is your markup, and you already have a value set on the input (which was pre-filled by data from the server):
 
 ```html
@@ -31,7 +31,10 @@ what you need to do to convert that nice input into "tags" is simply select your
 var input = document.querySelector('input[name=tags]'),
     tagify = new Tagify( input );
 
-// when using the "jQuery.tagify.js"
+// with settings passed
+tagify = new Tagify( input, {duplicates:true} );
+
+// when using jQuery plugin version file `jQuery.tagify.js`
 $('[name=tags]').tagify()
 ```
 
@@ -47,5 +50,8 @@ Now markup be like:
 </tags>
 ```
 
-Don't forget to actually include the script & css files in your code  :)
+### Settings
 
+Name          | Type       | Default     | Info
+------------- | ---------- | ----------- | -------------------------------------------
+duplicates    | Boolean    | false       | should duplicate tags be allowed or not
