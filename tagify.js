@@ -99,7 +99,7 @@ Tagify.prototype = {
         return index;
     },
 
-    markTagByValue(value){
+    markTagByValue : function(value){
         var tagIdx = this.value.findIndex((item) => value.toLowerCase() === item.toLowerCase() ),
             tag = this.DOM.scope.querySelectorAll('tag')[tagIdx];
 

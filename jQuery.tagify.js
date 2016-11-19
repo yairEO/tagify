@@ -113,7 +113,7 @@
             return index;
         },
 
-        markTagByValue(value){
+        markTagByValue : function(value){
             var tagIdx = this.value.indexOf(value),
                 tag = this.DOM.scope.querySelectorAll('tag')[tagIdx];
 
