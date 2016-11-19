@@ -119,7 +119,7 @@
 
             if( tag ){
                 tag.classList.add('tagify--mark');
-                setTimeout(()=>{ tag.classList.remove('tagify--mark') }, 2000);
+                setTimeout(function(){ tag.classList.remove('tagify--mark') }, 2000);
                 return true;
             }
             return false;
