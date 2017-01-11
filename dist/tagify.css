@@ -10,13 +10,6 @@ tags:hover {
   border-color: #CCC;
 }
 
-@keyframes tags--bump {
-  30% {
-    box-shadow: 0 0 0 4px #E5E5E5;
-  }
-
-}
-
 tags tag {
   display: inline-block;
   vertical-align: top;
@@ -24,8 +17,10 @@ tags tag {
   position: relative;
   cursor: default;
   white-space: nowrap;
+  -webkit-transition: .13s ease-out;
   transition: .13s ease-out;
-  animation: .3s tags--bump 1 ease-out;
+  -webkit-animation: .3s tags--bump 1 ease-out;
+          animation: .3s tags--bump 1 ease-out;
 }
 
 tags tag > span {
@@ -35,16 +30,19 @@ tags tag > span {
   border-radius: 3px;
   color: black;
   background: #E5E5E5;
+  -webkit-transition: .13s ease-out;
   transition: .13s ease-out;
 }
 
 tags tag:hover span {
   box-shadow: 0 0 0 2px #7AC3FF inset;
+  -webkit-transition: 50ms;
   transition: 50ms;
 }
 
 tags tag.tagify--noAnim {
-  animation: none;
+  -webkit-animation: none;
+          animation: none;
 }
 
 tags tag.tagify--hide {
@@ -55,19 +53,16 @@ tags tag.tagify--hide {
   margin-left: 0;
   margin-right: 0;
   opacity: 0;
-  transform: scale(0);
+  -webkit-transform: scale(0);
+      -ms-transform: scale(0);
+          transform: scale(0);
+  -webkit-transition: .3s;
   transition: .3s;
 }
 
-@keyframes tagify--pulse {
-  50% {
-    box-shadow: 0 0 0 2px #7AC3FF inset;
-  }
-
-}
-
 tags tag.tagify--mark span {
-  animation: .4s tagify--pulse 3 ease-out;
+  -webkit-animation: .4s tagify--pulse 3 ease-out;
+          animation: .4s tagify--pulse 3 ease-out;
 }
 
 tags tag x {
@@ -77,10 +72,14 @@ tags tag x {
   text-align: center;
   border-radius: 50px;
   position: absolute;
+  right: -webkit-calc(0.5em - 2px);
   right: calc(0.5em - 2px);
   top: 50%;
   cursor: pointer;
-  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+          transform: translateY(-50%);
+  -webkit-transition: .2s;
   transition: .2s;
 }
 
@@ -95,11 +94,11 @@ tags tag x:hover {
 
 tags tag x:hover + span {
   box-shadow: 0 0 0 2px #D39494 inset;
+  -webkit-transition: .2s;
   transition: .2s;
 }
 
-tags input,
-tags textarea {
+tags input,tags textarea {
   border: 0;
   display: none;
 }
@@ -123,7 +122,9 @@ tags .input.placeholder {
 
 tags .input.placeholder::after {
   opacity: 1;
-  transform: none;
+  -webkit-transform: none;
+      -ms-transform: none;
+          transform: none;
   max-width: 200px;
 }
 
@@ -132,7 +133,10 @@ tags .input::after {
   display: inline-block;
   opacity: 0;
   max-width: 0;
-  transform: translatex(6px);
+  -webkit-transform: translatex(6px);
+      -ms-transform: translatex(6px);
+          transform: translatex(6px);
+  -webkit-transition: .15s ease-out;
   transition: .15s ease-out;
 }
 
@@ -142,4 +146,28 @@ tags .input::before {
 
 tags .input:focus {
   outline: none;
+}
+
+@-webkit-keyframes tags--bump {
+  30% {
+    box-shadow: 0 0 0 4px #E5E5E5;
+  }
+}
+
+@keyframes tags--bump {
+  30% {
+    box-shadow: 0 0 0 4px #E5E5E5;
+  }
+}
+
+@-webkit-keyframes tagify--pulse {
+  50% {
+    box-shadow: 0 0 0 2px #7AC3FF inset;
+  }
+}
+
+@keyframes tagify--pulse {
+  50% {
+    box-shadow: 0 0 0 2px #7AC3FF inset;
+  }
 }

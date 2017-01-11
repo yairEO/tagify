@@ -1,13 +1,12 @@
 /**
- * Tagify - Tags input component
+ * Tagify - jQuery tags input plugin
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
  */
-
 function Tagify(input, settings){
     this.settings = Object.assign({
-      duplicates : false
+        duplicates : false
     }, settings);
     this.value = [];
     this.build(input);
@@ -67,14 +66,14 @@ Tagify.prototype = {
             if( e.key == "Enter" ){
                 e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                 if( this.addTag(s) )
-                  e.target.innerHTML = '';
+                    e.target.innerHTML = '';
                 return false;
             }
         },
 
         onInput : function(e){
             var value = e.target.textContent,
-                    lastChar = value[value.length - 1];
+                lastChar = value[value.length - 1];
 
             if( value.indexOf(',') != -1 ){
                 this.addTag( value );
@@ -122,7 +121,7 @@ Tagify.prototype = {
             v = v.trim();
 
             if( !that.settings.duplicates && that.markTagByValue(v) )
-              return false;
+                return false;
 
             // the space below is important - http://stackoverflow.com/a/19668740/104380
             tagElm.innerHTML = "<x></x><span>"+ v +" </span>";
@@ -141,9 +140,10 @@ Tagify.prototype = {
         tagElm.style.width = parseFloat(window.getComputedStyle(tagElm).width) + 'px';
         document.body.clientTop; // force repaint for the width to take affect before the "hide" class below
         tagElm.classList.add('tagify--hide');
+
         // manual timeout (hack, since transitionend cannot be used because of hover)
         setTimeout(function(){
-                tagElm.parentNode.removeChild(tagElm);
+            tagElm.parentNode.removeChild(tagElm);
         }, 400);
 
         this.value.splice(idx,1);
