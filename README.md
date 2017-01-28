@@ -1,6 +1,8 @@
 Tagify - lightweight input "tags" script
 ========
 
+![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/preview.gif)
+
 Want to simply convert an input field into a tags element, in a easy customizable way,
 with good performance and smallest code footprint? You are in the right place my friend.
 
