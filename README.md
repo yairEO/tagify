@@ -40,7 +40,7 @@ var input = document.querySelector('input[name=tags]'),
     tagify = new Tagify( input );
 
 // with settings passed
-tagify = new Tagify( input, {duplicates:true} );
+tagify = new Tagify( input, {duplicates:true, whitelist:['foo', 'bar']} );
 
 // when using jQuery plugin version file `jQuery.tagify.js`
 $('[name=tags]').tagify()
@@ -50,10 +50,30 @@ Now markup be like:
 
 ```html
 <tags>
-    <tag title="click to remove" class="tagify--noAnim">foo</tag>
-    <tag title="click to remove" class="tagify--noAnim">bar</tag>
-    <tag title="click to remove" class="tagify--noAnim">buzz</tag>
-    <div><span class="placeholder" contenteditable="">write some tags</span></div>
+    <tag>
+        <x></x>
+        <div><span title="css">css</span></div>
+    </tag>
+    <tag>
+        <x></x>
+        <div><span title="html">html</span></div>
+    </tag>
+    <tag>
+        <x></x>
+        <div><span title="javascript">javascript</span></div>
+    </tag>
+    <div>
+        <input list="tagsSuggestions3l9nbieyr" class="input placeholder">
+        <datalist id="tagsSuggestions3l9nbieyr">
+            <label> select from the list:
+                <select>
+                    <option value=""></option>
+                    <option>foo</option>
+                    <option>bar</option>
+                </select>
+            </label>
+        </datalist><span>write some tags</span>
+    </div>
     <input name="tags" placeholder="write some tags" value="foo, bar,buzz">
 </tags>
 ```
