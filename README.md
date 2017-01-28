@@ -19,6 +19,11 @@ with good performance and smallest code footprint? You are in the right place my
 * Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
 * Easily customized
 
+
+### building the project
+Simply run `gulp` in your terminal, from the project's path.
+
+
 ### Basic usage
 Lets say this is your markup, and you already have a value set on the input (which was pre-filled by data from the server):
 
