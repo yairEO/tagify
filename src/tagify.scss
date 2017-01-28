@@ -69,8 +69,9 @@ tags{
                 &::before{
                     $size: -$tagMargin/2;
                     $size: -2px;
-                    top:$size; right:$size; bottom:$size; left:$size; background: darken($tag-bg, 5);
+                    top:$size; right:$size; bottom:$size; left:$size;
                     background: $tag-hover;
+                    box-shadow: 0 0 0 0 $tag-remove inset
                 }
                 // background:nth($tagColor,2);
                 //background:none;
@@ -96,9 +97,9 @@ tags{
 
             &--mark{
                 @keyframes tagify--pulse{
-                    50%{ box-shadow: 0 0 0 2px $tag-hover inset; }
+                    25%{ background: rgba($tag-remove, .6); }
                 }
-                div{ animation:.4s tagify--pulse 3 ease-out; }
+                div::before{ animation:.3s tagify--pulse 2 ease-out;  }
             }
 
             &--blacklist{

@@ -65,8 +65,8 @@ tags tag:hover div::before {
   right: -2px;
   bottom: -2px;
   left: -2px;
-  background: #d8d8d8;
   background: #D3E2E2;
+  box-shadow: 0 0 0 0 #D39494 inset;
 }
 
 tags tag.tagify--noAnim {
@@ -89,9 +89,9 @@ tags tag.tagify--hide {
   pointer-events: none;
 }
 
-tags tag.tagify--mark div {
-  -webkit-animation: .4s tagify--pulse 3 ease-out;
-          animation: .4s tagify--pulse 3 ease-out;
+tags tag.tagify--mark div::before {
+  -webkit-animation: .3s tagify--pulse 2 ease-out;
+          animation: .3s tagify--pulse 2 ease-out;
 }
 
 tags tag.tagify--blacklist div > span {
@@ -200,13 +200,13 @@ tags > div > span {
 }
 
 @-webkit-keyframes tagify--pulse {
-  50% {
-    box-shadow: 0 0 0 2px #D3E2E2 inset;
+  25% {
+    background: rgba(211, 148, 148, 0.6);
   }
 }
 
 @keyframes tagify--pulse {
-  50% {
-    box-shadow: 0 0 0 2px #D3E2E2 inset;
+  25% {
+    background: rgba(211, 148, 148, 0.6);
   }
 }
