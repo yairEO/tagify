@@ -1,9 +1,9 @@
 tags {
-  display: inline-block;
+  display: block;
   border: 1px solid #DDD;
   padding-right: 0.3em 0.5em;
-  overflow: hidden;
   cursor: text;
+  overflow: hidden;
 }
 
 tags:hover {
@@ -12,32 +12,61 @@ tags:hover {
 
 tags tag {
   display: inline-block;
-  vertical-align: top;
   margin: 5px 0 5px 5px;
+  vertical-align: top;
   position: relative;
   cursor: default;
-  white-space: nowrap;
   -webkit-transition: .13s ease-out;
   transition: .13s ease-out;
   -webkit-animation: .3s tags--bump 1 ease-out;
           animation: .3s tags--bump 1 ease-out;
 }
 
-tags tag > span {
-  display: inline-block;
+tags tag > div {
+  vertical-align: top;
+  position: relative;
+  box-sizing: border-box;
+  max-width: 100%;
   padding: 0.3em 0.5em;
-  padding-right: 1.5em;
-  border-radius: 3px;
   color: black;
-  background: #E5E5E5;
   -webkit-transition: .13s ease-out;
   transition: .13s ease-out;
+  padding-right: 1.5em;
 }
 
-tags tag:hover span {
-  box-shadow: 0 0 0 2px #7AC3FF inset;
-  -webkit-transition: 50ms;
-  transition: 50ms;
+tags tag > div > span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: top;
+  width: 100%;
+  -webkit-transition: .1s;
+  transition: .1s;
+}
+
+tags tag > div::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: #E5E5E5;
+  border-radius: 3px;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-transition: 80ms ease;
+  transition: 80ms ease;
+}
+
+tags tag:hover div::before {
+  top: -2px;
+  right: -2px;
+  bottom: -2px;
+  left: -2px;
+  background: #d8d8d8;
+  background: #D3E2E2;
 }
 
 tags tag.tagify--noAnim {
@@ -46,7 +75,6 @@ tags tag.tagify--noAnim {
 }
 
 tags tag.tagify--hide {
-  pointer-events: none;
   width: 0 !important;
   padding-left: 0;
   padding-right: 0;
@@ -58,20 +86,32 @@ tags tag.tagify--hide {
           transform: scale(0);
   -webkit-transition: .3s;
   transition: .3s;
+  pointer-events: none;
 }
 
-tags tag.tagify--mark span {
+tags tag.tagify--mark div {
   -webkit-animation: .4s tagify--pulse 3 ease-out;
           animation: .4s tagify--pulse 3 ease-out;
 }
 
+tags tag.tagify--blacklist div > span {
+  opacity: .5;
+}
+
+tags tag.tagify--blacklist div::before {
+  background: rgba(211, 148, 148, 0.44);
+  -webkit-transition: .2s;
+  transition: .2s;
+}
+
 tags tag x {
-  font: 14px/15px Serif;
+  font: 14px/14px Serif;
   width: 14px;
   height: 14px;
   text-align: center;
   border-radius: 50px;
   position: absolute;
+  z-index: 1;
   right: -webkit-calc(0.5em - 2px);
   right: calc(0.5em - 2px);
   top: 50%;
@@ -79,8 +119,8 @@ tags tag x {
   -webkit-transform: translateY(-50%);
       -ms-transform: translateY(-50%);
           transform: translateY(-50%);
-  -webkit-transition: .2s;
-  transition: .2s;
+  -webkit-transition: .2s ease-out;
+  transition: .2s ease-out;
 }
 
 tags tag x::after {
@@ -89,11 +129,15 @@ tags tag x::after {
 
 tags tag x:hover {
   color: white;
-  background: #cc8282;
+  background: #c77777;
 }
 
-tags tag x:hover + span {
-  box-shadow: 0 0 0 2px #D39494 inset;
+tags tag x:hover + div > span {
+  opacity: .5;
+}
+
+tags tag x:hover + div::before {
+  background: rgba(211, 148, 148, 0.44);
   -webkit-transition: .2s;
   transition: .2s;
 }
@@ -103,49 +147,44 @@ tags input,tags textarea {
   display: none;
 }
 
-tags div {
+tags > div {
   display: inline-block;
   min-width: 10px;
   margin: 5px;
   padding: 0.3em 0.5em;
-}
-
-tags .input {
-  display: block;
   position: relative;
-  white-space: nowrap;
+  vertical-align: top;
 }
 
-tags .input.placeholder {
-  color: #999;
+tags > div > input {
+  display: block;
+  min-width: 130px;
 }
 
-tags .input.placeholder::after {
-  opacity: 1;
+tags > div > input:focus {
+  outline: none;
+}
+
+tags > div > input.placeholder ~ span {
+  opacity: .5;
   -webkit-transform: none;
       -ms-transform: none;
           transform: none;
-  max-width: 200px;
 }
 
-tags .input::after {
-  content: attr(data-placeholder);
-  display: inline-block;
+tags > div > span {
   opacity: 0;
-  max-width: 0;
+  line-height: 1.8;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  white-space: nowrap;
+  pointer-events: none;
   -webkit-transform: translatex(6px);
       -ms-transform: translatex(6px);
           transform: translatex(6px);
   -webkit-transition: .15s ease-out;
   transition: .15s ease-out;
-}
-
-tags .input::before {
-  content: '\200B';
-}
-
-tags .input:focus {
-  outline: none;
 }
 
 @-webkit-keyframes tags--bump {
@@ -162,12 +201,12 @@ tags .input:focus {
 
 @-webkit-keyframes tagify--pulse {
   50% {
-    box-shadow: 0 0 0 2px #7AC3FF inset;
+    box-shadow: 0 0 0 2px #D3E2E2 inset;
   }
 }
 
 @keyframes tagify--pulse {
   50% {
-    box-shadow: 0 0 0 2px #7AC3FF inset;
+    box-shadow: 0 0 0 2px #D3E2E2 inset;
   }
 }

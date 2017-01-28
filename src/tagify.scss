@@ -3,15 +3,15 @@ tags{
     $tagPad           : .3em .5em;
     $tag-text-color   : black;
     $tag-bg           : #E5E5E5;
-    $tag-hover        : #7AC3FF;
+    $tag-hover        : #D3E2E2;
     $tag-remove       : #D39494;
     $showX            : true;
 
-    display:inline-block;
-    border:1px solid #DDD;
-    padding-right:$tagPad;
-    overflow:hidden;
-    cursor:text;
+    display       : block;
+    border        : 1px solid #DDD;
+    padding-right : $tagPad;
+    cursor        : text;
+    overflow      : hidden;
 
     &:hover{ border-color:#CCC; }
 
@@ -20,34 +20,62 @@ tags{
     }
 
     tag{
-        display:inline-block;
-        vertical-align:top;
-        margin:$tagMargin 0 $tagMargin $tagMargin;
+        display        : inline-block;
+        margin         : $tagMargin 0 $tagMargin $tagMargin;
+        vertical-align : top;
 
-        position:relative;
-        cursor:default;
-        white-space:nowrap;
-        transition:.13s ease-out;
-        animation:.3s tags--bump 1 ease-out;
+        position       : relative;
+        cursor         : default;
+        transition     : .13s ease-out;
+        animation      : .3s tags--bump 1 ease-out;
 
-        > span{
-            display:inline-block;
-            padding:$tagPad;
-            @if $showX {
-                    padding-right:nth($tagPad, 2) * 3;
+        > div{
+            vertical-align : top;
+            position       : relative;
+            box-sizing     : border-box;
+            max-width      : 100%;
+            padding        : $tagPad;
+            color          : $tag-text-color;
+            transition     : .13s ease-out;
+
+            > span{
+                white-space    : nowrap;
+                overflow       : hidden;
+                text-overflow  : ellipsis;
+                display        : inline-block;
+                vertical-align : top;
+                width          : 100%;
+                transition     : .1s;
             }
-            border-radius:3px;
-            color:$tag-text-color;
-            background:$tag-bg;
-            transition:.13s ease-out;
+
+            @if $showX {
+                padding-right:nth($tagPad, 2) * 3;
+            }
+
+            &::before{
+                content: '';
+                position: absolute;
+                left:0; top:0; right:0; bottom:0;
+                background: $tag-bg;
+                border-radius : 3px;
+                z-index: -1;
+                pointer-events:none;
+                transition:80ms ease;
+            }
         }
 
         &:hover{
-            span{
+            div{
+                &::before{
+                    $size: -$tagMargin/2;
+                    $size: -2px;
+                    top:$size; right:$size; bottom:$size; left:$size; background: darken($tag-bg, 5);
+                    background: $tag-hover;
+                }
                 // background:nth($tagColor,2);
                 //background:none;
-                box-shadow: 0 0 0 2px $tag-hover inset;
-                transition:50ms;
+                // box-shadow: 0 0 0 2px $tag-hover inset;
+                // transition:50ms;
             }
         }
 
@@ -55,64 +83,90 @@ tags{
             &--noAnim{ animation:none; }
 
             &--hide{
-                pointer-events:none;
-                width:0 !important;
-                padding-left:0; padding-right:0;
-                margin-left:0; margin-right:0;
-                opacity:0;
-                transform:scale(0);
-                transition:.3s;
+                width          : 0 !important;
+                padding-left   : 0;
+                padding-right  : 0;
+                margin-left    : 0;
+                margin-right   : 0;
+                opacity        : 0;
+                transform      : scale(0);
+                transition     : .3s;
+                pointer-events : none;
             }
 
             &--mark{
                 @keyframes tagify--pulse{
                     50%{ box-shadow: 0 0 0 2px $tag-hover inset; }
                 }
-                span{ animation:.4s tagify--pulse 3 ease-out; }
+                div{ animation:.4s tagify--pulse 3 ease-out; }
+            }
+
+            &--blacklist{
+                div{
+                    > span{ opacity:.5; } // filter:blur(.2px);
+                    &::before{ background:rgba($tag-remove, .44); transition:.2s; }
+                }
             }
         }
 
+        ///////////////////////////////////////////
+        // Close button
         x{
             $size: 14px;
-            font:#{$size}/#{$size + 1} Serif;
-            width:$size;
-            height:$size;
-            text-align:center;
-            border-radius:50px;
-            position:absolute;
-            right:calc(#{nth($tagPad, 2)} - 2px);
-            top: 50%;
-            cursor:pointer;
-            transform: translateY(-50%);
-            transition:.2s;
+
+            font          : #{$size}/#{$size} Serif;
+            width         : $size;
+            height        : $size;
+            text-align    : center;
+            border-radius : 50px;
+            position      : absolute;
+            z-index       : 1;
+            right         : calc(#{nth($tagPad, 2)} - 2px);
+            top           : 50%;
+            cursor        : pointer;
+            transform     : translateY(-50%);
+            transition    : .2s ease-out;
+
             &::after{
                 content:"\00D7";
             }
+
             &:hover{
                 color:white;
-                background:darken($tag-remove, 5);
-                + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
+                background:darken($tag-remove, 8);
+                // + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
+                + div{
+                    > span{ opacity:.5; } // filter:blur(.2px);
+                    &::before{ background:rgba($tag-remove, .44); transition:.2s; }
+                }
             }
         }
     }
 
+    ///////////////////////////////////////////
+    // Hides originals
     input, textarea{ border:0; display:none; }
-    // contenteditable wrapper (for Chome bug: http://stackoverflow.com/q/34354085/104380)
-    div{ display:inline-block; min-width:10px; margin:$tagMargin; padding:$tagPad; }
-    .input{
-        display:block; position:relative; white-space:nowrap;
-        &.placeholder{ color:#999;
-            &::after{ opacity:1; transform:none; max-width:200px; }
+
+    ///////////////////////////////////////////
+    // Holds the placeholder & the tags input
+    > div{ display:inline-block; min-width:10px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
+        > input{ display:block; min-width:130px;
+            &:focus{ outline:none; }
+
+            &.placeholder{
+                ~ span{ opacity:.5; transform:none; }
+            }
         }
-        &::after{
-            content:attr(data-placeholder);
-            display:inline-block;
-            opacity:0;
-            max-width:0;
+        > span{
+            opacity: 0;
+            line-height: 1.8;
+            position:absolute;
+            top: 0;
+            z-index:1;
+            white-space:nowrap;
+            pointer-events:none;
             transform:translatex(6px);
             transition:.15s ease-out;
         }
-        &::before{ content:'\200B'; }
-        &:focus{ outline:none; }
     }
 }

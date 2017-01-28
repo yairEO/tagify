@@ -3,6 +3,7 @@ var gulp         = require('gulp'),
     watch        = require('gulp-watch'),
     cache        = require('gulp-cached'),
     gulp_if      = require('gulp-if'),
+    runSequence  = require('run-sequence'),
 
     sourcemaps   = require('gulp-sourcemaps'),
     //debug      = require('gulp-debug'),
@@ -118,9 +119,11 @@ var jQueryPluginWrap = [`;(function($){
 })(jQuery);
 `];
 
+
 ////////////////////////////////////////////////////
 // Compile main app SCSS to CSS
-gulp.task('scss', function() {
+
+gulp.task('scss', () => {
     return gulp.src('src/*.scss')
         .pipe(cssGlobbing({
             extensions: '.scss'
@@ -134,24 +137,40 @@ gulp.task('scss', function() {
 });
 
 
-gulp.task('build-js', function() {
+
+gulp.task('build_js', () => {
     var jsStream = gulp.src('src/tagify.js');
 
     lint(jsStream);
 
-    // create a jQuery version
-    gulp.src('src/tagify.js')
-        .pipe(insert.prepend(banner + jQueryPluginWrap[0]))
-        .pipe(insert.append(jQueryPluginWrap[1]))
-        .pipe(rename('jQuery.tagify.js'))
-        .pipe(gulp.dest('./dist/'))
-
-    return jsStream
+    return gulp.src('src/tagify.js')
         .pipe(insert.prepend(banner))
         .pipe(gulp.dest('./dist/'))
 
 });
 
+
+
+gulp.task('build_jquery_version', () => {
+    return gulp.src('src/tagify.js')
+        .pipe(insert.wrap(banner + jQueryPluginWrap[0], jQueryPluginWrap[1]))
+        .pipe(rename('jQuery.tagify.js'))
+        .pipe(gulp.dest('./dist/'))
+});
+
+
+
+gulp.task('minify', () => {
+    gulp.src('dist/tagify.js')
+        .pipe(uglify().on('error', gutil.log))
+        .pipe(rename('tagify.min.js'))
+        .pipe(gulp.dest('./dist/'))
+
+    return gulp.src('dist/jQuery.tagify.js')
+        .pipe(uglify())
+        .pipe(rename('jQuery.tagify.min.js'))
+        .pipe(gulp.dest('./dist/'))
+});
 
 
 function lint( stream ){
@@ -170,11 +189,13 @@ function lint( stream ){
 }
 
 
-
-gulp.task('default', ['build-js', 'scss', 'watch']);
-
-gulp.task('watch', function(){
+gulp.task('watch', () => {
     //gulp.watch('./images/sprite/**/*.png', ['sprite']);
     gulp.watch('./src/*.scss', ['scss']);
-    gulp.watch('./src/tagify.js', ['build-js']);
+    gulp.watch('./src/tagify.js').on('change', ()=>{ runSequence('build_js', 'build_jquery_version', 'minify') });
+});
+
+
+gulp.task('default', ( done ) => {
+    runSequence(['build_js', 'scss'], 'build_jquery_version', 'minify', 'watch', done);
 });

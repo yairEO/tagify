@@ -7,13 +7,16 @@ with good performance and smallest code footprint? You are in the right place my
 ##[Demo page](http://codepen.io/vsync/pen/VKBbdv?editors=0110)
 
 ### Selling points
+* supports whitelist (with native suggestions dropdown as-you-type)
+* supports blacklists
 * JS file is under 150 very readiable lines of code
 * JS weights less than ~5kb
 * SCSS file is ~2kb of highly readable and flexible code
 * No other inputs are used beside the original, and its value is kept in sync
 * Can paste in multiple values ("tag 1, tag 2, tag 3")
 * Automatically disallow duplicate tags (vis "settings" object)
-* Tags can be created by commas or by pressing the "Enter" key
+* Tags can be created by commas *or* by pressing the "Enter" key
+* Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
 * Easily customized
 
 ### Basic usage
@@ -54,4 +57,6 @@ Now markup be like:
 
 Name          | Type       | Default     | Info
 ------------- | ---------- | ----------- | --------------------------------------------------------------------------
-duplicates    | Boolean    | false       | should duplicate tags be allowed or not
+duplicates    | Boolean    | false       | (flag) should duplicate tags be allowed or not
+whitelist     | Array      | []          | an array of tags which only they are allowed
+blacklist     | Array      | []          | an array of tags which aren't allowed
