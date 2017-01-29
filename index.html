@@ -12,6 +12,9 @@
         <script src="dist/tagify.js"></script>
 
         <style>
+            p{ line-height:1.4; }
+            code{ padding:2px 3px; background:lightyellow; }
+
             tags{
                 min-width:400px;
                 max-width:600px;
@@ -19,7 +22,7 @@
             }
 
             /* for disabling the script */
-            label{ position:absolute; bottom:10px; right:10px; cursor:pointer; font:600 .8em Arial; }
+            label{ position:fixed; bottom:10px; right:10px; cursor:pointer; font:600 .8em Arial; }
             .disabled tags{
                 max-width:none;
                 min-width:0;
@@ -42,6 +45,9 @@
             <section>
                 <aside class='leftSide'>
                     <h2>text input</h2>
+                    <p>
+                        In this example, the field is pre-ocupied with 4 tags, and last tag is the same as the first tag, and will be removed because the <code>duplicates</code> option flag is set to <code>true</code>
+                    </p>
                     <h3>HTML</h3>
                     <xmp><input name='tags' placeholder='write some tags' value='css, html, javascript, css'></xmp>
                     <h3>JAVASCRIPT</h3>
@@ -60,6 +66,9 @@ var input1 = document.querySelector('input[name=tags]'),
             <section>
                 <aside class='leftSide'>
                     <h2>textarea</h2>
+                    <p>
+                        In this example, the field is pre-ocupied with 3 tags, and last tag is not included in the whitelist, and will be removed because the <code>enforeWhitelist</code> option flag is set to <code>true</code>
+                    </p>
                     <h3>HTML</h3>
                     <xmp><textarea name='tags' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea></xmp>
                     <h3>JAVASCRIPT</h3>
