@@ -1,0 +1,8 @@
+{
+    "name"            : "tagify",
+    "authors"         : ["Yair Even-Or", "yairEO"],
+    "license"         : "https://yaireo.github.io/tagify/LICENSE",
+    "dependencies"    : {},
+    "devDependencies" : {},
+    "private"         : false
+}
