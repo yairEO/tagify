@@ -1,6 +1,6 @@
 {
-  "name": "project",
-  "version": "0.1.0",
+  "name": "tagify",
+  "version": "1.0.5",
   "author": "Yair Even Or",
   "private": true,
   "scripts": {

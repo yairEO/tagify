@@ -94,11 +94,11 @@ tags tag.tagify--mark div::before {
           animation: .3s tagify--pulse 2 ease-out;
 }
 
-tags tag.tagify--blacklist div > span {
+tags tag.tagify--notAllowed div > span {
   opacity: .5;
 }
 
-tags tag.tagify--blacklist div::before {
+tags tag.tagify--notAllowed div::before {
   background: rgba(211, 148, 148, 0.44);
   -webkit-transition: .2s;
   transition: .2s;

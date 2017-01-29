@@ -6,11 +6,14 @@ function Tagify( input, settings ){
     }
 
     settings = typeof settings == 'object' ? settings : {}; // make sure settings is an 'object'
-    this.settings = {};
-    // merge custom settings with instance settings
-    this.settings.duplicates = settings.duplicates || false; // flag - allow tuplicate tags
-    this.settings.whitelist  = settings.whitelist || []; // is this list has any items, then only allow tags from this list
-    this.settings.blacklist  = settings.blacklist || []; // a list of non-allowed tags
+
+    this.settings = {
+        duplicates      : settings.duplicates || false, // flag - allow tuplicate tags
+        enforeWhitelist : settings.enforeWhitelist || false, // flag - should ONLY use tags allowed in whitelist
+        autocomplete    : settings.autocomplete || true, // flag - show native suggeestions list as you type
+        whitelist       : settings.whitelist || [], // is this list has any items, then only allow tags from this list
+        blacklist       : settings.blacklist || [] // a list of non-allowed tags
+    };
 
     this.id = Math.random().toString(36).substr(2,9), // almost-random ID (because, fuck it)
     this.value = []; // An array holding all the (currently used) tags
@@ -32,8 +35,8 @@ Tagify.prototype = {
         input.parentNode.insertBefore(this.DOM.scope, input);
         this.DOM.scope.appendChild(input);
 
-        // if a whitelist exists, build suggestions list
-        if( this.settings.whitelist.length )
+        // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
+        if( this.settings.autocomplete && this.settings.whitelist.length )
             this.buildDataList();
 
         // if the original input already had any value (tags)
@@ -162,9 +165,16 @@ Tagify.prototype = {
     /**
      * make sure the tag, or words in it, is not in the blacklist
      */
-    checkTagForBlacklist : function(v){
+    isTagBlacklisted : function(v){
         v = v.split(' ');
-        return this.settings.blacklist.filter(function(x){ return v.includes(x) }).length;
+        return this.settings.blacklist.filter(function(x){ return v.indexOf(x) != -1 }).length;
+    },
+
+    /**
+     * make sure the tag, or words in it, is not in the blacklist
+     */
+    isTagWhitelisted : function(v){
+        return this.settings.whitelist.indexOf(v) != -1;
     },
 
     addTag : function( value ){
@@ -182,9 +192,9 @@ Tagify.prototype = {
             if( !that.settings.duplicates && that.markTagByValue(v) )
                 return false;
 
-            // check against blacklist
-            if( that.checkTagForBlacklist(v) ){
-                tagElm.classList.add('tagify--blacklist');
+            // check against blacklist & whitelist (if enforced)
+            if( that.isTagBlacklisted(v) || (that.settings.enforeWhitelist && !that.isTagWhitelisted(v)) ){
+                tagElm.classList.add('tagify--notAllowed');
                 setTimeout(function(){ that.removeTag(that.getNodeIndex(tagElm)) }, 1000);
             }
 

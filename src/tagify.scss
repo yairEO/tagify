@@ -102,7 +102,7 @@ tags{
                 div::before{ animation:.3s tagify--pulse 2 ease-out;  }
             }
 
-            &--blacklist{
+            &--notAllowed{
                 div{
                     > span{ opacity:.5; } // filter:blur(.2px);
                     &::before{ background:rgba($tag-remove, .44); transition:.2s; }

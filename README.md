@@ -82,8 +82,12 @@ Now markup be like:
 
 ### Settings
 
-Name          | Type       | Default     | Info
-------------- | ---------- | ----------- | --------------------------------------------------------------------------
-duplicates    | Boolean    | false       | (flag) should duplicate tags be allowed or not
-whitelist     | Array      | []          | an array of tags which only they are allowed
-blacklist     | Array      | []          | an array of tags which aren't allowed
+Name            | Type       | Default     | Info
+--------------- | ---------- | ----------- | --------------------------------------------------------------------------
+duplicates      | Boolean    | false       | (flag) should duplicate tags be allowed or not
+enforeWhitelist | Boolean    | false       | should ONLY use tags allowed in whitelist
+autocomplete    | Boolean    | true        | show native suggeestions list, as you type
+whitelist       | Array      | []          | an array of tags which only they are allowed
+blacklist       | Array      | []          | an array of tags which aren't allowed
+
+
