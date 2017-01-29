@@ -1,6 +1,18 @@
 Tagify - lightweight input "tags" script
 ========
 
+<!--
+```
+<custom-element-demo>
+  <template>
+    <script src="https://yaireo.github.io/tagify/dist/tagify.js"></script>
+    <script src="https://yaireo.github.io/tagify/dist/tagify.css"></script>
+    <input name='tags' placeholder='write some tags' value='css, html, javascript, css'>
+  </template>
+</custom-element-demo>
+```
+-->
+
 ![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif)
 
 Want to simply convert an input field into a tags element, in a easy customizable way,
