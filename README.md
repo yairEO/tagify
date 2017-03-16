@@ -18,7 +18,7 @@ Tagify - lightweight input "tags" script
 Want to simply convert an input field into a tags element, in a easy customizable way,
 with good performance and smallest code footprint? You are in the right place my friend.
 
-##[Demo page](https://yaireo.github.io/tagify/)
+## [Demo page](https://yaireo.github.io/tagify/)
 
 ### Selling points
 * supports whitelist (with native suggestions dropdown as-you-type)
