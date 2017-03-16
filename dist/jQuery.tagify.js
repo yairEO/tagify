@@ -74,7 +74,7 @@ Tagify.prototype = {
      */
     EventDispatcher : function(){
         // Create a DOM EventTarget object
-        var target = document.createTextNode(null);
+        var target = document.createTextNode('');
 
         // Pass EventTarget interface calls to DOM EventTarget object
         this.off = target.removeEventListener.bind(target);
