@@ -14,6 +14,7 @@ function Tagify( input, settings ){
     settings = typeof settings == 'object' ? settings : {}; // make sure settings is an 'object'
 
     this.settings = {
+        callbacks       : settings.callbacks || {}, // exposed callbacks object to be triggered on certain events
         duplicates      : settings.duplicates || false, // flag - allow tuplicate tags
         enforeWhitelist : settings.enforeWhitelist || false, // flag - should ONLY use tags allowed in whitelist
         autocomplete    : settings.autocomplete || true, // flag - show native suggeestions list as you type
@@ -24,6 +25,7 @@ function Tagify( input, settings ){
     this.id = Math.random().toString(36).substr(2,9), // almost-random ID (because, fuck it)
     this.value = []; // An array holding all the (currently used) tags
     this.DOM = {}; // Store all relevant DOM elements in an Object
+    this.eventDispatcher = new this.EventDispatcher();
     this.build(input);
     this.events();
 }
@@ -53,7 +55,24 @@ Tagify.prototype = {
     },
 
     /**
-     * DOM events binding
+     * A constructor for exposing events to the outside
+     */
+    EventDispatcher : function(){
+        // Create a DOM EventTarget object
+        var target = document.createTextNode(null);
+
+        // Pass EventTarget interface calls to DOM EventTarget object
+        this.off = target.removeEventListener.bind(target);
+        this.on = target.addEventListener.bind(target);
+        this.trigger = function(eventName, data){
+            if( !eventName ) return;
+            var e = new CustomEvent(eventName, {"detail":data});
+            target.dispatchEvent(e);
+        }
+    },
+
+    /**
+     * DOM events listeners binding
      */
     events : function(){
         var events = {
@@ -67,6 +86,9 @@ Tagify.prototype = {
 
         for( var e in events )
             this.DOM[events[e][1]].addEventListener(e, this.callbacks[events[e][0]].bind(this));
+
+        this.eventDispatcher.on('add', this.settings.callbacks.add)
+        this.eventDispatcher.on('remove', this.settings.callbacks.remove)
     },
 
     /**
@@ -191,6 +213,7 @@ Tagify.prototype = {
         value = value.trim();
         if( !value ) return;
 
+        // go over each tag and add it (if there were multiple ones)
         return value.split(',').filter(function(v){ return !!v }).map(function(v){
             var tagElm = document.createElement('tag');
             v = v.trim();
@@ -210,6 +233,7 @@ Tagify.prototype = {
 
             that.value.push(v);
             that.update();
+            that.eventDispatcher.trigger('add', {value:value, index:that.value.length});
             return tagElm;
         });
     },
@@ -227,8 +251,9 @@ Tagify.prototype = {
             tagElm.parentNode.removeChild(tagElm);
         }, 400);
 
-        this.value.splice(idx, 1);
-        this.update();
+        this.value.splice(idx, 1); // remove the tag from the data object
+        this.update(); // update the original input with the current value
+        this.eventDispatcher.trigger('remove', {value:tagElm.textContent.trim(), index:idx});
     },
 
     // update the origianl (hidden) input field's value

@@ -32,6 +32,7 @@ with good performance and smallest code footprint? You are in the right place my
 * Tags can be created by commas *or* by pressing the "Enter" key
 * Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
 * Easily customized
+* Exposed custom events
 
 
 ### building the project
@@ -54,10 +55,21 @@ var input = document.querySelector('input[name=tags]'),
     tagify = new Tagify( input );
 
 // with settings passed
-tagify = new Tagify( input, {duplicates:true, whitelist:['foo', 'bar']} );
+tagify = new Tagify( input, {
+    duplicates: true,
+    whitelist: ['foo', 'bar']},
+    callbacks: {
+        add : onAddTag // calls an imaginary "onAddTag" function when a tag is added
+    }
+);
 
 // when using jQuery plugin version file `jQuery.tagify.js`
 $('[name=tags]').tagify()
+
+// listen to custom tags' events such as 'add' or 'remove'
+tagify1.eventDispatcher.on('remove', ()=>{
+    console.log(e, e.detail);
+});
 ```
 
 Now markup be like:
@@ -101,5 +113,6 @@ enforeWhitelist | Boolean    | false       | should ONLY use tags allowed in whi
 autocomplete    | Boolean    | true        | show native suggeestions list, as you type
 whitelist       | Array      | []          | an array of tags which only they are allowed
 blacklist       | Array      | []          | an array of tags which aren't allowed
+callbacks       | Object     | {}          | exposed callbacks object to be triggered on events: 'add' / 'remove' tags
 
 
