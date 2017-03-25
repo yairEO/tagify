@@ -67,7 +67,7 @@ tagify = new Tagify( input, {
 $('[name=tags]').tagify()
 
 // listen to custom tags' events such as 'add' or 'remove'
-tagify1.eventDispatcher.on('remove', ()=>{
+tagify1.on('remove', ()=>{
     console.log(e, e.detail);
 });
 ```
@@ -103,6 +103,12 @@ Now markup be like:
     <input name="tags" placeholder="write some tags" value="foo, bar,buzz">
 </tags>
 ```
+
+### Methods
+
+Name            | Info
+--------------- | --------------------------------------------------------------------------
+destroy         | if called, will revert the input back as it was before Tagify was applied
 
 ### Settings
 

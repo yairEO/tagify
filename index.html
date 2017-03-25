@@ -59,7 +59,7 @@ var input1 = document.querySelector('input[name=tags]'),
     })
 
 // listen to custom 'remove' tag event
-tagify1.eventDispatcher.on('remove', onRemoveTag);
+tagify1.on('remove', onRemoveTag);
 
 function onRemoveTag(e){
     console.log(e, e.detail);
@@ -128,8 +128,8 @@ var input2 = document.querySelector('textarea[name=tags2]'),
                 console.log(e, e.detail);
             }
 
-            tagify1.eventDispatcher.on('remove', onRemoveTag);
-            tagify1.eventDispatcher.on('add', onAddTag);
+            tagify1.on('remove', onRemoveTag);
+            tagify1.on('add', onAddTag);
 
 
 
