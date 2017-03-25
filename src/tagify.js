@@ -133,12 +133,11 @@ Tagify.prototype = {
 
         onInput : function(e){
             var value = e.target.value,
-                fromDatalist = !("isChar" in e),
                 lastChar = value[value.length - 1];
 
             e.target.style.width = ((e.target.value.length + 1) * 7) + 'px';
 
-            if( fromDatalist || value.indexOf(',') != -1 ){
+            if( value.indexOf(',') != -1 ){
                 this.addTag( value );
                 e.target.value = ''; // clear the input field's value
             }

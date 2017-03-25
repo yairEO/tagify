@@ -111,7 +111,7 @@ Name            | Info
 destroy         | if called, will revert the input back as it was before Tagify was applied
 
 
-### Events
+### Exposed events
 
 Name            | Info
 --------------- | --------------------------------------------------------------------------
