@@ -110,6 +110,17 @@ Name            | Info
 --------------- | --------------------------------------------------------------------------
 destroy         | if called, will revert the input back as it was before Tagify was applied
 
+
+### Events
+
+Name            | Info
+--------------- | --------------------------------------------------------------------------
+add             | caleld when a tag has been added
+remove          | caleld when a tag has been removed
+duplicate       | caleld when a tag has been added and found to be a duplicate of existing one
+
+
+
 ### Settings
 
 Name            | Type       | Default     | Info

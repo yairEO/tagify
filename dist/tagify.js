@@ -229,30 +229,41 @@ Tagify.prototype = {
 
         // go over each tag and add it (if there were multiple ones)
         return value.split(',').filter(function(v){ return !!v }).map(function(v){
-            var tagElm = document.createElement('tag');
             v = v.trim();
 
-            if( !that.settings.duplicates && that.markTagByValue(v) )
-                return false;
+            var tagElm = document.createElement('tag'),
+                isDuplicate = that.markTagByValue(v),
+                tagAllowed;
+
+            if( isDuplicate ){
+                that.trigger('duplicate', v);
+                if( !that.settings.duplicates )
+                    return false;
+            }
+
+            tagAllowed = !that.isTagBlacklisted(v) && (!that.settings.enforeWhitelist || that.isTagWhitelisted(v));
 
             // check against blacklist & whitelist (if enforced)
-            if( that.isTagBlacklisted(v) || (that.settings.enforeWhitelist && !that.isTagWhitelisted(v)) ){
+            if( !tagAllowed ){
                 tagElm.classList.add('tagify--notAllowed');
-                setTimeout(function(){ that.removeTag(that.getNodeIndex(tagElm)) }, 1000);
+                setTimeout(function(){ that.removeTag(that.getNodeIndex(tagElm), true) }, 1000);
             }
 
             // the space below is important - http://stackoverflow.com/a/19668740/104380
             tagElm.innerHTML = "<x></x><div><span title='"+ v +"'>"+ v +" </span></div>";
             that.DOM.scope.insertBefore(tagElm, that.DOM.input.parentNode);
 
-            that.value.push(v);
-            that.update();
-            that.trigger('add', {value:value, index:that.value.length});
+            if( tagAllowed ){
+                that.value.push(v);
+                that.update();
+                that.trigger('add', {value:value, index:that.value.length});
+            }
+
             return tagElm;
         });
     },
 
-    removeTag : function( idx ){
+    removeTag : function( idx, silent ){
         var tagElm = this.DOM.scope.children[idx];
         if( !tagElm) return;
 
@@ -265,9 +276,11 @@ Tagify.prototype = {
             tagElm.parentNode.removeChild(tagElm);
         }, 400);
 
-        this.value.splice(idx, 1); // remove the tag from the data object
-        this.update(); // update the original input with the current value
-        this.trigger('remove', {value:tagElm.textContent.trim(), index:idx});
+        if( !silent ){
+            this.value.splice(idx, 1); // remove the tag from the data object
+            this.update(); // update the original input with the current value
+            this.trigger('remove', {value:tagElm.textContent.trim(), index:idx});
+        }
     },
 
     // update the origianl (hidden) input field's value

@@ -128,8 +128,13 @@ var input2 = document.querySelector('textarea[name=tags2]'),
                 console.log(e, e.detail);
             }
 
-            tagify1.on('remove', onRemoveTag);
+            function onDuplicateAdded(e){
+                console.log(e, e.detail);
+            }
+
             tagify1.on('add', onAddTag);
+            tagify1.on('remove', onRemoveTag);
+            tagify1.on('duplicate', onDuplicateAdded);
 
 
 
