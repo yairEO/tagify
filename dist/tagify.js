@@ -37,7 +37,7 @@ Tagify.prototype = {
 
         this.DOM.originalInput = input;
         this.DOM.scope = document.createElement('tags');
-        this.DOM.scope.innerHTML = '<div><input list="tagsSuggestions'+ this.id +'" class="placeholder"/><span>'+ input.placeholder +'</span></div>';
+        this.DOM.scope.innerHTML = '<div><input list="tagifySuggestions'+ this.id +'" class="placeholder"/><span>'+ input.placeholder +'</span></div>';
 
         this.DOM.input = this.DOM.scope.querySelector('input');
         input.parentNode.insertBefore(this.DOM.scope, input);
@@ -45,7 +45,7 @@ Tagify.prototype = {
 
         // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
         if( this.settings.autocomplete && this.settings.whitelist.length )
-            this.buildDataList();
+            this.DOM.datalist = this.buildDataList();
 
         // if the original input already had any value (tags)
         if( value )
@@ -139,11 +139,12 @@ Tagify.prototype = {
 
         onInput : function(e){
             var value = e.target.value,
+                fromDatalist = !("isChar" in e),
                 lastChar = value[value.length - 1];
 
             e.target.style.width = ((e.target.value.length + 1) * 7) + 'px';
 
-            if( value.indexOf(',') != -1 ){
+            if( fromDatalist || value.indexOf(',') != -1 ){
                 this.addTag( value );
                 e.target.value = ''; // clear the input field's value
             }
@@ -165,21 +166,23 @@ Tagify.prototype = {
     buildDataList : function(){
         var OPTIONS = "",
             i,
-            datalist = "<datalist id='tagsSuggestions"+ this.id +"'> \
-                            <label> \
+            datalist = document.createElement('datalist');
+
+        datalist.id = 'tagifySuggestions' + this.id;
+        datalist.innerHTML = "<label> \
                                 select from the list: \
                                 <select> \
                                     <option value=''></option> \
                                     [OPTIONS] \
                                 </select> \
-                            </label> \
-                        </datalist>";
+                            </label>";
 
         for( i=this.settings.whitelist.length; i--; )
             OPTIONS += "<option>"+ this.settings.whitelist[i] +"</option>";
 
-        datalist = datalist.replace('[OPTIONS]', OPTIONS); // inject the options string in the right place
-        this.DOM.input.insertAdjacentHTML('afterend', datalist); // append the datalist HTML string in the Tags
+        datalist.innerHTML = datalist.innerHTML.replace('[OPTIONS]', OPTIONS); // inject the options string in the right place
+        this.DOM.input.parentNode.appendChild(datalist)
+      //  this.DOM.input.insertAdjacentHTML('afterend', datalist); // append the datalist HTML string in the Tags
 
         return datalist;
     },
