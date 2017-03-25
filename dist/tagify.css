@@ -147,6 +147,10 @@ tags input,tags textarea {
   display: none;
 }
 
+tags input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
 tags > div {
   display: inline-block;
   min-width: 10px;
