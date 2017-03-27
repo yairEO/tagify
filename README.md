@@ -131,5 +131,6 @@ autocomplete    | Boolean    | true        | show native suggeestions list, as y
 whitelist       | Array      | []          | an array of tags which only they are allowed
 blacklist       | Array      | []          | an array of tags which aren't allowed
 callbacks       | Object     | {}          | exposed callbacks object to be triggered on events: 'add' / 'remove' tags
+maxTags         | Number     | undefined   | max number of tags
 
 

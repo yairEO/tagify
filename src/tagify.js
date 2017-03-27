@@ -13,7 +13,8 @@ function Tagify( input, settings ){
         enforeWhitelist : settings.enforeWhitelist || false, // flag - should ONLY use tags allowed in whitelist
         autocomplete    : settings.autocomplete || true, // flag - show native suggeestions list as you type
         whitelist       : settings.whitelist || [], // is this list has any items, then only allow tags from this list
-        blacklist       : settings.blacklist || [] // a list of non-allowed tags
+        blacklist       : settings.blacklist || [], // a list of non-allowed tags
+        maxTags         : settings.maxTags // maximum number of tags
     };
 
     this.id = Math.random().toString(36).substr(2,9), // almost-random ID (because, fuck it)
@@ -237,7 +238,7 @@ Tagify.prototype = {
                     return false;
             }
 
-            tagAllowed = !that.isTagBlacklisted(v) && (!that.settings.enforeWhitelist || that.isTagWhitelisted(v));
+            tagAllowed = !that.isTagBlacklisted(v) && (!that.settings.enforeWhitelist || that.isTagWhitelisted(v)) && that.value.length < that.settings.maxTags;
 
             // check against blacklist & whitelist (if enforced)
             if( !tagAllowed ){
@@ -259,6 +260,11 @@ Tagify.prototype = {
         });
     },
 
+    /**
+     * Removes a tag
+     * @param  {Number}  idx    [tag index to be removed]
+     * @param  {Boolean} silent [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
+     */
     removeTag : function( idx, silent ){
         var tagElm = this.DOM.scope.children[idx];
         if( !tagElm) return;

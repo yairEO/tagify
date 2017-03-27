@@ -91,7 +91,7 @@ var eslint_settings = {
 };
 
 var banner = `/**
- * Tagify - jQuery tags input plugin
+ * Tagify - tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
