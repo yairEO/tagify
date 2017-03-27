@@ -20,7 +20,7 @@ function Tagify( input, settings ){
         autocomplete    : settings.autocomplete || true, // flag - show native suggeestions list as you type
         whitelist       : settings.whitelist || [], // is this list has any items, then only allow tags from this list
         blacklist       : settings.blacklist || [], // a list of non-allowed tags
-        maxTags         : settings.maxTags // maximum number of tags
+        maxTags         : settings.maxTags || Infinity // maximum number of tags
     };
 
     this.id = Math.random().toString(36).substr(2,9), // almost-random ID (because, fuck it)
@@ -92,6 +92,7 @@ Tagify.prototype = {
     events : function(){
         var events = {
         //  event name / event callback / element to be listening to
+            paste   : ['onPaste'      , 'input'],
             focus   : ['onFocusBlur'  , 'input'],
             blur    : ['onFocusBlur'  , 'input'],
             input   : ['onInput'      , 'input'],
@@ -122,7 +123,12 @@ Tagify.prototype = {
         },
 
         onKeydown : function(e){
-            var s = e.target.value;
+            var s = e.target.value,
+                that = this;
+
+            if( this.keypressTriggered ) clearTimeout(this.keypressTriggered);
+            this.keypressTriggered = setTimeout(function(){ that.keypressTriggered = null }, 50);
+
             if( e.key == "Backspace" && (s == "" || s.charCodeAt(0) == 8203) ){
                 this.removeTag( this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)').length - 1 );
             }
@@ -140,14 +146,21 @@ Tagify.prototype = {
 
         onInput : function(e){
             var value = e.target.value,
-                lastChar = value[value.length - 1];
+                lastChar = value[value.length - 1],
+                isDatalistInput = !this.pasteTriggered && !this.keypressTriggered && value.length > 1;
 
             e.target.style.width = ((e.target.value.length + 1) * 7) + 'px';
 
-            if( value.indexOf(',') != -1 ){
+            if( value.indexOf(',') != -1 || isDatalistInput ){
                 this.addTag( value );
                 e.target.value = ''; // clear the input field's value
             }
+        },
+
+        onPaste : function(e){
+            var that = this;
+            if( this.pasteTriggered ) clearTimeout(this.pasteTriggered);
+            this.pasteTriggered = setTimeout(function(){ that.pasteTriggered = null }, 50);
         },
 
         onClickScope : function(e){
