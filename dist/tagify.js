@@ -126,9 +126,6 @@ Tagify.prototype = {
             var s = e.target.value,
                 that = this;
 
-            if( this.keypressTriggered ) clearTimeout(this.keypressTriggered);
-            this.keypressTriggered = setTimeout(function(){ that.keypressTriggered = null }, 50);
-
             if( e.key == "Backspace" && (s == "" || s.charCodeAt(0) == 8203) ){
                 this.removeTag( this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)').length - 1 );
             }
@@ -142,12 +139,16 @@ Tagify.prototype = {
                     e.target.value = '';
                 return false;
             }
+            else{
+                if( this.noneDatalistInput ) clearTimeout(this.noneDatalistInput);
+                this.noneDatalistInput = setTimeout(function(){ that.noneDatalistInput = null }, 50);
+            }
         },
 
         onInput : function(e){
             var value = e.target.value,
                 lastChar = value[value.length - 1],
-                isDatalistInput = !this.pasteTriggered && !this.keypressTriggered && value.length > 1;
+                isDatalistInput = !this.noneDatalistInput && value.length > 1;
 
             e.target.style.width = ((e.target.value.length + 1) * 7) + 'px';
 
@@ -159,8 +160,8 @@ Tagify.prototype = {
 
         onPaste : function(e){
             var that = this;
-            if( this.pasteTriggered ) clearTimeout(this.pasteTriggered);
-            this.pasteTriggered = setTimeout(function(){ that.pasteTriggered = null }, 50);
+            if( this.noneDatalistInput ) clearTimeout(this.noneDatalistInput);
+            this.noneDatalistInput = setTimeout(function(){ that.noneDatalistInput = null }, 50);
         },
 
         onClickScope : function(e){
