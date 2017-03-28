@@ -8,13 +8,14 @@ function Tagify( input, settings ){
     settings = typeof settings == 'object' ? settings : {}; // make sure settings is an 'object'
 
     this.settings = {
-        callbacks       : settings.callbacks || {}, // exposed callbacks object to be triggered on certain events
-        duplicates      : settings.duplicates || false, // flag - allow tuplicate tags
-        enforeWhitelist : settings.enforeWhitelist || false, // flag - should ONLY use tags allowed in whitelist
-        autocomplete    : settings.autocomplete || true, // flag - show native suggeestions list as you type
-        whitelist       : settings.whitelist || [], // is this list has any items, then only allow tags from this list
-        blacklist       : settings.blacklist || [], // a list of non-allowed tags
-        maxTags         : settings.maxTags || Infinity // maximum number of tags
+        callbacks           : settings.callbacks || {}, // exposed callbacks object to be triggered on certain events
+        duplicates          : settings.duplicates || false, // flag - allow tuplicate tags
+        enforeWhitelist     : settings.enforeWhitelist || false, // flag - should ONLY use tags allowed in whitelist
+        autocomplete        : settings.autocomplete || true, // flag - show native suggeestions list as you type
+        whitelist           : settings.whitelist || [], // is this list has any items, then only allow tags from this list
+        blacklist           : settings.blacklist || [], // a list of non-allowed tags
+        maxTags             : settings.maxTags || Infinity, // maximum number of tags
+        suggestionsMinChars : settings.suggestionsMinChars || 2 // minimum characters to input to see sugegstions list
     };
 
     this.id = Math.random().toString(36).substr(2,9), // almost-random ID (because, fuck it)
@@ -84,21 +85,24 @@ Tagify.prototype = {
      * DOM events listeners binding
      */
     events : function(){
-        var events = {
-        //  event name / event callback / element to be listening to
+        var that = this,
+            events = {
+             //  event name / event callback / element to be listening to
             paste   : ['onPaste'      , 'input'],
             focus   : ['onFocusBlur'  , 'input'],
             blur    : ['onFocusBlur'  , 'input'],
             input   : ['onInput'      , 'input'],
             keydown : ['onKeydown'    , 'input'],
             click   : ['onClickScope' , 'scope']
-        };
+        },
+        customList = ['add', 'remove', 'duplicate', 'maxTagsExceed', 'blacklisted', 'notWhitelisted'];
 
         for( var e in events )
             this.DOM[events[e][1]].addEventListener(e, this.callbacks[events[e][0]].bind(this));
 
-        this.on('add', this.settings.callbacks.add)
-        this.on('remove', this.settings.callbacks.remove)
+        customList.forEach(function(name){
+            that.on(name, that.settings.callbacks[name])
+        })
     },
 
     /**
@@ -142,13 +146,24 @@ Tagify.prototype = {
         onInput : function(e){
             var value = e.target.value,
                 lastChar = value[value.length - 1],
-                isDatalistInput = !this.noneDatalistInput && value.length > 1;
+                isDatalistInput = !this.noneDatalistInput && value.length > 1,
+                showSuggestions = value.length >= this.settings.suggestionsMinChars,
+                datalistInDOM;
 
             e.target.style.width = ((e.target.value.length + 1) * 7) + 'px';
 
             if( value.indexOf(',') != -1 || isDatalistInput ){
                 this.addTag( value );
                 e.target.value = ''; // clear the input field's value
+            }
+            else if( this.settings.autocomplete && this.settings.whitelist.length ){
+                datalistInDOM = this.DOM.input.parentNode.contains( this.DOM.datalist );
+                // if sugegstions should be hidden
+                if( !showSuggestions && datalistInDOM )
+                    this.DOM.input.parentNode.removeChild(this.DOM.datalist)
+                else if( showSuggestions && !datalistInDOM ){
+                    this.DOM.input.parentNode.appendChild(this.DOM.datalist)
+                }
             }
         },
 
@@ -189,7 +204,7 @@ Tagify.prototype = {
             OPTIONS += "<option>"+ this.settings.whitelist[i] +"</option>";
 
         datalist.innerHTML = datalist.innerHTML.replace('[OPTIONS]', OPTIONS); // inject the options string in the right place
-        this.DOM.input.parentNode.appendChild(datalist)
+
       //  this.DOM.input.insertAdjacentHTML('afterend', datalist); // append the datalist HTML string in the Tags
 
         return datalist;
@@ -244,20 +259,30 @@ Tagify.prototype = {
 
             var tagElm = document.createElement('tag'),
                 isDuplicate = that.markTagByValue(v),
-                tagAllowed;
+                tagAllowed,
+                tagNotAllowedEventName,
+                maxTagsExceed = that.value.length >= that.settings.maxTags;
 
             if( isDuplicate ){
                 that.trigger('duplicate', v);
-                if( !that.settings.duplicates )
+                if( !that.settings.duplicates ){
                     return false;
+                }
             }
 
-            tagAllowed = !that.isTagBlacklisted(v) && (!that.settings.enforeWhitelist || that.isTagWhitelisted(v)) && that.value.length < that.settings.maxTags;
+            tagAllowed = !that.isTagBlacklisted(v) && (!that.settings.enforeWhitelist || that.isTagWhitelisted(v)) && !maxTagsExceed;
 
             // check against blacklist & whitelist (if enforced)
             if( !tagAllowed ){
                 tagElm.classList.add('tagify--notAllowed');
                 setTimeout(function(){ that.removeTag(that.getNodeIndex(tagElm), true) }, 1000);
+
+                // broadcast why the tag was not allowed
+                if( maxTagsExceed ) tagNotAllowedEventName = 'maxTagsExceed';
+                else if( that.isTagBlacklisted(v) ) tagNotAllowedEventName = 'blacklisted';
+                else if( that.settings.enforeWhitelist && !that.isTagWhitelisted(v) ) tagNotAllowedEventName = 'notWhitelisted';
+
+                that.trigger(tagNotAllowedEventName, {value:v, index:that.value.length});
             }
 
             // the space below is important - http://stackoverflow.com/a/19668740/104380

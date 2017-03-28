@@ -115,22 +115,26 @@ destroy         | if called, will revert the input back as it was before Tagify 
 
 Name            | Info
 --------------- | --------------------------------------------------------------------------
-add             | caleld when a tag has been added
-remove          | caleld when a tag has been removed
-duplicate       | caleld when a tag has been added and found to be a duplicate of existing one
+add             | A tag has been added
+remove          | A tag has been removed
+duplicate       | A tag has been added and found to be a duplicate of existing one
+maxTagsExceed   | Number of tags exceeds the allowed quantity and the exceed tags were denied (removed)
+blacklisted     | A tag which is in the blacklist has been added and denied (removed)
+notWhitelisted  | A tag which is not in the whitelist has been added and denied (removed)
 
 
 
 ### Settings
 
-Name            | Type       | Default     | Info
---------------- | ---------- | ----------- | --------------------------------------------------------------------------
-duplicates      | Boolean    | false       | (flag) should duplicate tags be allowed or not
-enforeWhitelist | Boolean    | false       | should ONLY use tags allowed in whitelist
-autocomplete    | Boolean    | true        | show native suggeestions list, as you type
-whitelist       | Array      | []          | an array of tags which only they are allowed
-blacklist       | Array      | []          | an array of tags which aren't allowed
-callbacks       | Object     | {}          | exposed callbacks object to be triggered on events: 'add' / 'remove' tags
-maxTags         | Number     | Infinity    | max number of tags
+Name                | Type       | Default     | Info
+------------------- | ---------- | ----------- | --------------------------------------------------------------------------
+duplicates          | Boolean    | false       | (flag) should duplicate tags be allowed or not
+enforeWhitelist     | Boolean    | false       | should ONLY use tags allowed in whitelist
+autocomplete        | Boolean    | true        | show native suggeestions list, as you type
+whitelist           | Array      | []          | an array of tags which only they are allowed
+blacklist           | Array      | []          | an array of tags which aren't allowed
+callbacks           | Object     | {}          | exposed callbacks object to be triggered on events: 'add' / 'remove' tags
+maxTags             | Number     | Infinity    | max number of tags
+suggestionsMinChars | Number     | 2           | minimum characters to input which shows the sugegstions list
 
 
