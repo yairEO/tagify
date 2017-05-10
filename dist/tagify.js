@@ -4,6 +4,15 @@
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
  */
+;(function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define([], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory();
+  } else {
+    root.Tagify = factory();
+  }
+}(this, function() {
 function Tagify( input, settings ){
     // protection
     if( !input ){
@@ -335,3 +344,6 @@ Tagify.prototype = {
         this.DOM.originalInput.value = this.value.join(', ');
     }
 }
+
+return Tagify;
+}));

@@ -36,7 +36,7 @@ with good performance and smallest code footprint? You are in the right place my
 
 
 ### building the project
-Simply run `gulp` in your terminal, from the project's path.
+Simply run `gulp` in your terminal, from the project's path (Gulp should be installed first)
 
 
 ### Basic usage

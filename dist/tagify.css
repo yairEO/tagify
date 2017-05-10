@@ -17,6 +17,7 @@ tags tag {
   position: relative;
   cursor: default;
   -webkit-transition: .13s ease-out;
+  -o-transition: .13s ease-out;
   transition: .13s ease-out;
   -webkit-animation: .3s tags--bump 1 ease-out;
           animation: .3s tags--bump 1 ease-out;
@@ -25,11 +26,13 @@ tags tag {
 tags tag > div {
   vertical-align: top;
   position: relative;
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
   max-width: 100%;
   padding: 0.3em 0.5em;
   color: black;
   -webkit-transition: .13s ease-out;
+  -o-transition: .13s ease-out;
   transition: .13s ease-out;
   padding-right: 1.5em;
 }
@@ -37,11 +40,13 @@ tags tag > div {
 tags tag > div > span {
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+     text-overflow: ellipsis;
   display: inline-block;
   vertical-align: top;
   width: 100%;
   -webkit-transition: .1s;
+  -o-transition: .1s;
   transition: .1s;
 }
 
@@ -57,6 +62,7 @@ tags tag > div::before {
   z-index: -1;
   pointer-events: none;
   -webkit-transition: 80ms ease;
+  -o-transition: 80ms ease;
   transition: 80ms ease;
 }
 
@@ -66,7 +72,8 @@ tags tag:hover div::before {
   bottom: -2px;
   left: -2px;
   background: #D3E2E2;
-  box-shadow: 0 0 0 0 #D39494 inset;
+  -webkit-box-shadow: 0 0 0 0 #D39494 inset;
+          box-shadow: 0 0 0 0 #D39494 inset;
 }
 
 tags tag.tagify--noAnim {
@@ -85,6 +92,7 @@ tags tag.tagify--hide {
       -ms-transform: scale(0);
           transform: scale(0);
   -webkit-transition: .3s;
+  -o-transition: .3s;
   transition: .3s;
   pointer-events: none;
 }
@@ -101,6 +109,7 @@ tags tag.tagify--notAllowed div > span {
 tags tag.tagify--notAllowed div::before {
   background: rgba(211, 148, 148, 0.44);
   -webkit-transition: .2s;
+  -o-transition: .2s;
   transition: .2s;
 }
 
@@ -112,7 +121,6 @@ tags tag x {
   border-radius: 50px;
   position: absolute;
   z-index: 1;
-  right: -webkit-calc(0.5em - 2px);
   right: calc(0.5em - 2px);
   top: 50%;
   cursor: pointer;
@@ -120,6 +128,7 @@ tags tag x {
       -ms-transform: translateY(-50%);
           transform: translateY(-50%);
   -webkit-transition: .2s ease-out;
+  -o-transition: .2s ease-out;
   transition: .2s ease-out;
 }
 
@@ -139,6 +148,7 @@ tags tag x:hover + div > span {
 tags tag x:hover + div::before {
   background: rgba(211, 148, 148, 0.44);
   -webkit-transition: .2s;
+  -o-transition: .2s;
   transition: .2s;
 }
 
@@ -188,18 +198,21 @@ tags > div > span {
       -ms-transform: translatex(6px);
           transform: translatex(6px);
   -webkit-transition: .15s ease-out;
+  -o-transition: .15s ease-out;
   transition: .15s ease-out;
 }
 
 @-webkit-keyframes tags--bump {
   30% {
-    box-shadow: 0 0 0 4px #E5E5E5;
+    -webkit-box-shadow: 0 0 0 4px #E5E5E5;
+            box-shadow: 0 0 0 4px #E5E5E5;
   }
 }
 
 @keyframes tags--bump {
   30% {
-    box-shadow: 0 0 0 4px #E5E5E5;
+    -webkit-box-shadow: 0 0 0 4px #E5E5E5;
+            box-shadow: 0 0 0 4px #E5E5E5;
   }
 }
 
