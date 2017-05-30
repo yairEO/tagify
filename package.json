@@ -1,14 +1,23 @@
 {
-  "name"        : "tagify",
+  "name"        : "@yaireo/tagify",
   "version"     : "1.1.2",
-  "author"      : "Yair Even Or",
   "homepage"    : "https://github.com/yairEO/tagify",
   "description" : "Want to simply convert an input field into a tags element, in a easy customizable way, with good performance and smallest code footprint? You are in the right place my friend.",
-  "scripts": {
-    "run-with"     : "http://stackoverflow.com/a/22186540/104380",
-    "test"         : "gulp",
-    "test-browser" : "mocha-phantomjs tests/tests.html",
-    "test-node"    : "mocha -R spec tests/test.js"
+  "_npmUser"    : {
+    "name"  : "vsync",
+    "email" : "vsync.design@gmail.com"
+  },
+  "author": {
+    "name"  : "Yair Even-Or",
+    "email" : "vsync.design@gmail.com"
+  },
+  "main"        : "tagify.js",
+  "repository"  : {
+    "type" : "git",
+    "url"  : "git+https://github.com/yairEO/tagify.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yaireo/tagify/issues"
   },
   "devDependencies": {
     "beepbeep"          : "^1.2.1",
