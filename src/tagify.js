@@ -114,9 +114,15 @@ Tagify.prototype = {
 
             if( e.type == "focus" )
                 e.target.className = 'input';
-            else if( e.type == "blur" && text == "" ){
-                e.target.className = 'input placeholder';
-                this.DOM.input.removeAttribute('style');
+            else if( e.type == "blur") {
+                if( text == "" ){
+                    e.target.className = 'input placeholder';
+                    this.DOM.input.removeAttribute('style');
+                }
+                else {
+                    if( this.addTag(text) )
+                        e.target.value = '';
+                }
             }
         },
 
