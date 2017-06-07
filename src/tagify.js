@@ -15,7 +15,8 @@ function Tagify( input, settings ){
         whitelist           : settings.whitelist || [], // is this list has any items, then only allow tags from this list
         blacklist           : settings.blacklist || [], // a list of non-allowed tags
         maxTags             : settings.maxTags || Infinity, // maximum number of tags
-        suggestionsMinChars : settings.suggestionsMinChars || 2 // minimum characters to input to see sugegstions list
+		suggestionsMinChars : settings.suggestionsMinChars || 2, // minimum characters to input to see sugegstions list
+		addWithSpace        : settings.addWithSpace || false // allow tag adding using space also
     };
 
     this.id = Math.random().toString(36).substr(2,9), // almost-random ID (because, fuck it)
@@ -131,7 +132,7 @@ Tagify.prototype = {
                 e.target.value = '';
                 e.target.blur();
             }
-            if( e.key == "Enter" ){
+            if( e.key == "Enter" || (this.settings.addWithSpace && e.key == " ") ){
                 e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                 if( this.addTag(s) )
                     e.target.value = '';
