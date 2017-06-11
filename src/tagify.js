@@ -330,6 +330,6 @@ Tagify.prototype = {
 
     // update the origianl (hidden) input field's value
     update : function(){
-        this.DOM.originalInput.value = this.value.join(', ');
+        this.DOM.originalInput.value = this.value.join(',');
     }
 }
