@@ -114,7 +114,11 @@ Tagify.prototype = {
 
             if( e.type == "focus" )
                 e.target.className = 'input';
-            else if( e.type == "blur" && text == "" ){
+            else if( e.type == "blur" && text ){
+                this.addTag(text);
+                e.target.value = '';
+            }
+            else{
                 e.target.className = 'input placeholder';
                 this.DOM.input.removeAttribute('style');
             }
