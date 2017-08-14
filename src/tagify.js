@@ -296,7 +296,7 @@ Tagify.prototype = {
             if( tagAllowed ){
                 that.value.push(v);
                 that.update();
-                that.trigger('add', {value:value, index:that.value.length});
+                that.trigger('add', {value:v, index:that.value.length});
             }
 
             return tagElm;
