@@ -24,6 +24,13 @@ function Tagify( input, settings ){
     this.extend(this, new this.EventDispatcher());
     this.build(input);
     this.events();
+
+    // Locate and save the containing form element.
+    var fwalk = input;
+    while (fwalk.tagName != "FORM" && fwalk != null) {
+        fwalk = fwalk.parentNode;
+    }
+    this.form = fwalk;
 }
 
 Tagify.prototype = {
@@ -136,10 +143,29 @@ Tagify.prototype = {
                 e.target.blur();
             }
             if( e.key == "Enter" ){
-                e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                if( this.addTag(s) )
-                    e.target.value = '';
-                return false;
+                if (s != "") {
+                    // Temporarily prevent a form submission. This allows the Enter key to be used to add a tag.
+                    // Allow it again shortly afterwards so that Enter will still submit from other fields.
+                    // It is not possible to achieve this using preventDefault as at present that will stop
+                    // the value from the datalist being inserted in Firefox and Edge.
+                    if (that.form != null) {
+                        that.form.addEventListener("submit", that.preventFormSubmit);
+                        setTimeout(function (tif) {
+                            tif.form.removeEventListener("submit", tif.preventFormSubmit);
+                        }, 100, that);
+                    }
+
+                    // In Firefox and Edge the onKeydown event is fired when the user presses Enter in the
+                    // datalist. We wait 50ms before checking the corresponding input field - if the user 
+                    // selected an item from the datalist it will be empty, having been cleared by the 
+                    // onInput event handler.
+                    // See https://bugzilla.mozilla.org/show_bug.cgi?id=1360755.
+                    setTimeout(function (tif, fld) {
+                        if (tif.addTag(fld.value)) {
+                            fld.value = '';
+                        }
+                    }, 50, that, e.target);
+                }
             }
             else{
                 if( this.noneDatalistInput ) clearTimeout(this.noneDatalistInput);
@@ -331,5 +357,10 @@ Tagify.prototype = {
     // update the origianl (hidden) input field's value
     update : function(){
         this.DOM.originalInput.value = this.value.join(',');
+    },
+
+    // Used to temporarily prevent the form submission
+    preventFormSubmit: function (e) {
+        e.preventDefault();
     }
 }
