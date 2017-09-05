@@ -18,7 +18,7 @@ function Tagify( input, settings ){
         suggestionsMinChars : settings.suggestionsMinChars || 2 // minimum characters to input to see sugegstions list
     };
 
-    this.id = Math.random().toString(36).substr(2,9), // almost-random ID (because, fuck it)
+    this.id = Math.random().toString(36).substr(2,9); // almost-random ID (because, fuck it)
     this.value = []; // An array holding all the (currently used) tags
     this.DOM = {}; // Store all relevant DOM elements in an Object
     this.extend(this, new this.EventDispatcher());
