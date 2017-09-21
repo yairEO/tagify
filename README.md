@@ -20,7 +20,7 @@ with good performance and smallest code footprint? You are in the right place my
 
 ## [Demo page](https://yaireo.github.io/tagify/)
 
-### Selling points
+## Selling points
 * supports whitelist (with native suggestions dropdown as-you-type)
 * supports blacklists
 * JS file is under 150 very readiable lines of code
@@ -35,11 +35,11 @@ with good performance and smallest code footprint? You are in the right place my
 * Exposed custom events
 
 
-### building the project
+## building the project
 Simply run `gulp` in your terminal, from the project's path (Gulp should be installed first)
 
 
-### Basic usage
+## Basic usage
 Lets say this is your markup, and you already have a value set on the input (which was pre-filled by data from the server):
 
 ```html
@@ -63,13 +63,20 @@ tagify = new Tagify( input, {
     }
 );
 
-// when using jQuery plugin version file `jQuery.tagify.js`
-$('[name=tags]').tagify()
-
 // listen to custom tags' events such as 'add' or 'remove'
 tagify1.on('remove', ()=>{
     console.log(e, e.detail);
 });
+```
+
+### jQuery plugin version (jQuery.tagify.js)
+
+```javascript
+$('[name=tags]')
+    .tagify()
+    .on('add', function(e, tagName){
+        console.log('added', tagName)
+    });
 ```
 
 Now markup be like:
@@ -104,14 +111,15 @@ Now markup be like:
 </tags>
 ```
 
-### Methods
+## Methods
 
 Name            | Info
 --------------- | --------------------------------------------------------------------------
 destroy         | if called, will revert the input back as it was before Tagify was applied
+removeAllTags   | removes all tags and rests the original input tag's value property
 
 
-### Exposed events
+## Exposed events
 
 Name            | Info
 --------------- | --------------------------------------------------------------------------
@@ -124,10 +132,12 @@ notWhitelisted  | A tag which is not in the whitelist has been added and denied 
 
 
 
-### Settings
+## Settings
 
 Name                | Type       | Default     | Info
 ------------------- | ---------- | ----------- | --------------------------------------------------------------------------
+delimiters          | String     | ","         | [regex] split tags by any of these delimiters. Example: Space or Coma - ", "
+pattern             | String     | ""          | Validate the input by REGEX pattern (can also be applied on the input itself as an attribute)
 duplicates          | Boolean    | false       | (flag) should duplicate tags be allowed or not
 enforeWhitelist     | Boolean    | false       | should ONLY use tags allowed in whitelist
 autocomplete        | Boolean    | true        | show native suggeestions list, as you type

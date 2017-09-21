@@ -144,6 +144,13 @@ tags{
         }
     }
 
+    // readon-only mode (no input button)
+    &.readonly{
+        cursor: default;
+        > div, x{ display:none; }
+        tag > div{ padding: $tagPad; }
+    }
+
     ///////////////////////////////////////////
     // Hides originals
     input, textarea{ border:0; display:none; }

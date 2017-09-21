@@ -21,7 +21,8 @@ var gulp         = require('gulp'),
 
     replace      = require('gulp-replace'),
     insert       = require('gulp-insert'),
-    beep         = require('beepbeep');
+    beep         = require('beepbeep'),
+    pkg          = require('./package.json');
 
 
 var uglifyOptions = {
@@ -92,10 +93,10 @@ var eslint_settings = {
 };
 
 var banner = `/**
- * Tagify - tags input component
- * By Yair Even-Or (2016)
+ * Tagify (v ${pkg.version})- tags input component
+ * By ${pkg.author.name} (2016)
  * Don't sell this code. (c)
- * https://github.com/yairEO/tagify
+ * ${pkg.homepage}
  */
 `;
 
@@ -164,16 +165,22 @@ gulp.task('build_jquery_version', () => {
 
 gulp.task('minify', () => {
     gulp.src('dist/tagify.js')
-        .pipe(uglify().on('error', gutil.log))
+        .pipe(uglify())
+        .on('error', handleError)
         .pipe(rename('tagify.min.js'))
         .pipe(gulp.dest('./dist/'))
 
     return gulp.src('dist/jQuery.tagify.js')
         .pipe(uglify())
+        .on('error', handleError)
         .pipe(rename('jQuery.tagify.min.js'))
         .pipe(gulp.dest('./dist/'))
 });
 
+function handleError(err) {
+  gutil.log( err.toString() );
+  this.emit('end');
+}
 
 function lint( stream ){
     return stream

@@ -10,6 +10,8 @@
 
         <link rel="stylesheet" href="dist/tagify.css">
         <script src="dist/tagify.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="dist/jQuery.tagify.js"></script>
 
         <style>
             p{ line-height:1.4; }
@@ -58,6 +60,9 @@ var input1 = document.querySelector('input[name=tags]'),
         blacklist : ["fuck", "shit"]
     })
 
+// "click" event on some button which removes all tags in the component
+document.querySelector('.tags--removeAllBtn').addEventListener('click', tagify1.removeAllTags.bind(tagify1))
+
 // listen to custom 'remove' tag event
 tagify1.on('remove', onRemoveTag);
 
@@ -72,6 +77,7 @@ function onAddTag(e){
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags' placeholder='write some tags' value='css, html, javascript, css'>
+                    <button class='tags--removeAllBtn' type='button'>Remove all tags</button>
                 </aside>
             </section>
 
@@ -112,13 +118,18 @@ tagify2.on('add', function(e){
                     <h2>Advance options</h2>
                     <p>
                         In this example, the <code>suggestionsMinChars</code> option is used and set to <code>3</code>. The Maximum number of tags is set to <code>6</code>
+                        <br><br>
+                        This example also shows how an input can utilize HTML5 <code>pattern</code> attribute to validate tags.
+                        <br><br>
+                        Also, <code>delimiters</code> setting using both <code>,</code> &amp; <code> </code> as tags seperators.
                     </p>
                     <h3>HTML</h3>
-                    <xmp><input name='tags3' placeholder='Write some tags' value=''></xmp>
+                    <xmp><input name='tags3' placeholder='Write some tags' pattern='^[A-Za-z_ ]{1,15}$'></xmp>
                     <h3>JAVASCRIPT</h3>
                     <pre>
 var input3 = document.querySelector('input[name=tags3]'),
     tagify3 = new Tagify(input3, {
+        delimiters          : ", ",
         suggestionsMinChars : 1,
         maxTags             : 6,
         blacklist           : ["fuck", "shit", "pussy"],
@@ -140,7 +151,51 @@ tagify3.on('notWhitelisted', function(e){
                     </pre>
                 </aside>
                 <aside class='rightSide'>
-                    <input name='tags3' placeholder='Write some tags' value=''>
+                    <input name='tags3' placeholder='Write some tags' pattern='^[A-Za-z_ ]{1,15}$'>
+                </aside>
+            </section>
+
+            <section>
+                <aside class='leftSide'>
+                    <h2>Readonly mode</h2>
+                    <p>
+                        If the original input field has a <code>readonly</code> attribute, then the Tags will not have a way to add or remove any tags.
+                    </p>
+                    <h3>HTML</h3>
+                    <xmp><input name='tags4' readonly value='tag1, tag 2, another tag'></xmp>
+                </aside>
+                <aside class='rightSide'>
+                    <input name='tags4' readonly value='tag1, tag 2, another tag'>
+                </aside>
+            </section>
+
+            <section>
+                <aside class='leftSide'>
+                    <h2>jQuery plugin version</h2>
+                    <p>
+                        Tagify can also be used as a jQuery plugin
+                    </p>
+                    <h3>HTML</h3>
+                    <xmp>
+                        <input name='tags-jquery' value='try, adding, a tag'>
+                        <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
+                    </xmp>
+                    <h3>JAVASCRIPT</h3>
+                    <pre>
+var $elm = $('input[name=tags-jquery]')
+    .tagify()
+    .on('add', function(e, tagName){
+        console.log('added', tagName)
+    });
+
+$('.tags-jquery--removeAllBtn').on('click', function(){
+    $elm.trigger('tagify.removeAllTags');
+})
+                    </pre>
+                </aside>
+                <aside class='rightSide'>
+                    <input name='tags-jquery' value='try, adding, a tag'>
+                    <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
                 </aside>
             </section>
         </form>
@@ -164,6 +219,9 @@ tagify3.on('notWhitelisted', function(e){
                     }
                 });
 
+            // remove all tags (event)
+            document.querySelector('.tags--removeAllBtn').addEventListener('click', tagify1.removeAllTags.bind(tagify1))
+
             // add tag callback
             function onAddTag(e){
                 console.log(e, e.detail);
@@ -186,11 +244,12 @@ tagify3.on('notWhitelisted', function(e){
 
             var input3 = document.querySelector('input[name=tags3]'),
                 tagify3 = new Tagify(input3, {
+                    delimiters          : ", ",
                     suggestionsMinChars : 3,
-                    maxTags : 6,
-                    blacklist : ["fuck", "shit", "pussy"],
-                    enforeWhitelist : true,
-                    whitelist: ["temple","stun","detective","sign","passion","routine","deck","discriminate","relaxation","fraud","attractive","soft","forecast","point","thank","stage","eliminate","effective","flood","passive","skilled","separation","contact","compromise","reality","district","nationalist","leg","porter","conviction","worker","vegetable","commerce","conception","particle","honor","stick","tail","pumpkin","core","mouse","egg","population","unique","behavior","onion","disaster","cute","pipe","sock","dialect","horse","swear","owner","cope","global","improvement","artist","shed","constant","bond","brink","shower","spot","inject","bowel","homosexual","trust","exclude","tough","sickness","prevalence","sister","resolution","cattle","cultural","innocent","burial","bundle","thaw","respectable","thirsty","exposure","team","creed","facade","calendar","filter","utter","dominate","predator","discover","theorist","hospitality","damage","woman","rub","crop","unpleasant","halt","inch","birthday","lack","throne","maximum","pause","digress","fossil","policy","instrument","trunk","frame","measure","hall","support","convenience","house","partnership","inspector","looting","ranch","asset","rally","explicit","leak","monarch","ethics","applied","aviation","dentist","great","ethnic","sodium","truth","constellation","lease","guide","break","conclusion","button","recording","horizon","council","paradox","bride","weigh","like","noble","transition","accumulation","arrow","stitch","academy","glimpse","case","researcher","constitutional","notion","bathroom","revolutionary","soldier","vehicle","betray","gear","pan","quarter","embarrassment","golf","shark","constitution","club","college","duty","eaux","know","collection","burst","fun","animal","expectation","persist","insure","tick","account","initiative","tourist","member","example","plant","river","ratio","view","coast","latest","invite","help","falsify","allocation","degree","feel","resort","means","excuse","injury","pupil","shaft","allow","ton","tube","dress","speaker","double","theater","opposed","holiday","screw","cutting","picture","laborer","conservation","kneel","miracle","brand","nomination","characteristic","referral","carbon","valley","hot","climb","wrestle","motorist","update","loot","mosquito","delivery","eagle","guideline","hurt","feedback","finish","traffic","competence","serve","archive","feeling","hope","seal","ear","oven","vote","ballot","study","negative","declaration","particular","pattern","suburb","intervention","brake","frequency","drink","affair","contemporary","prince","dry","mole","lazy","undermine","radio","legislation","circumstance","bear","left","pony","industry","mastermind","criticism","sheep","failure","chain","depressed","launch","script","green","weave","please","surprise","doctor","revive","banquet","belong","correction","door","image","integrity","intermediate","sense","formal","cane","gloom","toast","pension","exception","prey","random","nose","predict","needle","satisfaction","establish","fit","vigorous","urgency","X-ray","equinox","variety","proclaim","conceive","bulb","vegetarian","available","stake","publicity","strikebreaker","portrait","sink","frog","ruin","studio","match","electron","captain","channel","navy","set","recommend","appoint","liberal","missile","sample","result","poor","efflux","glance","timetable","advertise","personality","aunt","dog"]
+                    maxTags             : 6,
+                    blacklist           : ["fuck", "shit", "pussy"],
+                    enforeWhitelist     : true,
+                    whitelist           : ["temple","stun","detective","sign","passion","routine","deck","discriminate","relaxation","fraud","attractive","soft","forecast","point","thank","stage","eliminate","effective","flood","passive","skilled","separation","contact","compromise","reality","district","nationalist","leg","porter","conviction","worker","vegetable","commerce","conception","particle","honor","stick","tail","pumpkin","core","mouse","egg","population","unique","behavior","onion","disaster","cute","pipe","sock","dialect","horse","swear","owner","cope","global","improvement","artist","shed","constant","bond","brink","shower","spot","inject","bowel","homosexual","trust","exclude","tough","sickness","prevalence","sister","resolution","cattle","cultural","innocent","burial","bundle","thaw","respectable","thirsty","exposure","team","creed","facade","calendar","filter","utter","dominate","predator","discover","theorist","hospitality","damage","woman","rub","crop","unpleasant","halt","inch","birthday","lack","throne","maximum","pause","digress","fossil","policy","instrument","trunk","frame","measure","hall","support","convenience","house","partnership","inspector","looting","ranch","asset","rally","explicit","leak","monarch","ethics","applied","aviation","dentist","great","ethnic","sodium","truth","constellation","lease","guide","break","conclusion","button","recording","horizon","council","paradox","bride","weigh","like","noble","transition","accumulation","arrow","stitch","academy","glimpse","case","researcher","constitutional","notion","bathroom","revolutionary","soldier","vehicle","betray","gear","pan","quarter","embarrassment","golf","shark","constitution","club","college","duty","eaux","know","collection","burst","fun","animal","expectation","persist","insure","tick","account","initiative","tourist","member","example","plant","river","ratio","view","coast","latest","invite","help","falsify","allocation","degree","feel","resort","means","excuse","injury","pupil","shaft","allow","ton","tube","dress","speaker","double","theater","opposed","holiday","screw","cutting","picture","laborer","conservation","kneel","miracle","brand","nomination","characteristic","referral","carbon","valley","hot","climb","wrestle","motorist","update","loot","mosquito","delivery","eagle","guideline","hurt","feedback","finish","traffic","competence","serve","archive","feeling","hope","seal","ear","oven","vote","ballot","study","negative","declaration","particular","pattern","suburb","intervention","brake","frequency","drink","affair","contemporary","prince","dry","mole","lazy","undermine","radio","legislation","circumstance","bear","left","pony","industry","mastermind","criticism","sheep","failure","chain","depressed","launch","script","green","weave","please","surprise","doctor","revive","banquet","belong","correction","door","image","integrity","intermediate","sense","formal","cane","gloom","toast","pension","exception","prey","random","nose","predict","needle","satisfaction","establish","fit","vigorous","urgency","X-ray","equinox","variety","proclaim","conceive","bulb","vegetarian","available","stake","publicity","strikebreaker","portrait","sink","frog","ruin","studio","match","electron","captain","channel","navy","set","recommend","appoint","liberal","missile","sample","result","poor","efflux","glance","timetable","advertise","personality","aunt","dog"]
                 })
 
             tagify3.on('maxTagsExceed', function(e){
@@ -205,10 +264,26 @@ tagify3.on('notWhitelisted', function(e){
                 console.log(e, e.detail);
             });
 
-
             // toggle Tagify on/off
             document.querySelector('input[type=checkbox]').addEventListener('change', function(){
                 document.body.classList[this.checked ? 'add' : 'remove']('disabled');
+            })
+
+            ////////////////////////////////////////////
+
+            var input4 = document.querySelector('input[name=tags4]'),
+                tagify4 = new Tagify(input4);
+
+            ////////////////////////////////////////////
+
+            $('input[name=tags-jquery]')
+                .tagify()
+                .on('add', function(e, tagName){
+                    console.log('added', tagName)
+                });
+
+            $('.tags-jquery--removeAllBtn').on('click', function(){
+                $('input[name=tags-jquery]').trigger('tagify.removeAllTags');
             })
         </script>
     </body>

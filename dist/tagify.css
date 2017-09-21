@@ -152,6 +152,18 @@ tags tag x:hover + div::before {
   transition: .2s;
 }
 
+tags.readonly {
+  cursor: default;
+}
+
+tags.readonly > div,tags.readonly x {
+  display: none;
+}
+
+tags.readonly tag > div {
+  padding: 0.3em 0.5em;
+}
+
 tags input,tags textarea {
   border: 0;
   display: none;

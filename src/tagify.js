@@ -5,19 +5,21 @@ function Tagify( input, settings ){
         return this;
     }
 
-    settings = typeof settings == 'object' ? settings : {}; // make sure settings is an 'object'
+    this.settings = this.extend({}, settings, this.DEFAULTS);
+    this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
-    this.settings = {
-        callbacks           : settings.callbacks || {}, // exposed callbacks object to be triggered on certain events
-        duplicates          : settings.duplicates || false, // flag - allow tuplicate tags
-        enforeWhitelist     : settings.enforeWhitelist || false, // flag - should ONLY use tags allowed in whitelist
-        autocomplete        : settings.autocomplete || true, // flag - show native suggeestions list as you type
-        whitelist           : settings.whitelist || [], // is this list has any items, then only allow tags from this list
-        blacklist           : settings.blacklist || [], // a list of non-allowed tags
-        maxTags             : settings.maxTags || Infinity, // maximum number of tags
-        suggestionsMinChars : settings.suggestionsMinChars || 2 // minimum characters to input to see sugegstions list
-    };
+    if( input.pattern )
+        try {
+            this.settings.pattern = new RegExp(input.pattern);
+        } catch(e){}
 
+    if( settings && settings.delimiters ){
+        try {
+            this.settings.delimiters = new RegExp("[" + settings.delimiters + "]");
+        } catch(e){}
+    }
+
+    this.isJQueryPlugin = typeof $.fn.tagify == 'function';
     this.id = Math.random().toString(36).substr(2,9), // almost-random ID (because, fuck it)
     this.value = []; // An array holding all the (currently used) tags
     this.DOM = {}; // Store all relevant DOM elements in an Object
@@ -27,15 +29,35 @@ function Tagify( input, settings ){
 }
 
 Tagify.prototype = {
+    DEFAULTS : {
+        delimiters          : ",",       // [regex] split tags by any of these delimiters
+        pattern             : "",         // pattern to validate input by
+        callbacks           : {},         // exposed callbacks object to be triggered on certain events
+        duplicates          : false,      // flag - allow tuplicate tags
+        enforeWhitelist     : false,      // flag - should ONLY use tags allowed in whitelist
+        autocomplete        : true,       // flag - show native suggeestions list as you type
+        whitelist           : [],         // is this list has any items, then only allow tags from this list
+        blacklist           : [],         // a list of non-allowed tags
+        maxTags             : Infinity,   // maximum number of tags
+        suggestionsMinChars : 2           // minimum characters to input to see sugegstions list
+    },
+
+    /**
+     * builds the HTML of this component
+     * @param  {Object} input [DOM element which would be "transformed" into "Tags"]
+     */
     build : function( input ){
         var that = this,
-            value = input.value;
-
+            value = input.value,
+            inputHTML = '<div><input list="tagifySuggestions'+ this.id +'" class="placeholder"/><span>'+ input.placeholder +'</span></div>';
         this.DOM.originalInput = input;
         this.DOM.scope = document.createElement('tags');
-        this.DOM.scope.innerHTML = '<div><input list="tagifySuggestions'+ this.id +'" class="placeholder"/><span>'+ input.placeholder +'</span></div>';
-
+        this.DOM.scope.innerHTML = inputHTML;
         this.DOM.input = this.DOM.scope.querySelector('input');
+
+        if( this.settings.readonly )
+            this.DOM.scope.classList.add('readonly')
+
         input.parentNode.insertBefore(this.DOM.scope, input);
         this.DOM.scope.appendChild(input);
 
@@ -50,18 +72,35 @@ Tagify.prototype = {
             });
     },
 
+    /**
+     * Reverts back any changes made by this component
+     */
     destroy : function(){
         this.DOM.scope.parentNode.appendChild(this.DOM.originalInput);
         this.DOM.scope.parentNode.removeChild(this.DOM.scope);
     },
 
     /**
-     * Merge between 2 objects , adding "o2" keys in "o1"
+     * Merge two objects into a new one
      */
-    extend : function(o1, o2){
-        for( var key in o2 )
-            if( o2.hasOwnProperty(key) )
-                o1[key] = o2[key];
+    extend : function(o, o1, o2){
+        if( !(o instanceof Object) ) o = {};
+
+        if( o2 ){
+            copy(o, o2)
+            copy(o, o1)
+        }
+        else
+            copy(o, o1)
+
+        function copy(a,b){
+            // copy o2 to o
+            for( var key in b )
+                if( b.hasOwnProperty(key) )
+                    a[key] = b[key];
+        }
+
+        return o;
     },
 
     /**
@@ -78,6 +117,9 @@ Tagify.prototype = {
             if( !eventName ) return;
             var e = new CustomEvent(eventName, {"detail":data});
             target.dispatchEvent(e);
+
+            if( this.isJQueryPlugin )
+                $(this.DOM.originalInput).trigger(eventName, [data])
         }
     },
 
@@ -87,15 +129,15 @@ Tagify.prototype = {
     events : function(){
         var that = this,
             events = {
-             //  event name / event callback / element to be listening to
-            paste   : ['onPaste'      , 'input'],
-            focus   : ['onFocusBlur'  , 'input'],
-            blur    : ['onFocusBlur'  , 'input'],
-            input   : ['onInput'      , 'input'],
-            keydown : ['onKeydown'    , 'input'],
-            click   : ['onClickScope' , 'scope']
-        },
-        customList = ['add', 'remove', 'duplicate', 'maxTagsExceed', 'blacklisted', 'notWhitelisted'];
+                 //  event name / event callback / element to be listening to
+                paste   : ['onPaste'      , 'input'],
+                focus   : ['onFocusBlur'  , 'input'],
+                blur    : ['onFocusBlur'  , 'input'],
+                input   : ['onInput'      , 'input'],
+                keydown : ['onKeydown'    , 'input'],
+                click   : ['onClickScope' , 'scope']
+            },
+            customList = ['add', 'remove', 'duplicate', 'maxTagsExceed', 'blacklisted', 'notWhitelisted'];
 
         for( var e in events )
             this.DOM[events[e][1]].addEventListener(e, this.callbacks[events[e][0]].bind(this));
@@ -103,6 +145,9 @@ Tagify.prototype = {
         customList.forEach(function(name){
             that.on(name, that.settings.callbacks[name])
         })
+
+        if( this.isJQueryPlugin )
+            $(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
     },
 
     /**
@@ -115,8 +160,8 @@ Tagify.prototype = {
             if( e.type == "focus" )
                 e.target.className = 'input';
             else if( e.type == "blur" && text ){
-                this.addTag(text);
-                e.target.value = '';
+                if( this.addTag(text).length )
+                    e.target.value = '';
             }
             else{
                 e.target.className = 'input placeholder';
@@ -137,7 +182,7 @@ Tagify.prototype = {
             }
             if( e.key == "Enter" ){
                 e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                if( this.addTag(s) )
+                if( this.addTag(s).length )
                     e.target.value = '';
                 return false;
             }
@@ -156,9 +201,11 @@ Tagify.prototype = {
 
             e.target.style.width = ((e.target.value.length + 1) * 7) + 'px';
 
-            if( value.indexOf(',') != -1 || isDatalistInput ){
-                this.addTag( value );
-                e.target.value = ''; // clear the input field's value
+
+            // if( value.indexOf(',') != -1 || isDatalistInput ){
+            if( value.slice().search(this.settings.delimiters) != -1 || isDatalistInput ){
+                if( this.addTag(value).length )
+                    e.target.value = ''; // clear the input field's value
             }
             else if( this.settings.autocomplete && this.settings.whitelist.length ){
                 datalistInDOM = this.DOM.input.parentNode.contains( this.DOM.datalist );
@@ -249,17 +296,27 @@ Tagify.prototype = {
         return this.settings.whitelist.indexOf(v) != -1;
     },
 
+    /**
+     * add a "tag" element to the "tags" component
+     * @param  {String} value [A string of a value or multiple values]
+     * @return {Array}  Array of DOM elements
+     */
     addTag : function( value ){
-        var that = this;
+        var that = this,
+            result;
 
         this.DOM.input.removeAttribute('style');
 
         value = value.trim();
-        if( !value ) return;
+
+        if( !value ) return [];
 
         // go over each tag and add it (if there were multiple ones)
-        return value.split(',').filter(function(v){ return !!v }).map(function(v){
+        result = value.split(this.settings.delimiters).filter(function(v){ return !!v }).map(function(v){
             v = v.trim();
+
+            if( that.settings.pattern && !(that.settings.pattern.test(v)) )
+                return false;
 
             var tagElm = document.createElement('tag'),
                 isDuplicate = that.markTagByValue(v),
@@ -301,6 +358,8 @@ Tagify.prototype = {
 
             return tagElm;
         });
+
+        return result.filter(function(n){ return n });
     },
 
     /**
@@ -328,7 +387,17 @@ Tagify.prototype = {
         }
     },
 
-    // update the origianl (hidden) input field's value
+    removeAllTags : function(){
+        this.value = [];
+        this.update();
+        Array.prototype.slice.call(this.DOM.scope.querySelectorAll('tag')).forEach(function(elm){
+            elm.remove();
+        });
+    },
+
+    /**
+     * update the origianl (hidden) input field's value
+     */
     update : function(){
         this.DOM.originalInput.value = this.value.join(',');
     }
