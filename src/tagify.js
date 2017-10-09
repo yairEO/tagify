@@ -19,7 +19,6 @@ function Tagify( input, settings ){
         } catch(e){}
     }
 
-    this.isJQueryPlugin = typeof $.fn.tagify == 'function';
     this.id = Math.random().toString(36).substr(2,9), // almost-random ID (because, fuck it)
     this.value = []; // An array holding all the (currently used) tags
     this.DOM = {}; // Store all relevant DOM elements in an Object
@@ -114,12 +113,15 @@ Tagify.prototype = {
         this.off = target.removeEventListener.bind(target);
         this.on = target.addEventListener.bind(target);
         this.trigger = function(eventName, data){
+            var e;
             if( !eventName ) return;
-            var e = new CustomEvent(eventName, {"detail":data});
-            target.dispatchEvent(e);
 
             if( this.isJQueryPlugin )
-                $(this.DOM.originalInput).trigger(eventName, [data])
+                $(this.DOM.originalInput).triggerHandler(eventName, [data])
+            else{
+                e = new CustomEvent(eventName, {"detail":data});
+                target.dispatchEvent(e);
+            }
         }
     },
 

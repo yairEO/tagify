@@ -110,6 +110,7 @@ var jQueryPluginWrap = [`;(function($){
             return this;
 
         tagify = new Tagify(this[0], settings);
+        tagify.isJQueryPlugin = true;
         $input.data("tagify", tagify);
 
         return this;
