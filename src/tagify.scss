@@ -25,6 +25,7 @@ tags{
         vertical-align : top;
 
         position       : relative;
+        z-index        : 1;
         cursor         : default;
         transition     : .13s ease-out;
         animation      : .3s tags--bump 1 ease-out;

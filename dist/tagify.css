@@ -15,6 +15,7 @@ tags tag {
   margin: 5px 0 5px 5px;
   vertical-align: top;
   position: relative;
+  z-index: 1;
   cursor: default;
   -webkit-transition: .13s ease-out;
   -o-transition: .13s ease-out;
