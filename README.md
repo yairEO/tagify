@@ -57,11 +57,11 @@ var input = document.querySelector('input[name=tags]'),
 // with settings passed
 tagify = new Tagify( input, {
     duplicates: true,
-    whitelist: ['foo', 'bar']},
+    whitelist: ['foo', 'bar'],
     callbacks: {
         add : onAddTag // calls an imaginary "onAddTag" function when a tag is added
     }
-);
+});
 
 // listen to custom tags' events such as 'add' or 'remove'
 tagify1.on('remove', ()=>{
