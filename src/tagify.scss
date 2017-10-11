@@ -147,7 +147,12 @@ tags{
     // readon-only mode (no input button)
     &.readonly{
         cursor: default;
-        > div, x{ display:none; }
+        > div{
+            visibility: hidden;
+            width: 0;
+            margin: $tagMargin 0;
+        }
+        x{ display:none; }
         tag > div{ padding: $tagPad; }
     }
 

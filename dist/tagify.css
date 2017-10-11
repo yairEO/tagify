@@ -156,7 +156,13 @@ tags.readonly {
   cursor: default;
 }
 
-tags.readonly > div,tags.readonly x {
+tags.readonly > div {
+  visibility: hidden;
+  width: 0;
+  margin: 5px 0;
+}
+
+tags.readonly x {
   display: none;
 }
 
