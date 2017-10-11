@@ -157,7 +157,7 @@ tags.readonly {
 }
 
 tags.readonly > div,tags.readonly x {
-  display: none;
+  visibility: hidden;
 }
 
 tags.readonly tag > div {
