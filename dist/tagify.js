@@ -134,7 +134,13 @@ Tagify.prototype = {
             if( this.isJQueryPlugin )
                 $(this.DOM.originalInput).triggerHandler(eventName, [data])
             else{
-                e = new CustomEvent(eventName, {"detail":data});
+                try {
+                    e = new CustomEvent(eventName, {"detail":data});
+                }
+                catch(err){
+                    e = document.createEvent("Event");
+                    e.initEvent("toggle", false, false);
+                }
                 target.dispatchEvent(e);
             }
         }
@@ -286,15 +292,21 @@ Tagify.prototype = {
         return index;
     },
 
+    /**
+     * Searches if any tags with a certain value exist and mark them
+     * @param  {String / Number} value [description]
+     * @return {boolean}               [found / not found]
+     */
     markTagByValue : function(value){
-        var tagIdx = this.value.findIndex(function(item){ return value.toLowerCase() === item.toLowerCase() }),
-            tag = this.DOM.scope.querySelectorAll('tag')[tagIdx];
+        var idx = this.value.filter(function(item){ return value.toLowerCase() === item.toLowerCase() })[0],
+            tag = this.DOM.scope.querySelectorAll('tag')[idx];
 
         if( tag ){
             tag.classList.add('tagify--mark');
             setTimeout(function(){ tag.classList.remove('tagify--mark') }, 2000);
             return true;
         }
+
         return false;
     },
 
@@ -408,7 +420,7 @@ Tagify.prototype = {
         this.value = [];
         this.update();
         Array.prototype.slice.call(this.DOM.scope.querySelectorAll('tag')).forEach(function(elm){
-            elm.remove();
+            elm.parentNode.removeChild(elm);
         });
     },
 
