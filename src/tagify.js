@@ -29,7 +29,7 @@ function Tagify( input, settings ){
 
 Tagify.prototype = {
     DEFAULTS : {
-        delimiters          : ",",       // [regex] split tags by any of these delimiters
+        delimiters          : ",",        // [regex] split tags by any of these delimiters
         pattern             : "",         // pattern to validate input by
         callbacks           : {},         // exposed callbacks object to be triggered on certain events
         duplicates          : false,      // flag - allow tuplicate tags
@@ -38,7 +38,8 @@ Tagify.prototype = {
         whitelist           : [],         // is this list has any items, then only allow tags from this list
         blacklist           : [],         // a list of non-allowed tags
         maxTags             : Infinity,   // maximum number of tags
-        suggestionsMinChars : 2           // minimum characters to input to see sugegstions list
+        suggestionsMinChars : 2,          // minimum characters to input to see sugegstions list
+        backspaceDelete     : true        // enable deleting tag using backspace key press
     },
 
     /**
@@ -181,7 +182,7 @@ Tagify.prototype = {
             var s = e.target.value,
                 that = this;
 
-            if( e.key == "Backspace" && (s == "" || s.charCodeAt(0) == 8203) ){
+            if( e.key == "Backspace" && (s == "" || s.charCodeAt(0) == 8203) && this.settings.backspaceDelete ){
                 this.removeTag( this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)').length - 1 );
             }
             if( e.key == "Escape" ){
