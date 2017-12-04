@@ -312,6 +312,15 @@ Tagify.prototype = {
     },
 
     /**
+     * clean the input values, replacing special characters like " with &#34; to avoid broken html
+     * @param {String} value
+     * @returns {String}
+     */
+    sanitizedText : function( value ) {
+        return value.trim().replace("'", "&#39;").replace('"', '&#34;');
+    },
+
+    /**
      * add a "tag" element to the "tags" component
      * @param  {String} value [A string of a value or multiple values]
      * @return {Array}  Array of DOM elements
@@ -328,7 +337,7 @@ Tagify.prototype = {
 
         // go over each tag and add it (if there were multiple ones)
         result = value.split(this.settings.delimiters).filter(function(v){ return !!v }).map(function(v){
-            v = v.trim().replace("'", "");
+            v = that.sanitizedText(v);
 
             if( that.settings.pattern && !(that.settings.pattern.test(v)) )
                 return false;
@@ -398,7 +407,7 @@ Tagify.prototype = {
         if( !silent ){
             this.value.splice(idx, 1); // remove the tag from the data object
             this.update(); // update the original input with the current value
-            this.trigger('remove', {value:tagElm.textContent.trim(), index:idx});
+            this.trigger('remove', {value:this.sanitizedText(tagElm.textContent), index:idx});
         }
     },
 
