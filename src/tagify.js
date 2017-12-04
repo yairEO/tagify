@@ -328,7 +328,7 @@ Tagify.prototype = {
 
         // go over each tag and add it (if there were multiple ones)
         result = value.split(this.settings.delimiters).filter(function(v){ return !!v }).map(function(v){
-            v = v.trim();
+            v = v.trim().replace("'", "");
 
             if( that.settings.pattern && !(that.settings.pattern.test(v)) )
                 return false;
