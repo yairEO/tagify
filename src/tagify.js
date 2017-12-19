@@ -370,8 +370,9 @@ Tagify.prototype = {
                 that.trigger(tagNotAllowedEventName, {value:v, index:that.value.length});
             }
 
+            tagElm.innerHTML = "<x></x><div><span title='"+ v +"'></span></div>";
             // the space below is important - http://stackoverflow.com/a/19668740/104380
-            tagElm.innerHTML = "<x></x><div><span title='"+ v +"'>"+ v +" </span></div>";
+            $('span', tagElm).text(v + ' ');
             that.DOM.scope.insertBefore(tagElm, that.DOM.input.parentNode);
 
             if( tagAllowed ){
