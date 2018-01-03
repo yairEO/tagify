@@ -192,8 +192,6 @@
          */
         callbacks: {
             onFocusBlur: function (e) {
-                console.log("onFocusBlur");
-                console.log(e);
                 var text = e.target.value.trim();
 
                 if (e.type == "focus")
@@ -209,8 +207,6 @@
             },
 
             onKeydown: function (e) {
-                console.log("onKeydown");
-                console.log(e);
                 var s = e.target.value,
                     that = this;
 
@@ -236,8 +232,6 @@
             },
 
             onInput: function (e) {
-                console.log("onInput");
-                console.log(e);
                 var value = e.target.value,
                     lastChar = value[value.length - 1],
                     isDatalistInput = !this.noneDatalistInput && value.length > 1,
@@ -272,8 +266,6 @@
             },
 
             onClickScope: function (e) {
-                console.log("onClickScope");
-                console.log(e);
                 if (e.target.tagName == "TAGS")
                     this.DOM.input.focus();
                 if (e.target.tagName == "X") {
