@@ -306,11 +306,11 @@ Tagify.prototype = {
      */
     markTagByValue : function(value){
         var idx = this.value.filter(function(item){ return value.toLowerCase() === item.toLowerCase() })[0],
-            tag = this.DOM.scope.querySelectorAll('tag')[idx];
+            tag = $($(this.DOM.scope).find('span[title=' + idx + ']')).closest('tag');
 
-        if( tag ){
-            tag.classList.add('tagify--mark');
-            setTimeout(function(){ tag.classList.remove('tagify--mark') }, 2000);
+        if(tag.length){
+            tag.addClass('tagify--mark');
+            setTimeout(function(){ tag.removeClass('tagify--mark') }, 2000);
             return true;
         }
 
@@ -349,6 +349,7 @@ Tagify.prototype = {
 
         // go over each tag and add it (if there were multiple ones)
         result = value.split(this.settings.delimiters).filter(function(v){ return !!v }).map(function(v){
+
             v = v.trim();
 
             if( that.settings.pattern && !(that.settings.pattern.test(v)) )
