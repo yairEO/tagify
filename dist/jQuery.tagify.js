@@ -1,5 +1,5 @@
 /**
- * Tagify (v 1.2.1)- tags input component
+ * Tagify (v 1.2.2)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -51,7 +51,7 @@ function Tagify( input, settings ){
 
 Tagify.prototype = {
     DEFAULTS : {
-        delimiters          : ",",       // [regex] split tags by any of these delimiters
+        delimiters          : ",",        // [regex] split tags by any of these delimiters
         pattern             : "",         // pattern to validate input by
         callbacks           : {},         // exposed callbacks object to be triggered on certain events
         duplicates          : false,      // flag - allow tuplicate tags
@@ -60,7 +60,8 @@ Tagify.prototype = {
         whitelist           : [],         // is this list has any items, then only allow tags from this list
         blacklist           : [],         // a list of non-allowed tags
         maxTags             : Infinity,   // maximum number of tags
-        suggestionsMinChars : 2           // minimum characters to input to see sugegstions list
+        suggestionsMinChars : 2,          // minimum characters to input to see sugegstions list
+        maxSuggestions      : 10
     },
 
     /**
@@ -83,8 +84,12 @@ Tagify.prototype = {
         this.DOM.scope.appendChild(input);
 
         // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
-        if( this.settings.autocomplete && this.settings.whitelist.length )
-            this.DOM.datalist = this.buildDataList();
+        if( this.settings.autocomplete && this.settings.whitelist.length ){
+            if( "suggestions" in this )
+                this.suggestions.init();
+            else
+                this.DOM.datalist = this.buildDataList();
+        }
 
         // if the original input already had any value (tags)
         if( value )
@@ -300,17 +305,26 @@ Tagify.prototype = {
     },
 
     /**
-     * Searches if any tags with a certain value exist and mark them
-     * @param  {String / Number} value [description]
-     * @return {boolean}               [found / not found]
+     * Searches if any tag with a certain value already exist, and mark it
+     * @param  {String / Number} value  [text value to search for]
+     * @param  {Object}          tagElm [a specific "tag" element to compare to the other tag elements siblings]
+     * @return {boolean}                [found / not found]
      */
-    markTagByValue : function(value){
-        var idx = this.value.filter(function(item){ return value.toLowerCase() === item.toLowerCase() })[0],
-            tag = this.DOM.scope.querySelectorAll('tag')[idx];
+    markTagByValue : function(value, tagElm){
+        var tagsElms, tagsElmsLen,
+            isDuplicate = this.value.filter(function(item){ return value.toLowerCase() === item.toLowerCase() })[0];
 
-        if( tag ){
-            tag.classList.add('tagify--mark');
-            setTimeout(function(){ tag.classList.remove('tagify--mark') }, 2000);
+        if( !tagElm ){
+            tagsElms = this.DOM.scope.querySelectorAll('tag');
+            for( tagsElmsLen = tagsElms.length; tagsElmsLen--; ){
+                if( tagsElms[tagsElmsLen].textContent.toLowerCase().includes(value.toLowerCase()) )
+                    tagElm = tagsElms[tagsElmsLen];
+            }
+        }
+
+        if( tagElm && isDuplicate ){
+            tagElm.classList.add('tagify--mark');
+            setTimeout(function(){ tagElm.classList.remove('tagify--mark') }, 2000);
             return true;
         }
 
@@ -355,7 +369,7 @@ Tagify.prototype = {
                 return false;
 
             var tagElm = document.createElement('tag'),
-                isDuplicate = that.markTagByValue(v),
+                isDuplicate = that.markTagByValue(v, tagElm),
                 tagAllowed,
                 tagNotAllowedEventName,
                 maxTagsExceed = that.value.length >= that.settings.maxTags;
