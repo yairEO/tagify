@@ -23,6 +23,8 @@ function Tagify( input, settings ){
     this.settings = this.extend({}, settings, this.DEFAULTS);
     this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
+    this.legacyFixes();
+
     if( input.pattern )
         try {
             this.settings.pattern = new RegExp(input.pattern);
@@ -48,13 +50,27 @@ Tagify.prototype = {
         pattern             : "",         // pattern to validate input by
         callbacks           : {},         // exposed callbacks object to be triggered on certain events
         duplicates          : false,      // flag - allow tuplicate tags
-        enforeWhitelist     : false,      // flag - should ONLY use tags allowed in whitelist
+        enforceWhitelist     : false,      // flag - should ONLY use tags allowed in whitelist
         autocomplete        : true,       // flag - show native suggeestions list as you type
         whitelist           : [],         // is this list has any items, then only allow tags from this list
         blacklist           : [],         // a list of non-allowed tags
         maxTags             : Infinity,   // maximum number of tags
         suggestionsMinChars : 2,          // minimum characters to input to see sugegstions list
         maxSuggestions      : 10
+    },
+
+    /**
+     * Fixes which require backword support
+     */
+    legacyFixes : function(){
+        var _s = this.settings;
+
+        // For backwards compatibility with older versions, which use 'enforeWhitelist' instead of 'enforceWhitelist'.
+        if( _s.hasOwnProperty("enforeWhitelist") && !_s.hasOwnProperty("enforceWhitelist") ){
+            _s["enforceWhitelist"] = _s["enforeWhitelist"];
+            delete _s["enforeWhitelist"];
+            console.warn("Please update your Tagify settings. The 'enforeWhitelist' property is deprecated and you should be using 'enforceWhitelist'.");
+        }
     },
 
     /**
@@ -374,7 +390,7 @@ Tagify.prototype = {
                 }
             }
 
-            tagAllowed = !that.isTagBlacklisted(v) && (!that.settings.enforeWhitelist || that.isTagWhitelisted(v)) && !maxTagsExceed;
+            tagAllowed = !that.isTagBlacklisted(v) && (!that.settings.enforceWhitelist || that.isTagWhitelisted(v)) && !maxTagsExceed;
 
             // check against blacklist & whitelist (if enforced)
             if( !tagAllowed ){
@@ -384,7 +400,7 @@ Tagify.prototype = {
                 // broadcast why the tag was not allowed
                 if( maxTagsExceed ) tagNotAllowedEventName = 'maxTagsExceed';
                 else if( that.isTagBlacklisted(v) ) tagNotAllowedEventName = 'blacklisted';
-                else if( that.settings.enforeWhitelist && !that.isTagWhitelisted(v) ) tagNotAllowedEventName = 'notWhitelisted';
+                else if( that.settings.enforceWhitelist && !that.isTagWhitelisted(v) ) tagNotAllowedEventName = 'notWhitelisted';
 
                 that.trigger(tagNotAllowedEventName, {value:v, index:that.value.length});
             }
