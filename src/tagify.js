@@ -68,6 +68,7 @@ Tagify.prototype = {
             inputHTML = '<div><input list="tagifySuggestions'+ this.id +'" class="placeholder"/><span>'+ input.placeholder +'</span></div>';
         this.DOM.originalInput = input;
         this.DOM.scope = document.createElement('tags');
+        input.className && (this.DOM.scope.className = input.className); // copy any class names from the original input element to the Tags element
         this.DOM.scope.innerHTML = inputHTML;
         this.DOM.input = this.DOM.scope.querySelector('input');
 
