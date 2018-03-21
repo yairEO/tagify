@@ -72,13 +72,16 @@ tagify1.on('remove', ()=>{
 The value of the Tagify component can be accessed like so:
 
 ```javascript
-    tagify.value // -> [{"value":"tag1"}, {"value":"tag2"}, ...]
+var tagify = new Tagify(...);
+console.log( tagify.value )
+// [{"value":"tag1"}, {"value":"tag2"}, ...]
 ```
 
 If the Tags were added with custom properties, the *value* output might look something like this:
 
 ```javascript
-    tagify.value // -> [{ "value":"tag1", "class":"red", "id":1}, ...]
+tagify.value
+// [{ "value":"tag1", "class":"red", "id":1}, ...]
 ```
 
 
