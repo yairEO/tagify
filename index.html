@@ -262,15 +262,22 @@ tagify31.addTags([
                     </xmp>
                     <h3>JAVASCRIPT</h3>
                     <pre>
-var $elm = $('input[name=tags-jquery]')
+var $input = $('input[name=tags-jquery]')
     .tagify()
     .on('add', function(e, tagName){
         console.log('added', tagName)
     });
+
+// Get the Tagify instance assigned for this jQuery input object so its methods could be accessed
+var jqTagify = $input.data('tagify');
+
+// Bind the "click" event on the "remove all tags" button
+$('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
                     </pre>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags-jquery' value='try, adding, a tag'>
+                    <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
                 </aside>
             </section>
         </form>
@@ -396,12 +403,19 @@ var $elm = $('input[name=tags-jquery]')
                 tagify4 = new Tagify(input4);
 
             ////////////////////////////////////////////
+            // jQuery example:
 
-            $('input[name=tags-jquery]')
+            var $input = $('input[name=tags-jquery]')
                 .tagify()
                 .on('add', function(e, tagName){
                     console.log('added', tagName)
                 });
+
+            // get the Tagify instance assigned for this jQuery input object so its methods could be accessed
+            var jqTagify = $input.data('tagify');
+
+            // bind the "click" event on the "remove all tags" button
+            $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
         </script>
     </body>
 </html>
