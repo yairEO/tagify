@@ -38,6 +38,15 @@
 
             .disabled tags input,
             .disabled tags textarea{ display:initial; border:1px inset; }
+
+            /* colors */
+            .color-green > div::before{ background:green; opacity:.2; }
+            .color-red > div::before{ background:red; opacity:.2; }
+            .color-orange > div::before{ background:Coral; opacity:.2; }
+            .color-darkred > div::before{ background:darkred; opacity:.2; }
+            .color-yellow > div::before{ background:gold; opacity:.2; }
+            .color-purple > div::before{ background:purple; opacity:.2; }
+
         </style>
     </head>
 
@@ -51,7 +60,7 @@
                     <h2>text input</h2>
                     <p>
                         In this example, the field is pre-ocupied with <strong>4</strong> tags, and <em>last</em> tag is the same as the <em>first</em> tag,
-                        and will be removed because the <code>duplicates</code> option flag is set to <code>true</code>.
+                        and will be <em>removed</em> because the <code>duplicates</code> option flag is set to <code>true</code>.
                         This input field is also limited to <strong>5</strong> tags only
                     </p>
                     <h3>HTML</h3>
@@ -61,12 +70,8 @@
 var input1 = document.querySelector('input[name=tags]'),
     tagify1 = new Tagify(input1, {
         whitelist : ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "MaxScript internal language 3D Studio Max", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"],
-        blacklist : ["react", "angular"],
-        maxTags   : 5
+        blacklist : ["react", "angular"]
     })
-
-// "click" event on some button which removes all tags in the component
-document.querySelector('.tags--removeAllBtn').addEventListener('click', tagify1.removeAllTags.bind(tagify1))
 
 // listen to custom 'remove' tag event
 tagify1.on('remove', onRemoveTag);
@@ -78,6 +83,13 @@ function onRemoveTag(e){
 function onAddTag(e){
     console.log(e, e.detail);
 }
+
+function onRemoveAllTagsClick(e){
+    tagify1.removeAllTags();
+}
+
+// "remove all tags" button "click" even listener
+document.querySelector('.tags--removeAllBtn').addEventListener('click', onRemoveAllTagsClick)
                     </pre>
                 </aside>
                 <aside class='rightSide'>
@@ -92,7 +104,7 @@ function onAddTag(e){
                 <aside class='leftSide'>
                     <h2>textarea</h2>
                     <p>
-                        In this example, the field is pre-ocupied with 3 tags, and last tag is <strong>not included</strong> in the whitelist, and will be removed because the <code>enforceWhitelist</code> option flag is set to <code>true</code>
+                        In this example, the field is pre-ocupied with 3 tags, and last tag is <strong>not included</strong> in the whitelist, and will be <em>removed</em> because the <code>enforceWhitelist</code> option flag is set to <code>true</code>
                     </p>
                     <h3>HTML</h3>
                     <xmp><textarea name='tags' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea></xmp>
@@ -118,11 +130,13 @@ tagify2.on('add', function(e){
                 </aside>
             </section>
 
-            <section>
+
+            <section id="section-advance-options">
                 <aside class='leftSide'>
                     <h2>Advance options</h2>
                     <p>
-                        In this example, the <code>suggestionsMinChars</code> option is used and set to <code>3</code>. The Maximum number of tags is set to <code>6</code>
+                        In this example, the <code>suggestionsMinChars</code> option is used and set to <code>3</code>. The Maximum number of tags is set to <code>6</code><br>
+                        (<code>suggestionsMinChars</code> is <strong>buggy</strong> in Firefox for some reason)
                         <br><br>
                         This example also shows how an input can utilize HTML5 <code>pattern</code> attribute to validate tags.
                         <br><br>
@@ -135,7 +149,7 @@ tagify2.on('add', function(e){
 var input3 = document.querySelector('input[name=tags3]'),
     tagify3 = new Tagify(input3, {
         delimiters          : ", ",
-        suggestionsMinChars : 1,
+        suggestionsMinChars : 3,
         maxTags             : 6,
         blacklist           : ["fuck", "shit", "pussy"],
         enforceWhitelist    : true,
@@ -160,6 +174,66 @@ tagify3.on('notWhitelisted', function(e){
                 </aside>
             </section>
 
+            <section id="section-extra-properties">
+                <aside class='leftSide'>
+                    <h2>Tags with individual properties</h2>
+                    <p>
+                        Tags can have a unique ID for each of the tags, a class and.
+                        the <code>value</code> attribute should not be populated directly from the HTML in this case, but from javascript.
+                    </p>
+                    <h3>HTML</h3>
+                    <xmp><input name='tags3-1' placeholder="Try to add tags from the list"></xmp>
+                    <pre>
+var allowedTags = [
+        {
+            "value"   : "apple",
+            "data-id" : 3,
+            "class"   : 'color-green'
+        },
+        {
+            "value"    : "orange",
+            "data-id"  : 56,
+            "class"    : 'color-orange'
+        },
+        {
+            "value"    : "tomatto",
+            "data-id"  : 17,
+            "class"    : 'color-darkred'
+        },
+        {
+            "value"    : "banana",
+            "data-id"  : 12,
+            "class"    : 'color-yellow'
+        }
+    ],
+    tagify31 = new Tagify(document.querySelector('input[name=tags3-1]'), {
+        whitelist : allowedTags
+    })
+
+tagify31.on('remove', function(e){
+    console.log(e, e.detail);
+});
+
+tagify31.addTags([
+    {
+        "value"   : "strawberry",
+        "data-id" : 8,
+        "class"   : 'color-red'
+    },
+    {
+        "value"   : "blueberry",
+        "data-id" : 6,
+        "class"   : 'color-purple'
+    }
+])
+                    </pre>
+                </aside>
+                <aside class='rightSide'>
+                    <input name='tags3-1' placeholder="Try to add tags from the list">
+                </aside>
+            </section>
+
+
             <section>
                 <aside class='leftSide'>
                     <h2>Readonly mode</h2>
@@ -170,9 +244,10 @@ tagify3.on('notWhitelisted', function(e){
                     <xmp><input name='tags4' readonly value='tag1, tag 2, another tag'></xmp>
                 </aside>
                 <aside class='rightSide'>
-                    <input name='tags4' readonly>
+                    <input name='tags4' readonly value='tag1, tag 2, another tag'>
                 </aside>
             </section>
+
 
             <section>
                 <aside class='leftSide'>
@@ -192,15 +267,10 @@ var $elm = $('input[name=tags-jquery]')
     .on('add', function(e, tagName){
         console.log('added', tagName)
     });
-
-$('.tags-jquery--removeAllBtn').on('click', function(){
-    $elm.trigger('tagify.removeAllTags');
-})
                     </pre>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags-jquery' value='try, adding, a tag'>
-                    <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
                 </aside>
             </section>
         </form>
@@ -214,8 +284,7 @@ $('.tags-jquery--removeAllBtn').on('click', function(){
                 // init Tagify script on the above inputs
                 tagify1 = new Tagify(input1, {
                     whitelist : ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "MaxScript internal language 3D Studio Max", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"],
-                    blacklist : ["react", "angular"],
-                    maxTags   : 5
+                    blacklist : ["react", "angular"]
                 }),
                 tagify2 = new Tagify(input2, {
                     enforceWhitelist : true,
@@ -278,6 +347,51 @@ $('.tags-jquery--removeAllBtn').on('click', function(){
 
             ////////////////////////////////////////////
 
+            var allowedTags = [
+                    {
+                        "value"   : "apple",
+                        "data-id" : 3,
+                        "class"   : 'color-green'
+                    },
+                    {
+                        "value"    : "orange",
+                        "data-id"  : 56,
+                        "class"    : 'color-orange'
+                    },
+                    {
+                        "value"    : "tomatto",
+                        "data-id"  : 17,
+                        "class"    : 'color-darkred'
+                    },
+                    {
+                        "value"    : "banana",
+                        "data-id"  : 12,
+                        "class"    : 'color-yellow'
+                    }
+                ],
+                tagify31 = new Tagify(document.querySelector('input[name=tags3-1]'), {
+                    whitelist : allowedTags
+                })
+
+            tagify31.on('remove', function(e){
+                console.log(e, e.detail);
+            });
+
+            tagify31.addTags([
+                {
+                    "value"   : "strawberry",
+                    "data-id" : 8,
+                    "class"   : 'color-red'
+                },
+                {
+                    "value"   : "blueberry",
+                    "data-id" : 6,
+                    "class"   : 'color-purple'
+                }
+            ])
+
+            ////////////////////////////////////////////
+
             var input4 = document.querySelector('input[name=tags4]'),
                 tagify4 = new Tagify(input4);
 
@@ -288,10 +402,6 @@ $('.tags-jquery--removeAllBtn').on('click', function(){
                 .on('add', function(e, tagName){
                     console.log('added', tagName)
                 });
-
-            $('.tags-jquery--removeAllBtn').on('click', function(){
-                $('input[name=tags-jquery]').trigger('tagify.removeAllTags');
-            })
         </script>
     </body>
 </html>

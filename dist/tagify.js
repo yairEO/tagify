@@ -50,7 +50,7 @@ Tagify.prototype = {
         pattern             : "",         // pattern to validate input by
         callbacks           : {},         // exposed callbacks object to be triggered on certain events
         duplicates          : false,      // flag - allow tuplicate tags
-        enforceWhitelist     : false,      // flag - should ONLY use tags allowed in whitelist
+        enforceWhitelist    : false,      // flag - should ONLY use tags allowed in whitelist
         autocomplete        : true,       // flag - show native suggeestions list as you type
         whitelist           : [],         // is this list has any items, then only allow tags from this list
         blacklist           : [],         // a list of non-allowed tags
@@ -102,7 +102,7 @@ Tagify.prototype = {
 
         // if the original input already had any value (tags)
         if( value )
-            this.addTag(value).forEach(function(tag){
+            this.addTags(value).forEach(function(tag){
                 tag && tag.classList.add('tagify--noAnim');
             });
     },
@@ -204,7 +204,7 @@ Tagify.prototype = {
             if( e.type == "focus" )
                 e.target.className = 'input';
             else if( e.type == "blur" && text ){
-                if( this.addTag(text).length )
+                if( this.addTags(text).length )
                     e.target.value = '';
             }
             else{
@@ -215,10 +215,13 @@ Tagify.prototype = {
 
         onKeydown : function(e){
             var s = e.target.value,
+                lastTag,
                 that = this;
 
             if( e.key == "Backspace" && (s == "" || s.charCodeAt(0) == 8203) ){
-                this.removeTag( this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)').length - 1 );
+                lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
+                lastTag = lastTag[lastTag.length - 1];
+                this.removeTag( lastTag );
             }
             if( e.key == "Escape" ){
                 e.target.value = '';
@@ -226,7 +229,7 @@ Tagify.prototype = {
             }
             if( e.key == "Enter" ){
                 e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                if( this.addTag(s).length )
+                if( this.addTags(s).length )
                     e.target.value = '';
                 return false;
             }
@@ -248,11 +251,12 @@ Tagify.prototype = {
 
             // if( value.indexOf(',') != -1 || isDatalistInput ){
             if( value.slice().search(this.settings.delimiters) != -1 || isDatalistInput ){
-                if( this.addTag(value).length )
+                if( this.addTags(value).length )
                     e.target.value = ''; // clear the input field's value
             }
             else if( this.settings.autocomplete && this.settings.whitelist.length ){
                 datalistInDOM = this.DOM.input.parentNode.contains( this.DOM.datalist );
+
                 // if sugegstions should be hidden
                 if( !showSuggestions && datalistInDOM )
                     this.DOM.input.parentNode.removeChild(this.DOM.datalist)
@@ -272,7 +276,7 @@ Tagify.prototype = {
             if( e.target.tagName == "TAGS" )
                 this.DOM.input.focus();
             if( e.target.tagName == "X" ){
-                this.removeTag( this.getNodeIndex(e.target.parentNode) );
+                this.removeTag( e.target.parentNode );
             }
         }
     },
@@ -314,14 +318,22 @@ Tagify.prototype = {
     },
 
     /**
-     * Searches if any tag with a certain value already exist, and mark it
+     * Searches if any tag with a certain value already exis
+     * @param  {String} s [text value to search for]
+     * @return {boolean}  [found / not found]
+     */
+    isTagDuplicate : function(s){
+        return this.value.some(function(item){ return s.toLowerCase() === item.value.toLowerCase() });
+    },
+
+    /**
+     * Mark a tag element by its value
      * @param  {String / Number} value  [text value to search for]
      * @param  {Object}          tagElm [a specific "tag" element to compare to the other tag elements siblings]
      * @return {boolean}                [found / not found]
      */
     markTagByValue : function(value, tagElm){
-        var tagsElms, tagsElmsLen,
-            isDuplicate = this.value.filter(function(item){ return value.toLowerCase() === item.toLowerCase() })[0];
+        var tagsElms, tagsElmsLen;
 
         if( !tagElm ){
             tagsElms = this.DOM.scope.querySelectorAll('tag');
@@ -331,10 +343,15 @@ Tagify.prototype = {
             }
         }
 
-        if( tagElm && isDuplicate ){
+        // check AGAIN if "tagElm" is defined
+        if( tagElm ){
             tagElm.classList.add('tagify--mark');
             setTimeout(function(){ tagElm.classList.remove('tagify--mark') }, 2000);
             return true;
+        }
+
+        else{
+
         }
 
         return false;
@@ -357,77 +374,181 @@ Tagify.prototype = {
 
     /**
      * add a "tag" element to the "tags" component
-     * @param  {String} value [A string of a value or multiple values]
-     * @return {Array}  Array of DOM elements
+     * @param  {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects]
+     * @return {Array} Array of DOM elements (tags)
      */
-    addTag : function( value ){
+    addTags : function( tagsItems ){
         var that = this,
-            result;
+            tagElems = [];
 
         this.DOM.input.removeAttribute('style');
 
-        value = value.trim();
+        /**
+         * pre-proccess the tagsItems, which can be a complex tagsItems like an Array of Objects or a string comprised of multiple words
+         * so each item should be iterated on and a tag created for.
+         * @return {Array} [Array of Objects]
+         */
+        function normalizeTags(tagsItems){
+            var whitelistWithProps = this.settings.whitelist[0] instanceof Object,
+                isComplex = tagsItems instanceof Array && "value" in tagsItems[0], // checks if the value is a "complex" which means an Array of Objects, each object is a tag
+                result = tagsItems; // the returned result
 
-        if( !value ) return [];
+            // no need to continue if "tagsItems" is an Array of Objects
+            if( isComplex )
+                return result;
 
-        // go over each tag and add it (if there were multiple ones)
-        result = value.split(this.settings.delimiters).filter(function(v){ return !!v }).map(function(v){
-            v = v.trim();
+            // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
+            if( !isComplex && typeof tagsItems == "string" && whitelistWithProps ){
+                var matchObj = this.settings.whitelist.filter(function(item){
+                    return item.value.toLowerCase() == tagsItems.toLowerCase();
+                })
 
-            if( that.settings.pattern && !(that.settings.pattern.test(v)) )
-                return false;
-
-            var tagElm = document.createElement('tag'),
-                isDuplicate = that.markTagByValue(v, tagElm),
-                tagAllowed,
-                tagNotAllowedEventName,
-                maxTagsExceed = that.value.length >= that.settings.maxTags;
-
-            if( isDuplicate ){
-                that.trigger('duplicate', v);
-                if( !that.settings.duplicates ){
-                    return false;
+                if( matchObj[0] ){
+                    isComplex = true;
+                    result = matchObj; // set the Array (with the found Object) as the new value
                 }
             }
 
-            tagAllowed = !that.isTagBlacklisted(v) && (!that.settings.enforceWhitelist || that.isTagWhitelisted(v)) && !maxTagsExceed;
+            // if the value is a "simple" String, ex: "aaa, bbb, ccc"
+            if( !isComplex ){
+                tagsItems = tagsItems.trim();
+                if( !tagsItems ) return [];
 
-            // check against blacklist & whitelist (if enforced)
+                // go over each tag and add it (if there were multiple ones)
+                result = tagsItems.split(this.settings.delimiters).map(function(v){
+                    return { value:v.trim() }
+                });
+            }
+
+            return result.filter(function(n){ return n }); // cleanup the array from "undefined", "false" or empty items;
+        }
+
+        /**
+         * validate a tag object BEFORE the actual tag will be created & appeneded
+         * @param  {Object} tagData  [{"value":"text", "class":whatever", ...}]
+         * @return {Boolean/String}  ["true" if validation has passed, String or "false" for any type of error]
+         */
+        function validateTag( tagData ){
+            var value = tagData.value.trim(),
+                maxTagsExceed = this.value.length >= this.settings.maxTags,
+                isDuplicate,
+                eventName__error,
+                tagAllowed;
+
+            // check for empty value
+            if( !value )
+                return "empty";
+
+            // check if pattern should be used and if so, use it to test the value
+            if( this.settings.pattern && !(this.settings.pattern.test(value)) )
+                return "pattern";
+
+            // check if the tag already exists
+            if( this.isTagDuplicate(value) ){
+                this.trigger('duplicate', value);
+
+                if( !this.settings.duplicates ){
+                    // this.markTagByValue(value, tagElm)
+                    return "duplicate";
+                }
+            }
+
+            // check if the tag is allowed by the rules set
+            tagAllowed = !this.isTagBlacklisted(value) && (!this.settings.enforceWhitelist || this.isTagWhitelisted(value)) && !maxTagsExceed;
+
+            // Check against blacklist & whitelist (if enforced)
             if( !tagAllowed ){
-                tagElm.classList.add('tagify--notAllowed');
-                setTimeout(function(){ that.removeTag(that.getNodeIndex(tagElm), true) }, 1000);
+                tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
 
                 // broadcast why the tag was not allowed
-                if( maxTagsExceed ) tagNotAllowedEventName = 'maxTagsExceed';
-                else if( that.isTagBlacklisted(v) ) tagNotAllowedEventName = 'blacklisted';
-                else if( that.settings.enforceWhitelist && !that.isTagWhitelisted(v) ) tagNotAllowedEventName = 'notWhitelisted';
+                if( maxTagsExceed )                                                        eventName__error = 'maxTagsExceed';
+                else if( this.isTagBlacklisted(value) )                                    eventName__error = 'blacklisted';
+                else if( this.settings.enforceWhitelist && !this.isTagWhitelisted(value) ) eventName__error = 'notWhitelisted';
 
-                that.trigger(tagNotAllowedEventName, {value:v, index:that.value.length});
+                this.trigger(eventName__error, {value:value, index:this.value.length});
+
+                return "notAllowed";
             }
 
-            // the space below is important - http://stackoverflow.com/a/19668740/104380
-            tagElm.innerHTML = "<x></x><div><span title='"+ v +"'>"+ v +" </span></div>";
-            that.DOM.scope.insertBefore(tagElm, that.DOM.input.parentNode);
+            return true;
+        }
 
-            if( tagAllowed ){
-                that.value.push(v);
-                that.update();
-                that.trigger('add', {value:v, index:that.value.length});
+        /**
+         * appened (validated) tag to the component's DOM scope
+         * @return {[type]} [description]
+         */
+        function appendTag(tagElm){
+            this.DOM.scope.insertBefore(tagElm, this.DOM.input.parentNode);
+        }
+
+        //////////////////////
+        tagsItems = normalizeTags.call(this, tagsItems);
+
+        tagsItems.forEach(function(tagData){
+            var isTagValidated = validateTag.call(that, tagData);
+
+            if( isTagValidated === true || isTagValidated == "notAllowed" ){
+                // create the tag element
+                var tagElm = that.createTagElem(tagData);
+
+                // add the tag to the component's DOM
+                appendTag.call(that, tagElm);
+
+                // remove the tag "slowly"
+                if( isTagValidated == "notAllowed" ){
+                    setTimeout(function(){ that.removeTag(tagElm, true) }, 1000);
+                }
+
+                else{
+                    // update state
+                    that.value.push(tagData);
+                    that.update();
+                    that.trigger('add', that.extend({}, tagData, {index:that.value.length, tag:tagElm}));
+
+                    tagElems.push(tagElm);
+                }
             }
+        })
 
-            return tagElm;
-        });
+        return tagElems
+    },
 
-        return result.filter(function(n){ return n });
+    /**
+     * creates a DOM tag element and injects it into the component (this.DOM.scope)
+     * @param  Object}  tagData [text value & properties for the created tag]
+     * @return {Object} [DOM element]
+     */
+    createTagElem : function(tagData){
+        var tagElm = document.createElement('tag');
+
+        // for a certain Tag element, add attributes.
+        function addTagAttrs(tagElm, tagData){
+            var i, keys = Object.keys(tagData);
+            for( i=keys.length; i--; ){
+                var propName = keys[i];
+                if( !tagData.hasOwnProperty(propName) ) return;
+                    tagElm.setAttribute(propName, tagData[propName] );
+            }
+        }
+
+        // The space below is important - http://stackoverflow.com/a/19668740/104380
+        tagElm.innerHTML = "<x></x><div><span title='"+ tagData.value +"'>"+ tagData.value +" </span></div>";
+
+        // add any attribuets, if exists
+        addTagAttrs(tagElm, tagData);
+
+        return tagElm;
     },
 
     /**
      * Removes a tag
-     * @param  {Number}  idx    [tag index to be removed]
-     * @param  {Boolean} silent [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
+     * @param  {Object}  tagElm    [DOM element]
+     * @param  {Boolean} silent    [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
      */
-    removeTag : function( idx, silent ){
-        var tagElm = this.DOM.scope.children[idx];
+    removeTag : function( tagElm, silent ){
+        var tagData,
+            tagIdx = this.getNodeIndex(tagElm);
+
         if( !tagElm) return;
 
         tagElm.style.width = parseFloat(window.getComputedStyle(tagElm).width) + 'px';
@@ -440,9 +561,9 @@ Tagify.prototype = {
         }, 400);
 
         if( !silent ){
-            this.value.splice(idx, 1); // remove the tag from the data object
+            tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
             this.update(); // update the original input with the current value
-            this.trigger('remove', {value:tagElm.textContent.trim(), index:idx});
+            this.trigger('remove', this.extend({}, tagData, {index:tagIdx, tag:tagElm}));
         }
     },
 
@@ -458,7 +579,8 @@ Tagify.prototype = {
      * update the origianl (hidden) input field's value
      */
     update : function(){
-        this.DOM.originalInput.value = this.value.join(',');
+        var tagsAsString = this.value.map(function(v){ return v.value }).join(',');
+        this.DOM.originalInput.value = tagsAsString;
     }
 }
 

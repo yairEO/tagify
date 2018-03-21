@@ -15,16 +15,16 @@ Tagify - lightweight input "tags" script
 
 ![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif)
 
-Want to simply convert an input field into a tags element, in a easy customizable way,
-with good performance and smallest code footprint? You are in the right place my friend.
+Transforms an input field or a textarea into a *Tags* component, in an easy, customizable way,
+with great performance and tiny code footprint.
 
-## [Demo page](https://yaireo.github.io/tagify/)
+## [See Demos](https://yaireo.github.io/tagify/)
 
 ## Selling points
 * supports whitelist (with native suggestions dropdown as-you-type)
 * supports blacklists
 * JS file is under 150 very readiable lines of code
-* JS weights less than ~5kb
+* JS weights less than ~10kb
 * SCSS file is ~2kb of highly readable and flexible code
 * No other inputs are used beside the original, and its value is kept in sync
 * Can paste in multiple values ("tag 1, tag 2, tag 3")
@@ -32,7 +32,7 @@ with good performance and smallest code footprint? You are in the right place my
 * Tags can be created by commas *or* by pressing the "Enter" key
 * Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
 * Easily customized
-* Exposed custom events
+* Exposed custom events (Add, Remove, Invalid, Duplicate)
 
 
 ## building the project
@@ -47,7 +47,7 @@ Lets say this is your markup, and you already have a value set on the input (whi
 <textarea name='tags' placeholder='write some tags'>foo, bar,buzz</textarea>
 ```
 
-what you need to do to convert that nice input into "tags" is simply select your input/textarea and run `tagify()`:
+What you need to do to convert that nice input into "tags" is simply select your input/textarea and run `tagify()`:
 
 ```javascript
 // vanilla component
@@ -67,6 +67,51 @@ tagify = new Tagify( input, {
 tagify1.on('remove', ()=>{
     console.log(e, e.detail);
 });
+```
+
+The value of the Tagify component can be accessed like so:
+
+```javascript
+    tagify.value // -> [{"value":"tag1"}, {"value":"tag2"}, ...]
+```
+
+If the Tags were added with custom properties, the *value* output might look something like this:
+
+```javascript
+    tagify.value // -> [{ "value":"tag1", "class":"red", "id":1}, ...]
+```
+
+
+### Tags with properties ([example](https://yaireo.github.io/tagify#section-extra-properties))
+
+The below example will populate the Tags component with 2 tags, each with specific attributes & values.
+the `addTags` method accepts an Array of Objects with **any** key/value, as long as the `value` key is defined.
+
+```javascript
+var input = document.querySelector('input[name=tags]'),
+    tagify = new Tagify( input );
+
+tagify.addTags([
+    {
+        "value"   : "strawberry",
+        "data-id" : 8,
+        "class"   : 'color-red'
+    },
+    {
+        "value"   : "blueberry",
+        "data-id" : 6,
+        "class"   : 'color-purple'
+    }
+])
+```
+
+The above will output:
+
+```html
+<tags>
+    <tag class="color-red" data-id="8" value="strawberry">...</tag>
+    <tag class="color-purple" data-id="6" value="blueberry">...</tag>
+</tags>
 ```
 
 ### jQuery plugin version (jQuery.tagify.js)
@@ -115,9 +160,10 @@ Now markup be like:
 
 Name            | Info
 --------------- | --------------------------------------------------------------------------
-destroy         | if called, will revert the input back as it was before Tagify was applied
-removeAllTags   | removes all tags and rests the original input tag's value property
-
+destroy         | Reverts the input element back as it was before Tagify was applied
+removeAllTags   | Removes all tags and resets the original input tag's value property
+addTags         | Accepts a String (word, single or multiple with a delimiter) or an Array of Objects (see above)
+removeTag       | Removes a specific tag (argument is the tag DOM element to be removed. see source code.)
 
 ## Exposed events
 
