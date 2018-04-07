@@ -1,5 +1,5 @@
 /**
- * Tagify (v 1.2.4)- tags input component
+ * Tagify (v 1.3.1)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -7,17 +7,17 @@
 ;(function($){
     // just a jQuery wrapper for the vanilla version of this component
     $.fn.tagify = function(settings){
-        var $input = this,
-            tagify;
+        this.each(function() {
+            var $input = $(this),
+                tagify;
 
-        if( $input.data("tagify") ) // don't continue if already "tagified"
-            return this;
+            if( $input.data("tagify") ) // don't continue if already "tagified"
+                return this;
 
-        tagify = new Tagify(this[0], settings);
-        tagify.isJQueryPlugin = true;
-        $input.data("tagify", tagify);
-
-        return this;
+            tagify = new Tagify($input[0], settings);
+            tagify.isJQueryPlugin = true;
+            $input.data("tagify", tagify);
+        });
     }
 
 function Tagify( input, settings ){
@@ -535,7 +535,7 @@ Tagify.prototype = {
             for( i=keys.length; i--; ){
                 var propName = keys[i];
                 if( !tagData.hasOwnProperty(propName) ) return;
-                    tagElm.setAttribute(propName, tagData[propName] );
+                tagElm.setAttribute(propName, tagData[propName] );
             }
         }
 

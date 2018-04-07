@@ -513,7 +513,7 @@ Tagify.prototype = {
             for( i=keys.length; i--; ){
                 var propName = keys[i];
                 if( !tagData.hasOwnProperty(propName) ) return;
-                    tagElm.setAttribute(propName, tagData[propName] );
+                tagElm.setAttribute(propName, tagData[propName] );
             }
         }
 
