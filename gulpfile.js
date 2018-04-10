@@ -103,17 +103,17 @@ var banner = `/**
 var jQueryPluginWrap = [`;(function($){
     // just a jQuery wrapper for the vanilla version of this component
     $.fn.tagify = function(settings){
-        var $input = this,
-            tagify;
+        return this.each(function() {
+            var $input = $(this),
+                tagify;
 
-        if( $input.data("tagify") ) // don't continue if already "tagified"
-            return this;
+            if( $input.data("tagify") ) // don't continue if already "tagified"
+                return this;
 
-        tagify = new Tagify(this[0], settings);
-        tagify.isJQueryPlugin = true;
-        $input.data("tagify", tagify);
-
-        return this;
+            tagify = new Tagify($input[0], settings);
+            tagify.isJQueryPlugin = true;
+            $input.data("tagify", tagify);
+        });
     }
 
 `
