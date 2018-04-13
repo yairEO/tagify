@@ -7,7 +7,7 @@
 ;(function($){
     // just a jQuery wrapper for the vanilla version of this component
     $.fn.tagify = function(settings){
-        this.each(function() {
+        return this.each(function() {
             var $input = $(this),
                 tagify;
 
