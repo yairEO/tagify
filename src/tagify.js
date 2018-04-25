@@ -31,6 +31,7 @@ function Tagify( input, settings ){
 
 Tagify.prototype = {
     DEFAULTS : {
+		originalDelimiter   : ",",        // tags are set into original input separated by this delimiter
         delimiters          : ",",        // [regex] split tags by any of these delimiters
         pattern             : "",         // pattern to validate input by
         callbacks           : {},         // exposed callbacks object to be triggered on certain events
@@ -565,7 +566,10 @@ Tagify.prototype = {
      * update the origianl (hidden) input field's value
      */
     update : function(){
-        var tagsAsString = this.value.map(function(v){ return v.value }).join(',');
+		var delim = this.settings.originalDelimiter.charAt(0);
+		
+        //var tagsAsString = this.value.map(function(v){ return v.value }).join(',');
+		var tagsAsString = this.value.map(function(v){ return v.value }).join(delim);
         this.DOM.originalInput.value = tagsAsString;
     }
 }
