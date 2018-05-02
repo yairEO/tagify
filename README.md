@@ -188,12 +188,12 @@ Name                | Type       | Default     | Info
 delimiters          | String     | ","         | [regex] split tags by any of these delimiters. Example: Space or Coma - ", "
 pattern             | String     | ""          | Validate the input by REGEX pattern (can also be applied on the input itself as an attribute)
 duplicates          | Boolean    | false       | (flag) should duplicate tags be allowed or not
-enforeWhitelist     | Boolean    | false       | should ONLY use tags allowed in whitelist
-autocomplete        | Boolean    | true        | show native suggeestions list, as you type
+enforceWhitelist    | Boolean    | false       | should ONLY use tags allowed in whitelist
+autocomplete        | Boolean    | true        | show native suggestions list, as you type
 whitelist           | Array      | []          | an array of tags which only they are allowed
 blacklist           | Array      | []          | an array of tags which aren't allowed
 callbacks           | Object     | {}          | exposed callbacks object to be triggered on events: 'add' / 'remove' tags
 maxTags             | Number     | Infinity    | max number of tags
-suggestionsMinChars | Number     | 2           | minimum characters to input which shows the sugegstions list
+suggestionsMinChars | Number     | 2           | minimum characters to input which shows the suggestions list
 
 
