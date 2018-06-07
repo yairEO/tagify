@@ -31,6 +31,8 @@ function Tagify( input, settings ){
 
 Tagify.prototype = {
     DEFAULTS : {
+        doNotTagifyOnBlur   : false,      // flag - prevent tagifying while focus/blur
+        originalDelimiter   : ",",        // tags are set into original input separated by this delimiter
         delimiters          : ",",        // [regex] split tags by any of these delimiters
         pattern             : "",         // pattern to validate input by
         callbacks           : {},         // exposed callbacks object to be triggered on certain events
@@ -142,11 +144,14 @@ Tagify.prototype = {
                 $(this.DOM.originalInput).triggerHandler(eventName, [data])
             else{
                 try {
+                    // https://stackoverflow.com/questions/27176983/dispatchevent-not-working-in-ie11
+                    // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
                     e = new CustomEvent(eventName, {"detail":data});
                 }
                 catch(err){
-                    e = document.createEvent("Event");
-                    e.initEvent("toggle", false, false);
+                    e = document.createEvent("CustomEvent");
+                    e.initCustomEvent( eventName, false, false, data );
+                    console.error("IE11 does not support CustomEvent(). You should add it to your project. Read more: https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent#Polyfill")
                 }
                 target.dispatchEvent(e);
             }
@@ -189,7 +194,7 @@ Tagify.prototype = {
 
             if( e.type == "focus" )
                 e.target.className = 'input';
-            else if( e.type == "blur" && text ){
+            else if( e.type == "blur" && text && !this.settings.doNotTagifyOnBlur ){
                 if( this.addTags(text).length )
                     e.target.value = '';
             }
@@ -565,7 +570,10 @@ Tagify.prototype = {
      * update the origianl (hidden) input field's value
      */
     update : function(){
-        var tagsAsString = this.value.map(function(v){ return v.value }).join(',');
+        var delim = this.settings.originalDelimiter.charAt(0);
+        
+        //var tagsAsString = this.value.map(function(v){ return v.value }).join(',');
+        var tagsAsString = this.value.map(function(v){ return v.value }).join(delim);
         this.DOM.originalInput.value = tagsAsString;
     }
 }
