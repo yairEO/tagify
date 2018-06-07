@@ -149,8 +149,9 @@ Tagify.prototype = {
                     e = new CustomEvent(eventName, {"detail":data});
                 }
                 catch(err){
-                    e = document.createEvent("Event");
-                    e.initEvent(eventName, false, false);
+                    e = document.createEvent("CustomEvent");
+                    e.initCustomEvent( eventName, false, false, data );
+                    console.error("IE11 does not support CustomEvent(). You should add it to your project. Read more: https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent#Polyfill")
                 }
                 target.dispatchEvent(e);
             }
