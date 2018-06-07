@@ -144,11 +144,13 @@ Tagify.prototype = {
                 $(this.DOM.originalInput).triggerHandler(eventName, [data])
             else{
                 try {
+                    // https://stackoverflow.com/questions/27176983/dispatchevent-not-working-in-ie11
+                    // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
                     e = new CustomEvent(eventName, {"detail":data});
                 }
                 catch(err){
                     e = document.createEvent("Event");
-                    e.initEvent("toggle", false, false);
+                    e.initEvent(eventName, false, false);
                 }
                 target.dispatchEvent(e);
             }
