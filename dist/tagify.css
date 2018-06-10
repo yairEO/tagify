@@ -221,6 +221,26 @@ tags > div > span {
   transition: .15s ease-out;
 }
 
+.tagify__dropdown {
+  position: absolute;
+  z-index: 999;
+  background: white;
+  min-height: 50px;
+  border: 1px solid #AAA;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.tagify__dropdown__item {
+  -webkit-box-sizing: inherit;
+          box-sizing: inherit;
+  padding: .35em .8em;
+}
+
+.tagify__dropdown__item--active {
+  background: #E5E5E5;
+}
+
 @-webkit-keyframes tags--bump {
   30% {
     -webkit-box-shadow: 0 0 0 4px #E5E5E5;

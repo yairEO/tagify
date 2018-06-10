@@ -22,6 +22,7 @@ var gulp         = require('gulp'),
     replace      = require('gulp-replace'),
     insert       = require('gulp-insert'),
     beep         = require('beepbeep'),
+    babel        = require('gulp-babel'),
     pkg          = require('./package.json');
 
 
@@ -147,9 +148,10 @@ gulp.task('build_js', () => {
     lint(jsStream);
 
     return gulp.src('src/tagify.js')
-        .pipe(umd())
-        .pipe(insert.prepend(banner))
-        .pipe(gulp.dest('./dist/'))
+        .pipe( babel({presets: ['env']}) )
+        .pipe( umd() )
+        .pipe( insert.prepend(banner) )
+        .pipe( gulp.dest('./dist/') )
 
 });
 

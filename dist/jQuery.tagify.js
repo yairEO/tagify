@@ -48,7 +48,9 @@ function Tagify( input, settings ){
     this.DOM = {}; // Store all relevant DOM elements in an Object
     this.extend(this, new this.EventDispatcher());
     this.build(input);
-    this.events();
+
+    this.events.customBinding.call(this);
+    this.events.binding.call(this);
 }
 
 Tagify.prototype = {
@@ -65,6 +67,8 @@ Tagify.prototype = {
         suggestionsMinChars : 2,          // minimum characters to input to see sugegstions list
         maxSuggestions      : 10
     },
+
+    customEventsList : ['add', 'remove', 'duplicate', 'maxTagsExceed', 'blacklisted', 'notWhitelisted'],
 
     /**
      * Fixes which require backword support
@@ -87,7 +91,7 @@ Tagify.prototype = {
     build : function( input ){
         var that = this,
             value = input.value,
-            inputHTML = '<div><input list="tagifySuggestions'+ this.id +'" class="placeholder"/><span>'+ input.placeholder +'</span></div>';
+            inputHTML = '<div><input class="placeholder"/><span>'+ input.placeholder +'</span></div>';
         this.DOM.originalInput = input;
         this.DOM.scope = document.createElement('tags');
         input.className && (this.DOM.scope.className = input.className); // copy any class names from the original input element to the Tags element
@@ -102,10 +106,8 @@ Tagify.prototype = {
 
         // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
         if( this.settings.autocomplete && this.settings.whitelist.length ){
-            if( "suggestions" in this )
-                this.suggestions.init();
-            else
-                this.DOM.datalist = this.buildDataList();
+            this.dropdown.init.call(this);
+            // this.DOM.datalist = this.buildDataList();
         }
 
         // if the original input already had any value (tags)
@@ -178,116 +180,119 @@ Tagify.prototype = {
     /**
      * DOM events listeners binding
      */
-    events : function(){
-        var that = this,
-            events = {
-                 //  event name / event callback / element to be listening to
-                paste   : ['onPaste'      , 'input'],
-                focus   : ['onFocusBlur'  , 'input'],
-                blur    : ['onFocusBlur'  , 'input'],
-                input   : ['onInput'      , 'input'],
-                keydown : ['onKeydown'    , 'input'],
-                click   : ['onClickScope' , 'scope']
-            },
-            customList = ['add', 'remove', 'duplicate', 'maxTagsExceed', 'blacklisted', 'notWhitelisted'];
+    events : {
+        // bind custom events which were passed in the settings
+        customBinding(){
+            this.customEventsList.forEach(name => {
+                this.on(name, this.settings.callbacks[name])
+            })
+        },
 
-        for( var e in events )
-            this.DOM[events[e][1]].addEventListener(e, this.callbacks[events[e][0]].bind(this));
+        binding( bindUnbind = true ){
+            var _CB = this.events.callbacks,
+                // setup callback references so events could be removed later
+                _CR = (this.events._CR = this.events._CR || {
+                    paste   : ['input', _CB.onPaste.bind(this)],
+                    focus   : ['input', _CB.onFocusBlur.bind(this)],
+                    blur    : ['input', _CB.onFocusBlur.bind(this)],
+                //    input   : ['input', _CB.onInput.bind(this)],
+                    keydown : ['input', _CB.onKeydown.bind(this)],
+                    click   : ['scope', _CB.onClickScope.bind(this)]
+                }),
+                action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
-        customList.forEach(function(name){
-            that.on(name, that.settings.callbacks[name])
-        })
 
-        if( this.isJQueryPlugin )
-            $(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
-    },
-
-    /**
-     * DOM events callbacks
-     */
-    callbacks : {
-        onFocusBlur : function(e){
-            var text =  e.target.value.trim();
-
-            if( e.type == "focus" )
-                e.target.className = 'input';
-            else if( e.type == "blur" && text ){
-                if( this.addTags(text).length )
-                    e.target.value = '';
+            for( var eventName in _CR ){
+                this.DOM[_CR[eventName][0]][action](eventName, _CR[eventName][1]);
             }
-            else{
-                e.target.className = 'input placeholder';
-                this.DOM.input.removeAttribute('style');
+
+            if( bindUnbind ){
+                // this event should not be unbinded ever
+                this.DOM.input.addEventListener("input", _CB.onInput.bind(this));
+
+                if( this.isJQueryPlugin )
+                    $(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
             }
         },
 
-        onKeydown : function(e){
-            var s = e.target.value,
-                lastTag,
-                that = this;
+        /**
+         * DOM events callbacks
+         */
+        callbacks : {
+            onFocusBlur : function(e){
+                var text =  e.target.value.trim();
 
-            if( e.key == "Backspace" && (s == "" || s.charCodeAt(0) == 8203) ){
-                lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
-                lastTag = lastTag[lastTag.length - 1];
-                this.removeTag( lastTag );
-            }
-            if( e.key == "Escape" ){
-                e.target.value = '';
-                e.target.blur();
-            }
-            if( e.key == "Enter" ){
-                e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                if( this.addTags(s).length )
-                    e.target.value = '';
-                return false;
-            }
-            else{
-                if( this.noneDatalistInput ) clearTimeout(this.noneDatalistInput);
-                this.noneDatalistInput = setTimeout(function(){ that.noneDatalistInput = null }, 50);
-            }
-        },
+                if( e.type == "focus" )
+                    e.target.className = 'input';
 
-        onInput : function(e){
-            var value = e.target.value,
-                lastChar = value[value.length - 1],
-                isDatalistInput = !this.noneDatalistInput && value.length > 1,
-                showSuggestions = value.length >= this.settings.suggestionsMinChars,
-                datalistInDOM;
-
-            e.target.style.width = ((e.target.value.length + 1) * 7) + 'px';
-
-
-            // if( value.indexOf(',') != -1 || isDatalistInput ){
-            if( value.slice().search(this.settings.delimiters) != -1 || isDatalistInput ){
-                if( this.addTags(value).length )
-                    e.target.value = ''; // clear the input field's value
-            }
-            else if( this.settings.autocomplete && this.settings.whitelist.length ){
-                datalistInDOM = this.DOM.input.parentNode.contains( this.DOM.datalist );
-
-                // if sugegstions should be hidden
-                if( !showSuggestions && datalistInDOM )
-                    this.DOM.input.parentNode.removeChild(this.DOM.datalist)
-                else if( showSuggestions && !datalistInDOM ){
-                    this.DOM.input.parentNode.appendChild(this.DOM.datalist)
+                else if( e.type == "blur" && text ){
+                    if( this.addTags(text).length )
+                        e.target.value = '';
                 }
-            }
-        },
 
-        onPaste : function(e){
-            var that = this;
-            if( this.noneDatalistInput ) clearTimeout(this.noneDatalistInput);
-            this.noneDatalistInput = setTimeout(function(){ that.noneDatalistInput = null }, 50);
-        },
+                else{
+                    e.target.className = 'input placeholder';
+                    this.DOM.input.removeAttribute('style');
+                    this.dropdown.hide.call(this);
+                }
+            },
 
-        onClickScope : function(e){
-            if( e.target.tagName == "TAGS" )
-                this.DOM.input.focus();
-            if( e.target.tagName == "X" ){
-                this.removeTag( e.target.parentNode );
+            onKeydown : function(e){
+                var s = e.target.value,
+                    lastTag,
+                    that = this;
+
+                if( e.key == "Backspace" && (s == "" || s.charCodeAt(0) == 8203) ){
+                    lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
+                    lastTag = lastTag[lastTag.length - 1];
+                    this.removeTag( lastTag );
+                }
+
+                if( e.key == "Escape" ){
+                    e.target.value = '';
+                    e.target.blur();
+                }
+
+                if( e.key == "Enter" ){
+                    e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+                    s = e.target.value;
+                    if( this.addTags(s).length )
+                        e.target.value = '';
+
+                    return false;
+                }
+            },
+
+            onInput : function(e){
+                var value = e.target.value.slice(),
+                    lastChar = value[value.length - 1],
+                    showSuggestions = value.length >= this.settings.suggestionsMinChars;
+
+                e.target.style.width = ((e.target.value.length + 1) * 7) + 'px';
+
+                if( value.search(this.settings.delimiters) != -1 ){
+                    if( this.addTags(value).length )
+                        e.target.value = ''; // clear the input field's value
+                }
+                else if( this.settings.autocomplete && this.settings.whitelist.length ){
+                    this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
+                }
+            },
+
+            onPaste : function(e){
+                var that = this;
+            },
+
+            onClickScope : function(e){
+                if( e.target.tagName == "TAGS" )
+                    this.DOM.input.focus();
+                if( e.target.tagName == "X" ){
+                    this.removeTag( e.target.parentNode );
+                }
             }
         }
     },
+
 
     /**
      * Build tags suggestions using HTML datalist
@@ -535,7 +540,7 @@ Tagify.prototype = {
             for( i=keys.length; i--; ){
                 var propName = keys[i];
                 if( !tagData.hasOwnProperty(propName) ) return;
-                tagElm.setAttribute(propName, tagData[propName] );
+                tagElm.setAttribute( propName, tagData[propName] );
             }
         }
 
@@ -589,6 +594,162 @@ Tagify.prototype = {
     update : function(){
         var tagsAsString = this.value.map(function(v){ return v.value }).join(',');
         this.DOM.originalInput.value = tagsAsString;
+    },
+
+    /**
+     * Dropdown controller
+     * @type {Object}
+     */
+    dropdown : {
+        init : function(){
+            this.DOM.dropdown = this.dropdown.build();
+        },
+
+        build : function(){
+            var elm =  document.createElement('div');
+            elm.className = 'tagify__dropdown';
+
+            return elm;
+        },
+
+        show : function( value ){
+            var listItems = this.dropdown.createListItems.call(this, value);
+
+            if( !listItems ){
+                this.dropdown.hide.call(this);
+                return;
+            }
+
+            this.DOM.dropdown.innerHTML = listItems
+
+            this.dropdown.position.call(this);
+
+            if( !this.DOM.dropdown.parentNode ){
+                document.body.appendChild(this.DOM.dropdown);
+                this.events.binding.call(this, false); // unbind the main events
+                this.dropdown.events.binding.call(this);
+            }
+        },
+
+        hide : function(){
+            if( !this.DOM.dropdown.parentNode ) return;
+
+            document.body.removeChild(this.DOM.dropdown);
+            window.removeEventListener('resize', this.dropdown.position)
+
+            this.dropdown.events.binding.call(this, false); // unbind all events
+            this.events.binding.call(this); // re-bind main events
+        },
+
+        position : function(){
+            var rect = this.DOM.scope.getBoundingClientRect();
+
+            this.DOM.dropdown.style.cssText = "left: "  + rect.left + "px; \
+                                               top: "   + (rect.top + rect.height - 1)  + "px; \
+                                               width: " + rect.width + "px";
+        },
+
+        /**
+         * @type {Object}
+         */
+        events : {
+
+            /**
+             * Events should only be binded when the dropdown is rendered and removed when isn't
+             * @param  {Boolean} bindUnbind [optional. true when wanting to unbind all the events]
+             * @return {[type]}             [description]
+             */
+            binding( bindUnbind = true ){
+                    // references to the ".bind()" methods must be saved so they could be unbinded later
+                var _EC = (this.dropdown.events._CR = this.dropdown.events._CR || {
+                        position     : this.dropdown.position.bind(this),
+                        onKeyDown    : this.dropdown.events.callbacks.onKeyDown.bind(this),
+                        onMouseOver  : this.dropdown.events.callbacks.onMouseOver.bind(this),
+                        onClick      : this.dropdown.events.callbacks.onClick.bind(this)
+                    }),
+                    action = bindUnbind ? 'addEventListener' : 'removeEventListener';
+
+                window[action]('resize', _EC.position);
+                window[action]('keydown', _EC.onKeyDown);
+                window[action]('click', _EC.onClick);
+
+                this.DOM.dropdown[action]('mouseover', _EC.onMouseOver);
+              //  this.DOM.dropdown[action]('click', _EC.onClick);
+            },
+
+            callbacks : {
+                onKeyDown(e){
+                    var selectedElm = this.DOM.dropdown.querySelectorAll("[class$='--active']")[0];
+
+                    if( e.key == 'ArrowDown' || e.key == 'ArrowUp' ){
+                        e.preventDefault();
+                        if( selectedElm ){
+                            selectedElm = selectedElm[e.key == 'ArrowUp' ? "previousElementSibling" : "nextElementSibling"];
+                        }
+                        // if no element was found, loop
+                        if( !selectedElm )
+                            selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' ? this.DOM.dropdown.children.length - 1 : 0];
+
+                        this.dropdown.highlightOption.call(this, selectedElm);
+                    }
+
+                    if( e.key == 'Escape' ){
+                        this.dropdown.hide.call(this);
+                    }
+
+                    if( e.key == 'Enter' ){
+                        this.DOM.input.value = '';
+                        selectedElm && this.addTags( selectedElm.textContent );
+                        this.dropdown.hide.call(this);
+                    }
+                },
+
+                onMouseOver(e){
+                    // event delegation check
+                    if( e.target.className.includes('__item') )
+                        this.dropdown.highlightOption.call(this, e.target);
+                },
+
+                onClick(e){
+                    if( e.target.className.includes('tagify__dropdown__item') ){
+                        this.DOM.input.value = '';
+                        this.addTags( e.target.textContent );
+                    }
+                    // clicked outside the dropdown, so just close it
+                    this.dropdown.hide.call(this);
+                }
+            }
+        },
+
+        highlightOption( elm ){
+            if( !elm ) return;
+            var className = "tagify__dropdown__item--active";
+            this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
+            elm.classList.add(className);
+        },
+
+        /**
+         * returns an HTML string of the suggestions' list items
+         * @return {[type]} [description]
+         */
+        createListItems( value ){
+            if( !value ) return "";
+
+            var list = "",
+                className = "tagify__dropdown__item",
+                suggestionsCount = this.settings.maxSuggestions || Infinity,
+                i = 0;
+
+            for( ; i < this.settings.whitelist.length; i++ ){
+                var whitelistItem = this.settings.whitelist[i];
+                // match for the value within each "whitelist" item
+                if( whitelistItem.toLowerCase().indexOf(value.toLowerCase()) >= 0 && suggestionsCount-- )
+                    list += `<div class='${className}'>${whitelistItem}</div>`; // ${ list == "" ? className + "--active" : ""}
+                if( suggestionsCount == 0 ) break;
+            }
+
+            return list;
+        }
     }
 }
 
