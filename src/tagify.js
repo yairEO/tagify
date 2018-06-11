@@ -8,13 +8,12 @@ function Tagify( input, settings ){
     this.settings = this.extend({}, settings, this.DEFAULTS);
     this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
-    this.legacyFixes();
-
     if( input.pattern )
         try {
             this.settings.pattern = new RegExp(input.pattern);
         } catch(e){}
 
+    // Convert the "delimiters" setting into a REGEX object
     if( settings && settings.delimiters ){
         try {
             this.settings.delimiters = new RegExp("[" + settings.delimiters + "]");
@@ -47,20 +46,6 @@ Tagify.prototype = {
     },
 
     customEventsList : ['add', 'remove', 'duplicate', 'maxTagsExceed', 'blacklisted', 'notWhitelisted'],
-
-    /**
-     * Fixes which require backword support
-     */
-    legacyFixes : function(){
-        var _s = this.settings;
-
-        // For backwards compatibility with older versions, which use 'enforeWhitelist' instead of 'enforceWhitelist'.
-        if( _s.hasOwnProperty("enforeWhitelist") && !_s.hasOwnProperty("enforceWhitelist") ){
-            _s["enforceWhitelist"] = _s["enforeWhitelist"];
-            delete _s["enforeWhitelist"];
-            console.warn("Please update your Tagify settings. The 'enforeWhitelist' property is deprecated and you should be using 'enforceWhitelist'.");
-        }
-    },
 
     /**
      * builds the HTML of this component

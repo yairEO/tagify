@@ -208,7 +208,8 @@
 
             &__item{
                 box-sizing: inherit;
-                padding: .35em .8em;
+                padding: .35em .6em;
+                cursor: pointer;
 
                 &--active{ background:$tag-bg; }
             }

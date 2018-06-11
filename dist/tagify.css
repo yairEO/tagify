@@ -234,7 +234,8 @@ tags > div > span {
 .tagify__dropdown__item {
   -webkit-box-sizing: inherit;
           box-sizing: inherit;
-  padding: .35em .8em;
+  padding: .35em .6em;
+  cursor: pointer;
 }
 
 .tagify__dropdown__item--active {
