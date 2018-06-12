@@ -30,9 +30,9 @@ function Tagify(input, settings) {
     } catch (e) {}
 
     // Convert the "delimiters" setting into a REGEX object
-    if (settings && settings.delimiters) {
+    if (this.settings && this.settings.delimiters) {
         try {
-            this.settings.delimiters = new RegExp("[" + settings.delimiters + "]");
+            this.settings.delimiters = new RegExp("[" + this.settings.delimiters + "]", "g");
         } catch (e) {}
     }
 
@@ -48,20 +48,34 @@ function Tagify(input, settings) {
 
 Tagify.prototype = {
     DEFAULTS: {
-        delimiters: ",", // [regex] split tags by any of these delimiters
+        delimiters: ",", // [regex] split tags by any of these delimiters ("null" to cancel)
         pattern: "", // pattern to validate input by
+        maxTags: Infinity, // maximum number of tags
         callbacks: {}, // exposed callbacks object to be triggered on certain events
+        addTagOnBlur: false, // flag - automatically adds the text which was inputed as a tag when blur event happens
         duplicates: false, // flag - allow tuplicate tags
-        enforceWhitelist: false, // flag - should ONLY use tags allowed in whitelist
-        autocomplete: true, // flag - show native suggeestions list as you type
         whitelist: [], // is this list has any items, then only allow tags from this list
         blacklist: [], // a list of non-allowed tags
-        maxTags: Infinity, // maximum number of tags
+        enforceWhitelist: false, // flag - should ONLY use tags allowed in whitelist
+        autocomplete: true, // flag - show native suggeestions list as you type
         suggestionsMinChars: 2, // minimum characters to input to see sugegstions list
         maxSuggestions: 10
     },
 
     customEventsList: ['add', 'remove', 'duplicate', 'maxTagsExceed', 'blacklisted', 'notWhitelisted'],
+
+    /**
+     * utility method
+     * https://stackoverflow.com/a/35385518/104380
+     * @param  {String} s [HTML string]
+     * @return {Object}   [DOM node]
+     */
+    parseHTML: function parseHTML(s) {
+        var t = document.createElement('template');
+        t.innerHTML = s.trim();
+        return t.content.firstChild;
+    },
+
 
     /**
      * builds the HTML of this component
@@ -70,17 +84,16 @@ Tagify.prototype = {
     build: function build(input) {
         var that = this,
             value = input.value,
-            inputHTML = '<div><input class="placeholder"/><span>' + input.placeholder + '</span></div>';
+            template = '\n                <tags class="' + input.className + ' ' + (this.settings.readonly ? 'readonly' : '') + '">\n                    <div contenteditable data-placeholder="' + input.placeholder + '" class="placeholder"></div>\n                </tags>';
+
         this.DOM.originalInput = input;
-        this.DOM.scope = document.createElement('tags');
-        input.className && (this.DOM.scope.className = input.className); // copy any class names from the original input element to the Tags element
-        this.DOM.scope.innerHTML = inputHTML;
-        this.DOM.input = this.DOM.scope.querySelector('input');
-
-        if (this.settings.readonly) this.DOM.scope.classList.add('readonly');
-
+        this.DOM.scope = this.parseHTML(template);
+        this.DOM.input = this.DOM.scope.querySelector('[contenteditable]');
         input.parentNode.insertBefore(this.DOM.scope, input);
-        this.DOM.scope.appendChild(input);
+
+        // this.DOM.scope.innerHTML = `<div contenteditable data-placeholder="${input.placeholder}"></div>`;
+        // this.DOM.scope.classList.toggle(input.className, input.className); // copy any class names from the original input element to the Tags element
+        // this.DOM.scope.classList.toggle('readonly', this.settings.readonly);
 
         // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
         if (this.settings.autocomplete && this.settings.whitelist.length) {
@@ -94,13 +107,14 @@ Tagify.prototype = {
         });
     },
 
+
     /**
      * Reverts back any changes made by this component
      */
     destroy: function destroy() {
-        this.DOM.scope.parentNode.appendChild(this.DOM.originalInput);
         this.DOM.scope.parentNode.removeChild(this.DOM.scope);
     },
+
 
     /**
      * Merge two objects into a new one
@@ -122,6 +136,7 @@ Tagify.prototype = {
 
         return o;
     },
+
 
     /**
      * A constructor for exposing events to the outside
@@ -148,6 +163,7 @@ Tagify.prototype = {
             }
         };
     },
+
 
     /**
      * DOM events listeners binding
@@ -195,19 +211,18 @@ Tagify.prototype = {
          */
         callbacks: {
             onFocusBlur: function onFocusBlur(e) {
-                var text = e.target.value.trim();
+                var text = e.target.textContent.trim();
 
                 if (e.type == "focus") e.target.className = 'input';else if (e.type == "blur" && text) {
-                    if (this.addTags(text).length) e.target.value = '';
+                    if (this.settings.addTagOnBlur && this.addTags(text).length) e.target.textContent = '';
                 } else {
                     e.target.className = 'input placeholder';
                     this.DOM.input.removeAttribute('style');
                     this.dropdown.hide.call(this);
                 }
             },
-
             onKeydown: function onKeydown(e) {
-                var s = e.target.value,
+                var s = e.target.textContent,
                     lastTag,
                     that = this;
 
@@ -218,37 +233,32 @@ Tagify.prototype = {
                 }
 
                 if (e.key == "Escape") {
-                    e.target.value = '';
+                    e.target.textContent = '';
                     e.target.blur();
                 }
 
                 if (e.key == "Enter") {
                     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                    s = e.target.value;
-                    if (this.addTags(s).length) e.target.value = '';
+                    s = e.target.textContent;
+                    if (this.addTags(s).length) e.target.textContent = '';
+
+                    e.target.textContent.replace(/<br>/g, "");
 
                     return false;
                 }
             },
-
             onInput: function onInput(e) {
-                var value = e.target.value.slice(),
+                var value = e.target.textContent.slice(),
                     lastChar = value[value.length - 1],
                     showSuggestions = value.length >= this.settings.suggestionsMinChars;
 
-                e.target.style.width = (e.target.value.length + 1) * 7 + 'px';
-
                 if (value.search(this.settings.delimiters) != -1) {
-                    if (this.addTags(value).length) e.target.value = ''; // clear the input field's value
+                    if (this.addTags(value).length) e.target.textContent = ''; // clear the input field's value
                 } else if (this.settings.autocomplete && this.settings.whitelist.length) {
                     this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
                 }
             },
-
-            onPaste: function onPaste(e) {
-                var that = this;
-            },
-
+            onPaste: function onPaste(e) {},
             onClickScope: function onClickScope(e) {
                 if (e.target.tagName == "TAGS") this.DOM.input.focus();
                 if (e.target.tagName == "X") {
@@ -284,13 +294,13 @@ Tagify.prototype = {
 
         return datalist;
     },
-
     getNodeIndex: function getNodeIndex(node) {
         var index = 0;
         while (node = node.previousSibling) {
             if (node.nodeType != 3 || !/^\s*$/.test(node.data)) index++;
         }return index;
     },
+
 
     /**
      * Searches if any tag with a certain value already exis
@@ -302,6 +312,7 @@ Tagify.prototype = {
             return s.toLowerCase() === item.value.toLowerCase();
         });
     },
+
 
     /**
      * Mark a tag element by its value
@@ -315,7 +326,7 @@ Tagify.prototype = {
         if (!tagElm) {
             tagsElms = this.DOM.scope.querySelectorAll('tag');
             for (tagsElmsLen = tagsElms.length; tagsElmsLen--;) {
-                if (tagsElms[tagsElmsLen].textContent.toLowerCase().includes(value.toLowerCase())) tagElm = tagsElms[tagsElmsLen];
+                if (tagsElms[tagsElmsLen].value.toLowerCase().includes(value.toLowerCase())) tagElm = tagsElms[tagsElmsLen];
             }
         }
 
@@ -331,6 +342,7 @@ Tagify.prototype = {
         return false;
     },
 
+
     /**
      * make sure the tag, or words in it, is not in the blacklist
      */
@@ -341,12 +353,14 @@ Tagify.prototype = {
         }).length;
     },
 
+
     /**
      * make sure the tag, or words in it, is not in the blacklist
      */
     isTagWhitelisted: function isTagWhitelisted(v) {
         return this.settings.whitelist.indexOf(v) != -1;
     },
+
 
     /**
      * add a "tag" element to the "tags" component
@@ -452,7 +466,7 @@ Tagify.prototype = {
          * @return {[type]} [description]
          */
         function appendTag(tagElm) {
-            this.DOM.scope.insertBefore(tagElm, this.DOM.input.parentNode);
+            this.DOM.scope.insertBefore(tagElm, this.DOM.input);
         }
 
         //////////////////////
@@ -487,13 +501,15 @@ Tagify.prototype = {
         return tagElems;
     },
 
+
     /**
      * creates a DOM tag element and injects it into the component (this.DOM.scope)
      * @param  Object}  tagData [text value & properties for the created tag]
      * @return {Object} [DOM element]
      */
     createTagElem: function createTagElem(tagData) {
-        var tagElm = document.createElement('tag');
+        var tagElm,
+            template = '<tag>\n                            <x></x><div><span title=\'' + tagData.value + '\'></span></div>\n                        </tag>';
 
         // for a certain Tag element, add attributes.
         function addTagAttrs(tagElm, tagData) {
@@ -506,14 +522,15 @@ Tagify.prototype = {
             }
         }
 
-        // The space below is important - http://stackoverflow.com/a/19668740/104380
-        tagElm.innerHTML = "<x></x><div><span title='" + tagData.value + "'>" + tagData.value + " </span></div>";
+        tagElm = this.parseHTML(template);
+        tagElm.querySelector('span').innerText = tagData.value; // escaping HTML
 
         // add any attribuets, if exists
         addTagAttrs(tagElm, tagData);
 
         return tagElm;
     },
+
 
     /**
      * Removes a tag
@@ -541,14 +558,14 @@ Tagify.prototype = {
             this.trigger('remove', this.extend({}, tagData, { index: tagIdx, tag: tagElm }));
         }
     },
-
     removeAllTags: function removeAllTags() {
         this.value = [];
         this.update();
         Array.prototype.slice.call(this.DOM.scope.querySelectorAll('tag')).forEach(function (elm) {
-            elm.parentNode.removeChild(elm);
+            return elm.parentNode.removeChild(elm);
         });
     },
+
 
     /**
      * update the origianl (hidden) input field's value
@@ -560,6 +577,7 @@ Tagify.prototype = {
         this.DOM.originalInput.value = tagsAsString;
     },
 
+
     /**
      * Dropdown controller
      * @type {Object}
@@ -568,14 +586,12 @@ Tagify.prototype = {
         init: function init() {
             this.DOM.dropdown = this.dropdown.build();
         },
-
         build: function build() {
             var elm = document.createElement('div');
             elm.className = 'tagify__dropdown';
 
             return elm;
         },
-
         show: function show(value) {
             var listItems = this.dropdown.createListItems.call(this, value);
 
@@ -594,7 +610,6 @@ Tagify.prototype = {
                 this.dropdown.events.binding.call(this);
             }
         },
-
         hide: function hide() {
             if (!this.DOM.dropdown.parentNode) return;
 
@@ -604,7 +619,6 @@ Tagify.prototype = {
             this.dropdown.events.binding.call(this, false); // unbind all events
             this.events.binding.call(this); // re-bind main events
         },
-
         position: function position() {
             var rect = this.DOM.scope.getBoundingClientRect();
 
@@ -612,6 +626,7 @@ Tagify.prototype = {
                                                top: " + (rect.top + rect.height - 1) + "px; \
                                                width: " + rect.width + "px";
         },
+
 
         /**
          * @type {Object}
@@ -664,7 +679,7 @@ Tagify.prototype = {
                     }
 
                     if (e.key == 'Enter') {
-                        this.DOM.input.value = '';
+                        this.DOM.input.textContent = '';
                         selectedElm && this.addTags(selectedElm.textContent);
                         this.dropdown.hide.call(this);
                     }
@@ -675,7 +690,7 @@ Tagify.prototype = {
                 },
                 onClick: function onClick(e) {
                     if (e.target.className.includes('tagify__dropdown__item')) {
-                        this.DOM.input.value = '';
+                        this.DOM.input.textContent = '';
                         this.addTags(e.target.textContent);
                     }
                     // clicked outside the dropdown, so just close it

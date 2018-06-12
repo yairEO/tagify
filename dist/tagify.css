@@ -1,13 +1,18 @@
 tags {
   display: block;
   border: 1px solid #DDD;
-  padding-right: 0.3em 0.5em;
+  padding: 0.3em 0.5em;
   cursor: text;
   overflow: hidden;
 }
 
 tags:hover {
   border-color: #CCC;
+}
+
+tags + input,tags + textarea {
+  border: 0;
+  display: none;
 }
 
 tags tag {
@@ -171,41 +176,28 @@ tags.readonly tag > div {
   padding: 0.3em 0.5em;
 }
 
-tags input,tags textarea {
-  border: 0;
-  display: none;
-}
-
-tags input::-webkit-calendar-picker-indicator {
-  display: none;
-}
-
 tags > div {
   display: inline-block;
-  min-width: 10px;
+  min-width: 110px;
   margin: 5px;
   padding: 0.3em 0.5em;
   position: relative;
   vertical-align: top;
 }
 
-tags > div > input {
-  display: block;
-  min-width: 130px;
-}
-
-tags > div > input:focus {
+tags > div:focus {
   outline: none;
 }
 
-tags > div > input.placeholder ~ span {
+tags > div.placeholder::before {
   opacity: .5;
   -webkit-transform: none;
       -ms-transform: none;
           transform: none;
 }
 
-tags > div > span {
+tags > div::before {
+  content: attr(data-placeholder);
   opacity: 0;
   line-height: 1.8;
   position: absolute;
@@ -225,7 +217,6 @@ tags > div > span {
   position: absolute;
   z-index: 999;
   background: white;
-  min-height: 50px;
   border: 1px solid #AAA;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;

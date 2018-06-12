@@ -14,7 +14,7 @@
     tags{
         display       : block;
         border        : 1px solid $tags-border-color;
-        padding-right : $tagPad;
+        padding       : $tagPad;
         cursor        : text;
         overflow      : hidden;
 
@@ -23,6 +23,11 @@
         @keyframes tags--bump{
             30% { box-shadow:0 0 0 4px $tag-bg; }
         }
+
+        ///////////////////////////////////////////
+        // Hides originals
+        + input,
+        + textarea{ border:0; display:none; }
 
         tag{
             display        : inline-block;
@@ -163,26 +168,12 @@
         }
 
         ///////////////////////////////////////////
-        // Hides originals
-        input, textarea{ border:0; display:none; }
-
-        // remove datalist doprdown annoying arrow
-        // http://stackoverflow.com/q/20937475/104380
-        input::-webkit-calendar-picker-indicator {
-          display: none;
-        }
-
-        ///////////////////////////////////////////
         // Holds the placeholder & the tags input
-        > div{ display:inline-block; min-width:10px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
-            > input{ display:block; min-width:130px;
-                &:focus{ outline:none; }
-
-                &.placeholder{
-                    ~ span{ opacity:.5; transform:none; }
-                }
-            }
-            > span{
+        > div{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
+            &:focus{ outline:none; }
+            &.placeholder::before{ opacity:.5; transform:none; }
+            &::before{
+                content: attr(data-placeholder);
                 opacity: 0;
                 line-height: 1.8;
                 position:absolute;
@@ -202,7 +193,6 @@
             z-index: 999;
             background: white;
 
-            min-height: 50px;
             border: 1px solid $tags-focus-border-color;
             box-sizing: border-box;
 

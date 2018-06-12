@@ -14,9 +14,9 @@ function Tagify( input, settings ){
         } catch(e){}
 
     // Convert the "delimiters" setting into a REGEX object
-    if( settings && settings.delimiters ){
+    if( this.settings && this.settings.delimiters ){
         try {
-            this.settings.delimiters = new RegExp("[" + settings.delimiters + "]");
+            this.settings.delimiters = new RegExp("[" + this.settings.delimiters + "]", "g");
         } catch(e){}
     }
 
@@ -32,15 +32,16 @@ function Tagify( input, settings ){
 
 Tagify.prototype = {
     DEFAULTS : {
-        delimiters          : ",",        // [regex] split tags by any of these delimiters
+        delimiters          : ",",        // [regex] split tags by any of these delimiters ("null" to cancel)
         pattern             : "",         // pattern to validate input by
+        maxTags             : Infinity,   // maximum number of tags
         callbacks           : {},         // exposed callbacks object to be triggered on certain events
+        addTagOnBlur        : false,      // flag - automatically adds the text which was inputed as a tag when blur event happens
         duplicates          : false,      // flag - allow tuplicate tags
-        enforceWhitelist    : false,      // flag - should ONLY use tags allowed in whitelist
-        autocomplete        : true,       // flag - show native suggeestions list as you type
         whitelist           : [],         // is this list has any items, then only allow tags from this list
         blacklist           : [],         // a list of non-allowed tags
-        maxTags             : Infinity,   // maximum number of tags
+        enforceWhitelist    : false,      // flag - should ONLY use tags allowed in whitelist
+        autocomplete        : true,       // flag - show native suggeestions list as you type
         suggestionsMinChars : 2,          // minimum characters to input to see sugegstions list
         maxSuggestions      : 10
     },
@@ -48,24 +49,37 @@ Tagify.prototype = {
     customEventsList : ['add', 'remove', 'duplicate', 'maxTagsExceed', 'blacklisted', 'notWhitelisted'],
 
     /**
+     * utility method
+     * https://stackoverflow.com/a/35385518/104380
+     * @param  {String} s [HTML string]
+     * @return {Object}   [DOM node]
+     */
+    parseHTML(s){
+        var t = document.createElement('template');
+            t.innerHTML = s.trim();
+        return t.content.firstChild;
+    },
+
+    /**
      * builds the HTML of this component
      * @param  {Object} input [DOM element which would be "transformed" into "Tags"]
      */
-    build : function( input ){
+    build( input ){
         var that = this,
             value = input.value,
-            inputHTML = '<div><input class="placeholder"/><span>'+ input.placeholder +'</span></div>';
+            template = `
+                <tags class="${input.className} ${this.settings.readonly ? 'readonly' : ''}">
+                    <div contenteditable data-placeholder="${input.placeholder}" class="placeholder"></div>
+                </tags>`;
+
         this.DOM.originalInput = input;
-        this.DOM.scope = document.createElement('tags');
-        input.className && (this.DOM.scope.className = input.className); // copy any class names from the original input element to the Tags element
-        this.DOM.scope.innerHTML = inputHTML;
-        this.DOM.input = this.DOM.scope.querySelector('input');
-
-        if( this.settings.readonly )
-            this.DOM.scope.classList.add('readonly')
-
+        this.DOM.scope = this.parseHTML(template);
+        this.DOM.input = this.DOM.scope.querySelector('[contenteditable]');
         input.parentNode.insertBefore(this.DOM.scope, input);
-        this.DOM.scope.appendChild(input);
+
+        // this.DOM.scope.innerHTML = `<div contenteditable data-placeholder="${input.placeholder}"></div>`;
+        // this.DOM.scope.classList.toggle(input.className, input.className); // copy any class names from the original input element to the Tags element
+        // this.DOM.scope.classList.toggle('readonly', this.settings.readonly);
 
         // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
         if( this.settings.autocomplete && this.settings.whitelist.length ){
@@ -75,7 +89,7 @@ Tagify.prototype = {
 
         // if the original input already had any value (tags)
         if( value )
-            this.addTags(value).forEach(function(tag){
+            this.addTags(value).forEach(tag => {
                 tag && tag.classList.add('tagify--noAnim');
             });
     },
@@ -83,15 +97,14 @@ Tagify.prototype = {
     /**
      * Reverts back any changes made by this component
      */
-    destroy : function(){
-        this.DOM.scope.parentNode.appendChild(this.DOM.originalInput);
+    destroy(){
         this.DOM.scope.parentNode.removeChild(this.DOM.scope);
     },
 
     /**
      * Merge two objects into a new one
      */
-    extend : function(o, o1, o2){
+    extend(o, o1, o2){
         if( !(o instanceof Object) ) o = {};
 
         if( o2 ){
@@ -114,7 +127,7 @@ Tagify.prototype = {
     /**
      * A constructor for exposing events to the outside
      */
-    EventDispatcher : function(){
+    EventDispatcher(){
         // Create a DOM EventTarget object
         var target = document.createTextNode('');
 
@@ -182,15 +195,15 @@ Tagify.prototype = {
          * DOM events callbacks
          */
         callbacks : {
-            onFocusBlur : function(e){
-                var text =  e.target.value.trim();
+            onFocusBlur(e){
+                var text =  e.target.textContent.trim();
 
                 if( e.type == "focus" )
                     e.target.className = 'input';
 
                 else if( e.type == "blur" && text ){
-                    if( this.addTags(text).length )
-                        e.target.value = '';
+                    if( this.settings.addTagOnBlur && this.addTags(text).length )
+                        e.target.textContent = '';
                 }
 
                 else{
@@ -200,8 +213,8 @@ Tagify.prototype = {
                 }
             },
 
-            onKeydown : function(e){
-                var s = e.target.value,
+            onKeydown(e){
+                var s = e.target.textContent,
                     lastTag,
                     that = this;
 
@@ -212,41 +225,40 @@ Tagify.prototype = {
                 }
 
                 if( e.key == "Escape" ){
-                    e.target.value = '';
+                    e.target.textContent = '';
                     e.target.blur();
                 }
 
                 if( e.key == "Enter" ){
                     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                    s = e.target.value;
+                    s = e.target.textContent;
                     if( this.addTags(s).length )
-                        e.target.value = '';
+                        e.target.textContent = '';
+
+                    e.target.textContent.replace(/<br>/g, "");
 
                     return false;
                 }
             },
 
-            onInput : function(e){
-                var value = e.target.value.slice(),
+            onInput(e){
+                var value = e.target.textContent.slice(),
                     lastChar = value[value.length - 1],
                     showSuggestions = value.length >= this.settings.suggestionsMinChars;
 
-                e.target.style.width = ((e.target.value.length + 1) * 7) + 'px';
-
                 if( value.search(this.settings.delimiters) != -1 ){
-                    if( this.addTags(value).length )
-                        e.target.value = ''; // clear the input field's value
+                    if( this.addTags( value ).length )
+                        e.target.textContent = ''; // clear the input field's value
                 }
                 else if( this.settings.autocomplete && this.settings.whitelist.length ){
                     this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
                 }
             },
 
-            onPaste : function(e){
-                var that = this;
+            onPaste(e){
             },
 
-            onClickScope : function(e){
+            onClickScope(e){
                 if( e.target.tagName == "TAGS" )
                     this.DOM.input.focus();
                 if( e.target.tagName == "X" ){
@@ -261,7 +273,7 @@ Tagify.prototype = {
      * Build tags suggestions using HTML datalist
      * @return {[type]} [description]
      */
-    buildDataList : function(){
+    buildDataList(){
         var OPTIONS = "",
             i,
             datalist = document.createElement('datalist');
@@ -285,7 +297,7 @@ Tagify.prototype = {
         return datalist;
     },
 
-    getNodeIndex : function( node ){
+    getNodeIndex( node ){
         var index = 0;
         while( (node = node.previousSibling) )
             if (node.nodeType != 3 || !/^\s*$/.test(node.data))
@@ -298,8 +310,8 @@ Tagify.prototype = {
      * @param  {String} s [text value to search for]
      * @return {boolean}  [found / not found]
      */
-    isTagDuplicate : function(s){
-        return this.value.some(function(item){ return s.toLowerCase() === item.value.toLowerCase() });
+    isTagDuplicate(s){
+        return this.value.some(item => s.toLowerCase() === item.value.toLowerCase());
     },
 
     /**
@@ -308,13 +320,13 @@ Tagify.prototype = {
      * @param  {Object}          tagElm [a specific "tag" element to compare to the other tag elements siblings]
      * @return {boolean}                [found / not found]
      */
-    markTagByValue : function(value, tagElm){
+    markTagByValue(value, tagElm){
         var tagsElms, tagsElmsLen;
 
         if( !tagElm ){
             tagsElms = this.DOM.scope.querySelectorAll('tag');
             for( tagsElmsLen = tagsElms.length; tagsElmsLen--; ){
-                if( tagsElms[tagsElmsLen].textContent.toLowerCase().includes(value.toLowerCase()) )
+                if( tagsElms[tagsElmsLen].value.toLowerCase().includes(value.toLowerCase()) )
                     tagElm = tagsElms[tagsElmsLen];
             }
         }
@@ -322,7 +334,7 @@ Tagify.prototype = {
         // check AGAIN if "tagElm" is defined
         if( tagElm ){
             tagElm.classList.add('tagify--mark');
-            setTimeout(function(){ tagElm.classList.remove('tagify--mark') }, 2000);
+            setTimeout(() => { tagElm.classList.remove('tagify--mark') }, 2000);
             return true;
         }
 
@@ -336,15 +348,15 @@ Tagify.prototype = {
     /**
      * make sure the tag, or words in it, is not in the blacklist
      */
-    isTagBlacklisted : function(v){
+    isTagBlacklisted(v){
         v = v.split(' ');
-        return this.settings.blacklist.filter(function(x){ return v.indexOf(x) != -1 }).length;
+        return this.settings.blacklist.filter(x =>v.indexOf(x) != -1).length;
     },
 
     /**
      * make sure the tag, or words in it, is not in the blacklist
      */
-    isTagWhitelisted : function(v){
+    isTagWhitelisted(v){
         return this.settings.whitelist.indexOf(v) != -1;
     },
 
@@ -353,7 +365,7 @@ Tagify.prototype = {
      * @param  {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects]
      * @return {Array} Array of DOM elements (tags)
      */
-    addTags : function( tagsItems ){
+    addTags( tagsItems ){
         var that = this,
             tagElems = [];
 
@@ -375,9 +387,7 @@ Tagify.prototype = {
 
             // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
             if( !isComplex && typeof tagsItems == "string" && whitelistWithProps ){
-                var matchObj = this.settings.whitelist.filter(function(item){
-                    return item.value.toLowerCase() == tagsItems.toLowerCase();
-                })
+                var matchObj = this.settings.whitelist.filter( item => item.value.toLowerCase() == tagsItems.toLowerCase() )
 
                 if( matchObj[0] ){
                     isComplex = true;
@@ -391,12 +401,10 @@ Tagify.prototype = {
                 if( !tagsItems ) return [];
 
                 // go over each tag and add it (if there were multiple ones)
-                result = tagsItems.split(this.settings.delimiters).map(function(v){
-                    return { value:v.trim() }
-                });
+                result = tagsItems.split(this.settings.delimiters).map(v => ({ value:v.trim() }));
             }
 
-            return result.filter(function(n){ return n }); // cleanup the array from "undefined", "false" or empty items;
+            return result.filter(n => n); // cleanup the array from "undefined", "false" or empty items;
         }
 
         /**
@@ -454,13 +462,13 @@ Tagify.prototype = {
          * @return {[type]} [description]
          */
         function appendTag(tagElm){
-            this.DOM.scope.insertBefore(tagElm, this.DOM.input.parentNode);
+            this.DOM.scope.insertBefore(tagElm, this.DOM.input);
         }
 
         //////////////////////
         tagsItems = normalizeTags.call(this, tagsItems);
 
-        tagsItems.forEach(function(tagData){
+        tagsItems.forEach(tagData => {
             var isTagValidated = validateTag.call(that, tagData);
 
             if( isTagValidated === true || isTagValidated == "notAllowed" ){
@@ -472,7 +480,7 @@ Tagify.prototype = {
 
                 // remove the tag "slowly"
                 if( isTagValidated == "notAllowed" ){
-                    setTimeout(function(){ that.removeTag(tagElm, true) }, 1000);
+                    setTimeout(() => { that.removeTag(tagElm, true) }, 1000);
                 }
 
                 else{
@@ -494,8 +502,11 @@ Tagify.prototype = {
      * @param  Object}  tagData [text value & properties for the created tag]
      * @return {Object} [DOM element]
      */
-    createTagElem : function(tagData){
-        var tagElm = document.createElement('tag');
+    createTagElem(tagData){
+        var tagElm,
+            template = `<tag>
+                            <x></x><div><span title='${tagData.value}'></span></div>
+                        </tag>`;
 
         // for a certain Tag element, add attributes.
         function addTagAttrs(tagElm, tagData){
@@ -507,8 +518,8 @@ Tagify.prototype = {
             }
         }
 
-        // The space below is important - http://stackoverflow.com/a/19668740/104380
-        tagElm.innerHTML = "<x></x><div><span title='"+ tagData.value +"'>"+ tagData.value +" </span></div>";
+        tagElm = this.parseHTML(template);
+        tagElm.querySelector('span').innerText = tagData.value; // escaping HTML
 
         // add any attribuets, if exists
         addTagAttrs(tagElm, tagData);
@@ -521,7 +532,7 @@ Tagify.prototype = {
      * @param  {Object}  tagElm    [DOM element]
      * @param  {Boolean} silent    [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
      */
-    removeTag : function( tagElm, silent ){
+    removeTag( tagElm, silent ){
         var tagData,
             tagIdx = this.getNodeIndex(tagElm);
 
@@ -532,7 +543,7 @@ Tagify.prototype = {
         tagElm.classList.add('tagify--hide');
 
         // manual timeout (hack, since transitionend cannot be used because of hover)
-        setTimeout(function(){
+        setTimeout(() => {
             tagElm.parentNode.removeChild(tagElm);
         }, 400);
 
@@ -543,19 +554,17 @@ Tagify.prototype = {
         }
     },
 
-    removeAllTags : function(){
+    removeAllTags(){
         this.value = [];
         this.update();
-        Array.prototype.slice.call(this.DOM.scope.querySelectorAll('tag')).forEach(function(elm){
-            elm.parentNode.removeChild(elm);
-        });
+        Array.prototype.slice.call(this.DOM.scope.querySelectorAll('tag')).forEach(elm => elm.parentNode.removeChild(elm));
     },
 
     /**
      * update the origianl (hidden) input field's value
      */
-    update : function(){
-        var tagsAsString = this.value.map(function(v){ return v.value }).join(',');
+    update(){
+        var tagsAsString = this.value.map(v => v.value).join(',');
         this.DOM.originalInput.value = tagsAsString;
     },
 
@@ -564,18 +573,18 @@ Tagify.prototype = {
      * @type {Object}
      */
     dropdown : {
-        init : function(){
+        init(){
             this.DOM.dropdown = this.dropdown.build();
         },
 
-        build : function(){
+        build(){
             var elm =  document.createElement('div');
             elm.className = 'tagify__dropdown';
 
             return elm;
         },
 
-        show : function( value ){
+        show( value ){
             var listItems = this.dropdown.createListItems.call(this, value);
 
             if( !listItems ){
@@ -594,7 +603,7 @@ Tagify.prototype = {
             }
         },
 
-        hide : function(){
+        hide(){
             if( !this.DOM.dropdown.parentNode ) return;
 
             document.body.removeChild(this.DOM.dropdown);
@@ -604,7 +613,7 @@ Tagify.prototype = {
             this.events.binding.call(this); // re-bind main events
         },
 
-        position : function(){
+        position(){
             var rect = this.DOM.scope.getBoundingClientRect();
 
             this.DOM.dropdown.style.cssText = "left: "  + rect.left + "px; \
@@ -661,7 +670,7 @@ Tagify.prototype = {
                     }
 
                     if( e.key == 'Enter' ){
-                        this.DOM.input.value = '';
+                        this.DOM.input.textContent = '';
                         selectedElm && this.addTags( selectedElm.textContent );
                         this.dropdown.hide.call(this);
                     }
@@ -675,7 +684,7 @@ Tagify.prototype = {
 
                 onClick(e){
                     if( e.target.className.includes('tagify__dropdown__item') ){
-                        this.DOM.input.value = '';
+                        this.DOM.input.textContent = '';
                         this.addTags( e.target.textContent );
                     }
                     // clicked outside the dropdown, so just close it
