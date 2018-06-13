@@ -41,7 +41,8 @@ Tagify.prototype = {
         whitelist           : [],         // is this list has any items, then only allow tags from this list
         blacklist           : [],         // a list of non-allowed tags
         enforceWhitelist    : false,      // flag - should ONLY use tags allowed in whitelist
-        autocomplete        : true,       // flag - show native suggeestions list as you type
+        autoComplete        : true,       // flag - show native suggeestions list as you type
+        autoSuggest         : true,       // flag - show native suggeestions list as you type
         suggestionsMinChars : 2,          // minimum characters to input to see sugegstions list
         maxSuggestions      : 10
     },
@@ -77,7 +78,7 @@ Tagify.prototype = {
             value = input.value,
             template = `
                 <tags class="${input.className} ${this.settings.readonly ? 'readonly' : ''}">
-                    <div contenteditable data-placeholder="${input.placeholder}" class="placeholder"></div>
+                    <div contenteditable data-placeholder="${input.placeholder}" class="tagify--input placeholder"></div>
                 </tags>`;
 
         this.DOM.originalInput = input;
@@ -90,7 +91,7 @@ Tagify.prototype = {
         // this.DOM.scope.classList.toggle('readonly', this.settings.readonly);
 
         // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
-        if( this.settings.autocomplete && this.settings.whitelist.length ){
+        if( this.settings.autoSuggest && this.settings.whitelist.length ){
             this.dropdown.init.call(this);
             // this.DOM.datalist = this.buildDataList();
         }
@@ -175,7 +176,7 @@ Tagify.prototype = {
         binding( bindUnbind = true ){
             var _CB = this.events.callbacks,
                 // setup callback references so events could be removed later
-                _CR = (this.events._CR = this.events._CR || {
+                _CBR = (this._CBR = this._CBR || {
                     paste   : ['input', _CB.onPaste.bind(this)],
                     focus   : ['input', _CB.onFocusBlur.bind(this)],
                     blur    : ['input', _CB.onFocusBlur.bind(this)],
@@ -186,8 +187,8 @@ Tagify.prototype = {
                 action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
 
-            for( var eventName in _CR ){
-                this.DOM[_CR[eventName][0]][action](eventName, _CR[eventName][1]);
+            for( var eventName in _CBR ){
+                this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
             }
 
             if( bindUnbind ){
@@ -206,8 +207,9 @@ Tagify.prototype = {
             onFocusBlur(e){
                 var text =  e.target.textContent.trim();
 
-                if( e.type == "focus" )
-                    e.target.className = 'input';
+                if( e.type == "focus" ){
+                    e.target.classList.remove('placeholder');
+                }
 
                 else if( e.type == "blur" && text ){
                     if( this.settings.addTagOnBlur && this.addTags(text).length )
@@ -215,7 +217,7 @@ Tagify.prototype = {
                 }
 
                 else{
-                    e.target.className = 'input placeholder';
+                    e.target.classList.add('placeholder');
                     this.DOM.input.removeAttribute('style');
                     this.dropdown.hide.call(this);
                 }
@@ -258,7 +260,7 @@ Tagify.prototype = {
                     if( this.addTags( value ).length )
                         e.target.textContent = ''; // clear the input field's value
                 }
-                else if( this.settings.autocomplete && this.settings.whitelist.length ){
+                else if( this.settings.autoSuggest && this.settings.whitelist.length ){
                     this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
                 }
             },
@@ -593,14 +595,18 @@ Tagify.prototype = {
         },
 
         show( value ){
-            var listItems = this.dropdown.createListItems.call(this, value);
+            var listItems = this.dropdown.filterListItems.call(this, value),
+                listHTML = this.dropdown.createListHTML(listItems);
 
-            if( !listItems ){
+            if( !listItems.length ){
                 this.dropdown.hide.call(this);
                 return;
             }
 
-            this.DOM.dropdown.innerHTML = listItems
+            if( this.settings.autoComplete )
+                this.DOM.input.setAttribute("data-suggest", listItems[0].substring(value.length));
+
+            this.DOM.dropdown.innerHTML = listHTML
 
             this.dropdown.position.call(this);
 
@@ -614,6 +620,8 @@ Tagify.prototype = {
         hide(){
             if( !this.DOM.dropdown.parentNode ) return;
 
+            this.DOM.input.removeAttribute("data-suggest");
+
             document.body.removeChild(this.DOM.dropdown);
             window.removeEventListener('resize', this.dropdown.position)
 
@@ -624,8 +632,8 @@ Tagify.prototype = {
         position(){
             var rect = this.DOM.scope.getBoundingClientRect();
 
-            this.DOM.dropdown.style.cssText = "left: "  + rect.left + "px; \
-                                               top: "   + (rect.top + rect.height - 1)  + "px; \
+            this.DOM.dropdown.style.cssText = "left: "  + rect.left + window.pageXOffset + "px; \
+                                               top: "   + (rect.top + rect.height - 1 + window.pageYOffset)  + "px; \
                                                width: " + rect.width + "px";
         },
 
@@ -641,7 +649,7 @@ Tagify.prototype = {
              */
             binding( bindUnbind = true ){
                     // references to the ".bind()" methods must be saved so they could be unbinded later
-                var _EC = (this.dropdown.events._CR = this.dropdown.events._CR || {
+                var _CBR = (this.dropdown._CBR = this.dropdown.events._CBR || {
                         position     : this.dropdown.position.bind(this),
                         onKeyDown    : this.dropdown.events.callbacks.onKeyDown.bind(this),
                         onMouseOver  : this.dropdown.events.callbacks.onMouseOver.bind(this),
@@ -649,12 +657,12 @@ Tagify.prototype = {
                     }),
                     action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
-                window[action]('resize', _EC.position);
-                window[action]('keydown', _EC.onKeyDown);
-                window[action]('click', _EC.onClick);
+                window[action]('resize', _CBR.position);
+                window[action]('keydown', _CBR.onKeyDown);
+                window[action]('click', _CBR.onClick);
 
-                this.DOM.dropdown[action]('mouseover', _EC.onMouseOver);
-              //  this.DOM.dropdown[action]('click', _EC.onClick);
+                this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver);
+              //  this.DOM.dropdown[action]('click', _CBR.onClick);
             },
 
             callbacks : {
@@ -712,23 +720,36 @@ Tagify.prototype = {
          * returns an HTML string of the suggestions' list items
          * @return {[type]} [description]
          */
-        createListItems( value ){
+        filterListItems( value ){
             if( !value ) return "";
 
-            var list = "",
+            var list = [],
                 className = "tagify__dropdown__item",
+                whitelist = this.settings.whitelist,
                 suggestionsCount = this.settings.maxSuggestions || Infinity,
+                whitelistItemValue,
                 i = 0;
 
-            for( ; i < this.settings.whitelist.length; i++ ){
-                var whitelistItem = this.settings.whitelist[i];
+            for( ; i < whitelist.length; i++ ){
+                var whitelistItemValue = whitelist[i] instanceof Object ? whitelist[i].value : whitelist[i],
+                    valueIsInWhitelist = whitelistItemValue.toLowerCase().replace(/\s/g, '').indexOf(value.toLowerCase().replace(/\s/g, '')) == 0; // for fuzzy-search use ">="
+
                 // match for the value within each "whitelist" item
-                if( whitelistItem.toLowerCase().indexOf(value.toLowerCase()) >= 0 && suggestionsCount-- )
-                    list += `<div class='${className}'>${whitelistItem}</div>`; // ${ list == "" ? className + "--active" : ""}
+                if( valueIsInWhitelist && suggestionsCount-- )
+                    list.push(whitelistItemValue);
                 if( suggestionsCount == 0 ) break;
             }
 
             return list;
+        },
+
+        /**
+         * @param  {Array} list  [Array of strings]
+         * @return {Object}      [DOM node]
+         */
+        createListHTML(list){
+            var className = "tagify__dropdown__item";
+            return list.map(item => `<div class='${className}'>${item}</div>`).join("");
         }
     }
 }

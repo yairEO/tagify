@@ -119,6 +119,10 @@ tags tag.tagify--notAllowed div::before {
   transition: .2s;
 }
 
+tags tag[data-readonly] x {
+  display: none;
+}
+
 tags tag x {
   font: 14px/14px Serif;
   width: 14px;
@@ -162,7 +166,7 @@ tags.readonly {
   cursor: default;
 }
 
-tags.readonly > div {
+tags.readonly > .tagify--input {
   visibility: hidden;
   width: 0;
   margin: 5px 0;
@@ -176,7 +180,7 @@ tags.readonly tag > div {
   padding: 0.3em 0.5em;
 }
 
-tags > div {
+tags > .tagify--input {
   display: inline-block;
   min-width: 110px;
   margin: 5px;
@@ -185,18 +189,18 @@ tags > div {
   vertical-align: top;
 }
 
-tags > div:focus {
+tags > .tagify--input:focus {
   outline: none;
 }
 
-tags > div.placeholder::before {
+tags > .tagify--input.placeholder::before {
   opacity: .5;
   -webkit-transform: none;
       -ms-transform: none;
           transform: none;
 }
 
-tags > div::before {
+tags > .tagify--input::before {
   content: attr(data-placeholder);
   opacity: 0;
   line-height: 1.8;
@@ -211,6 +215,12 @@ tags > div::before {
   -webkit-transition: .15s ease-out;
   -o-transition: .15s ease-out;
   transition: .15s ease-out;
+}
+
+tags > .tagify--input::after {
+  content: attr(data-suggest);
+  opacity: .3;
+  pointer-events: none;
 }
 
 .tagify__dropdown {

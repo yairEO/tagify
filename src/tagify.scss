@@ -121,6 +121,10 @@
                 }
             }
 
+            &[data-readonly]{
+                x{ display:none; }
+            }
+
             ///////////////////////////////////////////
             // Close button
             x{
@@ -155,10 +159,10 @@
             }
         }
 
-        // readon-only mode (no input button)
+        // Global "read-only" mode (no input button)
         &.readonly{
             cursor: default;
-            > div{
+            > .tagify--input{
                 visibility: hidden;
                 width: 0;
                 margin: $tagMargin 0;
@@ -169,7 +173,7 @@
 
         ///////////////////////////////////////////
         // Holds the placeholder & the tags input
-        > div{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
+        > .tagify--input{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
             &:focus{ outline:none; }
             &.placeholder::before{ opacity:.5; transform:none; }
             &::before{
@@ -183,6 +187,18 @@
                 pointer-events:none;
                 transform:translatex(6px);
                 transition:.15s ease-out;
+            }
+
+            &::after{
+                content: attr(data-suggest);
+                opacity: .3;
+                // line-height: 1.8;
+                // position:absolute;
+                // z-index: -1;
+                // top: 0;
+                // z-index:1;
+                // white-space:nowrap;
+                pointer-events:none;
             }
         }
     }
