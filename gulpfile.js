@@ -180,8 +180,8 @@ gulp.task('lint_js', () => {
 
 gulp.task('watch', () => {
     //gulp.watch('./images/sprite/**/*.png', ['sprite']);
-    $.watch('./src/*.scss', ['scss']);
-    $.watch('./src/tagify.js').on('change', ()=>{ $.runSequence('build_js', 'build_jquery_version', 'minify') });
+    gulp.watch('./src/*.scss', ['scss']);
+    gulp.watch('./src/tagify.js').on('change', ()=>{ $.runSequence('build_js', 'build_jquery_version', 'minify') });
 });
 
 
