@@ -77,6 +77,15 @@ Tagify.prototype = {
     },
 
 
+    // https://stackoverflow.com/a/25396011/104380
+    escapeHtml: function escapeHtml(s) {
+        var text = document.createTextNode(s);
+        var p = document.createElement('p');
+        p.appendChild(text);
+        return p.innerHTML;
+    },
+
+
     /**
      * builds the HTML of this component
      * @param  {Object} input [DOM element which would be "transformed" into "Tags"]
@@ -509,7 +518,8 @@ Tagify.prototype = {
      */
     createTagElem: function createTagElem(tagData) {
         var tagElm,
-            template = '<tag>\n                            <x></x><div><span title=\'' + tagData.value + '\'></span></div>\n                        </tag>';
+            escapedValue = this.escapeHtml(tagData.value),
+            template = '<tag>\n                            <x></x><div><span title=\'' + escapedValue + '\'>' + escapedValue + '</span></div>\n                        </tag>';
 
         // for a certain Tag element, add attributes.
         function addTagAttrs(tagElm, tagData) {
@@ -523,7 +533,6 @@ Tagify.prototype = {
         }
 
         tagElm = this.parseHTML(template);
-        tagElm.querySelector('span').innerText = tagData.value; // escaping HTML
 
         // add any attribuets, if exists
         addTagAttrs(tagElm, tagData);

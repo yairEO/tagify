@@ -60,6 +60,14 @@ Tagify.prototype = {
         return t.content.firstChild;
     },
 
+    // https://stackoverflow.com/a/25396011/104380
+    escapeHtml(s){
+        var text = document.createTextNode(s);
+        var p = document.createElement('p');
+        p.appendChild(text);
+        return p.innerHTML;
+    },
+
     /**
      * builds the HTML of this component
      * @param  {Object} input [DOM element which would be "transformed" into "Tags"]
@@ -504,8 +512,9 @@ Tagify.prototype = {
      */
     createTagElem(tagData){
         var tagElm,
+            escapedValue = this.escapeHtml(tagData.value),
             template = `<tag>
-                            <x></x><div><span title='${tagData.value}'></span></div>
+                            <x></x><div><span title='${escapedValue}'>${escapedValue}</span></div>
                         </tag>`;
 
         // for a certain Tag element, add attributes.
@@ -519,7 +528,6 @@ Tagify.prototype = {
         }
 
         tagElm = this.parseHTML(template);
-        tagElm.querySelector('span').innerText = tagData.value; // escaping HTML
 
         // add any attribuets, if exists
         addTagAttrs(tagElm, tagData);
