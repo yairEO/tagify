@@ -1,29 +1,6 @@
-var gulp         = require('gulp'),
-    gutil        = require('gulp-util'),
-    watch        = require('gulp-watch'),
-    cache        = require('gulp-cached'),
-    gulp_if      = require('gulp-if'),
-    runSequence  = require('run-sequence'),
-
-    sourcemaps   = require('gulp-sourcemaps'),
-    //debug      = require('gulp-debug'),
-    sass         = require('gulp-sass'),
-    csso         = require('gulp-csso'),
-    combineMq    = require('gulp-combine-mq'),
-    cssGlobbing  = require('gulp-css-globbing'),
-    autoprefixer = require('gulp-autoprefixer'),
-
-    umd          = require('gulp-umd'),
-    uglify       = require('gulp-uglify'),
-    rename       = require('gulp-rename'),
-    concat       = require('gulp-concat'),
-    eslint       = require('gulp-eslint'),
-
-    replace      = require('gulp-replace'),
-    insert       = require('gulp-insert'),
-    beep         = require('beepbeep'),
-    babel        = require('gulp-babel'),
-    pkg          = require('./package.json');
+var gulp = require('gulp'),
+    $ = require( "gulp-load-plugins" )({ pattern:['*', 'gulp-'] }),
+    pkg = require('./package.json');
 
 
 var uglifyOptions = {
@@ -129,85 +106,85 @@ var jQueryPluginWrap = [`;(function($){
 
 gulp.task('scss', () => {
     return gulp.src('src/*.scss')
-        .pipe(cssGlobbing({
+        .pipe($.cssGlobbing({
             extensions: '.scss'
         }))
         .pipe(
-            sass().on('error', sass.logError)
+            $.sass().on('error', $.sass.logError)
         )
-        .pipe(combineMq()) // combine media queries
-        .pipe( autoprefixer({ browsers:['last 7 versions'] }) )
+        .pipe($.combineMq()) // combine media queries
+        .pipe($.autoprefixer({ browsers:['last 7 versions'] }) )
         .pipe(gulp.dest('./dist'))
 });
 
 
 
-gulp.task('build_js', () => {
+gulp.task('build_js', ['lint_js'], () => {
     var jsStream = gulp.src('src/tagify.js');
 
-    lint(jsStream);
-
-    return gulp.src('src/tagify.js')
-        .pipe( babel({presets: ['env']}) )
-        .pipe( umd() )
-        .pipe( insert.prepend(banner) )
+    return jsStream
+        .pipe( $.babel({presets: ['env']}) )
+        .pipe( $.umd() )
+        .pipe( $.insert.prepend(banner) )
         .pipe( gulp.dest('./dist/') )
-
 });
 
 
 
 gulp.task('build_jquery_version', () => {
     return gulp.src('src/tagify.js')
-        .pipe(insert.wrap(banner + jQueryPluginWrap[0], jQueryPluginWrap[1]))
-        .pipe(rename('jQuery.tagify.js'))
+        .pipe( $.babel({presets: ['env']}) )
+        .pipe($.insert.wrap(banner + jQueryPluginWrap[0], jQueryPluginWrap[1]))
+        .pipe($.rename('jQuery.tagify.js'))
         .pipe(gulp.dest('./dist/'))
 });
-
 
 
 gulp.task('minify', () => {
     gulp.src('dist/tagify.js')
-        .pipe(uglify())
+        .pipe($.uglify())
         .on('error', handleError)
-        .pipe(rename('tagify.min.js'))
+        .pipe($.rename('tagify.min.js'))
         .pipe(gulp.dest('./dist/'))
 
     return gulp.src('dist/jQuery.tagify.js')
-        .pipe(uglify())
+        .pipe($.uglify())
         .on('error', handleError)
-        .pipe(rename('jQuery.tagify.min.js'))
+        .pipe($.rename('jQuery.tagify.min.js'))
         .pipe(gulp.dest('./dist/'))
 });
 
 function handleError(err) {
-  gutil.log( err.toString() );
+  $.util.log( err.toString() );
   this.emit('end');
 }
 
-function lint( stream ){
-    return stream
+/**
+ * lints the javscript source code using "eslint"
+ */
+gulp.task('lint_js', () => {
+    return gulp.src('src/tagify.js')
         // eslint() attaches the lint output to the eslint property
         // of the file object so it can be used by other modules.
-        .pipe(cache('linting'))
-        .pipe(eslint(eslint_settings))
-        // eslint.format() outputs the lint results to the console.
+        .pipe($.cached('linting'))
+        .pipe($.eslint(eslint_settings))
+        // $.eslint.format() outputs the lint results to the console.
         // Alternatively use eslint.formatEach() (see Docs).
-        .pipe(eslint.format())
+        .pipe($.eslint.format())
         // To have the process exit with an error code (1) on
         // lint error, return the stream and pipe to failAfterError last.
-        .pipe(eslint.failAfterError())
-        .on('error', beep);
-}
+        .pipe($.eslint.failAfterError())
+        .on('error', $.beepbeep)
+});
 
 
 gulp.task('watch', () => {
     //gulp.watch('./images/sprite/**/*.png', ['sprite']);
-    gulp.watch('./src/*.scss', ['scss']);
-    gulp.watch('./src/tagify.js').on('change', ()=>{ runSequence('build_js', 'build_jquery_version', 'minify') });
+    $.watch('./src/*.scss', ['scss']);
+    $.watch('./src/tagify.js').on('change', ()=>{ $.runSequence('build_js', 'build_jquery_version', 'minify') });
 });
 
 
 gulp.task('default', ( done ) => {
-    runSequence(['build_js', 'scss'], 'build_jquery_version', 'minify', 'watch', done);
+    $.runSequence(['build_js', 'scss'], 'build_jquery_version', 'minify', 'watch', done);
 });
