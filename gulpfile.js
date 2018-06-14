@@ -80,7 +80,7 @@ var banner = `/**
 
 var jQueryPluginWrap = [`;(function($){
     // just a jQuery wrapper for the vanilla version of this component
-    $.fn.tagify = function(settings){
+    $.fn.tagify = function(settings = {}){
         return this.each(function() {
             var $input = $(this),
                 tagify;
@@ -88,8 +88,8 @@ var jQueryPluginWrap = [`;(function($){
             if( $input.data("tagify") ) // don't continue if already "tagified"
                 return this;
 
+            settings.isJQueryPlugin = true;
             tagify = new Tagify($input[0], settings);
-            tagify.isJQueryPlugin = true;
             $input.data("tagify", tagify);
         });
     }
@@ -133,8 +133,8 @@ gulp.task('build_js', ['lint_js'], () => {
 
 gulp.task('build_jquery_version', () => {
     return gulp.src('src/tagify.js')
-        .pipe( $.babel({presets: ['env']}) )
         .pipe($.insert.wrap(banner + jQueryPluginWrap[0], jQueryPluginWrap[1]))
+        .pipe( $.babel({presets: ['env']}) )
         .pipe($.rename('jQuery.tagify.js'))
         .pipe(gulp.dest('./dist/'))
 });

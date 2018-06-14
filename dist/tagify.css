@@ -189,32 +189,36 @@ tags > .tagify--input {
   vertical-align: top;
 }
 
-tags > .tagify--input:focus {
-  outline: none;
-}
-
-tags > .tagify--input.placeholder::before {
+tags > .tagify--input:empty::before {
   opacity: .5;
   -webkit-transform: none;
       -ms-transform: none;
           transform: none;
 }
 
-tags > .tagify--input::before {
-  content: attr(data-placeholder);
+tags > .tagify--input:focus {
+  outline: none;
+}
+
+tags > .tagify--input:focus::before {
   opacity: 0;
-  line-height: 1.8;
-  position: absolute;
-  top: 0;
-  z-index: 1;
-  white-space: nowrap;
-  pointer-events: none;
   -webkit-transform: translatex(6px);
       -ms-transform: translatex(6px);
           transform: translatex(6px);
-  -webkit-transition: .15s ease-out;
-  -o-transition: .15s ease-out;
-  transition: .15s ease-out;
+}
+
+tags > .tagify--input::before {
+  content: attr(data-placeholder);
+  line-height: 1.8;
+  position: absolute;
+  top: 0;
+  opacity: 0;
+  z-index: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  -webkit-transition: .2s ease-out;
+  -o-transition: .2s ease-out;
+  transition: .2s ease-out;
 }
 
 tags > .tagify--input::after {

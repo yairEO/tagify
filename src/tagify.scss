@@ -174,21 +174,25 @@
         ///////////////////////////////////////////
         // Holds the placeholder & the tags input
         > .tagify--input{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
-            &:focus{ outline:none; }
-            &.placeholder::before{ opacity:.5; transform:none; }
+            &:empty::before{ opacity:.5; transform:none; }
+
+            &:focus{ outline:none;
+                &::before{ opacity:0; transform:translatex(6px); }
+            }
+
             &::before{
                 content: attr(data-placeholder);
-                opacity: 0;
                 line-height: 1.8;
                 position:absolute;
                 top: 0;
+                opacity:0;
                 z-index:1;
                 white-space:nowrap;
                 pointer-events:none;
-                transform:translatex(6px);
-                transition:.15s ease-out;
+                transition:.2s ease-out;
             }
 
+            // tries to suggest the rest of the value from the first item in the whitelist which matches it
             &::after{
                 content: attr(data-suggest);
                 opacity: .3;

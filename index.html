@@ -407,7 +407,10 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
             var $input = $('input[name=tags-jquery]')
                 .tagify()
                 .on('add', function(e, tagName){
-                    console.log('added', tagName)
+                    console.log('JQEURY EVENT: ', 'added', tagName)
+                })
+                .on("duplicate", function(e, tagName) {
+                    console.log('JQEURY EVENT: ',"duplicate", e, ' ', tagName);
                 });
 
             // get the Tagify instance assigned for this jQuery input object so its methods could be accessed

@@ -38,8 +38,9 @@ function Tagify(input, settings) {
 
     this.id = Math.random().toString(36).substr(2, 9), // almost-random ID (because, fuck it)
     this.value = []; // An array holding all the (currently used) tags
+    this.listeners = {}; // events' callbacks references will be stores here, so events could be unbinded
     this.DOM = {}; // Store all relevant DOM elements in an Object
-    this.extend(this, new this.EventDispatcher());
+    this.extend(this, new this.EventDispatcher(this));
     this.build(input);
 
     this.events.customBinding.call(this);
@@ -48,11 +49,11 @@ function Tagify(input, settings) {
 
 Tagify.prototype = {
     DEFAULTS: {
-        delimiters: ",", // [regex] split tags by any of these delimiters ("null" to cancel)
-        pattern: "", // pattern to validate input by
+        delimiters: ",", // [regex] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
+        pattern: null, // regex pattern to validate input by. Ex: /[1-9]/
         maxTags: Infinity, // maximum number of tags
         callbacks: {}, // exposed callbacks object to be triggered on certain events
-        addTagOnBlur: false, // flag - automatically adds the text which was inputed as a tag when blur event happens
+        addTagOnBlur: true, // flag - automatically adds the text which was inputed as a tag when blur event happens
         duplicates: false, // flag - allow tuplicate tags
         whitelist: [], // is this list has any items, then only allow tags from this list
         blacklist: [], // a list of non-allowed tags
@@ -94,7 +95,7 @@ Tagify.prototype = {
     build: function build(input) {
         var that = this,
             value = input.value,
-            template = '\n                <tags class="' + input.className + ' ' + (this.settings.readonly ? 'readonly' : '') + '">\n                    <div contenteditable data-placeholder="' + input.placeholder + '" class="tagify--input placeholder"></div>\n                </tags>';
+            template = '\n                <tags class="' + input.className + ' ' + (this.settings.readonly ? 'readonly' : '') + '">\n                    <div contenteditable data-placeholder="' + input.placeholder + '" class="tagify--input"></div>\n                </tags>';
 
         this.DOM.originalInput = input;
         this.DOM.scope = this.parseHTML(template);
@@ -108,7 +109,6 @@ Tagify.prototype = {
         // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
         if (this.settings.autoSuggest && this.settings.whitelist.length) {
             this.dropdown.init.call(this);
-            // this.DOM.datalist = this.buildDataList();
         }
 
         // if the original input already had any value (tags)
@@ -151,7 +151,7 @@ Tagify.prototype = {
     /**
      * A constructor for exposing events to the outside
      */
-    EventDispatcher: function EventDispatcher() {
+    EventDispatcher: function EventDispatcher(instance) {
         // Create a DOM EventTarget object
         var target = document.createTextNode('');
 
@@ -162,7 +162,9 @@ Tagify.prototype = {
             var e;
             if (!eventName) return;
 
-            if (this.isJQueryPlugin) $(this.DOM.originalInput).triggerHandler(eventName, [data]);else {
+            if (instance.settings.isJQueryPlugin) {
+                $(instance.DOM.originalInput).triggerHandler(eventName, [data]);
+            } else {
                 try {
                     e = new CustomEvent(eventName, { "detail": data });
                 } catch (err) {
@@ -193,11 +195,10 @@ Tagify.prototype = {
             var _CB = this.events.callbacks,
 
             // setup callback references so events could be removed later
-            _CBR = this._CBR = this._CBR || {
+            _CBR = this.listeners.main = this.listeners.main || {
                 paste: ['input', _CB.onPaste.bind(this)],
                 focus: ['input', _CB.onFocusBlur.bind(this)],
                 blur: ['input', _CB.onFocusBlur.bind(this)],
-                //    input   : ['input', _CB.onInput.bind(this)],
                 keydown: ['input', _CB.onKeydown.bind(this)],
                 click: ['scope', _CB.onClickScope.bind(this)]
             },
@@ -208,10 +209,10 @@ Tagify.prototype = {
             }
 
             if (bindUnbind) {
-                // this event should not be unbinded ever
+                // this event should never be unbinded
                 this.DOM.input.addEventListener("input", _CB.onInput.bind(this));
 
-                if (this.isJQueryPlugin) $(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this));
+                if (this.settings.isJQueryPlugin) $(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this));
             }
         },
 
@@ -221,91 +222,69 @@ Tagify.prototype = {
          */
         callbacks: {
             onFocusBlur: function onFocusBlur(e) {
-                var text = e.target.textContent.trim();
+                var s = e.target.textContent.trim();
 
                 if (e.type == "focus") {
-                    e.target.classList.remove('placeholder');
-                } else if (e.type == "blur" && text) {
-                    if (this.settings.addTagOnBlur && this.addTags(text).length) e.target.textContent = '';
+                    //  e.target.classList.remove('placeholder');
+                } else if (e.type == "blur" && s) {
+                    this.settings.addTagOnBlur && this.addTags(s, true).length;
                 } else {
-                    e.target.classList.add('placeholder');
+                    //  e.target.classList.add('placeholder');
                     this.DOM.input.removeAttribute('style');
                     this.dropdown.hide.call(this);
                 }
             },
             onKeydown: function onKeydown(e) {
                 var s = e.target.textContent,
-                    lastTag,
-                    that = this;
+                    lastTag;
 
-                if (e.key == "Backspace" && (s == "" || s.charCodeAt(0) == 8203)) {
+                if (e.key == 'Backspace' && (s == "" || s.charCodeAt(0) == 8203)) {
                     lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
                     lastTag = lastTag[lastTag.length - 1];
                     this.removeTag(lastTag);
                 }
 
-                if (e.key == "Escape") {
-                    e.target.textContent = '';
+                if (e.key == 'Escape') {
+                    this.input.set.call(this);
                     e.target.blur();
                 }
 
-                if (e.key == "Enter") {
+                if (e.key == 'Enter') {
                     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                    s = e.target.textContent;
-                    if (this.addTags(s).length) e.target.textContent = '';
-
-                    e.target.textContent.replace(/<br>/g, "");
-
-                    return false;
+                    this.addTags(this.input.value, true);
                 }
             },
             onInput: function onInput(e) {
-                var value = e.target.textContent.slice(),
-                    lastChar = value[value.length - 1],
+                var value = e.target.textContent.trim(),
                     showSuggestions = value.length >= this.settings.suggestionsMinChars;
 
+                // save the value on the input state object
+                this.input.value = value;
+
                 if (value.search(this.settings.delimiters) != -1) {
-                    if (this.addTags(value).length) e.target.textContent = ''; // clear the input field's value
+                    if (this.addTags(value).length) this.input.set.call(this); // clear the input field's value
                 } else if (this.settings.autoSuggest && this.settings.whitelist.length) {
                     this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
                 }
             },
             onPaste: function onPaste(e) {},
             onClickScope: function onClickScope(e) {
-                if (e.target.tagName == "TAGS") this.DOM.input.focus();
-                if (e.target.tagName == "X") {
+                if (e.target.tagName == "TAGS") this.DOM.input.focus();else if (e.target.tagName == "X") {
                     this.removeTag(e.target.parentNode);
                 }
             }
         }
     },
 
-    /**
-     * Build tags suggestions using HTML datalist
-     * @return {[type]} [description]
-     */
-    buildDataList: function buildDataList() {
-        var OPTIONS = "",
-            i,
-            datalist = document.createElement('datalist');
+    input: {
+        value: '',
+        set: function set() {
+            var s = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 
-        datalist.id = 'tagifySuggestions' + this.id;
-        datalist.innerHTML = "<label> \
-                                select from the list: \
-                                <select> \
-                                    <option value=''></option> \
-                                    [OPTIONS] \
-                                </select> \
-                            </label>";
-
-        for (i = this.settings.whitelist.length; i--;) {
-            OPTIONS += "<option>" + this.settings.whitelist[i] + "</option>";
-        }datalist.innerHTML = datalist.innerHTML.replace('[OPTIONS]', OPTIONS); // inject the options string in the right place
-
-        //  this.DOM.input.insertAdjacentHTML('afterend', datalist); // append the datalist HTML string in the Tags
-
-        return datalist;
+            this.input.value = this.DOM.input.innerHTML = s;
+        }
     },
+
     getNodeIndex: function getNodeIndex(node) {
         var index = 0;
         while (node = node.previousSibling) {
@@ -376,10 +355,11 @@ Tagify.prototype = {
 
     /**
      * add a "tag" element to the "tags" component
-     * @param  {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects]
+     * @param {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects]
+     * @param {Boolean} clearInput [flag if the input's value should be cleared after adding tags]
      * @return {Array} Array of DOM elements (tags)
      */
-    addTags: function addTags(tagsItems) {
+    addTags: function addTags(tagsItems, clearInput) {
         var that = this,
             tagElems = [];
 
@@ -510,6 +490,10 @@ Tagify.prototype = {
             }
         });
 
+        if (tagsItems.length && clearInput) {
+            this.input.set.call(this);
+        }
+
         return tagElems;
     },
 
@@ -626,7 +610,7 @@ Tagify.prototype = {
             }
         },
         hide: function hide() {
-            if (!this.DOM.dropdown.parentNode) return;
+            if (!this.DOM.dropdown || !this.DOM.dropdown.parentNode) return;
 
             this.DOM.input.removeAttribute("data-suggest");
 
@@ -659,7 +643,7 @@ Tagify.prototype = {
                 var bindUnbind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
                 // references to the ".bind()" methods must be saved so they could be unbinded later
-                var _CBR = this.dropdown._CBR = this.dropdown.events._CBR || {
+                var _CBR = this.listeners.dropdown = this.listeners.dropdown || {
                     position: this.dropdown.position.bind(this),
                     onKeyDown: this.dropdown.events.callbacks.onKeyDown.bind(this),
                     onMouseOver: this.dropdown.events.callbacks.onMouseOver.bind(this),
@@ -678,27 +662,39 @@ Tagify.prototype = {
 
             callbacks: {
                 onKeyDown: function onKeyDown(e) {
-                    var selectedElm = this.DOM.dropdown.querySelectorAll("[class$='--active']")[0];
+                    var selectedElm = this.DOM.dropdown.querySelectorAll("[class$='--active']")[0],
+                        newValue = "";
 
-                    if (e.key == 'ArrowDown' || e.key == 'ArrowUp') {
-                        e.preventDefault();
-                        if (selectedElm) {
-                            selectedElm = selectedElm[e.key == 'ArrowUp' ? "previousElementSibling" : "nextElementSibling"];
-                        }
-                        // if no element was found, loop
-                        if (!selectedElm) selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' ? this.DOM.dropdown.children.length - 1 : 0];
+                    switch (e.key) {
+                        case 'ArrowDown':
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            if (selectedElm) {}
+                            // if no element was found, loop
+                            if (!selectedElm) selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' ? this.DOM.dropdown.children.length - 1 : 0];
 
-                        this.dropdown.highlightOption.call(this, selectedElm);
-                    }
+                            this.dropdown.highlightOption.call(this, selectedElm);
+                            break;
 
-                    if (e.key == 'Escape') {
-                        this.dropdown.hide.call(this);
-                    }
+                        case 'Escape':
+                            this.dropdown.hide.call(this);
+                            break;
 
-                    if (e.key == 'Enter') {
-                        this.DOM.input.textContent = '';
-                        selectedElm && this.addTags(selectedElm.textContent);
-                        this.dropdown.hide.call(this);
+                        case 'Enter':
+                            e.preventDefault();
+                            newValue = selectedElm ? selectedElm.textContent : this.input.value;
+                            this.addTags(newValue, true);
+                            this.dropdown.hide.call(this);
+                            break;
+
+                        case 'ArrowRight':
+                            var suggestion = this.DOM.input.getAttribute('data-suggest');
+
+                            if (suggestion && this.addTags(this.input.value + suggestion).length) {
+                                this.input.set.call(this);
+                                this.dropdown.hide.call(this);
+                            }
+                            break;
                     }
                 },
                 onMouseOver: function onMouseOver(e) {
@@ -707,7 +703,7 @@ Tagify.prototype = {
                 },
                 onClick: function onClick(e) {
                     if (e.target.className.includes('tagify__dropdown__item')) {
-                        this.DOM.input.textContent = '';
+                        this.input.set.call(this);
                         this.addTags(e.target.textContent);
                     }
                     // clicked outside the dropdown, so just close it
