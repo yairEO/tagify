@@ -72,7 +72,7 @@ tags tag > div::before {
   transition: 80ms ease;
 }
 
-tags tag:hover div::before {
+tags tag:hover:not([readonly]) div::before {
   top: -2px;
   right: -2px;
   bottom: -2px;
@@ -119,8 +119,12 @@ tags tag.tagify--notAllowed div::before {
   transition: .2s;
 }
 
-tags tag[data-readonly] x {
+tags tag[readonly] x {
   display: none;
+}
+
+tags tag[readonly] > div {
+  padding: 0.3em 0.5em;
 }
 
 tags tag x {

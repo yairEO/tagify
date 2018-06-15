@@ -47,7 +47,10 @@
 
         this.id = Math.random().toString(36).substr(2, 9), // almost-random ID (because, fuck it)
         this.value = []; // An array holding all the (currently used) tags
-        this.listeners = {}; // events' callbacks references will be stores here, so events could be unbinded
+
+        // events' callbacks references will be stores here, so events could be unbinded
+        this.listeners = {};
+
         this.DOM = {}; // Store all relevant DOM elements in an Object
         this.extend(this, new this.EventDispatcher(this));
         this.build(input);
@@ -111,10 +114,6 @@
             this.DOM.input = this.DOM.scope.querySelector('[contenteditable]');
             input.parentNode.insertBefore(this.DOM.scope, input);
 
-            // this.DOM.scope.innerHTML = `<div contenteditable data-placeholder="${input.placeholder}"></div>`;
-            // this.DOM.scope.classList.toggle(input.className, input.className); // copy any class names from the original input element to the Tags element
-            // this.DOM.scope.classList.toggle('readonly', this.settings.readonly);
-
             // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
             if (this.settings.autoSuggest && this.settings.whitelist.length) {
                 this.dropdown.init.call(this);
@@ -165,8 +164,16 @@
             var target = document.createTextNode('');
 
             // Pass EventTarget interface calls to DOM EventTarget object
-            this.off = target.removeEventListener.bind(target);
-            this.on = target.addEventListener.bind(target);
+            this.off = function (name, cb) {
+                if (cb) target.removeEventListener.call(target, name, cb);
+                return this;
+            };
+
+            this.on = function (name, cb) {
+                if (cb) target.addEventListener.call(target, name, cb);
+                return this;
+            };
+
             this.trigger = function (eventName, data) {
                 var e;
                 if (!eventName) return;
@@ -589,13 +596,11 @@
          */
         dropdown: {
             init: function init() {
-                this.DOM.dropdown = this.dropdown.build();
+                this.DOM.dropdown = this.dropdown.build.call(this);
             },
             build: function build() {
-                var elm = document.createElement('div');
-                elm.className = 'tagify__dropdown';
-
-                return elm;
+                var template = "<div class=\"tagify__dropdown\"></div>";
+                return this.parseHTML(template);
             },
             show: function show(value) {
                 var listItems = this.dropdown.filterListItems.call(this, value),
@@ -612,14 +617,14 @@
 
                 this.dropdown.position.call(this);
 
-                if (!this.DOM.dropdown.parentNode) {
+                if (!this.DOM.dropdown.parentNode != document.body) {
                     document.body.appendChild(this.DOM.dropdown);
                     this.events.binding.call(this, false); // unbind the main events
                     this.dropdown.events.binding.call(this);
                 }
             },
             hide: function hide() {
-                if (!this.DOM.dropdown || !this.DOM.dropdown.parentNode) return;
+                if (!this.DOM.dropdown || this.DOM.dropdown.parentNode != document.body) return;
 
                 this.DOM.input.removeAttribute("data-suggest");
 
@@ -678,9 +683,10 @@
                             case 'ArrowDown':
                             case 'ArrowUp':
                                 e.preventDefault();
-                                if (selectedElm) {}
+                                if (selectedElm) selectedElm = selectedElm[e.key == 'ArrowUp' ? "previousElementSibling" : "nextElementSibling"];
+
                                 // if no element was found, loop
-                                if (!selectedElm) selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' ? this.DOM.dropdown.children.length - 1 : 0];
+                                else selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' ? this.DOM.dropdown.children.length - 1 : 0];
 
                                 this.dropdown.highlightOption.call(this, selectedElm);
                                 break;

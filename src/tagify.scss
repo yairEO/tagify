@@ -75,7 +75,7 @@
                 }
             }
 
-            &:hover{
+            &:hover:not([readonly]){
                 div{
                     &::before{
                         $size: -$tagMargin/2;
@@ -121,8 +121,9 @@
                 }
             }
 
-            &[data-readonly]{
+            &[readonly]{
                 x{ display:none; }
+                > div{ padding: $tagPad; }
             }
 
             ///////////////////////////////////////////

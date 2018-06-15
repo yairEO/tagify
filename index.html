@@ -14,6 +14,21 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="dist/jQuery.tagify.js"></script>
 
+        <script>
+            function renderPRE(currentScript, codeScriptName){
+                setTimeout(function(){
+                    var jsCode = document.querySelector("[data-name='"+ codeScriptName +"']").innerHTML;
+
+                    // cleanup closure wraper
+                    jsCode = jsCode.replace("(function(){", "" ).replace("})()", "" ).trim();
+
+                    // cut the last line:
+
+                    currentScript.insertAdjacentHTML('afterend', "<pre>" + jsCode + "</pre>");
+                }, 60)
+            }
+        </script>
+
         <style>
             p{ line-height:1.4; }
             code{ padding:2px 3px; background:lightyellow; }
@@ -45,6 +60,7 @@
             .color-darkred > div::before{ background:darkred; opacity:.2; }
             .color-yellow > div::before{ background:gold; opacity:.2; }
             .color-purple > div::before{ background:purple; opacity:.2; }
+            .color-darkblue > div::before{ background:midnightblue; opacity:.3; }
 
         </style>
     </head>
@@ -65,31 +81,7 @@
                     <h3>HTML</h3>
                     <xmp><input name='tags' placeholder='write some tags' value='css, html, javascript, css'></xmp>
                     <h3>JAVASCRIPT</h3>
-                    <pre>
-var input1 = document.querySelector('input[name=tags]'),
-    tagify1 = new Tagify(input1, {
-        whitelist : ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "MaxScript internal language 3D Studio Max", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"],
-        blacklist : ["react", "angular"]
-    })
-
-// listen to custom 'remove' tag event
-tagify1.on('remove', onRemoveTag);
-
-function onRemoveTag(e){
-    console.log(e, e.detail);
-}
-
-function onAddTag(e){
-    console.log(e, e.detail);
-}
-
-function onRemoveAllTagsClick(e){
-    tagify1.removeAllTags();
-}
-
-// "remove all tags" button "click" even listener
-document.querySelector('.tags--removeAllBtn').addEventListener('click', onRemoveAllTagsClick)
-                    </pre>
+                    <script>renderPRE(document.currentScript, "basic")</script>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css'>
@@ -108,21 +100,7 @@ document.querySelector('.tags--removeAllBtn').addEventListener('click', onRemove
                     <h3>HTML</h3>
                     <xmp><textarea name='tags' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea></xmp>
                     <h3>JAVASCRIPT</h3>
-                    <pre>
-var input2 = document.querySelector('textarea[name=tags2]'),
-    tagify2 = new Tagify(input2, {
-        duplicates : true,
-        callbacks : {
-            add    : onAddTag,
-            remove : onRemoveTag
-        },
-        whitelist: ["The Shawshank Redemption", "The Godfather", "The Godfather: Part II", "The Dark Knight", "12 Angry Men", "Schindler's List", "Pulp Fiction", "The Lord of the Rings: The Return of the King", "The Good, the Bad and the Ugly", "Fight Club", "The Lord of the Rings: The Fellowship of the Ring", "Star Wars: Episode V - The Empire Strikes Back", "Forrest Gump", "Inception", "The Lord of the Rings: The Two Towers", "One Flew Over the Cuckoo's Nest", "Goodfellas", "The Matrix", "Seven Samurai", "Star Wars: Episode IV - A New Hope", "City of God", "Se7en", "The Silence of the Lambs", "It's a Wonderful Life", "The Usual Suspects", "Life Is Beautiful", "Léon: The Professional", "Spirited Away", "Saving Private Ryan", "La La Land", "Once Upon a Time in the West", "American History X", "Interstellar", "Casablanca", "Psycho", "City Lights", "The Green Mile", "Raiders of the Lost Ark", "The Intouchables", "Modern Times", "Rear Window", "The Pianist", "The Departed", "Terminator 2: Judgment Day", "Back to the Future", "Whiplash", "Gladiator", "Memento", "Apocalypse Now", "The Prestige", "The Lion King", "Alien", "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "Sunset Boulevard", "The Great Dictator", "Cinema Paradiso", "The Lives of Others", "Paths of Glory", "Grave of the Fireflies", "Django Unchained", "The Shining", "WALL·E", "American Beauty", "The Dark Knight Rises", "Princess Mononoke", "Aliens", "Oldboy", "Once Upon a Time in America", "Citizen Kane", "Das Boot", "Witness for the Prosecution", "North by Northwest", "Vertigo", "Star Wars: Episode VI - Return of the Jedi", "Reservoir Dogs", "M", "Braveheart", "Amélie", "Requiem for a Dream", "A Clockwork Orange", "Taxi Driver", "Lawrence of Arabia", "Like Stars on Earth", "Double Indemnity", "To Kill a Mockingbird", "Eternal Sunshine of the Spotless Mind", "Toy Story 3", "Amadeus", "My Father and My Son", "Full Metal Jacket", "The Sting", "2001: A Space Odyssey", "Singin' in the Rain", "Bicycle Thieves", "Toy Story", "Dangal", "The Kid", "Inglourious Basterds", "Snatch", "Monty Python and the Holy Grail", "Hacksaw Ridge", "3 Idiots", "L.A. Confidential", "For a Few Dollars More", "Scarface", "Rashomon", "The Apartment", "The Hunt", "Good Will Hunting", "Indiana Jones and the Last Crusade", "A Separation", "Metropolis", "Yojimbo", "All About Eve", "Batman Begins", "Up", "Some Like It Hot", "The Treasure of the Sierra Madre", "Unforgiven", "Downfall", "Raging Bull", "The Third Man", "Die Hard", "Children of Heaven", "The Great Escape", "Heat", "Chinatown", "Inside Out", "Pan's Labyrinth", "Ikiru", "My Neighbor Totoro", "On the Waterfront", "Room", "Ran", "The Gold Rush", "The Secret in Their Eyes", "The Bridge on the River Kwai", "Blade Runner", "Mr. Smith Goes to Washington", "The Seventh Seal", "Howl's Moving Castle", "Lock, Stock and Two Smoking Barrels", "Judgment at Nuremberg", "Casino", "The Bandit", "Incendies", "A Beautiful Mind", "A Wednesday", "The General", "The Elephant Man", "Wild Strawberries", "Arrival", "V for Vendetta", "Warrior", "The Wolf of Wall Street", "Manchester by the Sea", "Sunrise", "The Passion of Joan of Arc", "Gran Torino", "Rang De Basanti", "Trainspotting", "Dial M for Murder", "The Big Lebowski", "The Deer Hunter", "Tokyo Story", "Gone with the Wind", "Fargo", "Finding Nemo", "The Sixth Sense", "The Thing", "Hera Pheri", "Cool Hand Luke", "Andaz Apna Apna", "Rebecca", "No Country for Old Men", "How to Train Your Dragon", "Munna Bhai M.B.B.S.", "Sholay", "Kill Bill: Vol. 1", "Into the Wild", "Mary and Max", "Gone Girl", "There Will Be Blood", "Come and See", "It Happened One Night", "Life of Brian", "Rush", "Hotel Rwanda", "Platoon", "Shutter Island", "Network", "The Wages of Fear", "Stand by Me", "Wild Tales", "In the Name of the Father", "Spotlight", "Star Wars: The Force Awakens", "The Nights of Cabiria", "The 400 Blows", "Butch Cassidy and the Sundance Kid", "Mad Max: Fury Road", "The Maltese Falcon", "12 Years a Slave", "Ben-Hur", "The Grand Budapest Hotel", "Persona", "Million Dollar Baby", "Amores Perros", "Jurassic Park", "The Princess Bride", "Hachi: A Dog's Tale", "Memories of Murder", "Stalker", "Nausicaä of the Valley of the Wind", "Drishyam", "The Truman Show", "The Grapes of Wrath", "Before Sunrise", "Touch of Evil", "Annie Hall", "The Message", "Rocky", "Gandhi", "Harry Potter and the Deathly Hallows: Part 2", "The Bourne Ultimatum", "Diabolique", "Donnie Darko", "Monsters, Inc.", "Prisoners", "8½", "The Terminator", "The Wizard of Oz", "Catch Me If You Can", "Groundhog Day", "Twelve Monkeys", "Zootopia", "La Haine", "Barry Lyndon", "Jaws", "The Best Years of Our Lives", "Infernal Affairs", "Udaan", "The Battle of Algiers", "Strangers on a Train", "Dog Day Afternoon", "Sin City", "Kind Hearts and Coronets", "Gangs of Wasseypur", "The Help"]
-    })
-
-tagify2.on('add', function(e){
-    console.log(e, e.detail);
-});
-                    </pre>
+                    <script>renderPRE(document.currentScript, "textarea")</script>
                 </aside>
                 <aside class='rightSide'>
                     <textarea name='tags2' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea>
@@ -144,29 +122,7 @@ tagify2.on('add', function(e){
                     <h3>HTML</h3>
                     <xmp><input name='tags3' placeholder='Write some tags' pattern='^[A-Za-z_ ]{1,15}$'></xmp>
                     <h3>JAVASCRIPT</h3>
-                    <pre>
-var input3 = document.querySelector('input[name=tags3]'),
-    tagify3 = new Tagify(input3, {
-        delimiters          : ", ",
-        suggestionsMinChars : 3,
-        maxTags             : 6,
-        blacklist           : ["fuck", "shit", "pussy"],
-        enforceWhitelist    : true,
-        whitelist           : ["temple","stun","detective","sign","passion","routine","deck","discriminate","relaxation","fraud","attractive","soft","forecast","point","thank","stage","eliminate","effective","flood","passive","skilled","separation","contact","compromise","reality","district","nationalist","leg","porter","conviction","worker","vegetable","commerce","conception","particle","honor","stick","tail","pumpkin","core","mouse","egg","population","unique","behavior","onion","disaster","cute","pipe","sock","dialect","horse","swear","owner","cope","global","improvement","artist","shed","constant","bond","brink","shower","spot","inject","bowel","homosexual","trust","exclude","tough","sickness","prevalence","sister","resolution","cattle","cultural","innocent","burial","bundle","thaw","respectable","thirsty","exposure","team","creed","facade","calendar","filter","utter","dominate","predator","discover","theorist","hospitality","damage","woman","rub","crop","unpleasant","halt","inch","birthday","lack","throne","maximum","pause","digress","fossil","policy","instrument","trunk","frame","measure","hall","support","convenience","house","partnership","inspector","looting","ranch","asset","rally","explicit","leak","monarch","ethics","applied","aviation","dentist","great","ethnic","sodium","truth","constellation","lease","guide","break","conclusion","button","recording","horizon","council","paradox","bride","weigh","like","noble","transition","accumulation","arrow","stitch","academy","glimpse","case","researcher","constitutional","notion","bathroom","revolutionary","soldier","vehicle","betray","gear","pan","quarter","embarrassment","golf","shark","constitution","club","college","duty","eaux","know","collection","burst","fun","animal","expectation","persist","insure","tick","account","initiative","tourist","member","example","plant","river","ratio","view","coast","latest","invite","help","falsify","allocation","degree","feel","resort","means","excuse","injury","pupil","shaft","allow","ton","tube","dress","speaker","double","theater","opposed","holiday","screw","cutting","picture","laborer","conservation","kneel","miracle","brand","nomination","characteristic","referral","carbon","valley","hot","climb","wrestle","motorist","update","loot","mosquito","delivery","eagle","guideline","hurt","feedback","finish","traffic","competence","serve","archive","feeling","hope","seal","ear","oven","vote","ballot","study","negative","declaration","particular","pattern","suburb","intervention","brake","frequency","drink","affair","contemporary","prince","dry","mole","lazy","undermine","radio","legislation","circumstance","bear","left","pony","industry","mastermind","criticism","sheep","failure","chain","depressed","launch","script","green","weave","please","surprise","doctor","revive","banquet","belong","correction","door","image","integrity","intermediate","sense","formal","cane","gloom","toast","pension","exception","prey","random","nose","predict","needle","satisfaction","establish","fit","vigorous","urgency","X-ray","equinox","variety","proclaim","conceive","bulb","vegetarian","available","stake","publicity","strikebreaker","portrait","sink","frog","ruin","studio","match","electron","captain","channel","navy","set","recommend","appoint","liberal","missile","sample","result","poor","efflux","glance","timetable","advertise","personality","aunt","dog"]
-    })
-
-tagify3.on('maxTagsExceed', function(e){
-    console.log(e, e.detail);
-});
-
-tagify3.on('blacklisted', function(e){
-    console.log(e, e.detail);
-});
-
-tagify3.on('notWhitelisted', function(e){
-    console.log(e, e.detail);
-});
-                    </pre>
+                    <script>renderPRE(document.currentScript, "advance-options")</script>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags3' placeholder='Write some tags' pattern='^[A-Za-z_ ]{1,15}$'>
@@ -175,61 +131,31 @@ tagify3.on('notWhitelisted', function(e){
 
             <section id="section-extra-properties">
                 <aside class='leftSide'>
-                    <h2>Tags with individual properties</h2>
+                    <h2>Tags with properties</h2>
                     <p>
-                        Tags can have a unique ID for each of the tags, a class and.
-                        the <code>value</code> attribute should not be populated directly from the HTML in this case, but from javascript.
+                        Some cases requires more control per-tag, for exmaple, sending a different value to the server than the textual value
+                        the user sees/enetered. Another example, would be different colors for different tags or tags' groups.
+                        it's possible to add any number of properties per tag, the only constant is the <code>value</code> property which
+                        must be declared per-tag, and that will be the rendered text.
+                    </p>
+                    <p>
+                        The propeties shown in the example below, declared in the <code>allowedTags</code> Array, will be transformed into
+                        HTML attributes for each tag element rendered from the allowed <code>whitelist</code> settings, so naturally
+                        some attributes are in the specs and the made-up ones should technically be prefixed with <code>data-</code>.
+                    </p>
+                    <p>
+                        With this level of control a lot can be done via css. <br>
+                        For the example below, the first two tags have a <code>readonly</code>
+                        property and that will enable the CSS to target that and hide the <code>&times;</code> button and disable the hover state.
                     </p>
                     <h3>HTML</h3>
                     <xmp><input name='tags3-1' placeholder="Try to add tags from the list"></xmp>
-                    <pre>
-var allowedTags = [
-        {
-            "value"   : "apple",
-            "data-id" : 3,
-            "class"   : 'color-green'
-        },
-        {
-            "value"    : "orange",
-            "data-id"  : 56,
-            "class"    : 'color-orange'
-        },
-        {
-            "value"    : "tomatto",
-            "data-id"  : 17,
-            "class"    : 'color-darkred'
-        },
-        {
-            "value"    : "banana",
-            "data-id"  : 12,
-            "class"    : 'color-yellow'
-        }
-    ],
-    tagify31 = new Tagify(document.querySelector('input[name=tags3-1]'), {
-        whitelist : allowedTags
-    })
-
-tagify31.on('remove', function(e){
-    console.log(e, e.detail);
-});
-
-tagify31.addTags([
-    {
-        "value"   : "strawberry",
-        "data-id" : 8,
-        "class"   : 'color-red'
-    },
-    {
-        "value"   : "blueberry",
-        "data-id" : 6,
-        "class"   : 'color-purple'
-    }
-])
-                    </pre>
+                    <h3>Javascript</h3>
+                    <script>
+                        renderPRE(document.currentScript, "extra-properties")
+                    </script>
                 </aside>
-                <aside class='rightSide'>
-                    <input name='tags3-1' placeholder="Try to add tags from the list">
-                </aside>
+                <aside class='rightSide'><input name='tags3-1' placeholder="Try to add tags from the list"></aside>
             </section>
 
 
@@ -237,7 +163,7 @@ tagify31.addTags([
                 <aside class='leftSide'>
                     <h2>Readonly mode</h2>
                     <p>
-                        If the original input field has a <code>readonly</code> attribute, then the Tags will not have a way to add or remove any tags.
+                        If the original input field has a <code>readonly</code> attribute, then <strong>all</strong> the tags will be locked (no way to add or remove any).
                     </p>
                     <h3>HTML</h3>
                     <xmp><input name='tags4' readonly value='tag1, tag 2, another tag'></xmp>
@@ -260,19 +186,7 @@ tagify31.addTags([
                         <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
                     </xmp>
                     <h3>JAVASCRIPT</h3>
-                    <pre>
-var $input = $('input[name=tags-jquery]')
-    .tagify()
-    .on('add', function(e, tagName){
-        console.log('added', tagName)
-    });
-
-// Get the Tagify instance assigned for this jQuery input object so its methods could be accessed
-var jqTagify = $input.data('tagify');
-
-// Bind the "click" event on the "remove all tags" button
-$('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
-                    </pre>
+                    <script>renderPRE(document.currentScript, "jQuery")</script>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags-jquery' value='try, adding, a tag'>
@@ -285,139 +199,173 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
         <script>
             document.forms[0].reset();
 
-            var input1 = document.querySelector('input[name=tags]'),
-                input2 = document.querySelector('textarea[name=tags2]'),
-                // init Tagify script on the above inputs
-                tagify1 = new Tagify(input1, {
-                    whitelist : ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "MaxScript internal language 3D Studio Max", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"],
-                    blacklist : ["react", "angular"]
-                }),
-                tagify2 = new Tagify(input2, {
-                    enforceWhitelist : true,
-                    whitelist        : ["The Shawshank Redemption", "The Godfather", "The Godfather: Part II", "The Dark Knight", "12 Angry Men", "Schindler's List", "Pulp Fiction", "The Lord of the Rings: The Return of the King", "The Good, the Bad and the Ugly", "Fight Club", "The Lord of the Rings: The Fellowship of the Ring", "Star Wars: Episode V - The Empire Strikes Back", "Forrest Gump", "Inception", "The Lord of the Rings: The Two Towers", "One Flew Over the Cuckoo's Nest", "Goodfellas", "The Matrix", "Seven Samurai", "Star Wars: Episode IV - A New Hope", "City of God", "Se7en", "The Silence of the Lambs", "It's a Wonderful Life", "The Usual Suspects", "Life Is Beautiful", "Léon: The Professional", "Spirited Away", "Saving Private Ryan", "La La Land", "Once Upon a Time in the West", "American History X", "Interstellar", "Casablanca", "Psycho", "City Lights", "The Green Mile", "Raiders of the Lost Ark", "The Intouchables", "Modern Times", "Rear Window", "The Pianist", "The Departed", "Terminator 2: Judgment Day", "Back to the Future", "Whiplash", "Gladiator", "Memento", "Apocalypse Now", "The Prestige", "The Lion King", "Alien", "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "Sunset Boulevard", "The Great Dictator", "Cinema Paradiso", "The Lives of Others", "Paths of Glory", "Grave of the Fireflies", "Django Unchained", "The Shining", "WALL·E", "American Beauty", "The Dark Knight Rises", "Princess Mononoke", "Aliens", "Oldboy", "Once Upon a Time in America", "Citizen Kane", "Das Boot", "Witness for the Prosecution", "North by Northwest", "Vertigo", "Star Wars: Episode VI - Return of the Jedi", "Reservoir Dogs", "M", "Braveheart", "Amélie", "Requiem for a Dream", "A Clockwork Orange", "Taxi Driver", "Lawrence of Arabia", "Like Stars on Earth", "Double Indemnity", "To Kill a Mockingbird", "Eternal Sunshine of the Spotless Mind", "Toy Story 3", "Amadeus", "My Father and My Son", "Full Metal Jacket", "The Sting", "2001: A Space Odyssey", "Singin' in the Rain", "Bicycle Thieves", "Toy Story", "Dangal", "The Kid", "Inglourious Basterds", "Snatch", "Monty Python and the Holy Grail", "Hacksaw Ridge", "3 Idiots", "L.A. Confidential", "For a Few Dollars More", "Scarface", "Rashomon", "The Apartment", "The Hunt", "Good Will Hunting", "Indiana Jones and the Last Crusade", "A Separation", "Metropolis", "Yojimbo", "All About Eve", "Batman Begins", "Up", "Some Like It Hot", "The Treasure of the Sierra Madre", "Unforgiven", "Downfall", "Raging Bull", "The Third Man", "Die Hard", "Children of Heaven", "The Great Escape", "Heat", "Chinatown", "Inside Out", "Pan's Labyrinth", "Ikiru", "My Neighbor Totoro", "On the Waterfront", "Room", "Ran", "The Gold Rush", "The Secret in Their Eyes", "The Bridge on the River Kwai", "Blade Runner", "Mr. Smith Goes to Washington", "The Seventh Seal", "Howl's Moving Castle", "Lock, Stock and Two Smoking Barrels", "Judgment at Nuremberg", "Casino", "The Bandit", "Incendies", "A Beautiful Mind", "A Wednesday", "The General", "The Elephant Man", "Wild Strawberries", "Arrival", "V for Vendetta", "Warrior", "The Wolf of Wall Street", "Manchester by the Sea", "Sunrise", "The Passion of Joan of Arc", "Gran Torino", "Rang De Basanti", "Trainspotting", "Dial M for Murder", "The Big Lebowski", "The Deer Hunter", "Tokyo Story", "Gone with the Wind", "Fargo", "Finding Nemo", "The Sixth Sense", "The Thing", "Hera Pheri", "Cool Hand Luke", "Andaz Apna Apna", "Rebecca", "No Country for Old Men", "How to Train Your Dragon", "Munna Bhai M.B.B.S.", "Sholay", "Kill Bill: Vol. 1", "Into the Wild", "Mary and Max", "Gone Girl", "There Will Be Blood", "Come and See", "It Happened One Night", "Life of Brian", "Rush", "Hotel Rwanda", "Platoon", "Shutter Island", "Network", "The Wages of Fear", "Stand by Me", "Wild Tales", "In the Name of the Father", "Spotlight", "Star Wars: The Force Awakens", "The Nights of Cabiria", "The 400 Blows", "Butch Cassidy and the Sundance Kid", "Mad Max: Fury Road", "The Maltese Falcon", "12 Years a Slave", "Ben-Hur", "The Grand Budapest Hotel", "Persona", "Million Dollar Baby", "Amores Perros", "Jurassic Park", "The Princess Bride", "Hachi: A Dog's Tale", "Memories of Murder", "Stalker", "Nausicaä of the Valley of the Wind", "Drishyam", "The Truman Show", "The Grapes of Wrath", "Before Sunrise", "Touch of Evil", "Annie Hall", "The Message", "Rocky", "Gandhi", "Harry Potter and the Deathly Hallows: Part 2", "The Bourne Ultimatum", "Diabolique", "Donnie Darko", "Monsters, Inc.", "Prisoners", "8½", "The Terminator", "The Wizard of Oz", "Catch Me If You Can", "Groundhog Day", "Twelve Monkeys", "Zootopia", "La Haine", "Barry Lyndon", "Jaws", "The Best Years of Our Lives", "Infernal Affairs", "Udaan", "The Battle of Algiers", "Strangers on a Train", "Dog Day Afternoon", "Sin City", "Kind Hearts and Coronets", "Gangs of Wasseypur", "The Help"],
-                    callbacks        : {
-                        add    : onAddTag,
-                        remove : onRemoveTag
-                    }
-                });
-
-            // remove all tags (event)
-            document.querySelector('.tags--removeAllBtn').addEventListener('click', tagify1.removeAllTags.bind(tagify1))
-
-            // add tag callback
-            function onAddTag(e){
-                console.log(e, e.detail);
-            }
-
-            // remove tag callback
-            function onRemoveTag(e){
-                console.log(e, e.detail);
-            }
-
-            function onDuplicateAdded(e){
-                console.log(e, e.detail);
-            }
-
-            tagify1.on('add', onAddTag);
-            tagify1.on('remove', onRemoveTag);
-            tagify1.on('duplicate', onDuplicateAdded);
-
-            ////////////////////////////////////////////
-
-            var input3 = document.querySelector('input[name=tags3]'),
-                tagify3 = new Tagify(input3, {
-                    delimiters          : ", ",
-                    suggestionsMinChars : 3,
-                    maxTags             : 6,
-                    blacklist           : ["fuck", "shit", "pussy"],
-                    enforceWhitelist    : true,
-                    whitelist           : ["temple","stun","detective","sign","passion","routine","deck","discriminate","relaxation","fraud","attractive","soft","forecast","point","thank","stage","eliminate","effective","flood","passive","skilled","separation","contact","compromise","reality","district","nationalist","leg","porter","conviction","worker","vegetable","commerce","conception","particle","honor","stick","tail","pumpkin","core","mouse","egg","population","unique","behavior","onion","disaster","cute","pipe","sock","dialect","horse","swear","owner","cope","global","improvement","artist","shed","constant","bond","brink","shower","spot","inject","bowel","homosexual","trust","exclude","tough","sickness","prevalence","sister","resolution","cattle","cultural","innocent","burial","bundle","thaw","respectable","thirsty","exposure","team","creed","facade","calendar","filter","utter","dominate","predator","discover","theorist","hospitality","damage","woman","rub","crop","unpleasant","halt","inch","birthday","lack","throne","maximum","pause","digress","fossil","policy","instrument","trunk","frame","measure","hall","support","convenience","house","partnership","inspector","looting","ranch","asset","rally","explicit","leak","monarch","ethics","applied","aviation","dentist","great","ethnic","sodium","truth","constellation","lease","guide","break","conclusion","button","recording","horizon","council","paradox","bride","weigh","like","noble","transition","accumulation","arrow","stitch","academy","glimpse","case","researcher","constitutional","notion","bathroom","revolutionary","soldier","vehicle","betray","gear","pan","quarter","embarrassment","golf","shark","constitution","club","college","duty","eaux","know","collection","burst","fun","animal","expectation","persist","insure","tick","account","initiative","tourist","member","example","plant","river","ratio","view","coast","latest","invite","help","falsify","allocation","degree","feel","resort","means","excuse","injury","pupil","shaft","allow","ton","tube","dress","speaker","double","theater","opposed","holiday","screw","cutting","picture","laborer","conservation","kneel","miracle","brand","nomination","characteristic","referral","carbon","valley","hot","climb","wrestle","motorist","update","loot","mosquito","delivery","eagle","guideline","hurt","feedback","finish","traffic","competence","serve","archive","feeling","hope","seal","ear","oven","vote","ballot","study","negative","declaration","particular","pattern","suburb","intervention","brake","frequency","drink","affair","contemporary","prince","dry","mole","lazy","undermine","radio","legislation","circumstance","bear","left","pony","industry","mastermind","criticism","sheep","failure","chain","depressed","launch","script","green","weave","please","surprise","doctor","revive","banquet","belong","correction","door","image","integrity","intermediate","sense","formal","cane","gloom","toast","pension","exception","prey","random","nose","predict","needle","satisfaction","establish","fit","vigorous","urgency","X-ray","equinox","variety","proclaim","conceive","bulb","vegetarian","available","stake","publicity","strikebreaker","portrait","sink","frog","ruin","studio","match","electron","captain","channel","navy","set","recommend","appoint","liberal","missile","sample","result","poor","efflux","glance","timetable","advertise","personality","aunt","dog"]
-                })
-
-            tagify3.on('maxTagsExceed', function(e){
-                console.log(e, e.detail);
-            });
-
-            tagify3.on('blacklisted', function(e){
-                console.log(e, e.detail);
-            });
-
-            tagify3.on('notWhitelisted', function(e){
-                console.log(e, e.detail);
-            });
-
             // toggle Tagify on/off
             document.querySelector('input[type=checkbox]').addEventListener('change', function(){
                 document.body.classList[this.checked ? 'add' : 'remove']('disabled');
             })
-
-            ////////////////////////////////////////////
-
-            var allowedTags = [
-                    {
-                        "value"   : "apple",
-                        "data-id" : 3,
-                        "class"   : 'color-green'
-                    },
-                    {
-                        "value"    : "orange",
-                        "data-id"  : 56,
-                        "class"    : 'color-orange'
-                    },
-                    {
-                        "value"    : "tomatto",
-                        "data-id"  : 17,
-                        "class"    : 'color-darkred'
-                    },
-                    {
-                        "value"    : "banana",
-                        "data-id"  : 12,
-                        "class"    : 'color-yellow'
-                    }
-                ],
-                tagify31 = new Tagify(document.querySelector('input[name=tags3-1]'), {
-                    whitelist : allowedTags
-                })
-
-            tagify31.on('remove', function(e){
-                console.log(e, e.detail);
-            });
-
-            tagify31.addTags([
-                {
-                    "value"   : "strawberry",
-                    "data-id" : 8,
-                    "class"   : 'color-red'
-                },
-                {
-                    "value"   : "blueberry",
-                    "data-id" : 6,
-                    "class"   : 'color-purple'
-                }
-            ])
-
-            ////////////////////////////////////////////
-
-            var input4 = document.querySelector('input[name=tags4]'),
-                tagify4 = new Tagify(input4);
-
-            ////////////////////////////////////////////
-            // jQuery example:
-
-            var $input = $('input[name=tags-jquery]')
-                .tagify()
-                .on('add', function(e, tagName){
-                    console.log('JQEURY EVENT: ', 'added', tagName)
-                })
-                .on("duplicate", function(e, tagName) {
-                    console.log('JQEURY EVENT: ',"duplicate", e, ' ', tagName);
-                });
-
-            // get the Tagify instance assigned for this jQuery input object so its methods could be accessed
-            var jqTagify = $input.data('tagify');
-
-            // bind the "click" event on the "remove all tags" button
-            $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
         </script>
+
+
+<script data-name="basic">
+(function(){
+
+var input = document.querySelector('input[name=tags]'),
+    // init Tagify script on the above inputs
+    tagify = new Tagify(input, {
+        whitelist : ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "MaxScript internal language 3D Studio Max", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"],
+        blacklist : ["react", "angular"]
+    });
+
+// "remove all tags" button event listener
+document.querySelector('.tags--removeAllBtn')
+    .addEventListener('click', tagify.removeAllTags.bind(tagify))
+
+// Chainable event listeners
+tagify.on('add', onAddTag)
+      .on('remove', onRemoveTag)
+      .on('duplicate', onDuplicateAdded);
+
+// tag added callback
+function onAddTag(e){
+    console.log(e, e.detail);
+    tagify.off('add', onAddTag)
+}
+
+// tag remvoed callback
+function onRemoveTag(e){
+    console.log(e, e.detail);
+}
+
+// duplicate tag added callback
+function onDuplicateAdded(e){
+    console.log(e, e.detail);
+}
+
+})()
+</script>
+
+<script data-name="textarea">
+(function(){
+var input = document.querySelector('textarea[name=tags2]'),
+    tagify = new Tagify(input, {
+        enforceWhitelist : true,
+        whitelist        : ["The Shawshank Redemption", "The Godfather", "The Godfather: Part II", "The Dark Knight", "12 Angry Men", "Schindler's List", "Pulp Fiction", "The Lord of the Rings: The Return of the King", "The Good, the Bad and the Ugly", "Fight Club", "The Lord of the Rings: The Fellowship of the Ring", "Star Wars: Episode V - The Empire Strikes Back", "Forrest Gump", "Inception", "The Lord of the Rings: The Two Towers", "One Flew Over the Cuckoo's Nest", "Goodfellas", "The Matrix", "Seven Samurai", "Star Wars: Episode IV - A New Hope", "City of God", "Se7en", "The Silence of the Lambs", "It's a Wonderful Life", "The Usual Suspects", "Life Is Beautiful", "Léon: The Professional", "Spirited Away", "Saving Private Ryan", "La La Land", "Once Upon a Time in the West", "American History X", "Interstellar", "Casablanca", "Psycho", "City Lights", "The Green Mile", "Raiders of the Lost Ark", "The Intouchables", "Modern Times", "Rear Window", "The Pianist", "The Departed", "Terminator 2: Judgment Day", "Back to the Future", "Whiplash", "Gladiator", "Memento", "Apocalypse Now", "The Prestige", "The Lion King", "Alien", "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "Sunset Boulevard", "The Great Dictator", "Cinema Paradiso", "The Lives of Others", "Paths of Glory", "Grave of the Fireflies", "Django Unchained", "The Shining", "WALL·E", "American Beauty", "The Dark Knight Rises", "Princess Mononoke", "Aliens", "Oldboy", "Once Upon a Time in America", "Citizen Kane", "Das Boot", "Witness for the Prosecution", "North by Northwest", "Vertigo", "Star Wars: Episode VI - Return of the Jedi", "Reservoir Dogs", "M", "Braveheart", "Amélie", "Requiem for a Dream", "A Clockwork Orange", "Taxi Driver", "Lawrence of Arabia", "Like Stars on Earth", "Double Indemnity", "To Kill a Mockingbird", "Eternal Sunshine of the Spotless Mind", "Toy Story 3", "Amadeus", "My Father and My Son", "Full Metal Jacket", "The Sting", "2001: A Space Odyssey", "Singin' in the Rain", "Bicycle Thieves", "Toy Story", "Dangal", "The Kid", "Inglourious Basterds", "Snatch", "Monty Python and the Holy Grail", "Hacksaw Ridge", "3 Idiots", "L.A. Confidential", "For a Few Dollars More", "Scarface", "Rashomon", "The Apartment", "The Hunt", "Good Will Hunting", "Indiana Jones and the Last Crusade", "A Separation", "Metropolis", "Yojimbo", "All About Eve", "Batman Begins", "Up", "Some Like It Hot", "The Treasure of the Sierra Madre", "Unforgiven", "Downfall", "Raging Bull", "The Third Man", "Die Hard", "Children of Heaven", "The Great Escape", "Heat", "Chinatown", "Inside Out", "Pan's Labyrinth", "Ikiru", "My Neighbor Totoro", "On the Waterfront", "Room", "Ran", "The Gold Rush", "The Secret in Their Eyes", "The Bridge on the River Kwai", "Blade Runner", "Mr. Smith Goes to Washington", "The Seventh Seal", "Howl's Moving Castle", "Lock, Stock and Two Smoking Barrels", "Judgment at Nuremberg", "Casino", "The Bandit", "Incendies", "A Beautiful Mind", "A Wednesday", "The General", "The Elephant Man", "Wild Strawberries", "Arrival", "V for Vendetta", "Warrior", "The Wolf of Wall Street", "Manchester by the Sea", "Sunrise", "The Passion of Joan of Arc", "Gran Torino", "Rang De Basanti", "Trainspotting", "Dial M for Murder", "The Big Lebowski", "The Deer Hunter", "Tokyo Story", "Gone with the Wind", "Fargo", "Finding Nemo", "The Sixth Sense", "The Thing", "Hera Pheri", "Cool Hand Luke", "Andaz Apna Apna", "Rebecca", "No Country for Old Men", "How to Train Your Dragon", "Munna Bhai M.B.B.S.", "Sholay", "Kill Bill: Vol. 1", "Into the Wild", "Mary and Max", "Gone Girl", "There Will Be Blood", "Come and See", "It Happened One Night", "Life of Brian", "Rush", "Hotel Rwanda", "Platoon", "Shutter Island", "Network", "The Wages of Fear", "Stand by Me", "Wild Tales", "In the Name of the Father", "Spotlight", "Star Wars: The Force Awakens", "The Nights of Cabiria", "The 400 Blows", "Butch Cassidy and the Sundance Kid", "Mad Max: Fury Road", "The Maltese Falcon", "12 Years a Slave", "Ben-Hur", "The Grand Budapest Hotel", "Persona", "Million Dollar Baby", "Amores Perros", "Jurassic Park", "The Princess Bride", "Hachi: A Dog's Tale", "Memories of Murder", "Stalker", "Nausicaä of the Valley of the Wind", "Drishyam", "The Truman Show", "The Grapes of Wrath", "Before Sunrise", "Touch of Evil", "Annie Hall", "The Message", "Rocky", "Gandhi", "Harry Potter and the Deathly Hallows: Part 2", "The Bourne Ultimatum", "Diabolique", "Donnie Darko", "Monsters, Inc.", "Prisoners", "8½", "The Terminator", "The Wizard of Oz", "Catch Me If You Can", "Groundhog Day", "Twelve Monkeys", "Zootopia", "La Haine", "Barry Lyndon", "Jaws", "The Best Years of Our Lives", "Infernal Affairs", "Udaan", "The Battle of Algiers", "Strangers on a Train", "Dog Day Afternoon", "Sin City", "Kind Hearts and Coronets", "Gangs of Wasseypur", "The Help"],
+        callbacks        : {
+            add    : console.log,  // callback when adding a tag
+            remove : console.log   // callback when removing a tag
+        }
+    });
+})()
+</script>
+
+
+
+<script data-name="advance-options">
+(function(){
+var input = document.querySelector('input[name=tags3]'),
+    tagify = new Tagify(input, {
+        delimiters          : ", ",
+        suggestionsMinChars : 3,
+        maxTags             : 6,
+        blacklist           : ["fuck", "shit", "pussy"],
+        enforceWhitelist    : true,
+        whitelist           : ["temple","stun","detective","sign","passion","routine","deck","discriminate","relaxation","fraud","attractive","soft","forecast","point","thank","stage","eliminate","effective","flood","passive","skilled","separation","contact","compromise","reality","district","nationalist","leg","porter","conviction","worker","vegetable","commerce","conception","particle","honor","stick","tail","pumpkin","core","mouse","egg","population","unique","behavior","onion","disaster","cute","pipe","sock","dialect","horse","swear","owner","cope","global","improvement","artist","shed","constant","bond","brink","shower","spot","inject","bowel","homosexual","trust","exclude","tough","sickness","prevalence","sister","resolution","cattle","cultural","innocent","burial","bundle","thaw","respectable","thirsty","exposure","team","creed","facade","calendar","filter","utter","dominate","predator","discover","theorist","hospitality","damage","woman","rub","crop","unpleasant","halt","inch","birthday","lack","throne","maximum","pause","digress","fossil","policy","instrument","trunk","frame","measure","hall","support","convenience","house","partnership","inspector","looting","ranch","asset","rally","explicit","leak","monarch","ethics","applied","aviation","dentist","great","ethnic","sodium","truth","constellation","lease","guide","break","conclusion","button","recording","horizon","council","paradox","bride","weigh","like","noble","transition","accumulation","arrow","stitch","academy","glimpse","case","researcher","constitutional","notion","bathroom","revolutionary","soldier","vehicle","betray","gear","pan","quarter","embarrassment","golf","shark","constitution","club","college","duty","eaux","know","collection","burst","fun","animal","expectation","persist","insure","tick","account","initiative","tourist","member","example","plant","river","ratio","view","coast","latest","invite","help","falsify","allocation","degree","feel","resort","means","excuse","injury","pupil","shaft","allow","ton","tube","dress","speaker","double","theater","opposed","holiday","screw","cutting","picture","laborer","conservation","kneel","miracle","brand","nomination","characteristic","referral","carbon","valley","hot","climb","wrestle","motorist","update","loot","mosquito","delivery","eagle","guideline","hurt","feedback","finish","traffic","competence","serve","archive","feeling","hope","seal","ear","oven","vote","ballot","study","negative","declaration","particular","pattern","suburb","intervention","brake","frequency","drink","affair","contemporary","prince","dry","mole","lazy","undermine","radio","legislation","circumstance","bear","left","pony","industry","mastermind","criticism","sheep","failure","chain","depressed","launch","script","green","weave","please","surprise","doctor","revive","banquet","belong","correction","door","image","integrity","intermediate","sense","formal","cane","gloom","toast","pension","exception","prey","random","nose","predict","needle","satisfaction","establish","fit","vigorous","urgency","X-ray","equinox","variety","proclaim","conceive","bulb","vegetarian","available","stake","publicity","strikebreaker","portrait","sink","frog","ruin","studio","match","electron","captain","channel","navy","set","recommend","appoint","liberal","missile","sample","result","poor","efflux","glance","timetable","advertise","personality","aunt","dog"]
+    })
+
+tagify.on('maxTagsExceed', function(e){
+    console.log(e, e.detail);
+});
+
+tagify.on('blacklisted', function(e){
+    console.log(e, e.detail);
+});
+
+tagify.on('notWhitelisted', function(e){
+    console.log(e, e.detail);
+});
+})()
+</script>
+
+
+
+<script data-name="extra-properties">
+(function(){
+var allowedTags = [
+        {
+            "value"   : "apple",
+            "data-id" : 3,
+            "class"   : 'color-green'
+        },
+        {
+            "value"    : "orange",
+            "data-id"  : 56,
+            "class"    : 'color-orange'
+        },
+        {
+            "value"    : "tomatto",
+            "data-id"  : 17,
+            "class"    : 'color-darkred'
+        },
+        {
+            "value"    : "banana",
+            "data-id"  : 12,
+            "class"    : 'color-yellow'
+        }
+    ],
+    tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
+        whitelist : allowedTags
+    })
+
+tagify.on('remove', function(e){
+    console.log(e, e.detail);
+});
+
+tagify.addTags([
+    {
+        "value"    : "strawberry",
+        "data-id"  : 8,
+        "class"    : 'color-red',
+        "readonly" : true
+    },
+    {
+        "value"    : "blueberry",
+        "data-id"  : 6,
+        "class"    : 'color-darkblue',
+        "readonly" : true
+    }
+])
+})()
+</script>
+
+
+
+<script data-name='readonly'>
+(function(){
+var input = document.querySelector('input[name=tags4]'),
+    tagify = new Tagify(input);
+})()
+</script>
+
+
+
+
+<script data-name='jQuery'>
+(function(){
+var $input = $('input[name=tags-jquery]')
+    .tagify()
+        .on('add', function(e, tagName){
+            console.log('JQEURY EVENT: ', 'added', tagName)
+        })
+        .on("duplicate", function(e, tagName) {
+            console.log('JQEURY EVENT: ',"duplicate", e, ' ', tagName);
+        });
+
+// get the Tagify instance assigned for this jQuery input object so its methods could be accessed
+var jqTagify = $input.data('tagify');
+
+// bind the "click" event on the "remove all tags" button
+$('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
+})()
+</script>
     </body>
 </html>
