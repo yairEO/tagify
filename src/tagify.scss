@@ -1,4 +1,4 @@
-@if(true){ // trick so variables will be shared for both the "tags" & "dropdown" elements
+.tagify{
     $tags-border-color : #DDD;
     $tags-hover-border-color : #CCC;
     $tags-focus-border-color : #AAA;
@@ -11,219 +11,226 @@
     $tag-remove        : #D39494;
     $showX             : true;
 
-    tags{
-        display       : block;
-        border        : 1px solid $tags-border-color;
-        padding       : $tagPad;
-        cursor        : text;
-        overflow      : hidden;
-
-        &:hover{ border-color:$tags-hover-border-color; }
-
-        @keyframes tags--bump{
-            30% { box-shadow:0 0 0 4px $tag-bg; }
+    @mixin placeholder( $show:true ){
+        transition:.2s ease-out;
+        @if $show == true {
+            opacity:.5; transform:none;
         }
+        @else {
+            opacity:0; transform:translatex(6px);
+        }
+    }
 
-        ///////////////////////////////////////////
-        // Hides originals
-        + input,
-        + textarea{ border:0; display:none; }
+    display       : block;
+    border        : 1px solid $tags-border-color;
+    padding       : $tagPad;
+    cursor        : text;
+    overflow      : hidden;
 
-        tag{
-            display        : inline-block;
-            margin         : $tagMargin 0 $tagMargin $tagMargin;
+    &:hover{ border-color:$tags-hover-border-color; }
+
+    @keyframes tags--bump{
+        30% { box-shadow:0 0 0 4px $tag-bg; }
+    }
+
+    ///////////////////////////////////////////
+    // Hides originals
+    + input,
+    + textarea{ border:0; display:none; }
+
+    tag{
+        display        : inline-block;
+        margin         : $tagMargin 0 $tagMargin $tagMargin;
+        vertical-align : top;
+
+        position       : relative;
+        z-index        : 1;
+        cursor         : default;
+        transition     : .13s ease-out;
+        animation      : .3s tags--bump 1 ease-out;
+
+        > div{
             vertical-align : top;
-
             position       : relative;
-            z-index        : 1;
-            cursor         : default;
+            box-sizing     : border-box;
+            max-width      : 100%;
+            padding        : $tagPad;
+            color          : $tag-text-color;
             transition     : .13s ease-out;
-            animation      : .3s tags--bump 1 ease-out;
 
-            > div{
+            > span{
+                white-space    : nowrap;
+                overflow       : hidden;
+                text-overflow  : ellipsis;
+                display        : inline-block;
                 vertical-align : top;
-                position       : relative;
-                box-sizing     : border-box;
-                max-width      : 100%;
-                padding        : $tagPad;
-                color          : $tag-text-color;
-                transition     : .13s ease-out;
-
-                > span{
-                    white-space    : nowrap;
-                    overflow       : hidden;
-                    text-overflow  : ellipsis;
-                    display        : inline-block;
-                    vertical-align : top;
-                    width          : 100%;
-                    transition     : .1s;
-                }
-
-                @if $showX {
-                    padding-right:nth($tagPad, 2) * 3;
-                }
-
-                &::before{
-                    content: '';
-                    position: absolute;
-                    left:0; top:0; right:0; bottom:0;
-                    background: $tag-bg;
-                    border-radius : 3px;
-                    z-index: -1;
-                    pointer-events:none;
-                    transition:80ms ease;
-                }
+                width          : 100%;
+                transition     : .1s;
             }
 
-            &:hover:not([readonly]){
-                div{
-                    &::before{
-                        $size: -$tagMargin/2;
-                        $size: -2px;
-                        top:$size; right:$size; bottom:$size; left:$size;
-                        background: $tag-hover;
-                        box-shadow: 0 0 0 0 $tag-remove inset
-                    }
-                    // background:nth($tagColor,2);
-                    //background:none;
-                    // box-shadow: 0 0 0 2px $tag-hover inset;
-                    // transition:50ms;
-                }
-            }
-
-            &.tagify{
-                &--noAnim{ animation:none; }
-
-                &--hide{
-                    width          : 0 !important;
-                    padding-left   : 0;
-                    padding-right  : 0;
-                    margin-left    : 0;
-                    margin-right   : 0;
-                    opacity        : 0;
-                    transform      : scale(0);
-                    transition     : .3s;
-                    pointer-events : none;
-                }
-
-                &--mark{
-                    @keyframes tagify--pulse{
-                        25%{ background: rgba($tag-remove, .6); }
-                    }
-                    div::before{ animation:.3s tagify--pulse 2 ease-out;  }
-                }
-
-                &--notAllowed{
-                    div{
-                        > span{ opacity:.5; } // filter:blur(.2px);
-                        &::before{ background:rgba($tag-remove, .44); transition:.2s; }
-                    }
-                }
-            }
-
-            &[readonly]{
-                x{ display:none; }
-                > div{ padding: $tagPad; }
-            }
-
-            ///////////////////////////////////////////
-            // Close button
-            x{
-                $size: 14px;
-
-                font          : #{$size}/#{$size} Serif;
-                width         : $size;
-                height        : $size;
-                text-align    : center;
-                border-radius : 50px;
-                position      : absolute;
-                z-index       : 1;
-                right         : calc(#{nth($tagPad, 2)} - 2px);
-                top           : 50%;
-                cursor        : pointer;
-                transform     : translateY(-50%);
-                transition    : .2s ease-out;
-
-                &::after{
-                    content:"\00D7";
-                }
-
-                &:hover{
-                    color:white;
-                    background:darken($tag-remove, 8);
-                    // + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
-                    + div{
-                        > span{ opacity:.5; } // filter:blur(.2px);
-                        &::before{ background:rgba($tag-remove, .44); transition:.2s; }
-                    }
-                }
-            }
-        }
-
-        // Global "read-only" mode (no input button)
-        &.readonly{
-            cursor: default;
-            > .tagify--input{
-                visibility: hidden;
-                width: 0;
-                margin: $tagMargin 0;
-            }
-            x{ display:none; }
-            tag > div{ padding: $tagPad; }
-        }
-
-        ///////////////////////////////////////////
-        // Holds the placeholder & the tags input
-        > .tagify--input{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
-            &:empty::before{ opacity:.5; transform:none; }
-
-            &:focus{ outline:none;
-                &::before{ opacity:0; transform:translatex(6px); }
+            @if $showX {
+                padding-right:nth($tagPad, 2) * 3;
             }
 
             &::before{
-                content: attr(data-placeholder);
-                line-height: 1.8;
-                position:absolute;
-                top: 0;
-                opacity:0;
-                z-index:1;
-                white-space:nowrap;
+                content: '';
+                position: absolute;
+                left:0; top:0; right:0; bottom:0;
+                background: $tag-bg;
+                border-radius : 3px;
+                z-index: -1;
                 pointer-events:none;
-                transition:.2s ease-out;
+                transition:80ms ease;
+            }
+        }
+
+        &:hover:not([readonly]){
+            div{
+                &::before{
+                    $size: -$tagMargin/2;
+                    $size: -2px;
+                    top:$size; right:$size; bottom:$size; left:$size;
+                    background: $tag-hover;
+                    box-shadow: 0 0 0 0 $tag-remove inset
+                }
+                // background:nth($tagColor,2);
+                //background:none;
+                // box-shadow: 0 0 0 2px $tag-hover inset;
+                // transition:50ms;
+            }
+        }
+
+        &.tagify{
+            &--noAnim{ animation:none; }
+
+            &--hide{
+                width          : 0 !important;
+                padding-left   : 0;
+                padding-right  : 0;
+                margin-left    : 0;
+                margin-right   : 0;
+                opacity        : 0;
+                transform      : scale(0);
+                transition     : .3s;
+                pointer-events : none;
             }
 
-            // tries to suggest the rest of the value from the first item in the whitelist which matches it
+            &--mark{
+                @keyframes tagify--pulse{
+                    25%{ background: rgba($tag-remove, .6); }
+                }
+                div::before{ animation:.3s tagify--pulse 2 ease-out;  }
+            }
+
+            &--notAllowed{
+                div{
+                    > span{ opacity:.5; } // filter:blur(.2px);
+                    &::before{ background:rgba($tag-remove, .44); transition:.2s; }
+                }
+            }
+        }
+
+        &[readonly]{
+            x{ display:none; }
+            > div{ padding: $tagPad; }
+        }
+
+        ///////////////////////////////////////////
+        // Close button
+        x{
+            $size: 14px;
+
+            font          : #{$size}/#{$size} Serif;
+            width         : $size;
+            height        : $size;
+            text-align    : center;
+            border-radius : 50px;
+            position      : absolute;
+            z-index       : 1;
+            right         : calc(#{nth($tagPad, 2)} - 2px);
+            top           : 50%;
+            cursor        : pointer;
+            transform     : translateY(-50%);
+            transition    : .2s ease-out;
+
             &::after{
-                content: attr(data-suggest);
-                opacity: .3;
-                // line-height: 1.8;
-                // position:absolute;
-                // z-index: -1;
-                // top: 0;
-                // z-index:1;
-                // white-space:nowrap;
-                pointer-events:none;
+                content:"\00D7";
+            }
+
+            &:hover{
+                color:white;
+                background:darken($tag-remove, 8);
+                // + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
+                + div{
+                    > span{ opacity:.5; } // filter:blur(.2px);
+                    &::before{ background:rgba($tag-remove, .44); transition:.2s; }
+                }
             }
         }
     }
 
-    .tagify{
-        &__dropdown{
+    // Global "read-only" mode (no input button)
+    &.readonly{
+        cursor: default;
+        > .tagify--input{
+            visibility: hidden;
+            width: 0;
+            margin: $tagMargin 0;
+        }
+        x{ display:none; }
+        tag > div{ padding: $tagPad; }
+    }
+
+    ///////////////////////////////////////////
+    // Holds the placeholder & the tags input
+    > .tagify--input{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
+        @mixin placeholder-show{ opacity:.5; transform:none; };
+
+        &:empty::before{ @include placeholder; }
+
+        &:focus{ outline:none;
+            &::before{ @include placeholder(false); }
+            &:empty::before{ @include placeholder; }
+        }
+
+        &::before{
+            content: attr(data-placeholder);
+            line-height: 1.8;
             position: absolute;
-            z-index: 999;
-            background: white;
+            top: 0;
+            z-index: 1;
+            white-space: nowrap;
+            pointer-events: none;
+        }
 
-            border: 1px solid $tags-focus-border-color;
-            box-sizing: border-box;
+        // tries to suggest the rest of the value from the first item in the whitelist which matches it
+        &::after{
+            content: attr(data-suggest);
+            opacity: .3;
+            // line-height: 1.8;
+            // position:absolute;
+            // z-index: -1;
+            // top: 0;
+            // z-index:1;
+            // white-space:nowrap;
+            pointer-events:none;
+        }
+    }
 
-            &__item{
-                box-sizing: inherit;
-                padding: .35em .6em;
-                cursor: pointer;
+    &__dropdown{
+        position: absolute;
+        z-index: 999;
+        background: white;
 
-                &--active{ background:$tag-bg; }
-            }
+        border: 1px solid $tags-focus-border-color;
+        box-sizing: border-box;
+
+        &__item{
+            box-sizing: inherit;
+            padding: .35em .6em;
+            cursor: pointer;
+
+            &--active{ background:$tag-bg; }
         }
     }
 }

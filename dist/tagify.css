@@ -1,4 +1,4 @@
-tags {
+.tagify {
   display: block;
   border: 1px solid #DDD;
   padding: 0.3em 0.5em;
@@ -6,16 +6,16 @@ tags {
   overflow: hidden;
 }
 
-tags:hover {
+.tagify:hover {
   border-color: #CCC;
 }
 
-tags + input,tags + textarea {
+.tagify + input,.tagify + textarea {
   border: 0;
   display: none;
 }
 
-tags tag {
+.tagify tag {
   display: inline-block;
   margin: 5px 0 5px 5px;
   vertical-align: top;
@@ -29,7 +29,7 @@ tags tag {
           animation: .3s tags--bump 1 ease-out;
 }
 
-tags tag > div {
+.tagify tag > div {
   vertical-align: top;
   position: relative;
   -webkit-box-sizing: border-box;
@@ -43,7 +43,7 @@ tags tag > div {
   padding-right: 1.5em;
 }
 
-tags tag > div > span {
+.tagify tag > div > span {
   white-space: nowrap;
   overflow: hidden;
   -o-text-overflow: ellipsis;
@@ -56,7 +56,7 @@ tags tag > div > span {
   transition: .1s;
 }
 
-tags tag > div::before {
+.tagify tag > div::before {
   content: '';
   position: absolute;
   left: 0;
@@ -72,7 +72,7 @@ tags tag > div::before {
   transition: 80ms ease;
 }
 
-tags tag:hover:not([readonly]) div::before {
+.tagify tag:hover:not([readonly]) div::before {
   top: -2px;
   right: -2px;
   bottom: -2px;
@@ -82,12 +82,12 @@ tags tag:hover:not([readonly]) div::before {
           box-shadow: 0 0 0 0 #D39494 inset;
 }
 
-tags tag.tagify--noAnim {
+.tagify tag.tagify--noAnim {
   -webkit-animation: none;
           animation: none;
 }
 
-tags tag.tagify--hide {
+.tagify tag.tagify--hide {
   width: 0 !important;
   padding-left: 0;
   padding-right: 0;
@@ -103,31 +103,31 @@ tags tag.tagify--hide {
   pointer-events: none;
 }
 
-tags tag.tagify--mark div::before {
+.tagify tag.tagify--mark div::before {
   -webkit-animation: .3s tagify--pulse 2 ease-out;
           animation: .3s tagify--pulse 2 ease-out;
 }
 
-tags tag.tagify--notAllowed div > span {
+.tagify tag.tagify--notAllowed div > span {
   opacity: .5;
 }
 
-tags tag.tagify--notAllowed div::before {
+.tagify tag.tagify--notAllowed div::before {
   background: rgba(211, 148, 148, 0.44);
   -webkit-transition: .2s;
   -o-transition: .2s;
   transition: .2s;
 }
 
-tags tag[readonly] x {
+.tagify tag[readonly] x {
   display: none;
 }
 
-tags tag[readonly] > div {
+.tagify tag[readonly] > div {
   padding: 0.3em 0.5em;
 }
 
-tags tag x {
+.tagify tag x {
   font: 14px/14px Serif;
   width: 14px;
   height: 14px;
@@ -146,45 +146,45 @@ tags tag x {
   transition: .2s ease-out;
 }
 
-tags tag x::after {
+.tagify tag x::after {
   content: "\00D7";
 }
 
-tags tag x:hover {
+.tagify tag x:hover {
   color: white;
   background: #c77777;
 }
 
-tags tag x:hover + div > span {
+.tagify tag x:hover + div > span {
   opacity: .5;
 }
 
-tags tag x:hover + div::before {
+.tagify tag x:hover + div::before {
   background: rgba(211, 148, 148, 0.44);
   -webkit-transition: .2s;
   -o-transition: .2s;
   transition: .2s;
 }
 
-tags.readonly {
+.tagify.readonly {
   cursor: default;
 }
 
-tags.readonly > .tagify--input {
+.tagify.readonly > .tagify--input {
   visibility: hidden;
   width: 0;
   margin: 5px 0;
 }
 
-tags.readonly x {
+.tagify.readonly x {
   display: none;
 }
 
-tags.readonly tag > div {
+.tagify.readonly tag > div {
   padding: 0.3em 0.5em;
 }
 
-tags > .tagify--input {
+.tagify > .tagify--input {
   display: inline-block;
   min-width: 110px;
   margin: 5px;
@@ -193,39 +193,51 @@ tags > .tagify--input {
   vertical-align: top;
 }
 
-tags > .tagify--input:empty::before {
+.tagify > .tagify--input:empty::before {
+  -webkit-transition: .2s ease-out;
+  -o-transition: .2s ease-out;
+  transition: .2s ease-out;
   opacity: .5;
   -webkit-transform: none;
       -ms-transform: none;
           transform: none;
 }
 
-tags > .tagify--input:focus {
+.tagify > .tagify--input:focus {
   outline: none;
 }
 
-tags > .tagify--input:focus::before {
+.tagify > .tagify--input:focus::before {
+  -webkit-transition: .2s ease-out;
+  -o-transition: .2s ease-out;
+  transition: .2s ease-out;
   opacity: 0;
   -webkit-transform: translatex(6px);
       -ms-transform: translatex(6px);
           transform: translatex(6px);
 }
 
-tags > .tagify--input::before {
+.tagify > .tagify--input:focus:empty::before {
+  -webkit-transition: .2s ease-out;
+  -o-transition: .2s ease-out;
+  transition: .2s ease-out;
+  opacity: .5;
+  -webkit-transform: none;
+      -ms-transform: none;
+          transform: none;
+}
+
+.tagify > .tagify--input::before {
   content: attr(data-placeholder);
   line-height: 1.8;
   position: absolute;
   top: 0;
-  opacity: 0;
   z-index: 1;
   white-space: nowrap;
   pointer-events: none;
-  -webkit-transition: .2s ease-out;
-  -o-transition: .2s ease-out;
-  transition: .2s ease-out;
 }
 
-tags > .tagify--input::after {
+.tagify > .tagify--input::after {
   content: attr(data-suggest);
   opacity: .3;
   pointer-events: none;

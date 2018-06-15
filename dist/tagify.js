@@ -98,7 +98,7 @@ Tagify.prototype = {
     build: function build(input) {
         var that = this,
             value = input.value,
-            template = '\n                <tags class="' + input.className + ' ' + (this.settings.readonly ? 'readonly' : '') + '">\n                    <div contenteditable data-placeholder="' + input.placeholder + '" class="tagify--input"></div>\n                </tags>';
+            template = '\n                <tags class="tagify ' + input.className + ' ' + (this.settings.readonly ? 'readonly' : '') + '">\n                    <div contenteditable data-placeholder="' + input.placeholder + '" class="tagify--input"></div>\n                </tags>';
 
         this.DOM.originalInput = input;
         this.DOM.scope = this.parseHTML(template);

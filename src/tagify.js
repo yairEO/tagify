@@ -79,7 +79,7 @@ Tagify.prototype = {
         var that = this,
             value = input.value,
             template = `
-                <tags class="${input.className} ${this.settings.readonly ? 'readonly' : ''}">
+                <tags class="tagify ${input.className} ${this.settings.readonly ? 'readonly' : ''}">
                     <div contenteditable data-placeholder="${input.placeholder}" class="tagify--input"></div>
                 </tags>`;
 
