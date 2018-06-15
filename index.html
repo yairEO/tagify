@@ -10,19 +10,21 @@
 
         <link rel="stylesheet" href="dist/tagify.css">
 
+        <script src="dist/tagify.polyfills.js"></script>
         <script src="dist/tagify.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="dist/jQuery.tagify.js"></script>
 
         <script>
+            var isIE = !document.currentScript;
+
             function renderPRE(currentScript, codeScriptName){
+                if( isIE ) return;
                 setTimeout(function(){
                     var jsCode = document.querySelector("[data-name='"+ codeScriptName +"']").innerHTML;
 
                     // cleanup closure wraper
                     jsCode = jsCode.replace("(function(){", "" ).replace("})()", "" ).trim();
-
-                    // cut the last line:
 
                     currentScript.insertAdjacentHTML('afterend', "<pre>" + jsCode + "</pre>");
                 }, 60)

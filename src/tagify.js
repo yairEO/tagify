@@ -33,6 +33,8 @@ function Tagify( input, settings ){
 }
 
 Tagify.prototype = {
+    isIE : window.document.documentMode,
+
     DEFAULTS : {
         delimiters          : ",",        // [regex] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
         pattern             : null,       // regex pattern to validate input by. Ex: /[1-9]/
@@ -58,9 +60,10 @@ Tagify.prototype = {
      * @return {Object}   [DOM node]
      */
     parseHTML(s){
-        var t = document.createElement('template');
-            t.innerHTML = s.trim();
-        return t.content.firstChild;
+        var parser = new DOMParser(),
+            node = parser.parseFromString(s.trim(), "text/html");
+
+       return node.body.firstElementChild;
     },
 
     // https://stackoverflow.com/a/25396011/104380
@@ -199,7 +202,8 @@ Tagify.prototype = {
 
             if( bindUnbind ){
                 // this event should never be unbinded
-                this.DOM.input.addEventListener("input", _CB.onInput.bind(this));
+                // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
+                this.DOM.input.addEventListener(this.isIE ? "keydown" : "input", _CB[this.isIE ? "onInputIE" : "onInput"].bind(this));
 
                 if( this.settings.isJQueryPlugin )
                     $(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
@@ -253,6 +257,7 @@ Tagify.prototype = {
                 var value = e.target.textContent.trim(),
                     showSuggestions = value.length >= this.settings.suggestionsMinChars;
 
+                if( this.input.value == value ) return;
                 // save the value on the input state object
                 this.input.value = value;
 
@@ -263,6 +268,14 @@ Tagify.prototype = {
                 else if( this.settings.autoSuggest && this.settings.whitelist.length ){
                     this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
                 }
+            },
+
+            onInputIE(e){
+                var _this = this;
+                // for the "e.target.textContent" to be changed, the browser requires a small delay
+                setTimeout(function(){
+                    _this.events.callbacks.onInput.call(_this, e)
+                })
             },
 
             onPaste(e){
@@ -658,13 +671,15 @@ Tagify.prototype = {
                     switch( e.key ){
                         case 'ArrowDown' :
                         case 'ArrowUp' :
+                        case 'Down' :
+                        case 'Up' :
                             e.preventDefault();
                             if( selectedElm )
-                                selectedElm = selectedElm[e.key == 'ArrowUp' ? "previousElementSibling" : "nextElementSibling"];
+                                selectedElm = selectedElm[e.key == 'ArrowUp' || e.key == 'Up' ? "previousElementSibling" : "nextElementSibling"];
 
                             // if no element was found, loop
                             else
-                                selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' ? this.DOM.dropdown.children.length - 1 : 0];
+                                selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' || e.key == 'Up' ? this.DOM.dropdown.children.length - 1 : 0];
 
                             this.dropdown.highlightOption.call(this, selectedElm);
                             break;
@@ -711,7 +726,16 @@ Tagify.prototype = {
         highlightOption( elm ){
             if( !elm ) return;
             var className = "tagify__dropdown__item--active";
-            this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
+
+            // for IE support, which doesn't allow "forEach" on "NodeList" Objects
+            [].forEach.call(
+                this.DOM.dropdown.querySelectorAll("[class$='--active']"),
+                function(activeElm){
+                    activeElm.classList.remove(className)
+                }
+            );
+
+           // this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
             elm.classList.add(className);
         },
 
