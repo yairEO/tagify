@@ -345,7 +345,11 @@ Tagify.prototype = {
      * make sure the tag, or words in it, is not in the blacklist
      */
     isTagWhitelisted(v){
-        return this.settings.whitelist.indexOf(v) != -1;
+        return this.settings.whitelist.some(item => {
+            var value = item.value ? item.value : item;
+            if( value.toLowerCase() === v.toLowerCase() )
+                return true;
+        });
     },
 
     /**
