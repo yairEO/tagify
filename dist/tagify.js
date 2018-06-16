@@ -25,6 +25,8 @@ function Tagify(input, settings) {
     this.settings = this.extend({}, this.DEFAULTS, settings);
     this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
+    if (isIE) this.settings.autoComplete = false; // IE goes crazy if this isn't false
+
     if (input.pattern) try {
         this.settings.pattern = new RegExp(input.pattern);
     } catch (e) {}
@@ -64,7 +66,6 @@ Tagify.prototype = {
         blacklist: [], // a list of non-allowed tags
         enforceWhitelist: false, // flag - should ONLY use tags allowed in whitelist
         autoComplete: true, // flag - tries to autocomplete the input's value while typing
-        suggestionsMinChars: 2, // minimum input characters to show the sugegstions list
         dropdown: {
             enabled: 2, // minimum input characters needs to be typed for the dropdown to show
             maxItems: 10
@@ -187,8 +188,7 @@ Tagify.prototype = {
                 try {
                     e = new CustomEvent(eventName, { "detail": data });
                 } catch (err) {
-                    e = document.createEvent("Event");
-                    e.initEvent("toggle", false, false);
+                    console.warn(err);
                 }
                 target.dispatchEvent(e);
             }
