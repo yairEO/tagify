@@ -197,7 +197,7 @@
   -webkit-transition: .2s ease-out;
   -o-transition: .2s ease-out;
   transition: .2s ease-out;
-  opacity: .5;
+  opacity: 0.5;
   -webkit-transform: none;
       -ms-transform: none;
           transform: none;
@@ -221,7 +221,7 @@
   -webkit-transition: .2s ease-out;
   -o-transition: .2s ease-out;
   transition: .2s ease-out;
-  opacity: .5;
+  opacity: 0.3;
   -webkit-transform: none;
       -ms-transform: none;
           transform: none;
@@ -235,6 +235,7 @@
   z-index: 1;
   white-space: nowrap;
   pointer-events: none;
+  opacity: 0;
 }
 
 .tagify > .tagify--input::after {
@@ -247,7 +248,9 @@
   position: absolute;
   z-index: 999;
   background: white;
-  border: 1px solid #AAA;
+  border: 1px solid #CCC;
+  -webkit-box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.2);
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
 }
@@ -256,11 +259,17 @@
   -webkit-box-sizing: inherit;
           box-sizing: inherit;
   padding: .35em .6em;
+  margin: 2px;
   cursor: pointer;
+  border-radius: 3px;
 }
 
 .tagify__dropdown__item--active {
   background: #E5E5E5;
+}
+
+.tagify__dropdown__item:active {
+  background: #f2f2f2;
 }
 
 @-webkit-keyframes tags--bump {

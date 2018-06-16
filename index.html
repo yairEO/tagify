@@ -55,14 +55,14 @@
             .disabled tags input,
             .disabled tags textarea{ display:initial; border:1px inset; }
 
-            /* colors */
-            .color-green > div::before{ background:green; opacity:.2; }
-            .color-red > div::before{ background:red; opacity:.2; }
-            .color-orange > div::before{ background:Coral; opacity:.2; }
-            .color-darkred > div::before{ background:darkred; opacity:.2; }
-            .color-yellow > div::before{ background:gold; opacity:.2; }
-            .color-purple > div::before{ background:purple; opacity:.2; }
-            .color-darkblue > div::before{ background:midnightblue; opacity:.3; }
+            /* Tags' colors for this DEMO */
+            .tagify .color-green > div::before{ background:green; opacity:.2; }
+            .tagify .color-red > div::before{ background:red; opacity:.2; }
+            .tagify .color-orange > div::before{ background:Coral; opacity:.2; }
+            .tagify .color-darkred > div::before{ background:darkred; opacity:.2; }
+            .tagify .color-yellow > div::before{ background:gold; opacity:.2; }
+            .tagify .color-purple > div::before{ background:purple; opacity:.2; }
+            .tagify .color-darkblue > div::before{ background:midnightblue; opacity:.3; }
 
         </style>
     </head>
@@ -312,6 +312,11 @@ var allowedTags = [
             "value"    : "banana",
             "data-id"  : 12,
             "class"    : 'color-yellow'
+        },
+        {
+            "value"    : "cherry",
+            "data-id"  : 25,
+            "class"    : 'color-darkblue'
         }
     ],
     tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {

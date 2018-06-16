@@ -1,7 +1,7 @@
 .tagify{
     $tags-border-color : #DDD;
     $tags-hover-border-color : #CCC;
-    $tags-focus-border-color : #AAA;
+    $tags-focus-border-color : #CCC;
 
     $tagMargin         : 5px;
     $tagPad            : .3em .5em;
@@ -11,10 +11,10 @@
     $tag-remove        : #D39494;
     $showX             : true;
 
-    @mixin placeholder( $show:true ){
+    @mixin placeholder( $show:true, $opacity:.5 ){
         transition:.2s ease-out;
         @if $show == true {
-            opacity:.5; transform:none;
+            opacity:$opacity; transform:none;
         }
         @else {
             opacity:0; transform:translatex(6px);
@@ -190,7 +190,7 @@
 
         &:focus{ outline:none;
             &::before{ @include placeholder(false); }
-            &:empty::before{ @include placeholder; }
+            &:empty::before{ @include placeholder(true, .3); }
         }
 
         &::before{
@@ -201,18 +201,13 @@
             z-index: 1;
             white-space: nowrap;
             pointer-events: none;
+            opacity: 0;
         }
 
         // tries to suggest the rest of the value from the first item in the whitelist which matches it
         &::after{
             content: attr(data-suggest);
             opacity: .3;
-            // line-height: 1.8;
-            // position:absolute;
-            // z-index: -1;
-            // top: 0;
-            // z-index:1;
-            // white-space:nowrap;
             pointer-events:none;
         }
     }
@@ -223,14 +218,19 @@
         background: white;
 
         border: 1px solid $tags-focus-border-color;
+        box-shadow: 0 2px 4px -2px rgba(black,.2);
         box-sizing: border-box;
+
 
         &__item{
             box-sizing: inherit;
             padding: .35em .6em;
+            margin: 2px;
             cursor: pointer;
+            border-radius: 3px;
 
             &--active{ background:$tag-bg; }
+            &:active{ background:lighten($tag-bg, 5); }
         }
     }
 }

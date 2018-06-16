@@ -260,6 +260,7 @@ Tagify.prototype = {
                 if( this.input.value == value ) return;
                 // save the value on the input state object
                 this.input.value = value;
+                this.input.suggest.call(this, ''); // cleanup any possible previous suggestion
 
                 if( value.search(this.settings.delimiters) != -1 ){
                     if( this.addTags( value ).length )
@@ -291,10 +292,22 @@ Tagify.prototype = {
         }
     },
 
+    /**
+     * input bridge for accessing & setting
+     * @type {Object}
+     */
     input : {
         value : '',
         set(s = ''){
             this.input.value = this.DOM.input.innerHTML = s;
+        },
+        /**
+         * suggest the rest of the input's value
+         * @param  {String} s [description]
+         */
+        suggest(s){
+            if( s )  this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));
+            else     this.DOM.input.removeAttribute("data-suggest");
         }
     },
 
@@ -578,6 +591,7 @@ Tagify.prototype = {
         this.DOM.originalInput.value = tagsAsString;
     },
 
+
     /**
      * Dropdown controller
      * @type {Object}
@@ -596,18 +610,19 @@ Tagify.prototype = {
             var listItems = this.dropdown.filterListItems.call(this, value),
                 listHTML = this.dropdown.createListHTML(listItems);
 
-            if( !listItems.length ){
+            if( listItems.length && this.settings.autoComplete )
+                this.input.suggest.call(this, listItems[0].value);
+
+            if( !listHTML || listItems.length < 2 ){
                 this.dropdown.hide.call(this);
                 return;
             }
 
-            if( this.settings.autoComplete )
-                this.DOM.input.setAttribute("data-suggest", listItems[0].substring(value.length));
-
             this.DOM.dropdown.innerHTML = listHTML
-
             this.dropdown.position.call(this);
 
+            // if the dropdown has yet to be appended to the document,
+            // append the dropdown to the body element & handle events
             if( !this.DOM.dropdown.parentNode != document.body ){
                 document.body.appendChild(this.DOM.dropdown);
                 this.events.binding.call(this, false); // unbind the main events
@@ -617,8 +632,6 @@ Tagify.prototype = {
 
         hide(){
             if( !this.DOM.dropdown || this.DOM.dropdown.parentNode != document.body ) return;
-
-            this.DOM.input.removeAttribute("data-suggest");
 
             document.body.removeChild(this.DOM.dropdown);
             window.removeEventListener('resize', this.dropdown.position)
@@ -671,8 +684,8 @@ Tagify.prototype = {
                     switch( e.key ){
                         case 'ArrowDown' :
                         case 'ArrowUp' :
-                        case 'Down' :
-                        case 'Up' :
+                        case 'Down' :  // >IE11
+                        case 'Up' :    // >IE11
                             e.preventDefault();
                             if( selectedElm )
                                 selectedElm = selectedElm[e.key == 'ArrowUp' || e.key == 'Up' ? "previousElementSibling" : "nextElementSibling"];
@@ -747,19 +760,19 @@ Tagify.prototype = {
             if( !value ) return "";
 
             var list = [],
-                className = "tagify__dropdown__item",
                 whitelist = this.settings.whitelist,
                 suggestionsCount = this.settings.maxSuggestions || Infinity,
-                whitelistItemValue,
+                whitelistItem,
+                valueIsInWhitelist,
                 i = 0;
 
             for( ; i < whitelist.length; i++ ){
-                var whitelistItemValue = whitelist[i] instanceof Object ? whitelist[i].value : whitelist[i],
-                    valueIsInWhitelist = whitelistItemValue.toLowerCase().replace(/\s/g, '').indexOf(value.toLowerCase().replace(/\s/g, '')) == 0; // for fuzzy-search use ">="
+                whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] }, //normalize value as an Object
+                valueIsInWhitelist = whitelistItem.value.toLowerCase().replace(/\s/g, '').indexOf(value.toLowerCase().replace(/\s/g, '')) == 0; // for fuzzy-search use ">="
 
                 // match for the value within each "whitelist" item
                 if( valueIsInWhitelist && suggestionsCount-- )
-                    list.push(whitelistItemValue);
+                    list.push(whitelistItem);
                 if( suggestionsCount == 0 ) break;
             }
 
@@ -767,12 +780,27 @@ Tagify.prototype = {
         },
 
         /**
-         * @param  {Array} list  [Array of strings]
-         * @return {Object}      [DOM node]
+         * Creates the dropdown items' HTML
+         * @param  {Array} list  [Array of Objects]
+         * @return {String}
          */
         createListHTML(list){
-            var className = "tagify__dropdown__item";
-            return list.map(item => `<div class='${className}'>${item}</div>`).join("");
+            function getItem(item){
+                return `<div class='tagify__dropdown__item ${item.class ? item.class : ""}' ${getAttributesString(item)}>${item.value}</div>`;
+            };
+
+            // for a certain Tag element, add attributes.
+            function getAttributesString(item){
+                var i, keys = Object.keys(item), s = "";
+                for( i=keys.length; i--; ){
+                    var propName = keys[i];
+                    if( propName != 'class' && !item.hasOwnProperty(propName) ) return;
+                    s += " " + propName + (item[propName] ? "=" + item[propName] : "");
+                }
+                return s;
+            }
+
+            return list.map(getItem).join("");
         }
     }
 }
