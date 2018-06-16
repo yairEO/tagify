@@ -31,7 +31,7 @@
             return this;
         }
 
-        this.settings = this.extend({}, settings, this.DEFAULTS);
+        this.settings = this.extend({}, this.DEFAULTS, settings);
         this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
         if (input.pattern) try {
@@ -72,10 +72,12 @@
             whitelist: [], // is this list has any items, then only allow tags from this list
             blacklist: [], // a list of non-allowed tags
             enforceWhitelist: false, // flag - should ONLY use tags allowed in whitelist
-            autoComplete: true, // flag - show native suggeestions list as you type
-            autoSuggest: true, // flag - show native suggeestions list as you type
-            suggestionsMinChars: 2, // minimum characters to input to see sugegstions list
-            maxSuggestions: 10
+            autoComplete: true, // flag - tries to autocomplete the input's value while typing
+            suggestionsMinChars: 2, // minimum input characters to show the sugegstions list
+            dropdown: {
+                enabled: 2, // minimum input characters needs to be typed for the dropdown to show
+                maxItems: 10
+            }
         },
 
         customEventsList: ['add', 'remove', 'duplicate', 'maxTagsExceed', 'blacklisted', 'notWhitelisted'],
@@ -118,7 +120,7 @@
             input.parentNode.insertBefore(this.DOM.scope, input);
 
             // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
-            if (this.settings.autoSuggest && this.settings.whitelist.length) {
+            if (this.settings.dropdown.enabled && this.settings.whitelist.length) {
                 this.dropdown.init.call(this);
             }
 
@@ -139,19 +141,26 @@
 
         /**
          * Merge two objects into a new one
+         * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
          */
         extend: function extend(o, o1, o2) {
             if (!(o instanceof Object)) o = {};
 
-            if (o2) {
-                copy(o, o2);
-                copy(o, o1);
-            } else copy(o, o1);
+            copy(o, o1);
+            if (o2) copy(o, o2);
+
+            function isObject(obj) {
+                return obj === Object(obj) && Object.prototype.toString.call(obj) !== '[object Array]';
+            };
 
             function copy(a, b) {
                 // copy o2 to o
                 for (var key in b) {
-                    if (b.hasOwnProperty(key)) a[key] = b[key];
+                    if (b.hasOwnProperty(key)) {
+                        if (isObject(b[key])) {
+                            if (!isObject(a[key])) a[key] = b[key];else copy(a[key], b[key]);
+                        } else a[key] = b[key];
+                    }
                 }
             }
 
@@ -276,18 +285,16 @@
                 },
                 onInput: function onInput(e) {
                     var value = e.target.textContent.trim(),
-                        showSuggestions = value.length >= this.settings.suggestionsMinChars;
+                        showSuggestions = value.length >= this.settings.dropdown.enabled;
 
                     if (this.input.value == value) return;
                     // save the value on the input state object
                     this.input.value = value;
-                    this.input.suggest.call(this, ''); // cleanup any possible previous suggestion
+                    this.input.autocomplete.call(this, ''); // cleanup any possible previous suggestion
 
                     if (value.search(this.settings.delimiters) != -1) {
                         if (this.addTags(value).length) this.input.set.call(this); // clear the input field's value
-                    } else if (this.settings.autoSuggest && this.settings.whitelist.length) {
-                        this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
-                    }
+                    } else if (this.settings.dropdown.enabled && this.settings.whitelist.length) this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
                 },
                 onInputIE: function onInputIE(e) {
                     var _this = this;
@@ -315,13 +322,14 @@
                 var s = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 
                 this.input.value = this.DOM.input.innerHTML = s;
+                if (s.length < 2) this.input.autocomplete.call(this, '');
             },
 
             /**
              * suggest the rest of the input's value
              * @param  {String} s [description]
              */
-            suggest: function suggest(s) {
+            autocomplete: function autocomplete(s) {
                 if (s) this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));else this.DOM.input.removeAttribute("data-suggest");
             }
         },
@@ -527,7 +535,7 @@
                         // update state
                         that.value.push(tagData);
                         that.update();
-                        that.trigger('add', that.extend({}, tagData, { index: that.value.length, tag: tagElm }));
+                        that.trigger('add', that.extend({}, { index: that.value.length, tag: tagElm }, tagData));
 
                         tagElems.push(tagElm);
                     }
@@ -595,7 +603,7 @@
             if (!silent) {
                 tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
                 this.update(); // update the original input with the current value
-                this.trigger('remove', this.extend({}, tagData, { index: tagIdx, tag: tagElm }));
+                this.trigger('remove', this.extend({}, { index: tagIdx, tag: tagElm }, tagData));
             }
         },
         removeAllTags: function removeAllTags() {
@@ -627,14 +635,15 @@
                 this.DOM.dropdown = this.dropdown.build.call(this);
             },
             build: function build() {
-                var template = "<div class=\"tagify__dropdown\"></div>";
+                var className = ("tagify__dropdown " + this.settings.dropdown.classname).trim(),
+                    template = "<div class=\"" + className + "\"></div>";
                 return this.parseHTML(template);
             },
             show: function show(value) {
                 var listItems = this.dropdown.filterListItems.call(this, value),
                     listHTML = this.dropdown.createListHTML(listItems);
 
-                if (listItems.length && this.settings.autoComplete) this.input.suggest.call(this, listItems[0].value);
+                if (listItems.length && this.settings.autoComplete) this.input.autocomplete.call(this, listItems[0].value);
 
                 if (!listHTML || listItems.length < 2) {
                     this.dropdown.hide.call(this);
@@ -780,7 +789,7 @@
 
                 var list = [],
                     whitelist = this.settings.whitelist,
-                    suggestionsCount = this.settings.maxSuggestions || Infinity,
+                    suggestionsCount = this.settings.dropdown.maxItems || Infinity,
                     whitelistItem,
                     valueIsInWhitelist,
                     i = 0;
