@@ -151,7 +151,7 @@ var input = document.querySelector('input'),
 tagify.addTags( allowedTags.slice(0,2) )
 ```
 
-The above will prepend a "<tags>" element before the original input element:
+The above will prepend a "tags" element before the original input element:
 
 ```html
 <tags class="tagify">
@@ -170,8 +170,8 @@ The above will prepend a "<tags>" element before the original input element:
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
 Suggestions list will only be rendered if there were at least two sugegstions found.
 Matching suggested values is case-insensetive.
-The selectbox dropdown will be appended to the document's <body> element and will be positioned under the element.
-Using the keyboard arrows up/down will highlight an option from the list, and hitting the Enter key will choose it.
+The selectbox dropdown will be appended to the document's "body" element and will be positioned under the element.
+Using the keyboard arrows up/down will highlight an option from the list, and hitting the Enter key to select.
 
 It is possible to tweak the selectbox dropdown via 2 settings:
 
