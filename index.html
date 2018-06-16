@@ -304,6 +304,18 @@ tagify.on('notWhitelisted', function(e){
 (function(){
 var allowedTags = [
         {
+            "value"    : "strawberry",
+            "data-id"  : 8,
+            "class"    : 'color-red',
+            "readonly" : true
+        },
+        {
+            "value"    : "blueberry",
+            "data-id"  : 6,
+            "class"    : 'color-darkblue',
+            "readonly" : true
+        },
+        {
             "value"   : "apple",
             "data-id" : 3,
             "class"   : 'color-green'
@@ -341,20 +353,8 @@ tagify.on('remove', function(e){
     console.log(e, e.detail);
 });
 
-tagify.addTags([
-    {
-        "value"    : "strawberry",
-        "data-id"  : 8,
-        "class"    : 'color-red',
-        "readonly" : true
-    },
-    {
-        "value"    : "blueberry",
-        "data-id"  : 6,
-        "class"    : 'color-darkblue',
-        "readonly" : true
-    }
-])
+tagify.addTags(allowedTags.slice(0,2));
+
 })()
 </script>
 

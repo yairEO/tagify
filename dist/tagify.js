@@ -67,6 +67,7 @@ Tagify.prototype = {
         enforceWhitelist: false, // flag - should ONLY use tags allowed in whitelist
         autoComplete: true, // flag - tries to autocomplete the input's value while typing
         dropdown: {
+            classname: '',
             enabled: 2, // minimum input characters needs to be typed for the dropdown to show
             maxItems: 10
         }
