@@ -18,24 +18,33 @@ Tagify - lightweight input "tags" script
 Transforms an input field or a textarea into a *Tags* component, in an easy, customizable way,
 with great performance and tiny code footprint.
 
-## [See Demos](https://yaireo.github.io/tagify/)
+## [Documentation & Demos](https://yaireo.github.io/tagify)
 
 ## Selling points
-* supports whitelist (with native suggestions dropdown as-you-type)
-* supports blacklists
-* JS file is under 150 very readiable lines of code
-* JS weights less than ~10kb
-* SCSS file is ~2kb of highly readable and flexible code
+* JS weights less than ~12kb (less than 900 easily understandale lines of code)
+* SCSS file is ~6kb of well-crafted flexible code
+* Easily change direction to RTL via the SCSS file only
 * No other inputs are used beside the original, and its value is kept in sync
-* Can paste in multiple values ("tag 1, tag 2, tag 3")
-* Automatically disallow duplicate tags (vis "settings" object)
-* Tags can be created by commas *or* by pressing the "Enter" key
-* Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
 * Easily customized
 * Exposed custom events (Add, Remove, Invalid, Duplicate)
+* For Internet Explorer 11 use "tagify.polyfills.js" under "/dist"
+
+## What can Tagify do
+* Can be applied on input & textarea elements
+* Supports whitelist
+* Supports blacklists
+* Shows suggestions selectbox (flexiable settings & styling)
+* Auto-complete input as-you-type (whitelist first match)
+* Can paste in multiple values ("tag 1, tag 2, tag 3")
+* Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
+* Validate tags by Regex pattern
+* Supports read-only mode to the whole componenet or per-tag
+* Each tag can have any properties desired (class, data-whatever, readonly...)
+* Automatically disallow duplicate tags (vis "settings" object)
+* Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
 
 
-## building the project
+## Building the project
 Simply run `gulp` in your terminal, from the project's path (Gulp should be installed first)
 
 
@@ -44,7 +53,7 @@ Lets say this is your markup, and you already have a value set on the input (whi
 
 ```html
 <input name='tags' placeholder='write some tags' value='foo, bar,buzz'>
-<textarea name='tags' placeholder='write some tags'>foo, bar,buzz</textarea>
+<textarea name='tags' pattern=".{3,}" placeholder='write some tags'>foo, bar,buzz</textarea>
 ```
 
 What you need to do to convert that nice input into "tags" is simply select your input/textarea and run `tagify()`:
@@ -63,16 +72,27 @@ tagify = new Tagify( input, {
     }
 });
 
-// listen to custom tags' events such as 'add' or 'remove'
-tagify1.on('remove', ()=>{
+// listen to custom tags' events such as 'add' or 'remove' (see full list below).
+// listeners are chainable
+tagify.on('remove', onTagRemoved)
+      .on('add', onTagAdded);
+
+function onTagRemoved(e){
     console.log(e, e.detail);
-});
+    // remove listener after first tag removal
+    tagify.off('remove', onTagRemoved);
+}
+
+function onTagAdded(e){
+    // do whatever
+}
 ```
 
 The value of the Tagify component can be accessed like so:
 
 ```javascript
 var tagify = new Tagify(...);
+
 console.log( tagify.value )
 // [{"value":"tag1"}, {"value":"tag2"}, ...]
 ```
@@ -90,32 +110,98 @@ tagify.value
 The below example will populate the Tags component with 2 tags, each with specific attributes & values.
 the `addTags` method accepts an Array of Objects with **any** key/value, as long as the `value` key is defined.
 
-```javascript
-var input = document.querySelector('input[name=tags]'),
-    tagify = new Tagify( input );
+```html
+<input placeholder="add tags">
 
-tagify.addTags([
+```javascript
+var allowedTags = [
     {
-        "value"   : "strawberry",
-        "data-id" : 8,
-        "class"   : 'color-red'
+        "value"   : "apple",
+        "data-id" : 3,
+        "class"   : 'color-green'
     },
     {
-        "value"   : "blueberry",
-        "data-id" : 6,
-        "class"   : 'color-purple'
+        "value"    : "orange",
+        "data-id"  : 56,
+        "class"    : 'color-orange'
+    },
+    {
+        "value"    : "passion fruit",
+        "data-id"  : 17,
+        "class"    : 'color-purple'
+    },
+    {
+        "value"    : "banana",
+        "data-id"  : 12,
+        "class"    : 'color-yellow'
+    },
+    {
+        "value"    : "paprika",
+        "data-id"  : 25,
+        "class"    : 'color-red'
     }
-])
+];
+
+var input = document.querySelector('input'),
+    tagify = new Tagify(input,
+        whitelist : allowedTags
+    );
+
+// Add the first 2 tags from the "allowedTags" Array
+tagify.addTags( allowedTags.slice(0,2) )
 ```
 
-The above will output:
+The above will prepend a "<tags>" element before the original input element:
 
 ```html
-<tags>
-    <tag class="color-red" data-id="8" value="strawberry">...</tag>
-    <tag class="color-purple" data-id="6" value="blueberry">...</tag>
+<tags class="tagify">
+    <tag readonly="true" class="color-red" data-id="8" value="strawberry">
+        <x></x><div><span title="strawberry">strawberry</span></div>
+    </tag>
+    <tag readonly="true" class="color-darkblue" data-id="6" value="blueberry">
+        <x></x><div><span title="blueberry">blueberry</span></div>
+    </tag>
+    <div contenteditable data-placeholder="add tags" class="tagify--input"></div>
 </tags>
+<input placeholder="add tags">
 ```
+
+### Suggestions selectbox
+The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
+Suggestions list will only be rendered if there were at least two sugegstions found.
+Matching suggested values is case-insensetive.
+The selectbox dropdown will be appended to the document's <body> element and will be positioned under the element.
+Using the keyboard arrows up/down will highlight an option from the list, and hitting the Enter key will choose it.
+
+It is possible to tweak the selectbox dropdown via 2 settings:
+
+ - enabled - this is a numeral value which tells Tagify when to show the suggestions dropdown, when a minimum of N characters were typed.
+ - maxItems - Limits the number of items the suggestions selectbox will render
+
+```javascript
+var input = document.querySelector('input'),
+    tagify = new Tagify(input,
+        whitelist : ['aaa', 'aaab', 'aaabb', 'aaabc', 'aaabd', 'aaabe', 'aaac', 'aaacc'],
+        dropdown : {
+            classname : "color-blue",
+            enabled   : 3,
+            maxItems  : 5
+        }
+    );
+```
+
+Will render:
+
+```html
+<div class="tagify__dropdown" style="left: 993.5px; top: 106.375px; width: 616px;">
+    <div class="tagify__dropdown__item" value="aaab">aaab</div>
+    <div class="tagify__dropdown__item" value="aaabb">aaabb</div>
+    <div class="tagify__dropdown__item" value="aaabc">aaabc</div>
+    <div class="tagify__dropdown__item" value="aaabd">aaabd</div>
+    <div class="tagify__dropdown__item" value="aaabe">aaabe</div>
+</div>
+```
+
 
 ### jQuery plugin version (jQuery.tagify.js)
 
@@ -127,37 +213,6 @@ $('[name=tags]')
     });
 ```
 
-Now markup be like:
-
-```html
-<tags>
-    <tag>
-        <x></x>
-        <div><span title="css">css</span></div>
-    </tag>
-    <tag>
-        <x></x>
-        <div><span title="html">html</span></div>
-    </tag>
-    <tag>
-        <x></x>
-        <div><span title="javascript">javascript</span></div>
-    </tag>
-    <div>
-        <input list="tagsSuggestions3l9nbieyr" class="input placeholder">
-        <datalist id="tagsSuggestions3l9nbieyr">
-            <label> select from the list:
-                <select>
-                    <option value=""></option>
-                    <option>foo</option>
-                    <option>bar</option>
-                </select>
-            </label>
-        </datalist><span>write some tags</span>
-    </div>
-    <input name="tags" placeholder="write some tags" value="foo, bar,buzz">
-</tags>
-```
 
 ## Methods
 
@@ -185,15 +240,17 @@ notWhitelisted  | A tag which is not in the whitelist has been added and denied 
 
 Name                | Type       | Default     | Info
 ------------------- | ---------- | ----------- | --------------------------------------------------------------------------
-delimiters          | String     | ","         | [regex] split tags by any of these delimiters. Example: Space or Coma - ", "
-pattern             | String     | ""          | Validate the input by REGEX pattern (can also be applied on the input itself as an attribute)
+delimiters          | String     | ","         | [regex] split tags by any of these delimiters. Example: ",| |."
+pattern             | String     | null        | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: /[1-9]/
 duplicates          | Boolean    | false       | (flag) should duplicate tags be allowed or not
 enforceWhitelist    | Boolean    | false       | should ONLY use tags allowed in whitelist
-autocomplete        | Boolean    | true        | show native suggestions list, as you type
+autocomplete        | Boolean    | true        | tries to autocomplete the input's value while typing (match from whitelist)
 whitelist           | Array      | []          | an array of tags which only they are allowed
 blacklist           | Array      | []          | an array of tags which aren't allowed
 callbacks           | Object     | {}          | exposed callbacks object to be triggered on events: 'add' / 'remove' tags
 maxTags             | Number     | Infinity    | max number of tags
-suggestionsMinChars | Number     | 2           | minimum characters to input which shows the suggestions list
+dropdown.enabled    | Number     | 2           | minimum characters to input which shows the suggestions list dropdown
+dropdown.maxItems   | Number     | 10          | maximum items to show in the suggestions list dropdown
+dropdown.classname  | String     | ""          | custom class name for the dropdown suggestions selectbox
 
 
