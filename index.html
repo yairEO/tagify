@@ -56,14 +56,24 @@
             .disabled tags textarea{ display:initial; border:1px inset; }
 
             /* Tags' colors for this DEMO */
-            .tagify .color-green > div::before{ background:green; opacity:.2; }
-            .tagify .color-red > div::before{ background:red; opacity:.2; }
-            .tagify .color-orange > div::before{ background:Coral; opacity:.2; }
-            .tagify .color-darkred > div::before{ background:darkred; opacity:.2; }
-            .tagify .color-yellow > div::before{ background:gold; opacity:.2; }
-            .tagify .color-purple > div::before{ background:purple; opacity:.2; }
-            .tagify .color-darkblue > div::before{ background:midnightblue; opacity:.3; }
+            .tagify .color-green > div::before, .tagify__dropdown.extra-properties .tagify__dropdown__item.color-green::before{ background:rgba(160, 214, 59, .2);}
+            .tagify .color-red > div::before, .tagify__dropdown.extra-properties .tagify__dropdown__item.color-red::before{ background:rgba(234, 65, 65, .2); }
+            .tagify .color-orange > div::before, .tagify__dropdown.extra-properties .tagify__dropdown__item.color-orange::before{ background:rgba(255, 157, 0, .2); }
+            .tagify .color-darkred > div::before, .tagify__dropdown.extra-properties .tagify__dropdown__item.color-darkred::before{ background:rgba(137, 0, 0, .2); }
+            .tagify .color-yellow > div::before, .tagify__dropdown.extra-properties .tagify__dropdown__item.color-yellow::before{ background:rgba(255, 218, 38, .2); }
+            .tagify .color-purple > div::before, .tagify__dropdown.extra-properties .tagify__dropdown__item.color-purple::before{ background:rgba(102, 59, 229, .2); }
+            .tagify .color-darkblue > div::before, .tagify__dropdown.extra-properties .tagify__dropdown__item.color-darkblue::before{ background:rgba(0, 54, 135, .2); }
 
+            .tagify__dropdown.extra-properties .tagify__dropdown__item::before{
+                content: attr(data-id);
+                display: inline-block;
+                padding: 2px;
+                text-align: center;
+                width: 25px;
+                border-radius: 10px;
+                font-size: .8em;
+                margin-right: 1em;
+            }
         </style>
     </head>
 
@@ -304,9 +314,9 @@ var allowedTags = [
             "class"    : 'color-orange'
         },
         {
-            "value"    : "tomatto",
+            "value"    : "passion fruit",
             "data-id"  : 17,
-            "class"    : 'color-darkred'
+            "class"    : 'color-purple'
         },
         {
             "value"    : "banana",
@@ -314,13 +324,17 @@ var allowedTags = [
             "class"    : 'color-yellow'
         },
         {
-            "value"    : "cherry",
+            "value"    : "paprika",
             "data-id"  : 25,
-            "class"    : 'color-darkblue'
+            "class"    : 'color-red'
         }
     ],
     tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
-        whitelist : allowedTags
+        whitelist : allowedTags,
+        dropdown : {
+            classname : "extra-properties",
+            enabled : 1
+        }
     })
 
 tagify.on('remove', function(e){
