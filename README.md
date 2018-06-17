@@ -45,8 +45,15 @@ with great performance and tiny code footprint.
 
 
 ## Building the project
-Simply run `gulp` in your terminal, from the project's path (Gulp should be installed first)
+Simply run `gulp` in your terminal, from the project's path ([Gulp](https://gulpjs.com) should be installed first).
 
+The source files are this path:
+   /src/
+
+The output files which are automatically generated using Gulp are in:
+   /dist/
+
+The rest of the files are most likely irrelevant.
 
 ## Basic usage
 Lets say this is your markup, and you already have a value set on the input (which was pre-filled by data from the server):
