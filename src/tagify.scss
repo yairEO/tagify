@@ -23,7 +23,7 @@
 
     display       : block;
     border        : 1px solid $tags-border-color;
-    padding       : $tagPad;
+    padding       : 0;
     cursor        : text;
     overflow      : hidden;
 
@@ -184,14 +184,25 @@
     ///////////////////////////////////////////
     // Holds the placeholder & the tags input
     > .tagify--input{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
+        $self: &;
+
         @mixin placeholder-show{ opacity:.5; transform:none; };
 
         &:empty::before{ @include placeholder; }
 
         &:focus{ outline:none;
-            &::before{ @include placeholder(false); }
-            &:empty::before{ @include placeholder(true, .3); }
+            &::before{ @include placeholder(false);
+                @supports ( -moz-appearance:none ){
+                    display:none;
+                }
+            }
+            &:empty::before{ @include placeholder(true, .3);
+                @supports ( -moz-appearance:none ){
+                    display:inline-block;
+                }
+            }
         }
+        &:empty:focus{ padding:$tagPad; }
 
         &::before{
             content: attr(data-placeholder);
@@ -202,6 +213,14 @@
             white-space: nowrap;
             pointer-events: none;
             opacity: 0;
+        }
+
+       // @supports( -moz-appearance:none ){
+        @supports ( -moz-appearance:none ){
+            &::before{
+                line-height: inherit;
+                position:relative;
+            }
         }
 
         // tries to suggest the rest of the value from the first item in the whitelist which matches it

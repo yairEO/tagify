@@ -292,6 +292,7 @@
                     if (this.input.value == value) return;
                     // save the value on the input state object
                     this.input.value = value;
+                    this.input.normalize.call(this);
                     this.input.autocomplete.call(this, ''); // cleanup any possible previous suggestion
 
                     if (value.search(this.settings.delimiters) != -1) {
@@ -324,8 +325,18 @@
                 var s = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 
                 this.input.value = this.DOM.input.innerHTML = s;
+
                 if (s.length < 2) this.input.autocomplete.call(this, '');
             },
+
+
+            // remove any child DOM elements that aren't of type TEXT (like <br>)
+            normalize: function normalize() {
+                while (this.DOM.input.firstElementChild) {
+                    this.DOM.input.removeChild(this.DOM.input.firstElementChild);
+                }
+            },
+
 
             /**
              * suggest the rest of the input's value

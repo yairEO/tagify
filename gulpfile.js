@@ -112,8 +112,9 @@ gulp.task('scss', () => {
         .pipe(
             $.sass().on('error', $.sass.logError)
         )
-        .pipe($.combineMq()) // combine media queries
+        // .pipe($.combineMq()) // combine media queries
         .pipe($.autoprefixer({ browsers:['last 7 versions'] }) )
+        .pipe($.cleanCss())
         .pipe(gulp.dest('./dist'))
 });
 
