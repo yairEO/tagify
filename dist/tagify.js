@@ -264,17 +264,13 @@ Tagify.prototype = {
                     lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
                     lastTag = lastTag[lastTag.length - 1];
                     this.removeTag(lastTag);
-                }
-
-                if (e.key == 'Escape') {
+                } else if (e.key == 'Escape') {
                     this.input.set.call(this);
                     e.target.blur();
-                }
-
-                if (e.key == 'Enter') {
+                } else if (e.key == 'Enter') {
                     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                     this.addTags(this.input.value, true);
-                }
+                } else if (e.key == 'ArrowRight') this.input.autocomplete.set.call(this);
             },
             onInput: function onInput(e) {
                 var value = e.target.textContent.trim(),
@@ -284,7 +280,7 @@ Tagify.prototype = {
                 // save the value on the input state object
                 this.input.value = value;
                 this.input.normalize.call(this);
-                this.input.autocomplete.call(this, ''); // cleanup any possible previous suggestion
+                this.input.autocomplete.suggest.call(this, ''); // cleanup any possible previous suggestion
 
                 if (value.search(this.settings.delimiters) != -1) {
                     if (this.addTags(value).length) this.input.set.call(this); // clear the input field's value
@@ -317,7 +313,7 @@ Tagify.prototype = {
 
             this.input.value = this.DOM.input.innerHTML = s;
 
-            if (s.length < 2) this.input.autocomplete.call(this, '');
+            if (s.length < 2) this.input.autocomplete.suggest.call(this, '');
         },
 
 
@@ -333,8 +329,18 @@ Tagify.prototype = {
          * suggest the rest of the input's value
          * @param  {String} s [description]
          */
-        autocomplete: function autocomplete(s) {
-            if (s) this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));else this.DOM.input.removeAttribute("data-suggest");
+        autocomplete: {
+            suggest: function suggest(s) {
+                if (s) this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));else this.DOM.input.removeAttribute("data-suggest");
+            },
+            set: function set() {
+                var suggestion = this.DOM.input.getAttribute('data-suggest');
+
+                if (suggestion && this.addTags(this.input.value + suggestion).length) {
+                    this.input.set.call(this);
+                    this.dropdown.hide.call(this);
+                }
+            }
         }
     },
 
@@ -647,7 +653,7 @@ Tagify.prototype = {
             var listItems = this.dropdown.filterListItems.call(this, value),
                 listHTML = this.dropdown.createListHTML(listItems);
 
-            if (listItems.length && this.settings.autoComplete) this.input.autocomplete.call(this, listItems[0].value);
+            if (listItems.length && this.settings.autoComplete) this.input.autocomplete.suggest.call(this, listItems[0].value);
 
             if (!listHTML || listItems.length < 2) {
                 this.dropdown.hide.call(this);
@@ -746,12 +752,7 @@ Tagify.prototype = {
                             break;
 
                         case 'ArrowRight':
-                            var suggestion = this.DOM.input.getAttribute('data-suggest');
-
-                            if (suggestion && this.addTags(this.input.value + suggestion).length) {
-                                this.input.set.call(this);
-                                this.dropdown.hide.call(this);
-                            }
+                            this.input.autocomplete.set.call(this);
                             break;
                     }
                 },
@@ -803,7 +804,7 @@ Tagify.prototype = {
                 valueIsInWhitelist = whitelistItem.value.toLowerCase().replace(/\s/g, '').indexOf(value.toLowerCase().replace(/\s/g, '')) == 0; // for fuzzy-search use ">="
 
                 // match for the value within each "whitelist" item
-                if (valueIsInWhitelist && suggestionsCount--) list.push(whitelistItem);
+                if (valueIsInWhitelist && !this.isTagDuplicate(whitelistItem.value) && suggestionsCount--) list.push(whitelistItem);
                 if (suggestionsCount == 0) break;
             }
 
