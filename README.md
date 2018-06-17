@@ -27,7 +27,7 @@ with great performance and tiny code footprint.
 * No other inputs are used beside the original, and its value is kept in sync
 * Easily customized
 * Exposed custom events (Add, Remove, Invalid, Duplicate)
-* For Internet Explorer 11 use "tagify.polyfills.js" under "/dist"
+* For Internet Explorer 11 include the script `tagify.polyfills.js` under `/dist`
 
 ## What can Tagify do
 * Can be applied on input & textarea elements
