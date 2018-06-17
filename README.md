@@ -47,12 +47,8 @@ with great performance and tiny code footprint.
 ## Building the project
 Simply run `gulp` in your terminal, from the project's path ([Gulp](https://gulpjs.com) should be installed first).
 
-The source files are this path:
-   /src/
-
-The output files which are automatically generated using Gulp are in:
-   /dist/
-
+Source files are this path `/src/`
+Output files, which are automatically generated using Gulp, are in `/dist/`;
 The rest of the files are most likely irrelevant.
 
 ## Basic usage
