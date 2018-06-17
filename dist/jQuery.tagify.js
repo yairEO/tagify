@@ -152,7 +152,8 @@
             if (o2) copy(o, o2);
 
             function isObject(obj) {
-                return obj === Object(obj) && Object.prototype.toString.call(obj) !== '[object Array]';
+                var type = Object.prototype.toString.call(obj);
+                return obj === Object(obj) && type != '[object Array]' && type != '[object Function]';
             };
 
             function copy(a, b) {
@@ -160,7 +161,7 @@
                 for (var key in b) {
                     if (b.hasOwnProperty(key)) {
                         if (isObject(b[key])) {
-                            if (!isObject(a[key])) a[key] = b[key];else copy(a[key], b[key]);
+                            if (!isObject(a[key])) a[key] = Object.assign({}, b[key]);else copy(a[key], b[key]);
                         } else a[key] = b[key];
                     }
                 }

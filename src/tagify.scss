@@ -217,6 +217,8 @@
         z-index: 999;
         background: white;
 
+        max-height: 300px;
+        overflow: auto;
         border: 1px solid $tags-focus-border-color;
         box-shadow: 0 2px 4px -2px rgba(black,.2);
         box-sizing: border-box;
