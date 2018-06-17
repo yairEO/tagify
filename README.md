@@ -250,6 +250,7 @@ enforceWhitelist    | Boolean    | false       | should ONLY use tags allowed in
 autocomplete        | Boolean    | true        | tries to autocomplete the input's value while typing (match from whitelist)
 whitelist           | Array      | []          | an array of tags which only they are allowed
 blacklist           | Array      | []          | an array of tags which aren't allowed
+addTagOnBlur        | Boolean    | true        | automatically adds the text which was inputed as a tag when blur event happens
 callbacks           | Object     | {}          | exposed callbacks object to be triggered on events: 'add' / 'remove' tags
 maxTags             | Number     | Infinity    | max number of tags
 dropdown.enabled    | Number     | 2           | minimum characters to input which shows the suggestions list dropdown
