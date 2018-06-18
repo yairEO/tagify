@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tagify (v 1.3.1)- tags input component
+ * Tagify (v 2.0.1)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -34,7 +34,7 @@
         this.settings = this.extend({}, this.DEFAULTS, settings);
         this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
-        if (isIE) this.settings.autoComplete = false; // IE goes crazy if this isn't false
+        if (this.isIE) this.settings.autoComplete = false; // IE goes crazy if this isn't false
 
         if (input.pattern) try {
             this.settings.pattern = new RegExp(input.pattern);

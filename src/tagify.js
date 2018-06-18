@@ -8,7 +8,7 @@ function Tagify( input, settings ){
     this.settings = this.extend({}, this.DEFAULTS, settings);
     this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
-    if( isIE )
+    if( this.isIE )
         this.settings.autoComplete = false; // IE goes crazy if this isn't false
 
     if( input.pattern )
