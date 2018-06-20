@@ -49,6 +49,7 @@ Tagify.prototype = {
         blacklist           : [],         // a list of non-allowed tags
         enforceWhitelist    : false,      // flag - should ONLY use tags allowed in whitelist
         autoComplete        : true,       // flag - tries to autocomplete the input's value while typing
+        mapValueToProp      : "",         // String - when tags have multiple properties, and for each tag another property should be used besides the "value"
         dropdown            : {
             classname : '',
             enabled   : 2,    // minimum input characters needs to be typed for the dropdown to show
@@ -525,8 +526,8 @@ Tagify.prototype = {
         tagsItems = normalizeTags.call(this, tagsItems);
 
         tagsItems.forEach(tagData => {
-            var isTagValidated = validateTag.call(that, tagData);
 
+            var isTagValidated = validateTag.call(that, tagData);
             if( isTagValidated === true || isTagValidated == "notAllowed" ){
                 // create the tag element
                 var tagElm = that.createTagElem(tagData);
@@ -622,10 +623,11 @@ Tagify.prototype = {
 
     /**
      * update the origianl (hidden) input field's value
+     * see - https://stackoverflow.com/q/50957841/104380
      */
     update(){
-        var tagsAsString = this.value.map(v => v.value).join(',');
-        this.DOM.originalInput.value = tagsAsString;
+        var tagsAsString = this.value.map(v => v[this.settings.mapValueToProp || "value"] || v.value);
+        this.DOM.originalInput.value = JSON.stringify(tagsAsString).slice(1,-1);
     },
 
     /**

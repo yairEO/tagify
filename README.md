@@ -146,9 +146,10 @@ var allowedTags = [
 ];
 
 var input = document.querySelector('input'),
-    tagify = new Tagify(input,
-        whitelist : allowedTags
-    );
+    tagify = new Tagify(input, {
+        whitelist : allowedTags,
+        mapValueToProp : "data-id"
+    });
 
 // Add the first 2 tags from the "allowedTags" Array
 tagify.addTags( allowedTags.slice(0,2) )
@@ -183,14 +184,14 @@ It is possible to tweak the selectbox dropdown via 2 settings:
 
 ```javascript
 var input = document.querySelector('input'),
-    tagify = new Tagify(input,
+    tagify = new Tagify(input, {
         whitelist : ['aaa', 'aaab', 'aaabb', 'aaabc', 'aaabd', 'aaabe', 'aaac', 'aaacc'],
         dropdown : {
             classname : "color-blue",
             enabled   : 3,
             maxItems  : 5
         }
-    );
+    });
 ```
 
 Will render:
@@ -253,6 +254,7 @@ blacklist           | Array      | []          | an array of tags which aren't a
 addTagOnBlur        | Boolean    | true        | automatically adds the text which was inputed as a tag when blur event happens
 callbacks           | Object     | {}          | exposed callbacks object to be triggered on events: 'add' / 'remove' tags
 maxTags             | Number     | Infinity    | max number of tags
+mapValueToProp      | String     | ""          | For tags with properties, where a certain property should be used as the value saves on the original (hidden) input
 dropdown.enabled    | Number     | 2           | minimum characters to input which shows the suggestions list dropdown
 dropdown.maxItems   | Number     | 10          | maximum items to show in the suggestions list dropdown
 dropdown.classname  | String     | ""          | custom class name for the dropdown suggestions selectbox

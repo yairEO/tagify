@@ -75,6 +75,7 @@
             blacklist: [], // a list of non-allowed tags
             enforceWhitelist: false, // flag - should ONLY use tags allowed in whitelist
             autoComplete: true, // flag - tries to autocomplete the input's value while typing
+            mapValueToProp: "", // String - when tags have multiple properties, and for each tag another property should be used besides the "value"
             dropdown: {
                 classname: '',
                 enabled: 2, // minimum input characters needs to be typed for the dropdown to show
@@ -536,8 +537,8 @@
             tagsItems = normalizeTags.call(this, tagsItems);
 
             tagsItems.forEach(function (tagData) {
-                var isTagValidated = validateTag.call(that, tagData);
 
+                var isTagValidated = validateTag.call(that, tagData);
                 if (isTagValidated === true || isTagValidated == "notAllowed") {
                     // create the tag element
                     var tagElm = that.createTagElem(tagData);
@@ -636,12 +637,15 @@
 
         /**
          * update the origianl (hidden) input field's value
+         * see - https://stackoverflow.com/q/50957841/104380
          */
         update: function update() {
+            var _this3 = this;
+
             var tagsAsString = this.value.map(function (v) {
-                return v.value;
-            }).join(',');
-            this.DOM.originalInput.value = tagsAsString;
+                return v[_this3.settings.mapValueToProp || "value"] || v.value;
+            });
+            this.DOM.originalInput.value = JSON.stringify(tagsAsString).slice(1, -1);
         },
 
 
