@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.0.1)- tags input component
+ * Tagify (v 2.0.2)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -26,6 +26,10 @@ function Tagify(input, settings) {
     this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
     if (this.isIE) this.settings.autoComplete = false; // IE goes crazy if this isn't false
+
+    if (settings.pattern) try {
+        this.settings.pattern = new RegExp(settings.pattern);
+    } catch (e) {}
 
     if (input.pattern) try {
         this.settings.pattern = new RegExp(input.pattern);
