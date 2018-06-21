@@ -11,6 +11,10 @@ function Tagify( input, settings ){
     if( this.isIE )
         this.settings.autoComplete = false; // IE goes crazy if this isn't false
 
+    if( settings.pattern )
+        try { this.settings.pattern = new RegExp(settings.pattern) }
+        catch(e){}
+
     if( input.pattern )
         try { this.settings.pattern = new RegExp(input.pattern) }
         catch(e){}
