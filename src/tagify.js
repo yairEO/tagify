@@ -684,7 +684,7 @@ Tagify.prototype = {
         position(){
             var rect = this.DOM.scope.getBoundingClientRect();
 
-            this.DOM.dropdown.style.cssText = "left: "  + rect.left + window.pageXOffset + "px; \
+            this.DOM.dropdown.style.cssText = "left: "  + (rect.left + window.pageXOffset) + "px; \
                                                top: "   + (rect.top + rect.height - 1 + window.pageYOffset)  + "px; \
                                                width: " + rect.width + "px";
         },
