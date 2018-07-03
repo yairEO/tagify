@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.0.1)- tags input component
+ * Tagify (v 2.0.2)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -144,8 +144,9 @@ Tagify.prototype = {
         if (o2) copy(o, o2);
 
         function isObject(obj) {
-            var type = Object.prototype.toString.call(obj);
-            return obj === Object(obj) && type != '[object Array]' && type != '[object Function]';
+            var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
+
+            return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp';
         };
 
         function copy(a, b) {
@@ -153,7 +154,9 @@ Tagify.prototype = {
             for (var key in b) {
                 if (b.hasOwnProperty(key)) {
                     if (isObject(b[key])) {
-                        if (!isObject(a[key])) a[key] = Object.assign({}, b[key]);else copy(a[key], b[key]);
+                        if (!isObject(a[key])) {
+                            a[key] = Object.assign({}, b[key]);
+                        } else copy(a[key], b[key]);
                     } else a[key] = b[key];
                 }
             }

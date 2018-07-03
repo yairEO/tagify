@@ -128,8 +128,9 @@ Tagify.prototype = {
             copy(o, o2)
 
         function isObject(obj) {
-            var type = Object.prototype.toString.call(obj);
-            return obj === Object(obj) && type != '[object Array]' && type != '[object Function]';
+            var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
+
+            return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp';
         };
 
         function copy(a,b){
@@ -137,8 +138,9 @@ Tagify.prototype = {
             for( var key in b )
                 if( b.hasOwnProperty(key) ){
                     if( isObject(b[key]) ){
-                        if( !isObject(a[key]) )
+                        if( !isObject(a[key]) ){
                             a[key] = Object.assign({}, b[key]);
+                        }
                         else
                             copy(a[key], b[key])
                     }
