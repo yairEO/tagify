@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.0.2)- tags input component
+ * Tagify (v 2.0.3)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -600,6 +600,8 @@ Tagify.prototype = {
      * @param  {Boolean} silent    [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
      */
     removeTag: function removeTag(tagElm, silent) {
+        if (!tagElm) return;
+
         var tagData,
             tagIdx = this.getNodeIndex(tagElm);
 
@@ -690,7 +692,7 @@ Tagify.prototype = {
         position: function position() {
             var rect = this.DOM.scope.getBoundingClientRect();
 
-            this.DOM.dropdown.style.cssText = "left: " + rect.left + window.pageXOffset + "px; \
+            this.DOM.dropdown.style.cssText = "left: " + (rect.left + window.pageXOffset) + "px; \
                                                top: " + (rect.top + rect.height - 1 + window.pageYOffset) + "px; \
                                                width: " + rect.width + "px";
         },

@@ -596,6 +596,8 @@ Tagify.prototype = {
      * @param  {Boolean} silent    [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
      */
     removeTag( tagElm, silent ){
+        if( !tagElm ) return;
+
         var tagData,
             tagIdx = this.getNodeIndex(tagElm);
 
