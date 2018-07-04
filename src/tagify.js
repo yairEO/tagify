@@ -273,7 +273,7 @@ Tagify.prototype = {
             },
 
             onInput(e){
-                var value = e.target.textContent.trim(),
+                var value = e.target.textContent.replace(/\s/g,' '), // replace NBSPs with spaces characters
                     showSuggestions = value.length >= this.settings.dropdown.enabled;
 
                 if( this.input.value == value ) return;
@@ -456,8 +456,7 @@ Tagify.prototype = {
 
             // if the value is a "simple" String, ex: "aaa, bbb, ccc"
             if( !isComplex ){
-                tagsItems = tagsItems.trim();
-                if( !tagsItems ) return [];
+                if( !tagsItems.trim() ) return [];
 
                 // go over each tag and add it (if there were multiple ones)
                 result = tagsItems.split(this.settings.delimiters).map(v => ({ value:v.trim() }));

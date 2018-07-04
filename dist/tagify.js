@@ -277,8 +277,9 @@ Tagify.prototype = {
                 } else if (e.key == 'ArrowRight') this.input.autocomplete.set.call(this);
             },
             onInput: function onInput(e) {
-                var value = e.target.textContent.trim(),
-                    showSuggestions = value.length >= this.settings.dropdown.enabled;
+                var value = e.target.textContent.replace(/\s/g, ' '),
+                    // replace NBSPs with spaces characters
+                showSuggestions = value.length >= this.settings.dropdown.enabled;
 
                 if (this.input.value == value) return;
                 // save the value on the input state object
@@ -459,8 +460,7 @@ Tagify.prototype = {
 
             // if the value is a "simple" String, ex: "aaa, bbb, ccc"
             if (!isComplex) {
-                tagsItems = tagsItems.trim();
-                if (!tagsItems) return [];
+                if (!tagsItems.trim()) return [];
 
                 // go over each tag and add it (if there were multiple ones)
                 result = tagsItems.split(this.settings.delimiters).map(function (v) {
