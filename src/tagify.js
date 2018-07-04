@@ -107,6 +107,8 @@ Tagify.prototype = {
             this.addTags(value).forEach(tag => {
                 tag && tag.classList.add('tagify--noAnim');
             });
+
+        input.autofocus && this.DOM.input.focus()
     },
 
     /**

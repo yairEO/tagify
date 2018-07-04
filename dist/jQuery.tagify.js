@@ -131,6 +131,8 @@
             if (value) this.addTags(value).forEach(function (tag) {
                 tag && tag.classList.add('tagify--noAnim');
             });
+
+            input.autofocus && this.DOM.input.focus();
         },
 
 
