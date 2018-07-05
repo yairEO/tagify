@@ -1,4 +1,4 @@
-Tagify - lightweight input "tags" script
+[Tagify](https://yaireo.github.io/tagify) - lightweight input "tags" script
 ========
 
 <!--
