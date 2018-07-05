@@ -26,7 +26,7 @@ with great performance and tiny code footprint.
 * Easily change direction to RTL via the SCSS file only
 * No other inputs are used beside the original, and its value is kept in sync
 * Easily customized
-* Exposed custom events (Add, Remove, Invalid, Duplicate)
+* Exposed custom events (add, remove, invalid)
 * For Internet Explorer 11 include the script `tagify.polyfills.js` under `/dist`
 
 ## What can Tagify do
@@ -79,6 +79,7 @@ tagify = new Tagify( input, {
 // listeners are chainable
 tagify.on('remove', onTagRemoved)
       .on('add', onTagAdded);
+      .on('invalid', onInvaildTag)
 
 function onTagRemoved(e){
     console.log(e, e.detail);
@@ -88,6 +89,10 @@ function onTagRemoved(e){
 
 function onTagAdded(e){
     // do whatever
+}
+
+function onInvaildTag(e){
+    // e.detail ...
 }
 ```
 
@@ -227,17 +232,14 @@ removeAllTags   | Removes all tags and resets the original input tag's value pro
 addTags         | Accepts a String (word, single or multiple with a delimiter) or an Array of Objects (see above)
 removeTag       | Removes a specific tag (argument is the tag DOM element to be removed. see source code.)
 
+
 ## Exposed events
 
 Name            | Info
 --------------- | --------------------------------------------------------------------------
 add             | A tag has been added
 remove          | A tag has been removed
-duplicate       | A tag has been added and found to be a duplicate of existing one
-maxTagsExceed   | Number of tags exceeds the allowed quantity and the exceed tags were denied (removed)
-blacklisted     | A tag which is in the blacklist has been added and denied (removed)
-notWhitelisted  | A tag which is not in the whitelist has been added and denied (removed)
-
+invalid         | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
 
 
 ## Settings
@@ -258,5 +260,3 @@ mapValueToProp      | String     | ""          | For tags with properties, where
 dropdown.enabled    | Number     | 2           | minimum characters to input which shows the suggestions list dropdown
 dropdown.maxItems   | Number     | 10          | maximum items to show in the suggestions list dropdown
 dropdown.classname  | String     | ""          | custom class name for the dropdown suggestions selectbox
-
-

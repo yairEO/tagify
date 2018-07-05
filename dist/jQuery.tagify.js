@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tagify (v 2.0.3)- tags input component
+ * Tagify (v 2.0.4)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -49,6 +49,7 @@
 
         this.id = Math.random().toString(36).substr(2, 9), // almost-random ID (because, fuck it)
         this.value = []; // An array holding all the (currently used) tags
+        this.stringValue = ""; // same as above, only as a String
 
         // events' callbacks references will be stores here, so events could be unbinded
         this.listeners = {};
@@ -64,17 +65,26 @@
     Tagify.prototype = {
         isIE: window.document.documentMode,
 
+        TEXTS: {
+            empty: "empty",
+            exceed: "number of tags exceeded",
+            pattern: "pattern mismatch",
+            duplicate: "already exists",
+            notAllowed: "not allowed"
+        },
+
         DEFAULTS: {
-            delimiters: ",", // [regex] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
-            pattern: null, // regex pattern to validate input by. Ex: /[1-9]/
-            maxTags: Infinity, // maximum number of tags
-            callbacks: {}, // exposed callbacks object to be triggered on certain events
-            addTagOnBlur: true, // flag - automatically adds the text which was inputed as a tag when blur event happens
-            duplicates: false, // flag - allow tuplicate tags
-            whitelist: [], // is this list has any items, then only allow tags from this list
-            blacklist: [], // a list of non-allowed tags
-            enforceWhitelist: false, // flag - should ONLY use tags allowed in whitelist
-            autoComplete: true, // flag - tries to autocomplete the input's value while typing
+            delimiters: ",", // [RegEx] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
+            pattern: null, // RegEx pattern to validate input by. Ex: /[1-9]/
+            maxTags: Infinity, // Maximum number of tags
+            callbacks: {}, // Exposed callbacks object to be triggered on certain events
+            addTagOnBlur: true, // Flag - automatically adds the text which was inputed as a tag when blur event happens
+            duplicates: false, // Flag - allow tuplicate tags
+            whitelist: [], // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
+            blacklist: [], // A list of non-allowed tags
+            enforceWhitelist: false, // Flag - Only allow tags allowed in whitelist
+            keepInvalidTags: false, // Flag - if true, do not remove tags which did not pass validation
+            autoComplete: true, // Flag - tries to autocomplete the input's value while typing
             mapValueToProp: "", // String - when tags have multiple properties, and for each tag another property should be used besides the "value"
             dropdown: {
                 classname: '',
@@ -83,7 +93,7 @@
             }
         },
 
-        customEventsList: ['add', 'remove', 'duplicate', 'maxTagsExceed', 'blacklisted', 'notWhitelisted'],
+        customEventsList: ['add', 'remove', 'invalid'],
 
         /**
          * utility method
@@ -374,9 +384,8 @@
          * @return {boolean}  [found / not found]
          */
         isTagDuplicate: function isTagDuplicate(s) {
-            return this.value.some(function (item) {
-                return s.toLowerCase() === item.value.toLowerCase();
-            });
+            return this.stringValue.indexOf(s.toLowerCase());
+            // return this.value.some(item => s.toLowerCase() === item.value.toLowerCase());
         },
 
 
@@ -432,14 +441,40 @@
 
 
         /**
+         * validate a tag object BEFORE the actual tag will be created & appeneded
+         * @param  {Object} tagData  [{"value":"text", "class":whatever", ...}]
+         * @return {Boolean/String}  ["true" if validation has passed, String or "false" for any type of error]
+         */
+        validateTag: function validateTag(tagData) {
+            var value = tagData.value.trim(),
+                maxTagsExceed = this.value.length >= this.settings.maxTags,
+                isDuplicate,
+                eventName__error,
+                result = true;
+
+            // check for empty value
+            if (!value) result = this.TEXTS.empty;else if (maxTagsExceed) result = this.TEXTS.exceed;
+
+            // check if pattern should be used and if so, use it to test the value
+            else if (this.settings.pattern && !this.settings.pattern.test(value)) result = this.TEXTS.pattern;
+
+                // if duplicates are not allowed and there is a duplicate
+                else if (!this.settings.duplicates && this.isTagDuplicate(value) !== -1) result = this.TEXTS.duplicate;else if (this.isTagBlacklisted(value) || this.settings.enforceWhitelist && !this.isTagWhitelisted(value)) result = this.TEXTS.notAllowed;
+
+            return result;
+        },
+
+
+        /**
          * add a "tag" element to the "tags" component
          * @param {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects]
          * @param {Boolean} clearInput [flag if the input's value should be cleared after adding tags]
          * @return {Array} Array of DOM elements (tags)
          */
         addTags: function addTags(tagsItems, clearInput) {
-            var that = this,
-                tagElems = [];
+            var _this3 = this;
+
+            var tagElems = [];
 
             this.DOM.input.removeAttribute('style');
 
@@ -474,60 +509,14 @@
                     if (!tagsItems.trim()) return [];
 
                     // go over each tag and add it (if there were multiple ones)
-                    result = tagsItems.split(this.settings.delimiters).map(function (v) {
+                    result = tagsItems.split(this.settings.delimiters).filter(function (n) {
+                        return n;
+                    }).map(function (v) {
                         return { value: v.trim() };
                     });
                 }
 
-                return result.filter(function (n) {
-                    return n;
-                }); // cleanup the array from "undefined", "false" or empty items;
-            }
-
-            /**
-             * validate a tag object BEFORE the actual tag will be created & appeneded
-             * @param  {Object} tagData  [{"value":"text", "class":whatever", ...}]
-             * @return {Boolean/String}  ["true" if validation has passed, String or "false" for any type of error]
-             */
-            function validateTag(tagData) {
-                var value = tagData.value.trim(),
-                    maxTagsExceed = this.value.length >= this.settings.maxTags,
-                    isDuplicate,
-                    eventName__error,
-                    tagAllowed;
-
-                // check for empty value
-                if (!value) return "empty";
-
-                // check if pattern should be used and if so, use it to test the value
-                if (this.settings.pattern && !this.settings.pattern.test(value)) return "pattern";
-
-                // check if the tag already exists
-                if (this.isTagDuplicate(value)) {
-                    this.trigger('duplicate', value);
-
-                    if (!this.settings.duplicates) {
-                        // this.markTagByValue(value, tagElm)
-                        return "duplicate";
-                    }
-                }
-
-                // check if the tag is allowed by the rules set
-                tagAllowed = !this.isTagBlacklisted(value) && (!this.settings.enforceWhitelist || this.isTagWhitelisted(value)) && !maxTagsExceed;
-
-                // Check against blacklist & whitelist (if enforced)
-                if (!tagAllowed) {
-                    tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
-
-                    // broadcast why the tag was not allowed
-                    if (maxTagsExceed) eventName__error = 'maxTagsExceed';else if (this.isTagBlacklisted(value)) eventName__error = 'blacklisted';else if (this.settings.enforceWhitelist && !this.isTagWhitelisted(value)) eventName__error = 'notWhitelisted';
-
-                    this.trigger(eventName__error, { value: value, index: this.value.length });
-
-                    return "notAllowed";
-                }
-
-                return true;
+                return result;
             }
 
             /**
@@ -542,28 +531,33 @@
             tagsItems = normalizeTags.call(this, tagsItems);
 
             tagsItems.forEach(function (tagData) {
+                var isTagValid = _this3.validateTag.call(_this3, tagData),
+                    tagElm;
 
-                var isTagValidated = validateTag.call(that, tagData);
-                if (isTagValidated === true || isTagValidated == "notAllowed") {
-                    // create the tag element
-                    var tagElm = that.createTagElem(tagData);
+                if (isTagValid !== true) {
+                    tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
+                    tagData.title = isTagValid;
+                    _this3.trigger("invalid", { value: tagData.value, index: _this3.value.length, message: isTagValid });
+                }
 
-                    // add the tag to the component's DOM
-                    appendTag.call(that, tagElm);
+                // Create tag HTML element
+                tagElm = _this3.createTagElem(tagData);
 
-                    // remove the tag "slowly"
-                    if (isTagValidated == "notAllowed") {
-                        setTimeout(function () {
-                            that.removeTag(tagElm, true);
-                        }, 1000);
-                    } else {
-                        // update state
-                        that.value.push(tagData);
-                        that.update();
-                        that.trigger('add', that.extend({}, { index: that.value.length, tag: tagElm }, tagData));
+                // add the tag to the component's DOM
+                appendTag.call(_this3, tagElm);
 
-                        tagElems.push(tagElm);
-                    }
+                if (isTagValid === true) {
+                    // update state
+                    _this3.value.push(tagData);
+                    _this3.update();
+                    _this3.trigger('add', _this3.extend({}, { index: _this3.value.length, tag: tagElm }, tagData));
+
+                    tagElems.push(tagElm);
+                } else if (!_this3.settings.keepInvalidTags) {
+                    // remove invalid tags (if "keepInvalidTags" is set to "false")
+                    setTimeout(function () {
+                        _this3.removeTag(tagElm, true);
+                    }, 1000);
                 }
             });
 
@@ -583,7 +577,7 @@
         createTagElem: function createTagElem(tagData) {
             var tagElm,
                 escapedValue = this.escapeHtml(tagData.value),
-                template = "<tag>\n                            <x></x><div><span title='" + escapedValue + "'>" + escapedValue + "</span></div>\n                        </tag>";
+                template = "<tag title='" + escapedValue + "'>\n                            <x title=''></x><div><span>" + escapedValue + "</span></div>\n                        </tag>";
 
             // for a certain Tag element, add attributes.
             function addTagAttrs(tagElm, tagData) {
@@ -647,12 +641,13 @@
          * see - https://stackoverflow.com/q/50957841/104380
          */
         update: function update() {
-            var _this3 = this;
+            var _this4 = this;
 
             var tagsAsString = this.value.map(function (v) {
-                return v[_this3.settings.mapValueToProp || "value"] || v.value;
+                return v[_this4.settings.mapValueToProp || "value"] || v.value;
             });
-            this.DOM.originalInput.value = JSON.stringify(tagsAsString).slice(1, -1);
+            this.stringValue = JSON.stringify(tagsAsString).slice(1, -1);
+            this.DOM.originalInput.value = this.stringValue;
         },
 
 
@@ -824,7 +819,7 @@
                     valueIsInWhitelist = whitelistItem.value.toLowerCase().replace(/\s/g, '').indexOf(value.toLowerCase().replace(/\s/g, '')) == 0; // for fuzzy-search use ">="
 
                     // match for the value within each "whitelist" item
-                    if (valueIsInWhitelist && !this.isTagDuplicate(whitelistItem.value) && suggestionsCount--) list.push(whitelistItem);
+                    if (valueIsInWhitelist && this.isTagDuplicate(whitelistItem.value) == -1 && suggestionsCount--) list.push(whitelistItem);
                     if (suggestionsCount == 0) break;
                 }
 
