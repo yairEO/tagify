@@ -125,14 +125,13 @@
         build: function build(input) {
             var that = this,
                 value = input.value,
-                template = "\n                <tags class=\"tagify " + input.className + " " + (this.settings.readonly ? 'readonly' : '') + "\">\n                    <div contenteditable data-placeholder=\"" + input.placeholder + "\" class=\"tagify--input\"></div>\n                </tags>";
+                template = "\n                <tags class=\"tagify " + input.className + " " + (this.settings.readonly ? 'readonly' : '') + "\">\n                    <div contenteditable data-placeholder=\"" + input.placeholder + "\" class=\"tagify__input\"></div>\n                </tags>";
 
             this.DOM.originalInput = input;
             this.DOM.scope = this.parseHTML(template);
             this.DOM.input = this.DOM.scope.querySelector('[contenteditable]');
             input.parentNode.insertBefore(this.DOM.scope, input);
 
-            // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
             if (this.settings.dropdown.enabled && this.settings.whitelist.length) {
                 this.dropdown.init.call(this);
             }
@@ -298,19 +297,26 @@
                     } else if (e.key == 'ArrowRight') this.input.autocomplete.set.call(this);
                 },
                 onInput: function onInput(e) {
-                    var value = e.target.textContent.replace(/\s/g, ' '),
-                        // replace NBSPs with spaces characters
-                    showSuggestions = value.length >= this.settings.dropdown.enabled;
+                    var value = this.input.normalize.call(this),
+                        showSuggestions = value.length >= this.settings.dropdown.enabled;
 
-                    if (this.input.value == value) return;
-                    // save the value on the input state object
-                    this.input.value = value;
-                    this.input.normalize.call(this);
-                    this.input.autocomplete.suggest.call(this, ''); // cleanup any possible previous suggestion
+                    if (!value) {
+                        this.input.set.call(this, '');
+                        return;
+                    }
+
+                    if (this.input.value == value) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
+
+                    // save the value on the input's State object
+                    this.input.set.call(this, value, false);
 
                     if (value.search(this.settings.delimiters) != -1) {
-                        if (this.addTags(value).length) this.input.set.call(this); // clear the input field's value
-                    } else if (this.settings.dropdown.enabled && this.settings.whitelist.length) this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
+                        if (this.addTags(value).length) {
+                            this.input.set.call(this); // clear the input field's value
+                        }
+                    } else if (this.settings.dropdown.enabled && this.settings.whitelist.length) {
+                        this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
+                    }
                 },
                 onInputIE: function onInputIE(e) {
                     var _this = this;
@@ -336,18 +342,38 @@
             value: '',
             set: function set() {
                 var s = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+                var updateDOM = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
-                this.input.value = this.DOM.input.innerHTML = s;
+                this.input.value = s;
+
+                if (updateDOM) this.DOM.input.innerHTML = s;
 
                 if (s.length < 2) this.input.autocomplete.suggest.call(this, '');
+
+                this.input.validate.call(this);
+            },
+
+
+            /**
+             * Marks the tagify's input as "invalid" if the value did not pass "validateTag()"
+             */
+            validate: function validate() {
+                var isValid = !this.input.value || this.validateTag.call(this, this.input.value);
+                this.DOM.input.classList.toggle('tagify__input--invalid', isValid !== true);
             },
 
 
             // remove any child DOM elements that aren't of type TEXT (like <br>)
             normalize: function normalize() {
-                while (this.DOM.input.firstElementChild) {
-                    this.DOM.input.removeChild(this.DOM.input.firstElementChild);
+                var clone = this.DOM.input.cloneNode(true),
+                    v = clone.textContent.replace(/\s/g, ' '); // replace NBSPs with spaces characters
+
+                while (clone.firstElementChild) {
+                    v += clone.firstElementChild.textContent;
+                    clone.removeChild(clone.firstElementChild);
                 }
+
+                return v.replace(/^\s+/, ""); // trimLeft
             },
 
 
@@ -384,7 +410,9 @@
          * @return {boolean}  [found / not found]
          */
         isTagDuplicate: function isTagDuplicate(s) {
-            return this.stringValue.indexOf(s.toLowerCase());
+            return this.value.findIndex(function (item) {
+                return s.toLowerCase() === item.value.toLowerCase();
+            });
             // return this.value.some(item => s.toLowerCase() === item.value.toLowerCase());
         },
 
@@ -396,13 +424,11 @@
          * @return {boolean}                [found / not found]
          */
         markTagByValue: function markTagByValue(value, tagElm) {
-            var tagsElms, tagsElmsLen;
+            var tagsElms, tagsElmsLen, tagIdx;
 
             if (!tagElm) {
-                tagsElms = this.DOM.scope.querySelectorAll('tag');
-                for (tagsElmsLen = tagsElms.length; tagsElmsLen--;) {
-                    if (tagsElms[tagsElmsLen].value.toLowerCase().includes(value.toLowerCase())) tagElm = tagsElms[tagsElmsLen];
-                }
+                tagIdx = this.isTagDuplicate.call(this, value);
+                tagElm = this.DOM.scope.querySelectorAll('tag')[tagIdx];
             }
 
             // check AGAIN if "tagElm" is defined
@@ -410,9 +436,9 @@
                 tagElm.classList.add('tagify--mark');
                 setTimeout(function () {
                     tagElm.classList.remove('tagify--mark');
-                }, 2000);
-                return true;
-            } else {}
+                }, 100);
+                return tagElm;
+            }
 
             return false;
         },
@@ -442,11 +468,11 @@
 
         /**
          * validate a tag object BEFORE the actual tag will be created & appeneded
-         * @param  {Object} tagData  [{"value":"text", "class":whatever", ...}]
-         * @return {Boolean/String}  ["true" if validation has passed, String or "false" for any type of error]
+         * @param  {String} s
+         * @return {Boolean/String}  ["true" if validation has passed, String for a fail]
          */
-        validateTag: function validateTag(tagData) {
-            var value = tagData.value.trim(),
+        validateTag: function validateTag(s) {
+            var value = s.trim(),
                 maxTagsExceed = this.value.length >= this.settings.maxTags,
                 isDuplicate,
                 eventName__error,
@@ -531,28 +557,28 @@
             tagsItems = normalizeTags.call(this, tagsItems);
 
             tagsItems.forEach(function (tagData) {
-                var isTagValid = _this3.validateTag.call(_this3, tagData),
+                var tagValidation = _this3.validateTag.call(_this3, tagData.value),
                     tagElm;
 
-                if (isTagValid !== true) {
+                if (tagValidation !== true) {
                     tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
-                    tagData.title = isTagValid;
-                    _this3.trigger("invalid", { value: tagData.value, index: _this3.value.length, message: isTagValid });
+                    tagData.title = tagValidation;
+                    _this3.markTagByValue.call(_this3, tagData.value);
+                    _this3.trigger("invalid", { value: tagData.value, index: _this3.value.length, message: tagValidation });
                 }
 
                 // Create tag HTML element
                 tagElm = _this3.createTagElem(tagData);
+                tagElems.push(tagElm);
 
                 // add the tag to the component's DOM
                 appendTag.call(_this3, tagElm);
 
-                if (isTagValid === true) {
+                if (tagValidation === true) {
                     // update state
                     _this3.value.push(tagData);
                     _this3.update();
                     _this3.trigger('add', _this3.extend({}, { index: _this3.value.length, tag: tagElm }, tagData));
-
-                    tagElems.push(tagElm);
                 } else if (!_this3.settings.keepInvalidTags) {
                     // remove invalid tags (if "keepInvalidTags" is set to "false")
                     setTimeout(function () {
@@ -668,7 +694,9 @@
                 var listItems = this.dropdown.filterListItems.call(this, value),
                     listHTML = this.dropdown.createListHTML(listItems);
 
-                if (listItems.length && this.settings.autoComplete) this.input.autocomplete.suggest.call(this, listItems[0].value);
+                if (this.settings.autoComplete) {
+                    this.input.autocomplete.suggest.call(this, listItems.length ? listItems[0].value : '');
+                }
 
                 if (!listHTML || listItems.length < 2) {
                     this.dropdown.hide.call(this);

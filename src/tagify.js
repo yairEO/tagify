@@ -99,7 +99,7 @@ Tagify.prototype = {
             value = input.value,
             template = `
                 <tags class="tagify ${input.className} ${this.settings.readonly ? 'readonly' : ''}">
-                    <div contenteditable data-placeholder="${input.placeholder}" class="tagify--input"></div>
+                    <div contenteditable data-placeholder="${input.placeholder}" class="tagify__input"></div>
                 </tags>`;
 
         this.DOM.originalInput = input;
@@ -107,7 +107,6 @@ Tagify.prototype = {
         this.DOM.input = this.DOM.scope.querySelector('[contenteditable]');
         input.parentNode.insertBefore(this.DOM.scope, input);
 
-        // if "autocomplete" flag on toggeled & "whitelist" has items, build suggestions list
         if( this.settings.dropdown.enabled && this.settings.whitelist.length ){
             this.dropdown.init.call(this);
         }
@@ -285,21 +284,27 @@ Tagify.prototype = {
             },
 
             onInput(e){
-                var value = e.target.textContent.replace(/\s/g,' '), // replace NBSPs with spaces characters
+                var value = this.input.normalize.call(this),
                     showSuggestions = value.length >= this.settings.dropdown.enabled;
 
-                if( this.input.value == value ) return;
-                // save the value on the input state object
-                this.input.value = value;
-                this.input.normalize.call(this);
-                this.input.autocomplete.suggest.call(this, ''); // cleanup any possible previous suggestion
+                if( !value ){
+                    this.input.set.call(this, '');
+                    return;
+                }
+
+                if( this.input.value == value ) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
+
+                // save the value on the input's State object
+                this.input.set.call(this, value, false);
 
                 if( value.search(this.settings.delimiters) != -1 ){
-                    if( this.addTags( value ).length )
+                    if( this.addTags( value ).length ){
                         this.input.set.call(this); // clear the input field's value
+                    }
                 }
-                else if( this.settings.dropdown.enabled && this.settings.whitelist.length )
+                else if( this.settings.dropdown.enabled && this.settings.whitelist.length ){
                     this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
+                }
             },
 
             onInputIE(e){
@@ -329,18 +334,37 @@ Tagify.prototype = {
      */
     input : {
         value : '',
-        set(s = ''){
-            this.input.value = this.DOM.input.innerHTML = s;
+        set(s = '', updateDOM = true){
+            this.input.value = s;
+
+            if( updateDOM )
+                this.DOM.input.innerHTML = s;
 
             if( s.length < 2 )
                 this.input.autocomplete.suggest.call(this, '');
+
+            this.input.validate.call(this);
+        },
+
+        /**
+         * Marks the tagify's input as "invalid" if the value did not pass "validateTag()"
+         */
+        validate(){
+            var isValid = !this.input.value || this.validateTag.call(this, this.input.value);
+            this.DOM.input.classList.toggle('tagify__input--invalid', isValid !== true);
         },
 
         // remove any child DOM elements that aren't of type TEXT (like <br>)
         normalize(){
-            while (this.DOM.input.firstElementChild ){
-                this.DOM.input.removeChild(this.DOM.input.firstElementChild );
+            var clone = this.DOM.input.cloneNode(true),
+                v = clone.textContent.replace(/\s/g,' '); // replace NBSPs with spaces characters
+
+            while( clone.firstElementChild ){
+                v += clone.firstElementChild.textContent;
+                clone.removeChild(clone.firstElementChild);
             }
+
+            return v.replace(/^\s+/,"");  // trimLeft
         },
 
         /**
@@ -377,7 +401,7 @@ Tagify.prototype = {
      * @return {boolean}  [found / not found]
      */
     isTagDuplicate(s){
-        return this.stringValue.indexOf(s.toLowerCase());
+        return this.value.findIndex(item => s.toLowerCase() === item.value.toLowerCase());
         // return this.value.some(item => s.toLowerCase() === item.value.toLowerCase());
     },
 
@@ -388,25 +412,18 @@ Tagify.prototype = {
      * @return {boolean}                [found / not found]
      */
     markTagByValue(value, tagElm){
-        var tagsElms, tagsElmsLen;
+        var tagsElms, tagsElmsLen, tagIdx
 
         if( !tagElm ){
-            tagsElms = this.DOM.scope.querySelectorAll('tag');
-            for( tagsElmsLen = tagsElms.length; tagsElmsLen--; ){
-                if( tagsElms[tagsElmsLen].value.toLowerCase().includes(value.toLowerCase()) )
-                    tagElm = tagsElms[tagsElmsLen];
-            }
+            tagIdx = this.isTagDuplicate.call(this, value);
+            tagElm = this.DOM.scope.querySelectorAll('tag')[tagIdx];
         }
 
         // check AGAIN if "tagElm" is defined
         if( tagElm ){
             tagElm.classList.add('tagify--mark');
-            setTimeout(() => { tagElm.classList.remove('tagify--mark') }, 2000);
-            return true;
-        }
-
-        else{
-
+            setTimeout(() => { tagElm.classList.remove('tagify--mark') }, 100);
+            return tagElm;
         }
 
         return false;
@@ -433,11 +450,11 @@ Tagify.prototype = {
 
     /**
      * validate a tag object BEFORE the actual tag will be created & appeneded
-     * @param  {Object} tagData  [{"value":"text", "class":whatever", ...}]
-     * @return {Boolean/String}  ["true" if validation has passed, String or "false" for any type of error]
+     * @param  {String} s
+     * @return {Boolean/String}  ["true" if validation has passed, String for a fail]
      */
-    validateTag( tagData ){
-        var value = tagData.value.trim(),
+    validateTag( s ){
+        var value = s.trim(),
             maxTagsExceed = this.value.length >= this.settings.maxTags,
             isDuplicate,
             eventName__error,
@@ -522,28 +539,28 @@ Tagify.prototype = {
         tagsItems = normalizeTags.call(this, tagsItems);
 
         tagsItems.forEach(tagData => {
-            var isTagValid = this.validateTag.call(this, tagData),
+            var tagValidation = this.validateTag.call(this, tagData.value),
                 tagElm;
 
-            if( isTagValid !== true ){
+            if( tagValidation !== true ){
                 tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
-                tagData.title = isTagValid;
-                this.trigger("invalid", {value:tagData.value, index:this.value.length, message:isTagValid});
+                tagData.title = tagValidation;
+                this.markTagByValue.call(this, tagData.value);
+                this.trigger("invalid", {value:tagData.value, index:this.value.length, message:tagValidation});
             }
 
             // Create tag HTML element
             tagElm = this.createTagElem(tagData);
+            tagElems.push(tagElm);
 
             // add the tag to the component's DOM
             appendTag.call(this, tagElm);
 
-            if( isTagValid === true ){
+            if( tagValidation === true ){
                 // update state
                 this.value.push(tagData);
                 this.update();
                 this.trigger('add', this.extend({}, {index:this.value.length, tag:tagElm}, tagData));
-
-                tagElems.push(tagElm);
             }
             else if( !this.settings.keepInvalidTags ){
                 // remove invalid tags (if "keepInvalidTags" is set to "false")
@@ -652,8 +669,9 @@ Tagify.prototype = {
             var listItems = this.dropdown.filterListItems.call(this, value),
                 listHTML = this.dropdown.createListHTML(listItems);
 
-            if( listItems.length && this.settings.autoComplete )
-                this.input.autocomplete.suggest.call(this, listItems[0].value);
+            if( this.settings.autoComplete ){
+                this.input.autocomplete.suggest.call(this, listItems.length ? listItems[0].value : '');
+            }
 
             if( !listHTML || listItems.length < 2 ){
                 this.dropdown.hide.call(this);
