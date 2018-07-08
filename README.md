@@ -35,7 +35,7 @@ with great performance and tiny code footprint.
 * Supports blacklists
 * Shows suggestions selectbox (flexiable settings & styling)
 * Auto-complete input as-you-type (whitelist first match)
-* Can paste in multiple values ("tag 1, tag 2, tag 3")
+* Can paste in multiple values: `tag 1, tag 2, tag 3`
 * Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
 * Validate tags by Regex pattern
 * Supports read-only mode to the whole componenet or per-tag
@@ -47,8 +47,10 @@ with great performance and tiny code footprint.
 ## Building the project
 Simply run `gulp` in your terminal, from the project's path ([Gulp](https://gulpjs.com) should be installed first).
 
-Source files are this path `/src/`
-Output files, which are automatically generated using Gulp, are in `/dist/`;
+Source files are this path: `/src/`
+
+Output files, which are automatically generated using Gulp, are in: `/dist/`
+
 The rest of the files are most likely irrelevant.
 
 ## Basic usage
