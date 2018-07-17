@@ -122,6 +122,7 @@ the `addTags` method accepts an Array of Objects with **any** key/value, as long
 
 ```html
 <input placeholder="add tags">
+```
 
 ```javascript
 var allowedTags = [
