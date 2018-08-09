@@ -646,8 +646,7 @@ Tagify.prototype = {
      */
     update(){
         var tagsAsString = this.value.map(v => v[this.settings.mapValueToProp || "value"] || v.value);
-        this.stringValue = JSON.stringify(tagsAsString).slice(1,-1);
-        this.DOM.originalInput.value = this.stringValue;
+        this.DOM.originalInput.value = JSON.stringify(tagsAsString);
     },
 
     /**

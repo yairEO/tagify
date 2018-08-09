@@ -105,6 +105,10 @@ var tagify = new Tagify(...);
 
 console.log( tagify.value )
 // [{"value":"tag1"}, {"value":"tag2"}, ...]
+
+// the original input's value is a String of Array items
+console.log( input.value )
+// "["tag1", "tag2", ...]"
 ```
 
 If the Tags were added with custom properties, the *value* output might look something like this:
