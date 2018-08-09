@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.1.0)- tags input component
+ * Tagify (v 2.1.1)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -663,8 +663,7 @@ Tagify.prototype = {
         var tagsAsString = this.value.map(function (v) {
             return v[_this4.settings.mapValueToProp || "value"] || v.value;
         });
-        this.stringValue = JSON.stringify(tagsAsString).slice(1, -1);
-        this.DOM.originalInput.value = this.stringValue;
+        this.DOM.originalInput.value = JSON.stringify(tagsAsString);
     },
 
 
