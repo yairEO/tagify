@@ -84,8 +84,8 @@ Tagify.prototype = {
 
     // https://stackoverflow.com/a/25396011/104380
     escapeHtml(s){
-        var text = document.createTextNode(s);
-        var p = document.createElement('p');
+        var text = document.createTextNode(s),
+            p = document.createElement('p');
         p.appendChild(text);
         return p.innerHTML;
     },
@@ -96,16 +96,16 @@ Tagify.prototype = {
      */
     build( input ){
         var that = this,
+            DOM  = this.DOM,
             value = input.value,
-            template = `
-                <tags class="tagify ${input.className} ${this.settings.readonly ? 'readonly' : ''}">
-                    <div contenteditable data-placeholder="${input.placeholder}" class="tagify__input"></div>
-                </tags>`;
+            template = `<tags class="tagify ${input.className}" ${this.settings.readonly ? 'readonly' : ''}>
+                            <div contenteditable data-placeholder="${input.placeholder}" class="tagify__input"></div>
+                        </tags>`;
 
-        this.DOM.originalInput = input;
-        this.DOM.scope = this.parseHTML(template);
-        this.DOM.input = this.DOM.scope.querySelector('[contenteditable]');
-        input.parentNode.insertBefore(this.DOM.scope, input);
+        DOM.originalInput = input;
+        DOM.scope = this.parseHTML(template);
+        DOM.input = DOM.scope.querySelector('[contenteditable]');
+        input.parentNode.insertBefore(DOM.scope, input);
 
         if( this.settings.dropdown.enabled && this.settings.whitelist.length ){
             this.dropdown.init.call(this);
@@ -117,7 +117,7 @@ Tagify.prototype = {
                 tag && tag.classList.add('tagify--noAnim');
             });
 
-        input.autofocus && this.DOM.input.focus()
+        input.autofocus && DOM.input.focus()
     },
 
     /**
@@ -492,6 +492,43 @@ Tagify.prototype = {
 
         this.DOM.input.removeAttribute('style');
 
+
+        tagsItems = normalizeTags.call(this, tagsItems);
+
+        tagsItems.forEach(tagData => {
+            var tagValidation = this.validateTag.call(this, tagData.value),
+                tagElm;
+
+            if( tagValidation !== true ){
+                tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
+                tagData.title = tagValidation;
+                this.markTagByValue.call(this, tagData.value);
+                this.trigger("invalid", {value:tagData.value, index:this.value.length, message:tagValidation});
+            }
+
+            // Create tag HTML element
+            tagElm = this.createTagElem(tagData);
+            tagElems.push(tagElm);
+
+            // add the tag to the component's DOM
+            appendTag.call(this, tagElm);
+
+            if( tagValidation === true ){
+                // update state
+                this.value.push(tagData);
+                this.update();
+                this.trigger('add', this.extend({}, {index:this.value.length, tag:tagElm}, tagData));
+            }
+            else if( !this.settings.keepInvalidTags ){
+                // remove invalid tags (if "keepInvalidTags" is set to "false")
+                setTimeout(() => { this.removeTag(tagElm, true) }, 1000);
+            }
+        })
+
+        if( tagsItems.length && clearInput ){
+            this.input.set.call(this);
+        }
+
         /**
          * pre-proccess the tagsItems, which can be a complex tagsItems like an Array of Objects or a string comprised of multiple words
          * so each item should be iterated on and a tag created for.
@@ -533,43 +570,6 @@ Tagify.prototype = {
          */
         function appendTag(tagElm){
             this.DOM.scope.insertBefore(tagElm, this.DOM.input);
-        }
-
-        //////////////////////
-        tagsItems = normalizeTags.call(this, tagsItems);
-
-        tagsItems.forEach(tagData => {
-            var tagValidation = this.validateTag.call(this, tagData.value),
-                tagElm;
-
-            if( tagValidation !== true ){
-                tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
-                tagData.title = tagValidation;
-                this.markTagByValue.call(this, tagData.value);
-                this.trigger("invalid", {value:tagData.value, index:this.value.length, message:tagValidation});
-            }
-
-            // Create tag HTML element
-            tagElm = this.createTagElem(tagData);
-            tagElems.push(tagElm);
-
-            // add the tag to the component's DOM
-            appendTag.call(this, tagElm);
-
-            if( tagValidation === true ){
-                // update state
-                this.value.push(tagData);
-                this.update();
-                this.trigger('add', this.extend({}, {index:this.value.length, tag:tagElm}, tagData));
-            }
-            else if( !this.settings.keepInvalidTags ){
-                // remove invalid tags (if "keepInvalidTags" is set to "false")
-                setTimeout(() => { this.removeTag(tagElm, true) }, 1000);
-            }
-        })
-
-        if( tagsItems.length && clearInput ){
-            this.input.set.call(this);
         }
 
         return tagElems

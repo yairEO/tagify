@@ -35,6 +35,18 @@
         30% { transform: scale(1.2); }
     }
 
+    // Global "read-only" mode (no input button)
+    &[readonly]{
+        cursor: default;
+        > #{ $self }__input{
+            visibility: hidden;
+            width: 0;
+            margin: $tagMargin 0;
+        }
+        x{ display:none; }
+        tag > div{ padding: $tagPad; }
+    }
+
     ///////////////////////////////////////////
     // Hides originals
     + input,
@@ -171,17 +183,6 @@
         }
     }
 
-    // Global "read-only" mode (no input button)
-    &.readonly{
-        cursor: default;
-        > #{ $self }--input{
-            visibility: hidden;
-            width: 0;
-            margin: $tagMargin 0;
-        }
-        x{ display:none; }
-        tag > div{ padding: $tagPad; }
-    }
 
     ///////////////////////////////////////////
     // Holds the placeholder & the tags input

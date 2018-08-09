@@ -6,7 +6,7 @@
         <meta name="description" content="Converts HTML input/textarea into Tags component">
         <meta name="author" content="Yair Even-Or">
 
-        <link rel="stylesheet" href="https://cdn.rawgit.com/yairEO/ec9e154c4269b9a0f264fba7f64d7383/raw/412b84fd8cbe517fe93d73e77bddf686fab4b4bd/vsync_demos.css">
+        <link rel="stylesheet" href="https://cdn.rawgit.com/yairEO/ec9e154c4269b9a0f264fba7f64d7383/raw/b1313295cdd4d25131a74dac8ce6aa98bcc0e4f0/vsync_demos.css">
         <link rel="stylesheet" href="dist/tagify.css">
 
         <script src="dist/tagify.polyfills.js"></script>
@@ -82,9 +82,9 @@
         <label><input type='checkbox'> TOGGLE OFF</label>
 
         <form>
-            <section>
+            <section id='section-basic'>
                 <aside class='leftSide'>
-                    <h2>text input</h2>
+                    <h2><a href='#section-basic'>#</a>text input</h2>
                     <p>
                         In this example, the field is pre-ocupied with <strong>4</strong> tags, and <em>last</em> tag is the same as the <em>first</em> tag,
                         and will be <em>removed</em> because the <code>duplicates</code> option flag is set to <code>true</code>.
@@ -103,9 +103,9 @@
 
 
 
-            <section>
+            <section id='section-textarea'>
                 <aside class='leftSide'>
-                    <h2>textarea</h2>
+                    <h2><a href='#section-textarea'>#</a>textarea</h2>
                     <p>
                         In this example, the field is pre-ocupied with 3 tags, and last tag is <strong>not included</strong> in the whitelist, and will be <em>removed</em> because the <code>enforceWhitelist</code> option flag is set to <code>true</code>
                     </p>
@@ -122,7 +122,7 @@
 
             <section id="section-advance-options">
                 <aside class='leftSide'>
-                    <h2>Advance options</h2>
+                    <h2><a href='#section-advance-options'>#</a>Advance options</h2>
                     <p>
                         In this example, the <code>suggestionsMinChars</code> <em>setting</em> is used and set to <code>3</code>. The Maximum number of tags is set to <code>6</code><br>
                         (<code>suggestionsMinChars</code> is <strong>buggy</strong> in Firefox for some reason)
@@ -146,7 +146,7 @@
 
             <section id="section-extra-properties">
                 <aside class='leftSide'>
-                    <h2>Tags with properties</h2>
+                    <h2><a href='#section-extra-properties'>#</a>Tags with properties</h2>
                     <p>
                         Some cases requires more control per-tag, for exmaple, sending a different value to the server than the textual value
                         the user sees/enetered. Another example, would be different colors for different tags or tags' groups.
@@ -174,11 +174,11 @@
             </section>
 
 
-            <section>
+            <section id='section-readonly'>
                 <aside class='leftSide'>
-                    <h2>Readonly mode</h2>
+                    <h2><a href='#section-readonly'>#</a>Readonly mode</h2>
                     <p>
-                        If the original input field has a <code>readonly</code> attribute, then <strong>all</strong> the tags will be locked (no way to add or remove any).
+                        If the original input field has a <code>readonly</code> attribute, then, via CSS, there will be no way of manually adding tags because the inline contenteditable element will be hidden.
                     </p>
                     <h3>HTML</h3>
                     <xmp><input name='tags4' readonly value='tag1, tag 2, another tag'></xmp>
@@ -189,9 +189,9 @@
             </section>
 
 
-            <section>
+            <section id='section-jquery'>
                 <aside class='leftSide'>
-                    <h2>jQuery plugin version</h2>
+                    <h2><a href='#section-jquery'>#</a>jQuery plugin version</h2>
                     <p>
                         Tagify can also be used as a jQuery plugin
                     </p>
