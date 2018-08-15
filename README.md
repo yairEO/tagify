@@ -184,7 +184,7 @@ The above will prepend a "tags" element before the original input element:
 
 ### Tag Sanitizer
 
-If you need to sanitize or Transform the input before adding tag, you can do so with the `sanitizer` setting.
+If you need to sanitize or transform the input before adding tag, you can do so with the `sanitizer` setting.
 
 ```javascript
 var input = document.querySelector('input'),
