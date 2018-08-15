@@ -67,6 +67,7 @@ Tagify.prototype = {
     DEFAULTS: {
         delimiters: ",", // [RegEx] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
         pattern: null, // RegEx pattern to validate input by. Ex: /[1-9]/
+        tagSanitizer: null, // Function - takes the input as attribute and returns a transformed value
         maxTags: Infinity, // Maximum number of tags
         callbacks: {}, // Exposed callbacks object to be triggered on certain events
         addTagOnBlur: true, // Flag - automatically adds the text which was inputed as a tag when blur event happens
@@ -499,6 +500,10 @@ Tagify.prototype = {
         tagsItems = normalizeTags.call(this, tagsItems);
 
         tagsItems.forEach(function (tagData) {
+            if (typeof _this3.settings.tagSanitizer === 'function') {
+                tagData.value = _this3.settings.tagSanitizer.call(_this3, tagData.value);
+            }
+
             var tagValidation = _this3.validateTag.call(_this3, tagData.value),
                 tagElm;
 
