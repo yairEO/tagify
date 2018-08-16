@@ -21,7 +21,6 @@ function Tagify( input, settings ){
         catch(e){}
     }
 
-    this.id = Math.random().toString(36).substr(2,9), // almost-random ID (because, fuck it)
     this.value = []; // An array holding all the (currently used) tags
     this.stringValue = ""; // same as above, only as a String
 
@@ -31,6 +30,7 @@ function Tagify( input, settings ){
     this.DOM = {}; // Store all relevant DOM elements in an Object
     this.extend(this, new this.EventDispatcher(this));
     this.build(input);
+    this.loadOriginalValues();
 
     this.events.customBinding.call(this);
     this.events.binding.call(this);
@@ -97,7 +97,6 @@ Tagify.prototype = {
     build( input ){
         var that = this,
             DOM  = this.DOM,
-            value = input.value,
             template = `<tags class="tagify ${input.className}" ${this.settings.readonly ? 'readonly' : ''}>
                             <div contenteditable data-placeholder="${input.placeholder}" class="tagify__input"></div>
                         </tags>`;
@@ -110,12 +109,6 @@ Tagify.prototype = {
         if( this.settings.dropdown.enabled && this.settings.whitelist.length ){
             this.dropdown.init.call(this);
         }
-
-        // if the original input already had any value (tags)
-        if( value )
-            this.addTags(value).forEach(tag => {
-                tag && tag.classList.add('tagify--noAnim');
-            });
 
         input.autofocus && DOM.input.focus()
     },
@@ -329,6 +322,21 @@ Tagify.prototype = {
     },
 
     /**
+     * If the original input had an values, add them as tags
+     */
+    loadOriginalValues(){
+        var value = this.DOM.originalInput.value,
+            values;
+
+        // if the original input already had any value (tags)
+        if( !value ) return;
+
+        this.addTags(value).forEach(tag => {
+            tag && tag.classList.add('tagify--noAnim');
+        });
+    },
+
+    /**
      * input bridge for accessing & setting
      * @type {Object}
      */
@@ -482,6 +490,41 @@ Tagify.prototype = {
     },
 
     /**
+     * pre-proccess the tagsItems, which can be a complex tagsItems like an Array of Objects or a string comprised of multiple words
+     * so each item should be iterated on and a tag created for.
+     * @return {Array} [Array of Objects]
+     */
+    normalizeTags(tagsItems){
+        var whitelistWithProps = this.settings.whitelist[0] instanceof Object,
+            isComplex = tagsItems instanceof Array && "value" in tagsItems[0], // checks if the value is a "complex" which means an Array of Objects, each object is a tag
+            temp = [];
+
+        // no need to continue if "tagsItems" is an Array of Objects
+        if( isComplex )
+            return tagsItems;
+
+        // if the value is a "simple" String, ex: "aaa, bbb, ccc"
+        if( !isComplex ){
+            if( !tagsItems.trim() ) return [];
+
+            // go over each tag and add it (if there were multiple ones)
+            tagsItems = tagsItems.split(this.settings.delimiters).filter(n => n).map(v => ({ value:v.trim() }));
+        }
+
+        // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
+        if( !isComplex && whitelistWithProps ){
+            tagsItems.forEach(tag => {
+                var matchObj = this.settings.whitelist.filter( WL_item => WL_item.value.toLowerCase() == tag.value.toLowerCase() )
+                matchObj[0] && temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
+            })
+
+            tagsItems = temp;
+        }
+
+        return tagsItems;
+    },
+
+    /**
      * add a "tag" element to the "tags" component
      * @param {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects]
      * @param {Boolean} clearInput [flag if the input's value should be cleared after adding tags]
@@ -492,8 +535,7 @@ Tagify.prototype = {
 
         this.DOM.input.removeAttribute('style');
 
-
-        tagsItems = normalizeTags.call(this, tagsItems);
+        tagsItems = this.normalizeTags.call(this, tagsItems);
 
         tagsItems.forEach(tagData => {
             var tagValidation = this.validateTag.call(this, tagData.value),
@@ -527,41 +569,6 @@ Tagify.prototype = {
 
         if( tagsItems.length && clearInput ){
             this.input.set.call(this);
-        }
-
-        /**
-         * pre-proccess the tagsItems, which can be a complex tagsItems like an Array of Objects or a string comprised of multiple words
-         * so each item should be iterated on and a tag created for.
-         * @return {Array} [Array of Objects]
-         */
-        function normalizeTags(tagsItems){
-            var whitelistWithProps = this.settings.whitelist[0] instanceof Object,
-                isComplex = tagsItems instanceof Array && "value" in tagsItems[0], // checks if the value is a "complex" which means an Array of Objects, each object is a tag
-                result = tagsItems; // the returned result
-
-            // no need to continue if "tagsItems" is an Array of Objects
-            if( isComplex )
-                return result;
-
-            // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
-            if( !isComplex && typeof tagsItems == "string" && whitelistWithProps ){
-                var matchObj = this.settings.whitelist.filter( item => item.value.toLowerCase() == tagsItems.toLowerCase() )
-
-                if( matchObj[0] ){
-                    isComplex = true;
-                    result = matchObj; // set the Array (with the found Object) as the new value
-                }
-            }
-
-            // if the value is a "simple" String, ex: "aaa, bbb, ccc"
-            if( !isComplex ){
-                if( !tagsItems.trim() ) return [];
-
-                // go over each tag and add it (if there were multiple ones)
-                result = tagsItems.split(this.settings.delimiters).filter(n => n).map(v => ({ value:v.trim() }));
-            }
-
-            return result;
         }
 
         /**

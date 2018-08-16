@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tagify (v 2.1.1)- tags input component
+ * Tagify (v 2.1.2)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -47,7 +47,6 @@
             } catch (e) {}
         }
 
-        this.id = Math.random().toString(36).substr(2, 9), // almost-random ID (because, fuck it)
         this.value = []; // An array holding all the (currently used) tags
         this.stringValue = ""; // same as above, only as a String
 
@@ -57,6 +56,7 @@
         this.DOM = {}; // Store all relevant DOM elements in an Object
         this.extend(this, new this.EventDispatcher(this));
         this.build(input);
+        this.loadOriginalValues();
 
         this.events.customBinding.call(this);
         this.events.binding.call(this);
@@ -125,7 +125,6 @@
         build: function build(input) {
             var that = this,
                 DOM = this.DOM,
-                value = input.value,
                 template = "<tags class=\"tagify " + input.className + "\" " + (this.settings.readonly ? 'readonly' : '') + ">\n                            <div contenteditable data-placeholder=\"" + input.placeholder + "\" class=\"tagify__input\"></div>\n                        </tags>";
 
             DOM.originalInput = input;
@@ -136,11 +135,6 @@
             if (this.settings.dropdown.enabled && this.settings.whitelist.length) {
                 this.dropdown.init.call(this);
             }
-
-            // if the original input already had any value (tags)
-            if (value) this.addTags(value).forEach(function (tag) {
-                tag && tag.classList.add('tagify--noAnim');
-            });
 
             input.autofocus && DOM.input.focus();
         },
@@ -336,6 +330,22 @@
         },
 
         /**
+         * If the original input had an values, add them as tags
+         */
+        loadOriginalValues: function loadOriginalValues() {
+            var value = this.DOM.originalInput.value,
+                values;
+
+            // if the original input already had any value (tags)
+            if (!value) return;
+
+            this.addTags(value).forEach(function (tag) {
+                tag && tag.classList.add('tagify--noAnim');
+            });
+        },
+
+
+        /**
          * input bridge for accessing & setting
          * @type {Object}
          */
@@ -493,94 +503,97 @@
 
 
         /**
+         * pre-proccess the tagsItems, which can be a complex tagsItems like an Array of Objects or a string comprised of multiple words
+         * so each item should be iterated on and a tag created for.
+         * @return {Array} [Array of Objects]
+         */
+        normalizeTags: function normalizeTags(tagsItems) {
+            var _this3 = this;
+
+            var whitelistWithProps = this.settings.whitelist[0] instanceof Object,
+                isComplex = tagsItems instanceof Array && "value" in tagsItems[0],
+                // checks if the value is a "complex" which means an Array of Objects, each object is a tag
+            temp = [];
+
+            // no need to continue if "tagsItems" is an Array of Objects
+            if (isComplex) return tagsItems;
+
+            // if the value is a "simple" String, ex: "aaa, bbb, ccc"
+            if (!isComplex) {
+                if (!tagsItems.trim()) return [];
+
+                // go over each tag and add it (if there were multiple ones)
+                tagsItems = tagsItems.split(this.settings.delimiters).filter(function (n) {
+                    return n;
+                }).map(function (v) {
+                    return { value: v.trim() };
+                });
+            }
+
+            // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
+            if (!isComplex && whitelistWithProps) {
+                tagsItems.forEach(function (tag) {
+                    var matchObj = _this3.settings.whitelist.filter(function (WL_item) {
+                        return WL_item.value.toLowerCase() == tag.value.toLowerCase();
+                    });
+                    matchObj[0] && temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
+                });
+
+                tagsItems = temp;
+            }
+
+            return tagsItems;
+        },
+
+
+        /**
          * add a "tag" element to the "tags" component
          * @param {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects]
          * @param {Boolean} clearInput [flag if the input's value should be cleared after adding tags]
          * @return {Array} Array of DOM elements (tags)
          */
         addTags: function addTags(tagsItems, clearInput) {
-            var _this3 = this;
+            var _this4 = this;
 
             var tagElems = [];
 
             this.DOM.input.removeAttribute('style');
 
-            tagsItems = normalizeTags.call(this, tagsItems);
+            tagsItems = this.normalizeTags.call(this, tagsItems);
 
             tagsItems.forEach(function (tagData) {
-                var tagValidation = _this3.validateTag.call(_this3, tagData.value),
+                var tagValidation = _this4.validateTag.call(_this4, tagData.value),
                     tagElm;
 
                 if (tagValidation !== true) {
                     tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
                     tagData.title = tagValidation;
-                    _this3.markTagByValue.call(_this3, tagData.value);
-                    _this3.trigger("invalid", { value: tagData.value, index: _this3.value.length, message: tagValidation });
+                    _this4.markTagByValue.call(_this4, tagData.value);
+                    _this4.trigger("invalid", { value: tagData.value, index: _this4.value.length, message: tagValidation });
                 }
 
                 // Create tag HTML element
-                tagElm = _this3.createTagElem(tagData);
+                tagElm = _this4.createTagElem(tagData);
                 tagElems.push(tagElm);
 
                 // add the tag to the component's DOM
-                appendTag.call(_this3, tagElm);
+                appendTag.call(_this4, tagElm);
 
                 if (tagValidation === true) {
                     // update state
-                    _this3.value.push(tagData);
-                    _this3.update();
-                    _this3.trigger('add', _this3.extend({}, { index: _this3.value.length, tag: tagElm }, tagData));
-                } else if (!_this3.settings.keepInvalidTags) {
+                    _this4.value.push(tagData);
+                    _this4.update();
+                    _this4.trigger('add', _this4.extend({}, { index: _this4.value.length, tag: tagElm }, tagData));
+                } else if (!_this4.settings.keepInvalidTags) {
                     // remove invalid tags (if "keepInvalidTags" is set to "false")
                     setTimeout(function () {
-                        _this3.removeTag(tagElm, true);
+                        _this4.removeTag(tagElm, true);
                     }, 1000);
                 }
             });
 
             if (tagsItems.length && clearInput) {
                 this.input.set.call(this);
-            }
-
-            /**
-             * pre-proccess the tagsItems, which can be a complex tagsItems like an Array of Objects or a string comprised of multiple words
-             * so each item should be iterated on and a tag created for.
-             * @return {Array} [Array of Objects]
-             */
-            function normalizeTags(tagsItems) {
-                var whitelistWithProps = this.settings.whitelist[0] instanceof Object,
-                    isComplex = tagsItems instanceof Array && "value" in tagsItems[0],
-                    // checks if the value is a "complex" which means an Array of Objects, each object is a tag
-                result = tagsItems; // the returned result
-
-                // no need to continue if "tagsItems" is an Array of Objects
-                if (isComplex) return result;
-
-                // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
-                if (!isComplex && typeof tagsItems == "string" && whitelistWithProps) {
-                    var matchObj = this.settings.whitelist.filter(function (item) {
-                        return item.value.toLowerCase() == tagsItems.toLowerCase();
-                    });
-
-                    if (matchObj[0]) {
-                        isComplex = true;
-                        result = matchObj; // set the Array (with the found Object) as the new value
-                    }
-                }
-
-                // if the value is a "simple" String, ex: "aaa, bbb, ccc"
-                if (!isComplex) {
-                    if (!tagsItems.trim()) return [];
-
-                    // go over each tag and add it (if there were multiple ones)
-                    result = tagsItems.split(this.settings.delimiters).filter(function (n) {
-                        return n;
-                    }).map(function (v) {
-                        return { value: v.trim() };
-                    });
-                }
-
-                return result;
             }
 
             /**
@@ -667,10 +680,10 @@
          * see - https://stackoverflow.com/q/50957841/104380
          */
         update: function update() {
-            var _this4 = this;
+            var _this5 = this;
 
             var tagsAsString = this.value.map(function (v) {
-                return v[_this4.settings.mapValueToProp || "value"] || v.value;
+                return v[_this5.settings.mapValueToProp || "value"] || v.value;
             });
             this.DOM.originalInput.value = JSON.stringify(tagsAsString);
         },
