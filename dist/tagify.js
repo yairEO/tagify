@@ -151,8 +151,7 @@ Tagify.prototype = {
 
         function isObject(obj) {
             var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
-
-            return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp';
+            return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
         };
 
         function copy(a, b) {
@@ -553,8 +552,8 @@ Tagify.prototype = {
         tagsItems = this.normalizeTags.call(this, tagsItems);
 
         tagsItems.forEach(function (tagData) {
-            var tagValidation = _this4.validateTag.call(_this4, tagData.value),
-                tagElm;
+            var tagValidation, tagElm;
+            tagValidation = _this4.validateTag.call(_this4, tagData.value);
 
             if (tagValidation !== true) {
                 tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
@@ -631,10 +630,11 @@ Tagify.prototype = {
 
     /**
      * Removes a tag
-     * @param  {Object}  tagElm    [DOM element]
-     * @param  {Boolean} silent    [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
+     * @param  {Object}  tagElm          [DOM element]
+     * @param  {Boolean} silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
+     * @param  {Number}  tranDuration    [Transition duration in MS]
      */
-    removeTag: function removeTag(tagElm, silent) {
+    removeTag: function removeTag(tagElm, silent, tranDuration) {
         if (!tagElm) return;
 
         var tagData,
@@ -642,19 +642,25 @@ Tagify.prototype = {
 
         if (!tagElm) return;
 
-        tagElm.style.width = parseFloat(window.getComputedStyle(tagElm).width) + 'px';
-        document.body.clientTop; // force repaint for the width to take affect before the "hide" class below
-        tagElm.classList.add('tagify--hide');
-
-        // manual timeout (hack, since transitionend cannot be used because of hover)
-        setTimeout(function () {
-            tagElm.parentNode.removeChild(tagElm);
-        }, 400);
+        if (tranDuration && tranDuration < 10) animation();else removeNode();
 
         if (!silent) {
             tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
             this.update(); // update the original input with the current value
             this.trigger('remove', this.extend({}, { index: tagIdx, tag: tagElm }, tagData));
+        }
+
+        function animation() {
+            tagElm.style.width = parseFloat(window.getComputedStyle(tagElm).width) + 'px';
+            document.body.clientTop; // force repaint for the width to take affect before the "hide" class below
+            tagElm.classList.add('tagify--hide');
+
+            // manual timeout (hack, since transitionend cannot be used because of hover)
+            setTimeout(removeNode, 400);
+        }
+
+        function removeNode() {
+            tagElm.parentNode.removeChild(tagElm);
         }
     },
     removeAllTags: function removeAllTags() {
