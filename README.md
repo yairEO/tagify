@@ -182,6 +182,23 @@ The above will prepend a "tags" element before the original input element:
 <input placeholder="add tags">
 ```
 
+### Tag Sanitizer
+
+If you need to sanitize or transform the input before adding tag, you can do so with the `sanitizer` setting.
+
+```javascript
+var input = document.querySelector('input'),
+    tagify = new Tagify(input, {
+        pattern      : /^.{1,15}$/,
+        tagSanitizer : function(tag) { return tag.replace(/[^a-z0-9-_ ]/gi, '').trim().replace(/ /g, '-').toLowerCase() }
+    });
+```
+
+Set to a function that takes the input string as an attribute, and returns the transformed value. The transformation will be run prior to validating the input against the `pattern` setting, so you can still combine them.
+
+Use this to match any server-side transformations that will be done after submitting the data, for a more consistent user experience.
+
+
 ### Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
 Suggestions list will only be rendered if there were at least two sugegstions found.
@@ -255,6 +272,7 @@ Name                | Type       | Default     | Info
 ------------------- | ---------- | ----------- | --------------------------------------------------------------------------
 delimiters          | String     | ","         | [regex] split tags by any of these delimiters. Example: ",| |."
 pattern             | String     | null        | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: /[1-9]/
+tagSanitizer        | Function   | null        | takes the input as attribute and returns a transformed value
 duplicates          | Boolean    | false       | (flag) should duplicate tags be allowed or not
 enforceWhitelist    | Boolean    | false       | should ONLY use tags allowed in whitelist
 autocomplete        | Boolean    | true        | tries to autocomplete the input's value while typing (match from whitelist)

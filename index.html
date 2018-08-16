@@ -189,6 +189,32 @@
             </section>
 
 
+            <section id='section-sanitizer'>
+                <aside class='leftSide'>
+                    <h2><a href='#section-sanitizer'>#</a>Tag Sanitizer</h2>
+                    <p>
+                        If you need to sanitize or Transform the input before adding tag, you can do so with the <code>sanitizer</code> setting.
+                    </p>
+                    <p>
+                      Set to a function that takes the input string as an attribute, and returns the transformed value.
+                      The transformation will be run prior to validating the input against the <code>pattern</code> setting, so you can still combine them.
+                    </p>
+                    <p>
+                      Use this to match any server-side transformations that will be done after submitting the data, for a more consistent user experience.
+                    </p>
+                    <h3>HTML</h3>
+                    <xmp><input name='tags5' value='tag1, tag 2, tag THREE!, tag four is too long'></xmp>
+                    <h3>Javascript</h3>
+                    <script>
+                        renderPRE(document.currentScript, "tag-sanitizer")
+                    </script>
+                </aside>
+                <aside class='rightSide'>
+                    <input name='tags5' value='tag1, tag 2, tag THREE!, tag four is too long'>
+                </aside>
+            </section>
+
+
             <section id='section-jquery'>
                 <aside class='leftSide'>
                     <h2><a href='#section-jquery'>#</a>jQuery plugin version</h2>
@@ -377,6 +403,19 @@ tagify.addTags(allowedTags.slice(0,2));
 (function(){
 var input = document.querySelector('input[name=tags4]'),
     tagify = new Tagify(input);
+})()
+</script>
+
+
+
+
+<script data-name="tag-sanitizer">
+(function(){
+var input = document.querySelector('input[name=tags5]'),
+    tagify = new Tagify(input, {
+        pattern      : /^.{1,15}$/,
+        tagSanitizer : function(tag) { return tag.replace(/[^a-z0-9-_ ]/gi, '').trim().replace(/ /g, '-').toLowerCase() }
+    })
 })()
 </script>
 
