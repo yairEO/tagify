@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tagify (v 2.1.2)- tags input component
+ * Tagify (v 2.1.4)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -535,7 +535,8 @@
                     var matchObj = _this3.settings.whitelist.filter(function (WL_item) {
                         return WL_item.value.toLowerCase() == tag.value.toLowerCase();
                     });
-                    matchObj[0] && temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
+                    if (matchObj[0]) temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
+                    else temp.push(tag);
                 });
 
                 tagsItems = temp;

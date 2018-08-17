@@ -502,6 +502,7 @@ Tagify.prototype = {
         if( isComplex )
             return tagsItems;
 
+
         // if the value is a "simple" String, ex: "aaa, bbb, ccc"
         if( !isComplex ){
             if( !tagsItems.trim() ) return [];
@@ -514,11 +515,15 @@ Tagify.prototype = {
         if( !isComplex && whitelistWithProps ){
             tagsItems.forEach(tag => {
                 var matchObj = this.settings.whitelist.filter( WL_item => WL_item.value.toLowerCase() == tag.value.toLowerCase() )
-                matchObj[0] && temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
+                if( matchObj[0] )
+                    temp.push( matchObj[0] ); // set the Array (with the found Object) as the new value
+                else
+                    temp.push(tag)
             })
 
             tagsItems = temp;
         }
+
 
         return tagsItems;
     },

@@ -21,7 +21,7 @@ with great performance and tiny code footprint.
 ## [Documentation & Demos](https://yaireo.github.io/tagify)
 
 ## Selling points
-* JS at `~12kb` (`4kb` GZIP) (less than *900* easily understandable lines of code)
+* JS at `~13kb` (`4kb` GZIP) (less than *900* easily understandable lines of code)
 * SCSS file is `~6kb` of well-crafted flexible code
 * Easily change direction to RTL via the SCSS file only
 * No other inputs are used beside the original, and its value is kept in sync
