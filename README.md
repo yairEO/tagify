@@ -251,19 +251,22 @@ invalid         | A tag has been added but did not pass vaildation. See [event d
 
 ## Settings
 
-Name                | Type       | Default     | Info
-------------------- | ---------- | ----------- | --------------------------------------------------------------------------
-delimiters          | String     | ","         | [regex] split tags by any of these delimiters. Example: ",| |."
-pattern             | String     | null        | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: /[1-9]/
-duplicates          | Boolean    | false       | (flag) should duplicate tags be allowed or not
-enforceWhitelist    | Boolean    | false       | should ONLY use tags allowed in whitelist
-autocomplete        | Boolean    | true        | tries to autocomplete the input's value while typing (match from whitelist)
-whitelist           | Array      | []          | an array of tags which only they are allowed
-blacklist           | Array      | []          | an array of tags which aren't allowed
-addTagOnBlur        | Boolean    | true        | automatically adds the text which was inputed as a tag when blur event happens
-callbacks           | Object     | {}          | exposed callbacks object to be triggered on events: 'add' / 'remove' tags
-maxTags             | Number     | Infinity    | max number of tags
-mapValueToProp      | String     | ""          | For tags with properties, where a certain property should be used as the value saves on the original (hidden) input
-dropdown.enabled    | Number     | 2           | minimum characters to input which shows the suggestions list dropdown
-dropdown.maxItems   | Number     | 10          | maximum items to show in the suggestions list dropdown
-dropdown.classname  | String     | ""          | custom class name for the dropdown suggestions selectbox
+Name                  | Type       | Default     | Info
+----------------------| ---------- | ----------- | --------------------------------------------------------------------------
+delimiters            | String     | ","         | [regex] split tags by any of these delimiters. Example: ",| |."
+pattern               | String     | null        | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: /[1-9]/
+duplicates            | Boolean    | false       | (flag) Should duplicate tags be allowed or not
+enforceWhitelist      | Boolean    | false       | Should ONLY use tags allowed in whitelist
+autocomplete          | Boolean    | true        | Tries to autocomplete the input's value while typing (match from whitelist)
+whitelist             | Array      | []          | An array of tags which only they are allowed
+blacklist             | Array      | []          | An array of tags which aren't allowed
+addTagOnBlur          | Boolean    | true        | Automatically adds the text which was inputed as a tag when blur event happens
+callbacks             | Object     | {}          | Exposed callbacks object to be triggered on events: 'add' / 'remove' tags
+maxTags               | Number     | Infinity    | Maximum number of tags
+mapValueToProp        | String     | ""          | For tags with properties, where a certain property should be used as the value saves on the original (hidden) input
+transformTag          | Function   | undefined   | Takes a tag input as argument and returns a transformed value
+tagTemplate           | Function   | undefined   | Takes a tag's value and data as arguments and returns an HTML string for a tag element which will be added to Tagify
+dropdown.enabled      | Number     | 2           | Minimum characters to input which shows the suggestions list dropdown
+dropdown.maxItems     | Number     | 10          | Maximum items to show in the suggestions list dropdown
+dropdown.classname    | String     | ""          | Custom class name for the dropdown suggestions selectbox
+dropdown.itemTemplate | Function   | ""          | Returns a custom string for each list item in the dropdown suggestions selectbox

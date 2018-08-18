@@ -63,7 +63,8 @@ Tagify.prototype = {
         dropdown            : {
             classname : '',
             enabled   : 2,    // minimum input characters needs to be typed for the dropdown to show
-            maxItems  : 10
+            maxItems  : 10,
+            itemTemplate : ''
         }
     },
 
@@ -344,11 +345,9 @@ Tagify.prototype = {
         set(s = '', updateDOM = true){
             this.input.value = s;
 
-            if( updateDOM )
-                this.DOM.input.innerHTML = s;
-
-            if( s.length < 2 )
-                this.input.autocomplete.suggest.call(this, '');
+            if( updateDOM )     this.DOM.input.innerHTML = s;
+            if( !s )            this.dropdown.hide.call(this);
+            if( s.length < 2 )  this.input.autocomplete.suggest.call(this, '');
 
             this.input.validate.call(this);
         },
@@ -543,6 +542,11 @@ Tagify.prototype = {
 
         tagsItems.forEach(tagData => {
             var tagValidation, tagElm;
+
+            if( typeof this.settings.transformTag === 'function' ){
+                tagData.value = this.settings.transformTag.call(this, tagData.value) || tagData.value;
+            }
+
             tagValidation = this.validateTag.call(this, tagData.value);
 
             if( tagValidation !== true ){
@@ -580,7 +584,7 @@ Tagify.prototype = {
          * @return {[type]} [description]
          */
         function appendTag(tagElm){
-            this.DOM.scope.insertBefore(tagElm, this.DOM.input);
+            this.DOM.scope.insertBefore(tagElm, this.DOM.scope.lastElementChild);
         }
 
         return tagElems
@@ -593,10 +597,17 @@ Tagify.prototype = {
      */
     createTagElem(tagData){
         var tagElm,
-            escapedValue = this.escapeHtml(tagData.value),
-            template = `<tag title='${escapedValue}'>
-                            <x title=''></x><div><span>${escapedValue}</span></div>
+            v = this.escapeHtml(tagData.value),
+            template = `<tag title='${v}'>
+                            <x title=''></x><div><span>${v}</span></div>
                         </tag>`;
+
+        if( typeof this.settings.tagTemplate === "function" ){
+            try{
+                template = this.settings.tagTemplate(v, tagData)
+            }
+            catch(err){}
+        }
 
         // for a certain Tag element, add attributes.
         function addTagAttrs(tagElm, tagData){
@@ -622,7 +633,7 @@ Tagify.prototype = {
      * @param  {Boolean} silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
      * @param  {Number}  tranDuration    [Transition duration in MS]
      */
-    removeTag( tagElm, silent, tranDuration ){
+    removeTag( tagElm, silent, tranDuration = 250 ){
         if( !tagElm ) return;
 
         var tagData,
@@ -630,7 +641,7 @@ Tagify.prototype = {
 
         if( !tagElm) return;
 
-        if( tranDuration && tranDuration < 10 )  animation()
+        if( tranDuration && tranDuration > 10 )  animation()
         else removeNode();
 
         if( !silent ){
@@ -685,7 +696,7 @@ Tagify.prototype = {
 
         show( value ){
             var listItems = this.dropdown.filterListItems.call(this, value),
-                listHTML = this.dropdown.createListHTML(listItems);
+                listHTML = this.dropdown.createListHTML.call(this, listItems);
 
             if( this.settings.autoComplete ){
                 this.input.autocomplete.suggest.call(this, listItems.length ? listItems[0].value : '');
@@ -799,9 +810,11 @@ Tagify.prototype = {
                 },
 
                 onClick(e){
-                    if( e.target.className.includes('tagify__dropdown__item') ){
+                    var listItemElm = [e.target, e.target.parentNode].filter(a => a.className.includes("tagify__dropdown__item") )[0];
+
+                    if( listItemElm ){
                         this.input.set.call(this)
-                        this.addTags( e.target.textContent );
+                        this.addTags( listItemElm.textContent );
                     }
                     // clicked outside the dropdown, so just close it
                     this.dropdown.hide.call(this);
@@ -858,7 +871,7 @@ Tagify.prototype = {
          * @return {String}
          */
         createListHTML(list){
-            function getItem(item){
+            var getItem = this.settings.dropdown.itemTemplate || function(item){
                 return `<div class='tagify__dropdown__item ${item.class ? item.class : ""}' ${getAttributesString(item)}>${item.value}</div>`;
             };
 

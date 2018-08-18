@@ -61,7 +61,7 @@
         cursor         : default;
         transition     : .13s ease-out;
 
-        > div{
+        > div:not([contenteditable]){
             vertical-align : top;
             position       : relative;
             box-sizing     : border-box;
@@ -76,8 +76,8 @@
                 overflow       : hidden;
                 text-overflow  : ellipsis;
                 display        : inline-block;
-                vertical-align : top;
-                width          : 100%;
+                vertical-align : middle;
+              //  width          : 100%;
                 transition     : .1s;
             }
 
@@ -99,7 +99,7 @@
         }
 
         &:hover:not([readonly]){
-            div{
+            div:not([contenteditable]){
                 &::before{
                     $size: -$tagMargin/2;
                     $size: -2px;
@@ -154,7 +154,7 @@
         x{
             $size: 14px;
 
-            font          : #{$size}/#{$size} Serif;
+            font          : #{$size}/#{$size + 2} Serif;
             width         : $size;
             height        : $size;
             text-align    : center;
@@ -257,6 +257,7 @@
             margin: 2px;
             cursor: pointer;
             border-radius: 3px;
+            position: relative;
 
             &--active{ background:$tag-bg; }
             &:active{ background:lighten($tag-bg, 5); }

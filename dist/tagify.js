@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.1.4)- tags input component
+ * Tagify (v 2.1.5)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -80,7 +80,8 @@ Tagify.prototype = {
         dropdown: {
             classname: '',
             enabled: 2, // minimum input characters needs to be typed for the dropdown to show
-            maxItems: 10
+            maxItems: 10,
+            itemTemplate: ''
         }
     },
 
@@ -348,7 +349,7 @@ Tagify.prototype = {
             this.input.value = s;
 
             if (updateDOM) this.DOM.input.innerHTML = s;
-
+            if (!s) this.dropdown.hide.call(this);
             if (s.length < 2) this.input.autocomplete.suggest.call(this, '');
 
             this.input.validate.call(this);
@@ -554,6 +555,11 @@ Tagify.prototype = {
 
         tagsItems.forEach(function (tagData) {
             var tagValidation, tagElm;
+
+            if (typeof _this4.settings.transformTag === 'function') {
+                tagData.value = _this4.settings.transformTag.call(_this4, tagData.value) || tagData.value;
+            }
+
             tagValidation = _this4.validateTag.call(_this4, tagData.value);
 
             if (tagValidation !== true) {
@@ -592,7 +598,7 @@ Tagify.prototype = {
          * @return {[type]} [description]
          */
         function appendTag(tagElm) {
-            this.DOM.scope.insertBefore(tagElm, this.DOM.input);
+            this.DOM.scope.insertBefore(tagElm, this.DOM.scope.lastElementChild);
         }
 
         return tagElems;
@@ -606,8 +612,14 @@ Tagify.prototype = {
      */
     createTagElem: function createTagElem(tagData) {
         var tagElm,
-            escapedValue = this.escapeHtml(tagData.value),
-            template = '<tag title=\'' + escapedValue + '\'>\n                            <x title=\'\'></x><div><span>' + escapedValue + '</span></div>\n                        </tag>';
+            v = this.escapeHtml(tagData.value),
+            template = '<tag title=\'' + v + '\'>\n                            <x title=\'\'></x><div><span>' + v + '</span></div>\n                        </tag>';
+
+        if (typeof this.settings.tagTemplate === "function") {
+            try {
+                template = this.settings.tagTemplate(v, tagData);
+            } catch (err) {}
+        }
 
         // for a certain Tag element, add attributes.
         function addTagAttrs(tagElm, tagData) {
@@ -635,7 +647,9 @@ Tagify.prototype = {
      * @param  {Boolean} silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
      * @param  {Number}  tranDuration    [Transition duration in MS]
      */
-    removeTag: function removeTag(tagElm, silent, tranDuration) {
+    removeTag: function removeTag(tagElm, silent) {
+        var tranDuration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 250;
+
         if (!tagElm) return;
 
         var tagData,
@@ -643,7 +657,7 @@ Tagify.prototype = {
 
         if (!tagElm) return;
 
-        if (tranDuration && tranDuration < 10) animation();else removeNode();
+        if (tranDuration && tranDuration > 10) animation();else removeNode();
 
         if (!silent) {
             tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
@@ -702,7 +716,7 @@ Tagify.prototype = {
         },
         show: function show(value) {
             var listItems = this.dropdown.filterListItems.call(this, value),
-                listHTML = this.dropdown.createListHTML(listItems);
+                listHTML = this.dropdown.createListHTML.call(this, listItems);
 
             if (this.settings.autoComplete) {
                 this.input.autocomplete.suggest.call(this, listItems.length ? listItems[0].value : '');
@@ -814,9 +828,13 @@ Tagify.prototype = {
                     if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
                 },
                 onClick: function onClick(e) {
-                    if (e.target.className.includes('tagify__dropdown__item')) {
+                    var listItemElm = [e.target, e.target.parentNode].filter(function (a) {
+                        return a.className.includes("tagify__dropdown__item");
+                    })[0];
+
+                    if (listItemElm) {
                         this.input.set.call(this);
-                        this.addTags(e.target.textContent);
+                        this.addTags(listItemElm.textContent);
                     }
                     // clicked outside the dropdown, so just close it
                     this.dropdown.hide.call(this);
@@ -871,7 +889,7 @@ Tagify.prototype = {
          * @return {String}
          */
         createListHTML: function createListHTML(list) {
-            function getItem(item) {
+            var getItem = this.settings.dropdown.itemTemplate || function (item) {
                 return '<div class=\'tagify__dropdown__item ' + (item.class ? item.class : "") + '\' ' + getAttributesString(item) + '>' + item.value + '</div>';
             };
 
