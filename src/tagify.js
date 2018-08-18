@@ -21,8 +21,7 @@ function Tagify( input, settings ){
         catch(e){}
     }
 
-    this.value = []; // An array holding all the (currently used) tags
-    this.stringValue = ""; // same as above, only as a String
+    this.value = []; // tags' data
 
     // events' callbacks references will be stores here, so events could be unbinded
     this.listeners = {};
@@ -584,7 +583,12 @@ Tagify.prototype = {
          * @return {[type]} [description]
          */
         function appendTag(tagElm){
-            this.DOM.scope.insertBefore(tagElm, this.DOM.scope.lastElementChild);
+            var insertBeforeNode = this.DOM.scope.lastElementChild;
+
+            if( insertBeforeNode === this.DOM.input )
+                this.DOM.scope.insertBefore(tagElm, insertBeforeNode);
+            else
+                this.DOM.scope.appendChild(tagElm);
         }
 
         return tagElems

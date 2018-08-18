@@ -6,7 +6,7 @@
         <meta name="description" content="Converts HTML input/textarea into Tags component">
         <meta name="author" content="Yair Even-Or">
 
-        <link rel="stylesheet" href="https://cdn.rawgit.com/yairEO/ec9e154c4269b9a0f264fba7f64d7383/raw/b1313295cdd4d25131a74dac8ce6aa98bcc0e4f0/vsync_demos.css">
+        <link rel="stylesheet" href="https://cdn.rawgit.com/yairEO/ec9e154c4269b9a0f264fba7f64d7383/raw/236fff5c3612b62691c28d4f6e46e8d207230274/vsync_demos.css">
         <link rel="stylesheet" href="dist/tagify.css">
 
         <script src="dist/tagify.polyfills.js"></script>
@@ -34,10 +34,13 @@
             code{ padding:2px 3px; background:lightyellow; }
             pre code{ background:none; padding:0; }
 
-            tags{
+            .tagify{
                 min-width:400px;
                 max-width:600px;
                 margin: 1.5em 0;
+
+                position: sticky;
+                top: 1em;
             }
 
             /* for disabling the script */
@@ -54,6 +57,24 @@
             .disabled tags + input,
             .disabled tags + textarea{ display:initial; border:1px inset; }
 
+            /* Outside of the box */
+            .tagify--outside{
+                border: 0;
+                padding: 0;
+                margin: 0;
+                top: 3.5em;
+            }
+
+            .tagify__input--outside{
+                position: sticky;
+                top: 1em;
+
+                display: block;
+                max-width: 600px;
+                border: 1px solid #DDD;
+                margin-top: 1.5em;
+                margin-bottom: 1em;
+            }
 
             /* Countries' flags */
             .tagify__dropdown.extra-properties .tagify__dropdown__item{ color:#777; }
@@ -74,7 +95,7 @@
                 margin-right: 12px;
             }
 
-            .tagify.countries .tagify__input{ min-width:115px; }
+            .tagify.countries .tagify__input{ min-width:175px; }
 
             .tagify.countries tag{ white-space:nowrap; }
             .tagify.countries tag img{
@@ -129,6 +150,35 @@
                 </aside>
             </section>
 
+            <section id='outside-of-the-box'>
+                <aside class='leftSide'>
+                    <h2><a href='#outside-of-the-box'>#</a>outside-of-the-box</h2>
+                    <p>
+                        Some cases might require addition of tags from outside of the box and not within.
+                    </p>
+                    <h3>HTML</h3>
+                    <xmp><input name='tags' class='tagify--outside' placeholder='write some tags'></xmp>
+                    <h3>JAVASCRIPT</h3>
+                    <script>renderPRE(document.currentScript, "outside-of-the-box")</script>
+                    <h3>CSS</h3>
+                    <pre>
+<code class="language-css">.tagify--outside{
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+.tagify__input--outside{
+    display: block;
+    max-width: 600px;
+    border: 1px solid #DDD;
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+}</code></pre>
+                </aside>
+                <aside class='rightSide'>
+                    <input name='tags-outside' class='tagify--outside' value='tag1, tag2, tag3' placeholder='write some tags'>
+                </aside>
+            </section>
 
             <section id="section-advance-options">
                 <aside class='leftSide'>
@@ -179,6 +229,33 @@
                     <script>
                         renderPRE(document.currentScript, "extra-properties")
                     </script>
+                    <h3>CSS</h3>
+                    <pre>
+<code class="language-css">.tagify__dropdown.extra-properties .tagify__dropdown__item > img{
+    display: inline-block;
+    vertical-align: middle;
+    height: 20px;
+    transform: scale(.75);
+    margin-right: 5px;
+    border-radius: 2px;
+    transition: .12s ease-out;
+}
+
+.tagify__dropdown.extra-properties .tagify__dropdown__item:hover > img{
+    transform: none;
+    margin-right: 12px;
+}
+
+.tagify.countries .tagify__input{ min-width:175px; }
+
+.tagify.countries tag{ white-space:nowrap; }
+.tagify.countries tag img{
+    display: inline-block;
+    vertical-align: middle;
+    height: 16px;
+    margin-right: 3px;
+    border-radius: 2px;
+}</code></pre>
                 </aside>
                 <aside class='rightSide'><input class='countries' name='tags3-1' placeholder="Try to add tags from the list"></aside>
             </section>
@@ -287,6 +364,22 @@ var input = document.querySelector('textarea[name=tags2]'),
 })()
 </script>
 
+
+<script data-name="outside-of-the-box">
+(function(){
+
+var input = document.querySelector('input[name=tags-outside]'),
+    // init Tagify script on the above inputs
+    tagify = new Tagify(input);
+
+    // add a class to Tagify's input element
+    tagify.DOM.input.classList.add('tagify__input--outside');
+
+    // re-place Tagify's input element outside of the <tags> element (tagify.DOM.scope), just before it
+    tagify.DOM.scope.parentNode.insertBefore(tagify.DOM.input, tagify.DOM.scope);
+
+})()
+</script>
 
 
 <script data-name="advance-options">

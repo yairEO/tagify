@@ -23,17 +23,17 @@
         }
     }
 
+    @keyframes tags--bump{
+        30% { transform: scale(1.2); }
+    }
+
     display       : block;
     border        : 1px solid $tags-border-color;
     padding       : 0;
     cursor        : text;
-    overflow      : hidden;
+    position      : relative;
 
     &:hover{ border-color:$tags-hover-border-color; }
-
-    @keyframes tags--bump{
-        30% { transform: scale(1.2); }
-    }
 
     // Global "read-only" mode (no input button)
     &[readonly]{
@@ -186,9 +186,7 @@
 
     ///////////////////////////////////////////
     // Holds the placeholder & the tags input
-    #{ $self }__input{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
-        $self: &;
-
+    &__input{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
         @mixin placeholder-show{ opacity:.5; transform:none; };
 
         &:empty::before{ @include placeholder; }
@@ -205,7 +203,7 @@
                 }
             }
         }
-        &:empty:focus{ padding:$tagPad; }
+       // &:empty:focus{ padding:$tagPad; }
 
         &::before{
             content: attr(data-placeholder);
