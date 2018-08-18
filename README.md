@@ -263,9 +263,9 @@ blacklist             | Array      | []          | An array of tags which aren't
 addTagOnBlur          | Boolean    | true        | Automatically adds the text which was inputed as a tag when blur event happens
 callbacks             | Object     | {}          | Exposed callbacks object to be triggered on events: 'add' / 'remove' tags
 maxTags               | Number     | Infinity    | Maximum number of tags
-mapValueToProp        | String     | ""          | For tags with properties, where a certain property should be used as the value saves on the original (hidden) input
+mapValueToProp        | String     | ""          | For tags with properties, where a certain property should be used as the "saved" value 
 transformTag          | Function   | undefined   | Takes a tag input as argument and returns a transformed value
-tagTemplate           | Function   | undefined   | Takes a tag's value and data as arguments and returns an HTML string for a tag element which will be added to Tagify
+tagTemplate           | Function   | undefined   | Takes a tag's value and data as arguments and returns an HTML string for a tag element
 dropdown.enabled      | Number     | 2           | Minimum characters to input which shows the suggestions list dropdown
 dropdown.maxItems     | Number     | 10          | Maximum items to show in the suggestions list dropdown
 dropdown.classname    | String     | ""          | Custom class name for the dropdown suggestions selectbox
