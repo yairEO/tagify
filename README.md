@@ -266,6 +266,7 @@ maxTags               | Number     | Infinity    | Maximum number of tags
 mapValueToProp        | String     | ""          | For tags with properties, where a certain property should be used as the "saved" value 
 transformTag          | Function   | undefined   | Takes a tag input as argument and returns a transformed value
 tagTemplate           | Function   | undefined   | Takes a tag's value and data as arguments and returns an HTML string for a tag element
+                      |            |             |
 dropdown.enabled      | Number     | 2           | Minimum characters to input which shows the suggestions list dropdown
 dropdown.maxItems     | Number     | 10          | Maximum items to show in the suggestions list dropdown
 dropdown.classname    | String     | ""          | Custom class name for the dropdown suggestions selectbox
