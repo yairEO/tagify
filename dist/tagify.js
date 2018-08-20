@@ -355,6 +355,21 @@ Tagify.prototype = {
         },
 
 
+        // https://stackoverflow.com/a/3866442/104380
+        setRangeAtEnd: function setRangeAtEnd() {
+            var range, selection;
+
+            if (!document.createRange) return;
+
+            range = document.createRange();
+            range.selectNodeContents(this.DOM.input);
+            range.collapse(false);
+            selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        },
+
+
         /**
          * Marks the tagify's input as "invalid" if the value did not pass "validateTag()"
          */
@@ -386,13 +401,21 @@ Tagify.prototype = {
             suggest: function suggest(s) {
                 if (s) this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));else this.DOM.input.removeAttribute("data-suggest");
             },
-            set: function set() {
-                var suggestion = this.DOM.input.getAttribute('data-suggest');
+            set: function set(s) {
+                var dataSuggest = this.DOM.input.getAttribute('data-suggest'),
+                    suggestion = s || (dataSuggest ? this.input.value + dataSuggest : null);
 
-                if (suggestion && this.addTags(this.input.value + suggestion).length) {
-                    this.input.set.call(this);
+                if (suggestion) {
+                    this.input.set.call(this, suggestion);
+                    this.input.autocomplete.suggest.call(this, '');
                     this.dropdown.hide.call(this);
+                    this.input.setRangeAtEnd.call(this);
                 }
+
+                // if( suggestion && this.addTags(this.input.value + suggestion).length ){
+                //     this.input.set.call(this);
+                //     this.dropdown.hide.call(this);
+                // }
             }
         }
     },
@@ -719,6 +742,7 @@ Tagify.prototype = {
             var listItems = this.dropdown.filterListItems.call(this, value),
                 listHTML = this.dropdown.createListHTML.call(this, listItems);
 
+            // set the first item from the suggestions list as the autocomplete value
             if (this.settings.autoComplete) {
                 this.input.autocomplete.suggest.call(this, listItems.length ? listItems[0].value : '');
             }
@@ -800,10 +824,10 @@ Tagify.prototype = {
                         case 'Up':
                             // >IE11
                             e.preventDefault();
-                            if (selectedElm) selectedElm = selectedElm[e.key == 'ArrowUp' || e.key == 'Up' ? "previousElementSibling" : "nextElementSibling"];
+                            if (selectedElm) selectedElm = selectedElm[(e.key == 'ArrowUp' || e.key == 'Up' ? "previous" : "next") + "ElementSibling"];
 
                             // if no element was found, loop
-                            else selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' || e.key == 'Up' ? this.DOM.dropdown.children.length - 1 : 0];
+                            if (!selectedElm) selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' || e.key == 'Up' ? this.DOM.dropdown.children.length - 1 : 0];
 
                             this.dropdown.highlightOption.call(this, selectedElm);
                             break;
@@ -820,7 +844,7 @@ Tagify.prototype = {
                             break;
 
                         case 'ArrowRight':
-                            this.input.autocomplete.set.call(this);
+                            this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null);
                             break;
                     }
                 },
@@ -849,11 +873,13 @@ Tagify.prototype = {
 
             // for IE support, which doesn't allow "forEach" on "NodeList" Objects
             [].forEach.call(this.DOM.dropdown.querySelectorAll("[class$='--active']"), function (activeElm) {
-                activeElm.classList.remove(className);
+                return activeElm.classList.remove(className);
             });
 
             // this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
             elm.classList.add(className);
+
+            elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight;
         },
 
 
