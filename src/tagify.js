@@ -79,7 +79,7 @@ Tagify.prototype = {
         var parser = new DOMParser(),
             node = parser.parseFromString(s.trim(), "text/html");
 
-       return node.body.firstElementChild;
+        return node.body.firstElementChild;
     },
 
     // https://stackoverflow.com/a/25396011/104380
@@ -142,7 +142,20 @@ Tagify.prototype = {
                 if( b.hasOwnProperty(key) ){
                     if( isObject(b[key]) ){
                         if( !isObject(a[key]) ){
-                            a[key] = Object.assign({}, b[key]);
+                            try {
+                                a[key] = Object.assign({}, b[key]);
+                            }
+                            catch(err){
+                                console.warn('Method not supported: Object.assign');
+                                var objs = [{}, b[key]],
+                                    temp = objs.reduce(function (r, o) {
+                                        Object.keys(o).forEach(function (k) {
+                                            r[k] = o[k];
+                                        });
+                                        return r;
+                                    }, {});
+                                a[key] = temp;
+                            }
                         }
                         else
                             copy(a[key], b[key])
@@ -186,7 +199,12 @@ Tagify.prototype = {
                 try {
                     e = new CustomEvent(eventName, {"detail":data});
                 }
-                catch(err){ console.warn(err) }
+                catch(err){
+                    //console.warn(err)
+                    console.warn('Method not supported: CustomEvent');
+                    e = document.createEvent("CustomEvent");
+                    e.initCustomEvent( eventName, false, false, data );
+                }
                 target.dispatchEvent(e);
             }
         }
@@ -216,7 +234,7 @@ Tagify.prototype = {
                 action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
             for( var eventName in _CBR ){
-               this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
+                this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
             }
 
             if( bindUnbind ){
@@ -261,7 +279,7 @@ Tagify.prototype = {
                     this.removeTag( lastTag );
                 }
 
-                else if( e.key == 'Escape' ){
+                else if( e.key == 'Escape' || e.key == 'Esc') { // NOTE: IE 'Escape' = 'Esc'
                     this.input.set.call(this)
                     e.target.blur();
                 }
@@ -425,11 +443,24 @@ Tagify.prototype = {
     /**
      * Searches if any tag with a certain value already exis
      * @param  {String} s [text value to search for]
-     * @return {boolean}  [found / not found]
+     * @return {int}  [Position index of the tag. -1 is returned if tag is not found.]
      */
     isTagDuplicate(s){
-        return this.value.findIndex(item => s.toLowerCase() === item.value.toLowerCase());
-        // return this.value.some(item => s.toLowerCase() === item.value.toLowerCase());
+        try {
+            return this.value.findIndex(item => s.toLowerCase() === item.value.toLowerCase());
+            // return this.value.some(item => s.toLowerCase() === item.value.toLowerCase());
+        }
+        catch(err){
+            console.warn('Method not supported: Object.findIndex');
+            var index = -1;
+            for (var i = 0; i < this.value.length; ++i) {
+                if (this.value[i].value.toLowerCase() == s.toLowerCase()) {
+                    index = i;
+                    break;
+                }
+            }
+            return index;
+        }
     },
 
     /**
@@ -814,6 +845,7 @@ Tagify.prototype = {
                             break;
 
                         case 'Escape' :
+                        case 'Esc': // NOTE: IE 'Escape' = 'Esc'
                             this.dropdown.hide.call(this);
                             break;
 
@@ -832,12 +864,25 @@ Tagify.prototype = {
 
                 onMouseOver(e){
                     // event delegation check
-                    if( e.target.className.includes('__item') )
-                        this.dropdown.highlightOption.call(this, e.target);
+                    try {
+                        if( e.target.className.includes('__item') )
+                            this.dropdown.highlightOption.call(this, e.target);
+                    }
+                    catch(err){
+                        console.warn('Method not supported: String.prototype.includes');
+                        if (e.target.className.indexOf('__item') > -1) 
+                            this.dropdown.highlightOption.call(this, e.target);
+                    }
                 },
 
                 onClick(e){
-                    var listItemElm = [e.target, e.target.parentNode].filter(a => a.className.includes("tagify__dropdown__item") )[0];
+                    try {
+                        var listItemElm = [e.target, e.target.parentNode].filter( a => a.className.includes("tagify__dropdown__item") )[0];
+                    }
+                    catch(err){
+                        console.warn('Method not supported: String.prototype.includes');
+                        var listItemElm = [e.target, e.target.parentNode].filter( a => a.className.indexOf("tagify__dropdown__item") > -1 )[0];
+                    }
 
                     if( listItemElm ){
                         this.input.set.call(this)

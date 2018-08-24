@@ -27,7 +27,13 @@
         30% { transform: scale(1.2); }
     }
 
-    display       : block;
+    /* NOTE(LordMike): when using 'inline-block' 
+        Edge will remove whole <div contenteditable> when all content text is selected and delete is pressed.
+        We cannot use 'inline-block' there.
+        So lets use 'flex' here instead.
+    */
+    /*display       : block;*/
+    display       : flex;
     border        : 1px solid $tags-border-color;
     padding       : 0;
     cursor        : text;
@@ -186,7 +192,16 @@
 
     ///////////////////////////////////////////
     // Holds the placeholder & the tags input
-    &__input{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
+    &__input{
+        /* NOTE(LordMike): when using 'inline-block' 
+            Edge will remove whole <div contenteditable> when all content text is selected and delete is pressed.
+            We cannot use 'inline-block' here. For now.
+        */
+    	/* display:inline-block; */ 
+    	display:block;
+    	
+    	min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
+    	
         @mixin placeholder-show{ opacity:.5; transform:none; };
 
         &:empty::before{ @include placeholder; }
