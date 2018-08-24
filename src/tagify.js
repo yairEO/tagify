@@ -79,7 +79,7 @@ Tagify.prototype = {
         var parser = new DOMParser(),
             node = parser.parseFromString(s.trim(), "text/html");
 
-       return node.body.firstElementChild;
+        return node.body.firstElementChild;
     },
 
     // https://stackoverflow.com/a/25396011/104380
@@ -216,7 +216,7 @@ Tagify.prototype = {
                 action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
             for( var eventName in _CBR ){
-               this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
+                this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
             }
 
             if( bindUnbind ){
