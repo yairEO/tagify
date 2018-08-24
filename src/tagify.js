@@ -425,7 +425,7 @@ Tagify.prototype = {
     /**
      * Searches if any tag with a certain value already exis
      * @param  {String} s [text value to search for]
-     * @return {boolean}  [found / not found]
+     * @return {int}  [Position index of the tag. -1 is returned if tag is not found.]
      */
     isTagDuplicate(s){
         return this.value.findIndex(item => s.toLowerCase() === item.value.toLowerCase());
