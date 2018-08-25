@@ -34,13 +34,16 @@
             code{ padding:2px 3px; background:lightyellow; }
             pre code{ background:none; padding:0; }
 
+            section > .rightSide{
+                position: sticky;
+                top: 1em;
+                align-self: start;
+            }
+
             .tagify{
                 min-width:400px;
                 max-width:600px;
                 margin: 1.5em 0;
-
-                position: sticky;
-                top: 1em;
             }
 
             /* for disabling the script */
@@ -62,18 +65,13 @@
                 border: 0;
                 padding: 0;
                 margin: 0;
-                top: 3.5em;
             }
 
             .tagify__input--outside{
-                position: sticky;
-                top: 1em;
-
                 display: block;
                 max-width: 600px;
                 border: 1px solid #DDD;
                 margin-top: 1.5em;
-                margin-bottom: 1em;
             }
 
             /* Countries' flags */

@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.1.5)- tags input component
+ * Tagify (v 2.1.7)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -276,7 +276,7 @@ Tagify.prototype = {
                 } else if (e.key == 'Escape') {
                     this.input.set.call(this);
                     e.target.blur();
-                } else if (e.key == 'Enter') {
+                } else if (e.key == 'Enter' || e.key == 'Esc') {
                     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                     this.addTags(this.input.value, true);
                 } else if (e.key == 'ArrowRight') this.input.autocomplete.set.call(this);
@@ -431,7 +431,7 @@ Tagify.prototype = {
     /**
      * Searches if any tag with a certain value already exis
      * @param  {String} s [text value to search for]
-     * @return {boolean}  [found / not found]
+     * @return {int}      [Position index of the tag. -1 is returned if tag is not found.]
      */
     isTagDuplicate: function isTagDuplicate(s) {
         return this.value.findIndex(function (item) {
@@ -833,6 +833,8 @@ Tagify.prototype = {
                             break;
 
                         case 'Escape':
+                        case 'Esc':
+                            // IE11
                             this.dropdown.hide.call(this);
                             break;
 

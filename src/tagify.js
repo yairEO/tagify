@@ -79,7 +79,7 @@ Tagify.prototype = {
         var parser = new DOMParser(),
             node = parser.parseFromString(s.trim(), "text/html");
 
-       return node.body.firstElementChild;
+        return node.body.firstElementChild;
     },
 
     // https://stackoverflow.com/a/25396011/104380
@@ -266,7 +266,7 @@ Tagify.prototype = {
                     e.target.blur();
                 }
 
-                else if( e.key == 'Enter' ){
+                else if( e.key == 'Enter' || e.key == 'Esc' ){
                     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                     this.addTags(this.input.value, true)
                 }
@@ -425,7 +425,7 @@ Tagify.prototype = {
     /**
      * Searches if any tag with a certain value already exis
      * @param  {String} s [text value to search for]
-     * @return {boolean}  [found / not found]
+     * @return {int}      [Position index of the tag. -1 is returned if tag is not found.]
      */
     isTagDuplicate(s){
         return this.value.findIndex(item => s.toLowerCase() === item.value.toLowerCase());
@@ -814,6 +814,7 @@ Tagify.prototype = {
                             break;
 
                         case 'Escape' :
+                        case 'Esc': // IE11
                             this.dropdown.hide.call(this);
                             break;
 

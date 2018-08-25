@@ -27,7 +27,8 @@
         30% { transform: scale(1.2); }
     }
 
-    display       : block;
+    display       : flex;
+    flex-wrap     : wrap;
     border        : 1px solid $tags-border-color;
     padding       : 0;
     cursor        : text;
@@ -53,7 +54,6 @@
     + textarea{ border:0; display:none; }
 
     tag{
-        display        : inline-block;
         margin         : $tagMargin 0 $tagMargin $tagMargin;
         vertical-align : top;
         position       : relative;
@@ -186,8 +186,14 @@
 
     ///////////////////////////////////////////
     // Holds the placeholder & the tags input
-    &__input{ display:inline-block; min-width:110px; margin:$tagMargin; padding:$tagPad; position:relative; vertical-align:top;
+    &__input{
+        $placeholder-width : 110px;
         @mixin placeholder-show{ opacity:.5; transform:none; };
+        min-width: $placeholder-width;
+
+        margin: $tagMargin;
+        padding: $tagPad;
+        position: relative;
 
         &:empty::before{ @include placeholder; }
 
