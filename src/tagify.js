@@ -216,7 +216,7 @@ Tagify.prototype = {
                 action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
             for( var eventName in _CBR ){
-               this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
+                this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
             }
 
             if( bindUnbind ){
@@ -261,12 +261,12 @@ Tagify.prototype = {
                     this.removeTag( lastTag );
                 }
 
-                else if( e.key == 'Escape' ){
+                else if( e.key == 'Escape' || e.key == 'Esc' ){
                     this.input.set.call(this)
                     e.target.blur();
                 }
 
-                else if( e.key == 'Enter' || e.key == 'Esc' ){
+                else if( e.key == 'Enter' ){
                     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                     this.addTags(this.input.value, true)
                 }
