@@ -31,7 +31,8 @@
             return this;
         }
 
-        this.settings = this.extend({}, this.DEFAULTS, settings);
+        this.settings = this.extend({}, this.
+, settings);
         this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
         if (this.isIE) this.settings.autoComplete = false; // IE goes crazy if this isn't false
@@ -67,6 +68,7 @@
         TEXTS: {
             empty: "empty",
             exceed: "number of tags exceeded",
+	    charsExceed: "number of characters inside tag exceeded",
             pattern: "pattern mismatch",
             duplicate: "already exists",
             notAllowed: "not allowed"
@@ -76,6 +78,7 @@
             delimiters: ",", // [RegEx] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
             pattern: null, // RegEx pattern to validate input by. Ex: /[1-9]/
             maxTags: Infinity, // Maximum number of tags
+	    maxChars: 50, //Maximum characters of tags
             callbacks: {}, // Exposed callbacks object to be triggered on certain events
             addTagOnBlur: true, // Flag - automatically adds the text which was inputed as a tag when blur event happens
             duplicates: false, // Flag - allow tuplicate tags
@@ -507,12 +510,13 @@
         validateTag: function validateTag(s) {
             var value = s.trim(),
                 maxTagsExceed = this.value.length >= this.settings.maxTags,
+		maxCharsExceed= s.length >= this.settings.maxChars,
                 isDuplicate,
                 eventName__error,
                 result = true;
 
             // check for empty value
-            if (!value) result = this.TEXTS.empty;else if (maxTagsExceed) result = this.TEXTS.exceed;
+            if (!value) result = this.TEXTS.empty;else if (maxTagsExceed) result = this.TEXTS.exceed;else if (maxCharsExceed) result = this.TEXTS.charsExceed;
 
             // check if pattern should be used and if so, use it to test the value
             else if (this.settings.pattern && !this.settings.pattern.test(value)) result = this.TEXTS.pattern;
