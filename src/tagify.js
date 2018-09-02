@@ -508,14 +508,14 @@ Tagify.prototype = {
         // check for empty value
         if (!value) result = this.TEXTS.empty;else if (maxTagsExceed) result = this.TEXTS.exceed;
 
+        // if minimum or maximum lengths were provided check that the string adheres to them.
+        else if ( (this.settings.minTagLength && value.length < this.settings.minTagLength) || (this.settings.maxTagLength && value.length > this.settings.maxTagLength) ) result = this.TEXTS.stringLength;
+
         // check if pattern should be used and if so, use it to test the value
         else if (this.settings.pattern && !this.settings.pattern.test(value)) result = this.TEXTS.pattern;
 
             // if duplicates are not allowed and there is a duplicate
             else if (!this.settings.duplicates && this.isTagDuplicate(value) !== -1) result = this.TEXTS.duplicate;else if (this.isTagBlacklisted(value) || this.settings.enforceWhitelist && !this.isTagWhitelisted(value)) result = this.TEXTS.notAllowed;
-
-            // if minimum or maximum lengths were provided check that the string adheres to them.
-            else if ( (this.settings.minTagLength && value.length < this.settings.minTagLength) || (this.settings.maxTagLength && value.length > this.settings.maxTagLength) ) result = this.TEXTS.stringLength;
 
         return result;
     },
