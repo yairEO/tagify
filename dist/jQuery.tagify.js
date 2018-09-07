@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tagify (v 2.1.7)- tags input component
+ * Tagify (v 2.1.8)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -132,7 +132,7 @@
             DOM.input = DOM.scope.querySelector('[contenteditable]');
             input.parentNode.insertBefore(DOM.scope, input);
 
-            if (this.settings.dropdown.enabled && this.settings.whitelist.length) {
+            if (this.settings.dropdown.enabled >= 0 && this.settings.whitelist.length) {
                 this.dropdown.init.call(this);
             }
 
@@ -266,6 +266,9 @@
 
                     if (e.type == "focus") {
                         //  e.target.classList.remove('placeholder');
+                        if (this.settings.dropdown.enabled === 0) {
+                            this.dropdown.show.call(this);
+                        }
                     } else if (e.type == "blur" && s) {
                         this.settings.addTagOnBlur && this.addTags(s, true).length;
                     } else {
@@ -282,10 +285,10 @@
                         lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
                         lastTag = lastTag[lastTag.length - 1];
                         this.removeTag(lastTag);
-                    } else if (e.key == 'Escape') {
+                    } else if (e.key == 'Escape' || e.key == 'Esc') {
                         this.input.set.call(this);
                         e.target.blur();
-                    } else if (e.key == 'Enter' || e.key == 'Esc') {
+                    } else if (e.key == 'Enter') {
                         e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                         this.addTags(this.input.value, true);
                     } else if (e.key == 'ArrowRight') this.input.autocomplete.set.call(this);
@@ -308,7 +311,7 @@
                         if (this.addTags(value).length) {
                             this.input.set.call(this); // clear the input field's value
                         }
-                    } else if (this.settings.dropdown.enabled && this.settings.whitelist.length) {
+                    } else if (this.settings.dropdown.enabled >= 0) {
                         this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
                     }
                 },
@@ -408,6 +411,7 @@
              */
             autocomplete: {
                 suggest: function suggest(s) {
+                    if (!this.DOM.input.value) return; // do not suggest anything for empty input
                     if (s) this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));else this.DOM.input.removeAttribute("data-suggest");
                 },
                 set: function set(s) {
@@ -748,8 +752,13 @@
                 return this.parseHTML(template);
             },
             show: function show(value) {
-                var listItems = this.dropdown.filterListItems.call(this, value),
-                    listHTML = this.dropdown.createListHTML.call(this, listItems);
+                var listItems, listHTML;
+
+                if (!this.settings.whitelist.length) return;
+
+                listItems = value ? this.dropdown.filterListItems.call(this, value) : this.settings.whitelist.slice(0);
+
+                listHTML = this.dropdown.createListHTML.call(this, listItems);
 
                 // set the first item from the suggestions list as the autocomplete value
                 if (this.settings.autoComplete) {
@@ -814,7 +823,7 @@
 
                     window[action]('resize', _CBR.position);
                     window[action]('keydown', _CBR.onKeyDown);
-                    window[action]('click', _CBR.onClick);
+                    window[action]('mousedown', _CBR.onClick);
 
                     this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver);
                     //  this.DOM.dropdown[action]('click', _CBR.onClick);
@@ -838,7 +847,7 @@
                                 // if no element was found, loop
                                 if (!selectedElm) selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' || e.key == 'Up' ? this.DOM.dropdown.children.length - 1 : 0];
 
-                                this.dropdown.highlightOption.call(this, selectedElm);
+                                this.dropdown.highlightOption.call(this, selectedElm, true);
                                 break;
 
                             case 'Escape':
@@ -864,7 +873,17 @@
                         if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
                     },
                     onClick: function onClick(e) {
-                        var listItemElm = [e.target, e.target.parentNode].filter(function (a) {
+                        var _this6 = this;
+
+                        var onClickOutside = function onClickOutside() {
+                            return _this6.dropdown.hide.call(_this6);
+                        },
+                            listItemElm;
+
+                        if (e.button != 0) return; // allow only mouse left-clicks
+                        if (e.target == document.documentElement) return onClickOutside();
+
+                        listItemElm = [e.target, e.target.parentNode].filter(function (a) {
                             return a.className.includes("tagify__dropdown__item");
                         })[0];
 
@@ -872,13 +891,14 @@
                             this.input.set.call(this);
                             this.addTags(listItemElm.textContent);
                         }
+
                         // clicked outside the dropdown, so just close it
-                        this.dropdown.hide.call(this);
+                        else onClickOutside();
                     }
                 }
             },
 
-            highlightOption: function highlightOption(elm) {
+            highlightOption: function highlightOption(elm, adjustScroll) {
                 if (!elm) return;
                 var className = "tagify__dropdown__item--active";
 
@@ -890,7 +910,7 @@
                 // this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
                 elm.classList.add(className);
 
-                elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight;
+                if (adjustScroll) elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight;
             },
 
 
