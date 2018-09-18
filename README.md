@@ -18,6 +18,11 @@
 Transforms an input field or a textarea into a *Tags* component, in an easy, customizable way,
 with great performance and tiny code footprint.
 
+    npm i @yaireo/tagify --save
+
+    // usage:
+    import Tagify from '@yaireo/tagify'
+
 ## [Documentation & Demos](https://yaireo.github.io/tagify)
 
 ## Selling points
@@ -42,7 +47,6 @@ with great performance and tiny code footprint.
 * Each tag can have any properties desired (class, data-whatever, readonly...)
 * Automatically disallow duplicate tags (vis "settings" object)
 * Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
-
 
 ## Building the project
 Simply run `gulp` in your terminal, from the project's path ([Gulp](https://gulpjs.com) should be installed first).
