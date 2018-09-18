@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.1.8)- tags input component
+ * Tagify (v 2.2.10)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -397,13 +397,12 @@ Tagify.prototype = {
 
 
         /**
-         * suggest the rest of the input's value
+         * suggest the rest of the input's value (via CSS "::after" using "content:attr(...)")
          * @param  {String} s [description]
          */
         autocomplete: {
             suggest: function suggest(s) {
-                if (!this.DOM.input.value) return; // do not suggest anything for empty input
-                if (s) this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));else this.DOM.input.removeAttribute("data-suggest");
+                if (!s || !this.input.value) this.DOM.input.removeAttribute("data-suggest");else this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));
             },
             set: function set(s) {
                 var dataSuggest = this.DOM.input.getAttribute('data-suggest'),
@@ -747,6 +746,8 @@ Tagify.prototype = {
 
             if (!this.settings.whitelist.length) return;
 
+            // if no value was supplied, show all the "whitelist" items in the dropdown
+            // @type [Array] listItems
             listItems = value ? this.dropdown.filterListItems.call(this, value) : this.settings.whitelist.slice(0);
 
             listHTML = this.dropdown.createListHTML.call(this, listItems);
@@ -756,10 +757,10 @@ Tagify.prototype = {
                 this.input.autocomplete.suggest.call(this, listItems.length ? listItems[0].value : '');
             }
 
-            if (!listHTML || listItems.length < 2) {
-                this.dropdown.hide.call(this);
-                return;
-            }
+            // if( !listHTML || listItems.length < 2 ){
+            //     this.dropdown.hide.call(this);
+            //     return;
+            // }
 
             this.DOM.dropdown.innerHTML = listHTML;
             this.dropdown.position.call(this);
@@ -855,8 +856,10 @@ Tagify.prototype = {
                             break;
 
                         case 'ArrowRight':
+                        case 'Tab':
+                            e.preventDefault();
                             this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null);
-                            break;
+                            return false;
                     }
                 },
                 onMouseOver: function onMouseOver(e) {
