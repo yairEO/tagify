@@ -60,6 +60,7 @@
 
   Tagify.prototype = {
     isIE: window.document.documentMode,
+    // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
     TEXTS: {
       empty: "empty",
       exceed: "number of tags exceeded",
@@ -90,8 +91,6 @@
       // Flag - if true, do not remove tags which did not pass validation
       autoComplete: true,
       // Flag - tries to autocomplete the input's value while typing
-      mapValueToProp: "",
-      // String - when tags have multiple properties, and for each tag another property should be used besides the "value"
       dropdown: {
         classname: '',
         enabled: 2,
@@ -335,10 +334,14 @@
      * If the original input had an values, add them as tags
      */
     loadOriginalValues: function loadOriginalValues() {
-      var value = this.DOM.originalInput.value,
-          values; // if the original input already had any value (tags)
+      var value = this.DOM.originalInput.value; // if the original input already had any value (tags)
 
       if (!value) return;
+
+      try {
+        value = JSON.parse(value);
+      } catch (err) {}
+
       this.addTags(value).forEach(function (tag) {
         tag && tag.classList.add('tagify--noAnim');
       });
@@ -433,8 +436,19 @@
      */
     isTagDuplicate: function isTagDuplicate(s) {
       return this.value.findIndex(function (item) {
-        return s.toLowerCase() === item.value.toLowerCase();
+        return s.trim().toLowerCase() === item.value.toLowerCase();
       }); // return this.value.some(item => s.toLowerCase() === item.value.toLowerCase());
+    },
+    getTagIndexByValue: function getTagIndexByValue(value) {
+      var result = [];
+      this.DOM.scope.querySelectorAll('tag').forEach(function (tagElm, i) {
+        if (tagElm.textContent.trim().toLowerCase() == value.toLowerCase()) result.push(i);
+      });
+      return result;
+    },
+    getTagElmByValue: function getTagElmByValue(value) {
+      var tagIdx = this.getTagIndexByValue(value)[0];
+      return this.DOM.scope.querySelectorAll('tag')[tagIdx];
     },
 
     /**
@@ -444,13 +458,8 @@
      * @return {boolean}                [found / not found]
      */
     markTagByValue: function markTagByValue(value, tagElm) {
-      var tagsElms, tagsElmsLen, tagIdx;
-
-      if (!tagElm) {
-        tagIdx = this.isTagDuplicate.call(this, value);
-        tagElm = this.DOM.scope.querySelectorAll('tag')[tagIdx];
-      } // check AGAIN if "tagElm" is defined
-
+      var tagsElms, tagsElmsLen;
+      tagElm = tagElm || this.getTagElmByValue(value); // check AGAIN if "tagElm" is defined
 
       if (tagElm) {
         tagElm.classList.add('tagify--mark');
@@ -510,26 +519,31 @@
       var _this3 = this;
 
       var whitelistWithProps = this.settings.whitelist[0] instanceof Object,
-          isComplex = tagsItems instanceof Array && "value" in tagsItems[0],
+          isComplex = tagsItems instanceof Array && tagsItems[0] instanceof Object && "value" in tagsItems[0],
           // checks if the value is a "complex" which means an Array of Objects, each object is a tag
       temp = []; // no need to continue if "tagsItems" is an Array of Objects
 
       if (isComplex) return tagsItems; // if the value is a "simple" String, ex: "aaa, bbb, ccc"
 
-      if (!isComplex) {
+      if (typeof tagsItems == 'string') {
         if (!tagsItems.trim()) return []; // go over each tag and add it (if there were multiple ones)
 
-        tagsItems = tagsItems.split(this.settings.delimiters).filter(function (n) {
+        return tagsItems.split(this.settings.delimiters).filter(function (n) {
           return n;
         }).map(function (v) {
           return {
             value: v.trim()
           };
         });
-      } // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
+      }
 
+      if (tagsItems instanceof Array) return tagsItems.map(function (v) {
+        return {
+          value: v.trim()
+        };
+      }); // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
 
-      if (!isComplex && whitelistWithProps) {
+      if (whitelistWithProps) {
         tagsItems.forEach(function (tag) {
           var matchObj = _this3.settings.whitelist.filter(function (WL_item) {
             return WL_item.value.toLowerCase() == tag.value.toLowerCase();
@@ -538,15 +552,13 @@
           if (matchObj[0]) temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
           else temp.push(tag);
         });
-        tagsItems = temp;
+        return temp;
       }
-
-      return tagsItems;
     },
 
     /**
      * add a "tag" element to the "tags" component
-     * @param {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects]
+     * @param {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
      * @param {Boolean} clearInput [flag if the input's value should be cleared after adding tags]
      * @return {Array} Array of DOM elements (tags)
      */
@@ -569,7 +581,7 @@
           tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
           tagData.title = tagValidation;
 
-          _this4.markTagByValue.call(_this4, tagData.value);
+          _this4.markTagByValue(tagData.value);
 
           _this4.trigger("invalid", {
             value: tagData.value,
@@ -655,16 +667,17 @@
 
     /**
      * Removes a tag
-     * @param  {Object}  tagElm          [DOM element]
-     * @param  {Boolean} silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
-     * @param  {Number}  tranDuration    [Transition duration in MS]
+     * @param  {Object|String}  tagElm          [DOM element or a String value]
+     * @param  {Boolean}        silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
+     * @param  {Number}         tranDuration    [Transition duration in MS]
      */
     removeTag: function removeTag(tagElm, silent) {
       var tranDuration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 250;
       if (!tagElm) return;
+      if (typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
       var tagData,
-          tagIdx = this.getNodeIndex(tagElm);
-      if (!tagElm) return;
+          tagIdx = this.getTagIndexByValue(tagElm.textContent); //this.getNodeIndex(tagElm); (getNodeIndex is unreliable)
+
       if (tranDuration && tranDuration > 10) animation();else removeNode();
 
       if (!silent) {
@@ -704,12 +717,7 @@
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update: function update() {
-      var _this5 = this;
-
-      var tagsAsString = this.value.map(function (v) {
-        return v[_this5.settings.mapValueToProp || "value"] || v.value;
-      });
-      this.DOM.originalInput.value = JSON.stringify(tagsAsString);
+      this.DOM.originalInput.value = JSON.stringify(this.value);
     },
 
     /**
@@ -837,10 +845,10 @@
             if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
           },
           onClick: function onClick(e) {
-            var _this6 = this;
+            var _this5 = this;
 
             var onClickOutside = function onClickOutside() {
-              return _this6.dropdown.hide.call(_this6);
+              return _this5.dropdown.hide.call(_this5);
             },
                 listItemElm;
 

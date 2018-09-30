@@ -110,16 +110,17 @@ var tagify = new Tagify(...);
 console.log( tagify.value )
 // [{"value":"tag1"}, {"value":"tag2"}, ...]
 
-// the original input's value is a String of Array items
+// The original input's value is a String representing Array of Objects.
+// To parse it, use: `JSON.parse(input.value)`
 console.log( input.value )
-// "["tag1", "tag2", ...]"
+// "[{value:"tag1"}, {value:"tag2"}, ...]"
 ```
 
 If the Tags were added with custom properties, the *value* output might look something like this:
 
 ```javascript
 tagify.value
-// [{ "value":"tag1", "class":"red", "id":1}, ...]
+// [{"value":"tag1", "class":"red", "id":1}, ...]
 ```
 
 
@@ -163,8 +164,7 @@ var allowedTags = [
 
 var input = document.querySelector('input'),
     tagify = new Tagify(input, {
-        whitelist : allowedTags,
-        mapValueToProp : "data-id"
+        whitelist : allowedTags
     });
 
 // Add the first 2 tags from the "allowedTags" Array
@@ -185,6 +185,14 @@ The above will prepend a "tags" element before the original input element:
 </tags>
 <input placeholder="add tags">
 ```
+
+Another way to add tags is:
+
+```javascript
+tagify.addTags(
+    ["banana", "orange", "apple"].map( item => ({ value:item }) )
+);
+```         
 
 ### Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
@@ -236,12 +244,14 @@ $('[name=tags]')
 
 ## Methods
 
-Name            | Info
---------------- | --------------------------------------------------------------------------
-destroy         | Reverts the input element back as it was before Tagify was applied
-removeAllTags   | Removes all tags and resets the original input tag's value property
-addTags         | Accepts a String (word, single or multiple with a delimiter) or an Array of Objects (see above)
-removeTag       | Removes a specific tag (argument is the tag DOM element to be removed. see source code.)
+Name                | Info
+------------------- | --------------------------------------------------------------------------
+destroy             | Reverts the input element back as it was before Tagify was applied
+removeAllTags       | Removes all tags and resets the original input tag's value property
+addTags             | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
+removeTag           | Removes a specific tag (argument is the tag DOM element to be removed. see source code.)
+getTagIndexByValue  | 
+getTagElmByValue    |
 
 
 ## Exposed events
@@ -267,7 +277,6 @@ blacklist             | Array      | []          | An array of tags which aren't
 addTagOnBlur          | Boolean    | true        | Automatically adds the text which was inputed as a tag when blur event happens
 callbacks             | Object     | {}          | Exposed callbacks object to be triggered on events: 'add' / 'remove' tags
 maxTags               | Number     | Infinity    | Maximum number of tags
-mapValueToProp        | String     | ""          | For tags with properties, where a certain property should be used as the "saved" value 
 transformTag          | Function   | undefined   | Takes a tag input as argument and returns a transformed value
 tagTemplate           | Function   | undefined   | Takes a tag's value and data as arguments and returns an HTML string for a tag element
 dropdown.enabled      | Number     | 2           | Minimum characters to input to show the suggestions list. "false" to disable
