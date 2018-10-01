@@ -31,8 +31,10 @@ with great performance and tiny code footprint.
    * [Building the project](#building-the-project)
    * [Adding tags dynamically](#adding-tags-dynamically)
    * [Suggestions selectbox](#suggestions-selectbox)
-   * [Tests](#tests)
-   * [Dependency](#dependency)
+   * [jQuery version](#jquery-version)
+   * [Methods](#methods)
+   * [Events](#events)
+   * [Settings](#settings)
 <!--te-->
 
 ## Installation
@@ -155,7 +157,7 @@ getTagIndexByValue  |
 getTagElmByValue    |
 
 
-## Exposed events
+## Events
 
 Name            | Info
 --------------- | --------------------------------------------------------------------------
