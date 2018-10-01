@@ -12,10 +12,11 @@
 </custom-element-demo>
 ```
 -->
-<div style='text-align:center'>
-![Mix content](https://raw.githubusercontent.com/yairEO/tagify/master/mix.gif)
-![Tags input](https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif)
-</div>
+<p style='text-align:center'>
+![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/mix.gif)
+
+![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif)
+</p>
 
 Transforms an input field or a textarea into a *Tags* component, in an easy, customizable way,
 with great performance and tiny code footprint.
