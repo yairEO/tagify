@@ -14,7 +14,8 @@
 -->
 <p align="center">
 ![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/mix.gif)
-
+</p>
+<p align="center">
 ![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif)
 </p>
 
