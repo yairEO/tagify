@@ -13,7 +13,7 @@
 ```
 -->
 <p align="center">
-<img src="https://raw.githubusercontent.com/yairEO/tagify/master/demo-mix.gif" />
+<img src="https://raw.githubusercontent.com/yairEO/tagify/master/mix2.gif" />
 </p>
 <p align="center">
 <img src="https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif" />
