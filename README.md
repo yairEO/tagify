@@ -12,7 +12,7 @@
 </custom-element-demo>
 ```
 -->
-<p style='text-align:center'>
+<p align="center">
 ![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/mix.gif)
 
 ![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif)
