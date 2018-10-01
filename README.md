@@ -13,10 +13,10 @@
 ```
 -->
 <p align="center">
-![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/mix.gif)
+<img src="https://raw.githubusercontent.com/yairEO/tagify/master/mix.gif" />
 </p>
 <p align="center">
-![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif)
+<img src="https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif" />
 </p>
 
 Transforms an input field or a textarea into a *Tags* component, in an easy, customizable way,
