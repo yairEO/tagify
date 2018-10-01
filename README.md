@@ -12,21 +12,40 @@
 </custom-element-demo>
 ```
 -->
-
-![alt tag](https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif)
+<div style='text-align:center'>
+![Mix content](https://raw.githubusercontent.com/yairEO/tagify/master/mix.gif)
+![Tags input](https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif)
+</div>
 
 Transforms an input field or a textarea into a *Tags* component, in an easy, customizable way,
 with great performance and tiny code footprint.
+
+## [Documentation & Demos](https://yaireo.github.io/tagify)
+
+## Table of contents
+
+<!--ts-->
+   * [Installation](#installation)
+   * [Selling points](#selling-points)
+   * [What can Tagify do](#what-can-tagify-do)
+   * [Building the project](#building-the-project)
+   * [Adding tags dynamically](#adding-tags-dynamically)
+   * [Suggestions selectbox](#suggestions-selectbox)
+   * [Tests](#tests)
+   * [Dependency](#dependency)
+<!--te-->
+
+## Installation
 
     npm i @yaireo/tagify --save
 
     // usage:
     import Tagify from '@yaireo/tagify'
 
-## [Documentation & Demos](https://yaireo.github.io/tagify)
+    var tagify = new Tagify(...)
 
 ## Selling points
-* JS at `~13kb` (`4kb` GZIP) (less than *900* easily understandable lines of code)
+* JS minified `~16kb` (`~4kb` GZIP) 
 * SCSS file is `~6kb` of well-crafted flexible code
 * Easily change direction to RTL via the SCSS file only
 * No other inputs are used beside the original, and its value is kept in sync
@@ -36,6 +55,7 @@ with great performance and tiny code footprint.
 
 ## What can Tagify do
 * Can be applied on input & textarea elements
+* Supports mix content (text and tags together)
 * Supports whitelist
 * Supports blacklists
 * Shows suggestions selectbox (flexiable settings & styling)
@@ -57,142 +77,17 @@ Output files, which are automatically generated using Gulp, are in: `/dist/`
 
 The rest of the files are most likely irrelevant.
 
-## Basic usage
-Lets say this is your markup, and you already have a value set on the input (which was pre-filled by data from the server):
-
-```html
-<input name='tags' placeholder='write some tags' value='foo, bar,buzz'>
-<textarea name='tags' pattern=".{3,}" placeholder='write some tags'>foo, bar,buzz</textarea>
-```
-
-What you need to do to convert that nice input into "tags" is simply select your input/textarea and run `tagify()`:
-
-```javascript
-// vanilla component
-var input = document.querySelector('input[name=tags]'),
-    tagify = new Tagify( input );
-
-// with settings passed
-tagify = new Tagify( input, {
-    duplicates: true,
-    whitelist: ['foo', 'bar'],
-    callbacks: {
-        add : onAddTag // calls an imaginary "onAddTag" function when a tag is added
-    }
-});
-
-// listen to custom tags' events such as 'add' or 'remove' (see full list below).
-// listeners are chainable
-tagify.on('remove', onTagRemoved)
-      .on('add', onTagAdded);
-      .on('invalid', onInvaildTag)
-
-function onTagRemoved(e){
-    console.log(e, e.detail);
-    // remove listener after first tag removal
-    tagify.off('remove', onTagRemoved);
-}
-
-function onTagAdded(e){
-    // do whatever
-}
-
-function onInvaildTag(e){
-    // e.detail ...
-}
-```
-
-The value of the Tagify component can be accessed like so:
+### Adding tags dynamically
 
 ```javascript
 var tagify = new Tagify(...);
 
-console.log( tagify.value )
-// [{"value":"tag1"}, {"value":"tag2"}, ...]
+tagify.addTags(["banana", "orange", "apple"])
 
-// The original input's value is a String representing Array of Objects.
-// To parse it, use: `JSON.parse(input.value)`
-console.log( input.value )
-// "[{value:"tag1"}, {value:"tag2"}, ...]"
+// or add tags with pre-defined propeties
+
+tagify.addTags([{value:"banana", color:"yellow"}, {value:"apple", color:"red"}, {value:"watermelon", color:"green"}])
 ```
-
-If the Tags were added with custom properties, the *value* output might look something like this:
-
-```javascript
-tagify.value
-// [{"value":"tag1", "class":"red", "id":1}, ...]
-```
-
-
-### Tags with properties ([example](https://yaireo.github.io/tagify#section-extra-properties))
-
-The below example will populate the Tags component with 2 tags, each with specific attributes & values.
-the `addTags` method accepts an Array of Objects with **any** key/value, as long as the `value` key is defined.
-
-```html
-<input placeholder="add tags">
-```
-
-```javascript
-var allowedTags = [
-    {
-        "value"   : "apple",
-        "data-id" : 3,
-        "class"   : 'color-green'
-    },
-    {
-        "value"    : "orange",
-        "data-id"  : 56,
-        "class"    : 'color-orange'
-    },
-    {
-        "value"    : "passion fruit",
-        "data-id"  : 17,
-        "class"    : 'color-purple'
-    },
-    {
-        "value"    : "banana",
-        "data-id"  : 12,
-        "class"    : 'color-yellow'
-    },
-    {
-        "value"    : "paprika",
-        "data-id"  : 25,
-        "class"    : 'color-red'
-    }
-];
-
-var input = document.querySelector('input'),
-    tagify = new Tagify(input, {
-        whitelist : allowedTags
-    });
-
-// Add the first 2 tags from the "allowedTags" Array
-tagify.addTags( allowedTags.slice(0,2) )
-```
-
-The above will prepend a "tags" element before the original input element:
-
-```html
-<tags class="tagify">
-    <tag readonly="true" class="color-red" data-id="8" value="strawberry">
-        <x></x><div><span title="strawberry">strawberry</span></div>
-    </tag>
-    <tag readonly="true" class="color-darkblue" data-id="6" value="blueberry">
-        <x></x><div><span title="blueberry">blueberry</span></div>
-    </tag>
-    <div contenteditable data-placeholder="add tags" class="tagify--input"></div>
-</tags>
-<input placeholder="add tags">
-```
-
-Another way to add tags is:
-
-```javascript
-tagify.addTags(
-    ["banana", "orange", "apple"].map( item => ({ value:item }) )
-);
-```         
 
 ### Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
@@ -231,7 +126,12 @@ Will render:
 ```
 
 
-### jQuery plugin version (jQuery.tagify.js)
+### jQuery version 
+
+`jQuery.tagify.js`
+
+A jQuery wrapper verison is also available, but I advise not using it because it's basically the exact same as the "normal"
+script (non-jqueryfied) and all the jQuery's wrapper does is allowing to chain the event listeners for ('add', 'remove', 'invalid')
 
 ```javascript
 $('[name=tags]')
@@ -250,6 +150,7 @@ destroy             | Reverts the input element back as it was before Tagify was
 removeAllTags       | Removes all tags and resets the original input tag's value property
 addTags             | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
 removeTag           | Removes a specific tag (argument is the tag DOM element to be removed. see source code.)
+loadOriginalValues  | Converts the input's value into tags. This method gets called automatically when instansiating Tagify
 getTagIndexByValue  | 
 getTagElmByValue    |
 
@@ -269,6 +170,7 @@ Name                  | Type       | Default     | Info
 ----------------------| ---------- | ----------- | --------------------------------------------------------------------------
 delimiters            | String     | ","         | [regex] split tags by any of these delimiters. Example: ",| |."
 pattern               | String     | null        | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: /[1-9]/
+mode                  | String     | null        | use 'mix' as value to allow mixed-content. The 'pattern' setting must be set to some character.
 duplicates            | Boolean    | false       | (flag) Should duplicate tags be allowed or not
 enforceWhitelist      | Boolean    | false       | Should ONLY use tags allowed in whitelist
 autocomplete          | Boolean    | true        | Tries to autocomplete the input's value while typing (match from whitelist)

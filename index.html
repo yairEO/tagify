@@ -6,7 +6,7 @@
         <meta name="description" content="Converts HTML input/textarea into Tags component">
         <meta name="author" content="Yair Even-Or">
 
-        <link rel="stylesheet" href="https://cdn.rawgit.com/yairEO/ec9e154c4269b9a0f264fba7f64d7383/raw/f796f0b787acd0ef3a69f399d57cb0a13f34dcd8/vsync_demos.css">
+        <link rel="stylesheet" href="https://cdn.rawgit.com/yairEO/ec9e154c4269b9a0f264fba7f64d7383/raw/e0c395043e809c2def517280850aeec410536abd/vsync_demos.css">
         <link rel="stylesheet" href="dist/tagify.css">
 
         <script src="dist/tagify.polyfills.js"></script>
@@ -99,7 +99,6 @@
             .tagify.countries tag{ white-space:nowrap; }
             .tagify.countries tag img{
                 display: inline-block;
-                vertical-align: middle;
                 height: 16px;
                 margin-right: 3px;
                 border-radius: 2px;
@@ -108,7 +107,10 @@
     </head>
 
     <body>
-        <a class='forkLink' href="https://github.com/yairEO/tagify"><img src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+        <a class='forkLink' title='Go To Repo' href='https://github.com/yairEO/tagify'>
+            <img src='https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png' alt='GitHub Repo'>
+        </a>
+
         <label><input name='toggleTagify' type='checkbox'> TOGGLE OFF</label>
 
         <form>
@@ -137,7 +139,8 @@
                 <aside class='leftSide'>
                     <h2><a href='#section-textarea'>#</a>textarea</h2>
                     <p>
-                        In this example, the field is pre-ocupied with 3 tags, and last tag is <strong>not included</strong> in the whitelist, and will be <em>removed</em> because the <code>enforceWhitelist</code> option flag is set to <code>true</code>
+                        In this example, the field is pre-ocupied with 3 tags, and last tag is <strong>not included</strong> in the whitelist,
+                        and will be <em>removed</em> because the <code>enforceWhitelist</code> option flag is set to <code>true</code>
                     </p>
                     <h3>HTML</h3>
                     <xmp><textarea name='tags' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea></xmp>
@@ -146,6 +149,33 @@
                 </aside>
                 <aside class='rightSide'>
                     <textarea name='tags2' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea>
+                </aside>
+            </section>
+
+            <section id='section-mix'>
+                <aside class='leftSide'>
+                    <h2><a href='#section-mix'>#</a>Mix text &amp; tags</h2>
+                    <p>
+                        It is possible to configure Tagify to supoprt mixed content.
+                        A common example would be <em>tagging</em> people while writing a comment on a social website.
+                    </p>
+                    <p>
+                        To allow mix content, simply pass the setting <code>mode : 'mix'</code>
+                    </p>
+                    <p>
+                        In this example, there are a few <em>Southpark</em> character names on the <code>whitelist</code> Array setting,
+                        and when the <code>@</code> is typed, following 1 more character, the suggestions dropdown will be shown.
+                    </p>
+                    <p>
+                        Note that tags can only be created if the value matches any of the whitelisted item's value.
+                    </p>
+                    <h3>HTML</h3>
+                    <xmp><textarea name='mix'>@cartman, @vadar and @kyle are friends with:</textarea></xmp>
+                    <h3>JAVASCRIPT</h3>
+                    <script>renderPRE(document.currentScript, "mix")</script>
+                </aside>
+                <aside class='rightSide'>
+                    <textarea name='mix'>@cartman, @vadar and @kyle are friends with:</textarea>
                 </aside>
             </section>
 
@@ -360,6 +390,64 @@ var input = document.querySelector('textarea[name=tags2]'),
             remove : console.log   // callback when removing a tag
         }
     });
+})()
+</script>
+
+<script data-name='mix'>
+(function(){
+
+var input = document.querySelector('[name=mix]'),
+    // init Tagify script on the above inputs
+    tagify = new Tagify(input, {
+        mode       : 'mix',   // <--  Enable mixed-content
+        pattern    : '@',     // <--  Tag words which start with this
+        whitelist  : [
+            {
+                value : 'kenny',
+                title : 'Kenny McCormick'
+            },
+            {
+                value : 'cartman',
+                title : 'Eric Cartman'
+            },
+            {
+                value : 'kyle',
+                title : 'Kyle Broflovski'
+            },
+            {
+                value : 'token',
+                title : 'Token Black'
+            },
+            {
+                value : 'jimmy',
+                title : 'Jimmy Valmer'
+            },
+            {
+                value : 'butters',
+                title : 'Butters Stotch'
+            },
+            {
+                value : 'stan',
+                title : 'Stan Marsh'
+            },
+            {
+                value : 'randy',
+                title : 'Randy Marsh'
+            },
+            {
+                value : 'Mr. Garrison',
+                title : 'POTUS'
+            },
+            {
+                value : 'Mr. Mackey',
+                title : "M'Kay"
+            }
+        ],
+        dropdown   : {
+            enabled : false
+        }
+    })
+
 })()
 </script>
 
@@ -713,8 +801,8 @@ var $input = $('input[name=tags-jquery]')
         .on('add', function(e, tagName){
             console.log('JQEURY EVENT: ', 'added', tagName)
         })
-        .on("duplicate", function(e, tagName) {
-            console.log('JQEURY EVENT: ',"duplicate", e, ' ', tagName);
+        .on("invalid", function(e, tagName) {
+            console.log('JQEURY EVENT: ',"invalid", e, ' ', tagName);
         });
 
 // get the Tagify instance assigned for this jQuery input object so its methods could be accessed

@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tagify (v 2.2.10)- tags input component
+ * Tagify (v 2.5.0)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -45,6 +45,7 @@
       } catch (e) {}
     }
 
+    this.state = {};
     this.value = []; // tags' data
     // events' callbacks references will be stores here, so events could be unbinded
 
@@ -127,7 +128,7 @@
     build: function build(input) {
       var that = this,
           DOM = this.DOM,
-          template = "<tags class=\"tagify " + input.className + "\" " + (this.settings.readonly ? 'readonly' : '') + ">\n                            <div contenteditable data-placeholder=\"" + input.placeholder + "\" class=\"tagify__input\"></div>\n                        </tags>";
+          template = "<tags class=\"tagify " + (this.settings.mode ? "tagify--mix" : "") + " " + input.className + "\" " + (this.settings.readonly ? 'readonly' : '') + ">\n                            <div contenteditable data-placeholder=\"" + input.placeholder + "\" class=\"tagify__input\"></div>\n                        </tags>";
       DOM.originalInput = input;
       DOM.scope = this.parseHTML(template);
       DOM.input = DOM.scope.querySelector('[contenteditable]');
@@ -145,6 +146,25 @@
      */
     destroy: function destroy() {
       this.DOM.scope.parentNode.removeChild(this.DOM.scope);
+    },
+
+    /**
+     * If the original input had an values, add them as tags
+     */
+    loadOriginalValues: function loadOriginalValues() {
+      var value = this.DOM.originalInput.value; // if the original input already had any value (tags)
+
+      if (!value) return;
+
+      try {
+        value = JSON.parse(value);
+      } catch (err) {}
+
+      if (this.settings.mode == 'mix') {
+        this.DOM.input.innerHTML = this.parseMixTags(value);
+      } else this.addTags(value).forEach(function (tag) {
+        tag && tag.classList.add('tagify--noAnim');
+      });
     },
 
     /**
@@ -232,25 +252,27 @@
         var bindUnbind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
         var _CB = this.events.callbacks,
-            // setup callback references so events could be removed later
+            _CBR,
+            action = bindUnbind ? 'addEventListener' : 'removeEventListener';
+
+        if (bindUnbind && !this.listeners.main) {
+          // this event should never be unbinded
+          // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
+          this.DOM.input.addEventListener(this.isIE ? "keydown" : "input", _CB[this.isIE ? "onInputIE" : "onInput"].bind(this));
+          if (this.settings.isJQueryPlugin) $(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this));
+        } // setup callback references so events could be removed later
+
+
         _CBR = this.listeners.main = this.listeners.main || {
           paste: ['input', _CB.onPaste.bind(this)],
           focus: ['input', _CB.onFocusBlur.bind(this)],
           blur: ['input', _CB.onFocusBlur.bind(this)],
           keydown: ['input', _CB.onKeydown.bind(this)],
           click: ['scope', _CB.onClickScope.bind(this)]
-        },
-            action = bindUnbind ? 'addEventListener' : 'removeEventListener';
+        };
 
         for (var eventName in _CBR) {
           this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
-        }
-
-        if (bindUnbind) {
-          // this event should never be unbinded
-          // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
-          this.DOM.input.addEventListener(this.isIE ? "keydown" : "input", _CB[this.isIE ? "onInputIE" : "onInput"].bind(this));
-          if (this.settings.isJQueryPlugin) $(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this));
         }
       },
 
@@ -260,6 +282,7 @@
       callbacks: {
         onFocusBlur: function onFocusBlur(e) {
           var s = e.target.textContent.trim();
+          if (this.settings.mode == 'mix') return;
 
           if (e.type == "focus") {
             //  e.target.classList.remove('placeholder');
@@ -277,6 +300,7 @@
         onKeydown: function onKeydown(e) {
           var s = e.target.textContent,
               lastTag;
+          if (this.settings.mode == 'mix') return;
 
           if (e.key == 'Backspace' && (s == "" || s.charCodeAt(0) == 8203)) {
             lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
@@ -294,6 +318,7 @@
         onInput: function onInput(e) {
           var value = this.input.normalize.call(this),
               showSuggestions = value.length >= this.settings.dropdown.enabled;
+          if (this.settings.mode == 'mix') return this.events.callbacks.onMixTagsInput.call(this, e);
 
           if (!value) {
             this.input.set.call(this, '');
@@ -313,6 +338,30 @@
             this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
           }
         },
+        onMixTagsInput: function onMixTagsInput(e) {
+          var sel,
+              range,
+              split,
+              tag,
+              patternLen = this.settings.pattern.length;
+          this.state.tag = null;
+
+          if (window.getSelection) {
+            sel = window.getSelection();
+
+            if (sel.rangeCount > 0) {
+              range = sel.getRangeAt(0).cloneRange();
+              range.collapse(true);
+              range.setStart(window.getSelection().focusNode, 0);
+              split = range.toString().split(/,|\.|\s/); // ["foo", "bar", "@a"]
+
+              tag = split[split.length - 1];
+              tag = this.state.tag = tag.substr(0, patternLen) == this.settings.pattern && tag.length > patternLen ? tag.slice(patternLen) : null;
+            }
+          }
+
+          this.dropdown[tag ? "show" : "hide"].call(this, tag);
+        },
         onInputIE: function onInputIE(e) {
           var _this = this; // for the "e.target.textContent" to be changed, the browser requires a small delay
 
@@ -331,23 +380,6 @@
     },
 
     /**
-     * If the original input had an values, add them as tags
-     */
-    loadOriginalValues: function loadOriginalValues() {
-      var value = this.DOM.originalInput.value; // if the original input already had any value (tags)
-
-      if (!value) return;
-
-      try {
-        value = JSON.parse(value);
-      } catch (err) {}
-
-      this.addTags(value).forEach(function (tag) {
-        tag && tag.classList.add('tagify--noAnim');
-      });
-    },
-
-    /**
      * input bridge for accessing & setting
      * @type {Object}
      */
@@ -363,12 +395,14 @@
         this.input.validate.call(this);
       },
       // https://stackoverflow.com/a/3866442/104380
-      setRangeAtEnd: function setRangeAtEnd() {
+      setRangeAtStartEnd: function setRangeAtStartEnd() {
+        var start = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+        var node = arguments[1];
         var range, selection;
         if (!document.createRange) return;
         range = document.createRange();
-        range.selectNodeContents(this.DOM.input);
-        range.collapse(false);
+        range.selectNodeContents(node || this.DOM.input);
+        range.collapse(start);
         selection = window.getSelection();
         selection.removeAllRanges();
         selection.addRange(range);
@@ -410,7 +444,7 @@
             this.input.set.call(this, suggestion);
             this.input.autocomplete.suggest.call(this, '');
             this.dropdown.hide.call(this);
-            this.input.setRangeAtEnd.call(this);
+            this.input.setRangeAtStartEnd.call(this);
           } // if( suggestion && this.addTags(this.input.value + suggestion).length ){
           //     this.input.set.call(this);
           //     this.dropdown.hide.call(this);
@@ -528,20 +562,19 @@
       if (typeof tagsItems == 'string') {
         if (!tagsItems.trim()) return []; // go over each tag and add it (if there were multiple ones)
 
-        return tagsItems.split(this.settings.delimiters).filter(function (n) {
+        tagsItems = tagsItems.split(this.settings.delimiters).filter(function (n) {
           return n;
         }).map(function (v) {
           return {
             value: v.trim()
           };
         });
-      }
-
-      if (tagsItems instanceof Array) return tagsItems.map(function (v) {
+      } else if (tagsItems instanceof Array) tagsItems = tagsItems.map(function (v) {
         return {
           value: v.trim()
         };
       }); // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
+
 
       if (whitelistWithProps) {
         tagsItems.forEach(function (tag) {
@@ -550,10 +583,67 @@
           });
 
           if (matchObj[0]) temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
-          else temp.push(tag);
+          else if (_this3.settings.mode != 'mix') temp.push(tag);
         });
         return temp;
       }
+
+      return tagsItems;
+    },
+    parseMixTags: function parseMixTags(s) {
+      var _this4 = this;
+
+      var htmlString = '';
+      s = s.split(this.settings.pattern); // this.DOM.scope.innerHTML
+
+      htmlString = s.shift() + s.map(function (part) {
+        var tagElm, i, normalizedTag;
+        if (!part) return '';
+
+        for (i in part) {
+          if (part[i].match(/,|\.| /)) {
+            normalizedTag = _this4.normalizeTags.call(_this4, part.substr(0, i))[0];
+            if (normalizedTag) tagElm = _this4.createTagElem(normalizedTag);else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
+
+            break;
+          }
+        }
+
+        return tagElm ? tagElm.outerHTML + part.slice(i) : _this4.settings.pattern + part;
+      }).join('');
+      return htmlString;
+    },
+
+    /**
+     * Add a tag where it might be beside textNodes
+     */
+    addMixTag: function addMixTag(tagData) {
+      if (!tagData) return;
+      var sel = window.getSelection(),
+          node = sel.focusNode,
+          nodeText = node.textContent,
+          wrapElm = document.createDocumentFragment(),
+          tagElm = this.createTagElem(tagData),
+          textNodeBefore,
+          textNodeAfter,
+          range,
+          parrernLen = this.settings.pattern.length;
+
+      if (sel.rangeCount > 0) {
+        range = sel.getRangeAt(0).cloneRange();
+        range.collapse(true);
+        range.setStart(node, 0);
+        textNodeBefore = range.toString().slice(0, -this.state.tag.length - parrernLen);
+        textNodeAfter = nodeText.slice(textNodeBefore.length + this.state.tag.length + parrernLen, nodeText.length);
+        textNodeBefore = document.createTextNode(textNodeBefore);
+        textNodeAfter = document.createTextNode(textNodeAfter.trim() ? textNodeAfter : " \u200B");
+        wrapElm.appendChild(textNodeBefore);
+        wrapElm.appendChild(tagElm);
+        wrapElm.appendChild(textNodeAfter);
+      }
+
+      node.parentNode.replaceChild(wrapElm, node);
+      this.input.setRangeAtStartEnd.call(this, true, textNodeAfter);
     },
 
     /**
@@ -563,53 +653,54 @@
      * @return {Array} Array of DOM elements (tags)
      */
     addTags: function addTags(tagsItems, clearInput) {
-      var _this4 = this;
+      var _this5 = this;
 
       var tagElems = [];
-      this.DOM.input.removeAttribute('style');
       tagsItems = this.normalizeTags.call(this, tagsItems);
+      if (this.settings.mode == 'mix') return this.addMixTag(tagsItems[0]);
+      this.DOM.input.removeAttribute('style');
       tagsItems.forEach(function (tagData) {
         var tagValidation, tagElm;
 
-        if (typeof _this4.settings.transformTag === 'function') {
-          tagData.value = _this4.settings.transformTag.call(_this4, tagData.value) || tagData.value;
+        if (typeof _this5.settings.transformTag === 'function') {
+          tagData.value = _this5.settings.transformTag.call(_this5, tagData.value) || tagData.value;
         }
 
-        tagValidation = _this4.validateTag.call(_this4, tagData.value);
+        tagValidation = _this5.validateTag.call(_this5, tagData.value);
 
         if (tagValidation !== true) {
           tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
           tagData.title = tagValidation;
 
-          _this4.markTagByValue(tagData.value);
+          _this5.markTagByValue(tagData.value);
 
-          _this4.trigger("invalid", {
+          _this5.trigger("invalid", {
             value: tagData.value,
-            index: _this4.value.length,
+            index: _this5.value.length,
             message: tagValidation
           });
         } // Create tag HTML element
 
 
-        tagElm = _this4.createTagElem(tagData);
+        tagElm = _this5.createTagElem(tagData);
         tagElems.push(tagElm); // add the tag to the component's DOM
 
-        appendTag.call(_this4, tagElm);
+        appendTag.call(_this5, tagElm);
 
         if (tagValidation === true) {
           // update state
-          _this4.value.push(tagData);
+          _this5.value.push(tagData);
 
-          _this4.update();
+          _this5.update();
 
-          _this4.trigger('add', _this4.extend({}, {
-            index: _this4.value.length,
+          _this5.trigger('add', _this5.extend({}, {
+            index: _this5.value.length,
             tag: tagElm
           }, tagData));
-        } else if (!_this4.settings.keepInvalidTags) {
+        } else if (!_this5.settings.keepInvalidTags) {
           // remove invalid tags (if "keepInvalidTags" is set to "false")
           setTimeout(function () {
-            _this4.removeTag(tagElm, true);
+            _this5.removeTag(tagElm, true);
           }, 1000);
         }
       });
@@ -630,6 +721,9 @@
 
       return tagElems;
     },
+    minify: function minify(html) {
+      return html.replace(new RegExp("\>[\r\n ]+\<", "g"), "><");
+    },
 
     /**
      * creates a DOM tag element and injects it into the component (this.DOM.scope)
@@ -639,7 +733,7 @@
     createTagElem: function createTagElem(tagData) {
       var tagElm,
           v = this.escapeHtml(tagData.value),
-          template = "<tag title='" + v + "'>\n                            <x title=''></x><div><span>" + v + "</span></div>\n                        </tag>";
+          template = "<tag title='" + v + "' contenteditable='false'>\n                            <x title=''></x><div><span>" + v + "</span></div>\n                        </tag>";
 
       if (typeof this.settings.tagTemplate === "function") {
         try {
@@ -659,6 +753,7 @@
         }
       }
 
+      template = this.minify(template);
       tagElm = this.parseHTML(template); // add any attribuets, if exists
 
       addTagAttrs(tagElm, tagData);
@@ -845,10 +940,10 @@
             if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
           },
           onClick: function onClick(e) {
-            var _this5 = this;
+            var _this6 = this;
 
             var onClickOutside = function onClickOutside() {
-              return _this5.dropdown.hide.call(_this5);
+              return _this6.dropdown.hide.call(_this6);
             },
                 listItemElm;
 
@@ -860,8 +955,8 @@
             })[0];
 
             if (listItemElm) {
-              this.input.set.call(this);
-              this.addTags(listItemElm.textContent);
+              this.addTags(listItemElm.textContent, true);
+              this.dropdown.hide.call(this);
             } // clicked outside the dropdown, so just close it
             else onClickOutside();
           }

@@ -21,6 +21,7 @@ function Tagify( input, settings ){
         catch(e){}
     }
 
+    this.state = {};
     this.value = []; // tags' data
 
     // events' callbacks references will be stores here, so events could be unbinded
@@ -96,7 +97,7 @@ Tagify.prototype = {
     build( input ){
         var that = this,
             DOM  = this.DOM,
-            template = `<tags class="tagify ${input.className}" ${this.settings.readonly ? 'readonly' : ''}>
+            template = `<tags class="tagify ${this.settings.mode ? "tagify--mix" : "" } ${input.className}" ${this.settings.readonly ? 'readonly' : ''}>
                             <div contenteditable data-placeholder="${input.placeholder}" class="tagify__input"></div>
                         </tags>`;
 
@@ -117,6 +118,28 @@ Tagify.prototype = {
      */
     destroy(){
         this.DOM.scope.parentNode.removeChild(this.DOM.scope);
+    },
+
+    /**
+     * If the original input had an values, add them as tags
+     */
+    loadOriginalValues(){
+        var value = this.DOM.originalInput.value;
+
+        // if the original input already had any value (tags)
+        if( !value ) return;
+
+        try{ value = JSON.parse(value) }
+        catch(err){}
+
+        if( this.settings.mode == 'mix' ){
+            this.DOM.input.innerHTML = this.parseMixTags(value);
+        }
+
+        else
+            this.addTags(value).forEach(tag => {
+                tag && tag.classList.add('tagify--noAnim');
+            });
     },
 
     /**
@@ -204,27 +227,29 @@ Tagify.prototype = {
 
         binding( bindUnbind = true ){
             var _CB = this.events.callbacks,
-                // setup callback references so events could be removed later
-                _CBR = (this.listeners.main = this.listeners.main || {
-                    paste   : ['input', _CB.onPaste.bind(this)],
-                    focus   : ['input', _CB.onFocusBlur.bind(this)],
-                    blur    : ['input', _CB.onFocusBlur.bind(this)],
-                    keydown : ['input', _CB.onKeydown.bind(this)],
-                    click   : ['scope', _CB.onClickScope.bind(this)]
-                }),
+                _CBR,
                 action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
-            for( var eventName in _CBR ){
-                this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
-            }
-
-            if( bindUnbind ){
+            if( bindUnbind && !this.listeners.main ){
                 // this event should never be unbinded
                 // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
                 this.DOM.input.addEventListener(this.isIE ? "keydown" : "input", _CB[this.isIE ? "onInputIE" : "onInput"].bind(this));
 
                 if( this.settings.isJQueryPlugin )
                     $(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
+            }
+
+            // setup callback references so events could be removed later
+            _CBR = (this.listeners.main = this.listeners.main || {
+                paste   : ['input', _CB.onPaste.bind(this)],
+                focus   : ['input', _CB.onFocusBlur.bind(this)],
+                blur    : ['input', _CB.onFocusBlur.bind(this)],
+                keydown : ['input', _CB.onKeydown.bind(this)],
+                click   : ['scope', _CB.onClickScope.bind(this)]
+            });
+
+            for( var eventName in _CBR ){
+                this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
             }
         },
 
@@ -234,6 +259,8 @@ Tagify.prototype = {
         callbacks : {
             onFocusBlur(e){
                 var s = e.target.textContent.trim();
+
+                if( this.settings.mode == 'mix' ) return;
 
                 if( e.type == "focus" ){
                     //  e.target.classList.remove('placeholder');
@@ -256,6 +283,8 @@ Tagify.prototype = {
             onKeydown(e){
                 var s = e.target.textContent,
                     lastTag;
+
+                if( this.settings.mode == 'mix' ) return;
 
                 if( e.key == 'Backspace' && (s == "" || s.charCodeAt(0) == 8203) ){
                     lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
@@ -281,6 +310,9 @@ Tagify.prototype = {
                 var value = this.input.normalize.call(this),
                     showSuggestions = value.length >= this.settings.dropdown.enabled;
 
+                if( this.settings.mode == 'mix' )
+                    return this.events.callbacks.onMixTagsInput.call(this, e);
+
                 if( !value ){
                     this.input.set.call(this, '');
                     return;
@@ -299,6 +331,29 @@ Tagify.prototype = {
                 else if( this.settings.dropdown.enabled >= 0 ){
                     this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
                 }
+            },
+
+            onMixTagsInput( e ){
+                var sel, range, split, tag,
+                    patternLen = this.settings.pattern.length;
+
+                this.state.tag = null;
+
+                if( window.getSelection ){
+                    sel = window.getSelection();
+                    if( sel.rangeCount > 0 ){
+                        range = sel.getRangeAt(0).cloneRange();
+                        range.collapse(true);
+                        range.setStart(window.getSelection().focusNode, 0);
+
+                        split = range.toString().split(/,|\.|\s/);  // ["foo", "bar", "@a"]
+
+                        tag = split[split.length-1];
+                        tag = this.state.tag = (tag.substr(0, patternLen) == this.settings.pattern && tag.length > patternLen) ? tag.slice(patternLen) : null;
+                    }
+                }
+
+                this.dropdown[tag ? "show" : "hide"].call(this, tag);
             },
 
             onInputIE(e){
@@ -323,23 +378,6 @@ Tagify.prototype = {
     },
 
     /**
-     * If the original input had an values, add them as tags
-     */
-    loadOriginalValues(){
-        var value = this.DOM.originalInput.value;
-
-        // if the original input already had any value (tags)
-        if( !value ) return;
-
-        try{ value = JSON.parse(value) }
-        catch(err){}
-
-        this.addTags(value).forEach(tag => {
-            tag && tag.classList.add('tagify--noAnim');
-        });
-    },
-
-    /**
      * input bridge for accessing & setting
      * @type {Object}
      */
@@ -356,14 +394,14 @@ Tagify.prototype = {
         },
 
         // https://stackoverflow.com/a/3866442/104380
-        setRangeAtEnd(){
+        setRangeAtStartEnd( start=false, node ){
             var range, selection;
 
             if( !document.createRange ) return;
 
             range = document.createRange();
-            range.selectNodeContents(this.DOM.input);
-            range.collapse(false);
+            range.selectNodeContents(node || this.DOM.input);
+            range.collapse(start);
             selection = window.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
@@ -409,7 +447,7 @@ Tagify.prototype = {
                     this.input.set.call(this, suggestion);
                     this.input.autocomplete.suggest.call(this, '');
                     this.dropdown.hide.call(this);
-                    this.input.setRangeAtEnd.call(this);
+                    this.input.setRangeAtStartEnd.call(this);
                 }
 
                 // if( suggestion && this.addTags(this.input.value + suggestion).length ){
@@ -539,17 +577,16 @@ Tagify.prototype = {
         if( isComplex )
             return tagsItems;
 
-
         // if the value is a "simple" String, ex: "aaa, bbb, ccc"
         if( typeof tagsItems == 'string' ){
             if( !tagsItems.trim() ) return [];
 
             // go over each tag and add it (if there were multiple ones)
-            return tagsItems.split(this.settings.delimiters).filter(n => n).map(v => ({ value:v.trim() }));
+            tagsItems = tagsItems.split(this.settings.delimiters).filter(n => n).map(v => ({ value:v.trim() }));
         }
 
-        if( tagsItems instanceof Array )
-            return tagsItems.map(v => ({ value:v.trim() }))
+        else if( tagsItems instanceof Array )
+            tagsItems = tagsItems.map(v => ({ value:v.trim() }))
 
         // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
         if(  whitelistWithProps ){
@@ -557,12 +594,76 @@ Tagify.prototype = {
                 var matchObj = this.settings.whitelist.filter( WL_item => WL_item.value.toLowerCase() == tag.value.toLowerCase() )
                 if( matchObj[0] )
                     temp.push( matchObj[0] ); // set the Array (with the found Object) as the new value
-                else
+                else if( this.settings.mode != 'mix' )
                     temp.push(tag)
             })
 
             return temp;
         }
+
+        return tagsItems;
+    },
+
+    parseMixTags( s ){
+        var htmlString = '';
+
+        s = s.split( this.settings.pattern );
+
+        // this.DOM.scope.innerHTML
+        htmlString = s.shift() + s.map(part => {
+            var tagElm, i, normalizedTag;
+
+            if( !part ) return '';
+
+            for( i in part ){
+                if( part[i].match(/,|\.| /) ){
+                    normalizedTag = this.normalizeTags.call(this, part.substr(0, i))[0];
+                    if( normalizedTag ) tagElm = this.createTagElem(normalizedTag);
+                    else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
+                    break;
+                }
+            }
+
+            return tagElm ? tagElm.outerHTML + part.slice(i) : this.settings.pattern + part
+        }).join('');
+
+        return htmlString;
+    },
+
+    /**
+     * Add a tag where it might be beside textNodes
+     */
+    addMixTag( tagData ){
+        if( !tagData ) return;
+
+        var sel = window.getSelection(),
+            node = sel.focusNode,
+            nodeText = node.textContent,
+            wrapElm = document.createDocumentFragment(),
+            tagElm = this.createTagElem(tagData),
+            textNodeBefore,
+            textNodeAfter,
+            range,
+            parrernLen = this.settings.pattern.length;
+
+        if( sel.rangeCount > 0 ){
+            range = sel.getRangeAt(0).cloneRange();
+            range.collapse(true);
+            range.setStart(node, 0);
+
+            textNodeBefore = range.toString().slice(0, - this.state.tag.length - parrernLen);
+            textNodeAfter = nodeText.slice(textNodeBefore.length + this.state.tag.length + parrernLen, nodeText.length);
+
+            textNodeBefore = document.createTextNode(textNodeBefore);
+            textNodeAfter = document.createTextNode(textNodeAfter.trim() ? textNodeAfter : " \u200b");
+            wrapElm.appendChild( textNodeBefore );
+            wrapElm.appendChild( tagElm );
+            wrapElm.appendChild( textNodeAfter );
+        }
+
+        node.parentNode.replaceChild(wrapElm, node);
+
+        this.input.setRangeAtStartEnd.call(this, true, textNodeAfter);
     },
 
     /**
@@ -574,9 +675,12 @@ Tagify.prototype = {
     addTags( tagsItems, clearInput ){
         var tagElems = [];
 
-        this.DOM.input.removeAttribute('style');
-
         tagsItems = this.normalizeTags.call(this, tagsItems);
+
+        if( this.settings.mode == 'mix' )
+            return this.addMixTag(tagsItems[0]);
+
+        this.DOM.input.removeAttribute('style');
 
         tagsItems.forEach(tagData => {
             var tagValidation, tagElm;
@@ -633,15 +737,19 @@ Tagify.prototype = {
         return tagElems
     },
 
+    minify( html ){
+        return html.replace( new RegExp( "\>[\r\n ]+\<" , "g" ) , "><" );
+    },
+
     /**
      * creates a DOM tag element and injects it into the component (this.DOM.scope)
      * @param  Object}  tagData [text value & properties for the created tag]
      * @return {Object} [DOM element]
      */
-    createTagElem(tagData){
+    createTagElem( tagData ){
         var tagElm,
             v = this.escapeHtml(tagData.value),
-            template = `<tag title='${v}'>
+            template = `<tag title='${v}' contenteditable='false'>
                             <x title=''></x><div><span>${v}</span></div>
                         </tag>`;
 
@@ -662,6 +770,7 @@ Tagify.prototype = {
             }
         }
 
+        template = this.minify(template);
         tagElm = this.parseHTML(template);
 
         // add any attribuets, if exists
@@ -876,8 +985,8 @@ Tagify.prototype = {
                     listItemElm = [e.target, e.target.parentNode].filter(a => a.className.includes("tagify__dropdown__item") )[0];
 
                     if( listItemElm ){
-                        this.input.set.call(this)
-                        this.addTags( listItemElm.textContent );
+                        this.addTags( listItemElm.textContent, true );
+                        this.dropdown.hide.call(this);
                     }
 
                     // clicked outside the dropdown, so just close it

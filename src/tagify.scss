@@ -54,14 +54,15 @@
     + textarea{ border:0; display:none; }
 
     tag{
+        display        : inline-block;
         margin         : $tagMargin 0 $tagMargin $tagMargin;
-        vertical-align : top;
+      //  vertical-align : top;
         position       : relative;
         z-index        : 1;
         cursor         : default;
         transition     : .13s ease-out;
 
-        > div:not([contenteditable]){
+        > div{  // :not([contenteditable])
             vertical-align : top;
             position       : relative;
             box-sizing     : border-box;
@@ -71,12 +72,12 @@
             border-radius  : 3px;
             transition     : .13s ease-out;
 
-            > span{
+            > *{
                 white-space    : nowrap;
                 overflow       : hidden;
                 text-overflow  : ellipsis;
                 display        : inline-block;
-                vertical-align : middle;
+                vertical-align : top;
               //  width          : 100%;
                 transition     : .1s;
             }
@@ -99,7 +100,7 @@
         }
 
         &:hover:not([readonly]){
-            div:not([contenteditable]){
+            div{  // :not([contenteditable])
                 &::before{
                     $size: -$tagMargin/2;
                     $size: -2px;
@@ -241,6 +242,34 @@
         &--invalid{
             // color: $invalid-input-color;
         }
+
+        tag{
+            margin: 0 $tagMargin/2;
+
+            > div{
+                padding-top:0; padding-bottom:0;
+
+                &::before{
+                    top:-3px; bottom:-3px;
+                }
+            }
+
+            &:hover:not([readonly]){
+                > div{
+                    &::before{
+                        top:-3px; bottom:-3px;
+                        left:0; right:0;
+                    }
+                }
+            }
+        }
+    }
+
+    &--mix #{ $self }__input{
+        padding: $tagMargin;
+        margin: 0;
+        width: 100%;
+        height: 100%;
     }
 
     &__dropdown{
