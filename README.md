@@ -32,6 +32,7 @@ with great performance and tiny code footprint.
    * [What can Tagify do](#what-can-tagify-do)
    * [Building the project](#building-the-project)
    * [Adding tags dynamically](#adding-tags-dynamically)
+   * [Ajax whitelist](#ajax-whitelist)
    * [Suggestions selectbox](#suggestions-selectbox)
    * [jQuery version](#jquery-version)
    * [Methods](#methods)
@@ -92,6 +93,40 @@ tagify.addTags(["banana", "orange", "apple"])
 
 tagify.addTags([{value:"banana", color:"yellow"}, {value:"apple", color:"red"}, {value:"watermelon", color:"green"}])
 ```
+
+### Ajax whitelist
+
+It's possible to load a dynamic suggestions list (*whitelist*) from the server, as the user types.
+
+Below is just an rough example using the `fetch` API. I advise in real-life scenario to abort the last request 
+on any input 
+
+```javascript
+var input = document.querySelector('input', { whitelist:[] }),
+    tagify = new Tagify(input),
+    controller; // for aborting the call 
+
+// listen to any keystrokes which modify tagify's input
+tagify.on('input', onInput)
+
+function onInput( e ){
+  var value = e.detail;
+  tagify.settings.whitelist.length = 0; // reset the whitelist
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort
+  controller && controller.abort();
+  controller = new AbortController(); 
+
+  fetch('http://get_suggestions.com?value=' + value, {signal:controller.signal})
+    .then(RES => RES.json())
+    .then(function(whitelist){
+      tagify.settings.whitelist = whitelist;
+      tagify.dropdown.show.call(tagify, value); // render the suggestions dropdown
+    }
+}
+
+```
+
 
 ### Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
@@ -166,6 +201,7 @@ Name            | Info
 add             | A tag has been added
 remove          | A tag has been removed
 invalid         | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
+input           | On [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event 
 
 
 ## Settings

@@ -67,7 +67,7 @@ Tagify.prototype = {
         }
     },
 
-    customEventsList : ['add', 'remove', 'invalid'],
+    customEventsList : ['add', 'remove', 'invalid', 'input'],
 
     /**
      * utility method
@@ -310,6 +310,8 @@ Tagify.prototype = {
                 var value = this.input.normalize.call(this),
                     showSuggestions = value.length >= this.settings.dropdown.enabled;
 
+                this.trigger("input", {value:value});
+
                 if( this.settings.mode == 'mix' )
                     return this.events.callbacks.onMixTagsInput.call(this, e);
 
@@ -354,6 +356,7 @@ Tagify.prototype = {
                 }
 
                 this.dropdown[tag ? "show" : "hide"].call(this, tag);
+                this.update();
             },
 
             onInputIE(e){
@@ -611,14 +614,14 @@ Tagify.prototype = {
 
         // this.DOM.scope.innerHTML
         htmlString = s.shift() + s.map(part => {
-            var tagElm, i, normalizedTag;
+            var tagElm, i, tagData;
 
             if( !part ) return '';
 
             for( i in part ){
                 if( part[i].match(/,|\.| /) ){
-                    normalizedTag = this.normalizeTags.call(this, part.substr(0, i))[0];
-                    if( normalizedTag ) tagElm = this.createTagElem(normalizedTag);
+                    tagData = this.normalizeTags.call(this, part.substr(0, i))[0];
+                    if( tagData ) tagElm = this.createTagElem(tagData);
                     else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
                     break;
                 }
@@ -662,6 +665,8 @@ Tagify.prototype = {
         }
 
         node.parentNode.replaceChild(wrapElm, node);
+
+        this.update();
 
         this.input.setRangeAtStartEnd.call(this, true, textNodeAfter);
     },
@@ -791,7 +796,8 @@ Tagify.prototype = {
         if( typeof tagElm == 'string' )
             tagElm = this.getTagElmByValue(tagElm)
 
-        var tagData,
+        var _this = this,
+            tagData,
             tagIdx = this.getTagIndexByValue(tagElm.textContent); //this.getNodeIndex(tagElm); (getNodeIndex is unreliable)
 
         if( tranDuration && tranDuration > 10 )  animation()
@@ -799,7 +805,6 @@ Tagify.prototype = {
 
         if( !silent ){
             tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
-            this.update(); // update the original input with the current value
             this.trigger('remove', this.extend({}, {index:tagIdx, tag:tagElm}, tagData));
         }
 
@@ -814,6 +819,7 @@ Tagify.prototype = {
 
         function removeNode(){
             tagElm.parentNode.removeChild(tagElm)
+            _this.update() // update the original input with the current value
         }
     },
 
@@ -828,7 +834,9 @@ Tagify.prototype = {
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update(){
-        this.DOM.originalInput.value = JSON.stringify(this.value);
+        this.DOM.originalInput.value = this.settings.mode == 'mix' ?
+            this.DOM.input.textContent :
+            JSON.stringify(this.value)
     },
 
     /**

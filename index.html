@@ -357,6 +357,7 @@ document.querySelector('.tags--removeAllBtn')
 // Chainable event listeners
 tagify.on('add', onAddTag)
       .on('remove', onRemoveTag)
+      .on('input', onInput)
       .on('invalid', onInvalidTag);
 
 // tag added callback
@@ -368,6 +369,11 @@ function onAddTag(e){
 
 // tag remvoed callback
 function onRemoveTag(e){
+    console.log(e, e.detail);
+}
+
+// on character(s) added/removed (user is typing/deleting)
+function onInput(e){
     console.log(e, e.detail);
 }
 

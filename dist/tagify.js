@@ -92,7 +92,7 @@ Tagify.prototype = {
       itemTemplate: ''
     }
   },
-  customEventsList: ['add', 'remove', 'invalid'],
+  customEventsList: ['add', 'remove', 'invalid', 'input'],
 
   /**
    * utility method
@@ -310,6 +310,9 @@ Tagify.prototype = {
       onInput: function onInput(e) {
         var value = this.input.normalize.call(this),
             showSuggestions = value.length >= this.settings.dropdown.enabled;
+        this.trigger("input", {
+          value: value
+        });
         if (this.settings.mode == 'mix') return this.events.callbacks.onMixTagsInput.call(this, e);
 
         if (!value) {
@@ -353,6 +356,7 @@ Tagify.prototype = {
         }
 
         this.dropdown[tag ? "show" : "hide"].call(this, tag);
+        this.update();
       },
       onInputIE: function onInputIE(e) {
         var _this = this; // for the "e.target.textContent" to be changed, the browser requires a small delay
@@ -589,13 +593,13 @@ Tagify.prototype = {
     s = s.split(this.settings.pattern); // this.DOM.scope.innerHTML
 
     htmlString = s.shift() + s.map(function (part) {
-      var tagElm, i, normalizedTag;
+      var tagElm, i, tagData;
       if (!part) return '';
 
       for (i in part) {
         if (part[i].match(/,|\.| /)) {
-          normalizedTag = _this4.normalizeTags.call(_this4, part.substr(0, i))[0];
-          if (normalizedTag) tagElm = _this4.createTagElem(normalizedTag);else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
+          tagData = _this4.normalizeTags.call(_this4, part.substr(0, i))[0];
+          if (tagData) tagElm = _this4.createTagElem(tagData);else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
 
           break;
         }
@@ -635,6 +639,7 @@ Tagify.prototype = {
     }
 
     node.parentNode.replaceChild(wrapElm, node);
+    this.update();
     this.input.setRangeAtStartEnd.call(this, true, textNodeAfter);
   },
 
@@ -762,15 +767,16 @@ Tagify.prototype = {
     var tranDuration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 250;
     if (!tagElm) return;
     if (typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
-    var tagData,
+
+    var _this = this,
+        tagData,
         tagIdx = this.getTagIndexByValue(tagElm.textContent); //this.getNodeIndex(tagElm); (getNodeIndex is unreliable)
+
 
     if (tranDuration && tranDuration > 10) animation();else removeNode();
 
     if (!silent) {
       tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
-
-      this.update(); // update the original input with the current value
 
       this.trigger('remove', this.extend({}, {
         index: tagIdx,
@@ -789,6 +795,9 @@ Tagify.prototype = {
 
     function removeNode() {
       tagElm.parentNode.removeChild(tagElm);
+
+      _this.update(); // update the original input with the current value
+
     }
   },
   removeAllTags: function removeAllTags() {
@@ -804,7 +813,7 @@ Tagify.prototype = {
    * see - https://stackoverflow.com/q/50957841/104380
    */
   update: function update() {
-    this.DOM.originalInput.value = JSON.stringify(this.value);
+    this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.DOM.input.textContent : JSON.stringify(this.value);
   },
 
   /**
