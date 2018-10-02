@@ -102,8 +102,8 @@ Below is just an rough example using the `fetch` API. I advise in real-life scen
 on any input 
 
 ```javascript
-var input = document.querySelector('input', { whitelist:[] }),
-    tagify = new Tagify(input),
+var input = document.querySelector('input'),
+    tagify = new Tagify(input, {whitelist:[]}),
     controller; // for aborting the call 
 
 // listen to any keystrokes which modify tagify's input
