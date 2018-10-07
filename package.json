@@ -1,8 +1,8 @@
 {
     "name": "@yaireo/tagify",
-    "version": "2.5.1",
+    "version": "2.6.0",
     "homepage": "https://github.com/yairEO/tagify",
-    "description": "Want to simply convert an input field into a tags element, in a easy customizable way, with good performance and smallest code footprint? You are in the right place my friend.",
+    "description": "Convert an input field into a Tags element. Easy, customizable, with good performance and small code footprint.",
     "_npmUser": {
         "name": "vsync",
         "email": "vsync.design@gmail.com"

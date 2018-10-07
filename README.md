@@ -34,6 +34,7 @@ with great performance and tiny code footprint.
    * [Adding tags dynamically](#adding-tags-dynamically)
    * [Ajax whitelist](#ajax-whitelist)
    * [Suggestions selectbox](#suggestions-selectbox)
+   * [React wrapper](#react)
    * [jQuery version](#jquery-version)
    * [Methods](#methods)
    * [Events](#events)
@@ -162,6 +163,68 @@ Will render:
     <div class="tagify__dropdown__item" value="aaabd">aaabd</div>
     <div class="tagify__dropdown__item" value="aaabe">aaabe</div>
 </div>
+```
+
+### React 
+
+`react.tagify.js`
+
+React component using the Tagify's Wrapper (<Tags>):
+
+```javascript
+import { Tags } from '@yaireo/tagify/dist/react.tagify'
+
+// setup some basic Tagify settings object
+var tagifySettings = {
+    blacklist : ["fuck", "shit"]
+}
+
+// Demo "App" component that is using the Tagify React component (<Tags/>)
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+
+        tagifySettings.callbacks = {
+            add     : this.onTagifyAdd,
+            remove  : this.onTagifyRemove,
+            input   : this.onTagifyInput,
+            invalid : this.onTagifyInvalid
+        }
+    }
+
+    componentDidMount(){}
+
+    // callbacks for all of Tagify's events: 
+    onTagifyAdd = e => {
+        console.log('added:', e.detail);
+    }
+
+    onTagifyRemove = e => {
+        console.log('remove:', e.detail);
+    }
+
+    onTagifyInput = e => {
+        console.log('input:', e.detail);
+    }
+
+    onTagifyInvalid = e => {
+        console.log('invalid:', e.detail);
+    }
+
+    // Render <Textarea> element and applies Tagify on it
+    render(){
+        return (
+            <Tags mode='textarea'
+                  autofocus={true} 
+                  className='myInput' 
+                  name='tags' 
+                  settings={tagifySettings} 
+                  initialValue='foo, bar, baz' />
+        )
+    }
+}
+
+ReactDOM.render(<App />, document.getElementById('app'))
 ```
 
 
