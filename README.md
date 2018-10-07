@@ -179,7 +179,7 @@ var tagifySettings = {
     blacklist : ["fuck", "shit"]
 }
 
-// Demo "App" component that is using the Tagify React component (<Tags/>)
+// Demo "App" component that is using the Tagify React component (`<Tags/>`)
 class App extends React.Component {
     constructor(props) {
         super(props);
