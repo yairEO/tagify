@@ -527,8 +527,7 @@ Tagify.prototype = {
      */
     isTagWhitelisted(v){
         return this.settings.whitelist.some(item => {
-            var value = item.value ? item.value : item;
-            if( value.toLowerCase() === v.toLowerCase() )
+            if( (item.value || item).toLowerCase() === v.toLowerCase() )
                 return true;
         });
     },
@@ -862,9 +861,8 @@ Tagify.prototype = {
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems
             listItems = value ?
-                            this.dropdown.filterListItems.call(this, value) :
-                            this.settings.whitelist.slice(0);
-
+                this.dropdown.filterListItems.call(this, value) :
+                this.settings.whitelist.filter(item => this.isTagDuplicate(item.value || item) == -1 ); // don't include already preset tags
 
             listHTML = this.dropdown.createListHTML.call(this, listItems);
 
@@ -1055,7 +1053,7 @@ Tagify.prototype = {
          */
         createListHTML(list){
             var getItem = this.settings.dropdown.itemTemplate || function(item){
-                return `<div class='tagify__dropdown__item ${item.class ? item.class : ""}' ${getAttributesString(item)}>${item.value}</div>`;
+                return `<div class='tagify__dropdown__item ${item.class ? item.class : ""}' ${getAttributesString(item)}>${item.value || item}</div>`;
             };
 
             // for a certain Tag element, add attributes.

@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tagify (v 2.5.0)- tags input component
+ * Tagify (v 2.6.0)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -525,8 +525,7 @@
      */
     isTagWhitelisted: function isTagWhitelisted(v) {
       return this.settings.whitelist.some(function (item) {
-        var value = item.value ? item.value : item;
-        if (value.toLowerCase() === v.toLowerCase()) return true;
+        if ((item.value || item).toLowerCase() === v.toLowerCase()) return true;
       });
     },
 
@@ -838,11 +837,16 @@
         return this.parseHTML(template);
       },
       show: function show(value) {
+        var _this6 = this;
+
         var listItems, listHTML;
         if (!this.settings.whitelist.length) return; // if no value was supplied, show all the "whitelist" items in the dropdown
         // @type [Array] listItems
 
-        listItems = value ? this.dropdown.filterListItems.call(this, value) : this.settings.whitelist.slice(0);
+        listItems = value ? this.dropdown.filterListItems.call(this, value) : this.settings.whitelist.filter(function (item) {
+          return _this6.isTagDuplicate(item.value || item) == -1;
+        }); // don't include already preset tags
+
         listHTML = this.dropdown.createListHTML.call(this, listItems); // set the first item from the suggestions list as the autocomplete value
 
         if (this.settings.autoComplete) {
@@ -949,10 +953,10 @@
             if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
           },
           onClick: function onClick(e) {
-            var _this6 = this;
+            var _this7 = this;
 
             var onClickOutside = function onClickOutside() {
-              return _this6.dropdown.hide.call(_this6);
+              return _this7.dropdown.hide.call(_this7);
             },
                 listItemElm;
 
@@ -1017,7 +1021,7 @@
        */
       createListHTML: function createListHTML(list) {
         var getItem = this.settings.dropdown.itemTemplate || function (item) {
-          return "<div class='tagify__dropdown__item " + (item.class ? item.class : "") + "' " + getAttributesString(item) + ">" + item.value + "</div>";
+          return "<div class='tagify__dropdown__item " + (item.class ? item.class : "") + "' " + getAttributesString(item) + ">" + (item.value || item) + "</div>";
         }; // for a certain Tag element, add attributes.
 
 
