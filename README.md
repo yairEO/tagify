@@ -169,7 +169,7 @@ Will render:
 
 `react.tagify.js`
 
-React component using the Tagify's Wrapper (<Tags>):
+React component using the Tagify's Wrapper (`<Tags>`):
 
 ```javascript
 import { Tags } from '@yaireo/tagify/dist/react.tagify'
@@ -179,7 +179,7 @@ var tagifySettings = {
     blacklist : ["fuck", "shit"]
 }
 
-// Demo "App" component that is using the Tagify React component (`<Tags/>`)
+// Demo "App" component that is using the Tagify React component (<Tags/>)
 class App extends React.Component {
     constructor(props) {
         super(props);
