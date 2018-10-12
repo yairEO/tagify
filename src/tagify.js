@@ -106,7 +106,7 @@ Tagify.prototype = {
         DOM.input = DOM.scope.querySelector('[contenteditable]');
         input.parentNode.insertBefore(DOM.scope, input);
 
-        if( this.settings.dropdown.enabled >= 0 && this.settings.whitelist.length ){
+        if( this.settings.dropdown.enabled >= 0 ){
             this.dropdown.init.call(this);
         }
 
