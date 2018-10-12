@@ -294,18 +294,31 @@ Tagify.prototype = {
             lastTag;
         if (this.settings.mode == 'mix') return;
 
-        if (e.key == 'Backspace' && (s == "" || s.charCodeAt(0) == 8203)) {
-          lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
-          lastTag = lastTag[lastTag.length - 1];
-          this.removeTag(lastTag);
-        } else if (e.key == 'Escape' || e.key == 'Esc') {
-          this.input.set.call(this);
-          e.target.blur();
-        } else if (e.key == 'Enter') {
-          e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+        switch (e.key) {
+          case 'Backspace':
+            if (s == "" || s.charCodeAt(0) == 8203) {
+              lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
+              lastTag = lastTag[lastTag.length - 1];
+              this.removeTag(lastTag);
+            }
 
-          this.addTags(this.input.value, true);
-        } else if (e.key == 'ArrowRight') this.input.autocomplete.set.call(this);
+            break;
+
+          case 'Esc':
+          case 'Escape':
+            this.input.set.call(this);
+            e.target.blur();
+            break;
+
+          case 'ArrowRight':
+          case 'Tab':
+            if (!s) return true;
+
+          case 'Enter':
+            e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+
+            this.addTags(this.input.value, true);
+        }
       },
       onInput: function onInput(e) {
         var value = this.input.normalize.call(this),
@@ -441,11 +454,13 @@ Tagify.prototype = {
           this.input.autocomplete.suggest.call(this, '');
           this.dropdown.hide.call(this);
           this.input.setRangeAtStartEnd.call(this);
-        } // if( suggestion && this.addTags(this.input.value + suggestion).length ){
+          return true;
+        }
+
+        return false; // if( suggestion && this.addTags(this.input.value + suggestion).length ){
         //     this.input.set.call(this);
         //     this.dropdown.hide.call(this);
         // }
-
       }
     }
   },
@@ -764,7 +779,7 @@ Tagify.prototype = {
    */
   removeTag: function removeTag(tagElm, silent) {
     var tranDuration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 250;
-    if (!tagElm) return;
+    if (!tagElm || !(tagElm instanceof HTMLElement)) return;
     if (typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
 
     var _this = this,
@@ -793,6 +808,7 @@ Tagify.prototype = {
     }
 
     function removeNode() {
+      if (!tagElm.parentNode) return;
       tagElm.parentNode.removeChild(tagElm);
 
       _this.update(); // update the original input with the current value
@@ -843,11 +859,12 @@ Tagify.prototype = {
 
       if (this.settings.autoComplete) {
         this.input.autocomplete.suggest.call(this, listItems.length ? listItems[0].value : '');
-      } // if( !listHTML || listItems.length < 2 ){
-      //     this.dropdown.hide.call(this);
-      //     return;
-      // }
+      }
 
+      if (!listHTML) {
+        // this.dropdown.hide.call(this);
+        return;
+      }
 
       this.DOM.dropdown.innerHTML = listHTML;
       this.dropdown.position.call(this); // if the dropdown has yet to be appended to the document,
@@ -926,18 +943,18 @@ Tagify.prototype = {
               this.dropdown.hide.call(this);
               break;
 
+            case 'ArrowRight':
+            case 'Tab':
+              e.preventDefault();
+              if (!this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null)) return false;
+
             case 'Enter':
               e.preventDefault();
               newValue = selectedElm ? selectedElm.textContent : this.input.value;
               this.addTags(newValue, true);
               this.dropdown.hide.call(this);
-              break;
-
-            case 'ArrowRight':
-            case 'Tab':
-              e.preventDefault();
-              this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null);
               return false;
+              break;
           }
         },
         onMouseOver: function onMouseOver(e) {

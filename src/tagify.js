@@ -286,24 +286,29 @@ Tagify.prototype = {
 
                 if( this.settings.mode == 'mix' ) return;
 
-                if( e.key == 'Backspace' && (s == "" || s.charCodeAt(0) == 8203) ){
-                    lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
-                    lastTag = lastTag[lastTag.length - 1];
-                    this.removeTag( lastTag );
-                }
+                switch( e.key ){
+                    case 'Backspace' :
+                        if( s == "" || s.charCodeAt(0) == 8203 ){
+                            lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
+                            lastTag = lastTag[lastTag.length - 1];
+                            this.removeTag( lastTag );
+                        }
+                        break;
 
-                else if( e.key == 'Escape' || e.key == 'Esc' ){
-                    this.input.set.call(this)
-                    e.target.blur();
-                }
+                    case 'Esc' :
+                    case 'Escape' :
+                        this.input.set.call(this)
+                        e.target.blur();
+                        break;
 
-                else if( e.key == 'Enter' ){
-                    e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                    this.addTags(this.input.value, true)
-                }
+                    case 'ArrowRight' :
+                    case 'Tab' :
+                        if( !s ) return true;
 
-                else if( e.key == 'ArrowRight' )
-                    this.input.autocomplete.set.call(this);
+                    case 'Enter' :
+                        e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+                        this.addTags(this.input.value, true)
+                }
             },
 
             onInput(e){
@@ -386,7 +391,7 @@ Tagify.prototype = {
      */
     input : {
         value : '',
-        set(s = '', updateDOM = true){
+        set( s = '', updateDOM = true ){
             this.input.value = s;
 
             if( updateDOM )     this.DOM.input.innerHTML = s;
@@ -436,13 +441,13 @@ Tagify.prototype = {
          * @param  {String} s [description]
          */
         autocomplete : {
-            suggest(s){
+            suggest( s ){
                 if( !s || !this.input.value )
                     this.DOM.input.removeAttribute("data-suggest");
                 else
                     this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));
             },
-            set(s){
+            set( s ){
                 var dataSuggest = this.DOM.input.getAttribute('data-suggest'),
                     suggestion = s || (dataSuggest ? this.input.value + dataSuggest : null);
 
@@ -451,8 +456,11 @@ Tagify.prototype = {
                     this.input.autocomplete.suggest.call(this, '');
                     this.dropdown.hide.call(this);
                     this.input.setRangeAtStartEnd.call(this);
+
+                    return true;
                 }
 
+                return false;
                 // if( suggestion && this.addTags(this.input.value + suggestion).length ){
                 //     this.input.set.call(this);
                 //     this.dropdown.hide.call(this);
@@ -474,7 +482,7 @@ Tagify.prototype = {
      * @param  {String} s [text value to search for]
      * @return {int}      [Position index of the tag. -1 is returned if tag is not found.]
      */
-    isTagDuplicate(s){
+    isTagDuplicate( s ){
         return this.value.findIndex(item => s.trim().toLowerCase() === item.value.toLowerCase());
         // return this.value.some(item => s.toLowerCase() === item.value.toLowerCase());
     },
@@ -499,7 +507,7 @@ Tagify.prototype = {
      * @param  {Object}          tagElm [a specific "tag" element to compare to the other tag elements siblings]
      * @return {boolean}                [found / not found]
      */
-    markTagByValue(value, tagElm){
+    markTagByValue( value, tagElm ){
         var tagsElms, tagsElmsLen
 
         tagElm = tagElm || this.getTagElmByValue(value);
@@ -517,7 +525,7 @@ Tagify.prototype = {
     /**
      * make sure the tag, or words in it, is not in the blacklist
      */
-    isTagBlacklisted(v){
+    isTagBlacklisted( v ){
         v = v.split(' ');
         return this.settings.blacklist.filter(x =>v.indexOf(x) != -1).length;
     },
@@ -525,7 +533,7 @@ Tagify.prototype = {
     /**
      * make sure the tag, or words in it, is not in the blacklist
      */
-    isTagWhitelisted(v){
+    isTagWhitelisted( v ){
         return this.settings.whitelist.some(item => {
             if( (item.value || item).toLowerCase() === v.toLowerCase() )
                 return true;
@@ -790,7 +798,7 @@ Tagify.prototype = {
      * @param  {Number}         tranDuration    [Transition duration in MS]
      */
     removeTag( tagElm, silent, tranDuration = 250 ){
-        if( !tagElm ) return;
+        if( !tagElm || !(tagElm instanceof HTMLElement) ) return;
 
         if( typeof tagElm == 'string' )
             tagElm = this.getTagElmByValue(tagElm)
@@ -817,6 +825,7 @@ Tagify.prototype = {
         }
 
         function removeNode(){
+            if( !tagElm.parentNode ) return
             tagElm.parentNode.removeChild(tagElm)
             _this.update() // update the original input with the current value
         }
@@ -871,10 +880,10 @@ Tagify.prototype = {
                 this.input.autocomplete.suggest.call(this, listItems.length ? listItems[0].value : '');
             }
 
-            // if( !listHTML || listItems.length < 2 ){
-            //     this.dropdown.hide.call(this);
-            //     return;
-            // }
+            if( !listHTML ){
+               // this.dropdown.hide.call(this);
+                return;
+            }
 
             this.DOM.dropdown.innerHTML = listHTML
             this.dropdown.position.call(this);
@@ -960,18 +969,18 @@ Tagify.prototype = {
                             this.dropdown.hide.call(this);
                             break;
 
+                        case 'ArrowRight' :
+                        case 'Tab' :
+                            e.preventDefault();
+                            if( !this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null) )
+                                return false;
                         case 'Enter' :
                             e.preventDefault();
                             newValue = selectedElm ? selectedElm.textContent : this.input.value;
                             this.addTags( newValue, true );
                             this.dropdown.hide.call(this);
-                            break;
-
-                        case 'ArrowRight' :
-                        case 'Tab' :
-                            e.preventDefault();
-                            this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null);
                             return false;
+                            break;
                     }
                 },
 

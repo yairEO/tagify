@@ -169,7 +169,7 @@ Will render:
 
 `react.tagify.js`
 
-React component using the Tagify's Wrapper (`<Tags>`):
+React component using the Tagify's Wrapper `<Tags>`:
 
 ```javascript
 import { Tags } from '@yaireo/tagify/dist/react.tagify'
