@@ -24,8 +24,19 @@
 
                     // cleanup closure wraper
                     jsCode = jsCode.replace("(function(){", "" ).replace("})()", "" ).trim();
+                    // escape angled brackets between two _ESCAPE_START_ and _ESCAPE_END_ comments
+                    let textsToEscape = jsCode.match(new RegExp("// _ESCAPE_START_[^]*// _ESCAPE_END_", 'm'));
+                    if (textsToEscape) {
+                        textsToEscape.forEach(textToEscape => {
+                            jsCode = jsCode.replace(textToEscape, textToEscape.replace(/</g, "&lt" )
+                                                                              .replace(/>/g, "&gt" )
+                                                                              .replace("// _ESCAPE_START_", "")
+                                                                              .replace("// _ESCAPE_END_", "")
+                                                                              .trim());
+                        });
+                    }
                     currentScript.insertAdjacentHTML('afterend', "<pre class='language-js'><code>" + jsCode + "</code></pre>");
-                }, 60)
+                }, 60);
             }
         </script>
 
@@ -512,6 +523,7 @@ tagify.on('invalid', function(e){
 var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
     delimiters : null,
     tagTemplate : function(v, tagData){
+    // _ESCAPE_START_
         return `<tag title='${v}'>
                     <x title=''></x>
                     <div>
@@ -520,6 +532,7 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
                     </div>
                 </tag>`;
     },
+   // _ESCAPE_END_
     enforceWhitelist : true,
     whitelist : [
       { value:'Afghanistan', code:'AF' },
@@ -769,8 +782,16 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
     dropdown : {
         enabled: 1, // suggest tags after a single character input
         classname : 'extra-properties', // custom class for the suggestions dropdown
-        itemTemplate : function(tagData){ return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'><img onerror="this.style.visibility = 'hidden'" src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'><span>${tagData.value}</span></div>` }
+        // _ESCAPE_START_
+        itemTemplate : function(tagData){
+            return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'>
+                        <img onerror="this.style.visibility = 'hidden'" 
+                             src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
+                        <span>${tagData.value}</span>
+                    </div>`
+        }
     },
+        // _ESCAPE_END_
     mapValueToProp : "code", // map tags' values to this property name, so this property will be the actual value and not the printed value on the screen
 })
 
