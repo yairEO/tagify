@@ -531,8 +531,8 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
                         <span>${v}</span>
                     </div>
                 </tag>`;
+    // _ESCAPE_END_
     },
-   // _ESCAPE_END_
     enforceWhitelist : true,
     whitelist : [
       { value:'Afghanistan', code:'AF' },
@@ -782,16 +782,16 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
     dropdown : {
         enabled: 1, // suggest tags after a single character input
         classname : 'extra-properties', // custom class for the suggestions dropdown
-        // _ESCAPE_START_
         itemTemplate : function(tagData){
+        // _ESCAPE_START_        
             return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'>
                         <img onerror="this.style.visibility = 'hidden'" 
                              src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
                         <span>${tagData.value}</span>
                     </div>`
+        // _ESCAPE_END_
         }
     },
-        // _ESCAPE_END_
     mapValueToProp : "code", // map tags' values to this property name, so this property will be the actual value and not the printed value on the screen
 })
 
