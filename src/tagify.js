@@ -1062,7 +1062,8 @@ Tagify.prototype = {
          */
         createListHTML(list){
             var getItem = this.settings.dropdown.itemTemplate || function(item){
-                return `<div class='tagify__dropdown__item ${item.class ? item.class : ""}' ${getAttributesString(item)}>${item.value || item}</div>`;
+                var attributes = typeof item === "object" ? getAttributesString(item) : `value='${item}'`;
+                return `<div class='tagify__dropdown__item ${item.class ? item.class : ""}' ${attributes}>${item.value || item}</div>`;
             };
 
             // for a certain Tag element, add attributes.
