@@ -15,8 +15,6 @@
 }(this, function() {
 "use strict";
 
-function _typeof(obj) { if (typeof Symbol === "function" && _typeof(Symbol.iterator) === "symbol") { _typeof = function (_typeof2) { function _typeof(_x7) { return _typeof2.apply(this, arguments); } _typeof.toString = function () { return _typeof2.toString(); }; return _typeof; }(function (obj) { return typeof obj === "undefined" ? "undefined" : _typeof(obj); }); } else { _typeof = function (_typeof3) { function _typeof(_x8) { return _typeof3.apply(this, arguments); } _typeof.toString = function () { return _typeof3.toString(); }; return _typeof; }(function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof(obj); }); } return _typeof(obj); }
-
 function Tagify(input, settings) {
   // protection
   if (!input) {
@@ -1032,7 +1030,7 @@ Tagify.prototype = {
      */
     createListHTML: function createListHTML(list) {
       var getItem = this.settings.dropdown.itemTemplate || function (item) {
-        var attributes = (typeof item === "undefined" ? "undefined" : _typeof(item)) === "object" ? getAttributesString(item) : "value='" + item + "'";
+        var attributes = typeof item == "string" ? "value='" + item + "'" : getAttributesString(item);
         return "<div class='tagify__dropdown__item " + (item.class ? item.class : "") + "' " + attributes + ">" + (item.value || item) + "</div>";
       }; // for a certain Tag element, add attributes.
 
