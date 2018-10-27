@@ -103,6 +103,8 @@
                 margin-right: 3px;
                 border-radius: 2px;
             }
+
+            .tagify.readonlyMix > tag:not([readonly]) div::before{ background:#d3e2e2; }
         </style>
     </head>
 
@@ -301,6 +303,20 @@
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags4' readonly value='tag1, tag 2, another tag'>
+                </aside>
+            </section>
+
+            <section id='section-readonly-mixed'>
+                <aside class='leftSide'>
+                    <h2><a href='#section-readonly'>#</a>Readonly mix</h2>
+                    <p>
+                        Tags that are read-only mixed with removable tags
+                    </p>
+                    <h3>HTML</h3>
+                    <xmp><input name='tags-readonly-mix' class='readonlyMix' placeholder="Type something" /></xmp>
+                </aside>
+                <aside class='rightSide'>
+                    <input name='tags-readonly-mix' class='readonlyMix' placeholder="Type something" />
                 </aside>
             </section>
 
@@ -797,6 +813,26 @@ var input = document.querySelector('input[name=tags4]'),
 })()
 </script>
 
+
+<script data-name='readonly-mixed'>
+(function(){
+var input = document.querySelector('input[name=tags-readonly-mix]'),
+    tagify = new Tagify(input);
+
+tagify.addTags([
+    {
+        value    : 'foo',
+        readonly : true,
+        title    : 'read-only tag'
+    },
+    {
+        value    : 'bar',
+        readonly : true,
+        title    : 'read-only tag'
+    }
+])
+})()
+</script>
 
 
 

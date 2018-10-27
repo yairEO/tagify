@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.6.0)- tags input component
+ * Tagify (v 2.6.3)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -297,7 +297,7 @@ Tagify.prototype = {
         switch (e.key) {
           case 'Backspace':
             if (s == "" || s.charCodeAt(0) == 8203) {
-              lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
+              lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
               lastTag = lastTag[lastTag.length - 1];
               this.removeTag(lastTag);
             }

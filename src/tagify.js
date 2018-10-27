@@ -289,7 +289,7 @@ Tagify.prototype = {
                 switch( e.key ){
                     case 'Backspace' :
                         if( s == "" || s.charCodeAt(0) == 8203 ){
-                            lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide)');
+                            lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
                             lastTag = lastTag[lastTag.length - 1];
                             this.removeTag( lastTag );
                         }
