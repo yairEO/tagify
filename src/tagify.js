@@ -315,8 +315,6 @@ Tagify.prototype = {
                 var value = this.input.normalize.call(this),
                     showSuggestions = value.length >= this.settings.dropdown.enabled;
 
-                this.trigger("input", {value:value});
-
                 if( this.settings.mode == 'mix' )
                     return this.events.callbacks.onMixTagsInput.call(this, e);
 
@@ -329,6 +327,8 @@ Tagify.prototype = {
 
                 // save the value on the input's State object
                 this.input.set.call(this, value, false);
+
+                this.trigger("input", {value:value});
 
                 if( value.search(this.settings.delimiters) != -1 ){
                     if( this.addTags( value ).length ){
@@ -1044,7 +1044,7 @@ Tagify.prototype = {
 
             for( ; i < whitelist.length; i++ ){
                 whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] }, //normalize value as an Object
-                valueIsInWhitelist = whitelistItem.value.toLowerCase().replace(/\s/g, '').indexOf(value.toLowerCase().replace(/\s/g, '')) == 0; // for fuzzy-search use ">="
+                valueIsInWhitelist = whitelistItem.value.toLowerCase().indexOf(value.toLowerCase()) == 0; // for fuzzy-search use ">="
 
                 // match for the value within each "whitelist" item
                 if( valueIsInWhitelist && this.isTagDuplicate(whitelistItem.value) == -1 && suggestionsCount-- )
