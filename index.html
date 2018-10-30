@@ -9,7 +9,16 @@
         <link rel="stylesheet" href="https://cdn.rawgit.com/yairEO/ec9e154c4269b9a0f264fba7f64d7383/raw/e0c395043e809c2def517280850aeec410536abd/vsync_demos.css">
         <link rel="stylesheet" href="dist/tagify.css">
 
-        <script src="dist/tagify.polyfills.js"></script>
+        <script>
+            // if IE, add IE tagify's polyfills
+            !function( d ) {
+                if( !d.currentScript ){
+                    var s = d.createElement( 'script' );
+                    s.src = 'dist/tagify.polyfills.js';
+                   // d.head.appendChild( s );
+                }
+            }(document)
+        </script>
         <script src="dist/tagify.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="dist/jQuery.tagify.js"></script>
