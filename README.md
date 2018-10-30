@@ -95,6 +95,13 @@ tagify.addTags(["banana", "orange", "apple"])
 tagify.addTags([{value:"banana", color:"yellow"}, {value:"apple", color:"red"}, {value:"watermelon", color:"green"}])
 ```
 
+### output value
+
+There are two possible ways to get the value of the tags:
+
+1. Access the tagify's instance's `value` prop: `tagify.value` (Array of tags)
+2. Access the original input's value: `inputElm.value` (Stringified Array of tags)
+
 ### Ajax whitelist
 
 It's possible to load a dynamic suggestions list (*whitelist*) from the server, as the user types.
