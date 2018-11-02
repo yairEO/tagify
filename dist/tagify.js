@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.6.5)- tags input component
+ * Tagify (v 2.6.6)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -365,6 +365,9 @@ Tagify.prototype = {
 
             tag = split[split.length - 1];
             tag = this.state.tag = tag.substr(0, patternLen) == this.settings.pattern && tag.length > patternLen ? tag.slice(patternLen) : null;
+            this.trigger("input", {
+              value: tag
+            });
           }
         }
 
