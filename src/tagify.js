@@ -357,6 +357,7 @@ Tagify.prototype = {
 
                         tag = split[split.length-1];
                         tag = this.state.tag = (tag.substr(0, patternLen) == this.settings.pattern && tag.length > patternLen) ? tag.slice(patternLen) : null;
+                        this.trigger("input", {value:tag});
                     }
                 }
 
