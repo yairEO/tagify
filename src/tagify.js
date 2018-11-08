@@ -69,6 +69,10 @@ Tagify.prototype = {
 
     customEventsList : ['add', 'remove', 'invalid', 'input'],
 
+    generateUID(){
+        return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
+    },
+
     /**
      * utility method
      * https://stackoverflow.com/a/35385518/104380
@@ -282,13 +286,32 @@ Tagify.prototype = {
 
             onKeydown(e){
                 var s = e.target.textContent,
-                    lastTag;
+                    lastTag, tags;
 
-                if( this.settings.mode == 'mix' ) return;
+                if( this.settings.mode == 'mix' ){
+                    switch( e.key ){
+                        case 'Backspace' :
+                            // find out which tag(s) were deleted and update "this.value" accordingly
+                            tags = this.DOM.input.children;
+                            // a delay is in need before the node actually is ditached from the document
+                            setTimeout(()=>{
+                                [].forEach.call(tags, tagElm => {
+                                    console.log(tagElm, tagElm.parentNode)
+                                    if( !tagElm.parentNode ){
+                                        console.log(tagElm._id)
+                                        console.log( this.value.filter(d => d._id == tagElm._id) )
+                                    }
+                                })
+                            }, 50)
+                            break;
+                    }
+
+                    return true;
+                }
 
                 switch( e.key ){
                     case 'Backspace' :
-                        if( s == "" || s.charCodeAt(0) == 8203 ){
+                        if( s == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
                             lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
                             lastTag = lastTag[lastTag.length - 1];
                             this.removeTag( lastTag );
@@ -629,7 +652,10 @@ Tagify.prototype = {
             for( i in part ){
                 if( part[i].match(/,|\.| /) ){
                     tagData = this.normalizeTags.call(this, part.substr(0, i))[0];
-                    if( tagData ) tagElm = this.createTagElem(tagData);
+                    if( tagData ){
+                        tagElm = this.createTagElem(tagData);
+                        this.value.push(tagData);
+                    }
                     else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
                     break;
                 }
@@ -674,7 +700,9 @@ Tagify.prototype = {
 
         node.parentNode.replaceChild(wrapElm, node);
 
+        this.value.push(tagData);
         this.update();
+        this.trigger('add', this.extend({}, {index:this.value.length, tag:tagElm}, tagData));
 
         this.input.setRangeAtStartEnd.call(this, true, textNodeAfter);
     },
@@ -773,9 +801,10 @@ Tagify.prototype = {
             catch(err){}
         }
 
-        // for a certain Tag element, add attributes.
+        // add HTML attributes from tagData
         function addTagAttrs(tagElm, tagData){
             var i, keys = Object.keys(tagData);
+
             for( i=keys.length; i--; ){
                 var propName = keys[i];
                 if( !tagData.hasOwnProperty(propName) ) return;
@@ -788,6 +817,8 @@ Tagify.prototype = {
 
         // add any attribuets, if exists
         addTagAttrs(tagElm, tagData);
+
+        tagData._id = tagElm._id = this.generateUID();
 
         return tagElm;
     },
@@ -808,7 +839,7 @@ Tagify.prototype = {
             tagData,
             tagIdx = this.getTagIndexByValue(tagElm.textContent); //this.getNodeIndex(tagElm); (getNodeIndex is unreliable)
 
-        if( tranDuration && tranDuration > 10 )  animation()
+        if( tranDuration && tranDuration > 10 ) animation()
         else removeNode();
 
         if( !silent ){
