@@ -192,12 +192,12 @@
                         Note that tags can only be created if the value matches any of the whitelisted item's value.
                     </p>
                     <h3>HTML</h3>
-                    <xmp><textarea name='mix'>@cartman, @vadar and @kyle are friends with:</textarea></xmp>
+                    <xmp><textarea name='mix'>@cartman and @kyle do not know #homer</textarea></xmp>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "mix")</script>
                 </aside>
                 <aside class='rightSide'>
-                    <textarea name='mix'>@cartman, @vadar and @kyle are friends with:</textarea>
+                    <textarea name='mix'>@cartman and @kyle do not know #homer</textarea>
                 </aside>
             </section>
 
@@ -441,54 +441,68 @@ var input = document.querySelector('textarea[name=tags2]'),
 var input = document.querySelector('[name=mix]'),
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
-        mode       : 'mix',   // <--  Enable mixed-content
-        pattern    : '@',     // <--  Tag words which start with this
-        whitelist  : [
-            {
-                value : 'kenny',
-                title : 'Kenny McCormick'
-            },
-            {
-                value : 'cartman',
-                title : 'Eric Cartman'
-            },
-            {
-                value : 'kyle',
-                title : 'Kyle Broflovski'
-            },
-            {
-                value : 'token',
-                title : 'Token Black'
-            },
-            {
-                value : 'jimmy',
-                title : 'Jimmy Valmer'
-            },
-            {
-                value : 'butters',
-                title : 'Butters Stotch'
-            },
-            {
-                value : 'stan',
-                title : 'Stan Marsh'
-            },
-            {
-                value : 'randy',
-                title : 'Randy Marsh'
-            },
-            {
-                value : 'Mr. Garrison',
-                title : 'POTUS'
-            },
-            {
-                value : 'Mr. Mackey',
-                title : "M'Kay"
-            }
-        ],
+        mode       : 'mix',  // <--  Enable mixed-content
+        pattern    : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
         dropdown   : {
             enabled : false
         }
     })
+
+var whitelist_1 = [
+    {
+        value : 'kenny',
+        title : 'Kenny McCormick'
+    },
+    {
+        value : 'cartman',
+        title : 'Eric Cartman'
+    },
+    {
+        value : 'kyle',
+        title : 'Kyle Broflovski'
+    },
+    {
+        value : 'token',
+        title : 'Token Black'
+    },
+    {
+        value : 'jimmy',
+        title : 'Jimmy Valmer'
+    },
+    {
+        value : 'butters',
+        title : 'Butters Stotch'
+    },
+    {
+        value : 'stan',
+        title : 'Stan Marsh'
+    },
+    {
+        value : 'randy',
+        title : 'Randy Marsh'
+    },
+    {
+        value : 'Mr. Garrison',
+        title : 'POTUS'
+    },
+    {
+        value : 'Mr. Mackey',
+        title : "M'Kay"
+    }
+]
+
+var whitelist_2 = ['Homer', 'Marge', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
+
+tagify.on('input', function(e){
+    if( e.detail.prefix == '@' )
+        tagify.settings.whitelist = whitelist_1;
+
+    if( e.detail.prefix == '#' )
+        tagify.settings.whitelist = whitelist_2;
+
+   // if( e.detail.value )
+    tagify.dropdown.show.call(tagify, e.detail.value);
+})
 
 tagify.on('add', function(e){
     console.log(e)

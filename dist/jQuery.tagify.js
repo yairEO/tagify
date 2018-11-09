@@ -92,6 +92,8 @@
       // Flag - if true, do not remove tags which did not pass validation
       autoComplete: true,
       // Flag - tries to autocomplete the input's value while typing
+      mixTagsAllowedAfter: /,|\.|\:|\s/,
+      // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
       dropdown: {
         classname: '',
         enabled: 2,
@@ -101,9 +103,9 @@
       }
     },
     customEventsList: ['add', 'remove', 'invalid', 'input'],
-    generateUID: function generateUID() {
-      return Math.random().toString(36).substring(2) + new Date().getTime().toString(36);
-    },
+    // generateUID(){
+    //     return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
+    // },
 
     /**
      * utility method
@@ -310,21 +312,19 @@
           if (this.settings.mode == 'mix') {
             switch (e.key) {
               case 'Backspace':
-                // find out which tag(s) were deleted and update "this.value" accordingly
+                var values = []; // find out which tag(s) were deleted and update "this.value" accordingly
+
                 tags = this.DOM.input.children; // a delay is in need before the node actually is ditached from the document
 
                 setTimeout(function () {
+                  // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
                   [].forEach.call(tags, function (tagElm) {
-                    console.log(tagElm, tagElm.parentNode);
-
-                    if (!tagElm.parentNode) {
-                      console.log(tagElm._id);
-                      console.log(_this3.value.filter(function (d) {
-                        return d._id == tagElm._id;
-                      }));
-                    }
+                    return values.push(tagElm.title);
                   });
-                }, 50);
+                  _this3.value = _this3.value.filter(function (d) {
+                    return values.indexOf(d.title) != -1;
+                  });
+                }, 20);
                 break;
             }
 
@@ -385,11 +385,7 @@
           }
         },
         onMixTagsInput: function onMixTagsInput(e) {
-          var sel,
-              range,
-              split,
-              tag,
-              patternLen = this.settings.pattern.length;
+          var sel, range, split, tag;
           this.state.tag = null;
 
           if (window.getSelection) {
@@ -399,13 +395,18 @@
               range = sel.getRangeAt(0).cloneRange();
               range.collapse(true);
               range.setStart(window.getSelection().focusNode, 0);
-              split = range.toString().split(/,|\.|\s/); // ["foo", "bar", "@a"]
+              split = range.toString().split(this.settings.mixTagsAllowedAfter); // ["foo", "bar", "@a"]
 
-              tag = split[split.length - 1];
-              tag = this.state.tag = tag.substr(0, patternLen) == this.settings.pattern && tag.length > patternLen ? tag.slice(patternLen) : null;
-              this.trigger("input", {
-                value: tag
-              });
+              tag = split[split.length - 1].match(this.settings.pattern);
+
+              if (tag) {
+                this.state.tag = tag.input.split(tag[0])[1];
+                this.trigger("input", {
+                  prefix: tag[0],
+                  value: this.state.tag
+                });
+                tag = this.state.tag;
+              }
             }
           }
 
@@ -644,26 +645,25 @@
     parseMixTags: function parseMixTags(s) {
       var _this5 = this;
 
-      var htmlString = '';
-      s = s.split(this.settings.pattern); // this.DOM.scope.innerHTML
-
-      htmlString = s.shift() + s.map(function (part) {
+      // example: "@cartman ,@kyle do not    know:#homer".split(/,|\.|\:|\s/).filter(item => item.match(/@|#/) )
+      var htmlString = s.split(this.settings.mixTagsAllowedAfter).filter(function (item) {
+        return item.match(/@|#/);
+      }).map(function (part) {
         var tagElm, i, tagData;
+        part = part.split(_this5.settings.pattern)[1];
         if (!part) return '';
 
         for (i in part) {
-          if (part[i].match(/,|\.| /)) {
-            tagData = _this5.normalizeTags.call(_this5, part.substr(0, i))[0];
+          tagData = _this5.normalizeTags.call(_this5, part.substr(0, i))[0];
 
-            if (tagData) {
-              tagElm = _this5.createTagElem(tagData);
+          if (tagData) {
+            tagElm = _this5.createTagElem(tagData);
 
-              _this5.value.push(tagData);
-            } else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
+            _this5.value.push(tagData);
+          } else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
 
 
-            break;
-          }
+          break;
         }
 
         return tagElm ? tagElm.outerHTML + part.slice(i) : _this5.settings.pattern + part;
@@ -820,7 +820,6 @@
       tagElm = this.parseHTML(template); // add any attribuets, if exists
 
       addTagAttrs(tagElm, tagData);
-      tagData._id = tagElm._id = this.generateUID();
       return tagElm;
     },
 

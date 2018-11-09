@@ -48,17 +48,18 @@ Tagify.prototype = {
     },
 
     DEFAULTS : {
-        delimiters          : ",",        // [RegEx] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
-        pattern             : null,       // RegEx pattern to validate input by. Ex: /[1-9]/
-        maxTags             : Infinity,   // Maximum number of tags
-        callbacks           : {},         // Exposed callbacks object to be triggered on certain events
-        addTagOnBlur        : true,       // Flag - automatically adds the text which was inputed as a tag when blur event happens
-        duplicates          : false,      // Flag - allow tuplicate tags
-        whitelist           : [],         // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
-        blacklist           : [],         // A list of non-allowed tags
-        enforceWhitelist    : false,      // Flag - Only allow tags allowed in whitelist
-        keepInvalidTags     : false,      // Flag - if true, do not remove tags which did not pass validation
-        autoComplete        : true,       // Flag - tries to autocomplete the input's value while typing
+        delimiters          : ",",            // [RegEx] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
+        pattern             : null,           // RegEx pattern to validate input by. Ex: /[1-9]/
+        maxTags             : Infinity,       // Maximum number of tags
+        callbacks           : {},             // Exposed callbacks object to be triggered on certain events
+        addTagOnBlur        : true,           // Flag - automatically adds the text which was inputed as a tag when blur event happens
+        duplicates          : false,          // Flag - allow tuplicate tags
+        whitelist           : [],             // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
+        blacklist           : [],             // A list of non-allowed tags
+        enforceWhitelist    : false,          // Flag - Only allow tags allowed in whitelist
+        keepInvalidTags     : false,          // Flag - if true, do not remove tags which did not pass validation
+        autoComplete        : true,           // Flag - tries to autocomplete the input's value while typing
+        mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
         dropdown            : {
             classname : '',
             enabled   : 2,    // minimum input characters needs to be typed for the dropdown to show
@@ -69,9 +70,9 @@ Tagify.prototype = {
 
     customEventsList : ['add', 'remove', 'invalid', 'input'],
 
-    generateUID(){
-        return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
-    },
+    // generateUID(){
+    //     return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
+    // },
 
     /**
      * utility method
@@ -291,18 +292,15 @@ Tagify.prototype = {
                 if( this.settings.mode == 'mix' ){
                     switch( e.key ){
                         case 'Backspace' :
+                            var values = [];
                             // find out which tag(s) were deleted and update "this.value" accordingly
                             tags = this.DOM.input.children;
                             // a delay is in need before the node actually is ditached from the document
                             setTimeout(()=>{
-                                [].forEach.call(tags, tagElm => {
-                                    console.log(tagElm, tagElm.parentNode)
-                                    if( !tagElm.parentNode ){
-                                        console.log(tagElm._id)
-                                        console.log( this.value.filter(d => d._id == tagElm._id) )
-                                    }
-                                })
-                            }, 50)
+                                // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
+                                [].forEach.call(tags, tagElm => values.push(tagElm.title))
+                                this.value = this.value.filter(d => values.indexOf(d.title) != -1);
+                            }, 20)
                             break;
                     }
 
@@ -364,8 +362,7 @@ Tagify.prototype = {
             },
 
             onMixTagsInput( e ){
-                var sel, range, split, tag,
-                    patternLen = this.settings.pattern.length;
+                var sel, range, split, tag;
 
                 this.state.tag = null;
 
@@ -376,11 +373,15 @@ Tagify.prototype = {
                         range.collapse(true);
                         range.setStart(window.getSelection().focusNode, 0);
 
-                        split = range.toString().split(/,|\.|\s/);  // ["foo", "bar", "@a"]
+                        split = range.toString().split(this.settings.mixTagsAllowedAfter);  // ["foo", "bar", "@a"]
 
-                        tag = split[split.length-1];
-                        tag = this.state.tag = (tag.substr(0, patternLen) == this.settings.pattern && tag.length > patternLen) ? tag.slice(patternLen) : null;
-                        this.trigger("input", {value:tag});
+                        tag = split[split.length-1].match(this.settings.pattern);
+
+                        if( tag ){
+                            this.state.tag = tag.input.split(tag[0])[1];
+                            this.trigger("input", { prefix:tag[0], value:this.state.tag });
+                            tag = this.state.tag
+                        }
                     }
                 }
 
@@ -639,26 +640,24 @@ Tagify.prototype = {
     },
 
     parseMixTags( s ){
-        var htmlString = '';
+        // example: "@cartman ,@kyle do not    know:#homer".split(/,|\.|\:|\s/).filter(item => item.match(/@|#/) )
+        var htmlString = s.split(this.settings.mixTagsAllowedAfter).filter(item => item.match(/@|#/) )
 
-        s = s.split( this.settings.pattern );
-
-        // this.DOM.scope.innerHTML
-        htmlString = s.shift() + s.map(part => {
+            .map(part => {
             var tagElm, i, tagData;
+
+            part = part.split( this.settings.pattern )[1]
 
             if( !part ) return '';
 
             for( i in part ){
-                if( part[i].match(/,|\.| /) ){
-                    tagData = this.normalizeTags.call(this, part.substr(0, i))[0];
-                    if( tagData ){
-                        tagElm = this.createTagElem(tagData);
-                        this.value.push(tagData);
-                    }
-                    else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
-                    break;
+                tagData = this.normalizeTags.call(this, part.substr(0, i))[0];
+                if( tagData ){
+                    tagElm = this.createTagElem(tagData);
+                    this.value.push(tagData);
                 }
+                else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
+                break;
             }
 
             return tagElm ? tagElm.outerHTML + part.slice(i) : this.settings.pattern + part
@@ -817,8 +816,6 @@ Tagify.prototype = {
 
         // add any attribuets, if exists
         addTagAttrs(tagElm, tagData);
-
-        tagData._id = tagElm._id = this.generateUID();
 
         return tagElm;
     },
@@ -1074,8 +1071,11 @@ Tagify.prototype = {
                 valueIsInWhitelist,
                 i = 0;
 
+
+
             for( ; i < whitelist.length; i++ ){
                 whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] }, //normalize value as an Object
+
                 valueIsInWhitelist = whitelistItem.value.toLowerCase().indexOf(value.toLowerCase()) == 0; // for fuzzy-search use ">="
 
                 // match for the value within each "whitelist" item
