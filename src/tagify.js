@@ -48,17 +48,18 @@ Tagify.prototype = {
     },
 
     DEFAULTS : {
-        delimiters          : ",",        // [RegEx] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
-        pattern             : null,       // RegEx pattern to validate input by. Ex: /[1-9]/
-        maxTags             : Infinity,   // Maximum number of tags
-        callbacks           : {},         // Exposed callbacks object to be triggered on certain events
-        addTagOnBlur        : true,       // Flag - automatically adds the text which was inputed as a tag when blur event happens
-        duplicates          : false,      // Flag - allow tuplicate tags
-        whitelist           : [],         // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
-        blacklist           : [],         // A list of non-allowed tags
-        enforceWhitelist    : false,      // Flag - Only allow tags allowed in whitelist
-        keepInvalidTags     : false,      // Flag - if true, do not remove tags which did not pass validation
-        autoComplete        : true,       // Flag - tries to autocomplete the input's value while typing
+        delimiters          : ",",            // [RegEx] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
+        pattern             : null,           // RegEx pattern to validate input by. Ex: /[1-9]/
+        maxTags             : Infinity,       // Maximum number of tags
+        callbacks           : {},             // Exposed callbacks object to be triggered on certain events
+        addTagOnBlur        : true,           // Flag - automatically adds the text which was inputed as a tag when blur event happens
+        duplicates          : false,          // Flag - allow tuplicate tags
+        whitelist           : [],             // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
+        blacklist           : [],             // A list of non-allowed tags
+        enforceWhitelist    : false,          // Flag - Only allow tags allowed in whitelist
+        keepInvalidTags     : false,          // Flag - if true, do not remove tags which did not pass validation
+        autoComplete        : true,           // Flag - tries to autocomplete the input's value while typing
+        mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
         dropdown            : {
             classname : '',
             enabled   : 2,    // minimum input characters needs to be typed for the dropdown to show
@@ -68,6 +69,10 @@ Tagify.prototype = {
     },
 
     customEventsList : ['add', 'remove', 'invalid', 'input'],
+
+    // generateUID(){
+    //     return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
+    // },
 
     /**
      * utility method
@@ -133,7 +138,7 @@ Tagify.prototype = {
         catch(err){}
 
         if( this.settings.mode == 'mix' ){
-            this.DOM.input.innerHTML = this.parseMixTags(value);
+            this.parseMixTags(value);
         }
 
         else
@@ -282,13 +287,29 @@ Tagify.prototype = {
 
             onKeydown(e){
                 var s = e.target.textContent,
-                    lastTag;
+                    lastTag, tags;
 
-                if( this.settings.mode == 'mix' ) return;
+                if( this.settings.mode == 'mix' ){
+                    switch( e.key ){
+                        case 'Backspace' :
+                            var values = [];
+                            // find out which tag(s) were deleted and update "this.value" accordingly
+                            tags = this.DOM.input.children;
+                            // a delay is in need before the node actually is ditached from the document
+                            setTimeout(()=>{
+                                // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
+                                [].forEach.call(tags, tagElm => values.push(tagElm.title))
+                                this.value = this.value.filter(d => values.indexOf(d.title) != -1);
+                            }, 20)
+                            break;
+                    }
+
+                    return true;
+                }
 
                 switch( e.key ){
                     case 'Backspace' :
-                        if( s == "" || s.charCodeAt(0) == 8203 ){
+                        if( s == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
                             lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
                             lastTag = lastTag[lastTag.length - 1];
                             this.removeTag( lastTag );
@@ -341,10 +362,7 @@ Tagify.prototype = {
             },
 
             onMixTagsInput( e ){
-                var sel, range, split, tag,
-                    patternLen = this.settings.pattern.length;
-
-                this.state.tag = null;
+                var sel, range, split, tag, showSuggestions;
 
                 if( window.getSelection ){
                     sel = window.getSelection();
@@ -353,16 +371,27 @@ Tagify.prototype = {
                         range.collapse(true);
                         range.setStart(window.getSelection().focusNode, 0);
 
-                        split = range.toString().split(/,|\.|\s/);  // ["foo", "bar", "@a"]
+                        split = range.toString().split(this.settings.mixTagsAllowedAfter);  // ["foo", "bar", "@a"]
 
-                        tag = split[split.length-1];
-                        tag = this.state.tag = (tag.substr(0, patternLen) == this.settings.pattern && tag.length > patternLen) ? tag.slice(patternLen) : null;
-                        this.trigger("input", {value:tag});
+                        tag = split[split.length-1].match(this.settings.pattern);
+
+                        if( tag ){
+                            this.state.tag = {
+                                prefix : tag[0],
+                                value  : tag.input.split(tag[0])[1],
+                            }
+
+                            this.trigger("input", { prefix:tag[0], value:this.state.tag.value });
+                            tag = this.state.tag;
+                            showSuggestions = this.state.tag.value.length >= this.settings.dropdown.enabled
+                        }
                     }
                 }
 
-                this.dropdown[tag ? "show" : "hide"].call(this, tag);
-                this.update();
+                if( this.state.tag ){
+                    this.dropdown[showSuggestions ? "show" : "hide"].call(this, this.state.tag.value);
+                    this.update();
+                }
             },
 
             onInputIE(e){
@@ -616,67 +645,76 @@ Tagify.prototype = {
     },
 
     parseMixTags( s ){
-        var htmlString = '';
+        // example: "@cartman ,@kyle do not    know:#homer".split(/,|\.|\:|\s/).filter(item => item.match(/@|#/) )
+        s.split(this.settings.mixTagsAllowedAfter)
+            .filter(item => item.match(this.settings.pattern) )
+            .forEach(tag => {
+                var value = tag.replace(this.settings.pattern, ''),
+                    tagData;
 
-        s = s.split( this.settings.pattern );
-
-        // this.DOM.scope.innerHTML
-        htmlString = s.shift() + s.map(part => {
-            var tagElm, i, tagData;
-
-            if( !part ) return '';
-
-            for( i in part ){
-                if( part[i].match(/,|\.| /) ){
-                    tagData = this.normalizeTags.call(this, part.substr(0, i))[0];
-                    if( tagData ) tagElm = this.createTagElem(tagData);
-                    else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
-                    break;
+                if( this.isTagWhitelisted(value) ){
+                    tagData = this.normalizeTags.call(this, value)[0];
+                    s = this.replaceMixStringWithTag(s, tag, tagData).s;
                 }
-            }
+            })
 
-            return tagElm ? tagElm.outerHTML + part.slice(i) : this.settings.pattern + part
-        }).join('');
+        this.DOM.input.innerHTML = s;
+        this.update();
+        return s;
+    },
 
-        return htmlString;
+    /**
+     * [replaceMixStringWithTag description]
+     * @param  {String} s       [whole string]
+     * @param  {String} tag     [tag string to replace with tag element]
+     * @param  {Object} tagData [value, plus any other optional attributes]
+     * @return {[type]}         [description]
+     */
+    replaceMixStringWithTag( s, tag, tagData, tagElm ){
+        if( tagData && s && s.indexOf(tag) != -1 ){
+            tagElm = this.createTagElem(tagData);
+            this.value.push(tagData);
+            s = s.replace(tag, tagElm.outerHTML + "&#8288;") // put a zero-space at the end to the caret won't jump back to the start (when the last input child is a tag)
+        }
+
+        return {s, tagElm};
     },
 
     /**
      * Add a tag where it might be beside textNodes
      */
     addMixTag( tagData ){
-        if( !tagData ) return;
+        if( !tagData || !this.state.tag ) return;
 
-        var sel = window.getSelection(),
-            node = sel.focusNode,
-            nodeText = node.textContent,
-            wrapElm = document.createDocumentFragment(),
-            tagElm = this.createTagElem(tagData),
-            textNodeBefore,
-            textNodeAfter,
-            range,
-            parrernLen = this.settings.pattern.length;
+        var tag = this.state.tag.prefix + this.state.tag.value,
+            iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT),
+            textnode,
+            tagElm,
+            idx,
+            replacedNode;
 
-        if( sel.rangeCount > 0 ){
-            range = sel.getRangeAt(0).cloneRange();
-            range.collapse(true);
-            range.setStart(node, 0);
+        while( textnode = iter.nextNode() ){
+            if( textnode.nodeType === Node.TEXT_NODE ){
+                // get the index of which the tag (string) is within the textNode (if at all)
+                idx = textnode.nodeValue.indexOf(tag);
+                if( idx == -1 ) continue;
 
-            textNodeBefore = range.toString().slice(0, - this.state.tag.length - parrernLen);
-            textNodeAfter = nodeText.slice(textNodeBefore.length + this.state.tag.length + parrernLen, nodeText.length);
-
-            textNodeBefore = document.createTextNode(textNodeBefore);
-            textNodeAfter = document.createTextNode(textNodeAfter.trim() ? textNodeAfter : " \u200b");
-            wrapElm.appendChild( textNodeBefore );
-            wrapElm.appendChild( tagElm );
-            wrapElm.appendChild( textNodeAfter );
+                replacedNode = textnode.splitText(idx);
+                tagElm = this.createTagElem(tagData);
+                // clean up the tag's string and put tag element instead
+                replacedNode.nodeValue = replacedNode.nodeValue.replace(tag, '');
+                textnode.parentNode.insertBefore(tagElm, replacedNode);
+                tagElm.insertAdjacentHTML('afterend', '&#8288;');
+            }
         }
 
-        node.parentNode.replaceChild(wrapElm, node);
+        if( tagElm ){
+            this.value.push(tagData);
+            this.update();
+            this.trigger('add', this.extend({}, {index:this.value.length, tag:tagElm}, tagData));
+        }
 
-        this.update();
-
-        this.input.setRangeAtStartEnd.call(this, true, textNodeAfter);
+        this.state.tag = null;
     },
 
     /**
@@ -773,9 +811,10 @@ Tagify.prototype = {
             catch(err){}
         }
 
-        // for a certain Tag element, add attributes.
+        // add HTML attributes from tagData
         function addTagAttrs(tagElm, tagData){
             var i, keys = Object.keys(tagData);
+
             for( i=keys.length; i--; ){
                 var propName = keys[i];
                 if( !tagData.hasOwnProperty(propName) ) return;
@@ -808,7 +847,7 @@ Tagify.prototype = {
             tagData,
             tagIdx = this.getTagIndexByValue(tagElm.textContent); //this.getNodeIndex(tagElm); (getNodeIndex is unreliable)
 
-        if( tranDuration && tranDuration > 10 )  animation()
+        if( tranDuration && tranDuration > 10 ) animation()
         else removeNode();
 
         if( !silent ){
@@ -865,8 +904,7 @@ Tagify.prototype = {
 
         show( value ){
             var listItems, listHTML;
-
-            if( !this.settings.whitelist.length ) return;
+            if( !this.settings.whitelist.length || !this.settings.dropdown.enabled ) return;
 
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems
@@ -1045,6 +1083,7 @@ Tagify.prototype = {
 
             for( ; i < whitelist.length; i++ ){
                 whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] }, //normalize value as an Object
+
                 valueIsInWhitelist = whitelistItem.value.toLowerCase().indexOf(value.toLowerCase()) == 0; // for fuzzy-search use ">="
 
                 // match for the value within each "whitelist" item
