@@ -1,6 +1,6 @@
 {
     "name": "@yaireo/tagify",
-    "version": "2.6.6",
+    "version": "2.7.0",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "Convert an input field into a Tags element. Easy, customizable, with good performance and small code footprint.",
     "_npmUser": {
@@ -23,8 +23,8 @@
         "url": "https://github.com/yaireo/tagify/issues"
     },
     "devDependencies": {
-        "@babel/core": "^7.1.0",
-        "@babel/preset-env": "^7.1.0",
+        "@babel/core": "^7.1.5",
+        "@babel/preset-env": "^7.1.5",
         "babel-core": "^6.26.3",
         "babel-jest": "^23.6.0",
         "babel-preset-env": "^1.7.0",
@@ -42,16 +42,16 @@
         "gulp-load-plugins": "^1.5.0",
         "gulp-rename": "^1.4.0",
         "gulp-replace": "^1.0.0",
-        "gulp-sass": "^4.0.1",
+        "gulp-sass": "^4.0.2",
         "gulp-sourcemaps": "^2.6.4",
         "gulp-uglify": "^3.0.1",
         "gulp-umd": "^2.0.0",
         "gulp-util": "^3.0.8",
         "gulp-watch": "^5.0.1",
         "jest": "^23.6.0",
-        "jsdom": "^12.0.0",
+        "jsdom": "^13.0.0",
         "path": "^0.12.7",
         "run-sequence": "^2.2.1",
-        "puppeteer": "^1.8.0"
+        "puppeteer": "^1.10.0"
     }
 }

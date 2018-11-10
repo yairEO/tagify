@@ -125,6 +125,8 @@
             }
 
             .tagify.readonlyMix > tag:not([readonly]) div::before{ background:#d3e2e2; }
+
+            .tagify__input .borderd-blue > div::before{ border:2px solid #8DAFFA; }
         </style>
     </head>
 
@@ -185,11 +187,17 @@
                         To allow mix content, simply pass the setting <code>mode : 'mix'</code>
                     </p>
                     <p>
-                        In this example, there are a few <em>Southpark</em> character names on the <code>whitelist</code> Array setting,
-                        and when the <code>@</code> is typed, following 1 more character, the suggestions dropdown will be shown.
+                        In this example, there are a few <em>Southpark</em> character names and a few Simpsons ones.
+                        when the <code>@</code> is typed, following 1 more character, suggestions dropdown will be shown for <i>Southpark</i> suggestion list
+                        and when starting with <code>#</code>, a <i>Simpsons</i> suggestion list
                     </p>
                     <p>
                         Note that tags can only be created if the value matches any of the whitelisted item's value.
+                    </p>
+                    <p>
+                        When a <code>textarea</code> already has mixed-content and it wasn't pre-configured using a whitelist, the tags will ignored, so keep
+                        that in mind when populating a textarea with server data and expecting tags to "magically" appear. Whitelist must be specified because not
+                        everything that starts with <code>@</code> or <code>#</code> (or whatever was defined) is meant to be rendered as a tag.
                     </p>
                     <h3>HTML</h3>
                     <xmp><textarea name='mix'>@cartman and @kyle do not know #homer</textarea></xmp>
@@ -197,7 +205,7 @@
                     <script>renderPRE(document.currentScript, "mix")</script>
                 </aside>
                 <aside class='rightSide'>
-                    <textarea name='mix'>@cartman and @kyle do not know #homer</textarea>
+                    <textarea name='mix'>@cartman and @kyle do not know #homer who is #1</textarea>
                 </aside>
             </section>
 
@@ -441,10 +449,24 @@ var input = document.querySelector('textarea[name=tags2]'),
 var input = document.querySelector('[name=mix]'),
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
-        mode       : 'mix',  // <--  Enable mixed-content
-        pattern    : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
+        mode       : 'mix',    // <--  Enable mixed-content
+        pattern    : '/@|#/',  // <--  Tag words which start with @ or # (can be a String instead of Regex)
+        whitelist  : [
+            {
+                value : 'cartman',
+                title : 'Eric Cartman',
+                class : 'borderd-blue'  // <-- Add any attribute you wish, per-tag
+            },
+            {
+                value : 'kyle',
+                title : 'Kyle Broflovski'
+            },
+            {
+                value: 'Homer'
+            }
+        ],
         dropdown   : {
-            enabled : false
+            enabled : 1
         }
     })
 
@@ -493,6 +515,7 @@ var whitelist_1 = [
 
 var whitelist_2 = ['Homer', 'Marge', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
 
+// A good place to pull server suggestion list accoring to the prefix/value
 tagify.on('input', function(e){
     if( e.detail.prefix == '@' )
         tagify.settings.whitelist = whitelist_1;
@@ -500,8 +523,8 @@ tagify.on('input', function(e){
     if( e.detail.prefix == '#' )
         tagify.settings.whitelist = whitelist_2;
 
-   // if( e.detail.value )
-    tagify.dropdown.show.call(tagify, e.detail.value);
+    if( e.detail.value.length > 1 )
+        tagify.dropdown.show.call(tagify, e.detail.value);
 })
 
 tagify.on('add', function(e){

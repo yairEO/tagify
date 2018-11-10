@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.6.6)- tags input component
+ * Tagify (v 2.7.0)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -158,7 +158,7 @@ Tagify.prototype = {
     } catch (err) {}
 
     if (this.settings.mode == 'mix') {
-      this.DOM.input.innerHTML = this.parseMixTags(value);
+      this.parseMixTags(value);
     } else this.addTags(value).forEach(function (tag) {
       tag && tag.classList.add('tagify--noAnim');
     });
@@ -377,8 +377,7 @@ Tagify.prototype = {
         }
       },
       onMixTagsInput: function onMixTagsInput(e) {
-        var sel, range, split, tag;
-        this.state.tag = null;
+        var sel, range, split, tag, showSuggestions;
 
         if (window.getSelection) {
           sel = window.getSelection();
@@ -392,18 +391,24 @@ Tagify.prototype = {
             tag = split[split.length - 1].match(this.settings.pattern);
 
             if (tag) {
-              this.state.tag = tag.input.split(tag[0])[1];
+              this.state.tag = {
+                prefix: tag[0],
+                value: tag.input.split(tag[0])[1]
+              };
               this.trigger("input", {
                 prefix: tag[0],
-                value: this.state.tag
+                value: this.state.tag.value
               });
               tag = this.state.tag;
+              showSuggestions = this.state.tag.value.length >= this.settings.dropdown.enabled;
             }
           }
         }
 
-        this.dropdown[tag ? "show" : "hide"].call(this, tag);
-        this.update();
+        if (this.state.tag) {
+          this.dropdown[showSuggestions ? "show" : "hide"].call(this, this.state.tag.value);
+          this.update();
+        }
       },
       onInputIE: function onInputIE(e) {
         var _this = this; // for the "e.target.textContent" to be changed, the browser requires a small delay
@@ -638,67 +643,78 @@ Tagify.prototype = {
     var _this5 = this;
 
     // example: "@cartman ,@kyle do not    know:#homer".split(/,|\.|\:|\s/).filter(item => item.match(/@|#/) )
-    var htmlString = s.split(this.settings.mixTagsAllowedAfter).filter(function (item) {
-      return item.match(/@|#/);
-    }).map(function (part) {
-      var tagElm, i, tagData;
-      part = part.split(_this5.settings.pattern)[1];
-      if (!part) return '';
+    s.split(this.settings.mixTagsAllowedAfter).filter(function (item) {
+      return item.match(_this5.settings.pattern);
+    }).forEach(function (tag) {
+      var value = tag.replace(_this5.settings.pattern, ''),
+          tagData;
 
-      for (i in part) {
-        tagData = _this5.normalizeTags.call(_this5, part.substr(0, i))[0];
-
-        if (tagData) {
-          tagElm = _this5.createTagElem(tagData);
-
-          _this5.value.push(tagData);
-        } else i = 0; // a tag was found but was not in the whitelist, so reset the "i" index
-
-
-        break;
+      if (_this5.isTagWhitelisted(value)) {
+        tagData = _this5.normalizeTags.call(_this5, value)[0];
+        s = _this5.replaceMixStringWithTag(s, tag, tagData).s;
       }
+    });
+    this.DOM.input.innerHTML = s;
+    this.update();
+    return s;
+  },
 
-      return tagElm ? tagElm.outerHTML + part.slice(i) : _this5.settings.pattern + part;
-    }).join('');
-    return htmlString;
+  /**
+   * [replaceMixStringWithTag description]
+   * @param  {String} s       [whole string]
+   * @param  {String} tag     [tag string to replace with tag element]
+   * @param  {Object} tagData [value, plus any other optional attributes]
+   * @return {[type]}         [description]
+   */
+  replaceMixStringWithTag: function replaceMixStringWithTag(s, tag, tagData, tagElm) {
+    if (tagData && s && s.indexOf(tag) != -1) {
+      tagElm = this.createTagElem(tagData);
+      this.value.push(tagData);
+      s = s.replace(tag, tagElm.outerHTML + "&#8288;"); // put a zero-space at the end to the caret won't jump back to the start (when the last input child is a tag)
+    }
+
+    return {
+      s: s,
+      tagElm: tagElm
+    };
   },
 
   /**
    * Add a tag where it might be beside textNodes
    */
   addMixTag: function addMixTag(tagData) {
-    if (!tagData) return;
-    var sel = window.getSelection(),
-        node = sel.focusNode,
-        nodeText = node.textContent,
-        wrapElm = document.createDocumentFragment(),
-        tagElm = this.createTagElem(tagData),
-        textNodeBefore,
-        textNodeAfter,
-        range,
-        parrernLen = this.settings.pattern.length;
+    if (!tagData || !this.state.tag) return;
+    var tag = this.state.tag.prefix + this.state.tag.value,
+        iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT),
+        textnode,
+        tagElm,
+        idx,
+        replacedNode;
 
-    if (sel.rangeCount > 0) {
-      range = sel.getRangeAt(0).cloneRange();
-      range.collapse(true);
-      range.setStart(node, 0);
-      textNodeBefore = range.toString().slice(0, -this.state.tag.length - parrernLen);
-      textNodeAfter = nodeText.slice(textNodeBefore.length + this.state.tag.length + parrernLen, nodeText.length);
-      textNodeBefore = document.createTextNode(textNodeBefore);
-      textNodeAfter = document.createTextNode(textNodeAfter.trim() ? textNodeAfter : " \u200B");
-      wrapElm.appendChild(textNodeBefore);
-      wrapElm.appendChild(tagElm);
-      wrapElm.appendChild(textNodeAfter);
+    while (textnode = iter.nextNode()) {
+      if (textnode.nodeType === Node.TEXT_NODE) {
+        // get the index of which the tag (string) is within the textNode (if at all)
+        idx = textnode.nodeValue.indexOf(tag);
+        if (idx == -1) continue;
+        replacedNode = textnode.splitText(idx);
+        tagElm = this.createTagElem(tagData); // clean up the tag's string and put tag element instead
+
+        replacedNode.nodeValue = replacedNode.nodeValue.replace(tag, '');
+        textnode.parentNode.insertBefore(tagElm, replacedNode);
+        tagElm.insertAdjacentHTML('afterend', '&#8288;');
+      }
     }
 
-    node.parentNode.replaceChild(wrapElm, node);
-    this.value.push(tagData);
-    this.update();
-    this.trigger('add', this.extend({}, {
-      index: this.value.length,
-      tag: tagElm
-    }, tagData));
-    this.input.setRangeAtStartEnd.call(this, true, textNodeAfter);
+    if (tagElm) {
+      this.value.push(tagData);
+      this.update();
+      this.trigger('add', this.extend({}, {
+        index: this.value.length,
+        tag: tagElm
+      }, tagData));
+    }
+
+    this.state.tag = null;
   },
 
   /**
@@ -892,7 +908,7 @@ Tagify.prototype = {
       var _this7 = this;
 
       var listItems, listHTML;
-      if (!this.settings.whitelist.length) return; // if no value was supplied, show all the "whitelist" items in the dropdown
+      if (!this.settings.whitelist.length || !this.settings.dropdown.enabled) return; // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
 
       listItems = value ? this.dropdown.filterListItems.call(this, value) : this.settings.whitelist.filter(function (item) {
