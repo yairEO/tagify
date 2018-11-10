@@ -449,8 +449,8 @@ var input = document.querySelector('textarea[name=tags2]'),
 var input = document.querySelector('[name=mix]'),
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
-        mode       : 'mix',    // <--  Enable mixed-content
-        pattern    : '/@|#/',  // <--  Tag words which start with @ or # (can be a String instead of Regex)
+        mode       : 'mix',  // <--  Enable mixed-content
+        pattern    : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
         whitelist  : [
             {
                 value : 'cartman',
