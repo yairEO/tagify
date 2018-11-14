@@ -23,31 +23,23 @@ export class Tags extends React.Component{
             this.$el.trigger("chosen:updated");
         }
     }
- 
-    componentWillUnmount(){
-        this.component.removeEventListener('tabclosed', this.onTabClosed);
-    }
 
     shouldComponentUpdate(nextProps, nextState){
     	// do not allow react to re-render since the component is modifying its own HTML
         return false;
     }
  
-    onTabClosed = ({detail: component}) => {
-        this.props.onTabClosed && this.props.onTabClosed(component.getAttribute('tabId'));
-    }
- 
-    _handleRef = (component) => {
+    _handleRef(component){
         this.component = component;
     }
  
     render(){
     	const attrs = {
-			ref         : this._handleRef,
-			name        : this.props.name,
-			className   : this.props.className,
-			placeholder : this.props.class,
-			autoFocus   : this.props.autofocus
+            ref         : this._handleRef.bind(this),
+            name        : this.props.name,
+            className   : this.props.className,
+            placeholder : this.props.class,
+            autoFocus   : this.props.autofocus
     	}
 
     	if( this.props.mode === 'textarea' )
