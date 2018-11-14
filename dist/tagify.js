@@ -363,7 +363,10 @@ Tagify.prototype = {
         if (this.input.value == value) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
         // save the value on the input's State object
 
-        this.input.set.call(this, value, false);
+        this.input.set.call(this, value, true); // update the input with the normalized value and run validations
+
+        this.input.setRangeAtStartEnd.call(this); // fix caret position
+
         this.trigger("input", {
           value: value
         });
@@ -466,14 +469,10 @@ Tagify.prototype = {
     // remove any child DOM elements that aren't of type TEXT (like <br>)
     normalize: function normalize() {
       var clone = this.DOM.input.cloneNode(true),
-          v = clone.textContent.replace(/\s/g, ' '); // replace NBSPs with spaces characters
+          v = clone.innerText.replace(/\s/g, ' ') // replace NBSPs with spaces characters
+      .replace(/^\s+/, ""); // trimLeft
 
-      while (clone.firstElementChild) {
-        v += clone.firstElementChild.textContent;
-        clone.removeChild(clone.firstElementChild);
-      }
-
-      return v.replace(/^\s+/, ""); // trimLeft
+      return v;
     },
 
     /**
