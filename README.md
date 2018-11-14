@@ -130,7 +130,7 @@ function onInput( e ){
     .then(function(whitelist){
       tagify.settings.whitelist = whitelist;
       tagify.dropdown.show.call(tagify, value); // render the suggestions dropdown
-    }
+    })
 }
 
 ```
