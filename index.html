@@ -407,13 +407,14 @@ tagify.on('add', onAddTag)
 // tag added callback
 function onAddTag(e){
     console.log(e, e.detail);
-    console.log( tagify.DOM.originalInput.value )
+    console.log("original input value: ", input.value)
     tagify.off('add', onAddTag) // exmaple of removing a custom Tagify event
 }
 
 // tag remvoed callback
 function onRemoveTag(e){
     console.log(e, e.detail);
+    console.log("tagify instance value:", tagify.value)
 }
 
 // on character(s) added/removed (user is typing/deleting)

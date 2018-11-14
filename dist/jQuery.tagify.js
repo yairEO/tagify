@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tagify (v 2.7.0)- tags input component
+ * Tagify (v 2.7.1)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -849,16 +849,15 @@
       var tranDuration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 250;
       if (!tagElm || !(tagElm instanceof HTMLElement)) return;
       if (typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
-
-      var _this = this,
-          tagData,
+      var tagData,
           tagIdx = this.getTagIndexByValue(tagElm.textContent); //this.getNodeIndex(tagElm); (getNodeIndex is unreliable)
-
 
       if (tranDuration && tranDuration > 10) animation();else removeNode();
 
       if (!silent) {
         tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
+
+        this.update(); // update the original input with the current value
 
         this.trigger('remove', this.extend({}, {
           index: tagIdx,
@@ -878,9 +877,6 @@
       function removeNode() {
         if (!tagElm.parentNode) return;
         tagElm.parentNode.removeChild(tagElm);
-
-        _this.update(); // update the original input with the current value
-
       }
     },
     removeAllTags: function removeAllTags() {

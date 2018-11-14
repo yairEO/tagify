@@ -843,8 +843,7 @@ Tagify.prototype = {
         if( typeof tagElm == 'string' )
             tagElm = this.getTagElmByValue(tagElm)
 
-        var _this = this,
-            tagData,
+        var tagData,
             tagIdx = this.getTagIndexByValue(tagElm.textContent); //this.getNodeIndex(tagElm); (getNodeIndex is unreliable)
 
         if( tranDuration && tranDuration > 10 ) animation()
@@ -852,6 +851,7 @@ Tagify.prototype = {
 
         if( !silent ){
             tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
+            this.update() // update the original input with the current value
             this.trigger('remove', this.extend({}, {index:tagIdx, tag:tagElm}, tagData));
         }
 
@@ -867,7 +867,6 @@ Tagify.prototype = {
         function removeNode(){
             if( !tagElm.parentNode ) return
             tagElm.parentNode.removeChild(tagElm)
-            _this.update() // update the original input with the current value
         }
     },
 
