@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.7.4)- tags input component
+ * Tagify (v 2.7.5)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -363,9 +363,8 @@ Tagify.prototype = {
         if (this.input.value == value) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
         // save the value on the input's State object
 
-        this.input.set.call(this, value, true); // update the input with the normalized value and run validations
-
-        this.input.setRangeAtStartEnd.call(this); // fix caret position
+        this.input.set.call(this, value, false); // update the input with the normalized value and run validations
+        //    this.input.setRangeAtStartEnd.call(this); // fix caret position
 
         this.trigger("input", {
           value: value

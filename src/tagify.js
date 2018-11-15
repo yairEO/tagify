@@ -347,8 +347,8 @@ Tagify.prototype = {
                 if( this.input.value == value ) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
 
                 // save the value on the input's State object
-                this.input.set.call(this, value, true); // update the input with the normalized value and run validations
-                this.input.setRangeAtStartEnd.call(this); // fix caret position
+                this.input.set.call(this, value, false); // update the input with the normalized value and run validations
+           //    this.input.setRangeAtStartEnd.call(this); // fix caret position
 
                 this.trigger("input", {value:value});
 
