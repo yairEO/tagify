@@ -234,6 +234,8 @@ class App extends React.Component {
 ReactDOM.render(<App />, document.getElementById('app'))
 ```
 
+[Live React Demo in Codepen](https://codepen.io/vsync/project/editor/44cc53af79bbede42efd7521d94d6f9f)
+
 
 ### jQuery version 
 
