@@ -23,8 +23,7 @@ export interface SettingsModel {
 
 @Component({
   selector: 'tagify',
-  template: `<input #tagifyInputRef/>`,
-  styleUrls: ['./tagify.component.css']
+  template: `<input *ngIf="settings" #tagifyInputRef/>`
 })
 export class TagifyComponent implements AfterViewInit {
   @Output() add = new EventEmitter(); // returns the added tag + updated tags list
@@ -38,6 +37,7 @@ export class TagifyComponent implements AfterViewInit {
   private tagify;
 
   ngAfterViewInit() {
+    if (!this.settings) return;
     this.settings.callbacks = {
       add: () => this.add.emit({
         tags: this.tagify.value,

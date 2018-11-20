@@ -4,13 +4,13 @@
         "directive-selector": [
             true,
             "attribute",
-            "app",
+            "ng-tagify-wrapper",
             "camelCase"
         ],
         "component-selector": [
             true,
             "element",
-            "app",
+            "ng-tagify-wrapper",
             "kebab-case"
         ]
     }
