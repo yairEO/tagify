@@ -236,6 +236,60 @@ ReactDOM.render(<App />, document.getElementById('app'))
 
 [Live React Demo in Codepen](https://codepen.io/vsync/project/editor/44cc53af79bbede42efd7521d94d6f9f)
 
+### Angular
+
+**TagifyComponent** which will be used by your template as `<tagify>`
+
+Example:
+
+```
+<div>
+  testing tagify wrapper
+  <tagify [settings]="settings"
+          (add)="onAdd($event)"
+          (remove)="onRemove($event)">
+  </tagify>
+  <button (click)="clearTags()">clear</button>
+  <button (click)="addTags()">add Tags</button>
+</div>
+```
+
+**TagifyService**
+
+(The tagifyService is a singletone injected by angular, do not create a new instance of it)
+
+```typescript
+import {Component, OnDestroy} from '@angular/core';
+import {TagifyService} from 'ngTagify';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnDestroy {
+
+  constructor(private tagifyService: TagifyService) {}
+  public settings = { blacklist: ['fucking', 'shit']};
+
+  onAdd(tagify) {
+    console.log('added a tag', tagify);
+  }
+
+  onRemove(tags) {
+    console.log('removed a tag', tags);
+  }
+  clearTags() {
+    this.tagifyService.removeAll();
+  }
+  addTags() {
+    this.tagifyService.addTags(['this', 'is', 'cool']);
+  }
+  ngOnDestroy() {
+    this.tagifyService.destroy();
+  }
+}
+```
 
 ### jQuery version 
 
