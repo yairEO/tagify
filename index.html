@@ -243,8 +243,7 @@
                 <aside class='leftSide'>
                     <h2><a href='#section-advance-options'>#</a>Advance options</h2>
                     <p>
-                        In this example, the <code>suggestionsMinChars</code> <em>setting</em> is used and set to <code>3</code>. The Maximum number of tags is set to <code>6</code><br>
-                        (<code>suggestionsMinChars</code> is <strong>buggy</strong> in Firefox for some reason)
+                        In this example, the <code>dropdown.enabled</code> <em>setting</em> is used (minimum charactes typed which shows the dropdown) to <code>3</code>. The Maximum number of tags is set to <code>6</code>
                     </p>
                     </p>
                         HTML5 <code>pattern</code> attribute is automatically used to validate tags.<br>
@@ -558,12 +557,14 @@ var input = document.querySelector('input[name=tags-outside]'),
 var input = document.querySelector('input[name=tags3]'),
     tagify = new Tagify(input, {
         delimiters          : ",| ",  // add new tags when a comma or a space character
-        suggestionsMinChars : 3,
         maxTags             : 6,
         blacklist           : ["fuck", "shit", "pussy"],
         keepInvalidTags     : true,  // do not remove invalid tags (but keep them marked as invalid)
         whitelist           : ["temple","stun","detective","sign","passion","routine","deck","discriminate","relaxation","fraud","attractive","soft","forecast","point","thank","stage","eliminate","effective","flood","passive","skilled","separation","contact","compromise","reality","district","nationalist","leg","porter","conviction","worker","vegetable","commerce","conception","particle","honor","stick","tail","pumpkin","core","mouse","egg","population","unique","behavior","onion","disaster","cute","pipe","sock","dialect","horse","swear","owner","cope","global","improvement","artist","shed","constant","bond","brink","shower","spot","inject","bowel","homosexual","trust","exclude","tough","sickness","prevalence","sister","resolution","cattle","cultural","innocent","burial","bundle","thaw","respectable","thirsty","exposure","team","creed","facade","calendar","filter","utter","dominate","predator","discover","theorist","hospitality","damage","woman","rub","crop","unpleasant","halt","inch","birthday","lack","throne","maximum","pause","digress","fossil","policy","instrument","trunk","frame","measure","hall","support","convenience","house","partnership","inspector","looting","ranch","asset","rally","explicit","leak","monarch","ethics","applied","aviation","dentist","great","ethnic","sodium","truth","constellation","lease","guide","break","conclusion","button","recording","horizon","council","paradox","bride","weigh","like","noble","transition","accumulation","arrow","stitch","academy","glimpse","case","researcher","constitutional","notion","bathroom","revolutionary","soldier","vehicle","betray","gear","pan","quarter","embarrassment","golf","shark","constitution","club","college","duty","eaux","know","collection","burst","fun","animal","expectation","persist","insure","tick","account","initiative","tourist","member","example","plant","river","ratio","view","coast","latest","invite","help","falsify","allocation","degree","feel","resort","means","excuse","injury","pupil","shaft","allow","ton","tube","dress","speaker","double","theater","opposed","holiday","screw","cutting","picture","laborer","conservation","kneel","miracle","brand","nomination","characteristic","referral","carbon","valley","hot","climb","wrestle","motorist","update","loot","mosquito","delivery","eagle","guideline","hurt","feedback","finish","traffic","competence","serve","archive","feeling","hope","seal","ear","oven","vote","ballot","study","negative","declaration","particular","pattern","suburb","intervention","brake","frequency","drink","affair","contemporary","prince","dry","mole","lazy","undermine","radio","legislation","circumstance","bear","left","pony","industry","mastermind","criticism","sheep","failure","chain","depressed","launch","script","green","weave","please","surprise","doctor","revive","banquet","belong","correction","door","image","integrity","intermediate","sense","formal","cane","gloom","toast","pension","exception","prey","random","nose","predict","needle","satisfaction","establish","fit","vigorous","urgency","X-ray","equinox","variety","proclaim","conceive","bulb","vegetarian","available","stake","publicity","strikebreaker","portrait","sink","frog","ruin","studio","match","electron","captain","channel","navy","set","recommend","appoint","liberal","missile","sample","result","poor","efflux","glance","timetable","advertise","personality","aunt","dog"],
-        transformTag        : transformaTag
+        transformTag        : transformaTag,
+        dropdown : {
+            enabled: 3,
+        }
     })
 
 function transformaTag( value ){
@@ -911,7 +912,11 @@ tagify.addTags([
 <script data-name='jQuery'>
 (function(){
 var $input = $('input[name=tags-jquery]')
-    .tagify()
+    .tagify({
+            whitelist : [
+                {"id":1,"value":"some string"}
+            ]
+        })
         .on('add', function(e, tagName){
             console.log('JQEURY EVENT: ', 'added', tagName)
         })
