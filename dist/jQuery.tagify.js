@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tagify (v 2.7.5)- tags input component
+ * Tagify (v 2.7.7)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -133,7 +133,7 @@
     build: function build(input) {
       var that = this,
           DOM = this.DOM,
-          template = "<tags class=\"tagify " + (this.settings.mode ? "tagify--mix" : "") + " " + input.className + "\" " + (this.settings.readonly ? 'readonly' : '') + ">\n                            <div contenteditable data-placeholder=\"" + input.placeholder + "\" class=\"tagify__input\"></div>\n                        </tags>";
+          template = "<tags class=\"tagify " + (this.settings.mode ? "tagify--mix" : "") + " " + input.className + "\" " + (this.settings.readonly ? 'readonly' : '') + ">\n                            <div contenteditable data-placeholder=\"" + (input.placeholder || '&#8203;') + "\" class=\"tagify__input\"></div>\n                        </tags>";
       DOM.originalInput = input;
       DOM.scope = this.parseHTML(template);
       DOM.input = DOM.scope.querySelector('[contenteditable]');

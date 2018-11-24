@@ -103,7 +103,7 @@ Tagify.prototype = {
         var that = this,
             DOM  = this.DOM,
             template = `<tags class="tagify ${this.settings.mode ? "tagify--mix" : "" } ${input.className}" ${this.settings.readonly ? 'readonly' : ''}>
-                            <div contenteditable data-placeholder="${input.placeholder}" class="tagify__input"></div>
+                            <div contenteditable data-placeholder="${input.placeholder || '&#8203;'}" class="tagify__input"></div>
                         </tags>`;
 
         DOM.originalInput = input;

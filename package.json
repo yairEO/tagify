@@ -1,6 +1,6 @@
 {
     "name": "@yaireo/tagify",
-    "version": "2.7.6",
+    "version": "2.7.7",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "Convert an input field into a Tags element. Easy, customizable, with good performance and small code footprint.",
     "_npmUser": {
