@@ -35,6 +35,7 @@ with great performance and tiny code footprint.
    * [Ajax whitelist](#ajax-whitelist)
    * [Suggestions selectbox](#suggestions-selectbox)
    * [React wrapper](#react)
+   * [Angular wrapper](#angular)
    * [jQuery version](#jquery-version)
    * [Methods](#methods)
    * [Events](#events)
