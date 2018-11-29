@@ -734,6 +734,9 @@ Tagify.prototype = {
         tagsItems.forEach(tagData => {
             var tagValidation, tagElm;
 
+            // shallow-clone tagData so later modifications will not apply to the source
+            tagData = Object.assign({}, tagData);
+
             if( typeof this.settings.transformTag === 'function' ){
                 tagData.value = this.settings.transformTag.call(this, tagData.value) || tagData.value;
             }

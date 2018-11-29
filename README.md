@@ -51,13 +51,13 @@ with great performance and tiny code footprint.
     var tagify = new Tagify(...)
 
 ## Selling points
-* JS minified `~16kb` (`~4kb` GZIP) 
-* SCSS file is `~6kb` of well-crafted flexible code
+* JS minified `~17kb` (`~6kb` GZIP)
+* CSS minified `~5kb` (`~2kb` GZIP) - well-crafted flexible code
 * Easily change direction to RTL via the SCSS file only
 * No other inputs are used beside the original, and its value is kept in sync
 * Easily customized
 * Exposed custom events (add, remove, invalid)
-* For Internet Explorer 11 include the script `tagify.polyfills.js` under `/dist`
+* Internet Explorer - A polyfill script can be used: `tagify.polyfills.min.js` in `/dist`
 
 ## What can Tagify do
 * Can be applied on input & textarea elements
@@ -106,13 +106,13 @@ There are two possible ways to get the value of the tags:
 
 It's possible to load a dynamic suggestions list (*whitelist*) from the server, as the user types.
 
-Below is just an rough example using the `fetch` API. I advise in real-life scenario to abort the last request 
-on any input 
+Below is just an rough example using the `fetch` API. I advise in real-life scenario to abort the last request
+on any input
 
 ```javascript
 var input = document.querySelector('input'),
     tagify = new Tagify(input, {whitelist:[]}),
-    controller; // for aborting the call 
+    controller; // for aborting the call
 
 // listen to any keystrokes which modify tagify's input
 tagify.on('input', onInput)
@@ -123,7 +123,7 @@ function onInput( e ){
 
   // https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort
   controller && controller.abort();
-  controller = new AbortController(); 
+  controller = new AbortController();
 
   fetch('http://get_suggestions.com?value=' + value, {signal:controller.signal})
     .then(RES => RES.json())
@@ -172,7 +172,7 @@ Will render:
 </div>
 ```
 
-### React 
+### React
 
 `react.tagify.js`
 
@@ -201,7 +201,7 @@ class App extends React.Component {
 
     componentDidMount(){}
 
-    // callbacks for all of Tagify's events: 
+    // callbacks for all of Tagify's events:
     onTagifyAdd = e => {
         console.log('added:', e.detail);
     }
@@ -222,10 +222,10 @@ class App extends React.Component {
     render(){
         return (
             <Tags mode='textarea'
-                  autofocus={true} 
-                  className='myInput' 
-                  name='tags' 
-                  settings={tagifySettings} 
+                  autofocus={true}
+                  className='myInput'
+                  name='tags'
+                  settings={tagifySettings}
                   initialValue='foo, bar, baz' />
         )
     }
@@ -291,7 +291,7 @@ export class AppComponent implements OnDestroy {
 }
 ```
 
-### jQuery version 
+### jQuery version
 
 `jQuery.tagify.js`
 
@@ -316,7 +316,7 @@ removeAllTags       | Removes all tags and resets the original input tag's value
 addTags             | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
 removeTag           | Removes a specific tag (argument is the tag DOM element to be removed. see source code.)
 loadOriginalValues  | Converts the input's value into tags. This method gets called automatically when instansiating Tagify
-getTagIndexByValue  | 
+getTagIndexByValue  |
 getTagElmByValue    |
 
 
@@ -327,7 +327,7 @@ Name            | Info
 add             | A tag has been added
 remove          | A tag has been removed
 invalid         | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
-input           | On [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event 
+input           | On [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event
 
 
 ## Settings
