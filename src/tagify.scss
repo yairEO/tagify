@@ -161,7 +161,7 @@
                 div{
                     > span{ opacity:.5; } // filter:blur(.2px);
                     &::before{
-                        background: rgba($tag-remove, .44);
+                        box-shadow: 0 0 0 20px rgba($tag-remove, .44) inset !important;
                         transition: .2s;
                     }
                 }
@@ -205,7 +205,10 @@
                 // + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
                 + div{
                     > span{ opacity:.5; } // filter:blur(.2px);
-                    &::before{ background:rgba($tag-remove, .44); transition:.2s; }
+                    &::before{
+                        box-shadow: 0 0 0 20px rgba($tag-remove, .3) inset !important;
+                        transition:.2s;
+                    }
                 }
             }
         }
