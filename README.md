@@ -34,6 +34,7 @@ with great performance and tiny code footprint.
    * [Adding tags dynamically](#adding-tags-dynamically)
    * [Ajax whitelist](#ajax-whitelist)
    * [Suggestions selectbox](#suggestions-selectbox)
+   * [Edit tags](#edit-tags)
    * [React wrapper](#react)
    * [Angular wrapper](#angular)
    * [jQuery version](#jquery-version)
@@ -70,6 +71,7 @@ with great performance and tiny code footprint.
 * Can paste in multiple values: `tag 1, tag 2, tag 3`
 * Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
 * Validate tags by Regex pattern
+* Tags are [editable](#edit-tags)
 * Supports read-only mode to the whole componenet or per-tag
 * Each tag can have any properties desired (class, data-whatever, readonly...)
 * Automatically disallow duplicate tags (vis "settings" object)
@@ -172,6 +174,11 @@ Will render:
     <div class="tagify__dropdown__item" value="aaabe">aaabe</div>
 </div>
 ```
+
+### edit tags
+Tags which aren't `read-only` can be edited by double-clicking them.
+
+The value is saved on `blur` or by pressnig `enter` key. Pressing `Escaspe` will revert the change trigger `blur`.
 
 ### React
 

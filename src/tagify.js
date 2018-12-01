@@ -250,7 +250,8 @@ Tagify.prototype = {
                 focus   : ['input', _CB.onFocusBlur.bind(this)],
                 blur    : ['input', _CB.onFocusBlur.bind(this)],
                 keydown : ['input', _CB.onKeydown.bind(this)],
-                click   : ['scope', _CB.onClickScope.bind(this)]
+                click   : ['scope', _CB.onClickScope.bind(this)],
+                dblclick : ['scope', _CB.onDoubleClickScope.bind(this)]
             });
 
             for( var eventName in _CBR ){
@@ -412,8 +413,72 @@ Tagify.prototype = {
                 else if( e.target.tagName == "X" ){
                     this.removeTag( e.target.parentNode );
                 }
+            },
+
+            onEditTagBlur(ediatbleElm){
+                var tagElm = ediatbleElm.closest('tag'),
+                    idx = this.getNodeIndex(tagElm),
+                    value = this.input.normalize(ediatbleElm) || ediatbleElm.originalValue,
+                    clone;
+
+                // undo if empty
+                ediatbleElm.textContent = value;
+
+                // update data
+                this.value[idx].value = value;
+                this.update();
+
+                // cleanup (clone node to remove events)
+                clone = ediatbleElm.cloneNode(true);
+                clone.removeAttribute('contenteditable');
+
+                tagElm.classList.remove('editable');
+                // remove all events
+                ediatbleElm.parentNode.replaceChild(clone, ediatbleElm);
+            },
+
+            onEditTagkeydown(e){
+                switch( e.key ){
+                    case 'Esc' :
+                    case 'Escape' :
+                        e.target.textContent = e.target.originalValue;
+
+                    case 'Enter' :
+                        e.preventDefault();
+                        e.target.blur();
+                }
+            },
+
+            onDoubleClickScope(e){
+                var tagElm = e.target.closest('tag'),
+                    _s = this.settings;
+
+                if( _s.mode != 'mix' && !_s.readonly && !_s.enforceWhitelist &&
+                    tagElm && !tagElm.classList.contains('editable') &&
+                    !tagElm.hasAttribute('readonly')
+                    )
+                    this.editTag(tagElm);
             }
         }
+    },
+
+    editTag( tagElm ){
+        var ediatbleElm = tagElm.querySelector('.tagify__tag-text'),
+            _CB = this.events.callbacks;
+
+        if( !ediatbleElm ){
+            console.warn('Cannot find element in Tag template: ', '.tagify__tag-text');
+            return;
+        }
+
+        tagElm.classList.add('editable');
+        ediatbleElm.originalValue = ediatbleElm.textContent;
+        ediatbleElm.setAttribute('contenteditable', true);
+
+        ediatbleElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, ediatbleElm));
+        ediatbleElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e));
+
+        ediatbleElm.focus();
     },
 
     /**
@@ -455,8 +520,8 @@ Tagify.prototype = {
         },
 
         // remove any child DOM elements that aren't of type TEXT (like <br>)
-        normalize(){
-            var clone = this.DOM.input.cloneNode(true),
+        normalize( node = this.DOM.input ){
+            var clone = node.cloneNode(true),
                 v = clone.innerText
                     .replace(/\s/g, ' ')  // replace NBSPs with spaces characters
                     .replace(/^\s+/, ""); // trimLeft
@@ -801,8 +866,8 @@ Tagify.prototype = {
     createTagElem( tagData ){
         var tagElm,
             v = this.escapeHtml(tagData.value),
-            template = `<tag title='${v}' contenteditable='false'>
-                            <x title=''></x><div><span>${v}</span></div>
+            template = `<tag title='${v}' contenteditable='false' spellcheck="false">
+                            <x title=''></x><div><span class='tagify__tag-text'>${v}</span></div>
                         </tag>`;
 
         if( typeof this.settings.tagTemplate === "function" ){
@@ -811,6 +876,9 @@ Tagify.prototype = {
             }
             catch(err){}
         }
+
+        if( this.settings.readonly )
+            tagData.readonly = true;
 
         // add HTML attributes from tagData
         function addTagAttrs(tagElm, tagData){

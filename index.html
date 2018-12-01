@@ -124,7 +124,7 @@
                 border-radius: 2px;
             }
 
-            .tagify.readonlyMix > tag:not([readonly]) div::before{ background:#d3e2e2; }
+            /* .tagify.readonlyMix > tag:not([readonly]) div::before{ background:#d3e2e2; } */
 
             .tagify__input .borderd-blue > div::before{ border:2px solid #8DAFFA; }
         </style>
@@ -596,7 +596,7 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
                     <x title=''></x>
                     <div>
                         <img onerror="this.style.visibility = 'hidden'" src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
-                        <span>${v}</span>
+                        <span class='tagify__tag-text'>${v}</span>
                     </div>
                 </tag>`;
     // _ESCAPE_END_
