@@ -175,7 +175,7 @@ Will render:
 </div>
 ```
 
-### edit tags
+### Edit tags
 Tags which aren't `read-only` can be edited by double-clicking them.
 
 The value is saved on `blur` or by pressnig `enter` key. Pressing `Escaspe` will revert the change trigger `blur`.
