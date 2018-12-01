@@ -352,7 +352,7 @@ whitelist             | Array      | []          | An array of tags which only t
 blacklist             | Array      | []          | An array of tags which aren't allowed
 addTagOnBlur          | Boolean    | true        | Automatically adds the text which was inputed as a tag when blur event happens
 callbacks             | Object     | {}          | Exposed callbacks object to be triggered on events: 'add' / 'remove' tags
-maxTags               | Number     | Infinity    | Maximum number of tags
+maxTags               | Number     | Infinity    | Maximum number of allowed tags. when reached, adds a class "hasMaxTags" to `<Tags>`
 transformTag          | Function   | undefined   | Takes a tag input as argument and returns a transformed value
 tagTemplate           | Function   | undefined   | Takes a tag's value and data as arguments and returns an HTML string for a tag element
 keepInvalidTags       | Boolean    | false       | If true, do not remove tags which did not pass validation

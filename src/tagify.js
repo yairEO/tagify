@@ -826,6 +826,7 @@ Tagify.prototype = {
                 // update state
                 this.value.push(tagData);
                 this.update();
+                this.DOM.scope.classList.toggle('hasMaxTags',  this.value.length >= this.settings.maxTags);
                 this.trigger('add', this.extend({}, {index:this.value.length, tag:tagElm}, tagData));
             }
             else if( !this.settings.keepInvalidTags ){
