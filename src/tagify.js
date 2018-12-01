@@ -680,6 +680,9 @@ Tagify.prototype = {
         if( isComplex )
             return tagsItems;
 
+        if( typeof tagsItems == 'number' )
+            tagsItems = tagsItems.toString();
+
         // if the value is a "simple" String, ex: "aaa, bbb, ccc"
         if( typeof tagsItems == 'string' ){
             if( !tagsItems.trim() ) return [];
