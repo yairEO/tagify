@@ -126,9 +126,9 @@ gulp.task('build_js', ['lint_js'], () => {
     return jsStream
         .pipe( $.babel({presets: ['env']}) )
         .pipe( $.umd() )
-        .pipe( $.insert.prepend(banner) )
         .pipe($.rename('tagify.min.js'))
         .pipe($.uglify())
+        .pipe( $.insert.prepend(banner) )
         .pipe( gulp.dest('./dist/') )
 });
 
@@ -136,10 +136,11 @@ gulp.task('build_js', ['lint_js'], () => {
 
 gulp.task('build_jquery_version', () => {
     return gulp.src('src/tagify.js')
-        .pipe($.insert.wrap(banner + jQueryPluginWrap[0], jQueryPluginWrap[1]))
+        .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
         .pipe( $.babel({presets: ['env']}) )
         .pipe($.rename('jQuery.tagify.min.js'))
         .pipe($.uglify())
+        .pipe($.insert.prepend(banner))
         .pipe(gulp.dest('./dist/'))
 });
 
