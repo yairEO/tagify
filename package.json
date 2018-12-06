@@ -14,7 +14,7 @@
         "name": "Yair Even-Or",
         "email": "vsync.design@gmail.com"
     },
-    "main": "./dist/tagify.js",
+    "main": "./dist/tagify.min.js",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/yairEO/tagify.git"
