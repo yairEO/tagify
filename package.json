@@ -1,6 +1,6 @@
 {
     "name": "@yaireo/tagify",
-    "version": "2.8.2",
+    "version": "2.8.3",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "Convert an input field into a Tags element. Easy, customizable, with good performance and small code footprint.",
     "_npmUser": {
@@ -14,7 +14,7 @@
         "name": "Yair Even-Or",
         "email": "vsync.design@gmail.com"
     },
-    "main": "./dist/tagify.js",
+    "main": "./dist/tagify.min.js",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/yairEO/tagify.git"
