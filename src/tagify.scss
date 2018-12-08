@@ -72,10 +72,18 @@
         cursor         : default;
         transition     : .13s ease-out;
 
-        &.editable{
+        &.tagify--editable{
             > div{
                 &::before{
                     box-shadow: 0 0 0 2px $tag-hover inset !important;
+                }
+            }
+
+            &.tagify--invalid{
+                > div{
+                    &::before{
+                        box-shadow: 0 0 0 2px $invalid-input-color inset !important;
+                    }
                 }
             }
         }

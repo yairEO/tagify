@@ -415,11 +415,24 @@ Tagify.prototype = {
                 }
             },
 
-            onEditTagBlur(ediatbleElm){
+            onEditTagInput( ediatbleElm ){
+                var tagElm = ediatbleElm.closest('tag'),
+                    value = this.input.normalize(ediatbleElm),
+                    isValid = value == ediatbleElm.originalValue || this.validateTag(value);
+
+                tagElm.classList.toggle('tagify--invalid', isValid !== true);
+                tagElm.isValid = isValid;
+            },
+
+            onEditTagBlur( ediatbleElm ){
                 var tagElm = ediatbleElm.closest('tag'),
                     idx = this.getNodeIndex(tagElm),
                     value = this.input.normalize(ediatbleElm) || ediatbleElm.originalValue,
+                    isValid = tagElm.isValid,
                     clone;
+
+                if( isValid !== true )
+                    return;
 
                 // undo if empty
                 ediatbleElm.textContent = value;
@@ -432,8 +445,9 @@ Tagify.prototype = {
                 clone = ediatbleElm.cloneNode(true);
                 clone.removeAttribute('contenteditable');
 
-                tagElm.classList.remove('editable');
-                // remove all events
+                tagElm.title = value;
+                tagElm.classList.remove('tagify--editable');
+                // remove all events from the "editTag" method
                 ediatbleElm.parentNode.replaceChild(clone, ediatbleElm);
             },
 
@@ -454,7 +468,7 @@ Tagify.prototype = {
                     _s = this.settings;
 
                 if( _s.mode != 'mix' && !_s.readonly && !_s.enforceWhitelist &&
-                    tagElm && !tagElm.classList.contains('editable') &&
+                    tagElm && !tagElm.classList.contains('tagify--editable') &&
                     !tagElm.hasAttribute('readonly')
                     )
                     this.editTag(tagElm);
@@ -471,11 +485,12 @@ Tagify.prototype = {
             return;
         }
 
-        tagElm.classList.add('editable');
+        tagElm.classList.add('tagify--editable');
         ediatbleElm.originalValue = ediatbleElm.textContent;
         ediatbleElm.setAttribute('contenteditable', true);
 
         ediatbleElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, ediatbleElm));
+        ediatbleElm.addEventListener('input', _CB.onEditTagInput.bind(this, ediatbleElm));
         ediatbleElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e));
 
         ediatbleElm.focus();
@@ -521,7 +536,7 @@ Tagify.prototype = {
 
         // remove any child DOM elements that aren't of type TEXT (like <br>)
         normalize( node = this.DOM.input ){
-            var clone = node.cloneNode(true),
+            var clone = node, //.cloneNode(true),
                 v = clone.innerText
                     .replace(/\s/g, ' ')  // replace NBSPs with spaces characters
                     .replace(/^\s+/, ""); // trimLeft
