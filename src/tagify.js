@@ -431,7 +431,7 @@ Tagify.prototype = {
                     isValid = tagElm.isValid,
                     clone;
 
-                if( isValid !== true )
+                if( isValid !== undefined && isValid !== true )
                     return;
 
                 // undo if empty
