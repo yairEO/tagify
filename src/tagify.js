@@ -34,6 +34,7 @@ function Tagify( input, settings ){
 
     this.events.customBinding.call(this);
     this.events.binding.call(this);
+    input.autofocus && this.DOM.input.focus()
 }
 
 Tagify.prototype = {
@@ -114,8 +115,6 @@ Tagify.prototype = {
         if( this.settings.dropdown.enabled >= 0 ){
             this.dropdown.init.call(this);
         }
-
-        input.autofocus && DOM.input.focus()
     },
 
     /**
@@ -269,14 +268,16 @@ Tagify.prototype = {
                 if( this.settings.mode == 'mix' ) return;
 
                 if( e.type == "focus" ){
+                    this.DOM.scope.classList.add('tagify--focus')
                     //  e.target.classList.remove('placeholder');
                     if( this.settings.dropdown.enabled === 0 ){
                         this.dropdown.show.call(this);
                     }
                 }
 
-                else if( e.type == "blur" && s ){
-                    this.settings.addTagOnBlur && this.addTags(s, true).length;
+                else if( e.type == "blur" ){
+                    this.DOM.scope.classList.remove('tagify--focus');
+                    s && this.settings.addTagOnBlur && this.addTags(s, true).length;
                 }
 
                 else{
@@ -991,7 +992,8 @@ Tagify.prototype = {
 
         show( value ){
             var listItems, listHTML;
-            if( !this.settings.whitelist.length || !this.settings.dropdown.enabled ) return;
+
+            if( !this.settings.whitelist.length ) return;
 
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems

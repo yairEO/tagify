@@ -2,7 +2,7 @@
     $self: &;
     $tags-border-color       : #DDD;
     $tags-hover-border-color : #CCC;
-    $tags-focus-border-color : #CCC;
+    $tags-focus-border-color : #85C8EA;
 
     $tagMargin           : 5px;
     $tagPad              : .3em .5em;
@@ -39,8 +39,10 @@
     padding       : 0;
     cursor        : text;
     position      : relative;
+    transition    : .1s;
 
     &:hover{ border-color:$tags-hover-border-color; }
+    &.tagify--focus{ border-color: $tags-focus-border-color; }
 
     // Global "read-only" mode (no input button)
     &[readonly]{
