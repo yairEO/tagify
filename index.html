@@ -401,29 +401,35 @@ document.querySelector('.tags--removeAllBtn')
 tagify.on('add', onAddTag)
       .on('remove', onRemoveTag)
       .on('input', onInput)
-      .on('invalid', onInvalidTag);
+      .on('invalid', onInvalidTag)
+      .on('click', onTagClick);
 
 // tag added callback
 function onAddTag(e){
-    console.log(e, e.detail);
+    console.log(e.detail);
     console.log("original input value: ", input.value)
     tagify.off('add', onAddTag) // exmaple of removing a custom Tagify event
 }
 
 // tag remvoed callback
 function onRemoveTag(e){
-    console.log(e, e.detail);
+    console.log(e.detail);
     console.log("tagify instance value:", tagify.value)
 }
 
 // on character(s) added/removed (user is typing/deleting)
 function onInput(e){
-    console.log(e, e.detail);
+    console.log(e.detail);
 }
 
 // invalid tag added callback
 function onInvalidTag(e){
-    console.log(e, e.detail);
+    console.log(e.detail);
+}
+
+// invalid tag added callback
+function onTagClick(e){
+    console.log(e.detail);
 }
 
 })()
@@ -863,12 +869,18 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
     mapValueToProp : "code", // map tags' values to this property name, so this property will be the actual value and not the printed value on the screen
 })
 
+tagify.on('click', function(e){
+    console.log(e.detail);
+});
+
 tagify.on('remove', function(e){
-    console.log(e, e.detail);
+    console.log(e.detail);
 });
 
 tagify.on('add', function(e){
-    console.log( tagify.DOM.originalInput, tagify.DOM.originalInput.value);
+    console.log( "original Input:", tagify.DOM.originalInput);
+    console.log( "original Input's value:", tagify.DOM.originalInput.value);
+    console.log( "event detail:", e.detail);
 });
 
 // add the first 2 tags from the "allowedTags" Aray automatically

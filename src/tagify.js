@@ -69,7 +69,7 @@ Tagify.prototype = {
         }
     },
 
-    customEventsList : ['add', 'remove', 'invalid', 'input'],
+    customEventsList : ['click', 'add', 'remove', 'invalid', 'input'],
 
     // generateUID(){
     //     return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
@@ -281,7 +281,7 @@ Tagify.prototype = {
                 }
 
                 else{
-                  //  e.target.classList.add('placeholder');
+                    //  e.target.classList.add('placeholder');
                     this.DOM.input.removeAttribute('style');
                     this.dropdown.hide.call(this);
                 }
@@ -350,7 +350,7 @@ Tagify.prototype = {
 
                 // save the value on the input's State object
                 this.input.set.call(this, value, false); // update the input with the normalized value and run validations
-           //    this.input.setRangeAtStartEnd.call(this); // fix caret position
+                // this.input.setRangeAtStartEnd.call(this); // fix caret position
 
                 this.trigger("input", {value:value});
 
@@ -409,10 +409,16 @@ Tagify.prototype = {
             },
 
             onClickScope(e){
+                var tagElm = e.target.closest('tag'), tagElmIdx;
+
                 if( e.target.tagName == "TAGS" )
                     this.DOM.input.focus();
                 else if( e.target.tagName == "X" ){
                     this.removeTag( e.target.parentNode );
+                }
+                else if( tagElm ){
+                    tagElmIdx = this.getNodeIndex(tagElm);
+                    this.trigger("click", { tag:tagElm, index:tagElmIdx, data:this.value[tagElmIdx] });
                 }
             },
 
@@ -580,9 +586,8 @@ Tagify.prototype = {
 
     getNodeIndex( node ){
         var index = 0;
-        while( (node = node.previousSibling) )
-            if (node.nodeType != 3 || !/^\s*$/.test(node.data))
-                index++;
+        while( (node = node.previousElementSibling) )
+            index++;
         return index;
     },
 
@@ -831,7 +836,7 @@ Tagify.prototype = {
                 tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
                 tagData.title = tagValidation;
                 this.markTagByValue(tagData.value);
-                this.trigger("invalid", {value:tagData.value, index:this.value.length, message:tagValidation});
+                this.trigger("invalid", {data:tagData, index:this.value.length, message:tagValidation});
             }
 
             // Create tag HTML element
@@ -846,7 +851,7 @@ Tagify.prototype = {
                 this.value.push(tagData);
                 this.update();
                 this.DOM.scope.classList.toggle('hasMaxTags',  this.value.length >= this.settings.maxTags);
-                this.trigger('add', this.extend({}, {index:this.value.length, tag:tagElm}, tagData));
+                this.trigger('add', { tag:tagElm, index:this.value.length - 1, data:tagData });
             }
             else if( !this.settings.keepInvalidTags ){
                 // remove invalid tags (if "keepInvalidTags" is set to "false")
@@ -933,7 +938,7 @@ Tagify.prototype = {
             tagElm = this.getTagElmByValue(tagElm)
 
         var tagData,
-            tagIdx = this.getTagIndexByValue(tagElm.textContent); //this.getNodeIndex(tagElm); (getNodeIndex is unreliable)
+            tagIdx = this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
 
         if( tranDuration && tranDuration > 10 ) animation()
         else removeNode();
@@ -941,7 +946,7 @@ Tagify.prototype = {
         if( !silent ){
             tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
             this.update() // update the original input with the current value
-            this.trigger('remove', this.extend({}, {index:tagIdx, tag:tagElm}, tagData));
+            this.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData });
         }
 
         function animation(){

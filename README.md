@@ -337,6 +337,7 @@ add             | A tag has been added
 remove          | A tag has been removed
 invalid         | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
 input           | On [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event
+click           | Clicking a tag. Exposes the tag element, its index & data
 
 
 ## Settings
