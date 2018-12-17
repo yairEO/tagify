@@ -352,7 +352,7 @@ Tagify.prototype = {
                 this.input.set.call(this, value, false); // update the input with the normalized value and run validations
                 // this.input.setRangeAtStartEnd.call(this); // fix caret position
 
-                this.trigger("input", {value:value});
+                this.trigger("input", value);
 
                 if( value.search(this.settings.delimiters) != -1 ){
                     if( this.addTags( value ).length ){
@@ -429,6 +429,7 @@ Tagify.prototype = {
 
                 tagElm.classList.toggle('tagify--invalid', isValid !== true);
                 tagElm.isValid = isValid;
+                this.trigger("input", value);
             },
 
             onEditTagBlur( ediatbleElm ){
