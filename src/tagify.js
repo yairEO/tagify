@@ -695,11 +695,12 @@ Tagify.prototype = {
      */
     normalizeTags( tagsItems ){
         var whitelistWithProps = this.settings.whitelist[0] instanceof Object,
-            isComplex = tagsItems instanceof Array && tagsItems[0] instanceof Object && "value" in tagsItems[0], // checks if the value is a "complex" which means an Array of Objects, each object is a tag
+            // checks if this is a "collection", meanning an Array of Objects
+            isCollection = tagsItems instanceof Array && tagsItems[0] instanceof Object && "value" in tagsItems[0],
             temp = [];
 
         // no need to continue if "tagsItems" is an Array of Objects
-        if( isComplex )
+        if (isCollection)
             return tagsItems;
 
         if( typeof tagsItems == 'number' )
@@ -997,21 +998,22 @@ Tagify.prototype = {
         },
 
         show( value ){
-            var listItems, listHTML;
+            var listHTML;
 
             if( !this.settings.whitelist.length ) return;
 
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems
-            listItems = value ?
+            // TODO: add setting to control items' sort order for "listItems"
+            this.suggestedListItems = value ?
                 this.dropdown.filterListItems.call(this, value) :
                 this.settings.whitelist.filter(item => this.isTagDuplicate(item.value || item) == -1 ); // don't include already preset tags
 
-            listHTML = this.dropdown.createListHTML.call(this, listItems);
+            listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
 
             // set the first item from the suggestions list as the autocomplete value
             if( this.settings.autoComplete ){
-                this.input.autocomplete.suggest.call(this, listItems.length ? listItems[0].value : '');
+                this.input.autocomplete.suggest.call(this, this.suggestedListItems.length ? this.suggestedListItems[0].value : '');
             }
 
             if( !listHTML ){
@@ -1110,7 +1112,7 @@ Tagify.prototype = {
                                 return false;
                         case 'Enter' :
                             e.preventDefault();
-                            newValue = selectedElm ? selectedElm.textContent : this.input.value;
+                            newValue = selectedElm ? [this.suggestedListItems[this.getNodeIndex(selectedElm)]] : this.input.value;
                             this.addTags( newValue, true );
                             this.dropdown.hide.call(this);
                             return false;
@@ -1126,15 +1128,17 @@ Tagify.prototype = {
 
                 onClick(e){
                     var onClickOutside = () => this.dropdown.hide.call(this),
+                        value,
                         listItemElm;
 
                     if( e.button != 0 ) return; // allow only mouse left-clicks
                     if( e.target == document.documentElement ) return onClickOutside();
 
                     listItemElm = [e.target, e.target.parentNode].filter(a => a.className.includes("tagify__dropdown__item") )[0];
+                    value = [this.suggestedListItems[this.getNodeIndex(listItemElm)]] || this.input.value;
 
                     if( listItemElm ){
-                        this.addTags( listItemElm.textContent, true );
+                        this.addTags(value, true);
                         this.dropdown.hide.call(this);
                     }
 
@@ -1195,7 +1199,7 @@ Tagify.prototype = {
          * @param  {Array} list  [Array of Objects]
          * @return {String}
          */
-        createListHTML(list){
+        createListHTML( list ){
             var getItem = this.settings.dropdown.itemTemplate || function(item){
                 return `<div class='tagify__dropdown__item ${item.class ? item.class : ""}' ${getAttributesString(item)}>${item.value || item}</div>`;
             };
