@@ -365,7 +365,7 @@ Tagify.prototype = {
             },
 
             onMixTagsInput( e ){
-                var sel, range, split, tag, showSuggestions;
+                var sel, range, split, tag, tagValue, showSuggestions, prefix = '';
 
                 if( window.getSelection ){
                     sel = window.getSelection();
@@ -376,15 +376,23 @@ Tagify.prototype = {
 
                         split = range.toString().split(this.settings.mixTagsAllowedAfter);  // ["foo", "bar", "@a"]
 
-                        tag = split[split.length-1].match(this.settings.pattern);
+                        if( this.settings.pattern ){
+                            tag = split[split.length-1].match(this.settings.pattern);
+                            tagValue = tag && tag.input.split(tag[0])[1];
+                            prefix = tag[0];
+                        }
+                        else{
+                            tag = [split[split.length - 1]];
+                            tagValue = tag[0]
+                        }
 
                         if( tag ){
                             this.state.tag = {
-                                prefix : tag[0],
-                                value  : tag.input.split(tag[0])[1],
+                                prefix,
+                                value: tagValue,
                             }
 
-                            this.trigger("input", { prefix:tag[0], value:this.state.tag.value });
+                            this.trigger("input", { prefix, value:this.state.tag.value });
                             tag = this.state.tag;
                             showSuggestions = this.state.tag.value.length >= this.settings.dropdown.enabled
                         }
