@@ -1135,9 +1135,9 @@ Tagify.prototype = {
                     if( e.target == document.documentElement ) return onClickOutside();
 
                     listItemElm = [e.target, e.target.parentNode].filter(a => a.className.includes("tagify__dropdown__item") )[0];
-                    value = [this.suggestedListItems[this.getNodeIndex(listItemElm)]] || this.input.value;
 
                     if( listItemElm ){
+                        value = [this.suggestedListItems[this.getNodeIndex(listItemElm)]] || this.input.value;
                         this.addTags(value, true);
                         this.dropdown.hide.call(this);
                     }
