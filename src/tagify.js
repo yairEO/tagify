@@ -1113,8 +1113,8 @@ Tagify.prototype = {
                                 return false;
                         case 'Enter' :
                             e.preventDefault();
-                            newValue = selectedElm ? [this.suggestedListItems[this.getNodeIndex(selectedElm)]] : this.input.value;
-                            this.addTags( newValue, true );
+                            newValue = this.suggestedListItems[this.getNodeIndex(selectedElm)] || this.input.value;
+                            this.addTags( [newValue], true );
                             this.dropdown.hide.call(this);
                             return false;
                             break;
@@ -1138,8 +1138,8 @@ Tagify.prototype = {
                     listItemElm = [e.target, e.target.parentNode].filter(a => a.className.includes("tagify__dropdown__item") )[0];
 
                     if( listItemElm ){
-                        value = [this.suggestedListItems[this.getNodeIndex(listItemElm)]] || this.input.value;
-                        this.addTags(value, true);
+                        value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
+                        this.addTags([value], true);
                         this.dropdown.hide.call(this);
                     }
 
