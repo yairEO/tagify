@@ -365,7 +365,7 @@ Tagify.prototype = {
             },
 
             onMixTagsInput( e ){
-                var sel, range, split, tag, showSuggestions;
+                var sel, range, split, tag, showSuggestions, eventData = {};
 
                 if( window.getSelection ){
                     sel = window.getSelection();
@@ -384,16 +384,17 @@ Tagify.prototype = {
                                 value  : tag.input.split(tag[0])[1],
                             }
 
-                            this.trigger("input", { prefix:tag[0], value:this.state.tag.value });
                             tag = this.state.tag;
                             showSuggestions = this.state.tag.value.length >= this.settings.dropdown.enabled
                         }
                     }
                 }
 
+                this.update();
+                this.trigger("input", this.extend({}, this.state.tag, {textContent:this.DOM.input.textContent}));
+
                 if( this.state.tag ){
                     this.dropdown[showSuggestions ? "show" : "hide"].call(this, this.state.tag.value);
-                    this.update();
                 }
             },
 

@@ -523,14 +523,20 @@ var whitelist_2 = ['Homer', 'Marge', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned
 
 // A good place to pull server suggestion list accoring to the prefix/value
 tagify.on('input', function(e){
-    if( e.detail.prefix == '@' )
-        tagify.settings.whitelist = whitelist_1;
+    var prefix = e.detail.prefix;
 
-    if( e.detail.prefix == '#' )
-        tagify.settings.whitelist = whitelist_2;
+    if( prefix ){
+        if( prefix == '@' )
+            tagify.settings.whitelist = whitelist_1;
 
-    if( e.detail.value.length > 1 )
-        tagify.dropdown.show.call(tagify, e.detail.value);
+        if( prefix == '#' )
+            tagify.settings.whitelist = whitelist_2;
+
+        if( e.detail.value.length > 1 )
+            tagify.dropdown.show.call(tagify, e.detail.value);
+    }
+
+    console.log('mix-mode "input" event value: ', e.detail)
 })
 
 tagify.on('add', function(e){
