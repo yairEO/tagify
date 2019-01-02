@@ -5,21 +5,7 @@ function Tagify( input, settings ){
         return this;
     }
 
-    this.settings = this.extend({}, this.DEFAULTS, settings);
-    this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
-
-    if( this.isIE )
-        this.settings.autoComplete = false; // IE goes crazy if this isn't false
-
-    if( input.pattern )
-        try { this.settings.pattern = new RegExp(input.pattern) }
-        catch(e){}
-
-    // Convert the "delimiters" setting into a REGEX object
-    if( this.settings && this.settings.delimiters ){
-        try { this.settings.delimiters = new RegExp("[" + this.settings.delimiters + "]", "g") }
-        catch(e){}
-    }
+    this.applySettings(input, settings);
 
     this.state = {};
     this.value = []; // tags' data
@@ -70,6 +56,39 @@ Tagify.prototype = {
     },
 
     customEventsList : ['click', 'add', 'remove', 'invalid', 'input'],
+
+    applySettings( input, settings ){
+        var attr__whitelist = input.getAttribute('data-whitelist'),
+            attr__blacklist = input.getAttribute('data-blacklist');
+
+        this.settings = this.extend({}, this.DEFAULTS, settings);
+        this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
+
+        if( this.isIE )
+            this.settings.autoComplete = false; // IE goes crazy if this isn't false
+
+        if( attr__blacklist ){
+            attr__blacklist = attr__blacklist.split(this.settings.delimiters);
+            if( attr__blacklist instanceof Array )
+                this.settings.blacklist = attr__blacklist;
+        }
+
+        if( attr__whitelist ){
+            attr__whitelist = attr__whitelist.split(this.settings.delimiters)
+            if( attr__whitelist instanceof Array )
+                this.settings.whitelist = attr__whitelist;
+        }
+
+        if( input.pattern )
+            try { this.settings.pattern = new RegExp(input.pattern)  }
+            catch(e){}
+
+        // Convert the "delimiters" setting into a REGEX object
+        if( this.settings && this.settings.delimiters ){
+            try { this.settings.delimiters = new RegExp("[" + this.settings.delimiters + "]", "g") }
+            catch(e){}
+        }
+    },
 
     // generateUID(){
     //     return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
@@ -642,8 +661,9 @@ Tagify.prototype = {
      * make sure the tag, or words in it, is not in the blacklist
      */
     isTagBlacklisted( v ){
-        v = v.split(' ');
-        return this.settings.blacklist.filter(x =>v.indexOf(x) != -1).length;
+        v = v.toLowerCase().trim();
+        console.log(v)
+        return this.settings.blacklist.filter(x =>v == x.toLowerCase()).length;
     },
 
     /**
