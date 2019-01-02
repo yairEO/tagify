@@ -764,7 +764,7 @@ Tagify.prototype = {
         if( tagData && s && s.indexOf(tag) != -1 ){
             tagElm = this.createTagElem(tagData);
             this.value.push(tagData);
-            s = s.replace(tag, tagElm.outerHTML + "&#8288;") // put a zero-space at the end to the caret won't jump back to the start (when the last input child is a tag)
+            s = s.replace(tag, tagElm.outerHTML + "&#8288;") // put a zero-space at the end so the caret won't jump back to the start (when the last input child is a tag)
         }
 
         return {s, tagElm};
@@ -1010,16 +1010,18 @@ Tagify.prototype = {
                 this.dropdown.filterListItems.call(this, value) :
                 this.settings.whitelist.filter(item => this.isTagDuplicate(item.value || item) == -1 ); // don't include already preset tags
 
+            // hide suggestions list if no suggestions were matched
+            if( !this.suggestedListItems.length ){
+                this.input.autocomplete.suggest.call(this);
+                this.dropdown.hide.call(this);
+                return;
+            }
+
             listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
 
             // set the first item from the suggestions list as the autocomplete value
             if( this.settings.autoComplete ){
                 this.input.autocomplete.suggest.call(this, this.suggestedListItems.length ? this.suggestedListItems[0].value : '');
-            }
-
-            if( !listHTML ){
-               // this.dropdown.hide.call(this);
-                return;
             }
 
             this.DOM.dropdown.innerHTML = listHTML
