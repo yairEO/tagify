@@ -607,8 +607,11 @@ Tagify.prototype = {
 
     getNodeIndex( node ){
         var index = 0;
-        while( (node = node.previousElementSibling) )
-            index++;
+
+        if( node )
+            while( (node = node.previousElementSibling) )
+                index++;
+
         return index;
     },
 
@@ -1104,7 +1107,8 @@ Tagify.prototype = {
 
             callbacks : {
                 onKeyDown(e){
-                    var selectedElm = this.DOM.dropdown.querySelectorAll("[class$='--active']")[0],
+                    // get the "active" element, and if there was none (yet) active, use first child
+                    var selectedElm = this.DOM.dropdown.querySelector("[class$='--active']") || this.DOM.dropdown.children[0],
                         newValue = "";
 
                     switch( e.key ){
