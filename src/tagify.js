@@ -5,21 +5,7 @@ function Tagify( input, settings ){
         return this;
     }
 
-    this.settings = this.extend({}, this.DEFAULTS, settings);
-    this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
-
-    if( this.isIE )
-        this.settings.autoComplete = false; // IE goes crazy if this isn't false
-
-    if( input.pattern )
-        try { this.settings.pattern = new RegExp(input.pattern) }
-        catch(e){}
-
-    // Convert the "delimiters" setting into a REGEX object
-    if( this.settings && this.settings.delimiters ){
-        try { this.settings.delimiters = new RegExp("[" + this.settings.delimiters + "]", "g") }
-        catch(e){}
-    }
+    this.applySettings(input, settings);
 
     this.state = {};
     this.value = []; // tags' data
@@ -70,6 +56,39 @@ Tagify.prototype = {
     },
 
     customEventsList : ['click', 'add', 'remove', 'invalid', 'input'],
+
+    applySettings( input, settings ){
+        var attr__whitelist = input.getAttribute('data-whitelist'),
+            attr__blacklist = input.getAttribute('data-blacklist');
+
+        this.settings = this.extend({}, this.DEFAULTS, settings);
+        this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
+
+        if( this.isIE )
+            this.settings.autoComplete = false; // IE goes crazy if this isn't false
+
+        if( attr__blacklist ){
+            attr__blacklist = attr__blacklist.split(this.settings.delimiters);
+            if( attr__blacklist instanceof Array )
+                this.settings.blacklist = attr__blacklist;
+        }
+
+        if( attr__whitelist ){
+            attr__whitelist = attr__whitelist.split(this.settings.delimiters)
+            if( attr__whitelist instanceof Array )
+                this.settings.whitelist = attr__whitelist;
+        }
+
+        if( input.pattern )
+            try { this.settings.pattern = new RegExp(input.pattern)  }
+            catch(e){}
+
+        // Convert the "delimiters" setting into a REGEX object
+        if( this.settings && this.settings.delimiters ){
+            try { this.settings.delimiters = new RegExp("[" + this.settings.delimiters + "]", "g") }
+            catch(e){}
+        }
+    },
 
     // generateUID(){
     //     return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
@@ -365,7 +384,7 @@ Tagify.prototype = {
             },
 
             onMixTagsInput( e ){
-                var sel, range, split, tag, tagValue, showSuggestions, prefix = '';
+                var sel, range, split, tag, tagValue, showSuggestions, prefix = '', eventData = {};
 
                 if( window.getSelection ){
                     sel = window.getSelection();
@@ -392,16 +411,17 @@ Tagify.prototype = {
                                 value: tagValue,
                             }
 
-                            this.trigger("input", { prefix, value:this.state.tag.value });
                             tag = this.state.tag;
                             showSuggestions = this.state.tag.value.length >= this.settings.dropdown.enabled
                         }
                     }
                 }
 
+                this.update();
+                this.trigger("input", this.extend({}, this.state.tag, {textContent:this.DOM.input.textContent}));
+
                 if( this.state.tag ){
                     this.dropdown[showSuggestions ? "show" : "hide"].call(this, this.state.tag.value);
-                    this.update();
                 }
             },
 
@@ -649,8 +669,9 @@ Tagify.prototype = {
      * make sure the tag, or words in it, is not in the blacklist
      */
     isTagBlacklisted( v ){
-        v = v.split(' ');
-        return this.settings.blacklist.filter(x =>v.indexOf(x) != -1).length;
+        v = v.toLowerCase().trim();
+        console.log(v)
+        return this.settings.blacklist.filter(x =>v == x.toLowerCase()).length;
     },
 
     /**
@@ -771,7 +792,7 @@ Tagify.prototype = {
         if( tagData && s && s.indexOf(tag) != -1 ){
             tagElm = this.createTagElem(tagData);
             this.value.push(tagData);
-            s = s.replace(tag, tagElm.outerHTML + "&#8288;") // put a zero-space at the end to the caret won't jump back to the start (when the last input child is a tag)
+            s = s.replace(tag, tagElm.outerHTML + "&#8288;") // put a zero-space at the end so the caret won't jump back to the start (when the last input child is a tag)
         }
 
         return {s, tagElm};
@@ -1017,16 +1038,18 @@ Tagify.prototype = {
                 this.dropdown.filterListItems.call(this, value) :
                 this.settings.whitelist.filter(item => this.isTagDuplicate(item.value || item) == -1 ); // don't include already preset tags
 
+            // hide suggestions list if no suggestions were matched
+            if( !this.suggestedListItems.length ){
+                this.input.autocomplete.suggest.call(this);
+                this.dropdown.hide.call(this);
+                return;
+            }
+
             listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
 
             // set the first item from the suggestions list as the autocomplete value
             if( this.settings.autoComplete ){
                 this.input.autocomplete.suggest.call(this, this.suggestedListItems.length ? this.suggestedListItems[0].value : '');
-            }
-
-            if( !listHTML ){
-               // this.dropdown.hide.call(this);
-                return;
             }
 
             this.DOM.dropdown.innerHTML = listHTML
@@ -1120,8 +1143,8 @@ Tagify.prototype = {
                                 return false;
                         case 'Enter' :
                             e.preventDefault();
-                            newValue = selectedElm ? [this.suggestedListItems[this.getNodeIndex(selectedElm)]] : this.input.value;
-                            this.addTags( newValue, true );
+                            newValue = this.suggestedListItems[this.getNodeIndex(selectedElm)] || this.input.value;
+                            this.addTags( [newValue], true );
                             this.dropdown.hide.call(this);
                             return false;
                             break;
@@ -1143,10 +1166,10 @@ Tagify.prototype = {
                     if( e.target == document.documentElement ) return onClickOutside();
 
                     listItemElm = [e.target, e.target.parentNode].filter(a => a.className.includes("tagify__dropdown__item") )[0];
-                    value = [this.suggestedListItems[this.getNodeIndex(listItemElm)]] || this.input.value;
 
                     if( listItemElm ){
-                        this.addTags(value, true);
+                        value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
+                        this.addTags([value], true);
                         this.dropdown.hide.call(this);
                     }
 
