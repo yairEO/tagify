@@ -1044,12 +1044,8 @@ Tagify.prototype = {
 
             listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
 
-            // set the first item from the suggestions list as the autocomplete value
-            if( this.settings.autoComplete ){
-                this.input.autocomplete.suggest.call(this, this.suggestedListItems.length ? this.suggestedListItems[0].value : '');
-            }
-
-            this.DOM.dropdown.innerHTML = listHTML
+            this.DOM.dropdown.innerHTML = listHTML;
+            this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
             this.dropdown.position.call(this);
 
             // if the dropdown has yet to be appended to the document,
@@ -1180,7 +1176,9 @@ Tagify.prototype = {
 
         highlightOption( elm, adjustScroll ){
             if( !elm ) return;
-            var className = "tagify__dropdown__item--active";
+
+            var className = "tagify__dropdown__item--active",
+                value;
 
             // for IE support, which doesn't allow "forEach" on "NodeList" Objects
             [].forEach.call(
@@ -1193,6 +1191,12 @@ Tagify.prototype = {
 
             if( adjustScroll )
                 elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight
+
+            // set the first item from the suggestions list as the autocomplete value
+            if( this.settings.autoComplete ){
+                value = this.suggestedListItems[this.getNodeIndex(elm)].value || this.input.value;
+                this.input.autocomplete.suggest.call(this, value);
+            }
         },
 
         /**
