@@ -328,6 +328,10 @@ Tagify.prototype = {
                 });
               }, 20);
               break;
+
+            case 'Enter':
+              e.preventDefault();
+            // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
           }
 
           return true;

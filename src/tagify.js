@@ -323,6 +323,9 @@ Tagify.prototype = {
                                 this.value = this.value.filter(d => values.indexOf(d.title) != -1);
                             }, 20)
                             break;
+
+                        case 'Enter' :
+                            e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                     }
 
                     return true;
