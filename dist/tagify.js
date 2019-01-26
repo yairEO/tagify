@@ -321,10 +321,10 @@ Tagify.prototype = {
               setTimeout(function () {
                 // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
                 [].forEach.call(tags, function (tagElm) {
-                  return values.push(tagElm.title);
+                  return values.push(tagElm.getAttribute('value'));
                 });
                 _this3.value = _this3.value.filter(function (d) {
-                  return values.indexOf(d.title) != -1;
+                  return values.indexOf(d.value) != -1;
                 });
               }, 20);
               break;
@@ -650,7 +650,6 @@ Tagify.prototype = {
    */
   isTagBlacklisted: function isTagBlacklisted(v) {
     v = v.toLowerCase().trim();
-    console.log(v);
     return this.settings.blacklist.filter(function (x) {
       return v == x.toLowerCase();
     }).length;
@@ -740,7 +739,7 @@ Tagify.prototype = {
       var value = tag.replace(_this6.settings.pattern, ''),
           tagData;
 
-      if (_this6.isTagWhitelisted(value)) {
+      if (_this6.isTagWhitelisted(value) && !_this6.settings.duplicates && _this6.isTagDuplicate(value) == -1) {
         tagData = _this6.normalizeTags.call(_this6, value)[0];
         s = _this6.replaceMixStringWithTag(s, tag, tagData).s;
       }
@@ -1004,7 +1003,7 @@ Tagify.prototype = {
       var listHTML;
       if (!this.settings.whitelist.length) return; // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
-      // TODO: add setting to control items' sort order for "listItems"
+      // TODO: add a Setting to control items' sort order for "listItems"
 
       this.suggestedListItems = value ? this.dropdown.filterListItems.call(this, value) : this.settings.whitelist.filter(function (item) {
         return _this8.isTagDuplicate(item.value || item) == -1;
@@ -1167,6 +1166,7 @@ Tagify.prototype = {
           suggestionsCount = this.settings.dropdown.maxItems || Infinity,
           whitelistItem,
           valueIsInWhitelist,
+          isDuplicate,
           i = 0;
 
       for (; i < whitelist.length; i++) {
@@ -1174,9 +1174,10 @@ Tagify.prototype = {
           value: whitelist[i]
         }, //normalize value as an Object
         valueIsInWhitelist = whitelistItem.value.toLowerCase().indexOf(value.toLowerCase()) == 0; // for fuzzy-search use ">="
-        // match for the value within each "whitelist" item
 
-        if (valueIsInWhitelist && this.isTagDuplicate(whitelistItem.value) == -1 && suggestionsCount--) list.push(whitelistItem);
+        isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value) > -1; // match for the value within each "whitelist" item
+
+        if (valueIsInWhitelist && !isDuplicate && suggestionsCount--) list.push(whitelistItem);
         if (suggestionsCount == 0) break;
       }
 

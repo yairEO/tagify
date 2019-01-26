@@ -459,7 +459,7 @@ var input = document.querySelector('[name=mix]'),
     tagify = new Tagify(input, {
         mode       : 'mix',  // <--  Enable mixed-content
         pattern    : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
-        whitelist  : [
+        whitelist  : [       // <--  Set the initial whitelist, which will dynamically change as you type (see "input" event below)
             {
                 value : 'cartman',
                 title : 'Eric Cartman',
