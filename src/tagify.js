@@ -55,7 +55,7 @@ Tagify.prototype = {
         }
     },
 
-    customEventsList : ['click', 'add', 'remove', 'invalid', 'input'],
+    customEventsList : ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
 
     applySettings( input, settings ){
         var attr__whitelist = input.getAttribute('data-whitelist'),
@@ -489,8 +489,10 @@ Tagify.prototype = {
                         e.target.textContent = e.target.originalValue;
 
                     case 'Enter' :
+                    case 'Tab' :
                         e.preventDefault();
                         e.target.blur();
+                        this.trigger("edit", e.target.textContent);
                 }
             },
 
