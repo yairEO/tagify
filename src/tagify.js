@@ -480,6 +480,7 @@ Tagify.prototype = {
                 tagElm.classList.remove('tagify--editable');
                 // remove all events from the "editTag" method
                 ediatbleElm.parentNode.replaceChild(clone, ediatbleElm);
+                this.trigger("edit", ediatbleElm.textContent);
             },
 
             onEditTagkeydown(e){
@@ -492,7 +493,6 @@ Tagify.prototype = {
                     case 'Tab' :
                         e.preventDefault();
                         e.target.blur();
-                        this.trigger("edit", e.target.textContent);
                 }
             },
 
