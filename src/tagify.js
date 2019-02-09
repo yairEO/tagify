@@ -47,6 +47,7 @@ Tagify.prototype = {
         keepInvalidTags     : false,          // Flag - if true, do not remove tags which did not pass validation
         autoComplete        : true,           // Flag - tries to autocomplete the input's value while typing
         mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
+        backspace           : true,           // false / true / "edit"
         dropdown            : {
             classname : '',
             enabled   : 2,    // minimum input characters needs to be typed for the dropdown to show
@@ -336,7 +337,11 @@ Tagify.prototype = {
                         if( s == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
                             lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
                             lastTag = lastTag[lastTag.length - 1];
-                            this.removeTag( lastTag );
+
+                            if( this.settings.backspace === true )
+                                this.removeTag( lastTag );
+                            else if( this.settings.backspace == 'edit' )
+                                this.editTag( lastTag )
                         }
                         break;
 

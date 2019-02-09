@@ -344,7 +344,7 @@ remove          | A tag has been removed
 invalid         | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
 input           | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes the typed value
 click           | Clicking a tag. Exposes the tag element, its index & data
-edit            | A tag has been edited and user pressed Enter or Tab.
+edit            | A tag has been edited
 
 
 ## Settings
@@ -365,6 +365,7 @@ maxTags               | Number     | Infinity    | Maximum number of allowed tag
 transformTag          | Function   | undefined   | Takes a tag input as argument and returns a transformed value
 tagTemplate           | Function   | undefined   | Takes a tag's value and data as arguments and returns an HTML string for a tag element
 keepInvalidTags       | Boolean    | false       | If true, do not remove tags which did not pass validation
+backspace             | *          | true        | On backspace: (true) - remove last tag, ("edit") - edit last tag
 dropdown.enabled      | Number     | 2           | Minimum characters to input to show the suggestions list. "false" to disable
 dropdown.maxItems     | Number     | 10          | Maximum items to show in the suggestions list dropdown
 dropdown.classname    | String     | ""          | Custom class name for the dropdown suggestions selectbox

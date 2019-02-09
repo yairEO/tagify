@@ -67,6 +67,8 @@ Tagify.prototype = {
     // Flag - tries to autocomplete the input's value while typing
     mixTagsAllowedAfter: /,|\.|\:|\s/,
     // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
+    backspace: true,
+    // false / true / "edit"
     dropdown: {
       classname: '',
       enabled: 2,
@@ -75,7 +77,7 @@ Tagify.prototype = {
       itemTemplate: ''
     }
   },
-  customEventsList: ['click', 'add', 'remove', 'invalid', 'input'],
+  customEventsList: ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
   applySettings: function applySettings(input, settings) {
     var attr__whitelist = input.getAttribute('data-whitelist'),
         attr__blacklist = input.getAttribute('data-blacklist');
@@ -343,7 +345,7 @@ Tagify.prototype = {
               // 8203: ZERO WIDTH SPACE unicode
               lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
               lastTag = lastTag[lastTag.length - 1];
-              this.removeTag(lastTag);
+              if (this.settings.backspace === true) this.removeTag(lastTag);else if (this.settings.backspace == 'edit') this.editTag(lastTag);
             }
 
             break;
@@ -479,6 +481,7 @@ Tagify.prototype = {
         tagElm.classList.remove('tagify--editable'); // remove all events from the "editTag" method
 
         ediatbleElm.parentNode.replaceChild(clone, ediatbleElm);
+        this.trigger("edit", ediatbleElm.textContent);
       },
       onEditTagkeydown: function onEditTagkeydown(e) {
         switch (e.key) {
@@ -487,6 +490,7 @@ Tagify.prototype = {
             e.target.textContent = e.target.originalValue;
 
           case 'Enter':
+          case 'Tab':
             e.preventDefault();
             e.target.blur();
         }
