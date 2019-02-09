@@ -344,6 +344,7 @@ remove          | A tag has been removed
 invalid         | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
 input           | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes the typed value
 click           | Clicking a tag. Exposes the tag element, its index & data
+edit            | A tag has been edited and user pressed Enter or Tab.
 
 
 ## Settings
