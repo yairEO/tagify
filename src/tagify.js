@@ -48,6 +48,7 @@ Tagify.prototype = {
         autoComplete        : true,           // Flag - tries to autocomplete the input's value while typing
         mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
         backspace           : true,           // false / true / "edit"
+        fuzzySearch         : false,           // Flag - enables fuzzy search
         dropdown            : {
             classname : '',
             enabled   : 2,    // minimum input characters needs to be typed for the dropdown to show
@@ -1217,6 +1218,7 @@ Tagify.prototype = {
                 whitelist = this.settings.whitelist,
                 suggestionsCount = this.settings.dropdown.maxItems || Infinity,
                 whitelistItem,
+                whitelistItemPosition,
                 valueIsInWhitelist,
                 isDuplicate,
                 i = 0;
@@ -1224,8 +1226,9 @@ Tagify.prototype = {
             for( ; i < whitelist.length; i++ ){
                 whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] }, //normalize value as an Object
 
-                valueIsInWhitelist = whitelistItem.value.toLowerCase().indexOf(value.toLowerCase()) == 0; // for fuzzy-search use ">="
-
+                whitelistItemPosition = whitelistItem.value.toLowerCase().indexOf(value.toLowerCase()),
+                valueIsInWhitelist = (this.settings.fuzzySearch == true ? whitelistItemPosition >= 0 : whitelistItemPosition == 0)
+                
                 isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value) > -1;
 
                 // match for the value within each "whitelist" item
