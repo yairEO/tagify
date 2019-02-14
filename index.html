@@ -53,6 +53,7 @@
             p{ line-height:1.4; }
             code{ padding:2px 3px; background:lightyellow; }
             pre code{ background:none; padding:0; }
+            .forkLink{ top:1em; right:1em; }
 
             section > .rightSide{
                 position: sticky;
@@ -132,7 +133,7 @@
 
     <body>
         <a class='forkLink' title='Go To Repo' href='https://github.com/yairEO/tagify'>
-            <img src='https://assets-cdn.github.com/images/modules/logos_page/GitHub-Mark.png' alt='GitHub Repo'>
+            <img src='https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png' alt='GitHub Repo'>
         </a>
 
         <label><input name='toggleTagify' type='checkbox'> TOGGLE OFF</label>
@@ -403,12 +404,13 @@ document.querySelector('.tags--removeAllBtn')
 tagify.on('add', onAddTag)
       .on('remove', onRemoveTag)
       .on('input', onInput)
+      .on('edit', onTagEdit)
       .on('invalid', onInvalidTag)
       .on('click', onTagClick);
 
 // tag added callback
 function onAddTag(e){
-    console.log(e.detail);
+    console.log("onAddTag: ", e.detail);
     console.log("original input value: ", input.value)
     tagify.off('add', onAddTag) // exmaple of removing a custom Tagify event
 }
@@ -422,16 +424,22 @@ function onRemoveTag(e){
 // on character(s) added/removed (user is typing/deleting)
 function onInput(e){
     console.log(e.detail);
+    console.log("onInput: ", e.detail);
+}
+
+function onTagEdit(e){
+    console.log("onTagEdit: ", e.detail);
 }
 
 // invalid tag added callback
 function onInvalidTag(e){
-    console.log(e.detail);
+    console.log("onInvalidTag: ", e.detail);
 }
 
 // invalid tag added callback
 function onTagClick(e){
     console.log(e.detail);
+    console.log("onTagClick: ", e.detail);
 }
 
 })()

@@ -452,17 +452,18 @@ Tagify.prototype = {
 
             onEditTagInput( ediatbleElm ){
                 var tagElm = ediatbleElm.closest('tag'),
+                    tagElmIdx = this.getNodeIndex(tagElm),
                     value = this.input.normalize(ediatbleElm),
                     isValid = value == ediatbleElm.originalValue || this.validateTag(value);
 
                 tagElm.classList.toggle('tagify--invalid', isValid !== true);
                 tagElm.isValid = isValid;
-                this.trigger("input", value);
+                this.trigger("input", { tag:tagElm, index:tagElmIdx, data:this.extend({}, this.value[tagElmIdx], {newValue:value}) });
             },
 
             onEditTagBlur( ediatbleElm ){
                 var tagElm = ediatbleElm.closest('tag'),
-                    idx = this.getNodeIndex(tagElm),
+                    tagElmIdx = this.getNodeIndex(tagElm),
                     value = this.input.normalize(ediatbleElm) || ediatbleElm.originalValue,
                     isValid = tagElm.isValid,
                     clone;
@@ -474,7 +475,7 @@ Tagify.prototype = {
                 ediatbleElm.textContent = value;
 
                 // update data
-                this.value[idx].value = value;
+                this.value[tagElmIdx].value = value;
                 this.update();
 
                 // cleanup (clone node to remove events)
@@ -485,7 +486,7 @@ Tagify.prototype = {
                 tagElm.classList.remove('tagify--editable');
                 // remove all events from the "editTag" method
                 ediatbleElm.parentNode.replaceChild(clone, ediatbleElm);
-                this.trigger("edit", ediatbleElm.textContent);
+                this.trigger("edit", { tag:tagElm, index:tagElmIdx, data:this.value[tagElmIdx] });
             },
 
             onEditTagkeydown(e){
