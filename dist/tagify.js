@@ -794,9 +794,12 @@ Tagify.prototype = {
         textnode,
         tagElm,
         idx,
+        maxLoops = 100,
         replacedNode;
 
     while (textnode = iter.nextNode()) {
+      if (!maxLoops--) break;
+
       if (textnode.nodeType === Node.TEXT_NODE) {
         // get the index of which the tag (string) is within the textNode (if at all)
         idx = textnode.nodeValue.indexOf(tag);
