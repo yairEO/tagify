@@ -838,6 +838,7 @@ Tagify.prototype = {
                 replacedNode.nodeValue = replacedNode.nodeValue.replace(tag, '');
                 textnode.parentNode.insertBefore(tagElm, replacedNode);
                 tagElm.insertAdjacentHTML('afterend', '&#8288;');
+                break;
             }
         }
 
