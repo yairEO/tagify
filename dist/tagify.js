@@ -575,7 +575,9 @@ Tagify.prototype = {
       var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.DOM.input;
       var clone = node,
           //.cloneNode(true),
-      v = clone.innerText.replace(/\s/g, ' ') // replace NBSPs with spaces characters
+      v = clone.innerText;
+      if ("settings" in this) v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(1));
+      v = v.replace(/\s/g, ' ') // replace NBSPs with spaces characters
       .replace(/^\s+/, ""); // trimLeft
 
       return v;
