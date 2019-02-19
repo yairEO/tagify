@@ -194,9 +194,7 @@ Tagify.prototype = {
       for (var key in b) {
         if (b.hasOwnProperty(key)) {
           if (isObject(b[key])) {
-            if (!isObject(a[key])) {
-              a[key] = Object.assign({}, b[key]);
-            } else copy(a[key], b[key]);
+            if (!isObject(a[key])) a[key] = Object.assign({}, b[key]);else copy(a[key], b[key]);
           } else a[key] = b[key];
         }
       }
@@ -399,6 +397,7 @@ Tagify.prototype = {
             tag,
             showSuggestions,
             eventData = {};
+        if (this.maxTagsReached()) return true;
 
         if (window.getSelection) {
           sel = window.getSelection();
@@ -650,10 +649,8 @@ Tagify.prototype = {
     tagElm = tagElm || this.getTagElmByValue(value); // check AGAIN if "tagElm" is defined
 
     if (tagElm) {
-      tagElm.classList.add('tagify--mark');
-      setTimeout(function () {
-        tagElm.classList.remove('tagify--mark');
-      }, 100);
+      tagElm.classList.add('tagify--mark'); //   setTimeout(() => { tagElm.classList.remove('tagify--mark') }, 100);
+
       return tagElm;
     }
 
@@ -686,15 +683,16 @@ Tagify.prototype = {
    */
   validateTag: function validateTag(s) {
     var value = s.trim(),
-        maxTagsExceed = this.value.length >= this.settings.maxTags,
-        isDuplicate,
-        eventName__error,
         result = true; // check for empty value
 
-    if (!value) result = this.TEXTS.empty;else if (maxTagsExceed) result = this.TEXTS.exceed; // check if pattern should be used and if so, use it to test the value
+    if (!value) result = this.TEXTS.empty; // check if pattern should be used and if so, use it to test the value
     else if (this.settings.pattern && !this.settings.pattern.test(value)) result = this.TEXTS.pattern; // if duplicates are not allowed and there is a duplicate
       else if (!this.settings.duplicates && this.isTagDuplicate(value) !== -1) result = this.TEXTS.duplicate;else if (this.isTagBlacklisted(value) || this.settings.enforceWhitelist && !this.isTagWhitelisted(value)) result = this.TEXTS.notAllowed;
     return result;
+  },
+  maxTagsReached: function maxTagsReached() {
+    if (this.value.length >= this.settings.maxTags) return this.TEXTS.exceed;
+    return false;
   },
 
   /**
@@ -847,10 +845,10 @@ Tagify.prototype = {
         tagData.value = _this7.settings.transformTag.call(_this7, tagData.value) || tagData.value;
       }
 
-      tagValidation = _this7.validateTag.call(_this7, tagData.value);
+      tagValidation = _this7.maxTagsReached() || _this7.validateTag.call(_this7, tagData.value);
 
       if (tagValidation !== true) {
-        tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
+        tagData.class = (tagData.class || '') + ' tagify--notAllowed';
         tagData.title = tagValidation;
 
         _this7.markTagByValue(tagData.value);

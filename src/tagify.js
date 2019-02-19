@@ -187,9 +187,8 @@ Tagify.prototype = {
             for( var key in b )
                 if( b.hasOwnProperty(key) ){
                     if( isObject(b[key]) ){
-                        if( !isObject(a[key]) ){
+                        if( !isObject(a[key]) )
                             a[key] = Object.assign({}, b[key]);
-                        }
                         else
                             copy(a[key], b[key])
                     }
@@ -393,6 +392,9 @@ Tagify.prototype = {
 
             onMixTagsInput( e ){
                 var sel, range, split, tag, showSuggestions, eventData = {};
+
+                if( this.maxTagsReached() )
+                    return true;
 
                 if( window.getSelection ){
                     sel = window.getSelection();
@@ -664,7 +666,7 @@ Tagify.prototype = {
         // check AGAIN if "tagElm" is defined
         if( tagElm ){
             tagElm.classList.add('tagify--mark');
-            setTimeout(() => { tagElm.classList.remove('tagify--mark') }, 100);
+         //   setTimeout(() => { tagElm.classList.remove('tagify--mark') }, 100);
             return tagElm;
         }
 
@@ -696,17 +698,11 @@ Tagify.prototype = {
      */
     validateTag( s ){
         var value = s.trim(),
-            maxTagsExceed = this.value.length >= this.settings.maxTags,
-            isDuplicate,
-            eventName__error,
             result = true;
 
         // check for empty value
         if( !value )
             result = this.TEXTS.empty;
-
-        else if( maxTagsExceed )
-            result = this.TEXTS.exceed;
 
         // check if pattern should be used and if so, use it to test the value
         else if( this.settings.pattern && !(this.settings.pattern.test(value)) )
@@ -720,6 +716,12 @@ Tagify.prototype = {
             result = this.TEXTS.notAllowed;
 
         return result;
+    },
+
+    maxTagsReached(){
+        if( this.value.length >= this.settings.maxTags )
+            return this.TEXTS.exceed;
+        return false;
     },
 
     /**
@@ -868,10 +870,10 @@ Tagify.prototype = {
                 tagData.value = this.settings.transformTag.call(this, tagData.value) || tagData.value;
             }
 
-            tagValidation = this.validateTag.call(this, tagData.value);
+            tagValidation = this.maxTagsReached() || this.validateTag.call(this, tagData.value);
 
             if( tagValidation !== true ){
-                tagData.class = tagData.class ? tagData.class + " tagify--notAllowed" : "tagify--notAllowed";
+                tagData.class = (tagData.class || '') + ' tagify--notAllowed';
                 tagData.title = tagValidation;
                 this.markTagByValue(tagData.value);
                 this.trigger("invalid", {data:tagData, index:this.value.length, message:tagValidation});
@@ -1013,9 +1015,9 @@ Tagify.prototype = {
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update(){
-        this.DOM.originalInput.value = this.settings.mode == 'mix' ?
-            this.DOM.input.textContent :
-            JSON.stringify(this.value)
+        this.DOM.originalInput.value = this.settings.mode == 'mix'
+            ? this.DOM.input.textContent
+            : JSON.stringify(this.value)
     },
 
     /**
