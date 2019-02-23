@@ -366,7 +366,6 @@ transformTag          | Function   | undefined   | Takes a tag input as argument
 tagTemplate           | Function   | undefined   | Takes a tag's value and data as arguments and returns an HTML string for a tag element
 keepInvalidTags       | Boolean    | false       | If true, do not remove tags which did not pass validation
 backspace             | *          | true        | On backspace: (`true`) - remove last tag, (`"edit"``) - edit last tag
-                      |            |             |
 dropdown.enabled      | Number     | 2           | Minimum characters to input to show the suggestions list. "false" to disable
 dropdown.maxItems     | Number     | 10          | Maximum items to show in the suggestions list dropdown
 dropdown.classname    | String     | ""          | Custom class name for the dropdown suggestions selectbox
