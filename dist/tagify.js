@@ -74,7 +74,8 @@ Tagify.prototype = {
       enabled: 2,
       // minimum input characters needs to be typed for the dropdown to show
       maxItems: 10,
-      itemTemplate: ''
+      itemTemplate: '',
+      fuzzySearch: false
     }
   },
   customEventsList: ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
@@ -1169,7 +1170,7 @@ Tagify.prototype = {
       elm.classList.add(className);
       if (adjustScroll) elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight; // set the first item from the suggestions list as the autocomplete value
 
-      if (this.settings.autoComplete) {
+      if (this.settings.autoComplete && !this.settings.dropdown.fuzzySearch) {
         value = this.suggestedListItems[this.getNodeIndex(elm)].value || this.input.value;
         this.input.autocomplete.suggest.call(this, value);
       }
@@ -1186,6 +1187,7 @@ Tagify.prototype = {
           suggestionsCount = this.settings.dropdown.maxItems || Infinity,
           whitelistItem,
           valueIsInWhitelist,
+          whitelistItemValueIndex,
           isDuplicate,
           i = 0;
 
@@ -1193,8 +1195,8 @@ Tagify.prototype = {
         whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : {
           value: whitelist[i]
         }, //normalize value as an Object
-        valueIsInWhitelist = whitelistItem.value.toLowerCase().indexOf(value.toLowerCase()) == 0; // for fuzzy-search use ">="
-
+        whitelistItemValueIndex = whitelistItem.value.toLowerCase().indexOf(value.toLowerCase());
+        valueIsInWhitelist = this.settings.dropdown.fuzzySearch ? whitelistItemValueIndex >= 0 : whitelistItemValueIndex == 0;
         isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value) > -1; // match for the value within each "whitelist" item
 
         if (valueIsInWhitelist && !isDuplicate && suggestionsCount--) list.push(whitelistItem);

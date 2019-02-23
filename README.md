@@ -351,8 +351,8 @@ edit            | A tag has been edited
 
 Name                  | Type       | Default     | Info
 ----------------------| ---------- | ----------- | --------------------------------------------------------------------------
-delimiters            | String     | ","         | [regex] split tags by any of these delimiters. Example: ",| |."
-pattern               | String     | null        | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: /[1-9]/
+delimiters            | String     | ","         | [regex] split tags by any of these delimiters. Example: `",| |."``
+pattern               | String     | null        | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/``
 mode                  | String     | null        | use 'mix' as value to allow mixed-content. The 'pattern' setting must be set to some character.
 duplicates            | Boolean    | false       | (flag) Should duplicate tags be allowed or not
 enforceWhitelist      | Boolean    | false       | Should ONLY use tags allowed in whitelist
@@ -360,13 +360,15 @@ autocomplete          | Boolean    | true        | Tries to autocomplete the inp
 whitelist             | Array      | []          | An array of tags which only they are allowed
 blacklist             | Array      | []          | An array of tags which aren't allowed
 addTagOnBlur          | Boolean    | true        | Automatically adds the text which was inputed as a tag when blur event happens
-callbacks             | Object     | {}          | Exposed callbacks object to be triggered on events: 'add' / 'remove' tags
+callbacks             | Object     | {}          | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
 maxTags               | Number     | Infinity    | Maximum number of allowed tags. when reached, adds a class "hasMaxTags" to `<Tags>`
 transformTag          | Function   | undefined   | Takes a tag input as argument and returns a transformed value
 tagTemplate           | Function   | undefined   | Takes a tag's value and data as arguments and returns an HTML string for a tag element
 keepInvalidTags       | Boolean    | false       | If true, do not remove tags which did not pass validation
-backspace             | *          | true        | On backspace: (true) - remove last tag, ("edit") - edit last tag
+backspace             | *          | true        | On backspace: (`true`) - remove last tag, (`"edit"``) - edit last tag
+                      |            |             |
 dropdown.enabled      | Number     | 2           | Minimum characters to input to show the suggestions list. "false" to disable
 dropdown.maxItems     | Number     | 10          | Maximum items to show in the suggestions list dropdown
 dropdown.classname    | String     | ""          | Custom class name for the dropdown suggestions selectbox
 dropdown.itemTemplate | Function   | ""          | Returns a custom string for each list item in the dropdown suggestions selectbox
+dropdown.fuzzySearch  | Boolean    | false       | Enables filtering dropdown items values' by string *containing* and not only *beginning* 
