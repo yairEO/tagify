@@ -126,6 +126,7 @@ gulp.task('build_js', ['lint_js'], () => {
     return jsStream
         .pipe( $.babel({presets: ['env']}) )
         .pipe( $.umd() )
+        .pipe( $.insert.prepend(banner) )
         .pipe( gulp.dest('./dist/') )
         .pipe($.rename('tagify.min.js'))
         .pipe($.uglify())

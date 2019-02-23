@@ -1,3 +1,9 @@
+/**
+ * Tagify (v 2.12.6)- tags input component
+ * By Yair Even-Or (2016)
+ * Don't sell this code. (c)
+ * https://github.com/yairEO/tagify
+ */
 ;(function(root, factory) {
   if (typeof define === 'function' && define.amd) {
     define([], factory);
