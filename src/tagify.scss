@@ -231,8 +231,8 @@
     &__input{
         $placeholder-width : 110px;
         @mixin placeholder-show{ opacity:.5; transform:none; };
+        display: block;
         min-width: $placeholder-width;
-
         margin: $tagMargin;
         padding: $tagPad;
         position: relative;

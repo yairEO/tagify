@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.12.6)- tags input component
+ * Tagify (v 2.13.0)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -143,7 +143,7 @@ Tagify.prototype = {
   build: function build(input) {
     var that = this,
         DOM = this.DOM,
-        template = "<tags class=\"tagify " + (this.settings.mode ? "tagify--mix" : "") + " " + input.className + "\" " + (this.settings.readonly ? 'readonly' : '') + ">\n                            <div contenteditable data-placeholder=\"" + (input.placeholder || '&#8203;') + "\" class=\"tagify__input\"></div>\n                        </tags>";
+        template = "<tags class=\"tagify " + (this.settings.mode ? "tagify--mix" : "") + " " + input.className + "\" " + (this.settings.readonly ? 'readonly' : '') + ">\n                            <span contenteditable data-placeholder=\"" + (input.placeholder || '&#8203;') + "\" class=\"tagify__input\"></span>\n                        </tags>";
     DOM.originalInput = input;
     DOM.scope = this.parseHTML(template);
     DOM.input = DOM.scope.querySelector('[contenteditable]');
