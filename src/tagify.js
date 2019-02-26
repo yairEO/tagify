@@ -977,10 +977,13 @@ Tagify.prototype = {
      * @param  {Number}         tranDuration    [Transition duration in MS]
      */
     removeTag( tagElm, silent, tranDuration = 250 ){
-        if( !tagElm || !(tagElm instanceof HTMLElement) ) return;
+        if( !tagElm ) return;
 
         if( typeof tagElm == 'string' )
             tagElm = this.getTagElmByValue(tagElm)
+
+        if( !(tagElm instanceof HTMLElement) )
+            return;
 
         var tagData,
             tagIdx = this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)

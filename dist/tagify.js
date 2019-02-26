@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.13.0)- tags input component
+ * Tagify (v 2.14.0)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -960,8 +960,9 @@ Tagify.prototype = {
    */
   removeTag: function removeTag(tagElm, silent) {
     var tranDuration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 250;
-    if (!tagElm || !(tagElm instanceof HTMLElement)) return;
+    if (!tagElm) return;
     if (typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
+    if (!(tagElm instanceof HTMLElement)) return;
     var tagData,
         tagIdx = this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
 
