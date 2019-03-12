@@ -1160,6 +1160,9 @@ Tagify.prototype = {
             value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
             this.addTags([value], true);
             this.dropdown.hide.call(this);
+            setTimeout(function () {
+              return _this9.DOM.input.focus();
+            }, 100);
           } // clicked outside the dropdown, so just close it
           else onClickOutside();
         }
