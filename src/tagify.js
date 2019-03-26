@@ -53,7 +53,7 @@ Tagify.prototype = {
             enabled      : 2,    // minimum input characters needs to be typed for the dropdown to show
             maxItems     : 10,
             itemTemplate : '',
-            fuzzySearch  : false
+            fuzzySearch  : true
         }
     },
 
@@ -581,7 +581,7 @@ Tagify.prototype = {
             var clone = node, //.cloneNode(true),
                 v = clone.innerText;
 
-            if( "settings" in this )
+            if( "settings" in this && this.settings.delimiters )
                 v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(1));
 
             v = v.replace(/\s/g, ' ')  // replace NBSPs with spaces characters
@@ -1051,9 +1051,9 @@ Tagify.prototype = {
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems
             // TODO: add a Setting to control items' sort order for "listItems"
-            this.suggestedListItems = value ?
-                this.dropdown.filterListItems.call(this, value) :
-                this.settings.whitelist.filter(item => this.isTagDuplicate(item.value || item) == -1 ); // don't include already preset tags
+            this.suggestedListItems = value
+                ? this.dropdown.filterListItems.call(this, value)
+                : this.settings.whitelist.filter(item => this.isTagDuplicate(item.value || item) == -1 ); // don't include already preset tags
 
             // hide suggestions list if no suggestions were matched
             if( !this.suggestedListItems.length ){
@@ -1176,7 +1176,7 @@ Tagify.prototype = {
                         value,
                         listItemElm;
 
-                    if( e.button != 0 ) return; // allow only mouse left-clicks
+                    if( e.button != 0 || e.target == this.DOM.dropdown ) return; // allow only mouse left-clicks
                     if( e.target == document.documentElement ) return onClickOutside();
 
                     listItemElm = [e.target, e.target.parentNode].filter(a => a.className.includes("tagify__dropdown__item") )[0];
@@ -1233,14 +1233,18 @@ Tagify.prototype = {
                 whitelistItem,
                 valueIsInWhitelist,
                 whitelistItemValueIndex,
+                searchBy,
                 isDuplicate,
                 i = 0;
 
             for( ; i < whitelist.length; i++ ){
-                whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] }, //normalize value as an Object
-                whitelistItemValueIndex = whitelistItem.value.toLowerCase().indexOf(value.toLowerCase())
+                whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] }; //normalize value as an Object
+                searchBy = ((whitelistItem.searchBy || '') + ' ' + whitelistItem.value).toLowerCase();
+                whitelistItemValueIndex = searchBy.indexOf( value.toLowerCase() );
 
-                valueIsInWhitelist = this.settings.dropdown.fuzzySearch ? whitelistItemValueIndex >= 0 : whitelistItemValueIndex == 0;
+                valueIsInWhitelist = this.settings.dropdown.fuzzySearch
+                    ? whitelistItemValueIndex >= 0
+                    : whitelistItemValueIndex == 0;
 
                 isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value) > -1;
 
@@ -1261,12 +1265,20 @@ Tagify.prototype = {
          */
         createListHTML( list ){
             var getItem = this.settings.dropdown.itemTemplate || function(item){
-                return `<div class='tagify__dropdown__item ${item.class ? item.class : ""}' ${getAttributesString(item)}>${item.value || item}</div>`;
-            };
+                var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
+                return `<div class='tagify__dropdown__item ${item.class ? item.class : ""}' ${getAttributesString(item)}>${sanitizedValue}</div>`;
+            }
 
             // for a certain Tag element, add attributes.
-            function getAttributesString(item){
-                var i, keys = Object.keys(item), s = "";
+            function getAttributesString( item ){
+                // only items which are objects have properties which can be used as attributes
+                if( Object.prototype.toString.call(item) != "[object object]" )
+                    return;
+
+                var keys = Object.keys(item),
+                    s = "",
+                    i;
+
                 for( i=keys.length; i--; ){
                     var propName = keys[i];
                     if( propName != 'class' && !item.hasOwnProperty(propName) ) return;

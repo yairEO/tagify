@@ -140,9 +140,9 @@ function onInput( e ){
 
 ### Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
-Suggestions list will only be rendered if there were at least two sugegstions found.
-Matching suggested values is case-insensetive.
-The selectbox dropdown will be appended to the document's "body" element and will be positioned under the element.
+Suggestions list will only be rendered if there are at least two matching sugegstions (case-insensetive).
+
+The selectbox dropdown will be appended to the document's `<body>` element and will be rendered by default in a position below (bottom of) the Tagify element.
 Using the keyboard arrows up/down will highlight an option from the list, and hitting the Enter key to select.
 
 It is possible to tweak the selectbox dropdown via 2 settings:
@@ -172,6 +172,20 @@ Will render:
     <div class="tagify__dropdown__item" value="aaabd">aaabd</div>
     <div class="tagify__dropdown__item" value="aaabe">aaabe</div>
 </div>
+```
+
+By default searching the suggestions is using fuzzy-search (configurable).
+If you wish to assign alias to items in your suggestion list, it can be done by adding the `searchBy` property to an item in the list you wish
+to have an alias for, so when searching the suggestion for that alias, that item will show up.
+
+### [Example](https://yaireo.github.io/tagify/#section-extra-properties) for a suggestion item alias
+
+```javascript
+    whitelist = [
+        {
+            { value:'Afghanistan', code:'AF', searchBy:'war zone' },
+        }
+    ]
 ```
 
 ### Edit tags
@@ -370,4 +384,4 @@ dropdown.enabled      | Number     | 2           | Minimum characters to input t
 dropdown.maxItems     | Number     | 10          | Maximum items to show in the suggestions list dropdown
 dropdown.classname    | String     | ""          | Custom class name for the dropdown suggestions selectbox
 dropdown.itemTemplate | Function   | ""          | Returns a custom string for each list item in the dropdown suggestions selectbox
-dropdown.fuzzySearch  | Boolean    | false       | Enables filtering dropdown items values' by string *containing* and not only *beginning* 
+dropdown.fuzzySearch  | Boolean    | true        | Enables filtering dropdown items values' by string *containing* and not only *beginning*

@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.14.0)- tags input component
+ * Tagify (v 2.14.1)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -81,7 +81,7 @@ Tagify.prototype = {
       // minimum input characters needs to be typed for the dropdown to show
       maxItems: 10,
       itemTemplate: '',
-      fuzzySearch: false
+      fuzzySearch: true
     }
   },
   customEventsList: ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
@@ -583,7 +583,7 @@ Tagify.prototype = {
       var clone = node,
           //.cloneNode(true),
       v = clone.innerText;
-      if ("settings" in this) v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(1));
+      if ("settings" in this && this.settings.delimiters) v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(1));
       v = v.replace(/\s/g, ' ') // replace NBSPs with spaces characters
       .replace(/^\s+/, ""); // trimLeft
 
@@ -1149,7 +1149,7 @@ Tagify.prototype = {
               value,
               listItemElm;
 
-          if (e.button != 0) return; // allow only mouse left-clicks
+          if (e.button != 0 || e.target == this.DOM.dropdown) return; // allow only mouse left-clicks
 
           if (e.target == document.documentElement) return onClickOutside();
           listItemElm = [e.target, e.target.parentNode].filter(function (a) {
@@ -1198,14 +1198,17 @@ Tagify.prototype = {
           whitelistItem,
           valueIsInWhitelist,
           whitelistItemValueIndex,
+          searchBy,
           isDuplicate,
           i = 0;
 
       for (; i < whitelist.length; i++) {
         whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : {
           value: whitelist[i]
-        }, //normalize value as an Object
-        whitelistItemValueIndex = whitelistItem.value.toLowerCase().indexOf(value.toLowerCase());
+        }; //normalize value as an Object
+
+        searchBy = ((whitelistItem.searchBy || '') + ' ' + whitelistItem.value).toLowerCase();
+        whitelistItemValueIndex = searchBy.indexOf(value.toLowerCase());
         valueIsInWhitelist = this.settings.dropdown.fuzzySearch ? whitelistItemValueIndex >= 0 : whitelistItemValueIndex == 0;
         isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value) > -1; // match for the value within each "whitelist" item
 
@@ -1223,14 +1226,17 @@ Tagify.prototype = {
      */
     createListHTML: function createListHTML(list) {
       var getItem = this.settings.dropdown.itemTemplate || function (item) {
-        return "<div class='tagify__dropdown__item " + (item.class ? item.class : "") + "' " + getAttributesString(item) + ">" + (item.value || item) + "</div>";
+        var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
+        return "<div class='tagify__dropdown__item " + (item.class ? item.class : "") + "' " + getAttributesString(item) + ">" + sanitizedValue + "</div>";
       }; // for a certain Tag element, add attributes.
 
 
       function getAttributesString(item) {
-        var i,
-            keys = Object.keys(item),
-            s = "";
+        // only items which are objects have properties which can be used as attributes
+        if (Object.prototype.toString.call(item) != "[object object]") return;
+        var keys = Object.keys(item),
+            s = "",
+            i;
 
         for (i = keys.length; i--;) {
           var propName = keys[i];
