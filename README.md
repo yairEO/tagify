@@ -196,9 +196,11 @@ The value is saved on `blur` or by pressnig `enter` key. Pressing `Escaspe` will
 
 ### React
 
-`react.tagify.js`
+[**Codepen Demo**](https://codepen.io/vsync/project/editor/ARaJye)
 
-React component using the Tagify's Wrapper `<Tags>`:
+
+
+React component using the Tagify's Wrapper `<Tags>` within [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
 
 ```javascript
 import { Tags } from '@yaireo/tagify/dist/react.tagify'
