@@ -182,9 +182,8 @@ to have an alias for, so when searching the suggestion for that alias, that item
 
 ```javascript
 whitelist = [
-    {
-        { value:'Afghanistan', code:'AF', searchBy:'war zone' },
-    }
+    { value:'Afghanistan', code:'AF', searchBy:'war zone' },
+    ...
 ]
 ```
 
