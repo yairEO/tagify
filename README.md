@@ -1,3 +1,7 @@
+<a href='https://www.npmjs.com/package/@yaireo/validator'>
+    <img src="https://img.shields.io/npm/v/@yaireo/tagify.svg" />
+</a>
+
 [Tagify](https://yaireo.github.io/tagify) - lightweight input "tags" script
 ========
 
