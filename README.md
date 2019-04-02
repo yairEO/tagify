@@ -196,69 +196,10 @@ The value is saved on `blur` or by pressnig `enter` key. Pressing `Escaspe` will
 
 ## React
 
-[**Codepen Demo**](https://codepen.io/vsync/project/editor/ARaJye)
+A Tagify React component is exported as `<Tags>` from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
 
+Check the [**codepen demo**](https://codepen.io/vsync/project/editor/ARaJye) for a live React integration example
 
-
-React component using the Tagify's Wrapper `<Tags>` within [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
-
-```javascript
-import { Tags } from '@yaireo/tagify/dist/react.tagify'
-
-// setup some basic Tagify settings object
-var tagifySettings = {
-    blacklist : ["fuck", "shit"]
-}
-
-// Demo "App" component that is using the Tagify React component (<Tags/>)
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-
-        tagifySettings.callbacks = {
-            add     : this.onTagifyAdd,
-            remove  : this.onTagifyRemove,
-            input   : this.onTagifyInput,
-            invalid : this.onTagifyInvalid
-        }
-    }
-
-    componentDidMount(){}
-
-    // callbacks for all of Tagify's events:
-    onTagifyAdd = e => {
-        console.log('added:', e.detail);
-    }
-
-    onTagifyRemove = e => {
-        console.log('remove:', e.detail);
-    }
-
-    onTagifyInput = e => {
-        console.log('input:', e.detail);
-    }
-
-    onTagifyInvalid = e => {
-        console.log('invalid:', e.detail);
-    }
-
-    // Render <Textarea> element and applies Tagify on it
-    render(){
-        return (
-            <Tags mode='textarea'
-                  autofocus={true}
-                  className='myInput'
-                  name='tags'
-                  settings={tagifySettings}
-                  initialValue='foo, bar, baz' />
-        )
-    }
-}
-
-ReactDOM.render(<App />, document.getElementById('app'))
-```
-
-[Live React Demo in Codepen](https://codepen.io/vsync/project/editor/44cc53af79bbede42efd7521d94d6f9f)
 
 ## Angular
 
