@@ -86,7 +86,7 @@ Output files, which are automatically generated using Gulp, are in: `/dist/`
 
 The rest of the files are most likely irrelevant.
 
-### Adding tags dynamically
+## Adding tags dynamically
 
 ```javascript
 var tagify = new Tagify(...);
@@ -98,14 +98,14 @@ tagify.addTags(["banana", "orange", "apple"])
 tagify.addTags([{value:"banana", color:"yellow"}, {value:"apple", color:"red"}, {value:"watermelon", color:"green"}])
 ```
 
-### output value
+## output value
 
 There are two possible ways to get the value of the tags:
 
 1. Access the tagify's instance's `value` prop: `tagify.value` (Array of tags)
 2. Access the original input's value: `inputElm.value` (Stringified Array of tags)
 
-### Ajax whitelist
+## Ajax whitelist
 
 Dynamically-loaded suggestions list (*whitelist*) from the server (as the user types) is a frequent need to many.
 
@@ -138,7 +138,7 @@ function onInput( e ){
 ```
 
 
-### Suggestions selectbox
+## Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
 Suggestions list will only be rendered if there are at least two matching sugegstions (case-insensetive).
 
@@ -178,7 +178,7 @@ By default searching the suggestions is using fuzzy-search (configurable).
 If you wish to assign alias to items in your suggestion list, it can be done by adding the `searchBy` property to an item in the list you wish
 to have an alias for, so when searching the suggestion for that alias, that item will show up.
 
-### [Example](https://yaireo.github.io/tagify/#section-extra-properties) for a suggestion item alias
+## [Example](https://yaireo.github.io/tagify/#section-extra-properties) for a suggestion item alias
 
 ```javascript
     whitelist = [
@@ -188,13 +188,13 @@ to have an alias for, so when searching the suggestion for that alias, that item
     ]
 ```
 
-### Edit tags
+## Edit tags
 Tags which aren't `read-only` can be edited by double-clicking them.
 
 The value is saved on `blur` or by pressnig `enter` key. Pressing `Escaspe` will revert the change trigger `blur`.
 <kbd>ctrl</kbd><kbd>z</kbd> will revert the change if an edited tag was marked as not valid (perhaps duplicate or blacklisted)
 
-### React
+## React
 
 [**Codepen Demo**](https://codepen.io/vsync/project/editor/ARaJye)
 
@@ -260,7 +260,7 @@ ReactDOM.render(<App />, document.getElementById('app'))
 
 [Live React Demo in Codepen](https://codepen.io/vsync/project/editor/44cc53af79bbede42efd7521d94d6f9f)
 
-### Angular
+## Angular
 
 **TagifyComponent** which will be used by your template as `<tagify>`
 
@@ -315,7 +315,7 @@ export class AppComponent implements OnDestroy {
 }
 ```
 
-### jQuery version
+## jQuery version
 
 `jQuery.tagify.js`
 
