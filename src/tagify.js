@@ -735,7 +735,8 @@ Tagify.prototype = {
      * @return {Array} [Array of Objects]
      */
     normalizeTags( tagsItems ){
-        var whitelistWithProps = this.settings.whitelist[0] instanceof Object,
+        var {whitelist, delimiters, mode} = this.settings,
+            whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
             isCollection = tagsItems instanceof Array && tagsItems[0] instanceof Object && "value" in tagsItems[0],
             temp = [];
@@ -752,7 +753,7 @@ Tagify.prototype = {
             if( !tagsItems.trim() ) return [];
 
             // go over each tag and add it (if there were multiple ones)
-            tagsItems = tagsItems.split(this.settings.delimiters).filter(n => n).map(v => ({ value:v.trim() }));
+            tagsItems = tagsItems.split(delimiters).filter(n => n).map(v => ({ value:v.trim() }));
         }
 
         else if( tagsItems instanceof Array )
@@ -761,10 +762,10 @@ Tagify.prototype = {
         // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
         if(  whitelistWithProps ){
             tagsItems.forEach(tag => {
-                var matchObj = this.settings.whitelist.filter( WL_item => WL_item.value.toLowerCase() == tag.value.toLowerCase() )
+                var matchObj = whitelist.filter( WL_item => WL_item.value.toLowerCase() == tag.value.toLowerCase() )
                 if( matchObj[0] )
                     temp.push( matchObj[0] ); // set the Array (with the found Object) as the new value
-                else if( this.settings.mode != 'mix' )
+                else if( mode != 'mix' )
                     temp.push(tag)
             })
 
@@ -851,12 +852,18 @@ Tagify.prototype = {
 
     /**
      * add a "tag" element to the "tags" component
-     * @param {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
-     * @param {Boolean} clearInput [flag if the input's value should be cleared after adding tags]
+     * @param {String/Array} tagsItems   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
+     * @param {Boolean}      clearInput  [flag if the input's value should be cleared after adding tags]
+     * @param {Boolean}      skipInvalid [do not add, mark & remove invalid tags]
      * @return {Array} Array of DOM elements (tags)
      */
-    addTags( tagsItems, clearInput ){
+    addTags( tagsItems, clearInput, skipInvalid ){
         var tagElems = [];
+
+        if( !tagsItems || !tagsItems.length ){
+            console.warn('[addTags]', 'no tags to add:', tagsItems)
+            return;
+        }
 
         tagsItems = this.normalizeTags.call(this, tagsItems);
 
@@ -878,6 +885,9 @@ Tagify.prototype = {
             tagValidation = this.maxTagsReached() || this.validateTag.call(this, tagData.value);
 
             if( tagValidation !== true ){
+                if( skipInvalid )
+                    return
+
                 tagData.class = (tagData.class || '') + ' tagify--notAllowed';
                 tagData.title = tagValidation;
                 this.markTagByValue(tagData.value);

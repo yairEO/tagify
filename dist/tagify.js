@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.14.1)- tags input component
+ * Tagify (v 2.15.1)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -710,11 +710,12 @@ Tagify.prototype = {
    * @return {Array} [Array of Objects]
    */
   normalizeTags: function normalizeTags(tagsItems) {
-    var _this5 = this;
-
-    var whitelistWithProps = this.settings.whitelist[0] instanceof Object,
-        // checks if this is a "collection", meanning an Array of Objects
-    isCollection = tagsItems instanceof Array && tagsItems[0] instanceof Object && "value" in tagsItems[0],
+    var _this$settings = this.settings,
+        whitelist = _this$settings.whitelist,
+        delimiters = _this$settings.delimiters,
+        mode = _this$settings.mode,
+        whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
+        isCollection = tagsItems instanceof Array && tagsItems[0] instanceof Object && "value" in tagsItems[0],
         temp = []; // no need to continue if "tagsItems" is an Array of Objects
 
     if (isCollection) return tagsItems;
@@ -723,7 +724,7 @@ Tagify.prototype = {
     if (typeof tagsItems == 'string') {
       if (!tagsItems.trim()) return []; // go over each tag and add it (if there were multiple ones)
 
-      tagsItems = tagsItems.split(this.settings.delimiters).filter(function (n) {
+      tagsItems = tagsItems.split(delimiters).filter(function (n) {
         return n;
       }).map(function (v) {
         return {
@@ -739,12 +740,11 @@ Tagify.prototype = {
 
     if (whitelistWithProps) {
       tagsItems.forEach(function (tag) {
-        var matchObj = _this5.settings.whitelist.filter(function (WL_item) {
+        var matchObj = whitelist.filter(function (WL_item) {
           return WL_item.value.toLowerCase() == tag.value.toLowerCase();
         });
-
         if (matchObj[0]) temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
-        else if (_this5.settings.mode != 'mix') temp.push(tag);
+        else if (mode != 'mix') temp.push(tag);
       });
       return temp;
     }
@@ -752,18 +752,18 @@ Tagify.prototype = {
     return tagsItems;
   },
   parseMixTags: function parseMixTags(s) {
-    var _this6 = this;
+    var _this5 = this;
 
     // example: "@cartman ,@kyle do not    know:#homer".split(/,|\.|\:|\s/).filter(item => item.match(/@|#/) )
     s.split(this.settings.mixTagsAllowedAfter).filter(function (item) {
-      return item.match(_this6.settings.pattern);
+      return item.match(_this5.settings.pattern);
     }).forEach(function (tag) {
-      var value = tag.replace(_this6.settings.pattern, ''),
+      var value = tag.replace(_this5.settings.pattern, ''),
           tagData;
 
-      if (_this6.isTagWhitelisted(value) && !_this6.settings.duplicates && _this6.isTagDuplicate(value) == -1) {
-        tagData = _this6.normalizeTags.call(_this6, value)[0];
-        s = _this6.replaceMixStringWithTag(s, tag, tagData).s;
+      if (_this5.isTagWhitelisted(value) && !_this5.settings.duplicates && _this5.isTagDuplicate(value) == -1) {
+        tagData = _this5.normalizeTags.call(_this5, value)[0];
+        s = _this5.replaceMixStringWithTag(s, tag, tagData).s;
       }
     });
     this.DOM.input.innerHTML = s;
@@ -834,14 +834,21 @@ Tagify.prototype = {
 
   /**
    * add a "tag" element to the "tags" component
-   * @param {String/Array} tagsItems [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
-   * @param {Boolean} clearInput [flag if the input's value should be cleared after adding tags]
+   * @param {String/Array} tagsItems   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
+   * @param {Boolean}      clearInput  [flag if the input's value should be cleared after adding tags]
+   * @param {Boolean}      skipInvalid [do not add, mark & remove invalid tags]
    * @return {Array} Array of DOM elements (tags)
    */
-  addTags: function addTags(tagsItems, clearInput) {
-    var _this7 = this;
+  addTags: function addTags(tagsItems, clearInput, skipInvalid) {
+    var _this6 = this;
 
     var tagElems = [];
+
+    if (!tagsItems || !tagsItems.length) {
+      console.warn('[addTags]', 'no tags to add:', tagsItems);
+      return;
+    }
+
     tagsItems = this.normalizeTags.call(this, tagsItems);
     if (this.settings.mode == 'mix') return this.addMixTag(tagsItems[0]);
     this.DOM.input.removeAttribute('style');
@@ -850,48 +857,49 @@ Tagify.prototype = {
 
       tagData = Object.assign({}, tagData);
 
-      if (typeof _this7.settings.transformTag === 'function') {
-        tagData.value = _this7.settings.transformTag.call(_this7, tagData.value) || tagData.value;
+      if (typeof _this6.settings.transformTag === 'function') {
+        tagData.value = _this6.settings.transformTag.call(_this6, tagData.value) || tagData.value;
       }
 
-      tagValidation = _this7.maxTagsReached() || _this7.validateTag.call(_this7, tagData.value);
+      tagValidation = _this6.maxTagsReached() || _this6.validateTag.call(_this6, tagData.value);
 
       if (tagValidation !== true) {
+        if (skipInvalid) return;
         tagData.class = (tagData.class || '') + ' tagify--notAllowed';
         tagData.title = tagValidation;
 
-        _this7.markTagByValue(tagData.value);
+        _this6.markTagByValue(tagData.value);
 
-        _this7.trigger("invalid", {
+        _this6.trigger("invalid", {
           data: tagData,
-          index: _this7.value.length,
+          index: _this6.value.length,
           message: tagValidation
         });
       } // Create tag HTML element
 
 
-      tagElm = _this7.createTagElem(tagData);
+      tagElm = _this6.createTagElem(tagData);
       tagElems.push(tagElm); // add the tag to the component's DOM
 
-      appendTag.call(_this7, tagElm);
+      appendTag.call(_this6, tagElm);
 
       if (tagValidation === true) {
         // update state
-        _this7.value.push(tagData);
+        _this6.value.push(tagData);
 
-        _this7.update();
+        _this6.update();
 
-        _this7.DOM.scope.classList.toggle('hasMaxTags', _this7.value.length >= _this7.settings.maxTags);
+        _this6.DOM.scope.classList.toggle('hasMaxTags', _this6.value.length >= _this6.settings.maxTags);
 
-        _this7.trigger('add', {
+        _this6.trigger('add', {
           tag: tagElm,
-          index: _this7.value.length - 1,
+          index: _this6.value.length - 1,
           data: tagData
         });
-      } else if (!_this7.settings.keepInvalidTags) {
+      } else if (!_this6.settings.keepInvalidTags) {
         // remove invalid tags (if "keepInvalidTags" is set to "false")
         setTimeout(function () {
-          _this7.removeTag(tagElm, true);
+          _this6.removeTag(tagElm, true);
         }, 1000);
       }
     });
@@ -1024,7 +1032,7 @@ Tagify.prototype = {
       return this.parseHTML(template);
     },
     show: function show(value) {
-      var _this8 = this;
+      var _this7 = this;
 
       var listHTML;
       if (!this.settings.whitelist.length) return; // if no value was supplied, show all the "whitelist" items in the dropdown
@@ -1032,7 +1040,7 @@ Tagify.prototype = {
       // TODO: add a Setting to control items' sort order for "listItems"
 
       this.suggestedListItems = value ? this.dropdown.filterListItems.call(this, value) : this.settings.whitelist.filter(function (item) {
-        return _this8.isTagDuplicate(item.value || item) == -1;
+        return _this7.isTagDuplicate(item.value || item) == -1;
       }); // don't include already preset tags
       // hide suggestions list if no suggestions were matched
 
@@ -1141,10 +1149,10 @@ Tagify.prototype = {
           if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
         },
         onClick: function onClick(e) {
-          var _this9 = this;
+          var _this8 = this;
 
           var onClickOutside = function onClickOutside() {
-            return _this9.dropdown.hide.call(_this9);
+            return _this8.dropdown.hide.call(_this8);
           },
               value,
               listItemElm;
@@ -1161,7 +1169,7 @@ Tagify.prototype = {
             this.addTags([value], true);
             this.dropdown.hide.call(this);
             setTimeout(function () {
-              return _this9.DOM.input.focus();
+              return _this8.DOM.input.focus();
             }, 100);
           } // clicked outside the dropdown, so just close it
           else onClickOutside();
