@@ -178,14 +178,14 @@ By default searching the suggestions is using fuzzy-search (configurable).
 If you wish to assign alias to items in your suggestion list, it can be done by adding the `searchBy` property to an item in the list you wish
 to have an alias for, so when searching the suggestion for that alias, that item will show up.
 
-## [Example](https://yaireo.github.io/tagify/#section-extra-properties) for a suggestion item alias
+### [Example](https://yaireo.github.io/tagify/#section-extra-properties) for a suggestion item alias
 
 ```javascript
-    whitelist = [
-        {
-            { value:'Afghanistan', code:'AF', searchBy:'war zone' },
-        }
-    ]
+whitelist = [
+    {
+        { value:'Afghanistan', code:'AF', searchBy:'war zone' },
+    }
+]
 ```
 
 ## Edit tags
