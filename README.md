@@ -279,7 +279,7 @@ Accessing methods can be done via the [`.data('tagify')`](https://api.jquery.com
 ```javascript
 $('[name=tags]').tagify();
 // get tags from the server (ajax) and add them:
-$('[name=tags]').data('tagify').addTag('aaa, bbb, ccc')
+$('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 ````
 
 ## Methods
