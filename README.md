@@ -1,4 +1,4 @@
-<a href='https://www.npmjs.com/package/@yaireo/validator'>
+<a href='https://www.npmjs.com/package/@yaireo/tagify'>
     <img src="https://img.shields.io/npm/v/@yaireo/tagify.svg" />
 </a>
 
