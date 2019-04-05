@@ -862,7 +862,7 @@ Tagify.prototype = {
 
         if( !tagsItems || !tagsItems.length ){
             console.warn('[addTags]', 'no tags to add:', tagsItems)
-            return;
+            return tagElems;
         }
 
         tagsItems = this.normalizeTags.call(this, tagsItems);
