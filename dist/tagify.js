@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.15.2)- tags input component
+ * Tagify (v 2.16.0)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -1032,17 +1032,12 @@ Tagify.prototype = {
       return this.parseHTML(template);
     },
     show: function show(value) {
-      var _this7 = this;
-
       var listHTML;
       if (!this.settings.whitelist.length) return; // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
 
-      this.suggestedListItems = value ? this.dropdown.filterListItems.call(this, value) : this.settings.whitelist.filter(function (item) {
-        return _this7.isTagDuplicate(item.value || item) == -1;
-      }); // don't include already preset tags
-      // hide suggestions list if no suggestions were matched
+      this.suggestedListItems = this.dropdown.filterListItems.call(this, value); // hide suggestions list if no suggestions were matched
 
       if (!this.suggestedListItems.length) {
         this.input.autocomplete.suggest.call(this);
@@ -1149,10 +1144,10 @@ Tagify.prototype = {
           if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
         },
         onClick: function onClick(e) {
-          var _this8 = this;
+          var _this7 = this;
 
           var onClickOutside = function onClickOutside() {
-            return _this8.dropdown.hide.call(_this8);
+            return _this7.dropdown.hide.call(_this7);
           },
               value,
               listItemElm;
@@ -1169,7 +1164,7 @@ Tagify.prototype = {
             this.addTags([value], true);
             this.dropdown.hide.call(this);
             setTimeout(function () {
-              return _this8.DOM.input.focus();
+              return _this7.DOM.input.focus();
             }, 100);
           } // clicked outside the dropdown, so just close it
           else onClickOutside();
@@ -1199,7 +1194,8 @@ Tagify.prototype = {
      * @return {[type]} [description]
      */
     filterListItems: function filterListItems(value) {
-      if (!value) return "";
+      var _this8 = this;
+
       var list = [],
           whitelist = this.settings.whitelist,
           suggestionsCount = this.settings.dropdown.maxItems || Infinity,
@@ -1209,6 +1205,13 @@ Tagify.prototype = {
           searchBy,
           isDuplicate,
           i = 0;
+
+      if (!value) {
+        return whitelist.filter(function (item) {
+          return _this8.isTagDuplicate(item.value || item) == -1;
+        }) // don't include tags which have already been added.
+        .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
+      }
 
       for (; i < whitelist.length; i++) {
         whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : {

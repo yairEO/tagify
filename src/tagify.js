@@ -1061,9 +1061,8 @@ Tagify.prototype = {
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems
             // TODO: add a Setting to control items' sort order for "listItems"
-            this.suggestedListItems = value
-                ? this.dropdown.filterListItems.call(this, value)
-                : this.settings.whitelist.filter(item => this.isTagDuplicate(item.value || item) == -1 ); // don't include already preset tags
+            this.suggestedListItems = this.dropdown.filterListItems.call(this, value);
+
 
             // hide suggestions list if no suggestions were matched
             if( !this.suggestedListItems.length ){
@@ -1235,8 +1234,6 @@ Tagify.prototype = {
          * @return {[type]} [description]
          */
         filterListItems( value ){
-            if( !value ) return "";
-
             var list = [],
                 whitelist = this.settings.whitelist,
                 suggestionsCount = this.settings.dropdown.maxItems || Infinity,
@@ -1246,6 +1243,12 @@ Tagify.prototype = {
                 searchBy,
                 isDuplicate,
                 i = 0;
+
+            if( !value ){
+                return whitelist
+                    .filter(item => this.isTagDuplicate(item.value || item) == -1 ) // don't include tags which have already been added.
+                    .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
+            }
 
             for( ; i < whitelist.length; i++ ){
                 whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] }; //normalize value as an Object
