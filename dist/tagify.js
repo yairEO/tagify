@@ -1007,14 +1007,14 @@ Tagify.prototype = {
   },
   getAttributes: function getAttributes(data) {
     // only items which are objects have properties which can be used as attributes
-    if (Object.prototype.toString.call(data) != "[object object]") return '';
+    if (Object.prototype.toString.call(data) != "[object Object]") return '';
     var keys = Object.keys(data),
         s = "",
         i;
 
     for (i = keys.length; i--;) {
       var propName = keys[i];
-      if (propName != 'class' && data.hasOwnProperty(propName)) s += " " + propName + (item[propName] ? "=" + data[propName] : "");
+      if (propName != 'class' && data.hasOwnProperty(propName)) s += " " + propName + (data[propName] ? "=" + data[propName] : "");
     }
 
     return s;
