@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.16.0)- tags input component
+ * Tagify (v 2.17.0)- tags input component
  * By Yair Even-Or (2016)
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -75,6 +75,7 @@ Tagify.prototype = {
     // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
     backspace: true,
     // false / true / "edit"
+    skipInvalid: false,
     dropdown: {
       classname: '',
       enabled: 2,
@@ -84,10 +85,25 @@ Tagify.prototype = {
       fuzzySearch: true
     }
   },
+  templates: {
+    wrapper: function wrapper(input, settings) {
+      return "<tags class=\"tagify " + (settings.mode ? "tagify--mix" : "") + " " + input.className + "\" " + (settings.readonly ? 'readonly' : '') + ">\n                <span contenteditable data-placeholder=\"" + (input.placeholder || '&#8203;') + "\" class=\"tagify__input\"></span>\n            </tags>";
+    },
+    tag: function tag(v, tagData) {
+      return "<tag title='" + v + "' contenteditable='false' spellcheck=\"false\" class='tagify__tag " + (tagData.class ? tagData.class : "") + "' " + this.getAttributes(tagData) + ">\n                <x title='' class='tagify__tag__removeBtn'></x><div><span class='tagify__tag-text'>" + v + "</span></div>\n            </tag>";
+    },
+    dropdownItem: function dropdownItem(item) {
+      var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
+      return "<div " + this.getAttributes(item) + " class='tagify__dropdown__item " + (item.class ? item.class : "") + "'>" + sanitizedValue + "</div>";
+    }
+  },
   customEventsList: ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
   applySettings: function applySettings(input, settings) {
     var attr__whitelist = input.getAttribute('data-whitelist'),
         attr__blacklist = input.getAttribute('data-blacklist');
+    this.DEFAULTS.templates = this.templates;
+    this.DEFAULTS.dropdown.itemTemplate = this.templates.dropdownItem; // regression fallback
+
     this.settings = this.extend({}, this.DEFAULTS, settings);
     this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
@@ -143,7 +159,7 @@ Tagify.prototype = {
   build: function build(input) {
     var that = this,
         DOM = this.DOM,
-        template = "<tags class=\"tagify " + (this.settings.mode ? "tagify--mix" : "") + " " + input.className + "\" " + (this.settings.readonly ? 'readonly' : '') + ">\n                            <span contenteditable data-placeholder=\"" + (input.placeholder || '&#8203;') + "\" class=\"tagify__input\"></span>\n                        </tags>";
+        template = this.settings.templates.wrapper(input, this.settings);
     DOM.originalInput = input;
     DOM.scope = this.parseHTML(template);
     DOM.input = DOM.scope.querySelector('[contenteditable]');
@@ -839,9 +855,10 @@ Tagify.prototype = {
    * @param {Boolean}      skipInvalid [do not add, mark & remove invalid tags]
    * @return {Array} Array of DOM elements (tags)
    */
-  addTags: function addTags(tagsItems, clearInput, skipInvalid) {
+  addTags: function addTags(tagsItems, clearInput) {
     var _this6 = this;
 
+    var skipInvalid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.settings.skipInvalid;
     var tagElems = [];
 
     if (!tagsItems || !tagsItems.length) {
@@ -932,31 +949,10 @@ Tagify.prototype = {
   createTagElem: function createTagElem(tagData) {
     var tagElm,
         v = this.escapeHtml(tagData.value),
-        template = "<tag title='" + v + "' contenteditable='false' spellcheck=\"false\">\n                            <x title=''></x><div><span class='tagify__tag-text'>" + v + "</span></div>\n                        </tag>";
-
-    if (typeof this.settings.tagTemplate === "function") {
-      try {
-        template = this.settings.tagTemplate(v, tagData);
-      } catch (err) {}
-    }
-
-    if (this.settings.readonly) tagData.readonly = true; // add HTML attributes from tagData
-
-    function addTagAttrs(tagElm, tagData) {
-      var i,
-          keys = Object.keys(tagData);
-
-      for (i = keys.length; i--;) {
-        var propName = keys[i];
-        if (!tagData.hasOwnProperty(propName)) return;
-        tagElm.setAttribute(propName, tagData[propName]);
-      }
-    }
-
+        template = this.settings.templates.tag.call(this, v, tagData);
+    if (this.settings.readonly) tagData.readonly = true;
     template = this.minify(template);
-    tagElm = this.parseHTML(template); // add any attribuets, if exists
-
-    addTagAttrs(tagElm, tagData);
+    tagElm = this.parseHTML(template);
     return tagElm;
   },
 
@@ -1008,6 +1004,20 @@ Tagify.prototype = {
     Array.prototype.slice.call(this.DOM.scope.querySelectorAll('tag')).forEach(function (elm) {
       return elm.parentNode.removeChild(elm);
     });
+  },
+  getAttributes: function getAttributes(data) {
+    // only items which are objects have properties which can be used as attributes
+    if (Object.prototype.toString.call(data) != "[object object]") return '';
+    var keys = Object.keys(data),
+        s = "",
+        i;
+
+    for (i = keys.length; i--;) {
+      var propName = keys[i];
+      if (propName != 'class' && data.hasOwnProperty(propName)) s += " " + propName + (item[propName] ? "=" + data[propName] : "");
+    }
+
+    return s;
   },
 
   /**
@@ -1236,28 +1246,7 @@ Tagify.prototype = {
      * @return {String}
      */
     createListHTML: function createListHTML(list) {
-      var getItem = this.settings.dropdown.itemTemplate || function (item) {
-        var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
-        return "<div class='tagify__dropdown__item " + (item.class ? item.class : "") + "' " + getAttributesString(item) + ">" + sanitizedValue + "</div>";
-      }; // for a certain Tag element, add attributes.
-
-
-      function getAttributesString(item) {
-        // only items which are objects have properties which can be used as attributes
-        if (Object.prototype.toString.call(item) != "[object object]") return;
-        var keys = Object.keys(item),
-            s = "",
-            i;
-
-        for (i = keys.length; i--;) {
-          var propName = keys[i];
-          if (propName != 'class' && !item.hasOwnProperty(propName)) return;
-          s += " " + propName + (item[propName] ? "=" + item[propName] : "");
-        }
-
-        return s;
-      }
-
+      var getItem = this.settings.templates.dropdownItem.bind(this);
       return list.map(getItem).join("");
     }
   }

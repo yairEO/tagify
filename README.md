@@ -37,8 +37,9 @@ with great performance and tiny code footprint.
    * [Building the project](#building-the-project)
    * [Adding tags dynamically](#adding-tags-dynamically)
    * [Ajax whitelist](#ajax-whitelist)
-   * [Suggestions selectbox](#suggestions-selectbox)
    * [Edit tags](#edit-tags)
+   * [DOM Templates](#dom-templates)
+   * [Suggestions selectbox](#suggestions-selectbox)
    * [React wrapper](#react)
    * [Angular wrapper](#angular)
    * [jQuery version](#jquery-version)
@@ -91,7 +92,6 @@ Output files, which are automatically generated using Gulp, are in: `/dist/`
 The rest of the files are most likely irrelevant.
 
 ## Adding tags dynamically
-
 ```javascript
 var tagify = new Tagify(...);
 
@@ -103,14 +103,12 @@ tagify.addTags([{value:"banana", color:"yellow"}, {value:"apple", color:"red"}, 
 ```
 
 ## output value
-
 There are two possible ways to get the value of the tags:
 
 1. Access the tagify's instance's `value` prop: `tagify.value` (Array of tags)
 2. Access the original input's value: `inputElm.value` (Stringified Array of tags)
 
 ## Ajax whitelist
-
 Dynamically-loaded suggestions list (*whitelist*) from the server (as the user types) is a frequent need to many.
 
 Below is a basic example using the `fetch` API. I advise to abort the last request on any input before starting a new request.
@@ -138,9 +136,42 @@ function onInput( e ){
       tagify.dropdown.show.call(tagify, value); // render the suggestions dropdown
     })
 }
-
 ```
 
+
+## Edit tags
+Tags which aren't `read-only` can be edited by double-clicking them.
+
+The value is saved on `blur` or by pressnig `enter` key. Pressing `Escaspe` will revert the change trigger `blur`.
+<kbd>ctrl</kbd><kbd>z</kbd> will revert the change if an edited tag was marked as not valid (perhaps duplicate or blacklisted)
+
+
+## DOM Templates
+It's possible to control the templates for the following HTML elements tagify generates by
+modying the `settings.templates` Object with your own custom functions which should output a string.
+
+### The defaults are:
+
+```javascript
+templates : {
+    wrapper(input, settings){
+        return `<tags class="tagify ${settings.mode ? "tagify--mix" : "" } ${input.className}" ${settings.readonly ? 'readonly' : ''}>
+            <span contenteditable data-placeholder="${input.placeholder || '&#8203;'}" class="tagify__input"></span>
+        </tags>`
+    },
+
+    tag(v, tagData){
+        return `<tag title='${v}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
+            <x title='' class='tagify__tag__removeBtn'></x><div><span class='tagify__tag-text'>${v}</span></div>
+        </tag>`
+    },
+
+    dropdownItem( item ){
+        var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
+        return `<div ${this.getAttributes(item)} class='tagify__dropdown__item ${item.class ? item.class : ""}'>${sanitizedValue}</div>`;
+    }
+}
+```
 
 ## Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
@@ -190,12 +221,6 @@ whitelist = [
     ...
 ]
 ```
-
-## Edit tags
-Tags which aren't `read-only` can be edited by double-clicking them.
-
-The value is saved on `blur` or by pressnig `enter` key. Pressing `Escaspe` will revert the change trigger `blur`.
-<kbd>ctrl</kbd><kbd>z</kbd> will revert the change if an edited tag was marked as not valid (perhaps duplicate or blacklisted)
 
 ## React
 
@@ -309,25 +334,26 @@ edit            | A tag has been edited
 
 ## Settings
 
-Name                  | Type       | Default     | Info
-----------------------| ---------- | ----------- | --------------------------------------------------------------------------
-delimiters            | String     | ","         | [regex] split tags by any of these delimiters. Example: `",| |."``
-pattern               | String     | null        | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/``
-mode                  | String     | null        | use 'mix' as value to allow mixed-content. The 'pattern' setting must be set to some character.
-duplicates            | Boolean    | false       | (flag) Should duplicate tags be allowed or not
-enforceWhitelist      | Boolean    | false       | Should ONLY use tags allowed in whitelist
-autocomplete          | Boolean    | true        | Tries to autocomplete the input's value while typing (match from whitelist)
-whitelist             | Array      | []          | An array of tags which only they are allowed
-blacklist             | Array      | []          | An array of tags which aren't allowed
-addTagOnBlur          | Boolean    | true        | Automatically adds the text which was inputed as a tag when blur event happens
-callbacks             | Object     | {}          | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
-maxTags               | Number     | Infinity    | Maximum number of allowed tags. when reached, adds a class "hasMaxTags" to `<Tags>`
-transformTag          | Function   | undefined   | Takes a tag input as argument and returns a transformed value
-tagTemplate           | Function   | undefined   | Takes a tag's value and data as arguments and returns an HTML string for a tag element
-keepInvalidTags       | Boolean    | false       | If true, do not remove tags which did not pass validation
-backspace             | *          | true        | On backspace: (`true`) - remove last tag, (`"edit"``) - edit last tag
-dropdown.enabled      | Number     | 2           | Minimum characters to input to show the suggestions list. "false" to disable
-dropdown.maxItems     | Number     | 10          | Maximum items to show in the suggestions list dropdown
-dropdown.classname    | String     | ""          | Custom class name for the dropdown suggestions selectbox
-dropdown.itemTemplate | Function   | ""          | Returns a custom string for each list item in the dropdown suggestions selectbox
-dropdown.fuzzySearch  | Boolean    | true        | Enables filtering dropdown items values' by string *containing* and not only *beginning*
+Name                  | Type       | Default                          | Info
+----------------------| ---------- | -------------------------------- | --------------------------------------------------------------------------
+delimiters            | String     | ","                              | [regex] split tags by any of these delimiters. Example: `",| |."``
+pattern               | String     | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/``
+mode                  | String     | null                             | use 'mix' as value to allow mixed-content. The 'pattern' setting must be set to some character.
+duplicates            | Boolean    | false                            | Should duplicate tags be allowed or not
+enforceWhitelist      | Boolean    | false                            | Should ONLY use tags allowed in whitelist
+autocomplete          | Boolean    | true                             | Tries to autocomplete the input's value while typing (match from whitelist)
+whitelist             | Array      | []                               | An array of tags which only they are allowed
+blacklist             | Array      | []                               | An array of tags which aren't allowed
+addTagOnBlur          | Boolean    | true                             | Automatically adds the text which was inputed as a tag when blur event happens
+callbacks             | Object     | {}                               | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
+maxTags               | Number     | Infinity                         | Maximum number of allowed tags. when reached, adds a class "hasMaxTags" to `<Tags>`
+templates             | Object     | `wrapper`, `tag`, `dropdownItem` | Object consisting of functions which return template strings
+transformTag          | Function   | undefined                        | Takes a tag input as argument and returns a transformed value
+keepInvalidTags       | Boolean    | false                            | If `true`, do not remove tags which did not pass validation
+skipInvalid           | Boolean    | false                            | If `true`, do not temporarily add invalid tags before automatically removing them
+backspace             | *          | true                             | On backspace: (`true`) - remove last tag, (`"edit"``) - edit last tag
+dropdown.enabled      | Number     | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
+dropdown.maxItems     | Number     | 10                               | Maximum items to show in the suggestions list dropdown
+dropdown.classname    | String     | ""                               | Custom class name for the dropdown suggestions selectbox
+dropdown.itemTemplate | Function   | ""                               | Returns a custom string for each list item in the dropdown suggestions selectbox
+dropdown.fuzzySearch  | Boolean    | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*

@@ -120,11 +120,16 @@ gulp.task('scss', () => {
 
 
 
-gulp.task('build_js', ['lint_js'], () => {
+gulp.task('build_js', () => {
     var jsStream = gulp.src('src/tagify.js');
 
     return jsStream
-        .pipe( $.babel({presets: ['env']}) )
+        .pipe( $.babel(
+            {
+                presets: ['env'],
+                plugins: ['@babel/proposal-object-rest-spread']
+            }
+        ))
         .pipe( $.umd() )
         .pipe( $.insert.prepend(banner) )
         .pipe( gulp.dest('./dist/') )
@@ -139,7 +144,12 @@ gulp.task('build_js', ['lint_js'], () => {
 gulp.task('build_jquery_version', () => {
     return gulp.src('src/tagify.js')
         .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
-        .pipe( $.babel({presets: ['env']}) )
+        .pipe( $.babel(
+            {
+                presets: ['env'],
+                plugins: ['@babel/proposal-object-rest-spread']
+            }
+        ))
         .pipe($.rename('jQuery.tagify.min.js'))
         .pipe($.uglify())
         .pipe($.insert.prepend(banner))

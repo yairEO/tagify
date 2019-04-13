@@ -53,8 +53,9 @@
             width: 0;
             margin: $tagMargin 0;
         }
-        x{ display:none; }
-        tag > div{ padding: $tagPad;
+        #{ $self }__tag__removeBtn{ display:none; }
+        #{ $self }__tag > div{
+            padding: $tagPad;
             &::before{
                 @include tagReadonlyBG;
             }
@@ -66,7 +67,7 @@
     + input,
     + textarea{ border:0; display:none; }
 
-    tag{
+    &__tag{
         display        : inline-block;
         margin         : $tagMargin 0 $tagMargin $tagMargin;
       //  vertical-align : top;
@@ -180,46 +181,44 @@
         }
 
         &[readonly]{
-            x{ display:none; }
+            #{ $self }__tag__removeBtn{ display:none; }
             > div{ padding: $tagPad;
                 &::before{
                     @include tagReadonlyBG;
                 }
             }
         }
+    }
 
-        ///////////////////////////////////////////
-        // Close button
-        x{
-            $size: 14px;
+    &__tag__removeBtn{
+        $size: 14px;
 
-            font          : #{$size}/#{$size + 2} Serif;
-            width         : $size;
-            height        : $size;
-            text-align    : center;
-            border-radius : 50px;
-            position      : absolute;
-            z-index       : 1;
-            right         : calc(#{nth($tagPad, 2)} - 2px);
-            top           : 50%;
-            cursor        : pointer;
-            transform     : translateY(-50%);
-            transition    : .2s ease-out;
+        font          : #{$size}/#{$size + 2} Serif;
+        width         : $size;
+        height        : $size;
+        text-align    : center;
+        border-radius : 50px;
+        position      : absolute;
+        z-index       : 1;
+        right         : calc(#{nth($tagPad, 2)} - 2px);
+        top           : 50%;
+        cursor        : pointer;
+        transform     : translateY(-50%);
+        transition    : .2s ease-out;
 
-            &::after{
-                content:"\00D7";
-            }
+        &::after{
+            content:"\00D7";
+        }
 
-            &:hover{
-                color:white;
-                background:darken($tag-remove, 8);
-                // + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
-                + div{
-                    > span{ opacity:.5; } // filter:blur(.2px);
-                    &::before{
-                        box-shadow: 0 0 0 20px rgba($tag-remove, .3) inset !important;
-                        transition:.2s;
-                    }
+        &:hover{
+            color:white;
+            background:darken($tag-remove, 8);
+            // + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
+            + div{
+                > span{ opacity:.5; } // filter:blur(.2px);
+                &::before{
+                    box-shadow: 0 0 0 20px rgba($tag-remove, .3) inset !important;
+                    transition:.2s;
                 }
             }
         }
@@ -284,7 +283,10 @@
             // color: $invalid-input-color;
         }
 
-        tag{
+        /*
+            in "mix mode" the tags are inside the "input" element
+        */
+        #{ $self }__tag{
             margin: 0 $tagMargin/2;
 
             > div{
