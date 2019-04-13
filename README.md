@@ -58,8 +58,8 @@ with great performance and tiny code footprint.
     var tagify = new Tagify(...)
 
 ## Selling points
-* JS minified `~17kb` (`~6kb` GZIP)
-* CSS minified `~5kb` (`~2kb` GZIP) - well-crafted flexible code
+* JS minified `~21kb` (`~7kb` GZIP)
+* CSS minified `~7kb` (`~2kb` GZIP) - well-crafted flexible code
 * Easily change direction to RTL via the SCSS file only
 * No other inputs are used beside the original, and its value is kept in sync
 * Easily customized
