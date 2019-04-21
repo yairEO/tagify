@@ -72,7 +72,7 @@ var eslint_settings = {
 
 var banner = `/**
  * Tagify (v ${pkg.version})- tags input component
- * By ${pkg.author.name} (2016)
+ * By ${pkg.author.name}
  * Don't sell this code. (c)
  * ${pkg.homepage}
  */

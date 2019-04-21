@@ -60,20 +60,36 @@ Tagify.prototype = {
 
     templates : {
         wrapper(input, settings){
-            return `<tags class="tagify ${settings.mode ? "tagify--mix" : "" } ${input.className}" ${settings.readonly ? 'readonly' : ''}>
-                <span contenteditable data-placeholder="${input.placeholder || '&#8203;'}" class="tagify__input"></span>
+            return `<tags class="tagify ${settings.mode ? "tagify--mix" : "" } ${input.className}"
+                          ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"'}
+                          role="tagslist">
+                <span contenteditable data-placeholder="${input.placeholder || '&#8203;'}" aria-placeholder="${input.placeholder || ''}"
+                      class="tagify__input"
+                      role="textbox"
+                      aria-multiline="false"></span>
             </tags>`
         },
 
         tag(v, tagData){
-            return `<tag title='${v}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
-                <x title='' class='tagify__tag__removeBtn'></x><div><span class='tagify__tag-text'>${v}</span></div>
+            return `<tag title='${v}'
+                         contenteditable='false'
+                         spellcheck='false'
+                         class='tagify__tag ${tagData.class ? tagData.class : ""}'
+                         ${this.getAttributes(tagData)}>
+                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
+                <div>
+                    <span class='tagify__tag-text'>${v}</span>
+                </div>
             </tag>`
         },
 
         dropdownItem( item ){
             var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
-            return `<div ${this.getAttributes(item)} class='tagify__dropdown__item ${item.class ? item.class : ""}'>${sanitizedValue}</div>`;
+            return `<div ${this.getAttributes(item)}
+                         class='tagify__dropdown__item ${item.class ? item.class : ""}'
+                         tabindex="0"
+                         role="menuitem"
+                         aria-labelledby="dropdown-label">${sanitizedValue}</div>`;
         }
     },
 
@@ -115,27 +131,27 @@ Tagify.prototype = {
         }
     },
 
-    // generateUID(){
-    //     return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
-    // },
-
     /**
      * utility method
      * https://stackoverflow.com/a/35385518/104380
      * @param  {String} s [HTML string]
      * @return {Object}   [DOM node]
      */
-    parseHTML(s){
+    parseHTML( s ){
         var parser = new DOMParser(),
-            node = parser.parseFromString(s.trim(), "text/html");
+            node   = parser.parseFromString(s.trim(), "text/html");
 
         return node.body.firstElementChild;
     },
 
-    // https://stackoverflow.com/a/25396011/104380
-    escapeHtml(s){
+    /**
+     * utility method
+     * https://stackoverflow.com/a/25396011/104380
+     */
+    escapeHTML( s ){
         var text = document.createTextNode(s),
-            p = document.createElement('p');
+            p    = document.createElement('p');
+
         p.appendChild(text);
         return p.innerHTML;
     },
@@ -160,14 +176,15 @@ Tagify.prototype = {
     },
 
     /**
-     * Reverts back any changes made by this component
+     * revert any changes made by this component
      */
     destroy(){
         this.DOM.scope.parentNode.removeChild(this.DOM.scope);
+        this.dropdown.hide.call(this);
     },
 
     /**
-     * If the original input had an values, add them as tags
+     * if the original input had any values, add them as tags
      */
     loadOriginalValues(){
         var value = this.DOM.originalInput.value;
@@ -189,7 +206,7 @@ Tagify.prototype = {
     },
 
     /**
-     * Merge two objects into a new one
+     * merge two objects into a new one
      * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
      */
     extend(o, o1, o2){
@@ -286,11 +303,11 @@ Tagify.prototype = {
 
             // setup callback references so events could be removed later
             _CBR = (this.listeners.main = this.listeners.main || {
-                paste   : ['input', _CB.onPaste.bind(this)],
-                focus   : ['input', _CB.onFocusBlur.bind(this)],
-                blur    : ['input', _CB.onFocusBlur.bind(this)],
-                keydown : ['input', _CB.onKeydown.bind(this)],
-                click   : ['scope', _CB.onClickScope.bind(this)],
+                paste    : ['input', _CB.onPaste.bind(this)],
+                focus    : ['input', _CB.onFocusBlur.bind(this)],
+                blur     : ['input', _CB.onFocusBlur.bind(this)],
+                keydown  : ['input', _CB.onKeydown.bind(this)],
+                click    : ['scope', _CB.onClickScope.bind(this)],
                 dblclick : ['scope', _CB.onDoubleClickScope.bind(this)]
             });
 
@@ -909,11 +926,18 @@ Tagify.prototype = {
                 if( skipInvalid )
                     return
 
+                tagData["aria-invalid"] = true
                 tagData.class = (tagData.class || '') + ' tagify--notAllowed';
                 tagData.title = tagValidation;
                 this.markTagByValue(tagData.value);
                 this.trigger("invalid", {data:tagData, index:this.value.length, message:tagValidation});
             }
+
+            // add accessibility attributes
+            tagData.role = "tag";
+
+            if( tagData.readonly )
+                tagData["aria-readonly"] = true
 
             // Create tag HTML element
             tagElm = this.createTagElem(tagData);
@@ -966,7 +990,7 @@ Tagify.prototype = {
      */
     createTagElem( tagData ){
         var tagElm,
-            v = this.escapeHtml(tagData.value),
+            v = this.escapeHTML(tagData.value),
             template = this.settings.templates.tag.call(this, v, tagData);
 
         if( this.settings.readonly )
@@ -1064,7 +1088,7 @@ Tagify.prototype = {
 
         build(){
             var className = `tagify__dropdown ${this.settings.dropdown.classname}`.trim(),
-                template = `<div class="${className}"></div>`;
+                template = `<div class="${className}" role="menu"></div>`;
             return this.parseHTML(template);
         },
 
@@ -1088,9 +1112,10 @@ Tagify.prototype = {
 
             listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
 
-            this.DOM.dropdown.innerHTML = listHTML;
+            this.DOM.dropdown.innerHTML = this.minify(listHTML);
             this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
             this.dropdown.position.call(this);
+            this.DOM.scope.setAttribute("aria-expanded", true)
 
             // if the dropdown has yet to be appended to the document,
             // append the dropdown to the body element & handle events
@@ -1105,10 +1130,13 @@ Tagify.prototype = {
             if( !this.DOM.dropdown || this.DOM.dropdown.parentNode != document.body ) return;
 
             document.body.removeChild(this.DOM.dropdown);
+            this.DOM.scope.setAttribute("aria-expanded", false)
+
             window.removeEventListener('resize', this.dropdown.position)
 
             this.dropdown.events.binding.call(this, false); // unbind all events
             this.events.binding.call(this); // re-bind main events
+
         },
 
         position(){
@@ -1225,14 +1253,15 @@ Tagify.prototype = {
             var className = "tagify__dropdown__item--active",
                 value;
 
-            // for IE support, which doesn't allow "forEach" on "NodeList" Objects
-            [].forEach.call(
-                this.DOM.dropdown.querySelectorAll("[class$='--active']"),
-                (activeElm) => activeElm.classList.remove(className)
-            );
+            this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => {
+                activeElm.classList.remove(className)
+                activeElm.removeAttribute("aria-selected")
+            })
+
 
            // this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
             elm.classList.add(className);
+            elm.setAttribute("aria-selected", true)
 
             if( adjustScroll )
                 elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight
@@ -1293,6 +1322,7 @@ Tagify.prototype = {
          */
         createListHTML( list ){
             var getItem = this.settings.templates.dropdownItem.bind(this);
+
             return list.map(getItem).join("");
         }
     }

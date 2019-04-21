@@ -1,6 +1,6 @@
 /**
- * Tagify (v 2.17.0)- tags input component
- * By Yair Even-Or (2016)
+ * Tagify (v 2.17.1)- tags input component
+ * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
  */
@@ -87,14 +87,14 @@ Tagify.prototype = {
   },
   templates: {
     wrapper: function wrapper(input, settings) {
-      return "<tags class=\"tagify " + (settings.mode ? "tagify--mix" : "") + " " + input.className + "\" " + (settings.readonly ? 'readonly' : '') + ">\n                <span contenteditable data-placeholder=\"" + (input.placeholder || '&#8203;') + "\" class=\"tagify__input\"></span>\n            </tags>";
+      return "<tags class=\"tagify " + (settings.mode ? "tagify--mix" : "") + " " + input.className + "\"\n                          " + (settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"') + "\n                          role=\"tagslist\">\n                <span contenteditable data-placeholder=\"" + (input.placeholder || '&#8203;') + "\" aria-placeholder=\"" + (input.placeholder || '') + "\"\n                      class=\"tagify__input\"\n                      role=\"textbox\"\n                      aria-multiline=\"false\"></span>\n            </tags>";
     },
     tag: function tag(v, tagData) {
-      return "<tag title='" + v + "' contenteditable='false' spellcheck=\"false\" class='tagify__tag " + (tagData.class ? tagData.class : "") + "' " + this.getAttributes(tagData) + ">\n                <x title='' class='tagify__tag__removeBtn'></x><div><span class='tagify__tag-text'>" + v + "</span></div>\n            </tag>";
+      return "<tag title='" + v + "'\n                         contenteditable='false'\n                         spellcheck='false'\n                         class='tagify__tag " + (tagData.class ? tagData.class : "") + "'\n                         " + this.getAttributes(tagData) + ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>" + v + "</span>\n                </div>\n            </tag>";
     },
     dropdownItem: function dropdownItem(item) {
       var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
-      return "<div " + this.getAttributes(item) + " class='tagify__dropdown__item " + (item.class ? item.class : "") + "'>" + sanitizedValue + "</div>";
+      return "<div " + this.getAttributes(item) + "\n                         class='tagify__dropdown__item " + (item.class ? item.class : "") + "'\n                         tabindex=\"0\"\n                         role=\"menuitem\"\n                         aria-labelledby=\"dropdown-label\">" + sanitizedValue + "</div>";
     }
   },
   customEventsList: ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
@@ -129,9 +129,6 @@ Tagify.prototype = {
       } catch (e) {}
     }
   },
-  // generateUID(){
-  //     return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
-  // },
 
   /**
    * utility method
@@ -144,8 +141,12 @@ Tagify.prototype = {
         node = parser.parseFromString(s.trim(), "text/html");
     return node.body.firstElementChild;
   },
-  // https://stackoverflow.com/a/25396011/104380
-  escapeHtml: function escapeHtml(s) {
+
+  /**
+   * utility method
+   * https://stackoverflow.com/a/25396011/104380
+   */
+  escapeHTML: function escapeHTML(s) {
     var text = document.createTextNode(s),
         p = document.createElement('p');
     p.appendChild(text);
@@ -171,14 +172,15 @@ Tagify.prototype = {
   },
 
   /**
-   * Reverts back any changes made by this component
+   * revert any changes made by this component
    */
   destroy: function destroy() {
     this.DOM.scope.parentNode.removeChild(this.DOM.scope);
+    this.dropdown.hide.call(this);
   },
 
   /**
-   * If the original input had an values, add them as tags
+   * if the original input had any values, add them as tags
    */
   loadOriginalValues: function loadOriginalValues() {
     var value = this.DOM.originalInput.value; // if the original input already had any value (tags)
@@ -197,7 +199,7 @@ Tagify.prototype = {
   },
 
   /**
-   * Merge two objects into a new one
+   * merge two objects into a new one
    * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
    */
   extend: function extend(o, o1, o2) {
@@ -882,6 +884,7 @@ Tagify.prototype = {
 
       if (tagValidation !== true) {
         if (skipInvalid) return;
+        tagData["aria-invalid"] = true;
         tagData.class = (tagData.class || '') + ' tagify--notAllowed';
         tagData.title = tagValidation;
 
@@ -892,8 +895,11 @@ Tagify.prototype = {
           index: _this6.value.length,
           message: tagValidation
         });
-      } // Create tag HTML element
+      } // add accessibility attributes
 
+
+      tagData.role = "tag";
+      if (tagData.readonly) tagData["aria-readonly"] = true; // Create tag HTML element
 
       tagElm = _this6.createTagElem(tagData);
       tagElems.push(tagElm); // add the tag to the component's DOM
@@ -948,7 +954,7 @@ Tagify.prototype = {
    */
   createTagElem: function createTagElem(tagData) {
     var tagElm,
-        v = this.escapeHtml(tagData.value),
+        v = this.escapeHTML(tagData.value),
         template = this.settings.templates.tag.call(this, v, tagData);
     if (this.settings.readonly) tagData.readonly = true;
     template = this.minify(template);
@@ -1038,7 +1044,7 @@ Tagify.prototype = {
     },
     build: function build() {
       var className = ("tagify__dropdown " + this.settings.dropdown.classname).trim(),
-          template = "<div class=\"" + className + "\"></div>";
+          template = "<div class=\"" + className + "\" role=\"menu\"></div>";
       return this.parseHTML(template);
     },
     show: function show(value) {
@@ -1056,9 +1062,10 @@ Tagify.prototype = {
       }
 
       listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
-      this.DOM.dropdown.innerHTML = listHTML;
+      this.DOM.dropdown.innerHTML = this.minify(listHTML);
       this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
-      this.dropdown.position.call(this); // if the dropdown has yet to be appended to the document,
+      this.dropdown.position.call(this);
+      this.DOM.scope.setAttribute("aria-expanded", true); // if the dropdown has yet to be appended to the document,
       // append the dropdown to the body element & handle events
 
       if (!this.DOM.dropdown.parentNode != document.body) {
@@ -1071,6 +1078,7 @@ Tagify.prototype = {
     hide: function hide() {
       if (!this.DOM.dropdown || this.DOM.dropdown.parentNode != document.body) return;
       document.body.removeChild(this.DOM.dropdown);
+      this.DOM.scope.setAttribute("aria-expanded", false);
       window.removeEventListener('resize', this.dropdown.position);
       this.dropdown.events.binding.call(this, false); // unbind all events
 
@@ -1184,13 +1192,14 @@ Tagify.prototype = {
     highlightOption: function highlightOption(elm, adjustScroll) {
       if (!elm) return;
       var className = "tagify__dropdown__item--active",
-          value; // for IE support, which doesn't allow "forEach" on "NodeList" Objects
-
-      [].forEach.call(this.DOM.dropdown.querySelectorAll("[class$='--active']"), function (activeElm) {
-        return activeElm.classList.remove(className);
+          value;
+      this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(function (activeElm) {
+        activeElm.classList.remove(className);
+        activeElm.removeAttribute("aria-selected");
       }); // this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
 
       elm.classList.add(className);
+      elm.setAttribute("aria-selected", true);
       if (adjustScroll) elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight; // set the first item from the suggestions list as the autocomplete value
 
       if (this.settings.autoComplete && !this.settings.dropdown.fuzzySearch) {

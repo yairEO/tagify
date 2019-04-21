@@ -45,7 +45,7 @@
                         });
                     }
                     currentScript.insertAdjacentHTML('afterend', "<pre class='language-js'><code>" + jsCode + "</code></pre>");
-                }, 60);
+                }, 500);
             }
         </script>
 
@@ -53,6 +53,7 @@
             p{ line-height:1.4; }
             code{ padding:2px 3px; background:lightyellow; }
             pre code{ background:none; padding:0; }
+            pre[class*=language-]{ max-height:400px; }
             .forkLink{ top:1em; right:1em; }
 
             section > .rightSide{
