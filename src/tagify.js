@@ -495,7 +495,7 @@ Tagify.prototype = {
                 var tagElm = ediatbleElm.closest('tag'),
                     tagElmIdx = this.getNodeIndex(tagElm),
                     value = this.input.normalize(ediatbleElm),
-                    isValid = value == ediatbleElm.originalValue || this.validateTag(value);
+                    isValid = value.toLowerCase() == ediatbleElm.originalValue.toLowerCase() || this.validateTag(value);
 
                 tagElm.classList.toggle('tagify--invalid', isValid !== true);
                 tagElm.isValid = isValid;
