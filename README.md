@@ -60,10 +60,11 @@ with great performance and tiny code footprint.
 ## Selling points
 * JS minified `~21kb` (`~7kb` GZIP)
 * CSS minified `~7kb` (`~2kb` GZIP) - well-crafted flexible code
+* Easily customized
 * Easily change direction to RTL via the SCSS file only
 * No other inputs are used beside the original, and its value is kept in sync
-* Easily customized
-* Exposed custom events (add, remove, invalid)
+* ARIA accessibility support
+* Exposed custom [events](#events)
 * Internet Explorer - A polyfill script can be used: `tagify.polyfills.min.js` in `/dist`
 
 ## What can Tagify do
@@ -72,6 +73,7 @@ with great performance and tiny code footprint.
 * Supports whitelist
 * Supports blacklists
 * Shows suggestions selectbox (flexiable settings & styling)
+* Allows setting [aliases](#example-for-a-suggestion-item-alias) to suggestions for easier searching
 * Auto-complete input as-you-type (whitelist first match)
 * Can paste in multiple values: `tag 1, tag 2, tag 3`
 * Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
@@ -217,7 +219,8 @@ to have an alias for, so when searching the suggestion for that alias, that item
 
 ```javascript
 whitelist = [
-    { value:'Afghanistan', code:'AF', searchBy:'war zone' },
+    ...
+    { value:'Israel', code:'IL', searchBy:'holy land, desert, middle east' },
     ...
 ]
 ```

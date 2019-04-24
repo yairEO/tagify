@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.17.1)- tags input component
+ * Tagify (v 2.18.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -467,9 +467,7 @@ Tagify.prototype = {
       onClickScope: function onClickScope(e) {
         var tagElm = e.target.closest('tag'),
             tagElmIdx;
-        if (e.target.tagName == "TAGS") this.DOM.input.focus();else if (e.target.tagName == "X") {
-          this.removeTag(e.target.parentNode);
-        } else if (tagElm) {
+        if (e.target.tagName == "TAGS") this.DOM.input.focus();else if (e.target.tagName == "X") this.removeTag(e.target.parentNode);else if (tagElm) {
           tagElmIdx = this.getNodeIndex(tagElm);
           this.trigger("click", {
             tag: tagElm,

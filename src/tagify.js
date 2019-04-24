@@ -482,9 +482,10 @@ Tagify.prototype = {
 
                 if( e.target.tagName == "TAGS" )
                     this.DOM.input.focus();
-                else if( e.target.tagName == "X" ){
+
+                else if( e.target.tagName == "X" )
                     this.removeTag( e.target.parentNode );
-                }
+
                 else if( tagElm ){
                     tagElmIdx = this.getNodeIndex(tagElm);
                     this.trigger("click", { tag:tagElm, index:tagElmIdx, data:this.value[tagElmIdx] });
