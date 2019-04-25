@@ -14,7 +14,7 @@
             !function( d ) {
                 if( !d.currentScript ){
                     var s = d.createElement( 'script' );
-                    s.src = 'dist/tagify.polyfills.js';
+                    s.src = 'dist/tagify.polyfills.min.js';
                     d.head.appendChild( s );
                 }
             }(document)
@@ -36,7 +36,7 @@
                     // escape angled brackets between two _ESCAPE_START_ and _ESCAPE_END_ comments
                     let textsToEscape = jsCode.match(new RegExp("// _ESCAPE_START_([^]*?)// _ESCAPE_END_", 'mg'));
                     if (textsToEscape) {
-                        textsToEscape.forEach(textToEscape => {
+                        textsToEscape.forEach(function(textToEscape){
                             jsCode = jsCode.replace(textToEscape, textToEscape.replace(/</g, "&lt" )
                                                                               .replace(/>/g, "&gt" )
                                                                               .replace("// _ESCAPE_START_", "")
@@ -254,6 +254,7 @@
                     <p>
                         Each (valid) tag gets a random color, via the <code>transformTag</code> callback which modifies the tag's data object before creating the tag element.
                     </p>
+                    <p>
                         HTML5 <code>pattern</code> attribute is automatically used to validate tags.<br>
                         Also, the <code>delimiters</code> <em>setting</em> using both <code>comma</code> or <code>space</code> as tags seperators.
                     </p>
@@ -643,7 +644,8 @@ tagify.on('invalid', function(e){
 var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
     delimiters : null,
     templates : {
-        tag(v, tagData){
+        tag : function(v, tagData){
+            try{
             // _ESCAPE_START_
                 return `<tag title='${v}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
                             <x title='remove tag' class='tagify__tag__removeBtn'></x>
@@ -655,6 +657,8 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
                             </div>
                         </tag>`;
             // _ESCAPE_END_
+            }
+            catch(err){}
         }
     },
     enforceWhitelist : true,
@@ -907,13 +911,16 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
         enabled: 1, // suggest tags after a single character input
         classname : 'extra-properties', // custom class for the suggestions dropdown
         itemTemplate : function(tagData){
-        // _ESCAPE_START_
-            return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'>
-                        <img onerror="this.style.visibility = 'hidden'"
-                             src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
-                        <span>${tagData.value}</span>
-                    </div>`
-        // _ESCAPE_END_
+            try{
+            // _ESCAPE_START_
+                return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'>
+                            <img onerror="this.style.visibility = 'hidden'"
+                                 src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
+                            <span>${tagData.value}</span>
+                        </div>`
+            // _ESCAPE_END_
+            }
+            catch(err){}
         }
     },
     mapValueToProp : "code", // map tags' values to this property name, so this property will be the actual value and not the printed value on the screen
