@@ -13,6 +13,10 @@
     $invalid-input-color : $tag-remove;
     $showX               : true;
 
+    // CSS variables
+    --tag-bg     : #{$tag-bg};
+    --tag-hover  : #{$tag-hover};
+
     @mixin placeholder( $show:true, $opacity:.5 ){
         transition:.2s ease-out;
         @if $show == true {
@@ -80,6 +84,7 @@
             > div{
                 &::before{
                     box-shadow: 0 0 0 2px $tag-hover inset !important;
+                    box-shadow: 0 0 0 2px var(--tag-hover) inset !important;
                 }
             }
 
@@ -127,6 +132,7 @@
                 border-radius: inherit;
                 left:0; top:0; right:0; bottom:0;
                 box-shadow: 0 0 0 16px $tag-bg inset;
+                box-shadow: 0 0 0 16px var(--tag-bg) inset;
                 z-index: -1;
                 pointer-events:none;
                 transition: 120ms ease;
@@ -141,6 +147,7 @@
                     $size: -2px;
                     top:$size; right:$size; bottom:$size; left:$size;
                     box-shadow: 0 0 0 16px $tag-hover inset;
+                    box-shadow: 0 0 0 16px var(--tag-hover) inset;
                   //  box-shadow: 0 0 0 0 $tag-remove inset
                 }
                 // background:nth($tagColor,2);
