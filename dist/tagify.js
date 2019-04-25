@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.18.0)- tags input component
+ * Tagify (v 2.18.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -90,7 +90,7 @@ Tagify.prototype = {
       return "<tags class=\"tagify " + (settings.mode ? "tagify--mix" : "") + " " + input.className + "\"\n                          " + (settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"') + "\n                          role=\"tagslist\">\n                <span contenteditable data-placeholder=\"" + (input.placeholder || '&#8203;') + "\" aria-placeholder=\"" + (input.placeholder || '') + "\"\n                      class=\"tagify__input\"\n                      role=\"textbox\"\n                      aria-multiline=\"false\"></span>\n            </tags>";
     },
     tag: function tag(v, tagData) {
-      return "<tag title='" + v + "'\n                         contenteditable='false'\n                         spellcheck='false'\n                         class='tagify__tag " + (tagData.class ? tagData.class : "") + "'\n                         " + this.getAttributes(tagData) + ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>" + v + "</span>\n                </div>\n            </tag>";
+      return "<tag title='" + (tagData.title || v) + "'\n                         contenteditable='false'\n                         spellcheck='false'\n                         class='tagify__tag " + (tagData.class ? tagData.class : "") + "'\n                         " + this.getAttributes(tagData) + ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>" + v + "</span>\n                </div>\n            </tag>";
     },
     dropdownItem: function dropdownItem(item) {
       var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
@@ -875,7 +875,7 @@ Tagify.prototype = {
       tagData = Object.assign({}, tagData);
 
       if (typeof _this6.settings.transformTag === 'function') {
-        tagData.value = _this6.settings.transformTag.call(_this6, tagData.value) || tagData.value;
+        _this6.settings.transformTag.call(_this6, tagData);
       }
 
       tagValidation = _this6.maxTagsReached() || _this6.validateTag.call(_this6, tagData.value);

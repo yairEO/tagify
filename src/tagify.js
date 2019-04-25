@@ -71,7 +71,7 @@ Tagify.prototype = {
         },
 
         tag(v, tagData){
-            return `<tag title='${v}'
+            return `<tag title='${tagData.title || v}'
                          contenteditable='false'
                          spellcheck='false'
                          class='tagify__tag ${tagData.class ? tagData.class : ""}'
@@ -918,7 +918,7 @@ Tagify.prototype = {
             tagData = Object.assign({}, tagData);
 
             if( typeof this.settings.transformTag === 'function' ){
-                tagData.value = this.settings.transformTag.call(this, tagData.value) || tagData.value;
+                this.settings.transformTag.call(this, tagData);
             }
 
             tagValidation = this.maxTagsReached() || this.validateTag.call(this, tagData.value);
@@ -930,6 +930,7 @@ Tagify.prototype = {
                 tagData["aria-invalid"] = true
                 tagData.class = (tagData.class || '') + ' tagify--notAllowed';
                 tagData.title = tagValidation;
+
                 this.markTagByValue(tagData.value);
                 this.trigger("invalid", {data:tagData, index:this.value.length, message:tagValidation});
             }
