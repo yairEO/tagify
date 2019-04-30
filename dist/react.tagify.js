@@ -2,7 +2,7 @@ import React from 'react';
 import Tagify from './tagify.js'
 import './tagify.css'
 
-export class Tags extends React.Component{
+class Tags extends React.Component{
     constructor( props ){
         super(props);
         this._handleRef = this._handleRef.bind(this);
@@ -13,7 +13,12 @@ export class Tags extends React.Component{
     }
 
     shouldComponentUpdate(nextProps, nextState){
-        this.tagify.addTags(nextProps.value, true, true)
+        // check if value has changed
+        if( nextProps.value && nextProps.value.join() != this.props.value.join() ){
+            this.tagify.loadOriginalValues(nextProps.value);
+            // this.tagify.addTags(nextProps.value, true, true)
+        }
+
         this.tagify.settings.whitelist = nextProps.settings.whitelist;
 
         if( nextProps.showDropdown )
@@ -36,8 +41,14 @@ export class Tags extends React.Component{
             autoFocus   : this.props.autofocus
         }
 
-          return this.props.mode === 'textarea' ?
+        return this.props.mode === 'textarea' ?
             <textarea {...attrs} defaultValue={this.props.initialValue}></textarea> :
             <input {...attrs} defaultValue={this.props.initialValue} />
     }
 }
+
+Tags.defaultProps = {
+    value: []
+}
+
+export default Tags;

@@ -1,6 +1,6 @@
 {
     "name": "@yaireo/tagify",
-    "version": "2.18.1",
+    "version": "2.18.2",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "Convert an input field into a Tags element. Easy, customizable, with good performance and small code footprint.",
     "_npmUser": {
@@ -51,7 +51,7 @@
         "gulp-watch": "^5.0.1",
         "jest": "^23.6.0",
         "path": "^0.12.7",
-        "puppeteer": "^1.10.0",
+        "puppeteer": "^1.14.0",
         "run-sequence": "^2.2.1"
     }
 }

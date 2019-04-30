@@ -186,11 +186,11 @@ Tagify.prototype = {
     /**
      * if the original input had any values, add them as tags
      */
-    loadOriginalValues(){
-        var value = this.DOM.originalInput.value;
-
+    loadOriginalValues( value = this.DOM.originalInput.value; ){
         // if the original input already had any value (tags)
         if( !value ) return;
+
+        this.removeAllTags();
 
         try{ value = JSON.parse(value) }
         catch(err){}
