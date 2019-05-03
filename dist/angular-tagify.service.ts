@@ -1,6 +1,6 @@
 import {ElementRef, Injectable} from '@angular/core';
 import * as Tagify from '@yaireo/tagify';
-import { SettingsModel } from './tagify.component';
+import { SettingsModel } from './angular-tagify.component';
 
 @Injectable({
   providedIn: 'root'
