@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
-import {TagifyService} from './tagify.service';
+import {TagifyService} from './angular-tagify.service';
 
 export interface SettingsModel {
   delimiters?: string;
