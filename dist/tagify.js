@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.18.2)- tags input component
+ * Tagify (v 2.18.4)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -87,14 +87,14 @@ Tagify.prototype = {
   },
   templates: {
     wrapper: function wrapper(input, settings) {
-      return "<tags class=\"tagify " + (settings.mode ? "tagify--mix" : "") + " " + input.className + "\"\n                          " + (settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"') + "\n                          role=\"tagslist\">\n                <span contenteditable data-placeholder=\"" + (input.placeholder || '&#8203;') + "\" aria-placeholder=\"" + (input.placeholder || '') + "\"\n                      class=\"tagify__input\"\n                      role=\"textbox\"\n                      aria-multiline=\"false\"></span>\n            </tags>";
+      return "<tags class=\"tagify ".concat(settings.mode ? "tagify--mix" : "", " ").concat(input.className, "\"\n                          ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"', "\n                          role=\"tagslist\">\n                <span contenteditable data-placeholder=\"").concat(input.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(input.placeholder || '', "\"\n                      class=\"tagify__input\"\n                      role=\"textbox\"\n                      aria-multiline=\"false\"></span>\n            </tags>");
     },
     tag: function tag(v, tagData) {
-      return "<tag title='" + (tagData.title || v) + "'\n                         contenteditable='false'\n                         spellcheck='false'\n                         class='tagify__tag " + (tagData.class ? tagData.class : "") + "'\n                         " + this.getAttributes(tagData) + ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>" + v + "</span>\n                </div>\n            </tag>";
+      return "<tag title='".concat(tagData.title || v, "'\n                         contenteditable='false'\n                         spellcheck='false'\n                         class='tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "'\n                         ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(v, "</span>\n                </div>\n            </tag>");
     },
     dropdownItem: function dropdownItem(item) {
       var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
-      return "<div " + this.getAttributes(item) + "\n                         class='tagify__dropdown__item " + (item.class ? item.class : "") + "'\n                         tabindex=\"0\"\n                         role=\"menuitem\"\n                         aria-labelledby=\"dropdown-label\">" + sanitizedValue + "</div>";
+      return "<div ".concat(this.getAttributes(item), "\n                         class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                         tabindex=\"0\"\n                         role=\"menuitem\"\n                         aria-labelledby=\"dropdown-label\">").concat(sanitizedValue, "</div>");
     }
   },
   customEventsList: ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
@@ -183,9 +183,10 @@ Tagify.prototype = {
    * if the original input had any values, add them as tags
    */
   loadOriginalValues: function loadOriginalValues() {
-    var value = this.DOM.originalInput.value; // if the original input already had any value (tags)
-
+    var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.DOM.originalInput.value;
+    // if the original input already had any value (tags)
     if (!value) return;
+    this.removeAllTags();
 
     try {
       value = JSON.parse(value);
@@ -575,7 +576,7 @@ Tagify.prototype = {
     // https://stackoverflow.com/a/3866442/104380
     setRangeAtStartEnd: function setRangeAtStartEnd() {
       var start = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      var node = arguments[1];
+      var node = arguments.length > 1 ? arguments[1] : undefined;
       var range, selection;
       if (!document.createRange) return;
       range = document.createRange();
@@ -883,7 +884,7 @@ Tagify.prototype = {
       if (tagValidation !== true) {
         if (skipInvalid) return;
         tagData["aria-invalid"] = true;
-        tagData.class = (tagData.class || '') + ' tagify--notAllowed';
+        tagData["class"] = (tagData["class"] || '') + ' tagify--notAllowed';
         tagData.title = tagValidation;
 
         _this6.markTagByValue(tagData.value);
@@ -1018,7 +1019,8 @@ Tagify.prototype = {
 
     for (i = keys.length; i--;) {
       var propName = keys[i];
-      if (propName != 'class' && data.hasOwnProperty(propName)) s += " " + propName + (data[propName] ? "=" + data[propName] : "");
+      if (propName != 'class' && data.hasOwnProperty(propName)) s += " " + propName + (data[propName] ? "=\"".concat(data[propName], "\"") : "");
+      console.log(11111, s);
     }
 
     return s;
@@ -1041,8 +1043,8 @@ Tagify.prototype = {
       this.DOM.dropdown = this.dropdown.build.call(this);
     },
     build: function build() {
-      var className = ("tagify__dropdown " + this.settings.dropdown.classname).trim(),
-          template = "<div class=\"" + className + "\" role=\"menu\"></div>";
+      var className = "tagify__dropdown ".concat(this.settings.dropdown.classname).trim(),
+          template = "<div class=\"".concat(className, "\" role=\"menu\"></div>");
       return this.parseHTML(template);
     },
     show: function show(value) {

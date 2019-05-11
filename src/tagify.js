@@ -186,7 +186,7 @@ Tagify.prototype = {
     /**
      * if the original input had any values, add them as tags
      */
-    loadOriginalValues( value = this.DOM.originalInput.value; ){
+    loadOriginalValues( value = this.DOM.originalInput.value ){
         // if the original input already had any value (tags)
         if( !value ) return;
 
@@ -1064,7 +1064,8 @@ Tagify.prototype = {
         for( i=keys.length; i--; ){
             var propName = keys[i];
             if( propName != 'class' && data.hasOwnProperty(propName) )
-                s += " " + propName + (data[propName] ? "=" + data[propName] : "");
+                s += " " + propName + (data[propName] ? `="${data[propName]}"` : "");
+            console.log(11111, s)
         }
         return s;
     },
