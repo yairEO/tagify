@@ -121,12 +121,10 @@ gulp.task('scss', () => {
 
 
 gulp.task('build_js', () => {
-    var jsStream = gulp.src('src/tagify.js');
-
-    return jsStream
+    return gulp.src('src/tagify.js')
         .pipe( $.babel(
             {
-                presets: ['env'],
+                presets: ['@babel/env'],
                 plugins: ['@babel/proposal-object-rest-spread']
             }
         ))
