@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.18.4)- tags input component
+ * Tagify (v 2.19.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -871,21 +871,24 @@ Tagify.prototype = {
     if (this.settings.mode == 'mix') return this.addMixTag(tagsItems[0]);
     this.DOM.input.removeAttribute('style');
     tagsItems.forEach(function (tagData) {
-      var tagValidation, tagElm; // shallow-clone tagData so later modifications will not apply to the source
+      var tagValidation,
+          tagElm,
+          tagElmParams = {}; // shallow-clone tagData so later modifications will not apply to the source
 
       tagData = Object.assign({}, tagData);
 
       if (typeof _this6.settings.transformTag === 'function') {
         _this6.settings.transformTag.call(_this6, tagData);
-      }
+      } ///////////////// ( validation )//////////////////////
+
 
       tagValidation = _this6.maxTagsReached() || _this6.validateTag.call(_this6, tagData.value);
 
       if (tagValidation !== true) {
         if (skipInvalid) return;
-        tagData["aria-invalid"] = true;
-        tagData["class"] = (tagData["class"] || '') + ' tagify--notAllowed';
-        tagData.title = tagValidation;
+        tagElmParams["aria-invalid"] = true;
+        tagElmParams["class"] = (tagData["class"] || '') + ' tagify--notAllowed';
+        tagElmParams.title = tagValidation;
 
         _this6.markTagByValue(tagData.value);
 
@@ -894,13 +897,14 @@ Tagify.prototype = {
           index: _this6.value.length,
           message: tagValidation
         });
-      } // add accessibility attributes
+      } ///////////////////////////)//////////////////////////
+      // add accessibility attributes
 
 
-      tagData.role = "tag";
-      if (tagData.readonly) tagData["aria-readonly"] = true; // Create tag HTML element
+      tagElmParams.role = "tag";
+      if (tagData.readonly) tagElmParams["aria-readonly"] = true; // Create tag HTML element
 
-      tagElm = _this6.createTagElem(tagData);
+      tagElm = _this6.createTagElem(_this6.extend({}, tagData, tagElmParams));
       tagElems.push(tagElm); // add the tag to the component's DOM
 
       appendTag.call(_this6, tagElm);
@@ -1015,12 +1019,12 @@ Tagify.prototype = {
     if (Object.prototype.toString.call(data) != "[object Object]") return '';
     var keys = Object.keys(data),
         s = "",
+        propName,
         i;
 
     for (i = keys.length; i--;) {
-      var propName = keys[i];
+      propName = keys[i];
       if (propName != 'class' && data.hasOwnProperty(propName)) s += " " + propName + (data[propName] ? "=\"".concat(data[propName], "\"") : "");
-      console.log(11111, s);
     }
 
     return s;

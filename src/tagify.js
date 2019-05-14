@@ -912,7 +912,9 @@ Tagify.prototype = {
         this.DOM.input.removeAttribute('style');
 
         tagsItems.forEach(tagData => {
-            var tagValidation, tagElm;
+            var tagValidation,
+                tagElm,
+                tagElmParams = {}
 
             // shallow-clone tagData so later modifications will not apply to the source
             tagData = Object.assign({}, tagData);
@@ -921,28 +923,30 @@ Tagify.prototype = {
                 this.settings.transformTag.call(this, tagData);
             }
 
+///////////////// ( validation )//////////////////////
             tagValidation = this.maxTagsReached() || this.validateTag.call(this, tagData.value);
 
             if( tagValidation !== true ){
                 if( skipInvalid )
                     return
 
-                tagData["aria-invalid"] = true
-                tagData.class = (tagData.class || '') + ' tagify--notAllowed';
-                tagData.title = tagValidation;
+                tagElmParams["aria-invalid"] = true
+                tagElmParams.class = (tagData.class || '') + ' tagify--notAllowed';
+                tagElmParams.title = tagValidation;
 
                 this.markTagByValue(tagData.value);
                 this.trigger("invalid", {data:tagData, index:this.value.length, message:tagValidation});
             }
+///////////////////////////)//////////////////////////
 
             // add accessibility attributes
-            tagData.role = "tag";
+            tagElmParams.role = "tag";
 
             if( tagData.readonly )
-                tagData["aria-readonly"] = true
+                tagElmParams["aria-readonly"] = true
 
             // Create tag HTML element
-            tagElm = this.createTagElem(tagData);
+            tagElm = this.createTagElem( this.extend({}, tagData, tagElmParams) );
             tagElems.push(tagElm);
 
             // add the tag to the component's DOM
@@ -1059,13 +1063,13 @@ Tagify.prototype = {
 
         var keys = Object.keys(data),
             s = "",
+            propName,
             i;
 
         for( i=keys.length; i--; ){
-            var propName = keys[i];
+            propName = keys[i];
             if( propName != 'class' && data.hasOwnProperty(propName) )
                 s += " " + propName + (data[propName] ? `="${data[propName]}"` : "");
-            console.log(11111, s)
         }
         return s;
     },
