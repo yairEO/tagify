@@ -100,7 +100,10 @@ var jQueryPluginWrap = [`;(function($){
 })(jQuery);
 `];
 
-
+const babelConfig = {
+    presets: ['@babel/env'],
+    plugins: ['@babel/proposal-object-rest-spread', '@babel/plugin-transform-destructuring']
+}
 ////////////////////////////////////////////////////
 // Compile main app SCSS to CSS
 
@@ -122,12 +125,7 @@ gulp.task('scss', () => {
 
 gulp.task('build_js', () => {
     return gulp.src('src/tagify.js')
-        .pipe( $.babel(
-            {
-                presets: ['@babel/env'],
-                plugins: ['@babel/proposal-object-rest-spread']
-            }
-        ))
+        .pipe( $.babel(babelConfig))
         .pipe( $.umd() )
         .pipe( $.insert.prepend(banner) )
         .pipe( gulp.dest('./dist/') )
@@ -142,12 +140,7 @@ gulp.task('build_js', () => {
 gulp.task('build_jquery_version', () => {
     return gulp.src('src/tagify.js')
         .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
-        .pipe( $.babel(
-            {
-                presets: ['env'],
-                plugins: ['@babel/proposal-object-rest-spread']
-            }
-        ))
+        .pipe( $.babel(babelConfig))
         .pipe($.rename('jQuery.tagify.min.js'))
         .pipe($.uglify())
         .pipe($.insert.prepend(banner))
