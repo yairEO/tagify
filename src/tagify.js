@@ -49,6 +49,7 @@ Tagify.prototype = {
         mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
         backspace           : true,           // false / true / "edit"
         skipInvalid         : false,
+        transformTag        : ()=>{},
         dropdown            : {
             classname    : '',
             enabled      : 2,    // minimum input characters needs to be typed for the dropdown to show
@@ -492,42 +493,48 @@ Tagify.prototype = {
                 }
             },
 
-            onEditTagInput( ediatbleElm ){
-                var tagElm = ediatbleElm.closest('tag'),
+            onEditTagInput( editableElm ){
+                var tagElm = editableElm.closest('tag'),
                     tagElmIdx = this.getNodeIndex(tagElm),
-                    value = this.input.normalize(ediatbleElm),
-                    isValid = value.toLowerCase() == ediatbleElm.originalValue.toLowerCase() || this.validateTag(value);
+                    value = this.input.normalize(editableElm),
+                    isValid = value.toLowerCase() == editableElm.originalValue.toLowerCase() || this.validateTag(value);
 
                 tagElm.classList.toggle('tagify--invalid', isValid !== true);
                 tagElm.isValid = isValid;
                 this.trigger("input", { tag:tagElm, index:tagElmIdx, data:this.extend({}, this.value[tagElmIdx], {newValue:value}) });
             },
 
-            onEditTagBlur( ediatbleElm ){
-                var tagElm = ediatbleElm.closest('tag'),
+            onEditTagBlur( editableElm ){
+                var tagElm = editableElm.closest('tag'),
                     tagElmIdx = this.getNodeIndex(tagElm),
-                    value = this.input.normalize(ediatbleElm) || ediatbleElm.originalValue,
+                    value = this.input.normalize(editableElm) || editableElm.originalValue,
                     isValid = tagElm.isValid,
+                    tagData = {...this.value[tagElmIdx], value},
                     clone;
+
+                this.settings.transformTag.call(this, tagData);
+
+                // re-validate after tag transformation
+                isValid = this.validateTag(tagData.value);
 
                 if( isValid !== undefined && isValid !== true )
                     return;
 
                 // undo if empty
-                ediatbleElm.textContent = value;
+                editableElm.textContent = tagData.value;
 
                 // update data
-                this.value[tagElmIdx].value = value;
+                this.value[tagElmIdx].value = tagData.value;
                 this.update();
 
                 // cleanup (clone node to remove events)
-                clone = ediatbleElm.cloneNode(true);
+                clone = editableElm.cloneNode(true);
                 clone.removeAttribute('contenteditable');
 
-                tagElm.title = value;
+                tagElm.title = tagData.value;
                 tagElm.classList.remove('tagify--editable');
                 // remove all events from the "editTag" method
-                ediatbleElm.parentNode.replaceChild(clone, ediatbleElm);
+                editableElm.parentNode.replaceChild(clone, editableElm);
                 this.trigger("edit", { tag:tagElm, index:tagElmIdx, data:this.value[tagElmIdx] });
             },
 
@@ -558,23 +565,23 @@ Tagify.prototype = {
     },
 
     editTag( tagElm ){
-        var ediatbleElm = tagElm.querySelector('.tagify__tag-text'),
+        var editableElm = tagElm.querySelector('.tagify__tag-text'),
             _CB = this.events.callbacks;
 
-        if( !ediatbleElm ){
+        if( !editableElm ){
             console.warn('Cannot find element in Tag template: ', '.tagify__tag-text');
             return;
         }
 
         tagElm.classList.add('tagify--editable');
-        ediatbleElm.originalValue = ediatbleElm.textContent;
-        ediatbleElm.setAttribute('contenteditable', true);
+        editableElm.originalValue = editableElm.textContent;
+        editableElm.setAttribute('contenteditable', true);
 
-        ediatbleElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, ediatbleElm));
-        ediatbleElm.addEventListener('input', _CB.onEditTagInput.bind(this, ediatbleElm));
-        ediatbleElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e));
+        editableElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, editableElm));
+        editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
+        editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e));
 
-        ediatbleElm.focus();
+        editableElm.focus();
     },
 
     /**
@@ -919,9 +926,7 @@ Tagify.prototype = {
             // shallow-clone tagData so later modifications will not apply to the source
             tagData = Object.assign({}, tagData);
 
-            if( typeof this.settings.transformTag === 'function' ){
-                this.settings.transformTag.call(this, tagData);
-            }
+            this.settings.transformTag.call(this, tagData);
 
 ///////////////// ( validation )//////////////////////
             tagValidation = this.maxTagsReached() || this.validateTag.call(this, tagData.value);
