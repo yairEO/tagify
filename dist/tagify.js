@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.19.1)- tags input component
+ * Tagify (v 2.19.2)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -501,15 +501,19 @@ Tagify.prototype = {
         var tagElm = editableElm.closest('tag'),
             tagElmIdx = this.getNodeIndex(tagElm),
             value = this.input.normalize(editableElm) || editableElm.originalValue,
+            hasChanged = this.input.normalize(editableElm) != editableElm.originalValue,
             isValid = tagElm.isValid,
             tagData = _objectSpread({}, this.value[tagElmIdx], {
           value: value
         }),
             clone;
 
-        this.settings.transformTag.call(this, tagData); // re-validate after tag transformation
+        if (hasChanged) {
+          this.settings.transformTag.call(this, tagData); // re-validate after tag transformation
 
-        isValid = this.validateTag(tagData.value);
+          isValid = this.validateTag(tagData.value);
+        }
+
         if (isValid !== undefined && isValid !== true) return; // undo if empty
 
         editableElm.textContent = tagData.value; // update data

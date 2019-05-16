@@ -508,14 +508,16 @@ Tagify.prototype = {
                 var tagElm = editableElm.closest('tag'),
                     tagElmIdx = this.getNodeIndex(tagElm),
                     value = this.input.normalize(editableElm) || editableElm.originalValue,
+                    hasChanged = this.input.normalize(editableElm) != editableElm.originalValue,
                     isValid = tagElm.isValid,
                     tagData = {...this.value[tagElmIdx], value},
                     clone;
 
-                this.settings.transformTag.call(this, tagData);
-
-                // re-validate after tag transformation
-                isValid = this.validateTag(tagData.value);
+                if( hasChanged ){
+                    this.settings.transformTag.call(this, tagData);
+                    // re-validate after tag transformation
+                    isValid = this.validateTag(tagData.value);
+                }
 
                 if( isValid !== undefined && isValid !== true )
                     return;
