@@ -1080,8 +1080,9 @@ Tagify.prototype = {
       }
 
       listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
-      this.DOM.dropdown.innerHTML = this.minify(listHTML);
-      this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
+      this.DOM.dropdown.innerHTML = this.minify(listHTML); // if "enforceWhitelist" is "true", highlight the first suggested item
+
+      this.settings.enforceWhitelist && this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
       this.dropdown.position.call(this);
       this.DOM.scope.setAttribute("aria-expanded", true); // if the dropdown has yet to be appended to the document,
       // append the dropdown to the body element & handle events
@@ -1138,7 +1139,8 @@ Tagify.prototype = {
       callbacks: {
         onKeyDown: function onKeyDown(e) {
           // get the "active" element, and if there was none (yet) active, use first child
-          var selectedElm = this.DOM.dropdown.querySelector("[class$='--active']") || this.DOM.dropdown.children[0],
+          var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
+              selectedElm = activeListElm || this.DOM.dropdown.children[0],
               newValue = "";
 
           switch (e.key) {
@@ -1167,12 +1169,14 @@ Tagify.prototype = {
               if (!this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null)) return false;
 
             case 'Enter':
-              e.preventDefault();
-              newValue = this.suggestedListItems[this.getNodeIndex(selectedElm)] || this.input.value;
-              this.addTags([newValue], true);
-              this.dropdown.hide.call(this);
-              return false;
-              break;
+              if (activeListElm) {
+                e.preventDefault();
+                newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value;
+                this.addTags([newValue], true);
+                this.dropdown.hide.call(this);
+                return false;
+              }
+
           }
         },
         onMouseOver: function onMouseOver(e) {
