@@ -1049,7 +1049,7 @@ Tagify.prototype = {
    * see - https://stackoverflow.com/q/50957841/104380
    */
   update: function update() {
-    this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.DOM.input.textContent : JSON.stringify(this.value);
+    this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.DOM.input.textContent : this.value.length ? JSON.stringify(this.value) : "";
   },
 
   /**

@@ -1088,7 +1088,9 @@ Tagify.prototype = {
     update(){
         this.DOM.originalInput.value = this.settings.mode == 'mix'
             ? this.DOM.input.textContent
-            : JSON.stringify(this.value)
+            : this.value.length
+                ? JSON.stringify(this.value)
+                : ""
     },
 
     /**
