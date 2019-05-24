@@ -130,7 +130,7 @@ Tagify.prototype = {
 
     if (this.settings && this.settings.delimiters) {
       try {
-        this.settings.delimiters = new RegExp("[" + this.settings.delimiters + "]", "g");
+        this.settings.delimiters = new RegExp(this.settings.delimiters, "g");
       } catch (e) {}
     }
   },

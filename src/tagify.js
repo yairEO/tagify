@@ -127,7 +127,7 @@ Tagify.prototype = {
 
         // Convert the "delimiters" setting into a REGEX object
         if( this.settings && this.settings.delimiters ){
-            try { this.settings.delimiters = new RegExp("[" + this.settings.delimiters + "]", "g") }
+            try { this.settings.delimiters = new RegExp(this.settings.delimiters, "g") }
             catch(e){}
         }
     },
