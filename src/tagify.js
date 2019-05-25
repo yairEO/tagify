@@ -1250,7 +1250,7 @@ Tagify.prototype = {
                     if( e.button != 0 || e.target == this.DOM.dropdown ) return; // allow only mouse left-clicks
                     if( e.target == document.documentElement ) return onClickOutside();
 
-                    listItemElm = [e.target, e.target.parentNode].filter(a => a.className.includes("tagify__dropdown__item") )[0];
+                    listItemElm = e.target.closest(".tagify__dropdown__item");
 
                     if( listItemElm ){
                         value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
