@@ -352,6 +352,7 @@ Tagify.prototype = {
 
                 if( this.settings.mode == 'mix' ){
                     switch( e.key ){
+                        case 'Delete':
                         case 'Backspace' :
                             var values = [];
                             // find out which tag(s) were deleted and update "this.value" accordingly
