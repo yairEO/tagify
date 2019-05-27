@@ -69,7 +69,7 @@ with great performance and tiny code footprint.
 
 ## What can Tagify do
 * Can be applied on input & textarea elements
-* Supports mix content (text and tags together)
+* Supports [mix content](#mixed-content) (text and tags together)
 * Supports whitelist
 * Supports blacklists
 * Shows suggestions selectbox (flexiable settings & styling)
@@ -224,6 +224,19 @@ whitelist = [
     ...
 ]
 ```
+
+## mixed-content
+
+> To use this feature it must be toggled - see [settings](#settings).
+
+When mixing text with tags, the original textarea (or input) element will have a value as follows:
+
+    [[cartman]]⁠ and [[kyle]]⁠ do not [[Bart]]⁠ know [[Homer simpson]]⁠ because he's a relic.
+
+If the inital value of the textarea or input is formatted as the above example, tagify will try to
+automatically convert everything between `[[` & `]]` to a tag, if tag exists in the *whitelist*, so make
+sure when the Tagify instance is initialized, that it has tags with the correct `value` property that match
+the same values that appear between `[[` & `]]`.
 
 ## React
 

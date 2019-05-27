@@ -204,12 +204,12 @@
                         everything that starts with <code>@</code> or <code>#</code> (or whatever was defined) is meant to be rendered as a tag.
                     </p>
                     <h3>HTML</h3>
-                    <xmp><textarea name='mix'>@cartman and @kyle do not know #homer</textarea></xmp>
+                    <xmp><textarea name='mix'>[[cartman]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea></xmp>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "mix")</script>
                 </aside>
                 <aside class='rightSide'>
-                    <textarea name='mix'>@cartman and @kyle do not know #homer who is #1</textarea>
+                    <textarea name='mix'>[[cartman]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea>
                 </aside>
             </section>
 
@@ -493,7 +493,7 @@ var input = document.querySelector('[name=mix]'),
                 title : 'Kyle Broflovski'
             },
             {
-                value: 'Homer'
+                value: 'Homer simpson'
             }
         ],
         dropdown   : {
@@ -544,7 +544,7 @@ var whitelist_1 = [
     }
 ]
 
-var whitelist_2 = ['Homer', 'Marge', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
+var whitelist_2 = ['Homer simpson', 'Marge simpson', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
 
 // A good place to pull server suggestion list accoring to the prefix/value
 tagify.on('input', function(e){

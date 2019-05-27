@@ -785,41 +785,51 @@ Tagify.prototype = {
     return tagsItems;
   },
   parseMixTags: function parseMixTags(s) {
-    var _this5 = this;
+    var collect = false,
+        match = "",
+        parsedMatch,
+        value = s,
+        html = s,
+        tagData;
 
-    // example: "@cartman ,@kyle do not    know:#homer".split(/,|\.|\:|\s/).filter(item => item.match(/@|#/) )
-    s.split(this.settings.mixTagsAllowedAfter).filter(function (item) {
-      return item.match(_this5.settings.pattern);
-    }).forEach(function (tag) {
-      var value = tag.replace(_this5.settings.pattern, ''),
-          tagData;
+    for (var i = 0; i < s.length; i++) {
+      if (s[i] == '[' && s[i] == s[i + 1]) collect = true;
+      if (collect) match += s[i];
 
-      if (_this5.isTagWhitelisted(value) && !_this5.settings.duplicates && _this5.isTagDuplicate(value) == -1) {
-        tagData = _this5.normalizeTags.call(_this5, value)[0];
-        s = _this5.replaceMixStringWithTag(s, tag, tagData).s;
+      if (s[i] == ']' && s[i] == s[i - 1]) {
+        collect = false;
+        parsedMatch = match.slice(2).slice(0, -2);
+
+        if (this.isTagWhitelisted(parsedMatch) && !this.settings.duplicates && this.isTagDuplicate(parsedMatch) == -1) {
+          tagData = this.normalizeTags.call(this, parsedMatch)[0];
+          html = this.replaceMixStringWithTag(html, match, tagData).html; //  value = value.replace(match, "[[" + tagData.value + "]]")
+        }
+
+        match = "";
       }
-    });
-    this.DOM.input.innerHTML = s;
+    }
+
+    this.DOM.input.innerHTML = html;
     this.update();
     return s;
   },
 
   /**
    * [replaceMixStringWithTag description]
-   * @param  {String} s       [whole string]
+   * @param  {String} html    [tagify input string, probably from a textarea]
    * @param  {String} tag     [tag string to replace with tag element]
    * @param  {Object} tagData [value, plus any other optional attributes]
-   * @return {[type]}         [description]
+   * @return {Object}         [HTML string & tag DOM object]
    */
-  replaceMixStringWithTag: function replaceMixStringWithTag(s, tag, tagData, tagElm) {
-    if (tagData && s && s.indexOf(tag) != -1) {
+  replaceMixStringWithTag: function replaceMixStringWithTag(html, tag, tagData, tagElm) {
+    if (tagData && html && html.indexOf(tag) != -1) {
       tagElm = this.createTagElem(tagData);
       this.value.push(tagData);
-      s = s.replace(tag, tagElm.outerHTML + "&#8288;"); // put a zero-space at the end so the caret won't jump back to the start (when the last input child is a tag)
+      html = html.replace(tag, tagElm.outerHTML + "&#8288;"); // put a zero-space at the end so the caret won't jump back to the start (when the last input child is a tag)
     }
 
     return {
-      s: s,
+      html: html,
       tagElm: tagElm
     };
   },
@@ -873,7 +883,7 @@ Tagify.prototype = {
    * @return {Array} Array of DOM elements (tags)
    */
   addTags: function addTags(tagsItems, clearInput) {
-    var _this6 = this;
+    var _this5 = this;
 
     var skipInvalid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.settings.skipInvalid;
     var tagElems = [];
@@ -893,10 +903,10 @@ Tagify.prototype = {
 
       tagData = Object.assign({}, tagData);
 
-      _this6.settings.transformTag.call(_this6, tagData); ///////////////// ( validation )//////////////////////
+      _this5.settings.transformTag.call(_this5, tagData); ///////////////// ( validation )//////////////////////
 
 
-      tagValidation = _this6.maxTagsReached() || _this6.validateTag.call(_this6, tagData.value);
+      tagValidation = _this5.maxTagsReached() || _this5.validateTag.call(_this5, tagData.value);
 
       if (tagValidation !== true) {
         if (skipInvalid) return;
@@ -904,11 +914,11 @@ Tagify.prototype = {
         tagElmParams["class"] = (tagData["class"] || '') + ' tagify--notAllowed';
         tagElmParams.title = tagValidation;
 
-        _this6.markTagByValue(tagData.value);
+        _this5.markTagByValue(tagData.value);
 
-        _this6.trigger("invalid", {
+        _this5.trigger("invalid", {
           data: tagData,
-          index: _this6.value.length,
+          index: _this5.value.length,
           message: tagValidation
         });
       } ///////////////////////////)//////////////////////////
@@ -918,28 +928,28 @@ Tagify.prototype = {
       tagElmParams.role = "tag";
       if (tagData.readonly) tagElmParams["aria-readonly"] = true; // Create tag HTML element
 
-      tagElm = _this6.createTagElem(_this6.extend({}, tagData, tagElmParams));
+      tagElm = _this5.createTagElem(_this5.extend({}, tagData, tagElmParams));
       tagElems.push(tagElm); // add the tag to the component's DOM
 
-      appendTag.call(_this6, tagElm);
+      appendTag.call(_this5, tagElm);
 
       if (tagValidation === true) {
         // update state
-        _this6.value.push(tagData);
+        _this5.value.push(tagData);
 
-        _this6.update();
+        _this5.update();
 
-        _this6.DOM.scope.classList.toggle('hasMaxTags', _this6.value.length >= _this6.settings.maxTags);
+        _this5.DOM.scope.classList.toggle('hasMaxTags', _this5.value.length >= _this5.settings.maxTags);
 
-        _this6.trigger('add', {
+        _this5.trigger('add', {
           tag: tagElm,
-          index: _this6.value.length - 1,
+          index: _this5.value.length - 1,
           data: tagData
         });
-      } else if (!_this6.settings.keepInvalidTags) {
+      } else if (!_this5.settings.keepInvalidTags) {
         // remove invalid tags (if "keepInvalidTags" is set to "false")
         setTimeout(function () {
-          _this6.removeTag(tagElm, true);
+          _this5.removeTag(tagElm, true);
         }, 1000);
       }
     });
@@ -1049,7 +1059,16 @@ Tagify.prototype = {
    * see - https://stackoverflow.com/q/50957841/104380
    */
   update: function update() {
-    this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.DOM.input.textContent : this.value.length ? JSON.stringify(this.value) : "";
+    this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString() : this.value.length ? JSON.stringify(this.value) : "";
+  },
+  getMixedTagsAsString: function getMixedTagsAsString() {
+    var result = "";
+    this.DOM.input.childNodes.forEach(function (node, i) {
+      if (node.nodeType == 1) {
+        if (node.classList.contains("tagify__tag")) result += "[[" + node.getAttribute("value") + "]]";
+      } else result += node.textContent;
+    });
+    return result;
   },
 
   /**
@@ -1184,10 +1203,10 @@ Tagify.prototype = {
           if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
         },
         onClick: function onClick(e) {
-          var _this7 = this;
+          var _this6 = this;
 
           var onClickOutside = function onClickOutside() {
-            return _this7.dropdown.hide.call(_this7);
+            return _this6.dropdown.hide.call(_this6);
           },
               value,
               listItemElm;
@@ -1202,7 +1221,7 @@ Tagify.prototype = {
             this.addTags([value], true);
             this.dropdown.hide.call(this);
             setTimeout(function () {
-              return _this7.DOM.input.focus();
+              return _this6.DOM.input.focus();
             }, 100);
           } // clicked outside the dropdown, so just close it
           else onClickOutside();
@@ -1233,7 +1252,7 @@ Tagify.prototype = {
      * @return {[type]} [description]
      */
     filterListItems: function filterListItems(value) {
-      var _this8 = this;
+      var _this7 = this;
 
       var list = [],
           whitelist = this.settings.whitelist,
@@ -1247,7 +1266,7 @@ Tagify.prototype = {
 
       if (!value) {
         return whitelist.filter(function (item) {
-          return _this8.isTagDuplicate(item.value || item) == -1;
+          return _this7.isTagDuplicate(item.value || item) == -1;
         }) // don't include tags which have already been added.
         .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }

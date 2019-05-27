@@ -824,39 +824,55 @@ Tagify.prototype = {
     },
 
     parseMixTags( s ){
-        // example: "@cartman ,@kyle do not    know:#homer".split(/,|\.|\:|\s/).filter(item => item.match(/@|#/) )
-        s.split(this.settings.mixTagsAllowedAfter)
-            .filter(item => item.match(this.settings.pattern) )
-            .forEach(tag => {
-                var value = tag.replace(this.settings.pattern, ''),
-                    tagData;
+        var collect = false,
+            match = "",
+            parsedMatch,
+            value = s,
+            html = s,
+            tagData;
 
-                if( this.isTagWhitelisted(value) && !this.settings.duplicates && this.isTagDuplicate(value) == -1 ){
-                    tagData = this.normalizeTags.call(this, value)[0];
-                    s = this.replaceMixStringWithTag(s, tag, tagData).s;
+        for( let i = 0; i < s.length; i++ ){
+            if( s[i] == '[' && s[i] == s[i+1])
+                collect = true;
+
+            if (collect)
+                match += s[i];
+
+            if( s[i] == ']' && s[i] == s[i-1]){
+                collect = false;
+
+                parsedMatch = match.slice(2).slice(0, -2);
+
+                if( this.isTagWhitelisted(parsedMatch) && !this.settings.duplicates && this.isTagDuplicate(parsedMatch) == -1 ){
+                    tagData = this.normalizeTags.call(this, parsedMatch)[0];
+                    html = this.replaceMixStringWithTag(html, match, tagData).html;
+                  //  value = value.replace(match, "[[" + tagData.value + "]]")
                 }
-            })
 
-        this.DOM.input.innerHTML = s;
+                match = "";
+            }
+        }
+
+        this.DOM.input.innerHTML = html;
         this.update();
         return s;
     },
 
     /**
      * [replaceMixStringWithTag description]
-     * @param  {String} s       [whole string]
+     * @param  {String} html    [tagify input string, probably from a textarea]
      * @param  {String} tag     [tag string to replace with tag element]
      * @param  {Object} tagData [value, plus any other optional attributes]
-     * @return {[type]}         [description]
+     * @return {Object}         [HTML string & tag DOM object]
      */
-    replaceMixStringWithTag( s, tag, tagData, tagElm ){
-        if( tagData && s && s.indexOf(tag) != -1 ){
+    replaceMixStringWithTag( html, tag, tagData, tagElm ){
+        if( tagData && html && html.indexOf(tag) != -1 ){
             tagElm = this.createTagElem(tagData);
             this.value.push(tagData);
-            s = s.replace(tag, tagElm.outerHTML + "&#8288;") // put a zero-space at the end so the caret won't jump back to the start (when the last input child is a tag)
+            html = html.replace(tag, tagElm.outerHTML + "&#8288;") // put a zero-space at the end so the caret won't jump back to the start (when the last input child is a tag)
         }
 
-        return {s, tagElm};
+        return {html, tagElm};
     },
 
     /**
@@ -1087,10 +1103,25 @@ Tagify.prototype = {
      */
     update(){
         this.DOM.originalInput.value = this.settings.mode == 'mix'
-            ? this.DOM.input.textContent
+            ? this.getMixedTagsAsString()
             : this.value.length
                 ? JSON.stringify(this.value)
                 : ""
+    },
+
+    getMixedTagsAsString(){
+        var result = "";
+
+        this.DOM.input.childNodes.forEach((node, i) => {
+            if( node.nodeType == 1 ){
+                if( node.classList.contains("tagify__tag") )
+                    result += "[[" + node.getAttribute("value") + "]]"
+            }
+            else
+                result += node.textContent;
+        })
+
+        return result;
     },
 
     /**
