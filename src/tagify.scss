@@ -294,7 +294,8 @@
             in "mix mode" the tags are inside the "input" element
         */
         #{ $self }__tag{
-            margin: 0 $tagMargin/2;
+            line-height: 1.1;
+            margin: 0;
 
             > div{
                 padding-top:0; padding-bottom:0;
@@ -320,6 +321,7 @@
         margin: 0;
         width: 100%;
         height: 100%;
+        line-height: 1.7;
     }
 
     &__dropdown{
