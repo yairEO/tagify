@@ -51,7 +51,7 @@
             // detect modern browser and enhance console logs with colors
             if( typeof(Intl) )
                 try{
-                    console.log = ((_c) => (...args) => _c("%c"+ args[0], 'background:#4A5BDC; color:white; border-radius:3px; padding:1px;', ...args.slice(1)))(console.log);
+                    console.log = ((_c) => (...args) => args.length > 1 ? _c("%c "+ args[0], 'background:indianred; color:white; border-radius:3px; padding:1px;', ...args.slice(1)) : _c(...args))(console.log);
                 }
                 catch(err){}
         </script>
@@ -662,6 +662,7 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
     delimiters : null,
     templates : {
         tag : function(v, tagData){
+            console.log(tagData)
             try{
             // _ESCAPE_START_
                 return `<tag title='${v}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
@@ -676,11 +677,24 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
             // _ESCAPE_END_
             }
             catch(err){}
+        },
+
+        dropdownItem : function(tagData){
+            try{
+            // _ESCAPE_START_
+                return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'>
+                            <img onerror="this.style.visibility = 'hidden'"
+                                 src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
+                            <span>${tagData.value}</span>
+                        </div>`
+            // _ESCAPE_END_
+            }
+            catch(err){}
         }
     },
     enforceWhitelist : true,
     whitelist : [
-      { value:'Afghanistan', code:'AF', searchBy:'war zone' },
+      { value:'Afghanistan', code:'AF' },
       { value:'Åland Islands', code:'AX' },
       { value:'Albania', code:'AL' },
       { value:'Algeria', code:'DZ' },
@@ -693,7 +707,7 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
       { value:'Argentina', code:'AR' },
       { value:'Armenia', code:'AM' },
       { value:'Aruba', code:'AW' },
-      { value:'Australia', code:'AU' },
+      { value:'Australia', code:'AU', searchBy:'beach, sub-tropical' },
       { value:'Austria', code:'AT' },
       { value:'Azerbaijan', code:'AZ' },
       { value:'Bahamas', code:'BS' },
@@ -926,19 +940,7 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
     ],
     dropdown : {
         enabled: 1, // suggest tags after a single character input
-        classname : 'extra-properties', // custom class for the suggestions dropdown
-        itemTemplate : function(tagData){
-            try{
-            // _ESCAPE_START_
-                return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'>
-                            <img onerror="this.style.visibility = 'hidden'"
-                                 src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
-                            <span>${tagData.value}</span>
-                        </div>`
-            // _ESCAPE_END_
-            }
-            catch(err){}
-        }
+        classname : 'extra-properties' // custom class for the suggestions dropdown
     } // map tags' values to this property name, so this property will be the actual value and not the printed value on the screen
 })
 
