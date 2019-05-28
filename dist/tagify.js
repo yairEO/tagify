@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.19.2)- tags input component
+ * Tagify (v 2.20.2)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -344,6 +344,7 @@ Tagify.prototype = {
 
         if (this.settings.mode == 'mix') {
           switch (e.key) {
+            case 'Delete':
             case 'Backspace':
               var values = []; // find out which tag(s) were deleted and update "this.value" accordingly
 
@@ -392,7 +393,7 @@ Tagify.prototype = {
           case 'Enter':
             e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
 
-            this.addTags(this.input.value, true);
+            this.addTags(this.input.value || s, true);
         }
       },
       onInput: function onInput(e) {
