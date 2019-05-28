@@ -1103,25 +1103,28 @@ Tagify.prototype = {
       this.DOM.dropdown.innerHTML = this.minify(listHTML); // if "enforceWhitelist" is "true", highlight the first suggested item
 
       this.settings.enforceWhitelist && this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
-      this.dropdown.position.call(this);
-      this.DOM.scope.setAttribute("aria-expanded", true); // if the dropdown has yet to be appended to the document,
+      this.DOM.scope.setAttribute("aria-expanded", true);
+      this.trigger("dropdown:show", this.DOM.dropdown);
+      if (this.settings.dropdown.position == 'manual') return; // if the dropdown has yet to be appended to the document,
       // append the dropdown to the body element & handle events
+      else if (!document.body.contains(this.DOM.dropdown)) {
+          this.dropdown.position.call(this);
+          document.body.appendChild(this.DOM.dropdown);
+          this.events.binding.call(this, false); // unbind the main events
 
-      if (!this.DOM.dropdown.parentNode != document.body) {
-        document.body.appendChild(this.DOM.dropdown);
-        this.events.binding.call(this, false); // unbind the main events
-
-        this.dropdown.events.binding.call(this);
-      }
+          this.dropdown.events.binding.call(this);
+        }
     },
     hide: function hide() {
-      if (!this.DOM.dropdown || this.DOM.dropdown.parentNode != document.body) return;
-      document.body.removeChild(this.DOM.dropdown);
+      if (!this.DOM.dropdown || !document.body.contains(this.DOM.dropdown)) return;
+      this.DOM.dropdown.parentNode.removeChild(this.DOM.dropdown);
       this.DOM.scope.setAttribute("aria-expanded", false);
       window.removeEventListener('resize', this.dropdown.position);
       this.dropdown.events.binding.call(this, false); // unbind all events
 
       this.events.binding.call(this); // re-bind main events
+
+      this.trigger("dropdown:hide", this.DOM.dropdown);
     },
     position: function position() {
       var rect = this.DOM.scope.getBoundingClientRect();
@@ -1151,7 +1154,7 @@ Tagify.prototype = {
         },
             action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
-        window[action]('resize', _CBR.position);
+        if (this.settings.dropdown.position != 'manual') window[action]('resize', _CBR.position);
         window[action]('keydown', _CBR.onKeyDown);
         window[action]('mousedown', _CBR.onClick);
         this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver); //  this.DOM.dropdown[action]('click', _CBR.onClick);

@@ -47,6 +47,13 @@
                     currentScript.insertAdjacentHTML('afterend', "<pre class='language-js'><code>" + jsCode + "</code></pre>");
                 }, 500);
             }
+
+            // detect modern browser and enhance console logs with colors
+            if( typeof(Intl) )
+                try{
+                    console.log = ((_c) => (...args) => _c("%c"+ args[0], 'background:#4A5BDC; color:white; border-radius:3px; padding:1px;', ...args.slice(1)))(console.log);
+                }
+                catch(err){}
         </script>
 
         <style>
@@ -420,7 +427,9 @@ tagify.on('add', onAddTag)
       .on('input', onInput)
       .on('edit', onTagEdit)
       .on('invalid', onInvalidTag)
-      .on('click', onTagClick);
+      .on('click', onTagClick)
+      .on('dropdown:show', onDropdownShow)
+      .on('dropdown:hide', onDropdownHide);
 
 // tag added callback
 function onAddTag(e){
@@ -454,6 +463,14 @@ function onInvalidTag(e){
 function onTagClick(e){
     console.log(e.detail);
     console.log("onTagClick: ", e.detail);
+}
+
+function onDropdownShow(e){
+    console.log("onDropdownShow: ", e.detail)
+}
+
+function onDropdownHide(e){
+    console.log("onDropdownHide: ", e.detail)
 }
 
 })()

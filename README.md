@@ -346,6 +346,8 @@ invalid         | A tag has been added but did not pass vaildation. See [event d
 input           | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes the typed value
 click           | Clicking a tag. Exposes the tag element, its index & data
 edit            | A tag has been edited
+dropdown:show   | Suggestions dropdown is to be rendered. The dropdown DOM node is passed in the callback, [see demo](https://yaireo.github.io/tagify/#section-basic).
+dropdown:hide   | Suggestions dropdown has been removed from the DOM
 
 
 ## Settings
@@ -373,3 +375,4 @@ dropdown.maxItems     | Number     | 10                               | Maximum 
 dropdown.classname    | String     | ""                               | Custom class name for the dropdown suggestions selectbox
 dropdown.itemTemplate | Function   | ""                               | Returns a custom string for each list item in the dropdown suggestions selectbox
 dropdown.fuzzySearch  | Boolean    | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
+dropdown.position     | String     | null                             | Pass `manual` string so Tagify will not render the dropdown by itself.
