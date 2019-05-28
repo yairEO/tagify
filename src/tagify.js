@@ -397,7 +397,7 @@ Tagify.prototype = {
 
                     case 'Enter' :
                         e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                        this.addTags(this.input.value, true)
+                        this.addTags(this.input.value || s, true)
                 }
             },
 
