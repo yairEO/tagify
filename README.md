@@ -231,7 +231,7 @@ whitelist = [
 
 When mixing text with tags, the original textarea (or input) element will have a value as follows:
 
-    [[cartman]]⁠ and [[kyle]]⁠ do not [[Bart]]⁠ know [[Homer simpson]]⁠ because he's a relic.
+    [[cartman]]⁠ and [[kyle]]⁠ do not know [[Homer simpson]]⁠
 
 If the inital value of the textarea or input is formatted as the above example, tagify will try to
 automatically convert everything between `[[` & `]]` to a tag, if tag exists in the *whitelist*, so make
