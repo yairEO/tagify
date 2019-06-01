@@ -231,7 +231,7 @@ whitelist = [
 
 When mixing text with tags, the original textarea (or input) element will have a value as follows:
 
-    [[cartman]]⁠ and [[kyle]]⁠ do not [[Bart]]⁠ know [[Homer simpson]]⁠ because he's a relic.
+    [[cartman]]⁠ and [[kyle]]⁠ do not know [[Homer simpson]]⁠
 
 If the inital value of the textarea or input is formatted as the above example, tagify will try to
 automatically convert everything between `[[` & `]]` to a tag, if tag exists in the *whitelist*, so make
@@ -354,7 +354,7 @@ dropdown:hide   | Suggestions dropdown has been removed from the DOM
 
 Name                  | Type       | Default                          | Info
 ----------------------| ---------- | -------------------------------- | --------------------------------------------------------------------------
-delimiters            | String     | ","                              | [regex] split tags by any of these delimiters. Example: `",| |."``
+delimiters            | String     | ","                              | [regex] split tags by any of these delimiters. Example: `",| |."`
 pattern               | String     | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/``
 mode                  | String     | null                             | use 'mix' as value to allow mixed-content. The 'pattern' setting must be set to some character.
 duplicates            | Boolean    | false                            | Should duplicate tags be allowed or not
@@ -375,4 +375,4 @@ dropdown.maxItems     | Number     | 10                               | Maximum 
 dropdown.classname    | String     | ""                               | Custom class name for the dropdown suggestions selectbox
 dropdown.itemTemplate | Function   | ""                               | Returns a custom string for each list item in the dropdown suggestions selectbox
 dropdown.fuzzySearch  | Boolean    | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
-dropdown.position     | String     | null                             | Pass `manual` string so Tagify will not render the dropdown by itself.
+dropdown.position     | String     | null                             | `manual` will not render the dropdown, and you would need to do it yourself. See "events" section.
