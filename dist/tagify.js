@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.20.2)- tags input component
+ * Tagify (v 2.21.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -14,6 +14,14 @@
   }
 }(this, function() {
 "use strict";
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
@@ -750,37 +758,52 @@ Tagify.prototype = {
         mode = _this$settings.mode,
         whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
         isCollection = tagsItems instanceof Array && tagsItems[0] instanceof Object && "value" in tagsItems[0],
-        temp = []; // no need to continue if "tagsItems" is an Array of Objects
-
-    if (isCollection) return tagsItems;
-    if (typeof tagsItems == 'number') tagsItems = tagsItems.toString(); // if the value is a "simple" String, ex: "aaa, bbb, ccc"
-
-    if (typeof tagsItems == 'string') {
-      if (!tagsItems.trim()) return []; // go over each tag and add it (if there were multiple ones)
-
-      tagsItems = tagsItems.split(delimiters).filter(function (n) {
+        temp = [],
+        mapStringToCollection = function mapStringToCollection(s) {
+      return s.split(delimiters).filter(function (n) {
         return n;
       }).map(function (v) {
         return {
           value: v.trim()
         };
       });
-    } else if (tagsItems instanceof Array) tagsItems = tagsItems.map(function (v) {
-      return {
-        value: v.trim()
-      };
-    }); // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
+    }; // no need to continue if "tagsItems" is an Array of Objects
+
+
+    if (isCollection) {
+      var _ref;
+
+      // iterate the collection items and check for values that can be splitted into multiple tags
+      tagsItems = (_ref = []).concat.apply(_ref, _toConsumableArray(tagsItems.map(function (item) {
+        return mapStringToCollection(item.value);
+      })));
+      return tagsItems;
+    }
+
+    if (typeof tagsItems == 'number') tagsItems = tagsItems.toString(); // if the value is a "simple" String, ex: "aaa, bbb, ccc"
+
+    if (typeof tagsItems == 'string') {
+      if (!tagsItems.trim()) return []; // go over each tag and add it (if there were multiple ones)
+
+      tagsItems = mapStringToCollection(tagsItems);
+    } else if (!isCollection && tagsItems instanceof Array) {
+      var _ref2;
+
+      tagsItems = (_ref2 = []).concat.apply(_ref2, _toConsumableArray(tagsItems.map(function (item) {
+        return mapStringToCollection(item);
+      })));
+    } // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
 
 
     if (whitelistWithProps) {
-      tagsItems.forEach(function (tag) {
+      tagsItems.forEach(function (item) {
         var matchObj = whitelist.filter(function (WL_item) {
-          return WL_item.value.toLowerCase() == tag.value.toLowerCase();
+          return WL_item.value.toLowerCase() == item.value.toLowerCase();
         });
         if (matchObj[0]) temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
-        else if (mode != 'mix') temp.push(tag);
+        else if (mode != 'mix') temp.push(item);
       });
-      return temp;
+      tagsItems = temp;
     }
 
     return tagsItems;
@@ -894,7 +917,8 @@ Tagify.prototype = {
       return tagElems;
     }
 
-    tagsItems = this.normalizeTags.call(this, tagsItems);
+    tagsItems = this.normalizeTags.call(this, tagsItems); // converts Array/String/Object to an Array of Objects
+
     if (this.settings.mode == 'mix') return this.addMixTag(tagsItems[0]);
     this.DOM.input.removeAttribute('style');
     tagsItems.forEach(function (tagData) {

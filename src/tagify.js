@@ -788,11 +788,15 @@ Tagify.prototype = {
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
             isCollection = tagsItems instanceof Array && tagsItems[0] instanceof Object && "value" in tagsItems[0],
-            temp = [];
+            temp = [],
+            mapStringToCollection = s => s.split(delimiters).filter(n => n).map(v => ({ value:v.trim() }))
 
         // no need to continue if "tagsItems" is an Array of Objects
-        if (isCollection)
+        if (isCollection){
+            // iterate the collection items and check for values that can be splitted into multiple tags
+            tagsItems = [].concat(...tagsItems.map(item => mapStringToCollection(item.value)));
             return tagsItems;
+        }
 
         if( typeof tagsItems == 'number' )
             tagsItems = tagsItems.toString();
@@ -802,23 +806,24 @@ Tagify.prototype = {
             if( !tagsItems.trim() ) return [];
 
             // go over each tag and add it (if there were multiple ones)
-            tagsItems = tagsItems.split(delimiters).filter(n => n).map(v => ({ value:v.trim() }));
+            tagsItems = mapStringToCollection(tagsItems);
         }
 
-        else if( tagsItems instanceof Array )
-            tagsItems = tagsItems.map(v => ({ value:v.trim() }))
+        else if( !isCollection && tagsItems instanceof Array ){
+            tagsItems = [].concat(...tagsItems.map(item => mapStringToCollection(item)));
+        }
 
         // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
-        if(  whitelistWithProps ){
-            tagsItems.forEach(tag => {
-                var matchObj = whitelist.filter( WL_item => WL_item.value.toLowerCase() == tag.value.toLowerCase() )
+        if( whitelistWithProps ){
+            tagsItems.forEach(item => {
+                var matchObj = whitelist.filter( WL_item => WL_item.value.toLowerCase() == item.value.toLowerCase() )
                 if( matchObj[0] )
                     temp.push( matchObj[0] ); // set the Array (with the found Object) as the new value
                 else if( mode != 'mix' )
-                    temp.push(tag)
+                    temp.push(item)
             })
 
-            return temp;
+            tagsItems = temp;
         }
 
         return tagsItems;
@@ -930,7 +935,7 @@ Tagify.prototype = {
             return tagElems;
         }
 
-        tagsItems = this.normalizeTags.call(this, tagsItems);
+        tagsItems = this.normalizeTags.call(this, tagsItems); // converts Array/String/Object to an Array of Objects
 
         if( this.settings.mode == 'mix' )
             return this.addMixTag(tagsItems[0]);
