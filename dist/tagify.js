@@ -1185,6 +1185,8 @@ Tagify.prototype = {
       },
       callbacks: {
         onKeyDown: function onKeyDown(e) {
+          var _this6 = this;
+
           // get the "active" element, and if there was none (yet) active, use first child
           var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
               selectedElm = activeListElm || this.DOM.dropdown.children[0],
@@ -1221,6 +1223,9 @@ Tagify.prototype = {
                 newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value;
                 this.addTags([newValue], true);
                 this.dropdown.hide.call(this);
+                setTimeout(function () {
+                  return _this6.DOM.input.focus();
+                }, 100);
                 return false;
               }
 
@@ -1231,28 +1236,22 @@ Tagify.prototype = {
           if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
         },
         onClick: function onClick(e) {
-          var _this6 = this;
+          var _this7 = this;
 
-          var onClickOutside = function onClickOutside() {
-            return _this6.dropdown.hide.call(_this6);
-          },
-              value,
-              listItemElm;
-
+          var value, listItemElm;
           if (e.button != 0 || e.target == this.DOM.dropdown) return; // allow only mouse left-clicks
 
-          if (e.target == document.documentElement) return onClickOutside();
           listItemElm = e.target.closest(".tagify__dropdown__item");
 
           if (listItemElm) {
             value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
             this.addTags([value], true);
-            this.dropdown.hide.call(this);
             setTimeout(function () {
-              return _this6.DOM.input.focus();
+              return _this7.DOM.input.focus();
             }, 100);
-          } // clicked outside the dropdown, so just close it
-          else onClickOutside();
+          }
+
+          this.dropdown.hide.call(this);
         }
       }
     },
@@ -1260,6 +1259,7 @@ Tagify.prototype = {
       if (!elm) return;
       var className = "tagify__dropdown__item--active",
           value;
+      elm.focus();
       this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(function (activeElm) {
         activeElm.classList.remove(className);
         activeElm.removeAttribute("aria-selected");
@@ -1280,7 +1280,7 @@ Tagify.prototype = {
      * @return {[type]} [description]
      */
     filterListItems: function filterListItems(value) {
-      var _this7 = this;
+      var _this8 = this;
 
       var list = [],
           whitelist = this.settings.whitelist,
@@ -1294,7 +1294,7 @@ Tagify.prototype = {
 
       if (!value) {
         return whitelist.filter(function (item) {
-          return _this7.isTagDuplicate(item.value || item) == -1;
+          return _this8.isTagDuplicate(item.value || item) == -1;
         }) // don't include tags which have already been added.
         .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }

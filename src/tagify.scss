@@ -343,6 +343,7 @@
             cursor: pointer;
             border-radius: 3px;
             position: relative;
+            outline:none;
 
             &--active{ background:$tag-bg; }
             &:active{ background:lighten($tag-bg, 5); }

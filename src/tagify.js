@@ -1274,6 +1274,7 @@ Tagify.prototype = {
                                 newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value;
                                 this.addTags( [newValue], true );
                                 this.dropdown.hide.call(this);
+                                setTimeout(() => this.DOM.input.focus(), 100);
                                 return false;
                             }
                     }
@@ -1286,25 +1287,21 @@ Tagify.prototype = {
                 },
 
                 onClick(e){
-                    var onClickOutside = () => this.dropdown.hide.call(this),
-                        value,
+                    var value,
                         listItemElm;
 
                     if( e.button != 0 || e.target == this.DOM.dropdown ) return; // allow only mouse left-clicks
-                    if( e.target == document.documentElement ) return onClickOutside();
 
                     listItemElm = e.target.closest(".tagify__dropdown__item");
 
                     if( listItemElm ){
                         value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
                         this.addTags([value], true);
-                        this.dropdown.hide.call(this);
+
                         setTimeout(() => this.DOM.input.focus(), 100);
                     }
 
-                    // clicked outside the dropdown, so just close it
-                    else
-                        onClickOutside();
+                    this.dropdown.hide.call(this);
                 }
             }
         },
@@ -1314,6 +1311,8 @@ Tagify.prototype = {
 
             var className = "tagify__dropdown__item--active",
                 value;
+
+            elm.focus();
 
             this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => {
                 activeElm.classList.remove(className)
