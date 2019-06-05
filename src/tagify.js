@@ -375,13 +375,10 @@ Tagify.prototype = {
                 switch( e.key ){
                     case 'Backspace' :
                         if( s == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
-                            lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
-                            lastTag = lastTag[lastTag.length - 1];
-
                             if( this.settings.backspace === true )
-                                this.removeTag( lastTag );
+                                this.removeTag();
                             else if( this.settings.backspace == 'edit' )
-                                this.editTag( lastTag )
+                                this.editTag()
                         }
                         break;
 
@@ -403,7 +400,8 @@ Tagify.prototype = {
 
             onInput(e){
                 var value = this.input.normalize.call(this),
-                    showSuggestions = value.length >= this.settings.dropdown.enabled;
+                    showSuggestions = value.length >= this.settings.dropdown.enabled,
+                    data = {value, inputElm:this.DOM.input};
 
                 if( this.settings.mode == 'mix' )
                     return this.events.callbacks.onMixTagsInput.call(this, e);
@@ -415,11 +413,13 @@ Tagify.prototype = {
 
                 if( this.input.value == value ) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
 
+                data.isValid = this.validateTag.call(this, value);
+
                 // save the value on the input's State object
                 this.input.set.call(this, value, false); // update the input with the normalized value and run validations
                 // this.input.setRangeAtStartEnd.call(this); // fix caret position
 
-                this.trigger("input", value);
+                this.trigger("input", data);
 
                 if( value.search(this.settings.delimiters) != -1 ){
                     if( this.addTags( value ).length ){
@@ -567,7 +567,7 @@ Tagify.prototype = {
         }
     },
 
-    editTag( tagElm ){
+    editTag( tagElm = this.getLastTag() ){
         var editableElm = tagElm.querySelector('.tagify__tag-text'),
             _CB = this.events.callbacks;
 
@@ -682,6 +682,15 @@ Tagify.prototype = {
         return index;
     },
 
+    getTagElms(){
+        return this.DOM.scope.querySelectorAll('tag')
+    },
+
+    getLastTag(){
+        var lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
+        return lastTag[lastTag.length - 1];
+    },
+
     /**
      * Searches if any tag with a certain value already exis
      * @param  {String} s [text value to search for]
@@ -694,7 +703,7 @@ Tagify.prototype = {
 
     getTagIndexByValue( value ){
         var result = [];
-        this.DOM.scope.querySelectorAll('tag').forEach((tagElm, i) => {
+        this.getTagElms().forEach((tagElm, i) => {
             if( tagElm.textContent.trim().toLowerCase() == value.toLowerCase() )
                 result.push(i)
         })
@@ -703,7 +712,7 @@ Tagify.prototype = {
 
     getTagElmByValue( value ){
         var tagIdx = this.getTagIndexByValue(value)[0];
-        return this.DOM.scope.querySelectorAll('tag')[tagIdx];
+        return this.getTagElms()[tagIdx];
     },
 
     /**
@@ -757,7 +766,6 @@ Tagify.prototype = {
         // check for empty value
         if( !value )
             result = this.TEXTS.empty;
-
         // check if pattern should be used and if so, use it to test the value
         else if( this.settings.pattern && !(this.settings.pattern.test(value)) )
             result = this.TEXTS.pattern;
@@ -1039,13 +1047,11 @@ Tagify.prototype = {
 
     /**
      * Removes a tag
-     * @param  {Object|String}  tagElm          [DOM element or a String value]
+     * @param  {Object|String}  tagElm          [DOM element or a String value. if undefined or null, remove last added tag]
      * @param  {Boolean}        silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
      * @param  {Number}         tranDuration    [Transition duration in MS]
      */
-    removeTag( tagElm, silent, tranDuration = 250 ){
-        if( !tagElm ) return;
-
+    removeTag( tagElm = this.getLastTag(), silent, tranDuration = 250 ){
         if( typeof tagElm == 'string' )
             tagElm = this.getTagElmByValue(tagElm)
 
@@ -1082,7 +1088,7 @@ Tagify.prototype = {
     removeAllTags(){
         this.value = [];
         this.update();
-        Array.prototype.slice.call(this.DOM.scope.querySelectorAll('tag')).forEach(elm => elm.parentNode.removeChild(elm));
+        Array.prototype.slice.call(this.getTagElms()).forEach(elm => elm.parentNode.removeChild(elm));
     },
 
     getAttributes( data ){

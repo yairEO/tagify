@@ -330,10 +330,11 @@ Name                | Info
 destroy             | Reverts the input element back as it was before Tagify was applied
 removeAllTags       | Removes all tags and resets the original input tag's value property
 addTags             | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
-removeTag           | Removes a specific tag (argument is the tag DOM element to be removed. see source code.)
+removeTag           | Removes a specific tag. Argument is the tag DOM element to be removed. When nothing passed, removes last tag (see source code)
 loadOriginalValues  | Converts the input's value into tags. This method gets called automatically when instansiating Tagify
 getTagIndexByValue  |
 getTagElmByValue    |
+parseMixTags        | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
 
 
 ## Events
@@ -343,7 +344,7 @@ Name            | Info
 add             | A tag has been added
 remove          | A tag has been removed
 invalid         | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
-input           | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes the typed value
+input           | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes `value`, `inputElm` & `isValid`
 click           | Clicking a tag. Exposes the tag element, its index & data
 edit            | A tag has been edited
 dropdown:show   | Suggestions dropdown is to be rendered. The dropdown DOM node is passed in the callback, [see demo](https://yaireo.github.io/tagify/#section-basic).

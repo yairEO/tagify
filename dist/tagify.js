@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.21.0)- tags input component
+ * Tagify (v 2.21.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -381,9 +381,7 @@ Tagify.prototype = {
           case 'Backspace':
             if (s == "" || s.charCodeAt(0) == 8203) {
               // 8203: ZERO WIDTH SPACE unicode
-              lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
-              lastTag = lastTag[lastTag.length - 1];
-              if (this.settings.backspace === true) this.removeTag(lastTag);else if (this.settings.backspace == 'edit') this.editTag(lastTag);
+              if (this.settings.backspace === true) this.removeTag();else if (this.settings.backspace == 'edit') this.editTag();
             }
 
             break;
@@ -406,7 +404,11 @@ Tagify.prototype = {
       },
       onInput: function onInput(e) {
         var value = this.input.normalize.call(this),
-            showSuggestions = value.length >= this.settings.dropdown.enabled;
+            showSuggestions = value.length >= this.settings.dropdown.enabled,
+            data = {
+          value: value,
+          inputElm: this.DOM.input
+        };
         if (this.settings.mode == 'mix') return this.events.callbacks.onMixTagsInput.call(this, e);
 
         if (!value) {
@@ -415,12 +417,13 @@ Tagify.prototype = {
         }
 
         if (this.input.value == value) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
-        // save the value on the input's State object
+
+        data.isValid = this.validateTag.call(this, value); // save the value on the input's State object
 
         this.input.set.call(this, value, false); // update the input with the normalized value and run validations
         // this.input.setRangeAtStartEnd.call(this); // fix caret position
 
-        this.trigger("input", value);
+        this.trigger("input", data);
 
         if (value.search(this.settings.delimiters) != -1) {
           if (this.addTags(value).length) {
@@ -561,9 +564,10 @@ Tagify.prototype = {
       }
     }
   },
-  editTag: function editTag(tagElm) {
+  editTag: function editTag() {
     var _this4 = this;
 
+    var tagElm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getLastTag();
     var editableElm = tagElm.querySelector('.tagify__tag-text'),
         _CB = this.events.callbacks;
 
@@ -666,6 +670,13 @@ Tagify.prototype = {
     }
     return index;
   },
+  getTagElms: function getTagElms() {
+    return this.DOM.scope.querySelectorAll('tag');
+  },
+  getLastTag: function getLastTag() {
+    var lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
+    return lastTag[lastTag.length - 1];
+  },
 
   /**
    * Searches if any tag with a certain value already exis
@@ -679,14 +690,14 @@ Tagify.prototype = {
   },
   getTagIndexByValue: function getTagIndexByValue(value) {
     var result = [];
-    this.DOM.scope.querySelectorAll('tag').forEach(function (tagElm, i) {
+    this.getTagElms().forEach(function (tagElm, i) {
       if (tagElm.textContent.trim().toLowerCase() == value.toLowerCase()) result.push(i);
     });
     return result;
   },
   getTagElmByValue: function getTagElmByValue(value) {
     var tagIdx = this.getTagIndexByValue(value)[0];
-    return this.DOM.scope.querySelectorAll('tag')[tagIdx];
+    return this.getTagElms()[tagIdx];
   },
 
   /**
@@ -1016,13 +1027,14 @@ Tagify.prototype = {
 
   /**
    * Removes a tag
-   * @param  {Object|String}  tagElm          [DOM element or a String value]
+   * @param  {Object|String}  tagElm          [DOM element or a String value. if undefined or null, remove last added tag]
    * @param  {Boolean}        silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
    * @param  {Number}         tranDuration    [Transition duration in MS]
    */
-  removeTag: function removeTag(tagElm, silent) {
+  removeTag: function removeTag() {
+    var tagElm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getLastTag();
+    var silent = arguments.length > 1 ? arguments[1] : undefined;
     var tranDuration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 250;
-    if (!tagElm) return;
     if (typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
     if (!(tagElm instanceof HTMLElement)) return;
     var tagData,
@@ -1059,7 +1071,7 @@ Tagify.prototype = {
   removeAllTags: function removeAllTags() {
     this.value = [];
     this.update();
-    Array.prototype.slice.call(this.DOM.scope.querySelectorAll('tag')).forEach(function (elm) {
+    Array.prototype.slice.call(this.getTagElms()).forEach(function (elm) {
       return elm.parentNode.removeChild(elm);
     });
   },
