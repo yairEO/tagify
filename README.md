@@ -43,6 +43,7 @@ with great performance and tiny code footprint.
    * [React wrapper](#react)
    * [Angular wrapper](#angular)
    * [jQuery version](#jquery-version)
+   * [FAQ](#FAQ)
    * [Methods](#methods)
    * [Events](#events)
    * [Settings](#settings)
@@ -322,6 +323,19 @@ $('[name=tags]').tagify();
 // get tags from the server (ajax) and add them:
 $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 ````
+
+## FAQ
+
+* [Double-click tag fires both "edit" & "click" custom events](https://github.com/yairEO/tagify/issues/247)
+* [Manualy open the suggestions dropdown](https://github.com/yairEO/tagify/issues/254)
+* [Render your own suggestions dropdown](https://github.com/yairEO/tagify/issues/244)
+* [Allow max length on mix mode](https://github.com/yairEO/tagify/issues/252)
+* [Always show dropdown](https://github.com/yairEO/tagify/issues/253)
+* [Limit the length of a tag value (minimum & maximum)](https://github.com/yairEO/tagify/issues/245)
+* [Mixed mode initial value](https://github.com/yairEO/tagify/issues/237)
+* [Random colors for each tag](https://github.com/yairEO/tagify/issues/223)
+
+---------
 
 ## Methods
 
