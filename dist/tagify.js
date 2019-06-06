@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.21.1)- tags input component
+ * Tagify (v 2.22.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -786,7 +786,9 @@ Tagify.prototype = {
 
       // iterate the collection items and check for values that can be splitted into multiple tags
       tagsItems = (_ref = []).concat.apply(_ref, _toConsumableArray(tagsItems.map(function (item) {
-        return mapStringToCollection(item.value);
+        return mapStringToCollection(item.value).map(function (newItem) {
+          return _objectSpread({}, item, newItem);
+        });
       })));
       return tagsItems;
     }

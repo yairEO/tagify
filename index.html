@@ -51,7 +51,7 @@
             // detect modern browser and enhance console logs with colors
             if( typeof(Intl) )
                 try{
-                    console.log = ((_c) => (...args) => args.length > 1 ? _c("%c "+ args[0], 'background:indianred; color:white; border-radius:3px; padding:1px;', ...args.slice(1)) : _c(...args))(console.log);
+                   // console.log = ((_c) => (...args) => args.length > 1 ? _c("%c "+ args[0], 'background:indianred; color:white; border-radius:3px; padding:1px;', ...args.slice(1)) : _c(...args))(console.log);
                 }
                 catch(err){}
         </script>
@@ -517,8 +517,6 @@ var input = document.querySelector('[name=mix]'),
             enabled : 1
         }
     })
-
-    window.ttt = tagify;
 
 var whitelist_1 = [
     {

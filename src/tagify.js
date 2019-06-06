@@ -802,7 +802,7 @@ Tagify.prototype = {
         // no need to continue if "tagsItems" is an Array of Objects
         if (isCollection){
             // iterate the collection items and check for values that can be splitted into multiple tags
-            tagsItems = [].concat(...tagsItems.map(item => mapStringToCollection(item.value)));
+            tagsItems = [].concat(...tagsItems.map(item => mapStringToCollection(item.value).map(newItem => ({...item,...newItem})) ));
             return tagsItems;
         }
 
