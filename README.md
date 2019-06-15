@@ -334,6 +334,7 @@ $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 * [Limit the length of a tag value (minimum & maximum)](https://github.com/yairEO/tagify/issues/245)
 * [Mixed mode initial value](https://github.com/yairEO/tagify/issues/237)
 * [Random colors for each tag](https://github.com/yairEO/tagify/issues/223)
+* [Format input value for server side](https://github.com/yairEO/tagify/issues/220)
 
 ## Methods
 
