@@ -136,7 +136,7 @@
                 z-index: -1;
                 pointer-events:none;
                 transition: 120ms ease;
-                animation : .3s tags--bump 1 ease-out;
+                animation : tags--bump .3s ease-out 1;
             }
         }
 
