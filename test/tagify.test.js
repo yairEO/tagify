@@ -4,6 +4,7 @@ const APP = `file:${path.join(__dirname, '../', 'index.html')}`
 
 let page;
 let browser;
+let xxx;
 const width = 1920;
 const height = 1080;
 
@@ -13,7 +14,15 @@ let elmSelectors = {
         input         : ".tagify.some_class_name .tagify__input",
         originalInput : "input.some_class_name",
         firstTag      : ".tagify__tag"
+    },
+
+    countries : {
+        scope         : ".countries",
+        input         : ".tagify.countries .tagify__input",
+        originalInput : "input.countries",
+        firstTag      : ".tagify.countries .tagify__tag"
     }
+
 }
 
 
@@ -28,6 +37,13 @@ beforeAll(async () => {
     page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
     await page.setViewport({ width, height });
+
+    page.evaluateOnNewDocument(() => {
+        setTimeout(() => {
+            xxx = window.tagifyBasic
+        }, 500);
+    })
+
     await page.goto(APP);
 });
 
@@ -76,22 +92,13 @@ describe("simple tests", () => {
     }, 1000);
 
     it("has correct value attribute for the original input", async () => {
-        await page.waitForSelector(elmSelectors.tagify.scope);
+        await page.waitForSelector(elmSelectors.countries.scope);
 
-        const expectedValue = '[{"value":"css"},{"value":"html"},{"value":"javascript"}]',
-              originalInputValue = await page.$eval(elmSelectors.tagify.originalInput, el => el.value);
+        const expectedValue = '[{"value":"Afghanistan","code":"AF"},{"value":"Åland Islands","code":"AX"}]',
+              originalInputValue = await page.$eval(elmSelectors.countries.originalInput, el => el.value);
 
         expect(originalInputValue).toEqual(expectedValue);
     }, 1000);
-
-    it("correct tag template", async () => {
-        await page.waitForSelector(elmSelectors.tagify.scope);
-
-        const expected = '[{"value":"css"},{"value":"html"},{"value":"javascript"}]',
-              originalInputValue = await page.$eval(elmSelectors.tagify.originalInput, el => el.value);
-
-        expect(originalInputValue).toEqual(expected);
-    }, 1000)
 })
 
 describe("templates snapshots", () => {
@@ -100,6 +107,15 @@ describe("templates snapshots", () => {
 
         const expected = '<tag title="css" contenteditable="false" spellcheck="false" class="tagify__tag tagify--mark tagify--noAnim" role="tag" value="css"><x title="" class="tagify__tag__removeBtn" role="button" aria-label="remove tag"></x><div><span class="tagify__tag-text">css</span></div></tag>',
               originalInputValue = await page.$eval(elmSelectors.tagify.firstTag, el => el.outerHTML);
+
+        expect(originalInputValue).toEqual(expected);
+    }, 1000)
+
+    it("should render correct custom <tag> template", async () => {
+        await page.waitForSelector(elmSelectors.countries.scope);
+
+        const expected = `<tag title="Afghanistan" contenteditable="false" spellcheck="false" class="tagify__tag " role="tag" code="AF" value="Afghanistan"><x title="remove tag" class="tagify__tag__removeBtn"></x><div><img onerror="this.style.visibility = 'hidden'" src="https://lipis.github.io/flag-icon-css/flags/4x3/af.svg"><span class="tagify__tag-text">Afghanistan</span></div></tag>`,
+              originalInputValue = await page.$eval(elmSelectors.countries.firstTag, el => el.outerHTML);
 
         expect(originalInputValue).toEqual(expected);
     }, 1000)
@@ -126,8 +142,71 @@ describe("actions", () => {
 
         let tagTextContent = await getFirstTagText();
         expect(tagTextContent).toEqual(expected + prevTagText);
-
-
     }, 0)
+
+    // default is: settings.dropdown.enabled = 2
+    it("should show dropdown suggestions after 2 typed characters", async () => {
+        await page.waitForSelector(elmSelectors.tagify.firstTag);
+        await page.type(elmSelectors.tagify.input, "j");
+
+        let expected = `<div value="Java" class="tagify__dropdown__item " tabindex="0" role="menuitem" aria-labelledby="dropdown-label">Java</div>`;
+        let dropdownItemsHTML = await page.$(".tagify__dropdown");
+        expect(dropdownItemsHTML).toBeNull();
+
+        await page.type(elmSelectors.tagify.input, "a");
+
+       //  setTimeout(async () => {
+            dropdownItemsHTML = await page.$eval(".tagify__dropdown", el => el.innerHTML);
+            expect(dropdownItemsHTML).toEqual(expected);
+      //  }, 200);
+
+        await page.keyboard.press('ArrowDown');
+        expected = `<div value="Java" class="tagify__dropdown__item tagify__dropdown__item--active" tabindex="0" role="menuitem" aria-labelledby="dropdown-label" aria-selected="true">Java</div>`;
+        dropdownItemsHTML = await page.$eval(".tagify__dropdown", el => el.innerHTML);
+        expect(dropdownItemsHTML).toEqual(expected);
+    }, 0)
+
+    it("should add first dropdown suggestions item to tagify (ArrowDown & ENTER)", async () => {
+        await page.waitForSelector(elmSelectors.tagify.firstTag);
+        await page.type(elmSelectors.tagify.input, "ja");
+        await page.keyboard.press('ArrowDown');
+        await page.keyboard.press('Enter');
+
+        function getAllTagsTexts(elmSelectors) {
+            let data = [];
+            document.querySelectorAll(elmSelectors.tagify.scope + ' tag').forEach(el => data.push(el.textContent.trim()))
+            return data;
+        }
+
+        let texts = await page.evaluate(getAllTagsTexts, elmSelectors);
+        expect(texts).toEqual(["css", "html", "javascript", "Java"]);
+    }, 0)
+
+    it("should add first dropdown suggestions item to tagify (Mouse click)", async () => {
+        await page.waitForSelector(elmSelectors.tagify.firstTag);
+        await page.type(elmSelectors.tagify.input, "ja");
+        await page.click('.tagify__dropdown__item', { clickCount:1 });
+
+        function getAllTagsTexts(elmSelectors) {
+            let data = [];
+            document.querySelectorAll(elmSelectors.tagify.scope + ' tag').forEach(el => data.push(el.textContent.trim()))
+            return data;
+        }
+
+        let texts = await page.evaluate(getAllTagsTexts, elmSelectors);
+        expect(texts).toEqual(["css", "html", "javascript", "Java"]);
+    }, 0)
+
+    // check events are fired...
 })
 
+describe("unit tests", () => {
+    describe("dropdown", () => {
+        // it("filterListItems('j')", async () => {
+        //     await page.waitFor(2000)
+        //     await page.waitFor(2000)
+        //     await page.waitForSelector(elmSelectors.tagify.firstTag);
+        //     expect( xxx.dropdown.filterListItems('j') ).toHaveLength(1);
+        // }, 0)
+    })
+})
