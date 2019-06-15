@@ -335,8 +335,6 @@ $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 * [Mixed mode initial value](https://github.com/yairEO/tagify/issues/237)
 * [Random colors for each tag](https://github.com/yairEO/tagify/issues/223)
 
----------
-
 ## Methods
 
 Name                | Info

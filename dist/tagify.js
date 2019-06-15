@@ -892,6 +892,7 @@ Tagify.prototype = {
         idx = textnode.nodeValue.indexOf(tag);
         if (idx == -1) continue;
         replacedNode = textnode.splitText(idx);
+        this.settings.transformTag.call(this, tagData);
         tagElm = this.createTagElem(tagData); // clean up the tag's string and put tag element instead
 
         replacedNode.nodeValue = replacedNode.nodeValue.replace(tag, '');
@@ -1014,7 +1015,7 @@ Tagify.prototype = {
 
   /**
    * creates a DOM tag element and injects it into the component (this.DOM.scope)
-   * @param  Object}  tagData [text value & properties for the created tag]
+   * @param  {Object}  tagData [text value & properties for the created tag]
    * @return {Object} [DOM element]
    */
   createTagElem: function createTagElem(tagData) {
