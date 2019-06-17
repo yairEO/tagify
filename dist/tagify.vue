@@ -18,6 +18,6 @@ export default {
 </script>
 
 <style>
-@import "./tagify.css";
+  @import "./tagify.css";
 </style>
 
