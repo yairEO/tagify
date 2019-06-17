@@ -9,10 +9,10 @@ export default {
   name: "tagify",
   props: {
     mode: String,
-    settings: Object,
+    settings: Object
   },
   mounted() {
-    const tagigy = new Tagify(this.$el, this.settings);
+    this.tagigy = new Tagify(this.$el, this.settings);
   }
 };
 </script>
