@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.22.1)- tags input component
+ * Tagify (v 2.22.2)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -1233,8 +1233,9 @@ Tagify.prototype = {
               if (!this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null)) return false;
 
             case 'Enter':
+              e.preventDefault();
+
               if (activeListElm) {
-                e.preventDefault();
                 newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value;
                 this.addTags([newValue], true);
                 this.dropdown.hide.call(this);
@@ -1242,6 +1243,8 @@ Tagify.prototype = {
                   return _this6.DOM.input.focus();
                 }, 100);
                 return false;
+              } else {
+                this.addTags(this.input.value, true);
               }
 
           }

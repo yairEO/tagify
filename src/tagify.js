@@ -1277,13 +1277,16 @@ Tagify.prototype = {
                             if( !this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null) )
                                 return false;
                         case 'Enter' :
+                            e.preventDefault();
                             if( activeListElm ){
-                                e.preventDefault();
                                 newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value;
                                 this.addTags( [newValue], true );
                                 this.dropdown.hide.call(this);
                                 setTimeout(() => this.DOM.input.focus(), 100);
                                 return false;
+                            }
+                            else{
+                                this.addTags(this.input.value, true)
                             }
                     }
                 },
