@@ -12,7 +12,7 @@ export default {
     settings: Object
   },
   mounted() {
-    this.tagigy = new Tagify(this.$el, this.settings);
+    this.tagify = new Tagify(this.$el, this.settings);
   }
 };
 </script>
