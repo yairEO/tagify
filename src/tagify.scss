@@ -286,16 +286,15 @@
             pointer-events:none;
         }
 
-        &--invalid{
-            // color: $invalid-input-color;
-        }
+        // &--invalid{
+        //     // color: $invalid-input-color;
+        // }
 
         /*
             in "mix mode" the tags are inside the "input" element
         */
         #{ $self }__tag{
             line-height: 1.1;
-            margin: 0;
 
             > div{
                 padding-top:0; padding-bottom:0;

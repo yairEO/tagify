@@ -212,9 +212,11 @@ Will render:
 </div>
 ```
 
-By default searching the suggestions is using fuzzy-search (configurable).
-If you wish to assign alias to items in your suggestion list, it can be done by adding the `searchBy` property to an item in the list you wish
-to have an alias for, so when searching the suggestion for that alias, that item will show up.
+By default searching the suggestions is using fuzzy-search (see [settings](#settings)).
+
+If you wish to assign *alias* to items (in your suggestion list), add the `searchBy` property to whitelist items you wish
+to have an *alias* for. In the blow example, when typing any of the words from the `searchBy` property, the suggestion listen will
+match "Israel".
 
 ### [Example](https://yaireo.github.io/tagify/#section-extra-properties) for a suggestion item alias
 
@@ -225,6 +227,7 @@ whitelist = [
     ...
 ]
 ```
+
 
 ## mixed-content
 

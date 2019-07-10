@@ -181,7 +181,7 @@ Tagify.prototype = {
      */
     destroy(){
         this.DOM.scope.parentNode.removeChild(this.DOM.scope);
-        this.dropdown.hide.call(this);
+        this.dropdown.hide.call(this, true);
     },
 
     /**
@@ -556,12 +556,11 @@ Tagify.prototype = {
 
             onDoubleClickScope(e){
                 var tagElm = e.target.closest('tag'),
-                    _s = this.settings;
+                    _s = this.settings,
+                    isEditingTag = tagElm.classList.contains('tagify--editable'),
+                    isReadyOnlyTag = tagElm.hasAttribute('readonly')
 
-                if( _s.mode != 'mix' && !_s.readonly && !_s.enforceWhitelist &&
-                    tagElm && !tagElm.classList.contains('tagify--editable') &&
-                    !tagElm.hasAttribute('readonly')
-                    )
+                if( _s.mode != 'mix' && !_s.readonly && !_s.enforceWhitelist && tagElm && !isEditingTag && !isReadyOnlyTag )
                     this.editTag(tagElm);
             }
         }
@@ -1070,6 +1069,7 @@ Tagify.prototype = {
             tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
             this.update() // update the original input with the current value
             this.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData });
+            this.dropdown.render.call(this);
         }
 
         function animation(){
@@ -1148,13 +1148,15 @@ Tagify.prototype = {
         },
 
         build(){
-            var className = `tagify__dropdown ${this.settings.dropdown.classname}`.trim(),
-                template = `<div class="${className}" role="menu"></div>`;
+            var {position, classname} = this.settings.dropdown,
+                _className = `${position == 'manual' ? "" : "tagify__dropdown"} ${classname}`.trim(),
+                template = `<div class="${_className}" role="menu"></div>`;
             return this.parseHTML(template);
         },
 
         show( value ){
-            var listHTML;
+            var listHTML,
+                isManual = this.settings.dropdown.position == 'manual';
 
             if( !this.settings.whitelist.length ) return;
 
@@ -1162,7 +1164,6 @@ Tagify.prototype = {
             // @type [Array] listItems
             // TODO: add a Setting to control items' sort order for "listItems"
             this.suggestedListItems = this.dropdown.filterListItems.call(this, value);
-
 
             // hide suggestions list if no suggestions were matched
             if( !this.suggestedListItems.length ){
@@ -1175,34 +1176,48 @@ Tagify.prototype = {
 
             this.DOM.dropdown.innerHTML = this.minify(listHTML);
             // if "enforceWhitelist" is "true", highlight the first suggested item
-            this.settings.enforceWhitelist && this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
+            this.settings.enforceWhitelist && !isManual && this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
             this.DOM.scope.setAttribute("aria-expanded", true)
 
             this.trigger("dropdown:show", this.DOM.dropdown);
 
-            if( this.settings.dropdown.position == 'manual' ) return;
-
             // if the dropdown has yet to be appended to the document,
             // append the dropdown to the body element & handle events
-            else if( !document.body.contains(this.DOM.dropdown) ){
-                this.dropdown.position.call(this);
-                document.body.appendChild(this.DOM.dropdown);
-                this.events.binding.call(this, false); // unbind the main events
+            if( !document.body.contains(this.DOM.dropdown) ){
+                if( !isManual ){
+                    this.dropdown.position.call(this);
+                    document.body.appendChild(this.DOM.dropdown);
+                    this.events.binding.call(this, false); // unbind the main events
+                }
+
                 this.dropdown.events.binding.call(this);
             }
         },
 
-        hide(){
-            if( !this.DOM.dropdown || !document.body.contains(this.DOM.dropdown) ) return;
+        hide( force ){
+            var {scope, dropdown} = this.DOM,
+                isManual = this.settings.dropdown.position == 'manual' && !force;
 
-            this.DOM.dropdown.parentNode.removeChild(this.DOM.dropdown);
-            this.DOM.scope.setAttribute("aria-expanded", false)
+            if( !dropdown || !document.body.contains(dropdown) || isManual ) return;
 
             window.removeEventListener('resize', this.dropdown.position)
 
             this.dropdown.events.binding.call(this, false); // unbind all events
             this.events.binding.call(this); // re-bind main events
-            this.trigger("dropdown:hide", this.DOM.dropdown);
+
+            scope.setAttribute("aria-expanded", false)
+            dropdown.parentNode.removeChild(dropdown);
+
+            this.trigger("dropdown:hide", dropdown);
+        },
+
+        /**
+         * renders data into the suggestions list (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
+         */
+        render(){
+            this.suggestedListItems = this.dropdown.filterListItems.call(this, '');
+            var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
+            this.DOM.dropdown.innerHTML = this.minify(listHTML);
         },
 
         position(){
@@ -1233,10 +1248,11 @@ Tagify.prototype = {
                     }),
                     action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
-                if( this.settings.dropdown.position != 'manual' )
+                if( this.settings.dropdown.position != 'manual' ){
                     window[action]('resize', _CBR.position);
+                    window[action]('keydown', _CBR.onKeyDown);
+                }
 
-                window[action]('keydown', _CBR.onKeyDown);
                 window[action]('mousedown', _CBR.onClick);
 
                 this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver);
@@ -1323,7 +1339,9 @@ Tagify.prototype = {
             var className = "tagify__dropdown__item--active",
                 value;
 
-            elm.focus();
+            // focus casues a bug in Firefox with the placeholder been shown on the input element
+            // if( this.settings.dropdown.position != 'manual' )
+            //     elm.focus();
 
             this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => {
                 activeElm.classList.remove(className)

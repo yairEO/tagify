@@ -4,7 +4,6 @@ const APP = `file:${path.join(__dirname, '../', 'index.html')}`
 
 let page;
 let browser;
-let xxx;
 const width = 1920;
 const height = 1080;
 
@@ -33,23 +32,29 @@ beforeAll(async () => {
             slowMo  : 80,
             args    : [`--window-size = ${width},${height}`]
         }
-    );
-    page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
-    await page.setViewport({ width, height });
+    )
 
-    page.evaluateOnNewDocument(() => {
-        setTimeout(() => {
-            xxx = window.tagifyBasic
-        }, 500);
-    })
+    page = await browser.newPage()
 
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36')
+    await page.setViewport({ width, height })
     await page.goto(APP);
-});
+})
+
+afterEach(async () => {
+    // clear input text
+    const input = await page.$(elmSelectors.tagify.input)
+    await input.click({ clickCount: 3 })
+    await page.keyboard.press('Backspace')
+
+    // reset the tags
+    // TODO: use https://www.npmjs.com/package/jest-environment-puppeteer
+})
+
 
 afterAll(() => {
     browser.close();
-});
+})
 
 
 describe("simple tests", () => {
@@ -147,11 +152,16 @@ describe("actions", () => {
     // default is: settings.dropdown.enabled = 2
     it("should show dropdown suggestions after 2 typed characters", async () => {
         await page.waitForSelector(elmSelectors.tagify.firstTag);
+
+        const input = await page.$(elmSelectors.tagify.input);
+        await input.click({ clickCount: 3 })
+
         await page.type(elmSelectors.tagify.input, "j");
 
         let expected = `<div value="Java" class="tagify__dropdown__item " tabindex="0" role="menuitem" aria-labelledby="dropdown-label">Java</div>`;
         let dropdownItemsHTML = await page.$(".tagify__dropdown");
         expect(dropdownItemsHTML).toBeNull();
+
 
         await page.type(elmSelectors.tagify.input, "a");
 
@@ -167,10 +177,10 @@ describe("actions", () => {
     }, 0)
 
     it("should add first dropdown suggestions item to tagify (ArrowDown & ENTER)", async () => {
-        await page.waitForSelector(elmSelectors.tagify.firstTag);
-        await page.type(elmSelectors.tagify.input, "ja");
-        await page.keyboard.press('ArrowDown');
-        await page.keyboard.press('Enter');
+        await page.waitForSelector(elmSelectors.tagify.firstTag)
+        await page.type(elmSelectors.tagify.input, "ja")
+        await page.keyboard.press('ArrowDown')
+        await page.keyboard.press('Enter')
 
         function getAllTagsTexts(elmSelectors) {
             let data = [];
@@ -179,12 +189,14 @@ describe("actions", () => {
         }
 
         let texts = await page.evaluate(getAllTagsTexts, elmSelectors);
+        console.log( texts  )
         expect(texts).toEqual(["css", "html", "javascript", "Java"]);
     }, 0)
 
     it("should add first dropdown suggestions item to tagify (Mouse click)", async () => {
         await page.waitForSelector(elmSelectors.tagify.firstTag);
-        await page.type(elmSelectors.tagify.input, "ja");
+        await input.type("ja");
+      //  await page.type(elmSelectors.tagify.input, "ja");
         await page.click('.tagify__dropdown__item', { clickCount:1 });
 
         function getAllTagsTexts(elmSelectors) {

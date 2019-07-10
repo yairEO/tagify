@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.22.2)- tags input component
+ * Tagify (v 2.22.3)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -23,7 +23,9 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { keys.push.apply(keys, Object.getOwnPropertySymbols(object)); } if (enumerableOnly) keys = keys.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { if (i % 2) { var source = arguments[i] != null ? arguments[i] : {}; ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(arguments[i])); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(arguments[i], key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -189,7 +191,7 @@ Tagify.prototype = {
    */
   destroy: function destroy() {
     this.DOM.scope.parentNode.removeChild(this.DOM.scope);
-    this.dropdown.hide.call(this);
+    this.dropdown.hide.call(this, true);
   },
 
   /**
@@ -559,8 +561,10 @@ Tagify.prototype = {
       },
       onDoubleClickScope: function onDoubleClickScope(e) {
         var tagElm = e.target.closest('tag'),
-            _s = this.settings;
-        if (_s.mode != 'mix' && !_s.readonly && !_s.enforceWhitelist && tagElm && !tagElm.classList.contains('tagify--editable') && !tagElm.hasAttribute('readonly')) this.editTag(tagElm);
+            _s = this.settings,
+            isEditingTag = tagElm.classList.contains('tagify--editable'),
+            isReadyOnlyTag = tagElm.hasAttribute('readonly');
+        if (_s.mode != 'mix' && !_s.readonly && !_s.enforceWhitelist && tagElm && !isEditingTag && !isReadyOnlyTag) this.editTag(tagElm);
       }
     }
   },
@@ -787,7 +791,7 @@ Tagify.prototype = {
       // iterate the collection items and check for values that can be splitted into multiple tags
       tagsItems = (_ref = []).concat.apply(_ref, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item.value).map(function (newItem) {
-          return _objectSpread({}, item, newItem);
+          return _objectSpread({}, item, {}, newItem);
         });
       })));
       return tagsItems;
@@ -1055,6 +1059,7 @@ Tagify.prototype = {
         index: tagIdx,
         data: tagData
       });
+      this.dropdown.render.call(this);
     }
 
     function animation() {
@@ -1120,12 +1125,17 @@ Tagify.prototype = {
       this.DOM.dropdown = this.dropdown.build.call(this);
     },
     build: function build() {
-      var className = "tagify__dropdown ".concat(this.settings.dropdown.classname).trim(),
-          template = "<div class=\"".concat(className, "\" role=\"menu\"></div>");
+      var _this$settings$dropdo = this.settings.dropdown,
+          position = _this$settings$dropdo.position,
+          classname = _this$settings$dropdo.classname,
+          _className = "".concat(position == 'manual' ? "" : "tagify__dropdown", " ").concat(classname).trim(),
+          template = "<div class=\"".concat(_className, "\" role=\"menu\"></div>");
+
       return this.parseHTML(template);
     },
     show: function show(value) {
-      var listHTML;
+      var listHTML,
+          isManual = this.settings.dropdown.position == 'manual';
       if (!this.settings.whitelist.length) return; // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
@@ -1141,29 +1151,44 @@ Tagify.prototype = {
       listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
       this.DOM.dropdown.innerHTML = this.minify(listHTML); // if "enforceWhitelist" is "true", highlight the first suggested item
 
-      this.settings.enforceWhitelist && this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
+      this.settings.enforceWhitelist && !isManual && this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
       this.DOM.scope.setAttribute("aria-expanded", true);
-      this.trigger("dropdown:show", this.DOM.dropdown);
-      if (this.settings.dropdown.position == 'manual') return; // if the dropdown has yet to be appended to the document,
+      this.trigger("dropdown:show", this.DOM.dropdown); // if the dropdown has yet to be appended to the document,
       // append the dropdown to the body element & handle events
-      else if (!document.body.contains(this.DOM.dropdown)) {
+
+      if (!document.body.contains(this.DOM.dropdown)) {
+        if (!isManual) {
           this.dropdown.position.call(this);
           document.body.appendChild(this.DOM.dropdown);
           this.events.binding.call(this, false); // unbind the main events
-
-          this.dropdown.events.binding.call(this);
         }
+
+        this.dropdown.events.binding.call(this);
+      }
     },
-    hide: function hide() {
-      if (!this.DOM.dropdown || !document.body.contains(this.DOM.dropdown)) return;
-      this.DOM.dropdown.parentNode.removeChild(this.DOM.dropdown);
-      this.DOM.scope.setAttribute("aria-expanded", false);
+    hide: function hide(force) {
+      var _this$DOM = this.DOM,
+          scope = _this$DOM.scope,
+          dropdown = _this$DOM.dropdown,
+          isManual = this.settings.dropdown.position == 'manual' && !force;
+      if (!dropdown || !document.body.contains(dropdown) || isManual) return;
       window.removeEventListener('resize', this.dropdown.position);
       this.dropdown.events.binding.call(this, false); // unbind all events
 
       this.events.binding.call(this); // re-bind main events
 
-      this.trigger("dropdown:hide", this.DOM.dropdown);
+      scope.setAttribute("aria-expanded", false);
+      dropdown.parentNode.removeChild(dropdown);
+      this.trigger("dropdown:hide", dropdown);
+    },
+
+    /**
+     * renders data into the suggestions list (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
+     */
+    render: function render() {
+      this.suggestedListItems = this.dropdown.filterListItems.call(this, '');
+      var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
+      this.DOM.dropdown.innerHTML = this.minify(listHTML);
     },
     position: function position() {
       var rect = this.DOM.scope.getBoundingClientRect();
@@ -1193,8 +1218,11 @@ Tagify.prototype = {
         },
             action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
-        if (this.settings.dropdown.position != 'manual') window[action]('resize', _CBR.position);
-        window[action]('keydown', _CBR.onKeyDown);
+        if (this.settings.dropdown.position != 'manual') {
+          window[action]('resize', _CBR.position);
+          window[action]('keydown', _CBR.onKeyDown);
+        }
+
         window[action]('mousedown', _CBR.onClick);
         this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver); //  this.DOM.dropdown[action]('click', _CBR.onClick);
       },
@@ -1276,8 +1304,10 @@ Tagify.prototype = {
     highlightOption: function highlightOption(elm, adjustScroll) {
       if (!elm) return;
       var className = "tagify__dropdown__item--active",
-          value;
-      elm.focus();
+          value; // focus casues a bug in Firefox with the placeholder been shown on the input element
+      // if( this.settings.dropdown.position != 'manual' )
+      //     elm.focus();
+
       this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(function (activeElm) {
         activeElm.classList.remove(className);
         activeElm.removeAttribute("aria-selected");
