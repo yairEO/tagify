@@ -940,7 +940,6 @@ Tagify.prototype = {
         var tagElems = [];
 
         if( !tagsItems || !tagsItems.length ){
-            console.warn('[addTags]', 'no tags to add:', tagsItems)
             return tagElems;
         }
 
