@@ -1068,6 +1068,7 @@ Tagify.prototype = {
         if( !silent ){
             tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
             this.update() // update the original input with the current value
+            this.DOM.scope.classList.toggle('hasMaxTags',  this.value.length >= this.settings.maxTags);
             this.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData });
             this.dropdown.render.call(this);
         }
