@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.22.3)- tags input component
+ * Tagify (v 2.23.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -982,8 +982,6 @@ Tagify.prototype = {
 
         _this5.update();
 
-        _this5.DOM.scope.classList.toggle('hasMaxTags', _this5.value.length >= _this5.settings.maxTags);
-
         _this5.trigger('add', {
           tag: tagElm,
           index: _this5.value.length - 1,
@@ -1098,12 +1096,16 @@ Tagify.prototype = {
 
     return s;
   },
+  preUpdate: function preUpdate() {
+    this.DOM.scope.classList.toggle('hasMaxTags', this.value.length >= this.settings.maxTags);
+  },
 
   /**
    * update the origianl (hidden) input field's value
    * see - https://stackoverflow.com/q/50957841/104380
    */
   update: function update() {
+    this.preUpdate();
     this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString() : this.value.length ? JSON.stringify(this.value) : "";
   },
   getMixedTagsAsString: function getMixedTagsAsString() {

@@ -994,7 +994,6 @@ Tagify.prototype = {
                 // update state
                 this.value.push(tagData);
                 this.update();
-                this.DOM.scope.classList.toggle('hasMaxTags',  this.value.length >= this.settings.maxTags);
                 this.trigger('add', { tag:tagElm, index:this.value.length - 1, data:tagData });
             }
             else if( !this.settings.keepInvalidTags ){
@@ -1111,11 +1110,17 @@ Tagify.prototype = {
         return s;
     },
 
+    preUpdate(){
+        this.DOM.scope.classList.toggle('hasMaxTags',  this.value.length >= this.settings.maxTags)
+    },
+
     /**
      * update the origianl (hidden) input field's value
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update(){
+        this.preUpdate()
+
         this.DOM.originalInput.value = this.settings.mode == 'mix'
             ? this.getMixedTagsAsString()
             : this.value.length
