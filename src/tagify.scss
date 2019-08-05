@@ -1,17 +1,17 @@
 .tagify{
     $self: &;
-    $tags-border-color       : #DDD;
-    $tags-hover-border-color : #CCC;
-    $tags-focus-border-color : #85C8EA;
+    $tags-border-color       : #DDD !default;
+    $tags-hover-border-color : #CCC !default;
+    $tags-focus-border-color : #85C8EA !default;
 
-    $tagMargin           : 5px;
-    $tagPad              : .3em .5em;
-    $tag-text-color      : black;
-    $tag-bg              : #E5E5E5;
-    $tag-hover           : #D3E2E2;
-    $tag-remove          : #D39494;
-    $invalid-input-color : $tag-remove;
-    $showX               : true;
+    $tagMargin           : 5px !default;
+    $tagPad              : .3em .5em !default;
+    $tag-text-color      : black !default;
+    $tag-bg              : #E5E5E5 !default;
+    $tag-hover           : #D3E2E2 !default;
+    $tag-remove          : #D39494 !default;
+    $invalid-input-color : $tag-remove !default;
+    $showX               : true !default;
 
     // CSS variables
     --tag-bg     : #{$tag-bg};
