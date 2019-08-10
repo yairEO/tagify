@@ -131,7 +131,7 @@ var input = document.querySelector('input'),
 tagify.on('input', onInput)
 
 function onInput( e ){
-  var value = e.detail;
+  var value = e.detail.value;
   tagify.settings.whitelist.length = 0; // reset the whitelist
 
   // https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort
