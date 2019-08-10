@@ -53,10 +53,16 @@ with great performance and tiny code footprint.
 
     npm i @yaireo/tagify --save
 
-    // usage:
+### usage (in your bundle):
+
     import Tagify from '@yaireo/tagify'
 
     var tagify = new Tagify(...)
+
+> Don't forget to include `tagify.css` file in your project.
+> CSS location: `@yaireo/tagify/dist/tagify.css`
+> SCSS location: `@yaireo/tagify/src/tagify.scss`
+> [See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
 
 ## Selling points
 * JS minified `~21kb` (`~7kb` GZIP)
