@@ -856,7 +856,7 @@ Tagify.prototype = {
 
                 parsedMatch = match.slice(2).slice(0, -2);
 
-                if( this.isTagWhitelisted(parsedMatch) && !this.settings.duplicates && this.isTagDuplicate(parsedMatch) == -1 ){
+                if( this.isTagWhitelisted(parsedMatch) && (this.settings.duplicates || this.isTagDuplicate(parsedMatch) === -1) ){
                     tagData = this.normalizeTags.call(this, parsedMatch)[0];
                     html = this.replaceMixStringWithTag(html, match, tagData).html;
                   //  value = value.replace(match, "[[" + tagData.value + "]]")
