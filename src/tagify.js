@@ -322,7 +322,7 @@ Tagify.prototype = {
          */
         callbacks : {
             onFocusBlur(e){
-                var s = e.target.textContent.trim();
+                var s = e.target.textContent.trim(); // a string
 
                 if( this.settings.mode == 'mix' ) return;
 
@@ -347,8 +347,8 @@ Tagify.prototype = {
             },
 
             onKeydown(e){
-                var s = e.target.textContent,
-                    lastTag, tags;
+                var s = e.target.textContent.trim(),
+                    tags;
 
                 if( this.settings.mode == 'mix' ){
                     switch( e.key ){
@@ -394,7 +394,7 @@ Tagify.prototype = {
 
                     case 'Enter' :
                         e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                        this.addTags(this.input.value || s, true)
+                        this.addTags(s, true)
                 }
             },
 

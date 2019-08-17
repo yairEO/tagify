@@ -232,7 +232,7 @@ describe("mixed-mode", () => {
         expect(result).toEqual(expected);
     }, 0)
 
-    fit("should update textarea on deleted tag", async (done) => {
+    it("should update textarea on deleted tag", async (done) => {
         await page.waitForSelector(elmSelectors.mixed.firstTag);
         await page.click(elmSelectors.mixed.firstTag + " .tagify__tag__removeBtn", { clickCount:1 });
 
