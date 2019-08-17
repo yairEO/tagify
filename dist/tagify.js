@@ -841,7 +841,7 @@ Tagify.prototype = {
         collect = false;
         parsedMatch = match.slice(2).slice(0, -2);
 
-        if (this.isTagWhitelisted(parsedMatch) && !this.settings.duplicates && this.isTagDuplicate(parsedMatch) == -1) {
+        if (this.isTagWhitelisted(parsedMatch) && (this.settings.duplicates || this.isTagDuplicate(parsedMatch) === -1)) {
           tagData = this.normalizeTags.call(this, parsedMatch)[0];
           html = this.replaceMixStringWithTag(html, match, tagData).html; //  value = value.replace(match, "[[" + tagData.value + "]]")
         }
@@ -1037,6 +1037,8 @@ Tagify.prototype = {
    * @param  {Number}         tranDuration    [Transition duration in MS]
    */
   removeTag: function removeTag() {
+    var _this6 = this;
+
     var tagElm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getLastTag();
     var silent = arguments.length > 1 ? arguments[1] : undefined;
     var tranDuration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 250;
@@ -1045,20 +1047,27 @@ Tagify.prototype = {
     var tagData,
         tagIdx = this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
 
+    var removeNode = function removeNode() {
+      if (!tagElm.parentNode) return;
+      tagElm.parentNode.removeChild(tagElm);
+
+      if (!silent) {
+        tagData = _this6.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
+
+        _this6.update(); // update the original input with the current value
+
+
+        _this6.trigger('remove', {
+          tag: tagElm,
+          index: tagIdx,
+          data: tagData
+        });
+
+        _this6.dropdown.render.call(_this6);
+      }
+    };
+
     if (tranDuration && tranDuration > 10) animation();else removeNode();
-
-    if (!silent) {
-      tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
-
-      this.update(); // update the original input with the current value
-
-      this.trigger('remove', {
-        tag: tagElm,
-        index: tagIdx,
-        data: tagData
-      });
-      this.dropdown.render.call(this);
-    }
 
     function animation() {
       tagElm.style.width = parseFloat(window.getComputedStyle(tagElm).width) + 'px';
@@ -1067,11 +1076,6 @@ Tagify.prototype = {
       tagElm.classList.add('tagify--hide'); // manual timeout (hack, since transitionend cannot be used because of hover)
 
       setTimeout(removeNode, 400);
-    }
-
-    function removeNode() {
-      if (!tagElm.parentNode) return;
-      tagElm.parentNode.removeChild(tagElm);
     }
   },
   removeAllTags: function removeAllTags() {
@@ -1230,7 +1234,7 @@ Tagify.prototype = {
       },
       callbacks: {
         onKeyDown: function onKeyDown(e) {
-          var _this6 = this;
+          var _this7 = this;
 
           // get the "active" element, and if there was none (yet) active, use first child
           var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
@@ -1270,7 +1274,7 @@ Tagify.prototype = {
                 this.addTags([newValue], true);
                 this.dropdown.hide.call(this);
                 setTimeout(function () {
-                  return _this6.DOM.input.focus();
+                  return _this7.DOM.input.focus();
                 }, 100);
                 return false;
               } else {
@@ -1284,7 +1288,7 @@ Tagify.prototype = {
           if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
         },
         onClick: function onClick(e) {
-          var _this7 = this;
+          var _this8 = this;
 
           var value, listItemElm;
           if (e.button != 0 || e.target == this.DOM.dropdown) return; // allow only mouse left-clicks
@@ -1295,7 +1299,7 @@ Tagify.prototype = {
             value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
             this.addTags([value], true);
             setTimeout(function () {
-              return _this7.DOM.input.focus();
+              return _this8.DOM.input.focus();
             }, 100);
           }
 
@@ -1330,7 +1334,7 @@ Tagify.prototype = {
      * @return {[type]} [description]
      */
     filterListItems: function filterListItems(value) {
-      var _this8 = this;
+      var _this9 = this;
 
       var list = [],
           whitelist = this.settings.whitelist,
@@ -1344,7 +1348,7 @@ Tagify.prototype = {
 
       if (!value) {
         return whitelist.filter(function (item) {
-          return _this8.isTagDuplicate(item.value || item) == -1;
+          return _this9.isTagDuplicate(item.value || item) == -1;
         }) // don't include tags which have already been added.
         .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }

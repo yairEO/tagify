@@ -856,7 +856,7 @@ Tagify.prototype = {
 
                 parsedMatch = match.slice(2).slice(0, -2);
 
-                if( this.isTagWhitelisted(parsedMatch) && !this.settings.duplicates && this.isTagDuplicate(parsedMatch) == -1 ){
+                if( this.isTagWhitelisted(parsedMatch) && (this.settings.duplicates || this.isTagDuplicate(parsedMatch) === -1) ){
                     tagData = this.normalizeTags.call(this, parsedMatch)[0];
                     html = this.replaceMixStringWithTag(html, match, tagData).html;
                   //  value = value.replace(match, "[[" + tagData.value + "]]")
@@ -1058,18 +1058,23 @@ Tagify.prototype = {
         if( !(tagElm instanceof HTMLElement) )
             return;
 
-        var tagData,
+        let tagData,
             tagIdx = this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
+
+        const removeNode = () => {
+            if( !tagElm.parentNode ) return
+            tagElm.parentNode.removeChild(tagElm)
+
+            if( !silent ){
+                tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
+                this.update() // update the original input with the current value
+                this.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData });
+                this.dropdown.render.call(this);
+            }
+        }
 
         if( tranDuration && tranDuration > 10 ) animation()
         else removeNode();
-
-        if( !silent ){
-            tagData = this.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
-            this.update() // update the original input with the current value
-            this.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData });
-            this.dropdown.render.call(this);
-        }
 
         function animation(){
             tagElm.style.width = parseFloat(window.getComputedStyle(tagElm).width) + 'px';
@@ -1078,11 +1083,6 @@ Tagify.prototype = {
 
             // manual timeout (hack, since transitionend cannot be used because of hover)
             setTimeout(removeNode, 400);
-        }
-
-        function removeNode(){
-            if( !tagElm.parentNode ) return
-            tagElm.parentNode.removeChild(tagElm)
         }
     },
 

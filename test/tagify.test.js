@@ -15,6 +15,13 @@ let elmSelectors = {
         firstTag      : ".tagify__tag"
     },
 
+    mixed : {
+        scope         : ".tagify--mix",
+        input         : ".tagify--mix .tagify__input",
+        firstTag      : ".tagify--mix .tagify__tag",
+        originalInput : "[name=mix]",
+    },
+
     countries : {
         scope         : ".countries",
         input         : ".tagify.countries .tagify__input",
@@ -46,6 +53,10 @@ afterEach(async () => {
     const input = await page.$(elmSelectors.tagify.input)
     await input.click({ clickCount: 3 })
     await page.keyboard.press('Backspace')
+
+    await page.evaluate(() => {
+        location.reload(true)
+    })
 
     // reset the tags
     // TODO: use https://www.npmjs.com/package/jest-environment-puppeteer
@@ -189,14 +200,13 @@ describe("actions", () => {
         }
 
         let texts = await page.evaluate(getAllTagsTexts, elmSelectors);
-        console.log( texts  )
         expect(texts).toEqual(["css", "html", "javascript", "Java"]);
     }, 0)
 
     it("should add first dropdown suggestions item to tagify (Mouse click)", async () => {
         await page.waitForSelector(elmSelectors.tagify.firstTag);
-        await input.type("ja");
-      //  await page.type(elmSelectors.tagify.input, "ja");
+       // await input.type("ja");
+        await page.type(elmSelectors.tagify.input, "ja");
         await page.click('.tagify__dropdown__item', { clickCount:1 });
 
         function getAllTagsTexts(elmSelectors) {
@@ -210,6 +220,33 @@ describe("actions", () => {
     }, 0)
 
     // check events are fired...
+})
+
+describe("mixed-mode", () => {
+    it("should parse textarea into mixed-tags", async () => {
+        await page.waitForSelector(elmSelectors.mixed.originalInput);
+
+        const result = await page.$eval(elmSelectors.mixed.input, el => el.innerHTML);
+        const expected = `<tag title="Eric Cartman" contenteditable="false" spellcheck="false" class="tagify__tag borderd-blue" value="cartman"><x title="" class="tagify__tag__removeBtn" role="button" aria-label="remove tag"></x><div><span class="tagify__tag-text">cartman</span></div></tag>⁠ and <tag title="Kyle Broflovski" contenteditable="false" spellcheck="false" class="tagify__tag " value="kyle"><x title="" class="tagify__tag__removeBtn" role="button" aria-label="remove tag"></x><div><span class="tagify__tag-text">kyle</span></div></tag>⁠ do not know <tag title="Homer simpson" contenteditable="false" spellcheck="false" class="tagify__tag " value="Homer simpson"><x title="" class="tagify__tag__removeBtn" role="button" aria-label="remove tag"></x><div><span class="tagify__tag-text">Homer simpson</span></div></tag>⁠ because he's a relic.`
+
+        expect(result).toEqual(expected);
+    }, 0)
+
+    fit("should update textarea on deleted tag", async (done) => {
+        await page.waitForSelector(elmSelectors.mixed.firstTag);
+        await page.click(elmSelectors.mixed.firstTag + " .tagify__tag__removeBtn", { clickCount:1 });
+
+        const expectedTagifyInput   = `⁠ and <tag title=\"Kyle Broflovski\" contenteditable=\"false\" spellcheck=\"false\" class=\"tagify__tag \" value=\"kyle\"><x title=\"\" class=\"tagify__tag__removeBtn\" role=\"button\" aria-label=\"remove tag\"></x><div><span class=\"tagify__tag-text\">kyle</span></div></tag>⁠ do not know <tag title=\"Homer simpson\" contenteditable=\"false\" spellcheck=\"false\" class=\"tagify__tag \" value=\"Homer simpson\"><x title=\"\" class=\"tagify__tag__removeBtn\" role=\"button\" aria-label=\"remove tag\"></x><div><span class=\"tagify__tag-text\">Homer simpson</span></div></tag>⁠ because he's a relic.`
+        const expectedTextareaValue = `⁠ and [[kyle]]⁠ do not know [[Homer simpson]]⁠ because he's a relic.`
+
+        setTimeout(async ()=>{
+            const tagifyInput = await page.$eval(elmSelectors.mixed.input, el => el.innerHTML);
+            const textareaValue = await page.$eval(elmSelectors.mixed.originalInput, el => el.value);
+            expect(tagifyInput).toEqual(expectedTagifyInput);
+            expect(textareaValue).toEqual(expectedTextareaValue);
+            done()
+        }, 100)
+    }, 0)
 })
 
 describe("unit tests", () => {

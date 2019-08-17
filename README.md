@@ -65,13 +65,13 @@ with great performance and tiny code footprint.
 > [See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
 
 ## Selling points
-* JS minified `~21kb` (`~7kb` GZIP)
-* CSS minified `~7kb` (`~2kb` GZIP) - well-crafted flexible code
-* Easily customized
-* Easily change direction to RTL via the SCSS file only
+* JS minified `~24kb` (`~7kb` GZIP)
+* CSS minified `~5kb` (`~2kb` GZIP) - generated from SCSS with variables
+* Easily customized, plenty of settings for common scenarios
 * No other inputs are used beside the original, and its value is kept in sync
 * ARIA accessibility support
 * Exposed custom [events](#events)
+* Easily change direction to RTL (via the SCSS file)
 * Internet Explorer - A polyfill script can be used: `tagify.polyfills.min.js` in `/dist`
 
 ## What can Tagify do

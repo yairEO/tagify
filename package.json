@@ -2,7 +2,7 @@
     "name": "@yaireo/tagify",
     "version": "2.23.4",
     "homepage": "https://github.com/yairEO/tagify",
-    "description": "Convert an input field into a Tags element. Easy, customizable, with good performance and small code footprint.",
+    "description": "lightweight, efficient Tags input component in Vanilla JS / React / Angular [super customizable, tiny size & top performance]",
     "_npmUser": {
         "name": "vsync",
         "email": "vsync.design@gmail.com"
