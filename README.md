@@ -377,9 +377,10 @@ dropdown:hide   | Suggestions dropdown has been removed from the DOM
 
 Name                  | Type       | Default                          | Info
 ----------------------| ---------- | -------------------------------- | --------------------------------------------------------------------------
-delimiters            | String     | ","                              | [regex] split tags by any of these delimiters. Example: `",| |."`
+delimiters            | String     | `,`                              | [regex] split tags by any of these delimiters. Example: `",| |."`
 pattern               | String     | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/``
 mode                  | String     | null                             | use 'mix' as value to allow mixed-content. The 'pattern' setting must be set to some character.
+mixTagsInterpolator   | Array      | `['[[', ']]']`                   | Interpolation for mix mode. Everything between this will becmoe a tag
 duplicates            | Boolean    | false                            | Should duplicate tags be allowed or not
 enforceWhitelist      | Boolean    | false                            | Should ONLY use tags allowed in whitelist
 autocomplete          | Boolean    | true                             | Tries to autocomplete the input's value while typing (match from whitelist)
@@ -395,7 +396,7 @@ skipInvalid           | Boolean    | false                            | If `true
 backspace             | *          | true                             | On backspace: (`true`) - remove last tag, (`"edit"``) - edit last tag
 dropdown.enabled      | Number     | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
 dropdown.maxItems     | Number     | 10                               | Maximum items to show in the suggestions list dropdown
-dropdown.classname    | String     | ""                               | Custom class name for the dropdown suggestions selectbox
-dropdown.itemTemplate | Function   | ""                               | Returns a custom string for each list item in the dropdown suggestions selectbox
+dropdown.classname    | String     | `""`                             | Custom class name for the dropdown suggestions selectbox
+dropdown.itemTemplate | Function   | `""`                             | Returns a custom string for each list item in the dropdown suggestions selectbox
 dropdown.fuzzySearch  | Boolean    | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
 dropdown.position     | String     | null                             | `manual` will not render the dropdown, and you would need to do it yourself. See "events" section.
