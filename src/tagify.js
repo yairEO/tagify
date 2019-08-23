@@ -1302,6 +1302,10 @@ Tagify.prototype = {
 
                     listItemElm = e.target.closest(".tagify__dropdown__item");
 
+                    // make sure the list item belongs to this context of the Tagify instance (and not some other instance's manual suggestions list)
+                    if( listItemElm.parentNode !== this.DOM.dropdown )
+                        return
+
                     if( listItemElm ){
                         value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
                         this.addTags([value], true);
