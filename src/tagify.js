@@ -47,6 +47,7 @@ Tagify.prototype = {
         keepInvalidTags     : false,          // Flag - if true, do not remove tags which did not pass validation
         autoComplete        : true,           // Flag - tries to autocomplete the input's value while typing
         mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
+        mixTagsInterpolator : ['[[', ']]'],   // Interpolation for mix mode. Everything between this will becmoe a tag
         backspace           : true,           // false / true / "edit"
         skipInvalid         : false,
         transformTag        : ()=>{},
@@ -836,56 +837,31 @@ Tagify.prototype = {
         return tagsItems;
     },
 
+    /**
+     * Used to parse the initial value of a textarea (or input) element and gemerate mixed text w/ tags
+     * https://stackoverflow.com/a/57598892/104380
+     * @param {String} s
+     */
     parseMixTags( s ){
-        var collect = false,
-            match = "",
-            parsedMatch,
-            value = s,
-            html = s,
-            tagData;
+        var tagData,
+            {mixTagsInterpolator, duplicates} = this.settings;
 
-        for( let i = 0; i < s.length; i++ ){
-            if( s[i] == '[' && s[i] == s[i+1])
-                collect = true;
+        s = s.split(mixTagsInterpolator[0]).map(s1 => {
+            var s2 = s1.split(mixTagsInterpolator[1]),
+                tagElm;
 
-            if (collect)
-                match += s[i];
-
-            if( s[i] == ']' && s[i] == s[i-1]){
-                collect = false;
-
-                parsedMatch = match.slice(2).slice(0, -2);
-
-                if( this.isTagWhitelisted(parsedMatch) && (this.settings.duplicates || this.isTagDuplicate(parsedMatch) === -1) ){
-                    tagData = this.normalizeTags.call(this, parsedMatch)[0];
-                    html = this.replaceMixStringWithTag(html, match, tagData).html;
-                  //  value = value.replace(match, "[[" + tagData.value + "]]")
-                }
-
-                match = "";
+            if( s2.length > 1 && this.isTagWhitelisted(s2[0]) && (duplicates || this.isTagDuplicate(s2[0]) === -1) ){
+                tagData = this.normalizeTags(s2[0])[0];
+                tagElm = this.createTagElem(tagData);
+                s2[0] = tagElm.outerHTML + "&#8288;"  // put a zero-space at the end so the caret so it won't jump back to the start (when the last input's child element is a tag)
+                this.value.push(tagData);
             }
-        }
+            return s2.join('')
+        }).join('')
 
-        this.DOM.input.innerHTML = html;
+        this.DOM.input.innerHTML = s;
         this.update();
         return s;
-    },
-
-    /**
-     * [replaceMixStringWithTag description]
-     * @param  {String} html    [tagify input string, probably from a textarea]
-     * @param  {String} tag     [tag string to replace with tag element]
-     * @param  {Object} tagData [value, plus any other optional attributes]
-     * @return {Object}         [HTML string & tag DOM object]
-     */
-    replaceMixStringWithTag( html, tag, tagData, tagElm ){
-        if( tagData && html && html.indexOf(tag) != -1 ){
-            tagElm = this.createTagElem(tagData);
-            this.value.push(tagData);
-            html = html.replace(tag, tagElm.outerHTML + "&#8288;") // put a zero-space at the end so the caret won't jump back to the start (when the last input child is a tag)
-        }
-
-        return {html, tagElm};
     },
 
     /**
