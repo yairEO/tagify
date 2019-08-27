@@ -252,7 +252,7 @@ the same values that appear between `[[` & `]]`.
 
 A Tagify React component is exported as `<Tags>` from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
 
-Check the [**codepen demo**](https://codepen.io/vsync/project/editor/ARaJye) for a live React integration example
+Check the [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-6vd3i) for a live React integration example
 
 
 ## Angular

@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.25.1)- tags input component
+ * Tagify (v 2.25.3)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -1277,11 +1277,11 @@ Tagify.prototype = {
           var value, listItemElm;
           if (e.button != 0 || e.target == this.DOM.dropdown) return; // allow only mouse left-clicks
 
-          listItemElm = e.target.closest(".tagify__dropdown__item"); // make sure the list item belongs to this context of the Tagify instance (and not some other instance's manual suggestions list)
-
-          if (listItemElm.parentNode !== this.DOM.dropdown) return;
+          listItemElm = e.target.closest(".tagify__dropdown__item");
 
           if (listItemElm) {
+            // make sure the list item belongs to this context of the Tagify instance (and not some other instance's manual suggestions list)
+            if (listItemElm.parentNode !== this.DOM.dropdown) return;
             value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
             this.addTags([value], true);
             setTimeout(function () {
