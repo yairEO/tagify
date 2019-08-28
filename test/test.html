@@ -2,76 +2,22 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Tagify - demo</title>
+        <title>Tagify - pupetteer tests</title>
         <meta name="description" content="Converts HTML input/textarea into Tags component">
         <meta name="author" content="Yair Even-Or">
 
-        <link rel="stylesheet" href="https://cdn.rawgit.com/yairEO/ec9e154c4269b9a0f264fba7f64d7383/raw/e0c395043e809c2def517280850aeec410536abd/vsync_demos.css">
-        <link rel="stylesheet" href="dist/tagify.css">
+        <link rel="stylesheet" href="../dist/tagify.css">
 
-        <script>
-            // if IE, add IE tagify's polyfills
-            !function( d ) {
-                if( !d.currentScript ){
-                    var s = d.createElement( 'script' );
-                    s.src = 'dist/tagify.polyfills.min.js';
-                    d.head.appendChild( s );
-                }
-            }(document)
-        </script>
-        <script src="dist/tagify.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script src="dist/jQuery.tagify.min.js"></script>
-
-        <script>
-            var isIE = !document.currentScript;
-
-            function renderPRE(currentScript, codeScriptName){
-                if( isIE ) return;
-                setTimeout(function(){
-                    var jsCode = document.querySelector("[data-name='"+ codeScriptName +"']").innerHTML;
-
-                    // cleanup closure wraper
-                    jsCode = jsCode.replace("(function(){", "" ).replace("})()", "" ).trim();
-                    // escape angled brackets between two _ESCAPE_START_ and _ESCAPE_END_ comments
-                    let textsToEscape = jsCode.match(new RegExp("// _ESCAPE_START_([^]*?)// _ESCAPE_END_", 'mg'));
-                    if (textsToEscape) {
-                        textsToEscape.forEach(function(textToEscape){
-                            jsCode = jsCode.replace(textToEscape, textToEscape.replace(/</g, "&lt" )
-                                                                              .replace(/>/g, "&gt" )
-                                                                              .replace("// _ESCAPE_START_", "")
-                                                                              .replace("// _ESCAPE_END_", "")
-                                                                              .trim());
-                        });
-                    }
-                    currentScript.insertAdjacentHTML('afterend', "<pre class='language-js'><code>" + jsCode + "</code></pre>");
-                }, 500);
-            }
-
-            // detect modern browser and enhance console logs with colors
-            if( typeof(Intl) )
-                try{
-                   // console.log = ((_c) => (...args) => args.length > 1 ? _c("%c "+ args[0], 'background:indianred; color:white; border-radius:3px; padding:1px;', ...args.slice(1)) : _c(...args))(console.log);
-                }
-                catch(err){}
-        </script>
+        <script src="../dist/tagify.js"></script>
 
         <style>
-            p{ line-height:1.4; }
-            code{ padding:2px 3px; background:lightyellow; }
-            pre code{ background:none; padding:0; }
-            pre[class*=language-]{ max-height:400px; }
-            .forkLink{ top:1em; right:1em; }
-
-            section > .rightSide{
-                position: sticky;
-                top: 1em;
-                align-self: start;
+            body{ font: 16px Arial; }
+            form{
+                max-width:600px;
             }
 
             .tagify{
                 min-width:400px;
-                max-width:600px;
                 margin: 1.5em 0;
             }
 
@@ -146,127 +92,32 @@
     </head>
 
     <body>
-        <a class='forkLink' title='Go To Repo' href='https://github.com/yairEO/tagify'>
-            <img src='https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png' alt='GitHub Repo'>
-        </a>
-
-        <label><input name='toggleTagify' type='checkbox'> TOGGLE OFF</label>
-
         <form>
             <section id='section-basic'>
-                <aside class='leftSide'>
-                    <h2><a href='#section-basic'>#</a>text input</h2>
-                    <p>
-                        In this example, the field is pre-ocupied with <strong>4</strong> tags. The <em>last</em> tag (CSS) has the same value as the <em>first</em> tag,
-                        and will be <em>removed</em>, because the <code>duplicates</code> setting is set to <code>true</code>.
-                    </p>
-                    <p>
-                        Note that <code>whitelist</code> &amp; <code>blacklist</code> may also be set on to <i>Tagify</i> as <code>data-</code> attributes on the input tag itself
-                        as a list of tags seperated by the same delimeter defined in the Tagify's configuration. Default is comma (<code>,</code>)
-                    </p>
-                    <h3>HTML</h3>
-                    <xmp><input name='tags' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css' autofocus data-blacklist='.NET,PHP'></xmp>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "basic")</script>
-                </aside>
                 <aside class='rightSide'>
                     <input name='tags' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css' autofocus data-blacklist='.NET,PHP'>
-                    <button class='tags--removeAllBtn' type='button'>Remove all tags</button>
                 </aside>
             </section>
 
             <section id='section-textarea'>
-                <aside class='leftSide'>
-                    <h2><a href='#section-textarea'>#</a>textarea</h2>
-                    <p>
-                        In this example, the field is pre-ocupied with 3 tags, and last tag is <strong>not included</strong> in the whitelist,
-                        and will be <em>removed</em> because the <code>enforceWhitelist</code> option flag is set to <code>true</code>
-                    </p>
-                    <h3>HTML</h3>
-                    <xmp><textarea name='tags2' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea></xmp>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "textarea")</script>
-                </aside>
                 <aside class='rightSide'>
                     <textarea name='tags2' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea>
                 </aside>
             </section>
 
             <section id='section-mix'>
-                <aside class='leftSide'>
-                    <h2><a href='#section-mix'>#</a>Mix text &amp; tags</h2>
-                    <p>
-                        It is possible to configure Tagify to supoprt mixed content.
-                        A common example would be <em>tagging</em> people while writing a comment on a social website.
-                    </p>
-                    <p>
-                        To allow mix content, simply pass the setting <code>mode : 'mix'</code>
-                    </p>
-                    <p>
-                        In this example, there are a few <em>Southpark</em> character names and a few Simpsons ones.
-                        when the <code>@</code> is typed, following 1 more character, suggestions dropdown will be shown for <i>Southpark</i> suggestion list
-                        and when starting with <code>#</code>, a <i>Simpsons</i> suggestion list
-                    </p>
-                    <p>
-                        Note that tags can only be created if the value matches any of the whitelisted item's value.
-                    </p>
-                    <p>
-                        When a <code>textarea</code> already has mixed-content and it wasn't pre-configured using a whitelist, the tags will ignored, so keep
-                        that in mind when populating a textarea with server data and expecting tags to "magically" appear. Whitelist must be specified because not
-                        everything that starts with <code>@</code> or <code>#</code> (or whatever was defined) is meant to be rendered as a tag.
-                    </p>
-                    <h3>HTML</h3>
-                    <xmp><textarea name='mix'>[[cartman]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea></xmp>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "mix")</script>
-                </aside>
                 <aside class='rightSide'>
                     <textarea name='mix'>[[cartman]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea>
                 </aside>
             </section>
 
             <section id='outside-of-the-box'>
-                <aside class='leftSide'>
-                    <h2><a href='#outside-of-the-box'>#</a>outside-of-the-box</h2>
-                    <p>
-                        Some cases might require addition of tags from outside of the box and not within.
-                    </p>
-                    <h3>HTML</h3>
-                    <xmp><input name='tags-outside' class='tagify--outside' placeholder='write some tags'></xmp>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "outside-of-the-box")</script>
-                    <h3>CSS</h3>
-                    <pre>
-<code class="language-css">.tagify--outside{
-    border: 0;
-    padding: 0;
-    margin: 0;
-}
-.tagify__input--outside{
-    display: block;
-    max-width: 600px;
-    border: 1px solid #DDD;
-    margin-top: 1.5em;
-    margin-bottom: 1em;
-}</code></pre>
-                </aside>
                 <aside class='rightSide'>
                     <input name='tags-outside' class='tagify--outside' value='tag1, tag2, tag3' placeholder='write some tags'>
                 </aside>
             </section>
 
             <section id='section-manual-suggestions'>
-                <aside class='leftSide'>
-                    <h2><a href='#section-manual-suggestions'>#</a>Render suggestions list manually</h2>
-                    <p>
-                        Renders the suggestions list manually, useful for situations where you wish to shown the suggestions list
-                        inside a modal or your own popup implementaion, or even always show it. In this example the list is always shown.
-                    </p>
-                    <h3>HTML</h3>
-                    <xmp><input name='tags-manual-suggestions' placeholder='write some tags'></xmp>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "manualSuggestions")</script>
-                </aside>
                 <aside class='rightSide'>
                     <input name='tags-manual-suggestions' placeholder='write some tags'>
                     <h3>Please select from the list:</h3>
@@ -275,144 +126,25 @@
 
 
             <section id="section-advance-options">
-                <aside class='leftSide'>
-                    <h2><a href='#section-advance-options'>#</a>Advance options</h2>
-                    <p>
-                        In this example, the <code>dropdown.enabled</code> <em>setting</em> is set (minimum charactes typed to show the dropdown) to <code>3</code>.
-                        <br>
-                        Maximum number of tags is set to <code>6</code>
-                    </p>
-                    <p>
-                        Each (valid) tag gets a random color, via the <code>transformTag</code> callback which modifies the tag's data object before creating the tag element.
-                    </p>
-                    <p>
-                        HTML5 <code>pattern</code> attribute is automatically used to validate tags.<br>
-                        Also, the <code>delimiters</code> <em>setting</em> using both <code>comma</code> or <code>space</code> as tags seperators.
-                    </p>
-                    <p>
-                        The <code>keepInvalidTags</code> <em>setting</em> flag is switched <em>on</em> to <code>true</code> so invaild tags are not removed but are only marked.
-                    </p>
-                    <h3>HTML</h3>
-                    <xmp><input name='tags3' placeholder='Write some tags' pattern='^[A-Za-z_✲ ]{1,15}$'></xmp>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "advance-options")</script>
-                </aside>
                 <aside class='rightSide'>
                     <input name='tags3' placeholder='Write some tags' pattern='^[A-Za-z_✲ ]{1,15}$'>
                 </aside>
             </section>
 
             <section id="section-extra-properties">
-                <aside class='leftSide'>
-                    <h2><a href='#section-extra-properties'>#</a>Tags with properties</h2>
-                    <p>
-                        Some cases requires more control per-tag, for exmaple, sending a different value to the server than the textual value
-                        the user sees/enetered. Another example, would be different colors for different tags or tags' groups.
-                        it's possible to add any number of properties per tag, the only constant is the <code>value</code> property which
-                        must be declared per-tag, and that will be the rendered text.
-                    </p>
-                    <p>
-                        The propeties shown in the example below, declared in the <code>allowedTags</code> Array, will be transformed into
-                        HTML attributes for each tag element rendered from the allowed <code>whitelist</code> settings, so naturally
-                        some attributes are in the specs and the made-up ones should technically be prefixed with <code>data-</code>.
-                    </p>
-                    <p>
-                        With this level of control a lot can be done via css. <br>
-                        For the example below, the first two tags have a <code>readonly</code>
-                        property and that will enable the CSS to target that and hide the <code>&times;</code> button and disable the hover state.
-                    </p>
-                    <h3>HTML</h3>
-                    <xmp><input name='tags3-1' placeholder="Try to add tags from the list"></xmp>
-                    <h3>Javascript</h3>
-                    <script>
-                        renderPRE(document.currentScript, "extra-properties")
-                    </script>
-                    <h3>CSS</h3>
-                    <pre>
-<code class="language-css">.tagify__dropdown.extra-properties .tagify__dropdown__item > img{
-    display: inline-block;
-    vertical-align: middle;
-    height: 20px;
-    transform: scale(.75);
-    margin-right: 5px;
-    border-radius: 2px;
-    transition: .12s ease-out;
-}
-
-.tagify__dropdown.extra-properties .tagify__dropdown__item:hover > img{
-    transform: none;
-    margin-right: 12px;
-}
-
-.tagify.countries .tagify__input{ min-width:175px; }
-
-.tagify.countries tag{ white-space:nowrap; }
-.tagify.countries tag img{
-    display: inline-block;
-    vertical-align: middle;
-    height: 16px;
-    margin-right: 3px;
-    border-radius: 2px;
-}</code></pre>
-                </aside>
                 <aside class='rightSide'><input class='countries' name='tags3-1' placeholder="Try to add tags from the list"></aside>
             </section>
 
 
             <section id='section-readonly'>
-                <aside class='leftSide'>
-                    <h2><a href='#section-readonly'>#</a>Readonly mode</h2>
-                    <p>
-                        If the original input field has a <code>readonly</code> attribute, then, via CSS, there will be no way of manually adding tags because the inline contenteditable element will be hidden.
-                    </p>
-                    <h3>HTML</h3>
-                    <xmp><input name='tags4' readonly value='tag1, tag 2, another tag'></xmp>
-                    <h3>Javascript</h3>
-                    <script>
-                        renderPRE(document.currentScript, "readonly")
-                    </script>
-                </aside>
                 <aside class='rightSide'>
                     <input name='tags4' readonly value='tag1, tag 2, another tag'>
                 </aside>
             </section>
 
             <section id='section-readonly-mixed'>
-                <aside class='leftSide'>
-                    <h2><a href='#section-readonly'>#</a>Readonly mix</h2>
-                    <p>
-                        Tags that are read-only mixed with removable tags
-                    </p>
-                    <h3>HTML</h3>
-                    <xmp><input name='tags-readonly-mix' class='readonlyMix' placeholder="Type something" /></xmp>
-                    <h3>Javascript</h3>
-                    <script>
-                        renderPRE(document.currentScript, "readonly-mixed")
-                    </script>
-                </aside>
                 <aside class='rightSide'>
                     <input name='tags-readonly-mix' class='readonlyMix' placeholder="Type something" />
-                </aside>
-            </section>
-
-
-            <section id='section-jquery'>
-                <aside class='leftSide'>
-                    <h2><a href='#section-jquery'>#</a>jQuery plugin version</h2>
-                    <p>
-                        Tagify can also be used as a jQuery plugin
-                    </p>
-                    <h3>HTML</h3>
-                    <xmp>
-                        <input name='tags-jquery' value='try, adding, a tag'>
-                        <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
-                    </xmp>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "jQuery")</script>
-                </aside>
-                <aside class='rightSide'>
-                    <input name='tags-jquery' value='try, adding, a tag'>
-                    <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
                 </aside>
             </section>
         </form>
@@ -420,23 +152,16 @@
         <!-- Initialize Tagify for both Input and Textaera -->
         <script>
             document.forms[0].reset();
-
-            var toggleTagifyElm = document.querySelector('input[name=toggleTagify]');
-            toggleTagifyElm.checked = false;
-
-            // toggle Tagify on/off
-            toggleTagifyElm.addEventListener('change', function(){
-                document.body.classList[this.checked ? 'add' : 'remove']('disabled');
-            })
         </script>
 
 
 <script data-name="basic">
 (function(){
 
-var input = document.querySelector('input[name=tags]'),
+var input = document.querySelector('input[name=tags]');
+
     // init Tagify script on the above inputs
-    tagify = new Tagify(input, {
+window.tagify__basic = new Tagify(input, {
         whitelist : ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "Java", "Javascript", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"],
         blacklist : [".NET", "PHP"], // <-- passed as an attribute in this demo
         dropdown : {
@@ -445,31 +170,28 @@ var input = document.querySelector('input[name=tags]'),
     })
 
 
-// "remove all tags" button event listener
-document.querySelector('.tags--removeAllBtn')
-    .addEventListener('click', tagify.removeAllTags.bind(tagify))
-
 // Chainable event listeners
-tagify.on('add', onAddTag)
-      .on('remove', onRemoveTag)
-      .on('input', onInput)
-      .on('edit', onTagEdit)
-      .on('invalid', onInvalidTag)
-      .on('click', onTagClick)
-      .on('dropdown:show', onDropdownShow)
-      .on('dropdown:hide', onDropdownHide)
+tagify__basic
+    .on('add', onAddTag)
+    .on('remove', onRemoveTag)
+    .on('input', onInput)
+    .on('edit', onTagEdit)
+    .on('invalid', onInvalidTag)
+    .on('click', onTagClick)
+    .on('dropdown:show', onDropdownShow)
+    .on('dropdown:hide', onDropdownHide)
 
 // tag added callback
 function onAddTag(e){
     console.log("onAddTag: ", e.detail);
     console.log("original input value: ", input.value)
-    tagify.off('add', onAddTag) // exmaple of removing a custom Tagify event
+    tagify__basic.off('add', onAddTag) // exmaple of removing a custom Tagify event
 }
 
 // tag remvoed callback
 function onRemoveTag(e){
     console.log(e.detail);
-    console.log("tagify instance value:", tagify.value)
+    console.log("tagify instance value:", tagify__basic.value)
 }
 
 // on character(s) added/removed (user is typing/deleting)
@@ -1069,37 +791,5 @@ tagify.addTags([
 })()
 </script>
 
-
-
-<script data-name='jQuery'>
-(function(){
-var $input = $('input[name=tags-jquery]')
-    .tagify({
-            whitelist : [
-                {"id":1,"value":"some string"}
-            ]
-        })
-        .on('add', function(e, tagName){
-            console.log('JQEURY EVENT: ', 'added', tagName)
-        })
-        .on("invalid", function(e, tagName) {
-            console.log('JQEURY EVENT: ',"invalid", e, ' ', tagName);
-        });
-
-// get the Tagify instance assigned for this jQuery input object so its methods could be accessed
-var jqTagify = $input.data('tagify');
-
-// bind the "click" event on the "remove all tags" button
-$('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
-})()
-</script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/themes/prism.min.css">
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/prism.min.js'></script>
-    <script>
-        setTimeout(function(){
-            Prism.highlightAll();
-        }, 500)
-    </script>
     </body>
 </html>

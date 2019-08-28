@@ -10,6 +10,9 @@
     "scripts": {
         "test": "jest"
     },
+    "jest": {
+        "preset": "jest-puppeteer"
+    },
     "author": {
         "name": "Yair Even-Or",
         "email": "vsync.design@gmail.com"
@@ -28,7 +31,6 @@
         "@babel/plugin-transform-destructuring": "^7.5.0",
         "@babel/preset-env": "^7.5.5",
         "babel-core": "^6.26.3",
-        "babel-jest": "^24.8.0",
         "babel-preset-env": "^1.7.0",
         "beepbeep": "^1.2.2",
         "gulp": "^3.9.1",
@@ -54,7 +56,8 @@
         "gulp-umd": "^2.0.0",
         "gulp-util": "^3.0.8",
         "gulp-watch": "^5.0.1",
-        "jest": "^24.8.0",
+        "jest": "^24.9.0",
+        "jest-puppeteer": "^4.3.0",
         "path": "^0.12.7",
         "puppeteer": "^1.19.0",
         "run-sequence": "^2.2.1",

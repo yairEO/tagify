@@ -1,11 +1,11 @@
-const puppeteer = require("puppeteer");
+// const puppeteer = require("puppeteer");
 const path = require("path");
-const APP = `file:${path.join(__dirname, '../', 'index.html')}`
+const APP = `file:${path.join(__dirname, '/', 'test.html')}`
 
-let page;
-let browser;
-const width = 1920;
-const height = 1080;
+// let page;
+// let browser;
+// const width = 1920;
+// const height = 1080;
 
 let elmSelectors = {
     tagify : {
@@ -32,19 +32,20 @@ let elmSelectors = {
 }
 
 
+
 beforeAll(async () => {
-    browser = await puppeteer.launch(
-        {
-            headless: false,
-            slowMo  : 80,
-            args    : [`--window-size = ${width},${height}`]
-        }
-    )
+    // browser = await puppeteer.launch(
+    //     {
+    //         headless: false,
+    //         slowMo  : 80,
+    //         args    : [`--window-size = ${width},${height}`]
+    //     }
+    // )
 
-    page = await browser.newPage()
+    // page = await browser.newPage()
 
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36')
-    await page.setViewport({ width, height })
+    // await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36')
+    // await page.setViewport({ width, height })
     await page.goto(APP);
 })
 
@@ -57,19 +58,24 @@ afterEach(async () => {
     await page.evaluate(() => {
         location.reload(true)
     })
-
-    // reset the tags
-    // TODO: use https://www.npmjs.com/package/jest-environment-puppeteer
 })
 
 
-afterAll(() => {
-    browser.close();
-})
+// afterAll(() => {
+//     browser.close();
+// })
 
 
 describe("simple tests", () => {
-    it("duplicate tags removed", async () => {
+    // fit("access window object", async () => {
+    //     const performance = JSON.parse(await page.evaluate(
+    //         () => JSON.stringify( window.tagify__basic )
+    //     ))
+
+    //     expect(performance).toEqual(1000)
+    // }, 200)
+
+    it("duplicate tags removed", async (done) => {
         // await page.goto(APP);
         // await page.waitForSelector(".some_class_name");
         // await page.waitForSelectorRemoval('.some_class_name tag:last-of-type')
@@ -83,11 +89,12 @@ describe("simple tests", () => {
         let texts = await page.evaluate(getAllTagsTexts, elmSelectors);
         expect(texts).toEqual(["css", "html", "javascript", "css"]);
 
-        await page.waitFor(1000)
-
-        texts = await page.evaluate(getAllTagsTexts, elmSelectors);
-        expect(texts).toEqual(["css", "html", "javascript"]);
-    }, 2000);
+        setTimeout(async ()=> {
+            texts = await page.evaluate(getAllTagsTexts, elmSelectors);
+            expect(texts).toEqual(["css", "html", "javascript"]);
+            done()
+        }, 1000)
+    }, 0);
 
     it("first tagify input has focus", async () => {
         await page.waitForSelector(elmSelectors.tagify.scope);
@@ -207,7 +214,7 @@ describe("actions", () => {
         await page.waitForSelector(elmSelectors.tagify.firstTag);
        // await input.type("ja");
         await page.type(elmSelectors.tagify.input, "ja");
-        await page.click('.tagify__dropdown__item', { clickCount:1 });
+        await page.click('.basicDropdown .tagify__dropdown__item', { clickCount:1 });
 
         function getAllTagsTexts(elmSelectors) {
             let data = [];
@@ -245,7 +252,7 @@ describe("mixed-mode", () => {
             expect(tagifyInput).toEqual(expectedTagifyInput);
             expect(textareaValue).toEqual(expectedTextareaValue);
             done()
-        }, 100)
+        }, 400)
     }, 0)
 })
 
