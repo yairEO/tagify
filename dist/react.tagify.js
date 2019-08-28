@@ -41,14 +41,13 @@ class Tags extends React.Component{
             autoFocus   : this.props.autofocus
         }
 
-        return this.props.mode === 'textarea' ?
-            <textarea {...attrs} defaultValue={this.props.initialValue}></textarea> :
-            <input {...attrs} defaultValue={this.props.initialValue} />
+        return React.createElement(this.props.mode, Object.assign({}, attrs, {defaultValue: this.props.initialValue}))
     }
 }
 
 Tags.defaultProps = {
-    value: []
+    value: [],
+    mode: "input"
 }
 
 export default Tags;
