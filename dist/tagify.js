@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.25.3)- tags input component
+ * Tagify (v 2.26.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -212,7 +212,7 @@ Tagify.prototype = {
     if (this.settings.mode == 'mix') {
       this.parseMixTags(value);
     } else this.addTags(value).forEach(function (tag) {
-      tag && tag.classList.add('tagify--noAnim');
+      return tag && tag.classList.add('tagify--noAnim');
     });
   },
 
@@ -915,7 +915,7 @@ Tagify.prototype = {
     var tagElems = [];
 
     if (!tagsItems || !tagsItems.length) {
-      console.warn('[addTags]', 'no tags to add:', tagsItems);
+      // console.warn('[addTags]', 'no tags to add:', tagsItems)
       return tagElems;
     }
 
@@ -1079,7 +1079,7 @@ Tagify.prototype = {
 
     for (i = keys.length; i--;) {
       propName = keys[i];
-      if (propName != 'class' && data.hasOwnProperty(propName)) s += " " + propName + (data[propName] ? "=\"".concat(data[propName], "\"") : "");
+      if (propName != 'class' && data.hasOwnProperty(propName) && data[propName]) s += " " + propName + (data[propName] ? "=\"".concat(data[propName], "\"") : "");
     }
 
     return s;

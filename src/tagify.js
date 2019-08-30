@@ -202,9 +202,7 @@ Tagify.prototype = {
         }
 
         else
-            this.addTags(value).forEach(tag => {
-                tag && tag.classList.add('tagify--noAnim');
-            });
+            this.addTags(value).forEach(tag => tag && tag.classList.add('tagify--noAnim'))
     },
 
     /**
@@ -916,7 +914,7 @@ Tagify.prototype = {
         var tagElems = [];
 
         if( !tagsItems || !tagsItems.length ){
-            console.warn('[addTags]', 'no tags to add:', tagsItems)
+            // console.warn('[addTags]', 'no tags to add:', tagsItems)
             return tagElems;
         }
 
@@ -1080,7 +1078,7 @@ Tagify.prototype = {
 
         for( i=keys.length; i--; ){
             propName = keys[i];
-            if( propName != 'class' && data.hasOwnProperty(propName) )
+            if( propName != 'class' && data.hasOwnProperty(propName) && data[propName] )
                 s += " " + propName + (data[propName] ? `="${data[propName]}"` : "");
         }
         return s;

@@ -165,7 +165,15 @@
                         as a list of tags seperated by the same delimeter defined in the Tagify's configuration. Default is comma (<code>,</code>)
                     </p>
                     <h3>HTML</h3>
-                    <xmp><input name='tags' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css' autofocus data-blacklist='.NET,PHP'></xmp>
+                    <xmp>
+                        <input
+                            name='tags'
+                            class='some_class_name'
+                            placeholder='write some tags'
+                            value='css, html, javascript, css'
+                            autofocus
+                            data-blacklist='.NET,PHP'>
+                    </xmp>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "basic")</script>
                 </aside>
@@ -391,7 +399,25 @@
                     </script>
                 </aside>
                 <aside class='rightSide'>
-                    <input name='tags-readonly-mix' class='readonlyMix' placeholder="Type something" />
+                    <input
+                        name='tags-readonly-mix'
+                        class='readonlyMix'
+                        placeholder="Type something"
+                        value='[
+                            {
+                                "value"    : "foo",
+                                "readonly" : true,
+                                "title"    : "read-only tag"
+                            },
+                            {
+                                "value"    : "bar"
+                            },
+                            {
+                                "value"    : "Locked tag",
+                                "readonly" : true,
+                                "title"    : "Another readonly tag"
+                            }
+                        ]' />
                 </aside>
             </section>
 
@@ -741,14 +767,14 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
             try{
             // _ESCAPE_START_
                 return `<tag title='${v}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
-                            <x title='remove tag' class='tagify__tag__removeBtn'></x>
-                            <div>
-                                ${tagData.code ?
-                                `<img onerror="this.style.visibility = 'hidden'" src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>` : ''
-                                }
-                                <span class='tagify__tag-text'>${v}</span>
-                            </div>
-                        </tag>`;
+                        <x title='remove tag' class='tagify__tag__removeBtn'></x>
+                        <div>
+                            ${tagData.code ?
+                            `<img onerror="this.style.visibility = 'hidden'" src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>` : ''
+                            }
+                            <span class='tagify__tag-text'>${v}</span>
+                        </div>
+                    </tag>`
             // _ESCAPE_END_
             }
             catch(err){}
@@ -1053,19 +1079,6 @@ var input = document.querySelector('input[name=tags4]'),
 (function(){
 var input = document.querySelector('input[name=tags-readonly-mix]'),
     tagify = new Tagify(input);
-
-tagify.addTags([
-    {
-        value    : 'foo',
-        readonly : true,
-        title    : 'read-only tag'
-    },
-    {
-        value    : 'bar',
-        readonly : true,
-        title    : 'read-only tag'
-    }
-])
 })()
 </script>
 
@@ -1094,8 +1107,8 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
 })()
 </script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/themes/prism.min.css">
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/prism.min.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism.min.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js'></script>
     <script>
         setTimeout(function(){
             Prism.highlightAll();
