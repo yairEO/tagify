@@ -114,12 +114,14 @@
                 text-overflow  : ellipsis;
                 display        : inline-block;
                 vertical-align : top;
+                min-width      : 10px;
 
                 &[contenteditable]{
                     outline: none;
+                    user-select: text;
                 }
               //  width          : 100%;
-         //       transition     : .1s;
+              // transition     : .1s;
             }
 
             @if $showX {
