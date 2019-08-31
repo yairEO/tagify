@@ -94,58 +94,44 @@
     <body>
         <form>
             <section id='section-basic'>
-                <aside class='rightSide'>
-                    <input name='tags' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css' autofocus data-blacklist='.NET,PHP'>
-                </aside>
+                <input name='tags' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css' autofocus data-blacklist='.NET,PHP'>
+                <input name='value_empty_JSON' class='value_empty_JSON' value='[]'>
+                <input name='value_JSON' class='value_JSON' value='[{"value":"foo"}, {"value":"bar", "title":"xxx"}]'>
             </section>
 
             <section id='section-textarea'>
-                <aside class='rightSide'>
                     <textarea name='tags2' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea>
-                </aside>
             </section>
 
             <section id='section-mix'>
-                <aside class='rightSide'>
                     <textarea name='mix'>[[cartman]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea>
-                </aside>
             </section>
 
             <section id='outside-of-the-box'>
-                <aside class='rightSide'>
                     <input name='tags-outside' class='tagify--outside' value='tag1, tag2, tag3' placeholder='write some tags'>
-                </aside>
             </section>
 
             <section id='section-manual-suggestions'>
-                <aside class='rightSide'>
                     <input name='tags-manual-suggestions' placeholder='write some tags'>
                     <h3>Please select from the list:</h3>
-                </aside>
             </section>
 
 
             <section id="section-advance-options">
-                <aside class='rightSide'>
                     <input name='tags3' placeholder='Write some tags' pattern='^[A-Za-z_✲ ]{1,15}$'>
-                </aside>
             </section>
 
             <section id="section-extra-properties">
-                <aside class='rightSide'><input class='countries' name='tags3-1' placeholder="Try to add tags from the list"></aside>
+                    <input class='countries' name='tags3-1' placeholder="Try to add tags from the list">
             </section>
 
 
             <section id='section-readonly'>
-                <aside class='rightSide'>
                     <input name='tags4' readonly value='tag1, tag 2, another tag'>
-                </aside>
             </section>
 
             <section id='section-readonly-mixed'>
-                <aside class='rightSide'>
                     <input name='tags-readonly-mix' class='readonlyMix' placeholder="Type something" />
-                </aside>
             </section>
         </form>
 
@@ -154,6 +140,10 @@
             document.forms[0].reset();
         </script>
 
+<script>
+    new Tagify(document.querySelector('input[name=value_empty_JSON]'))
+    new Tagify(document.querySelector('input[name=value_JSON]'))
+</script>
 
 <script data-name="basic">
 (function(){

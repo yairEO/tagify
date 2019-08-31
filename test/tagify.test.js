@@ -122,6 +122,19 @@ describe("simple tests", () => {
 
         expect(originalInputValue).toEqual(expectedValue);
     }, 1000);
+
+    it("input JSON array renders 2 tags with correct attributes", async () => {
+        await page.waitForSelector('.value_JSON');
+        const expected = `<tag title="foo" contenteditable="false" spellcheck="false" class="tagify__tag tagify--noAnim" role="tag" value="foo"><x title="" class="tagify__tag__removeBtn" role="button" aria-label="remove tag"></x><div><span class="tagify__tag-text">foo</span></div></tag><tag title="xxx" contenteditable="false" spellcheck="false" class="tagify__tag tagify--noAnim" role="tag" value="bar"><x title="" class="tagify__tag__removeBtn" role="button" aria-label="remove tag"></x><div><span class="tagify__tag-text">bar</span></div></tag>`
+
+        const getAllTagsHTML = () =>
+            [...document.querySelectorAll('.value_JSON tag')]
+                .reduce((HTMLtext, el) => HTMLtext += el.outerHTML , "")
+
+
+        let tagsHTML = await page.evaluate(getAllTagsHTML);
+        expect(tagsHTML).toEqual(expected);
+    }, 0);
 })
 
 describe("templates snapshots", () => {
