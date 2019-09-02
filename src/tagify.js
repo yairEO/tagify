@@ -556,10 +556,15 @@ Tagify.prototype = {
             onDoubleClickScope(e){
                 var tagElm = e.target.closest('tag'),
                     _s = this.settings,
-                    isEditingTag = tagElm.classList.contains('tagify--editable'),
-                    isReadyOnlyTag = tagElm.hasAttribute('readonly')
+                    isEditingTag,
+                    isReadyOnlyTag;
 
-                if( _s.mode != 'mix' && !_s.readonly && !_s.enforceWhitelist && tagElm && !isEditingTag && !isReadyOnlyTag )
+                if( !tagElm ) return
+
+                isEditingTag = tagElm.classList.contains('tagify--editable'),
+                isReadyOnlyTag = tagElm.hasAttribute('readonly')
+
+                if( _s.mode != 'mix' && !_s.readonly && !_s.enforceWhitelist && !isEditingTag && !isReadyOnlyTag )
                     this.editTag(tagElm);
             }
         }
