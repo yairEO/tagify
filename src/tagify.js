@@ -507,37 +507,43 @@ Tagify.prototype = {
             onEditTagBlur( editableElm ){
                 var tagElm = editableElm.closest('tag'),
                     tagElmIdx = this.getNodeIndex(tagElm),
-                    value = this.input.normalize(editableElm) || editableElm.originalValue,
+                    currentValue = this.input.normalize(editableElm),
+                    value = currentValue || editableElm.originalValue,
                     hasChanged = this.input.normalize(editableElm) != editableElm.originalValue,
                     isValid = tagElm.isValid,
                     tagData = {...this.value[tagElmIdx], value},
                     clone;
 
+                if( !currentValue ){
+                    this.removeTag(tagElm)
+                    return
+                }
+
                 if( hasChanged ){
-                    this.settings.transformTag.call(this, tagData);
+                    this.settings.transformTag.call(this, tagData)
                     // re-validate after tag transformation
-                    isValid = this.validateTag(tagData.value);
+                    isValid = this.validateTag(tagData.value)
                 }
 
                 if( isValid !== undefined && isValid !== true )
                     return;
 
                 // undo if empty
-                editableElm.textContent = tagData.value;
+                editableElm.textContent = tagData.value
 
                 // update data
-                this.value[tagElmIdx].value = tagData.value;
-                this.update();
+                this.value[tagElmIdx].value = tagData.value
+                this.update()
 
                 // cleanup (clone node to remove events)
-                clone = editableElm.cloneNode(true);
-                clone.removeAttribute('contenteditable');
+                clone = editableElm.cloneNode(true)
+                clone.removeAttribute('contenteditable')
 
-                tagElm.title = tagData.value;
-                tagElm.classList.remove('tagify--editable');
+                tagElm.title = tagData.value
+                tagElm.classList.remove('tagify--editable')
                 // remove all events from the "editTag" method
-                editableElm.parentNode.replaceChild(clone, editableElm);
-                this.trigger("edit", { tag:tagElm, index:tagElmIdx, data:this.value[tagElmIdx] });
+                editableElm.parentNode.replaceChild(clone, editableElm)
+                this.trigger("edit", { tag:tagElm, index:tagElmIdx, data:this.value[tagElmIdx] })
             },
 
             onEditTagkeydown(e){

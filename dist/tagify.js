@@ -516,13 +516,19 @@ Tagify.prototype = {
       onEditTagBlur: function onEditTagBlur(editableElm) {
         var tagElm = editableElm.closest('tag'),
             tagElmIdx = this.getNodeIndex(tagElm),
-            value = this.input.normalize(editableElm) || editableElm.originalValue,
+            currentValue = this.input.normalize(editableElm),
+            value = currentValue || editableElm.originalValue,
             hasChanged = this.input.normalize(editableElm) != editableElm.originalValue,
             isValid = tagElm.isValid,
             tagData = _objectSpread({}, this.value[tagElmIdx], {
           value: value
         }),
             clone;
+
+        if (!currentValue) {
+          this.removeTag(tagElm);
+          return;
+        }
 
         if (hasChanged) {
           this.settings.transformTag.call(this, tagData); // re-validate after tag transformation
