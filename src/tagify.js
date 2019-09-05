@@ -702,12 +702,16 @@ Tagify.prototype = {
 
     /**
      * Searches if any tag with a certain value already exis
-     * @param  {String} s [text value to search for]
-     * @return {int}      [Position index of the tag. -1 is returned if tag is not found.]
+     * @param  {String/Object} v [text value / tag data object]
+     * @return {Boolean}
      */
-    isTagDuplicate( s ){
-        return this.value.findIndex(item => s.trim().toLowerCase() === item.value.toLowerCase());
-        // return this.value.some(item => s.toLowerCase() === item.value.toLowerCase());
+    isTagDuplicate( v ){
+        // change to Array.Some
+        return this.value.some(item =>
+            typeof v == 'string'
+                ? v.trim().toLowerCase() === item.value.toLowerCase()
+                : JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase()
+            )
     },
 
     getTagIndexByValue( value ){
@@ -780,7 +784,7 @@ Tagify.prototype = {
             result = this.TEXTS.pattern;
 
         // if duplicates are not allowed and there is a duplicate
-        else if( !this.settings.duplicates && this.isTagDuplicate(value) !== -1 )
+        else if( !this.settings.duplicates && this.isTagDuplicate(value) )
             result = this.TEXTS.duplicate;
 
         else if( this.isTagBlacklisted(value) ||(this.settings.enforceWhitelist && !this.isTagWhitelisted(value)) )
@@ -853,14 +857,22 @@ Tagify.prototype = {
      */
     parseMixTags( s ){
         var tagData,
-            {mixTagsInterpolator, duplicates} = this.settings;
+            {mixTagsInterpolator, duplicates, transformTag} = this.settings;
 
         s = s.split(mixTagsInterpolator[0]).map(s1 => {
             var s2 = s1.split(mixTagsInterpolator[1]),
+                preInterpolated = s2[0],
+                tagData,
                 tagElm;
 
-            if( s2.length > 1 && this.isTagWhitelisted(s2[0]) && (duplicates || this.isTagDuplicate(s2[0]) === -1) ){
-                tagData = this.normalizeTags(s2[0])[0];
+            try{
+                tagData = JSON.parse(preInterpolated)
+            } catch(err){
+                tagData = {value:preInterpolated}
+            }
+
+            if( s2.length > 1   &&   this.isTagWhitelisted(tagData.value)   &&   (duplicates || !this.isTagDuplicate(tagData.value)) ){
+                transformTag.call(this, tagData);
                 tagElm = this.createTagElem(tagData);
                 s2[0] = tagElm.outerHTML + "&#8288;"  // put a zero-space at the end so the caret so it won't jump back to the start (when the last input's child element is a tag)
                 this.value.push(tagData);
@@ -1375,7 +1387,7 @@ Tagify.prototype = {
 
             if( !value ){
                 return whitelist
-                    .filter(item => this.isTagDuplicate(item.value || item) == -1 ) // don't include tags which have already been added.
+                    .filter(item => !this.isTagDuplicate(item.value || item)) // don't include tags which have already been added.
                     .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
             }
 
@@ -1388,7 +1400,7 @@ Tagify.prototype = {
                     ? whitelistItemValueIndex >= 0
                     : whitelistItemValueIndex == 0;
 
-                isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value) > -1;
+                isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value);
 
                 // match for the value within each "whitelist" item
                 if( valueIsInWhitelist && !isDuplicate && suggestionsCount-- )

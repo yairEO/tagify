@@ -694,13 +694,14 @@ Tagify.prototype = {
 
   /**
    * Searches if any tag with a certain value already exis
-   * @param  {String} s [text value to search for]
-   * @return {int}      [Position index of the tag. -1 is returned if tag is not found.]
+   * @param  {String/Object} v [text value / tag data object]
+   * @return {Boolean}
    */
-  isTagDuplicate: function isTagDuplicate(s) {
-    return this.value.findIndex(function (item) {
-      return s.trim().toLowerCase() === item.value.toLowerCase();
-    }); // return this.value.some(item => s.toLowerCase() === item.value.toLowerCase());
+  isTagDuplicate: function isTagDuplicate(v) {
+    // change to Array.Some
+    return this.value.some(function (item) {
+      return typeof v == 'string' ? v.trim().toLowerCase() === item.value.toLowerCase() : JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase();
+    });
   },
   getTagIndexByValue: function getTagIndexByValue(value) {
     var result = [];
@@ -763,7 +764,7 @@ Tagify.prototype = {
 
     if (!value) result = this.TEXTS.empty; // check if pattern should be used and if so, use it to test the value
     else if (this.settings.pattern && !this.settings.pattern.test(value)) result = this.TEXTS.pattern; // if duplicates are not allowed and there is a duplicate
-      else if (!this.settings.duplicates && this.isTagDuplicate(value) !== -1) result = this.TEXTS.duplicate;else if (this.isTagBlacklisted(value) || this.settings.enforceWhitelist && !this.isTagWhitelisted(value)) result = this.TEXTS.notAllowed;
+      else if (!this.settings.duplicates && this.isTagDuplicate(value)) result = this.TEXTS.duplicate;else if (this.isTagBlacklisted(value) || this.settings.enforceWhitelist && !this.isTagWhitelisted(value)) result = this.TEXTS.notAllowed;
     return result;
   },
   maxTagsReached: function maxTagsReached() {
@@ -847,13 +848,24 @@ Tagify.prototype = {
     var tagData,
         _this$settings2 = this.settings,
         mixTagsInterpolator = _this$settings2.mixTagsInterpolator,
-        duplicates = _this$settings2.duplicates;
+        duplicates = _this$settings2.duplicates,
+        transformTag = _this$settings2.transformTag;
     s = s.split(mixTagsInterpolator[0]).map(function (s1) {
       var s2 = s1.split(mixTagsInterpolator[1]),
+          preInterpolated = s2[0],
+          tagData,
           tagElm;
 
-      if (s2.length > 1 && _this5.isTagWhitelisted(s2[0]) && (duplicates || _this5.isTagDuplicate(s2[0]) === -1)) {
-        tagData = _this5.normalizeTags(s2[0])[0];
+      try {
+        tagData = JSON.parse(preInterpolated);
+      } catch (err) {
+        tagData = {
+          value: preInterpolated
+        };
+      }
+
+      if (s2.length > 1 && _this5.isTagWhitelisted(tagData.value) && (duplicates || !_this5.isTagDuplicate(tagData.value))) {
+        transformTag.call(_this5, tagData);
         tagElm = _this5.createTagElem(tagData);
         s2[0] = tagElm.outerHTML + "&#8288;"; // put a zero-space at the end so the caret so it won't jump back to the start (when the last input's child element is a tag)
 
@@ -1342,7 +1354,7 @@ Tagify.prototype = {
 
       if (!value) {
         return whitelist.filter(function (item) {
-          return _this10.isTagDuplicate(item.value || item) == -1;
+          return !_this10.isTagDuplicate(item.value || item);
         }) // don't include tags which have already been added.
         .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }
@@ -1355,7 +1367,7 @@ Tagify.prototype = {
         searchBy = ((whitelistItem.searchBy || '') + ' ' + whitelistItem.value).toLowerCase();
         whitelistItemValueIndex = searchBy.indexOf(value.toLowerCase());
         valueIsInWhitelist = this.settings.dropdown.fuzzySearch ? whitelistItemValueIndex >= 0 : whitelistItemValueIndex == 0;
-        isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value) > -1; // match for the value within each "whitelist" item
+        isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value); // match for the value within each "whitelist" item
 
         if (valueIsInWhitelist && !isDuplicate && suggestionsCount--) list.push(whitelistItem);
         if (suggestionsCount == 0) break;
