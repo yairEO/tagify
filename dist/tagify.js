@@ -885,7 +885,7 @@ Tagify.prototype = {
   addMixTag: function addMixTag(tagData) {
     if (!tagData || !this.state.tag) return;
     var tag = this.state.tag.prefix + this.state.tag.value,
-        iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT),
+        iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT, null, false),
         textnode,
         tagElm,
         idx,
@@ -1117,10 +1117,12 @@ Tagify.prototype = {
     this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString() : this.value.length ? JSON.stringify(this.value) : "";
   },
   getMixedTagsAsString: function getMixedTagsAsString() {
-    var result = "";
+    var result = "",
+        _interpolator = this.settings.mixTagsInterpolator; // need to take each item from the "this.value" Array and stringify it and wrap with the interpolator
+
     this.DOM.input.childNodes.forEach(function (node, i) {
       if (node.nodeType == 1) {
-        if (node.classList.contains("tagify__tag")) result += "[[" + node.getAttribute("value") + "]]";
+        if (node.classList.contains("tagify__tag")) result += _interpolator[0] + node.getAttribute("value") + _interpolator[1];
       } else result += node.textContent;
     });
     return result;

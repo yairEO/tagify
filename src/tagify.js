@@ -892,7 +892,7 @@ Tagify.prototype = {
         if( !tagData || !this.state.tag ) return;
 
         var tag = this.state.tag.prefix + this.state.tag.value,
-            iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT),
+            iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT, null, false),
             textnode,
             tagElm,
             idx,
@@ -1126,12 +1126,14 @@ Tagify.prototype = {
     },
 
     getMixedTagsAsString(){
-        var result = "";
+        var result = "",
+            _interpolator = this.settings.mixTagsInterpolator;
 
+// need to take each item from the "this.value" Array and stringify it and wrap with the interpolator
         this.DOM.input.childNodes.forEach((node, i) => {
             if( node.nodeType == 1 ){
                 if( node.classList.contains("tagify__tag") )
-                    result += "[[" + node.getAttribute("value") + "]]"
+                    result += _interpolator[0] + node.getAttribute("value") + _interpolator[1]
             }
             else
                 result += node.textContent;
