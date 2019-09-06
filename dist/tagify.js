@@ -1117,13 +1117,13 @@ Tagify.prototype = {
     this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString() : this.value.length ? JSON.stringify(this.value) : "";
   },
   getMixedTagsAsString: function getMixedTagsAsString() {
-    var result = "",
-        _interpolator = this.settings.mixTagsInterpolator; // need to take each item from the "this.value" Array and stringify it and wrap with the interpolator
+    var _this8 = this;
 
-    this.DOM.input.childNodes.forEach(function (node, i) {
-      if (node.nodeType == 1) {
-        if (node.classList.contains("tagify__tag")) result += _interpolator[0] + node.getAttribute("value") + _interpolator[1];
-      } else result += node.textContent;
+    var result = "",
+        i = 0,
+        _interpolator = this.settings.mixTagsInterpolator;
+    this.DOM.input.childNodes.forEach(function (node) {
+      if (node.nodeType == 1) if (node.classList.contains("tagify__tag")) result += _interpolator[0] + JSON.stringify(_this8.value[i++]) + _interpolator[1];else result += node.textContent;
     });
     return result;
   },
@@ -1240,7 +1240,7 @@ Tagify.prototype = {
       },
       callbacks: {
         onKeyDown: function onKeyDown(e) {
-          var _this8 = this;
+          var _this9 = this;
 
           // get the "active" element, and if there was none (yet) active, use first child
           var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
@@ -1280,7 +1280,7 @@ Tagify.prototype = {
                 this.addTags([newValue], true);
                 this.dropdown.hide.call(this);
                 setTimeout(function () {
-                  return _this8.DOM.input.focus();
+                  return _this9.DOM.input.focus();
                 }, 100);
                 return false;
               } else {
@@ -1294,7 +1294,7 @@ Tagify.prototype = {
           if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
         },
         onClick: function onClick(e) {
-          var _this9 = this;
+          var _this10 = this;
 
           var value, listItemElm;
           if (e.button != 0 || e.target == this.DOM.dropdown) return; // allow only mouse left-clicks
@@ -1307,7 +1307,7 @@ Tagify.prototype = {
             value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
             this.addTags([value], true);
             setTimeout(function () {
-              return _this9.DOM.input.focus();
+              return _this10.DOM.input.focus();
             }, 100);
           }
 
@@ -1342,7 +1342,7 @@ Tagify.prototype = {
      * @return {[type]} [description]
      */
     filterListItems: function filterListItems(value) {
-      var _this10 = this;
+      var _this11 = this;
 
       var list = [],
           whitelist = this.settings.whitelist,
@@ -1356,7 +1356,7 @@ Tagify.prototype = {
 
       if (!value) {
         return whitelist.filter(function (item) {
-          return !_this10.isTagDuplicate(item.value || item);
+          return !_this11.isTagDuplicate(item.value || item);
         }) // don't include tags which have already been added.
         .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }

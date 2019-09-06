@@ -1127,14 +1127,13 @@ Tagify.prototype = {
 
     getMixedTagsAsString(){
         var result = "",
+            i = 0,
             _interpolator = this.settings.mixTagsInterpolator;
 
-// need to take each item from the "this.value" Array and stringify it and wrap with the interpolator
-        this.DOM.input.childNodes.forEach((node, i) => {
-            if( node.nodeType == 1 ){
+        this.DOM.input.childNodes.forEach((node) => {
+            if( node.nodeType == 1 )
                 if( node.classList.contains("tagify__tag") )
-                    result += _interpolator[0] + node.getAttribute("value") + _interpolator[1]
-            }
+                    result += _interpolator[0] + JSON.stringify(this.value[i++]) + _interpolator[1]
             else
                 result += node.textContent;
         })
