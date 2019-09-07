@@ -87,7 +87,7 @@
             .disabled tags div{ display:none !important; }
 
             .disabled tags + input,
-            .disabled tags + textarea{ display:initial; border:1px inset; }
+            .disabled tags + textarea{ display:block; width:100%; padding:6px; border:1px inset; }
 
             /* Outside of the box */
             .tagify--outside{
@@ -155,7 +155,7 @@
         <form>
             <section id='section-basic'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-basic'>#</a>text input</h2>
+                    <h2><a href='#section-basic'>#</a>Basic example</h2>
                     <p>
                         In this example, the field is pre-ocupied with <strong>4</strong> tags. The <em>last</em> tag (CSS) has the same value as the <em>first</em> tag,
                         and will be <em>removed</em>, because the <code>duplicates</code> setting is set to <code>true</code>.
@@ -165,20 +165,49 @@
                         as a list of tags seperated by the same delimeter defined in the Tagify's configuration. Default is comma (<code>,</code>)
                     </p>
                     <h3>HTML</h3>
-                    <xmp>
-                        <input
-                            name='tags'
-                            class='some_class_name'
-                            placeholder='write some tags'
-                            value='css, html, javascript, css'
-                            autofocus
-                            data-blacklist='.NET,PHP'>
-                    </xmp>
+<pre class="language-markup"><code><&#8203;input name='basic' value='tag1, tag2'></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "basic")</script>
                 </aside>
                 <aside class='rightSide'>
-                    <input name='tags' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css' autofocus data-blacklist='.NET,PHP'>
+                    <input name='basic' value='tag1, tag2' autofocus>
+                    <button class='tags--removeAllBtn' type='button'>Remove all tags</button>
+                </aside>
+            </section>
+
+            <section id='section-input'>
+                <aside class='leftSide'>
+                    <h2><a href='#section-input'>#</a>text input</h2>
+                    <h3>In this example:</h3>
+                    <ul>
+                        <li>Input attributes that affects Tagify</li>
+                        <li>Tagify instance with settings (whitelist sugegstions)</li>
+                        <li>Remove all tags from an extrenal button</li>
+                        <li>Listen to Tagify events (add, remove, input, edit, invalid, click, dropdown)</li>
+                        <li>Un-listen to specific event (see `onAddTag` function)</li>
+                    </ul>
+                    <h3>Intro:</h3>
+                    <p>
+                        The input element is pre-ocupied with <strong>4</strong> tags. The <em>last</em> tag (CSS) has the same value as the <em>first</em> tag,
+                        and will be <em>removed</em>, because the <code>duplicates</code> setting is set to <code>true</code>.
+                    </p>
+                    <p>
+                        Note that <code>whitelist</code> &amp; <code>blacklist</code> may also be set on to <i>Tagify</i> as <code>data-</code> attributes on the input tag itself
+                        as a list of tags seperated by the same delimeter defined in the Tagify's configuration. Default is comma (<code>,</code>)
+                    </p>
+                    <h3>HTML</h3>
+<pre class="language-markup"><code><&#8203;input
+    name='input'
+    class='some_class_name'              // This class will be copied to the Tagify component
+    placeholder='write some tags'        // This text will be shown after the last tag
+    value='css, html, javascript, css'   // initial values, as String (can also be an Array of Objects)
+    data-blacklist='.NET,PHP'>           // list of invaild tags, which cannot be added
+</code></pre>
+                    <h3>JAVASCRIPT</h3>
+                    <script>renderPRE(document.currentScript, "input")</script>
+                </aside>
+                <aside class='rightSide'>
+                    <input name='input' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css' data-blacklist='.NET,PHP'>
                     <button class='tags--removeAllBtn' type='button'>Remove all tags</button>
                 </aside>
             </section>
@@ -191,7 +220,9 @@
                         and will be <em>removed</em> because the <code>enforceWhitelist</code> option flag is set to <code>true</code>
                     </p>
                     <h3>HTML</h3>
-                    <xmp><textarea name='tags2' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea></xmp>
+<pre class="language-markup"><code>&lt;textarea name='tags2' placeholder='Movie names'>
+    The Matrix, Pulp Fiction, Mad Max
+&lt;/textarea></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "textarea")</script>
                 </aside>
@@ -224,12 +255,13 @@
                         everything that starts with <code>@</code> or <code>#</code> (or whatever was defined) is meant to be rendered as a tag.
                     </p>
                     <h3>HTML</h3>
-                    <xmp><textarea name='mix'>[[cartman]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea></xmp>
+<pre class="language-markup"><code>&gt;textarea name='mix'>[[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[homer simpson]] because he's a relic.&lt;/textarea>
+</code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "mix")</script>
                 </aside>
                 <aside class='rightSide'>
-                    <textarea name='mix'>[[cartman]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea>
+                    <textarea name='mix'>[[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea>
                 </aside>
             </section>
 
@@ -240,7 +272,7 @@
                         Some cases might require addition of tags from outside of the box and not within.
                     </p>
                     <h3>HTML</h3>
-                    <xmp><input name='tags-outside' class='tagify--outside' placeholder='write some tags'></xmp>
+ <pre class="language-markup"><code>&gt;input name='tags-outside' class='tagify--outside' placeholder='write some tags'></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "outside-of-the-box")</script>
                     <h3>CSS</h3>
@@ -271,7 +303,7 @@
                         inside a modal or your own popup implementaion, or even always show it. In this example the list is always shown.
                     </p>
                     <h3>HTML</h3>
-                    <xmp><input name='tags-manual-suggestions' placeholder='write some tags'></xmp>
+<pre class="language-markup"><code>&gt;input name='tags-manual-suggestions' placeholder='write some tags'></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "manualSuggestions")</script>
                 </aside>
@@ -301,7 +333,7 @@
                         The <code>keepInvalidTags</code> <em>setting</em> flag is switched <em>on</em> to <code>true</code> so invaild tags are not removed but are only marked.
                     </p>
                     <h3>HTML</h3>
-                    <xmp><input name='tags3' placeholder='Write some tags' pattern='^[A-Za-z_✲ ]{1,15}$'></xmp>
+<pre class="language-markup"><code>&gt;input name='tags3' placeholder='Write some tags' pattern='^[A-Za-z_✲ ]{1,15}$'></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "advance-options")</script>
                 </aside>
@@ -459,15 +491,22 @@
 
 <script data-name="basic">
 (function(){
+var input = document.querySelector('input[name=basic]');
 
-var input = document.querySelector('input[name=tags]'),
+// init Tagify script on the above inputs
+new Tagify(input)
+})()
+</script>
+
+
+<script data-name="input">
+(function(){
+
+var input = document.querySelector('input[name=input]'),
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
-        whitelist : ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "Java", "Javascript", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"],
-        blacklist : [".NET", "PHP"], // <-- passed as an attribute in this demo
-        dropdown : {
-            classname: "basicDropdown"
-        }
+        // after 2 characters typed, all matching values from this list will be suggested in a dropdown
+        whitelist : ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "Java", "Javascript", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"]
     })
 
 
@@ -531,7 +570,6 @@ function onDropdownHide(e){
 </script>
 
 
-
 <script data-name="manualSuggestions">
 (function(){
 
@@ -571,7 +609,6 @@ var input = document.querySelector('input[name=tags-manual-suggestions]'),
 </script>
 
 
-
 <script data-name="textarea">
 (function(){
 var input = document.querySelector('textarea[name=tags2]'),
@@ -586,82 +623,46 @@ var input = document.querySelector('textarea[name=tags2]'),
 })()
 </script>
 
+
 <script data-name='mix'>
 (function(){
-
-var input = document.querySelector('[name=mix]'),
-    // init Tagify script on the above inputs
-    tagify = new Tagify(input, {
-        mode             : 'mix',  // <--  Enable mixed-content
-        pattern          : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
-        enforceWhitelist : true,
-        whitelist        : [       // <--  Set the initial whitelist, which will dynamically change as you type (see "input" event below)
-            {
-                value : 'cartman',
-                title : 'Eric Cartman',
-                class : 'borderd-blue'  // <-- Add any attribute you wish, per-tag
-            },
-            {
-                value : 'kyle',
-                title : 'Kyle Broflovski'
-            },
-            {
-                value: 'Homer simpson'
-            }
-        ],
-        dropdown   : {
-            enabled : 1
-        },
-        callbacks        : {
-            add    : console.log,  // callback when adding a tag
-            remove : console.log   // callback when removing a tag
-        }
-    })
-
+// Define two types of whitelists, each used for the dropdown suggestions menu, depending on the pattern (see seetings below) prefix
 var whitelist_1 = [
-    {
-        value : 'kenny',
-        title : 'Kenny McCormick'
-    },
-    {
-        value : 'cartman',
-        title : 'Eric Cartman'
-    },
-    {
-        value : 'kyle',
-        title : 'Kyle Broflovski'
-    },
-    {
-        value : 'token',
-        title : 'Token Black'
-    },
-    {
-        value : 'jimmy',
-        title : 'Jimmy Valmer'
-    },
-    {
-        value : 'butters',
-        title : 'Butters Stotch'
-    },
-    {
-        value : 'stan',
-        title : 'Stan Marsh'
-    },
-    {
-        value : 'randy',
-        title : 'Randy Marsh'
-    },
-    {
-        value : 'Mr. Garrison',
-        title : 'POTUS'
-    },
-    {
-        value : 'Mr. Mackey',
-        title : "M'Kay"
-    }
+    { id:100, value:'kenny', title:'Kenny McCormick'},
+    { id:101, value:'cartman', title:'Eric Cartman' },
+    { id:102, value:'kyle', title:'Kyle Broflovski' },
+    { id:103, value:'token', title:'Token Black' },
+    { id:104, value:'jimmy', title:'Jimmy Valmer' },
+    { id:105, value:'butters', title:'Butters Stotch' },
+    { id:106, value:'stan', title:'Stan Marsh' },
+    { id:107, value:'randy', title:'Randy Marsh' },
+    { id:108, value:'Mr. Garrison', title:'POTUS' },
+    { id:109, value:'Mr. Mackey', title:"M'Kay" }
 ]
 
 var whitelist_2 = ['Homer simpson', 'Marge simpson', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
+
+// initialize Tagify
+var input = document.querySelector('[name=mix]'),
+    // init Tagify script on the above inputs
+    tagify = new Tagify(input, {
+    //  mixTagsInterpolator: ["{{", "}}"],
+        mode: 'mix',  // <--  Enable mixed-content
+        pattern: /@|#/,  // <--  Text starting with @ or # (if single, String can be used here)
+        enforceWhitelist: true,
+
+        // Array for initial interpolation, which allows only these tags to be used
+        whitelist: whitelist_1.concat(whitelist_2).map(function(item){ return typeof item == 'string' ? {value:item} : item}),
+
+        dropdown : {
+            enabled: 1
+        },
+        callbacks: {
+            add: console.log,  // callback when adding a tag
+            remove: console.log   // callback when removing a tag
+        }
+    })
+
 
 // A good place to pull server suggestion list accoring to the prefix/value
 tagify.on('input', function(e){
@@ -678,6 +679,7 @@ tagify.on('input', function(e){
             tagify.dropdown.show.call(tagify, e.detail.value);
     }
 
+    console.log( tagify.value )
     console.log('mix-mode "input" event value: ', e.detail)
 })
 

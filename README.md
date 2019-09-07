@@ -347,16 +347,18 @@ $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 
 ## Methods
 
-Name                | Info
-------------------- | --------------------------------------------------------------------------
-destroy             | Reverts the input element back as it was before Tagify was applied
-removeAllTags       | Removes all tags and resets the original input tag's value property
-addTags             | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
-removeTag           | Removes a specific tag. Argument is the tag DOM element to be removed. When nothing passed, removes last tag (see source code)
-loadOriginalValues  | Converts the input's value into tags. This method gets called automatically when instansiating Tagify
-getTagIndexByValue  |
-getTagElmByValue    |
-parseMixTags        | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
+Name                | Parameters                         | Info
+------------------- | ---------------------------------- | --------------------------------------------------------------------------
+destroy             |                                    | Reverts the input element back as it was before Tagify was applied
+removeAllTags       |                                    | Removes all tags and resets the original input tag's value property
+addTags             | tagsItems, clearInput, skipInvalid | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
+removeTag           | Node/String                        | Removes a specific tag. Argument is the tag DOM element to be removed, or value. When nothing passed, removes last tag (see source code)
+loadOriginalValues  | String/Array                       | Converts the input's value into tags. This method gets called automatically when instansiating Tagify. Also works for mixed-tags
+getTagIndexByValue  | String                             | Returns the index of a specific tag, by value
+parseMixTags        | String                             | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
+getTagElms          |                                    | Returns a DOM nodes list of all the tags
+getTagElmByValue    | String                             | Returns a specific tag DOM node by value
+editTag             | Node                               | Goes to edit-mode in a specific tag
 
 
 ## Events
