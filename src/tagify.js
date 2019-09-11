@@ -576,6 +576,9 @@ Tagify.prototype = {
         }
     },
 
+    /**
+     * @param {Node} tagElm the tag element to edit. if nothing specified, use last last
+     */
     editTag( tagElm = this.getLastTag() ){
         var editableElm = tagElm.querySelector('.tagify__tag-text'),
             _CB = this.events.callbacks;
@@ -587,6 +590,7 @@ Tagify.prototype = {
 
         tagElm.classList.add('tagify--editable');
         editableElm.originalValue = editableElm.textContent;
+
         editableElm.setAttribute('contenteditable', true);
 
         editableElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, editableElm));
@@ -594,6 +598,7 @@ Tagify.prototype = {
         editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e));
 
         editableElm.focus();
+        return this;
     },
 
     /**
@@ -927,6 +932,20 @@ Tagify.prototype = {
     },
 
     /**
+     * add an empty "tag" element in an editable state
+     */
+    addEmptyTag(){
+        var tagData = {value:""},
+            tagElm = this.createTagElem(tagData)
+
+        // add the tag to the component's DOM
+        this.appendTag.call(this, tagElm)
+        this.value.push(tagData)
+        this.update()
+        this.editTag(tagElm)
+    },
+
+    /**
      * add a "tag" element to the "tags" component
      * @param {String/Array} tagsItems   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
      * @param {Boolean}      clearInput  [flag if the input's value should be cleared after adding tags]
@@ -982,10 +1001,10 @@ Tagify.prototype = {
 
             // Create tag HTML element
             tagElm = this.createTagElem( this.extend({}, tagData, tagElmParams) );
-            tagElems.push(tagElm);
+            tagElems.push(tagElm)
 
             // add the tag to the component's DOM
-            appendTag.call(this, tagElm);
+            this.appendTag(tagElm)
 
             if( tagValidation === true ){
                 // update state
@@ -1003,20 +1022,22 @@ Tagify.prototype = {
             this.input.set.call(this);
         }
 
-        /**
-         * appened (validated) tag to the component's DOM scope
-         * @return {[type]} [description]
-         */
-        function appendTag(tagElm){
-            var insertBeforeNode = this.DOM.scope.lastElementChild;
 
-            if( insertBeforeNode === this.DOM.input )
-                this.DOM.scope.insertBefore(tagElm, insertBeforeNode);
-            else
-                this.DOM.scope.appendChild(tagElm);
-        }
 
         return tagElems
+    },
+
+    /**
+     * appened (validated) tag to the component's DOM scope
+     * @return {[type]} [description]
+     */
+    appendTag(tagElm){
+        var insertBeforeNode = this.DOM.scope.lastElementChild;
+
+        if( insertBeforeNode === this.DOM.input )
+            this.DOM.scope.insertBefore(tagElm, insertBeforeNode);
+        else
+            this.DOM.scope.appendChild(tagElm);
     },
 
     minify( html ){
@@ -1179,7 +1200,7 @@ Tagify.prototype = {
 
             this.DOM.dropdown.innerHTML = this.minify(listHTML);
             // if "enforceWhitelist" is "true", highlight the first suggested item
-            this.settings.enforceWhitelist && !isManual && this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
+            this.settings.enforceWhitelist && !isManual && this.dropdown.highlightOption.call(this, this.DOM.dropdown.children[0]);
             this.DOM.scope.setAttribute("aria-expanded", true)
 
             this.trigger("dropdown:show", this.DOM.dropdown);
@@ -1235,7 +1256,6 @@ Tagify.prototype = {
          * @type {Object}
          */
         events : {
-
             /**
              * Events should only be binded when the dropdown is rendered and removed when isn't
              * @param  {Boolean} bindUnbind [optional. true when wanting to unbind all the events]
@@ -1243,11 +1263,12 @@ Tagify.prototype = {
              */
             binding( bindUnbind = true ){
                     // references to the ".bind()" methods must be saved so they could be unbinded later
-                var _CBR = (this.listeners.dropdown = this.listeners.dropdown || {
+                var _CB = this.dropdown.events.callbacks,
+                    _CBR = (this.listeners.dropdown = this.listeners.dropdown || {
                         position     : this.dropdown.position.bind(this),
-                        onKeyDown    : this.dropdown.events.callbacks.onKeyDown.bind(this),
-                        onMouseOver  : this.dropdown.events.callbacks.onMouseOver.bind(this),
-                        onClick      : this.dropdown.events.callbacks.onClick.bind(this)
+                        onKeyDown    : _CB.onKeyDown.bind(this),
+                        onMouseOver  : _CB.onMouseOver.bind(this),
+                        onClick      : _CB.onClick.bind(this)
                     }),
                     action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
@@ -1266,7 +1287,7 @@ Tagify.prototype = {
                 onKeyDown(e){
                     // get the "active" element, and if there was none (yet) active, use first child
                     var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
-                        selectedElm = activeListElm || this.DOM.dropdown.children[0],
+                        selectedElm = activeListElm,
                         newValue = "";
 
                     switch( e.key ){
@@ -1292,8 +1313,8 @@ Tagify.prototype = {
 
                         case 'ArrowRight' :
                         case 'Tab' :
-                            e.preventDefault();
-                            if( !this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null) )
+                          //  e.preventDefault();
+                            if( !activeListElm || !this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null) )
                                 return false;
                         case 'Enter' :
                             e.preventDefault();
@@ -1301,7 +1322,10 @@ Tagify.prototype = {
                                 newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value;
                                 this.addTags( [newValue], true );
                                 this.dropdown.hide.call(this);
-                                setTimeout(() => this.DOM.input.focus(), 100);
+
+                                if( this.settings.dropdown.enabled === 0 ){
+                                    this.dropdown.show.call(this);
+                                }
                                 return false;
                             }
                             else{
@@ -1323,7 +1347,6 @@ Tagify.prototype = {
                     if( e.button != 0 || e.target == this.DOM.dropdown ) return; // allow only mouse left-clicks
 
                     listItemElm = e.target.closest(".tagify__dropdown__item");
-
 
                     if( listItemElm ){
                         // make sure the list item belongs to this context of the Tagify instance (and not some other instance's manual suggestions list)

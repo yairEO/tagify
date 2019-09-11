@@ -578,6 +578,10 @@ Tagify.prototype = {
       }
     }
   },
+
+  /**
+   * @param {Node} tagElm the tag element to edit. if nothing specified, use last last
+   */
   editTag: function editTag() {
     var _this4 = this;
 
@@ -599,6 +603,7 @@ Tagify.prototype = {
       return _CB.onEditTagkeydown.call(_this4, e);
     });
     editableElm.focus();
+    return this;
   },
 
   /**
@@ -922,6 +927,21 @@ Tagify.prototype = {
   },
 
   /**
+   * add an empty "tag" element in an editable state
+   */
+  addEmptyTag: function addEmptyTag() {
+    var tagData = {
+      value: ""
+    },
+        tagElm = this.createTagElem(tagData); // add the tag to the component's DOM
+
+    this.appendTag.call(this, tagElm);
+    this.value.push(tagData);
+    this.update();
+    this.editTag(tagElm);
+  },
+
+  /**
    * add a "tag" element to the "tags" component
    * @param {String/Array} tagsItems   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
    * @param {Boolean}      clearInput  [flag if the input's value should be cleared after adding tags]
@@ -978,7 +998,7 @@ Tagify.prototype = {
       tagElm = _this6.createTagElem(_this6.extend({}, tagData, tagElmParams));
       tagElems.push(tagElm); // add the tag to the component's DOM
 
-      appendTag.call(_this6, tagElm);
+      _this6.appendTag(tagElm);
 
       if (tagValidation === true) {
         // update state
@@ -1002,18 +1022,17 @@ Tagify.prototype = {
     if (tagsItems.length && clearInput) {
       this.input.set.call(this);
     }
-    /**
-     * appened (validated) tag to the component's DOM scope
-     * @return {[type]} [description]
-     */
-
-
-    function appendTag(tagElm) {
-      var insertBeforeNode = this.DOM.scope.lastElementChild;
-      if (insertBeforeNode === this.DOM.input) this.DOM.scope.insertBefore(tagElm, insertBeforeNode);else this.DOM.scope.appendChild(tagElm);
-    }
 
     return tagElems;
+  },
+
+  /**
+   * appened (validated) tag to the component's DOM scope
+   * @return {[type]} [description]
+   */
+  appendTag: function appendTag(tagElm) {
+    var insertBeforeNode = this.DOM.scope.lastElementChild;
+    if (insertBeforeNode === this.DOM.input) this.DOM.scope.insertBefore(tagElm, insertBeforeNode);else this.DOM.scope.appendChild(tagElm);
   },
   minify: function minify(html) {
     return html.replace(new RegExp("\>[\r\n ]+\<", "g"), "><");
@@ -1163,7 +1182,7 @@ Tagify.prototype = {
       listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
       this.DOM.dropdown.innerHTML = this.minify(listHTML); // if "enforceWhitelist" is "true", highlight the first suggested item
 
-      this.settings.enforceWhitelist && !isManual && this.dropdown.highlightOption.call(this, this.DOM.dropdown.querySelector('.tagify__dropdown__item'));
+      this.settings.enforceWhitelist && !isManual && this.dropdown.highlightOption.call(this, this.DOM.dropdown.children[0]);
       this.DOM.scope.setAttribute("aria-expanded", true);
       this.trigger("dropdown:show", this.DOM.dropdown); // if the dropdown has yet to be appended to the document,
       // append the dropdown to the body element & handle events
@@ -1222,11 +1241,12 @@ Tagify.prototype = {
         var bindUnbind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
         // references to the ".bind()" methods must be saved so they could be unbinded later
-        var _CBR = this.listeners.dropdown = this.listeners.dropdown || {
+        var _CB = this.dropdown.events.callbacks,
+            _CBR = this.listeners.dropdown = this.listeners.dropdown || {
           position: this.dropdown.position.bind(this),
-          onKeyDown: this.dropdown.events.callbacks.onKeyDown.bind(this),
-          onMouseOver: this.dropdown.events.callbacks.onMouseOver.bind(this),
-          onClick: this.dropdown.events.callbacks.onClick.bind(this)
+          onKeyDown: _CB.onKeyDown.bind(this),
+          onMouseOver: _CB.onMouseOver.bind(this),
+          onClick: _CB.onClick.bind(this)
         },
             action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
@@ -1240,11 +1260,9 @@ Tagify.prototype = {
       },
       callbacks: {
         onKeyDown: function onKeyDown(e) {
-          var _this9 = this;
-
           // get the "active" element, and if there was none (yet) active, use first child
           var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
-              selectedElm = activeListElm || this.DOM.dropdown.children[0],
+              selectedElm = activeListElm,
               newValue = "";
 
           switch (e.key) {
@@ -1269,8 +1287,8 @@ Tagify.prototype = {
 
             case 'ArrowRight':
             case 'Tab':
-              e.preventDefault();
-              if (!this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null)) return false;
+              //  e.preventDefault();
+              if (!activeListElm || !this.input.autocomplete.set.call(this, selectedElm ? selectedElm.textContent : null)) return false;
 
             case 'Enter':
               e.preventDefault();
@@ -1279,9 +1297,11 @@ Tagify.prototype = {
                 newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value;
                 this.addTags([newValue], true);
                 this.dropdown.hide.call(this);
-                setTimeout(function () {
-                  return _this9.DOM.input.focus();
-                }, 100);
+
+                if (this.settings.dropdown.enabled === 0) {
+                  this.dropdown.show.call(this);
+                }
+
                 return false;
               } else {
                 this.addTags(this.input.value, true);
@@ -1294,7 +1314,7 @@ Tagify.prototype = {
           if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
         },
         onClick: function onClick(e) {
-          var _this10 = this;
+          var _this9 = this;
 
           var value, listItemElm;
           if (e.button != 0 || e.target == this.DOM.dropdown) return; // allow only mouse left-clicks
@@ -1307,7 +1327,7 @@ Tagify.prototype = {
             value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
             this.addTags([value], true);
             setTimeout(function () {
-              return _this10.DOM.input.focus();
+              return _this9.DOM.input.focus();
             }, 100);
           }
 
@@ -1342,7 +1362,7 @@ Tagify.prototype = {
      * @return {[type]} [description]
      */
     filterListItems: function filterListItems(value) {
-      var _this11 = this;
+      var _this10 = this;
 
       var list = [],
           whitelist = this.settings.whitelist,
@@ -1356,7 +1376,7 @@ Tagify.prototype = {
 
       if (!value) {
         return whitelist.filter(function (item) {
-          return !_this11.isTagDuplicate(item.value || item);
+          return !_this10.isTagDuplicate(item.value || item);
         }) // don't include tags which have already been added.
         .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }

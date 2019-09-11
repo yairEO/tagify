@@ -142,6 +142,49 @@
                 overflow: auto;
                 border: 2px solid pink;
             }
+
+            /*------ addFromOutside ----------*/
+            .addFromOutside{
+                display: inline-block;
+                min-width: 0;
+                border: none;
+            }
+
+            .addFromOutside tag:last-of-type{
+                margin-right: 1em;
+            }
+
+            .addFromOutside tag:only-of-type > div{
+                padding-right: .6em;
+            }
+
+            .addFromOutside tag:only-of-type .tagify__tag__removeBtn{
+                display: none;
+            }
+
+            .addFromOutside tag > div{
+                padding-top: .4em;
+                padding-bottom: .4em;
+                border-radius: 25px;
+            }
+
+            .addFromOutside + button{
+                background:#D3E2E2;
+                border: 0;
+                border-radius: 50%;
+                width: 1.8em;
+                height: 1.8em;
+                cursor: pointer;
+                outline: none;
+            }
+
+            .addFromOutside + button:hover{
+                opacity: .8;
+            }
+
+            .addFromOutside .tagify__input{
+                display: none;
+            }
         </style>
     </head>
 
@@ -157,12 +200,10 @@
                 <aside class='leftSide'>
                     <h2><a href='#section-basic'>#</a>Basic example</h2>
                     <p>
-                        In this example, the field is pre-ocupied with <strong>4</strong> tags. The <em>last</em> tag (CSS) has the same value as the <em>first</em> tag,
-                        and will be <em>removed</em>, because the <code>duplicates</code> setting is set to <code>true</code>.
+                        Passing the input element as a parameter to Tagify and it will transform it into a tags-component.
                     </p>
                     <p>
-                        Note that <code>whitelist</code> &amp; <code>blacklist</code> may also be set on to <i>Tagify</i> as <code>data-</code> attributes on the input tag itself
-                        as a list of tags seperated by the same delimeter defined in the Tagify's configuration. Default is comma (<code>,</code>)
+                        The input has a value which Tagify splits into 2 tags.
                     </p>
                     <h3>HTML</h3>
 <pre class="language-markup"><code><&#8203;input name='basic' value='tag1, tag2'></code></pre>
@@ -228,6 +269,30 @@
                 </aside>
                 <aside class='rightSide'>
                     <textarea name='tags2' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea>
+                </aside>
+            </section>
+
+            <section id='addFromOutside'>
+                <aside class='leftSide'>
+                    <h2><a href='#section-different-look'>#</a>Different look</h2>
+                    <p>
+                        No placeholder, and no way of adding tags from within the component, but only
+                        by clicking the (+) button, which is not related to Tagify in anyway, but in this example
+                        it is shown how combining a few simple things make customization easy.
+                    </p>
+                    <p>
+                        This example also shows how to implement minimum-allowed tags
+                    </p>
+                    <h3>HTML</h3>
+<pre class="language-markup"><code>&lt;textarea name='tags2' placeholder='Movie names'>
+    The Matrix, Pulp Fiction, Mad Max
+&lt;/textarea></code></pre>
+                    <h3>JAVASCRIPT</h3>
+                    <script>renderPRE(document.currentScript, "addFromOutside")</script>
+                </aside>
+                <aside class='rightSide'>
+                    <input class='addFromOutside' value='some.name@website.com'>
+                    <button type="button">+</button>
                 </aside>
             </section>
 
@@ -622,6 +687,22 @@ var input = document.querySelector('textarea[name=tags2]'),
     });
 })()
 </script>
+
+<script data-name="addFromOutside">
+(function(){
+var input = document.querySelector('.addFromOutside'),
+    button = input.nextElementSibling,
+    tagify = new Tagify(input)
+
+button.addEventListener("click", onAddButtonClick)
+
+function onAddButtonClick(){
+    tagify.addEmptyTag()
+}
+})()
+</script>
+
+
 
 
 <script data-name='mix'>

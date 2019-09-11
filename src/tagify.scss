@@ -134,8 +134,8 @@
                 position: absolute;
                 border-radius: inherit;
                 left:0; top:0; right:0; bottom:0;
-                box-shadow: 0 0 0 16px $tag-bg inset;
-                box-shadow: 0 0 0 16px var(--tag-bg) inset;
+                box-shadow: 0 0 0 19px $tag-bg inset;
+                box-shadow: 0 0 0 19px var(--tag-bg) inset;
                 z-index: -1;
                 pointer-events:none;
                 transition: 120ms ease;
@@ -149,8 +149,8 @@
                     $size: -$tagMargin/2;
                     $size: -2px;
                     top:$size; right:$size; bottom:$size; left:$size;
-                    box-shadow: 0 0 0 16px $tag-hover inset;
-                    box-shadow: 0 0 0 16px var(--tag-hover) inset;
+                    box-shadow: 0 0 0 19px $tag-hover inset;
+                    box-shadow: 0 0 0 19px var(--tag-hover) inset;
                   //  box-shadow: 0 0 0 0 $tag-remove inset
                 }
                 // background:nth($tagColor,2);
