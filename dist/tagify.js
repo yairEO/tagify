@@ -864,9 +864,7 @@ Tagify.prototype = {
       try {
         tagData = JSON.parse(preInterpolated);
       } catch (err) {
-        tagData = {
-          value: preInterpolated
-        };
+        tagData = _this5.normalizeTags(preInterpolated)[0]; //{value:preInterpolated}
       }
 
       if (s2.length > 1 && _this5.isTagWhitelisted(tagData.value) && (duplicates || !_this5.isTagDuplicate(tagData.value))) {
