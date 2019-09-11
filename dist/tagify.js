@@ -1142,7 +1142,7 @@ Tagify.prototype = {
         i = 0,
         _interpolator = this.settings.mixTagsInterpolator;
     this.DOM.input.childNodes.forEach(function (node) {
-      if (node.nodeType == 1) if (node.classList.contains("tagify__tag")) result += _interpolator[0] + JSON.stringify(_this8.value[i++]) + _interpolator[1];else result += node.textContent;
+      if (node.nodeType == 1 && node.classList.contains("tagify__tag")) result += _interpolator[0] + JSON.stringify(_this8.value[i++]) + _interpolator[1];else result += node.textContent;
     });
     return result;
   },

@@ -1152,13 +1152,11 @@ Tagify.prototype = {
             _interpolator = this.settings.mixTagsInterpolator;
 
         this.DOM.input.childNodes.forEach((node) => {
-            if( node.nodeType == 1 )
-                if( node.classList.contains("tagify__tag") )
-                    result += _interpolator[0] + JSON.stringify(this.value[i++]) + _interpolator[1]
+            if( node.nodeType == 1 && node.classList.contains("tagify__tag") )
+                result += _interpolator[0] + JSON.stringify(this.value[i++]) + _interpolator[1]
             else
                 result += node.textContent;
         })
-
         return result;
     },
 
