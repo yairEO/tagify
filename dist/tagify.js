@@ -385,7 +385,7 @@ Tagify.prototype = {
           case 'Backspace':
             if (s == "" || s.charCodeAt(0) == 8203) {
               // 8203: ZERO WIDTH SPACE unicode
-              if (this.settings.backspace === true) this.removeTag();else if (this.settings.backspace == 'edit') this.editTag();
+              if (this.settings.backspace === true) this.removeTag();else if (this.settings.backspace == 'edit') setTimeout(this.editTag.bind(this), 0); // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
             }
 
             break;
@@ -1253,7 +1253,8 @@ Tagify.prototype = {
         }
 
         window[action]('mousedown', _CBR.onClick);
-        this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver); //  this.DOM.dropdown[action]('click', _CBR.onClick);
+        this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver);
+        this.DOM.input.addEventListener('keydown', this.listeners.main.keydown[1]); //  this.DOM.dropdown[action]('click', _CBR.onClick);
       },
       callbacks: {
         onKeyDown: function onKeyDown(e) {
