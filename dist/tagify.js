@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.28.0)- tags input component
+ * Tagify (v 2.28.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -425,7 +425,7 @@ Tagify.prototype = {
         data.isValid = this.validateTag.call(this, value); // save the value on the input's State object
 
         this.input.set.call(this, value, false); // update the input with the normalized value and run validations
-        // this.input.setRangeAtStartEnd.call(this); // fix caret position
+        // this.setRangeAtStartEnd(); // fix caret position
 
         this.trigger("input", data);
 
@@ -603,7 +603,19 @@ Tagify.prototype = {
       return _CB.onEditTagkeydown.call(_this4, e);
     });
     editableElm.focus();
+    this.setRangeAtStartEnd(false, editableElm);
     return this;
+  },
+  // https://stackoverflow.com/a/3866442/104380
+  setRangeAtStartEnd: function setRangeAtStartEnd(start, node) {
+    var range, selection;
+    if (!document.createRange) return;
+    range = document.createRange();
+    range.selectNodeContents(node || this.DOM.input);
+    range.collapse(!!start);
+    selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
   },
 
   /**
@@ -620,19 +632,6 @@ Tagify.prototype = {
       if (!s) this.dropdown.hide.call(this);
       if (s.length < 2) this.input.autocomplete.suggest.call(this, '');
       this.input.validate.call(this);
-    },
-    // https://stackoverflow.com/a/3866442/104380
-    setRangeAtStartEnd: function setRangeAtStartEnd() {
-      var start = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      var node = arguments.length > 1 ? arguments[1] : undefined;
-      var range, selection;
-      if (!document.createRange) return;
-      range = document.createRange();
-      range.selectNodeContents(node || this.DOM.input);
-      range.collapse(start);
-      selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
     },
 
     /**
@@ -671,7 +670,7 @@ Tagify.prototype = {
           this.input.set.call(this, suggestion);
           this.input.autocomplete.suggest.call(this, '');
           this.dropdown.hide.call(this);
-          this.input.setRangeAtStartEnd.call(this);
+          this.setRangeAtStartEnd();
           return true;
         }
 

@@ -416,7 +416,7 @@ Tagify.prototype = {
 
                 // save the value on the input's State object
                 this.input.set.call(this, value, false); // update the input with the normalized value and run validations
-                // this.input.setRangeAtStartEnd.call(this); // fix caret position
+                // this.setRangeAtStartEnd(); // fix caret position
 
                 this.trigger("input", data);
 
@@ -598,7 +598,22 @@ Tagify.prototype = {
         editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e));
 
         editableElm.focus();
+        this.setRangeAtStartEnd(false, editableElm);
         return this;
+    },
+
+    // https://stackoverflow.com/a/3866442/104380
+    setRangeAtStartEnd( start, node ){
+        var range, selection;
+
+        if( !document.createRange ) return;
+
+        range = document.createRange();
+        range.selectNodeContents(node || this.DOM.input);
+        range.collapse(!!start);
+        selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
     },
 
     /**
@@ -615,20 +630,6 @@ Tagify.prototype = {
             if( s.length < 2 )  this.input.autocomplete.suggest.call(this, '');
 
             this.input.validate.call(this);
-        },
-
-        // https://stackoverflow.com/a/3866442/104380
-        setRangeAtStartEnd( start=false, node ){
-            var range, selection;
-
-            if( !document.createRange ) return;
-
-            range = document.createRange();
-            range.selectNodeContents(node || this.DOM.input);
-            range.collapse(start);
-            selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
         },
 
         /**
@@ -672,7 +673,7 @@ Tagify.prototype = {
                     this.input.set.call(this, suggestion);
                     this.input.autocomplete.suggest.call(this, '');
                     this.dropdown.hide.call(this);
-                    this.input.setRangeAtStartEnd.call(this);
+                    this.setRangeAtStartEnd();
 
                     return true;
                 }
