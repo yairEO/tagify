@@ -158,7 +158,7 @@ describe("templates snapshots", () => {
 })
 
 describe("actions", () => {
-    it("should allow tag editing when double-click a tag & place caret at the end", async () => {
+    it("should end edit-mode on double-clicking a tag", async () => {
         await page.waitForSelector(elmSelectors.tagify.firstTag);
         await page.click(elmSelectors.tagify.firstTag, { clickCount: 2 });
 
@@ -166,18 +166,23 @@ describe("actions", () => {
             tagTemplate = await page.$eval(elmSelectors.tagify.firstTag, el => el.outerHTML);
 
         expect(tagTemplate).toEqual(expected);
+    }, 0)
+
+    it('should save edited tag on "Enter" keypress', async () => {
+        await page.waitForSelector(elmSelectors.tagify.firstTag);
+        await page.click(elmSelectors.tagify.firstTag, { clickCount: 2 });
 
         async function getFirstTagText(){
             return await page.$eval(elmSelectors.tagify.firstTag, el => el.querySelector('.tagify__tag-text').textContent);
         }
 
         let prevTagText = await getFirstTagText();
-        expected = prevTagText + 'test 123';
-        await page.type(elmSelectors.tagify.firstTag + ' .tagify__tag-text', expected)
+        let addedText = 'test 123';
+        await page.type(elmSelectors.tagify.firstTag + ' .tagify__tag-text', addedText)
         page.keyboard.press('Enter')
 
         let tagTextContent = await getFirstTagText();
-        expect(tagTextContent).toEqual(expected);
+        expect(tagTextContent).toEqual(prevTagText + addedText);
     }, 0)
 
     // default is: settings.dropdown.enabled = 2
