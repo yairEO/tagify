@@ -702,7 +702,6 @@ Tagify.prototype = {
    * @return {Boolean}
    */
   isTagDuplicate: function isTagDuplicate(v) {
-    // change to Array.Some
     return this.value.some(function (item) {
       return typeof v == 'string' ? v.trim().toLowerCase() === item.value.toLowerCase() : JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase();
     });
@@ -753,7 +752,7 @@ Tagify.prototype = {
    */
   isTagWhitelisted: function isTagWhitelisted(v) {
     return this.settings.whitelist.some(function (item) {
-      if ((item.value || item).toLowerCase() === v.toLowerCase()) return true;
+      return typeof v == 'string' ? v.trim().toLowerCase() === (item.value || item).toLowerCase() : JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase();
     });
   },
 
@@ -866,7 +865,7 @@ Tagify.prototype = {
         tagData = _this5.normalizeTags(preInterpolated)[0]; //{value:preInterpolated}
       }
 
-      if (s2.length > 1 && _this5.isTagWhitelisted(tagData.value) && (duplicates || !_this5.isTagDuplicate(tagData.value))) {
+      if (s2.length > 1 && _this5.isTagWhitelisted(tagData.value) && (!duplicates || !_this5.isTagDuplicate(tagData))) {
         transformTag.call(_this5, tagData);
         tagElm = _this5.createTagElem(tagData);
         s2[0] = tagElm.outerHTML + "&#8288;"; // put a zero-space at the end so the caret so it won't jump back to the start (when the last input's child element is a tag)
@@ -1253,8 +1252,7 @@ Tagify.prototype = {
         }
 
         window[action]('mousedown', _CBR.onClick);
-        this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver);
-        this.DOM.input.addEventListener('keydown', this.listeners.main.keydown[1]); //  this.DOM.dropdown[action]('click', _CBR.onClick);
+        this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver); //  this.DOM.dropdown[action]('click', _CBR.onClick);
       },
       callbacks: {
         onKeyDown: function onKeyDown(e) {
@@ -1305,6 +1303,16 @@ Tagify.prototype = {
                 this.addTags(this.input.value, true);
               }
 
+              break;
+
+            case 'Backspace':
+              {
+                var value = this.input.value.trim();
+
+                if (value == "" || value.charCodeAt(0) == 8203) {
+                  if (this.settings.backspace === true) this.removeTag();else if (this.settings.backspace == 'edit') setTimeout(this.editTag.bind(this), 0);
+                }
+              }
           }
         },
         onMouseOver: function onMouseOver(e) {

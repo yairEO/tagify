@@ -712,7 +712,6 @@ Tagify.prototype = {
      * @return {Boolean}
      */
     isTagDuplicate( v ){
-        // change to Array.Some
         return this.value.some(item =>
             typeof v == 'string'
                 ? v.trim().toLowerCase() === item.value.toLowerCase()
@@ -767,10 +766,11 @@ Tagify.prototype = {
      * make sure the tag, or words in it, is not in the blacklist
      */
     isTagWhitelisted( v ){
-        return this.settings.whitelist.some(item => {
-            if( (item.value || item).toLowerCase() === v.toLowerCase() )
-                return true;
-        });
+        return this.settings.whitelist.some(item =>
+            typeof v == 'string'
+                ? v.trim().toLowerCase() === (item.value || item).toLowerCase()
+                : JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase()
+            )
     },
 
     /**
@@ -877,7 +877,7 @@ Tagify.prototype = {
                 tagData = this.normalizeTags(preInterpolated)[0]  //{value:preInterpolated}
             }
 
-            if( s2.length > 1   &&   this.isTagWhitelisted(tagData.value)   &&   (duplicates || !this.isTagDuplicate(tagData.value)) ){
+            if( s2.length > 1   &&   this.isTagWhitelisted(tagData.value)   &&   (!duplicates  || !this.isTagDuplicate(tagData)) ){
                 transformTag.call(this, tagData);
                 tagElm = this.createTagElem(tagData);
                 s2[0] = tagElm.outerHTML + "&#8288;"  // put a zero-space at the end so the caret so it won't jump back to the start (when the last input's child element is a tag)
@@ -1279,7 +1279,6 @@ Tagify.prototype = {
                 window[action]('mousedown', _CBR.onClick);
 
                 this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver);
-                this.DOM.input.addEventListener('keydown', this.listeners.main.keydown[1])
               //  this.DOM.dropdown[action]('click', _CBR.onClick);
             },
 
@@ -1331,6 +1330,16 @@ Tagify.prototype = {
                             else{
                                 this.addTags(this.input.value, true)
                             }
+                            break;
+                        case 'Backspace' : {
+                            var value = this.input.value.trim()
+                            if( value == "" || value.charCodeAt(0) == 8203 ){
+                                if( this.settings.backspace === true )
+                                    this.removeTag()
+                                else if( this.settings.backspace == 'edit' )
+                                    setTimeout(this.editTag.bind(this), 0)
+                            }
+                        }
                     }
                 },
 

@@ -104,7 +104,9 @@
             </section>
 
             <section id='section-mix'>
-                    <textarea name='mix'>[[cartman]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea>
+                    <textarea name='mix'>
+                         [[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[{"id":500, "value":"cartman", "title":"xxx"}]] [[kyle]] do not know [[homer simpson]] because he's a relic.
+                    </textarea>
             </section>
 
             <section id='outside-of-the-box'>
@@ -282,18 +284,10 @@ var input = document.querySelector('[name=mix]'),
         pattern          : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
         enforceWhitelist : true,
         whitelist        : [       // <--  Set the initial whitelist, which will dynamically change as you type (see "input" event below)
-            {
-                value : 'cartman',
-                title : 'Eric Cartman',
-                class : 'borderd-blue'  // <-- Add any attribute you wish, per-tag
-            },
-            {
-                value : 'kyle',
-                title : 'Kyle Broflovski'
-            },
-            {
-                value: 'Homer simpson'
-            }
+            { value : 'cartman', title : 'Eric Cartman', class : 'borderd-blue' },
+            { value:"cartman", id:500, title:"xxx"},
+            { value : 'kyle', title : 'Kyle Broflovski' },
+            { value: 'Homer simpson' }
         ],
         dropdown   : {
             enabled : 1

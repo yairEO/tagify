@@ -158,7 +158,7 @@ describe("templates snapshots", () => {
 })
 
 describe("actions", () => {
-    it("should allow tag editing when double-click a tag", async () => {
+    it("should allow tag editing when double-click a tag & place caret at the end", async () => {
         await page.waitForSelector(elmSelectors.tagify.firstTag);
         await page.click(elmSelectors.tagify.firstTag, { clickCount: 2 });
 
@@ -171,13 +171,13 @@ describe("actions", () => {
             return await page.$eval(elmSelectors.tagify.firstTag, el => el.querySelector('.tagify__tag-text').textContent);
         }
 
-        expected = 'test 123';
         let prevTagText = await getFirstTagText();
+        expected = prevTagText + 'test 123';
         await page.type(elmSelectors.tagify.firstTag + ' .tagify__tag-text', expected)
         page.keyboard.press('Enter')
 
         let tagTextContent = await getFirstTagText();
-        expect(tagTextContent).toEqual(expected + prevTagText);
+        expect(tagTextContent).toEqual(expected);
     }, 0)
 
     // default is: settings.dropdown.enabled = 2
