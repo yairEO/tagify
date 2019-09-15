@@ -1291,6 +1291,7 @@ Tagify.prototype = {
 
               if (activeListElm) {
                 newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value;
+                this.trigger("dropdown:select", newValue);
                 this.addTags([newValue], true);
                 this.dropdown.hide.call(this);
 
@@ -1331,6 +1332,7 @@ Tagify.prototype = {
             // make sure the list item belongs to this context of the Tagify instance (and not some other instance's manual suggestions list)
             if (listItemElm.parentNode !== this.DOM.dropdown) return;
             value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
+            this.trigger("dropdown:select", value);
             this.addTags([value], true);
             setTimeout(function () {
               return _this9.DOM.input.focus();

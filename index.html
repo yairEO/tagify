@@ -590,6 +590,7 @@ tagify.on('add', onAddTag)
       .on('click', onTagClick)
       .on('dropdown:show', onDropdownShow)
       .on('dropdown:hide', onDropdownHide)
+      .on('dropdown:select', onDropdownSelect)
 
 // tag added callback
 function onAddTag(e){
@@ -631,6 +632,10 @@ function onDropdownShow(e){
 
 function onDropdownHide(e){
     console.log("onDropdownHide: ", e.detail)
+}
+
+function onDropdownSelect(e){
+    console.log("onDropdownSelect: ", e.detail)
 }
 
 })()

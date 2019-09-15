@@ -373,6 +373,7 @@ click           | Clicking a tag. Exposes the tag element, its index & data
 edit            | A tag has been edited
 dropdown:show   | Suggestions dropdown is to be rendered. The dropdown DOM node is passed in the callback, [see demo](https://yaireo.github.io/tagify/#section-basic).
 dropdown:hide   | Suggestions dropdown has been removed from the DOM
+dropdown:select | Suggestions dropdown item selected (by mouse/keyboard/touch)
 
 
 ## Settings
