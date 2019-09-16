@@ -99,7 +99,9 @@ Tagify.prototype = {
       // minimum input characters needs to be typed for the dropdown to show
       maxItems: 10,
       itemTemplate: '',
-      fuzzySearch: true
+      fuzzySearch: true,
+      closeOnSelect: false // closes the dropdown after selecting an item, is "enabled" is "0" (which means always show dropdown)
+
     }
   },
   templates: {
@@ -331,7 +333,8 @@ Tagify.prototype = {
       onFocusBlur: function onFocusBlur(e) {
         var s = e.target.textContent.trim(); // a string
 
-        if (this.settings.mode == 'mix') return;
+        if (this.settings.mode == 'mix') return; // if( this.settings.dropdown.enabled === 0 )
+        //     this.dropdown.show.call(this);
 
         if (e.type == "focus") {
           this.DOM.scope.classList.add('tagify--focus'); //  e.target.classList.remove('placeholder');
@@ -522,8 +525,9 @@ Tagify.prototype = {
             isValid = tagElm.isValid,
             tagData = _objectSpread({}, this.value[tagElmIdx], {
           value: value
-        }),
-            clone;
+        });
+
+        this.DOM.input.focus();
 
         if (!currentValue) {
           this.removeTag(tagElm);
@@ -534,21 +538,13 @@ Tagify.prototype = {
           this.settings.transformTag.call(this, tagData); // re-validate after tag transformation
 
           isValid = this.validateTag(tagData.value);
+        } else {
+          this.editTagDone(tagElm);
+          return;
         }
 
-        if (isValid !== undefined && isValid !== true) return; // undo if empty
-
-        editableElm.textContent = tagData.value; // update data
-
-        this.value[tagElmIdx].value = tagData.value;
-        this.update(); // cleanup (clone node to remove events)
-
-        clone = editableElm.cloneNode(true);
-        clone.removeAttribute('contenteditable');
-        tagElm.title = tagData.value;
-        tagElm.classList.remove('tagify--editable'); // remove all events from the "editTag" method
-
-        editableElm.parentNode.replaceChild(clone, editableElm);
+        if (isValid !== undefined && isValid !== true) return;
+        this.editTagDone(tagElm, tagData);
         this.trigger("edit", {
           tag: tagElm,
           index: tagElmIdx,
@@ -606,6 +602,29 @@ Tagify.prototype = {
     this.setRangeAtStartEnd(false, editableElm);
     return this;
   },
+
+  /**
+   * Exit a tag's edit-mode
+   */
+  editTagDone: function editTagDone(tagElm, tagData) {
+    var editableElm = tagElm.querySelector('.tagify__tag-text'),
+        clone = editableElm.cloneNode(true),
+        tagElmIdx; // update DOM nodes
+
+    clone.removeAttribute('contenteditable');
+    tagElm.classList.remove('tagify--editable'); // guarantee to remove all events which were added by the "editTag" method
+
+    editableElm.parentNode.replaceChild(clone, editableElm); // continue only if there was a reason for it
+
+    if (tagData) {
+      editableElm.textContent = tagData.value;
+      tagElm.title = tagData.value; // update data
+
+      tagElmIdx = this.getNodeIndex(tagElm);
+      this.value[tagElmIdx].value = tagData.value;
+      this.update();
+    }
+  },
   // https://stackoverflow.com/a/3866442/104380
   setRangeAtStartEnd: function setRangeAtStartEnd(start, node) {
     var range, selection;
@@ -627,9 +646,11 @@ Tagify.prototype = {
     set: function set() {
       var s = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
       var updateDOM = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+      var hideDropdown = this.settings.dropdown.enabled > 0 || this.settings.dropdown.closeOnSelect;
       this.input.value = s;
       if (updateDOM) this.DOM.input.innerHTML = s;
-      if (!s) this.dropdown.hide.call(this);
+      if (!s && hideDropdown) setTimeout(this.dropdown.hide.bind(this), 20); // setTimeout duration must be HIGER than the dropdown's item "onClick" method's "focus()" event, because the "hide" method re-binds the main events and it will catch the "blur" event and will cause
+
       if (s.length < 2) this.input.autocomplete.suggest.call(this, '');
       this.input.validate.call(this);
     },
@@ -996,6 +1017,9 @@ Tagify.prototype = {
 
       _this6.appendTag(tagElm);
 
+      _this6.dropdown.position.call(_this6); // reposition the dropdown because the just-added tag might cause a new-line
+
+
       if (tagValidation === true) {
         // update state
         _this6.value.push(tagData);
@@ -1083,6 +1107,8 @@ Tagify.prototype = {
         });
 
         _this7.dropdown.render.call(_this7);
+
+        _this7.dropdown.position.call(_this7);
       }
     };
 
@@ -1103,6 +1129,7 @@ Tagify.prototype = {
     Array.prototype.slice.call(this.getTagElms()).forEach(function (elm) {
       return elm.parentNode.removeChild(elm);
     });
+    this.dropdown.position.call(this);
   },
   getAttributes: function getAttributes(data) {
     // only items which are objects have properties which can be used as attributes
@@ -1253,6 +1280,9 @@ Tagify.prototype = {
 
         window[action]('mousedown', _CBR.onClick);
         this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver); //  this.DOM.dropdown[action]('click', _CBR.onClick);
+        // add the main "click" event back because it is needed for removing/clicking tags, even if dropdown is shown
+
+        this.DOM[this.listeners.main.click[0]][action]('click', this.listeners.main.click[1]);
       },
       callbacks: {
         onKeyDown: function onKeyDown(e) {
@@ -1288,17 +1318,13 @@ Tagify.prototype = {
 
             case 'Enter':
               e.preventDefault();
+              var hideDropdown = this.settings.dropdown.enabled || this.settings.dropdown.closeOnSelect;
 
               if (activeListElm) {
                 newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value;
                 this.trigger("dropdown:select", newValue);
                 this.addTags([newValue], true);
-                this.dropdown.hide.call(this);
-
-                if (this.settings.dropdown.enabled === 0) {
-                  this.dropdown.show.call(this);
-                }
-
+                this.dropdown[hideDropdown ? 'hide' : 'show'].call(this);
                 return false;
               } else {
                 this.addTags(this.input.value, true);
@@ -1336,10 +1362,11 @@ Tagify.prototype = {
             this.addTags([value], true);
             setTimeout(function () {
               return _this9.DOM.input.focus();
-            }, 100);
-          }
-
-          this.dropdown.hide.call(this);
+            });
+          } // clicked outside, close the list
+          else {
+              this.dropdown.hide.call(this);
+            }
         }
       }
     },
