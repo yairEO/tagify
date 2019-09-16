@@ -151,7 +151,7 @@ function onInput( e ){
 ## Edit tags
 Tags which aren't `read-only` can be edited by double-clicking them.
 
-The value is saved on `blur` or by pressnig `enter` key. Pressing `Escaspe` will revert the change trigger `blur`.
+The value is saved on `blur` or by pressing `enter` key. Pressing `Escape` will revert the change trigger `blur`.
 <kbd>ctrl</kbd><kbd>z</kbd> will revert the change if an edited tag was marked as not valid (perhaps duplicate or blacklisted)
 
 
