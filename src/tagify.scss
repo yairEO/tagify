@@ -122,12 +122,10 @@
                     outline: none;
                     user-select: text;
                     cursor: text;
-                    // hack: sometimes the caret after the last character wasn't visible
+                    // fix: sometimes the caret after the last character wasn't visible (when setting {backspace:"edit"})
                     margin: -2px;
                     padding: 2px;
                 }
-              //  width          : 100%;
-              // transition     : .1s;
             }
 
             @if $showX {

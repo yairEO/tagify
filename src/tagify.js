@@ -57,7 +57,8 @@ Tagify.prototype = {
             maxItems      : 10,
             itemTemplate  : '',
             fuzzySearch   : true,
-            closeOnSelect : false,  // closes the dropdown after selecting an item, is "enabled" is "0" (which means always show dropdown)
+            highlightFirst: false,  // highlights first-matched item in the list
+            closeOnSelect : false,  // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
         }
     },
 
@@ -1211,9 +1212,10 @@ Tagify.prototype = {
 
         show( value ){
             var listHTML,
-                isManual = this.settings.dropdown.position == 'manual';
+                _s = this.settings,
+                isManual = _s.dropdown.position == 'manual';
 
-            if( !this.settings.whitelist.length ) return;
+            if( !_s.whitelist.length ) return;
 
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems
@@ -1231,7 +1233,9 @@ Tagify.prototype = {
 
             this.DOM.dropdown.innerHTML = this.minify(listHTML);
             // if "enforceWhitelist" is "true", highlight the first suggested item
-            this.settings.enforceWhitelist && !isManual && this.dropdown.highlightOption.call(this, this.DOM.dropdown.children[0]);
+            if( (_s.enforceWhitelist && !isManual) || _s.dropdown.highlightFirst )
+                this.dropdown.highlightOption.call(this, this.DOM.dropdown.children[0])
+
             this.DOM.scope.setAttribute("aria-expanded", true)
 
             this.trigger("dropdown:show", this.DOM.dropdown);
@@ -1436,7 +1440,7 @@ Tagify.prototype = {
                 elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight
 
             // set the first item from the suggestions list as the autocomplete value
-            if( this.settings.autoComplete && !this.settings.dropdown.fuzzySearch ){
+            if( this.settings.autoComplete ){
                 value = this.suggestedListItems[this.getNodeIndex(elm)].value || this.input.value;
                 this.input.autocomplete.suggest.call(this, value);
             }
