@@ -259,7 +259,9 @@
         line-height: inherit;
         position: relative;
 
-        &:empty::before{ @include placeholder; }
+        &::before{ display:inline-block; width:0; }
+
+        &:empty::before{ @include placeholder; width:auto; }
 
         &:focus{ outline:none;
             &::before{ @include placeholder(false);
@@ -341,23 +343,24 @@
 
     &--select{
         &::after{
-            $size: 20px;
-            content: '\02C5';
-            opacity: .6;
+            $size: 18px;
+            content: '\2304';
+            opacity: .5;
             position: absolute;
             top: 50%;
             right: 0;
             bottom: 0;
             font: $size monospace;
+            line-height: 0;
             height: $size/2;
             pointer-events: none;
-            transform: translate(-100%, -50%);
+            transform: translate(-100%, -50%) scaleX(1.5);
             transition: .2s ease-in-out;
         }
 
         &[aria-expanded=true]{
             &::after{
-                transform: translate(-100%, -50%) rotate(180deg);
+                transform: translate(-100%, -50%) rotate(180deg) scaleX(1.5);
             }
         }
 
