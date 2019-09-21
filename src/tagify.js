@@ -64,7 +64,7 @@ Tagify.prototype = {
 
     templates : {
         wrapper(input, settings){
-            return `<tags class="tagify ${settings.mode && "tagify--" + settings.mode} ${input.className}"
+            return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
                           ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"'}
                           role="tagslist">
                 <span contenteditable data-placeholder="${input.placeholder || '&#8203;'}" aria-placeholder="${input.placeholder || ''}"

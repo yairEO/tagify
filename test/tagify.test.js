@@ -15,6 +15,13 @@ let elmSelectors = {
         firstTag      : ".tagify__tag"
     },
 
+    tagify_textarea : {
+        scope         : ".tagify.textarea",
+        input         : ".tagify.textarea .tagify__input",
+        originalInput : "input.some_class_name",
+        tag           : ".tagify__tag"
+    },
+
     mixed : {
         scope         : ".tagify--mix",
         input         : ".tagify--mix .tagify__input",
@@ -135,6 +142,17 @@ describe("simple tests", () => {
         let tagsHTML = await page.evaluate(getAllTagsHTML);
         expect(tagsHTML).toEqual(expected);
     }, 0);
+
+    /*
+        * validate tag while typing
+        * "autoComplete" settings: if whitelist exists and when typing there was a match, suggested text should be shown (in faded gray)
+        * same as above: if pressing "tab" or "right arrow" the suggestion should be set as a new tag
+        * smarter "fuzzySearch" autosuggest text: do not fill in the autosuggest if the match isn't from the start!
+        * select-mode: if multiple tags were added, ignore all except first and add it
+        * when dropdown is open and blur event occured, close it
+        * starting to type something that is in the whitelist and then clicking it should select it and remove the sugegsted text (::after)
+        * select mode: arrow down should show the suggestions dropdown
+    */
 })
 
 describe("templates snapshots", () => {
@@ -157,8 +175,8 @@ describe("templates snapshots", () => {
     }, 1000)
 })
 
-describe("actions", () => {
-    it("should end edit-mode on double-clicking a tag", async () => {
+describe("edit tag", () => {
+    it('should enter "edit-mode" when double-clicking a tag', async () => {
         await page.waitForSelector(elmSelectors.tagify.firstTag);
         await page.click(elmSelectors.tagify.firstTag, { clickCount: 2 });
 
@@ -168,7 +186,7 @@ describe("actions", () => {
         expect(tagTemplate).toEqual(expected);
     }, 0)
 
-    it('should save edited tag on "Enter" keypress', async () => {
+    it('should save edited tag on "Enter" keypress (when there is a value)', async () => {
         await page.waitForSelector(elmSelectors.tagify.firstTag);
         await page.click(elmSelectors.tagify.firstTag, { clickCount: 2 });
 
@@ -185,6 +203,72 @@ describe("actions", () => {
         expect(tagTextContent).toEqual(prevTagText + addedText);
     }, 0)
 
+    it('should save edited tag on blur (when there is a value)', async () => {
+        await page.waitForSelector(elmSelectors.tagify.firstTag);
+        await page.click(elmSelectors.tagify.firstTag, { clickCount: 2 });
+
+        async function getFirstTagText(){
+            return await page.$eval(elmSelectors.tagify.firstTag, el => el.querySelector('.tagify__tag-text').textContent);
+        }
+
+        let prevTagText = await getFirstTagText();
+        let addedText = 'test 123';
+        await page.type(elmSelectors.tagify.firstTag + ' .tagify__tag-text', addedText)
+        page.click('body', { clickCount:1 }); // invoke "blur" event
+
+        let tagTextContent = await getFirstTagText();
+        expect(tagTextContent).toEqual(prevTagText + addedText);
+    }, 0)
+
+    it('should remove edited tag on blur when value is empty', async (done) => {
+        var tagsValues;
+        await page.waitForSelector(elmSelectors.tagify.firstTag);
+        await page.click(elmSelectors.tagify.firstTag, { clickCount: 2 });
+
+        function getAllTagsTexts(elmSelectors) {
+            let data = [];
+            document.querySelectorAll(elmSelectors.tagify.scope + ' tag').forEach(el => data.push(el.textContent.trim()))
+            return data;
+        }
+
+        await page.click(elmSelectors.tagify.firstTag, { clickCount: 2 });
+        await page.keyboard.press('Backspace')
+        page.click('body', { clickCount:1 }); // invoke "blur" event
+
+        setTimeout(async ()=> {
+            tagsValues = await page.evaluate(getAllTagsTexts, elmSelectors);
+            expect(tagsValues).toEqual(["html", "javascript"]);
+            done()
+        }, 1000)
+    }, 0)
+
+    fit('should enter "edit-mode" on previous tag after hitting the "backspace" key when {backspace:"edit"} setting was set', async () => {
+        await page.waitForSelector(elmSelectors.tagify_textarea.scope);
+
+        const input = await page.$(elmSelectors.tagify_textarea.input);
+        await input.click({ clickCount: 3 })
+
+        await page.keyboard.press('Backspace')
+
+       //  setTimeout(async () => {
+        const lastTagElm = await page.$(".tagify.textarea tag:last-of-type")
+        const className = await lastTagElm.getProperty('className')
+
+
+        expect(className.jsonValue()).toEqual("tagify__tag tagify--editable");
+    }, 0)
+
+    it('should revert editing on "esc" keypress', async () => {
+        expect(0).toEqual(1)
+    }, 0)
+
+    it('should revert editing on "esc" keypress', async () => {
+        expect(0).toEqual(1)
+    }, 0)
+})
+
+
+describe("suggestions dropdown", () => {
     // default is: settings.dropdown.enabled = 2
     it("should show dropdown suggestions after 2 typed characters", async () => {
         await page.waitForSelector(elmSelectors.tagify.firstTag);
@@ -243,6 +327,34 @@ describe("actions", () => {
         let texts = await page.evaluate(getAllTagsTexts, elmSelectors);
         expect(texts).toEqual(["css", "html", "javascript", "Java"]);
     }, 0)
+
+    it('should respect "fuzzySearch" dropdown setting', async () => {
+        expect(0).toEqual(1)
+    }, 0)
+
+    it('should respect "highlightFirst" dropdown setting', async () => {
+        expect(0).toEqual(1)
+    }, 0)
+
+    it('should respect "closeOnSelect" dropdown setting', async () => {
+        expect(0).toEqual(1)
+    }, 0)
+
+    it('should respect "maxItem" dropdown setting', async () => {
+        expect(0).toEqual(1)
+    }, 0)
+
+    it('should respect "itemTemplate" dropdown setting', async () => {
+        expect(0).toEqual(1)
+    }, 0)
+
+    it('should respect "classname" dropdown setting', async () => {
+        expect(0).toEqual(1)
+    }, 0)
+})
+
+
+describe("actions", () => {
 
     // check events are fired...
 })
