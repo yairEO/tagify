@@ -61,7 +61,16 @@
             code{ padding:2px 3px; background:lightyellow; }
             pre code{ background:none; padding:0; }
             pre[class*=language-]{ max-height:400px; }
-            .forkLink{ top:1em; right:1em; }
+
+            .forkLink{ top:.7em; right:1em; }
+            body > header{
+                background:powderblue;
+                padding: .8em 3em;
+            }
+
+            body > header .liveLink{ color:#333; text-decoration:none; font-size:1.4em; position:relative; line-height:1; }
+            body > header .liveLink::before{ content:'✎'; text-decoration:none; transform:translateX(-150%); position:absolute; top:1px; left:0; }
+            body > header .liveLink:hover{ text-decoration: underline; }
 
             section > .rightSide{
                 position: sticky;
@@ -189,9 +198,12 @@
     </head>
 
     <body>
-        <a class='forkLink' title='Go To Repo' href='https://github.com/yairEO/tagify'>
-            <img src='https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png' alt='GitHub Repo'>
-        </a>
+        <header>
+            <a class='liveLink' href='https://jsbin.com/degobup/6/edit?html,js,output' target="_blank">LIVE Code Playground</a>
+            <a class='forkLink' title='Go To Repo' href='https://github.com/yairEO/tagify'>
+                <img src='https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png' alt='GitHub Repo'>
+            </a>
+        </header>
 
         <label><input name='toggleTagify' type='checkbox'> TOGGLE OFF</label>
 
@@ -520,6 +532,24 @@
                 </aside>
             </section>
 
+            <section id='section-mode-select'>
+                <aside class='leftSide'>
+                    <h2><a href='#section-mode-select'>#</a>single-value select</h2>
+                    <p>
+                        Similar to native <code>&lt;Select&gt;</code> element, but allows free text as value, if
+                    </p>
+                    <h3>HTML</h3>
+<pre class="language-markup"><code>&lt;input name='tags-readonly-mix' class='readonlyMix' placeholder="Type something" /&gt;</code></pre>
+                    <h3>Javascript</h3>
+                    <script>
+                        renderPRE(document.currentScript, "mode-select")
+                    </script>
+                </aside>
+                <aside class='rightSide'>
+                    <input name='tags-select-mode' class='selectMode' placeholder="Please select" />
+                </aside>
+            </section>
+
 
             <section id='section-jquery'>
                 <aside class='leftSide'>
@@ -570,6 +600,7 @@ new Tagify(input)
 (function(){
 
 var input = document.querySelector('input[name=input]'),
+
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
         // after 2 characters typed, all matching values from this list will be suggested in a dropdown
@@ -710,8 +741,6 @@ function onAddButtonClick(){
 </script>
 
 
-
-
 <script data-name='mix'>
 (function(){
 // Define two types of whitelists, each used for the dropdown suggestions menu, depending on the pattern (see seetings below) prefix
@@ -843,7 +872,6 @@ tagify.on('invalid', function(e){
 
 })()
 </script>
-
 
 
 <script data-name="extra-properties">
@@ -1156,7 +1184,6 @@ tagify.addTags(tagify.settings.whitelist.slice(0,2));
 </script>
 
 
-
 <script data-name='readonly'>
 (function(){
 var input = document.querySelector('input[name=tags4]'),
@@ -1171,6 +1198,30 @@ var input = document.querySelector('input[name=tags-readonly-mix]'),
     tagify = new Tagify(input);
 })()
 </script>
+
+
+<script data-name='mode-select'>
+(function(){
+var input = document.querySelector('input[name=tags-select-mode]'),
+    tagify = new Tagify(input, {
+        mode : "select",
+        whitelist: ["first option", "second option", "third option"],
+        blacklist: ['foo', 'bar'],
+        keepInvalidTags: true,   // do not auto-remove invalid tags
+        dropdown: {
+            // closeOnSelect: false
+        }
+    })
+
+// bind events
+tagify.on('add', onAddTag)
+
+function onAddTag(e){
+    console.log(e.detail)
+}
+})()
+</script>
+
 
 
 

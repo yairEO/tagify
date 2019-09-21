@@ -1,4 +1,5 @@
 .tagify{
+    // SCSS "default" allows overriding variables BEFORE they are set in the below lines of code
     $self: &;
     $tags-border-color       : #DDD !default;
     $tags-hover-border-color : #CCC !default;
@@ -14,8 +15,9 @@
     $showX               : true !default;
 
     // CSS variables
-    --tag-bg     : #{$tag-bg};
-    --tag-hover  : #{$tag-hover};
+    --tags-border-color : #{$tags-border-color};
+    --tag-bg            : #{$tag-bg};
+    --tag-hover         : #{$tag-hover};
 
     @mixin placeholder( $show:true, $opacity:.5 ){
         transition:.2s ease-out;
@@ -28,9 +30,15 @@
     }
 
     @mixin tagReadonlyBG{
-        $draken-color : darken($tag-bg, 6);
-        background: linear-gradient(45deg, $draken-color 25%, transparent 25%, transparent 50%, $draken-color 50%, $draken-color 75%, transparent 75%, transparent) 0/5px 5px;
+        background: linear-gradient(45deg, var(--tag-bg)  25%,
+                                           transparent    25%,
+                                           transparent    50%,
+                                           var(--tag-bg)  50%,
+                                           var(--tag-bg)  75%,
+                                           transparent    75%,
+                                           transparent)         0/5px 5px;
         box-shadow: none;
+        filter: brightness(.95);
     }
 
     @keyframes tags--bump{
@@ -41,6 +49,7 @@
     align-items   : flex-start;
     flex-wrap     : wrap;
     border        : 1px solid $tags-border-color;
+    border        : 1px solid var(--tags-border-color);
     padding       : 0;
     line-height   : 1.1;
     cursor        : text;
@@ -70,7 +79,7 @@
     ///////////////////////////////////////////
     // Hides originals
     + input,
-    + textarea{ border:0; display:none; }
+    + textarea{ display:none !important; }
 
     &__tag{
         display        : inline-block;
@@ -330,9 +339,52 @@
         line-height: 1.7;
     }
 
+    &--select{
+        &::after{
+            $size: 20px;
+            content: '\02C5';
+            opacity: .6;
+            position: absolute;
+            top: 50%;
+            right: 0;
+            bottom: 0;
+            font: $size monospace;
+            height: $size/2;
+            pointer-events: none;
+            transform: translate(-100%, -50%);
+            transition: .2s ease-in-out;
+        }
+
+        &[aria-expanded=true]{
+            &::after{
+                transform: translate(-100%, -50%) rotate(180deg);
+            }
+        }
+
+        #{$self}__tag{
+            position: absolute;
+            top: 0;
+            right: 1.8em;
+            bottom: 0;
+            div{
+                display: none;
+            }
+        }
+
+        #{$self}__input{
+            width: 100%;
+        }
+    }
+
+    &--invalid{
+        --tags-border-color : #{$invalid-input-color};
+    }
+
+    // Since the dropdown is an external element, which is positioned directly on the body element
+    // it cannot ingerit the CSS variables applied on the ".Tagify" element
     &__dropdown{
         position: absolute;
-        z-index: 999;
+        z-index: 9999;
         background: white;
 
         max-height: 300px;
@@ -351,8 +403,12 @@
             position: relative;
             outline:none;
 
-            &--active{ background:$tag-bg; }
-            &:active{ background:lighten($tag-bg, 5); }
+            &--active{
+                background:$tag-bg;
+            }
+            &:active{
+                filter: brightness(105%);
+            }
         }
     }
 }
