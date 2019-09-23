@@ -258,6 +258,13 @@
         padding: $tagPad;
         line-height: inherit;
         position: relative;
+        white-space: nowrap;
+
+        // https://stackoverflow.com/a/13470210/104380
+        br { display:none; }
+        * { display:inline; white-space:nowrap; }
+
+
 
         &::before{ display:inline-block; width:0; }
 
