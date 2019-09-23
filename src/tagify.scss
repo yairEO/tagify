@@ -343,24 +343,24 @@
 
     &--select{
         &::after{
-            $size: 18px;
-            content: '\2304';
+            $size: 16px;
+            content: '>';
             opacity: .5;
             position: absolute;
             top: 50%;
             right: 0;
             bottom: 0;
             font: $size monospace;
-            line-height: 0;
+            line-height: $size/2;
             height: $size/2;
             pointer-events: none;
-            transform: translate(-100%, -50%) scaleX(1.5);
+            transform: translate(-150%, -50%) scaleX(1.2) rotate(90deg);
             transition: .2s ease-in-out;
         }
 
         &[aria-expanded=true]{
             &::after{
-                transform: translate(-100%, -50%) rotate(180deg) scaleX(1.5);
+                transform: translate(-150%, -50%) rotate(270deg) scaleY(1.2);
             }
         }
 
