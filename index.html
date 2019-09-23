@@ -90,13 +90,14 @@
                 max-width:none;
                 min-width:0;
                 border:0;
+                display: none;
             }
 
             .disabled tags tag,
             .disabled tags div{ display:none !important; }
 
             .disabled tags + input,
-            .disabled tags + textarea{ display:block; width:100%; padding:6px; border:1px inset; }
+            .disabled tags + textarea{ display:block !important; width:100%; padding:6px; border:1px inset; }
 
             /* Outside of the box */
             .tagify--outside{

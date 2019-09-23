@@ -433,7 +433,7 @@ Tagify.prototype = {
 
         if (this.input.value == value) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
 
-        data.isValid = this.validateTag.call(this, value); // save the value on the input's State object
+        data.isValid = this.validateTag(value); // save the value on the input's State object
 
         this.input.set.call(this, value, false); // update the input with the normalized value and run validations
         // this.setRangeAtStartEnd(); // fix caret position
@@ -673,7 +673,7 @@ Tagify.prototype = {
      * Marks the tagify's input as "invalid" if the value did not pass "validateTag()"
      */
     validate: function validate() {
-      var isValid = !this.input.value || this.validateTag.call(this, this.input.value);
+      var isValid = !this.input.value || this.validateTag(this.input.value);
       if (this.settings.mode == 'select') this.DOM.scope.classList.toggle('tagify--invalid', isValid !== true);else this.DOM.input.classList.toggle('tagify__input--invalid', isValid !== true);
     },
     // remove any child DOM elements that aren't of type TEXT (like <br>)
@@ -1010,7 +1010,7 @@ Tagify.prototype = {
       _this6.settings.transformTag.call(_this6, tagData); ///////////////// ( validation )//////////////////////
 
 
-      tagValidation = _this6.maxTagsReached() || _this6.validateTag.call(_this6, tagData.value);
+      tagValidation = _this6.maxTagsReached() || _this6.validateTag(tagData.value);
 
       if (tagValidation !== true) {
         if (skipInvalid) return;
@@ -1145,6 +1145,8 @@ Tagify.prototype = {
       this.input.set.call(this);
     }
 
+    if (tagElm.classList.contains('tagify--notAllowed')) silent = true;
+
     function removeNode() {
       if (!tagElm.parentNode) return;
       tagElm.parentNode.removeChild(tagElm);
@@ -1161,7 +1163,10 @@ Tagify.prototype = {
         });
         that.dropdown.render.call(that);
         that.dropdown.position.call(that);
-      }
+      } else if (this.settings.keepInvalidTags) that.trigger('remove', {
+        tag: tagElm,
+        index: tagIdx
+      });
     }
 
     function animation() {
