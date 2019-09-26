@@ -380,8 +380,8 @@ dropdown:select | Suggestions dropdown item selected (by mouse/keyboard/touch)
 
 Name                    | Type       | Default                          | Info
 ----------------------- | ---------- | -------------------------------- | --------------------------------------------------------------------------
-delimiters              | String     | `,`                              | [regex] split tags by any of these delimiters. Example: `",|` |."`
-pattern                 | String     | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/``
+delimiters              | String     | `,`                              | [regex] split tags by any of these delimiters. Example: `",|`  |."`
+pattern                 | String     | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
 mode                    | String     | null                             | Use `select` for single-value dropdown-like select box. Sse `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
 mixTagsInterpolator     | Array      | `['[[', ']]']`                   | Interpolation for mix mode. Everything between these will become a tag
 duplicates              | Boolean    | false                            | Should duplicate tags be allowed or not
