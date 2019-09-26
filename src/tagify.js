@@ -1180,7 +1180,7 @@ Tagify.prototype = {
                 that.dropdown.render.call(that);
                 that.dropdown.position.call(that)
             }
-            else if( this.settings.keepInvalidTags )
+            else if( that.settings.keepInvalidTags )
                 that.trigger('remove', { tag:tagElm, index:tagIdx })
         }
 
