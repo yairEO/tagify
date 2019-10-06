@@ -247,6 +247,15 @@
     }
 
 
+    &:not(#{$self}--mix){
+        #{ $self }__input{
+            white-space: nowrap;
+            // https://stackoverflow.com/a/13470210/104380
+            br { display:none; }
+            * { display:inline; white-space:nowrap; }
+        }
+    }
+
     ///////////////////////////////////////////
     // Holds the placeholder & the tags input
     &__input{
@@ -258,13 +267,6 @@
         padding: $tagPad;
         line-height: inherit;
         position: relative;
-        white-space: nowrap;
-
-        // https://stackoverflow.com/a/13470210/104380
-        br { display:none; }
-        * { display:inline; white-space:nowrap; }
-
-
 
         &::before{ display:inline-block; width:0; }
 
@@ -319,7 +321,7 @@
             in "mix mode" the tags are inside the "input" element
         */
         #{ $self }__tag{
-            line-height: 1.1;
+            // line-height: 1.1;
 
             > div{
                 padding-top:0; padding-bottom:0;

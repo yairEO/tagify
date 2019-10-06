@@ -376,8 +376,9 @@ Tagify.prototype = {
                             }, 20)
                             break;
 
-                        case 'Enter' :
-                            e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+                        // currently commented to allow new lines in mixed-mode
+                        // case 'Enter' :
+                        //     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                     }
 
                     return true;
@@ -415,7 +416,7 @@ Tagify.prototype = {
             },
 
             onInput(e){
-                var value = this.input.normalize.call(this),
+                var value = this.settings.mode == 'mix' ? this.DOM.input.textContent : this.input.normalize.call(this),
                     showSuggestions = value.length >= this.settings.dropdown.enabled,
                     data = {value, inputElm:this.DOM.input};
 
