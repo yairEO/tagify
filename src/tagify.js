@@ -320,6 +320,11 @@ Tagify.prototype = {
             for( var eventName in _CBR ){
                 this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
             }
+
+            // make sure the focus/blur event is always regesitered (and never more than one)
+            // TODO: Refactor this:
+            this.DOM.input.removeEventListener('blur', _CBR.blur[1])
+            this.DOM.input.addEventListener('blur', _CBR.blur[1])
         },
 
         /**
@@ -337,6 +342,7 @@ Tagify.prototype = {
                     if( this.settings.dropdown.enabled === 0 ){
                         this.dropdown.show.call(this);
                     }
+                    return
                 }
 
                 else if( e.type == "blur" ){
@@ -344,11 +350,11 @@ Tagify.prototype = {
                     s && this.settings.addTagOnBlur && this.addTags(s, true).length;
                 }
 
-                else{
+            //    else{
                     //  e.target.classList.add('placeholder');
                     this.DOM.input.removeAttribute('style');
                     this.dropdown.hide.call(this);
-                }
+            //    }
             },
 
             onKeydown(e){
