@@ -134,8 +134,8 @@ Tagify.prototype = {
             catch(e){}
         }
 
-        // make sure the dropdown will be shown on "focus" and not only after typing something
-        if( this.settings.mode )
+        // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
+        if( this.settings.mode == 'select' )
             this.settings.dropdown.enabled = 0
     },
 

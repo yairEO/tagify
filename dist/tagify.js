@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.29.0)- tags input component
+ * Tagify (v 2.29.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -148,10 +148,10 @@ Tagify.prototype = {
       try {
         this.settings.delimiters = new RegExp(this.settings.delimiters, "g");
       } catch (e) {}
-    } // make sure the dropdown will be shown on "focus" and not only after typing something
+    } // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
 
 
-    if (this.settings.mode) this.settings.dropdown.enabled = 0;
+    if (this.settings.mode == 'select') this.settings.dropdown.enabled = 0;
   },
 
   /**
@@ -1163,7 +1163,7 @@ Tagify.prototype = {
         });
         that.dropdown.render.call(that);
         that.dropdown.position.call(that);
-      } else if (this.settings.keepInvalidTags) that.trigger('remove', {
+      } else if (that.settings.keepInvalidTags) that.trigger('remove', {
         tag: tagElm,
         index: tagIdx
       });
