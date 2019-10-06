@@ -1291,7 +1291,7 @@ Tagify.prototype = {
                 firstListItemValue = firstListItem.value || firstListItem
 
                 if( this.settings.autoComplete ){
-                    // only fill the sugegstion is the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
+                    // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
                     if( firstListItemValue.indexOf(value) == 0 )
                         this.input.autocomplete.suggest.call(this, firstListItemValue)
                 }
@@ -1507,7 +1507,7 @@ Tagify.prototype = {
 
                         // if closest element is NOT "tagify", remove "focus" class
                         if( !e.target.closest(".tagify") )
-                            this.events.callbacks.onFocusBlur.call(this, {type:'blur'})
+                            this.events.callbacks.onFocusBlur.call(this, {type:'blur', target:this.DOM.input})
                     }
                 }
             }
