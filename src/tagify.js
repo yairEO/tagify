@@ -67,7 +67,7 @@ Tagify.prototype = {
             return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
                           ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"'}
                           role="tagslist">
-                <span contenteditable data-placeholder="${input.placeholder || '&#8203;'}" aria-placeholder="${input.placeholder || ''}"
+                <span contenteditable data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                       class="tagify__input"
                       role="textbox"
                       aria-multiline="false"></span>
@@ -108,6 +108,7 @@ Tagify.prototype = {
 
         this.settings = this.extend({}, this.DEFAULTS, settings);
         this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
+        this.settings.placeholder = input.getAttribute('placeholder') || this.settings.placeholder || "";
 
         if( this.isIE )
             this.settings.autoComplete = false; // IE goes crazy if this isn't false
@@ -1179,6 +1180,8 @@ Tagify.prototype = {
         function removeNode(){
             if( !tagElm.parentNode ) return
             tagElm.parentNode.removeChild(tagElm)
+
+            console.log( 1111, that)
 
             if( !silent ){
                 tagData = that.value.splice(tagIdx, 1)[0]; // remove the tag from the data object

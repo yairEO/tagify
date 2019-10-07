@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.29.1)- tags input component
+ * Tagify (v 2.29.2)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -108,7 +108,7 @@ Tagify.prototype = {
   },
   templates: {
     wrapper: function wrapper(input, settings) {
-      return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                          ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"', "\n                          role=\"tagslist\">\n                <span contenteditable data-placeholder=\"").concat(input.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(input.placeholder || '', "\"\n                      class=\"tagify__input\"\n                      role=\"textbox\"\n                      aria-multiline=\"false\"></span>\n            </tags>");
+      return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                          ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"', "\n                          role=\"tagslist\">\n                <span contenteditable data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                      class=\"tagify__input\"\n                      role=\"textbox\"\n                      aria-multiline=\"false\"></span>\n            </tags>");
     },
     tag: function tag(v, tagData) {
       return "<tag title='".concat(tagData.title || v, "'\n                         contenteditable='false'\n                         spellcheck='false'\n                         class='tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "'\n                         ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(v, "</span>\n                </div>\n            </tag>");
@@ -128,6 +128,7 @@ Tagify.prototype = {
     this.settings = this.extend({}, this.DEFAULTS, settings);
     this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
+    this.settings.placeholder = input.getAttribute('placeholder') || this.settings.placeholder || "";
     if (this.isIE) this.settings.autoComplete = false; // IE goes crazy if this isn't false
 
     if (attr__blacklist) {
@@ -1157,6 +1158,7 @@ Tagify.prototype = {
     function removeNode() {
       if (!tagElm.parentNode) return;
       tagElm.parentNode.removeChild(tagElm);
+      console.log(1111, that);
 
       if (!silent) {
         tagData = that.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
