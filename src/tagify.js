@@ -50,6 +50,7 @@ Tagify.prototype = {
         mixTagsInterpolator : ['[[', ']]'],   // Interpolation for mix mode. Everything between this will becmoe a tag
         backspace           : true,           // false / true / "edit"
         skipInvalid         : false,
+        editTags            : 2,              // 1 or 2 clicks to edit a tag
         transformTag        : ()=>{},
         dropdown            : {
             classname     : '',
@@ -297,7 +298,12 @@ Tagify.prototype = {
         binding( bindUnbind = true ){
             var _CB = this.events.callbacks,
                 _CBR,
-                action = bindUnbind ? 'addEventListener' : 'removeEventListener';
+                action = bindUnbind ? 'addEventListener' : 'removeEventListener',
+                editTagsEventType = this.settings.editTags == 1
+                    ? "click_"  // TODO: Refactor this crappy hack to allow same event more than once
+                    : this.settings.editTags == 2
+                        ? "dblclick"
+                        : ""
 
             if( bindUnbind && !this.listeners.main ){
                 // this event should never be unbinded
@@ -315,11 +321,13 @@ Tagify.prototype = {
                 blur     : ['input', _CB.onFocusBlur.bind(this)],
                 keydown  : ['input', _CB.onKeydown.bind(this)],
                 click    : ['scope', _CB.onClickScope.bind(this)],
-                dblclick : ['scope', _CB.onDoubleClickScope.bind(this)]
+                [editTagsEventType] : ['scope', _CB.onDoubleClickScope.bind(this)]
             });
 
+            // this.settings.editTags
+
             for( var eventName in _CBR ){
-                this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
+                this.DOM[_CBR[eventName][0]][action](eventName.replace(/_/g, ''), _CBR[eventName][1]);
             }
 
             // make sure the focus/blur event is always regesitered (and never more than one)

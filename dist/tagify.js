@@ -92,6 +92,8 @@ Tagify.prototype = {
     backspace: true,
     // false / true / "edit"
     skipInvalid: false,
+    editTags: 2,
+    // 1 or 2 clicks to edit a tag
     transformTag: function transformTag() {},
     dropdown: {
       classname: '',
@@ -308,7 +310,9 @@ Tagify.prototype = {
 
       var _CB = this.events.callbacks,
           _CBR,
-          action = bindUnbind ? 'addEventListener' : 'removeEventListener';
+          action = bindUnbind ? 'addEventListener' : 'removeEventListener',
+          editTagsEventType = this.settings.editTags == 1 ? "click_" // TODO: Refactor this crappy hack to allow same event more than once
+      : this.settings.editTags == 2 ? "dblclick" : "";
 
       if (bindUnbind && !this.listeners.main) {
         // this event should never be unbinded
@@ -318,17 +322,16 @@ Tagify.prototype = {
       } // setup callback references so events could be removed later
 
 
-      _CBR = this.listeners.main = this.listeners.main || {
+      _CBR = this.listeners.main = this.listeners.main || _defineProperty({
         paste: ['input', _CB.onPaste.bind(this)],
         focus: ['input', _CB.onFocusBlur.bind(this)],
         blur: ['input', _CB.onFocusBlur.bind(this)],
         keydown: ['input', _CB.onKeydown.bind(this)],
-        click: ['scope', _CB.onClickScope.bind(this)],
-        dblclick: ['scope', _CB.onDoubleClickScope.bind(this)]
-      };
+        click: ['scope', _CB.onClickScope.bind(this)]
+      }, editTagsEventType, ['scope', _CB.onDoubleClickScope.bind(this)]); // this.settings.editTags
 
       for (var eventName in _CBR) {
-        this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
+        this.DOM[_CBR[eventName][0]][action](eventName.replace(/_/g, ''), _CBR[eventName][1]);
       } // make sure the focus/blur event is always regesitered (and never more than one)
       // TODO: Refactor this:
 
@@ -845,10 +848,10 @@ Tagify.prototype = {
 
 
     if (isCollection) {
-      var _ref;
+      var _ref2;
 
       // iterate the collection items and check for values that can be splitted into multiple tags
-      tagsItems = (_ref = []).concat.apply(_ref, _toConsumableArray(tagsItems.map(function (item) {
+      tagsItems = (_ref2 = []).concat.apply(_ref2, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item.value).map(function (newItem) {
           return _objectSpread({}, item, {}, newItem);
         });
@@ -863,9 +866,9 @@ Tagify.prototype = {
 
       tagsItems = mapStringToCollection(tagsItems);
     } else if (!isCollection && tagsItems instanceof Array) {
-      var _ref2;
+      var _ref3;
 
-      tagsItems = (_ref2 = []).concat.apply(_ref2, _toConsumableArray(tagsItems.map(function (item) {
+      tagsItems = (_ref3 = []).concat.apply(_ref3, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item);
       })));
     } // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
