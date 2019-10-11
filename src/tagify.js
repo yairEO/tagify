@@ -410,8 +410,7 @@ Tagify.prototype = {
 
                     case 'Down' :
                     case 'ArrowDown' :
-                        if( this.settings.mode == 'select' )
-                            this.dropdown.show.call(this)
+                        this.dropdown.show.call(this)
                         break;
 
                     case 'ArrowRight' :
