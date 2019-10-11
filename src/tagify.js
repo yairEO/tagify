@@ -377,7 +377,8 @@ Tagify.prototype = {
                             var values = [];
                             // find out which tag(s) were deleted and update "this.value" accordingly
                             tags = this.DOM.input.children;
-                            // a delay is in need before the node actually is ditached from the document
+
+                            // a delay is in need before the node actually gets ditached from the document
                             setTimeout(()=>{
                                 // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
                                 [].forEach.call( tags, tagElm => values.push(tagElm.getAttribute('value')) )
@@ -1477,7 +1478,10 @@ Tagify.prototype = {
                             break;
                         }
                         case 'Backspace' : {
+                            if( this.settings.mode == 'mix' ) return;
+
                             var value = this.input.value.trim()
+
                             if( value == "" || value.charCodeAt(0) == 8203 ){
                                 if( this.settings.backspace === true )
                                     this.removeTag()

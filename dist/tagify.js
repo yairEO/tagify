@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.30.0)- tags input component
+ * Tagify (v 2.30.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -379,7 +379,7 @@ Tagify.prototype = {
             case 'Backspace':
               var values = []; // find out which tag(s) were deleted and update "this.value" accordingly
 
-              tags = this.DOM.input.children; // a delay is in need before the node actually is ditached from the document
+              tags = this.DOM.input.children; // a delay is in need before the node actually gets ditached from the document
 
               setTimeout(function () {
                 // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
@@ -1432,6 +1432,7 @@ Tagify.prototype = {
 
             case 'Backspace':
               {
+                if (this.settings.mode == 'mix') return;
                 var value = this.input.value.trim();
 
                 if (value == "" || value.charCodeAt(0) == 8203) {
