@@ -989,7 +989,7 @@ Tagify.prototype = {
                 // clean up the tag's string and put tag element instead
                 replacedNode.nodeValue = replacedNode.nodeValue.replace(tag, '');
                 textnode.parentNode.insertBefore(tagElm, replacedNode);
-                tagElm.insertAdjacentHTML('afterend', '&#8288;');
+                tagElm.insertAdjacentHTML('afterend', '&nbsp;');
             }
         }
 
@@ -1189,8 +1189,6 @@ Tagify.prototype = {
         function removeNode(){
             if( !tagElm.parentNode ) return
             tagElm.parentNode.removeChild(tagElm)
-
-            console.log( 1111, that)
 
             if( !silent ){
                 tagData = that.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
@@ -1522,6 +1520,9 @@ Tagify.prototype = {
 
                         if( this.settings.mode != 'select' )
                             setTimeout(() => this.DOM.input.focus())
+
+                        if( this.settings.dropdown.closeOnSelect )
+                            this.dropdown.hide.call(this)
                     }
                     // clicked outside, close the list
                     else{
