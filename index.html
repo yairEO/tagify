@@ -62,10 +62,14 @@
             pre code{ background:none; padding:0; }
             pre[class*=language-]{ max-height:400px; }
 
-            .forkLink{ top:.7em; right:1em; }
+            .forkLink{ position:absolute; top:.7em; right:50%; transform:translateX(50%); }
             body > header{
-                background:powderblue;
-                padding: .8em 3em;
+                display: flex;
+                align-items: center;
+                background:white;
+                border-bottom: 1px solid #DDD;
+                box-shadow: 0 0 6px rgba(0,0,0,.1);
+                padding: .8em 1em .8em 3em;
             }
 
             body > header .liveLink{ color:#333; text-decoration:none; font-size:1.4em; position:relative; line-height:1; }
@@ -81,11 +85,10 @@
             .tagify{
                 min-width:400px;
                 max-width:600px;
-                margin: 1.5em 0;
+                margin: 1.5rem 0;
             }
 
-            /* for disabling the script */
-            label{ position:fixed; bottom:10px; right:10px; z-index:99; cursor:pointer; font:600 .8em Arial; }
+            label{ cursor:pointer; }
             .disabled tags{
                 max-width:none;
                 min-width:0;
@@ -99,6 +102,7 @@
             .disabled tags + input,
             .disabled tags + textarea{ display:block !important; width:100%; padding:6px; border:1px inset; }
 
+            /************************************/
             /* Outside of the box */
             .tagify--outside{
                 border: 0;
@@ -111,8 +115,10 @@
                 max-width: 600px;
                 border: 1px solid #DDD;
                 margin-top: 1.5em;
+                line-height: 1.2;
             }
 
+            /*************************************/
             /* Countries' flags */
             .tagify__dropdown.extra-properties .tagify__dropdown__item{ color:#777; }
             .tagify__dropdown.extra-properties .tagify__dropdown__item:hover{ color:black; background:#F1F1F1; }
@@ -153,47 +159,95 @@
                 border: 2px solid pink;
             }
 
-            /*------ addFromOutside ----------*/
-            .addFromOutside{
+            /*------ customLook ----------*/
+            .customLook{
+                --tag-bg: #0052BF;
+                --tag-hover: #CE0078;
+                --tag-text-color: #FFF;
+                --tags-border-color: silver;
+                --tag-text-color--edit: #111;
+                --tag-remove-bg: var(--tag-hover);
+                --tag-pad: .6em 1em;
+                --tag-inset-shadow-size: 1.3em;
+                --tag-remove-btn-bg--hover: black;
+
                 display: inline-block;
                 min-width: 0;
                 border: none;
             }
 
-            .addFromOutside tag:last-of-type{
-                margin-right: 1em;
+            .customLook .tagify__tag{
+                margin-top: 0;
             }
 
-            .addFromOutside tag:only-of-type > div{
-                padding-right: .6em;
-            }
-
-            .addFromOutside tag:only-of-type .tagify__tag__removeBtn{
-                display: none;
-            }
-
-            .addFromOutside tag > div{
-                padding-top: .4em;
-                padding-bottom: .4em;
+            .customLook .tagify__tag > div{
                 border-radius: 25px;
             }
 
-            .addFromOutside + button{
-                background:#D3E2E2;
+            .customLook .tagify__tag:only-of-type .tagify__tag__removeBtn{
+                display: none;
+            }
+
+            .customLook + button{
+                color: #0052BF;
+                font: bold 1.4em/1.65 Arial;
                 border: 0;
+                background: none;
+                box-shadow: 0 0 0 2px inset currentColor;
                 border-radius: 50%;
-                width: 1.8em;
-                height: 1.8em;
+                width: 1.65em;
+                height: 1.65em;
                 cursor: pointer;
                 outline: none;
+                transition: .1s ease-out;
+                margin: 1.5rem 0 0 5px;
+                vertical-align: top;
             }
 
-            .addFromOutside + button:hover{
-                opacity: .8;
+            .customLook + button:hover{
+                box-shadow: 0 0 0 5px inset currentColor;
             }
 
-            .addFromOutside .tagify__input{
+            .customLook .tagify__input{
                 display: none;
+            }
+
+            /***************************/
+            header label[for="toggle__tagifyStyleSettings"]{
+                margin-left: auto;
+                font-size: 1.5em;
+                line-height: 1;
+            }
+
+            #toggle__tagifyStyleSettings:checked + .tagifyStyleSettings{
+                transform: none;
+            }
+
+            .tagifyStyleSettings > label[for="toggle__tagifyStyleSettings"]{
+                float: right;
+            }
+
+            .tagifyStyleSettings{
+                position: fixed;
+                z-index: 999;
+                top: 0;
+                right: 0;
+                background: black;
+                padding: 1em;
+                color: white;
+                transform: translatex(100%);
+                transition: .45s cubic-bezier(0.075, 0.82, 0.165, 1);
+            }
+
+            .tagifyStyleSettings > div{
+                display: flex;
+                align-items: center;
+                margin: 5px 0;
+            }
+
+            .tagifyStyleSettings > div > span{
+                flex: 1;
+                margin-right:1em;
             }
         </style>
     </head>
@@ -204,9 +258,70 @@
             <a class='forkLink' title='Go To Repo' href='https://github.com/yairEO/tagify'>
                 <img src='https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png' alt='GitHub Repo'>
             </a>
+            <label title='Demo Settings' for='toggle__tagifyStyleSettings'>⚙️</label>
+            <input hidden type='checkbox' id='toggle__tagifyStyleSettings' />
+            <div class='tagifyStyleSettings'>
+                <label for='toggle__tagifyStyleSettings'>⚙️</label>
+                <label><input name='toggleTagify' type='checkbox'> TOGGLE TAGIFY <em>ON/OFF</em></label>
+                <br><br>
+                <h3>CSS Variables:</h3>
+                <div>
+                    <span class='key'>tag-pad <small>(em)</small></span>
+                    <div style='display:flex; flex:1'>
+                        <input style='flex:1; width:50%;' type="range" name="tag-pad" id='tag-pad-v' min="0" max="1" step="0.01" value="0.3">
+                        <input style='flex:1; width:50%;' type="range" name="tag-pad" id='tag-pad-h' min="0" max="1.5" step="0.01" value="0.5">
+                    </div>
+                </div>
+                <div>
+                    <span class='key'>tag-inset-shadow-size <small>(em)</small></span>
+                    <input type="range" name="tag-inset-shadow-size" style='flex:1' min="0" max="2" step="0.1" value="1.1">
+                </div>
+                <div>
+                    <span class='key'>tag-bg</span>
+                    <input type='color' name='tag-bg' value="#E5E5E5" />
+                </div>
+                <div>
+                    <span class='key'>tags-border-color</span>
+                    <input type='color' name='tags-border-color' value="#E5E5E5" />
+                </div>
+                <div>
+                    <span class='key'>tags-hover-border-color</span>
+                    <input type='color' name='tags-hover-border-color' value="#CCC" />
+                </div>
+                <div>
+                    <span class='key'>tags-focus-border-color</span>
+                    <input type='color' name='tags-focus-border-color' value="#85C8EA" />
+                </div>
+                <div>
+                    <span class='key'>tag-text-color</span>
+                    <input type='color' name='tag-text-color' value="black" />
+                </div>
+                <div>
+                    <span class='key'>tag-text-color--edit</span>
+                    <input type='color' name='tag-text-color--edit' value="black" />
+                </div>
+                <div>
+                    <span class='key'>tag-hover</span>
+                    <input type='color' name='tag-hover' value="#D3E2E2" />
+                </div>
+                <div>
+                    <span class='key'>tag-remove-bg</span>
+                    <input type='color' name='tag-remove-bg' value="#D39494" />
+                </div>
+                <div>
+                    <span class='key'>tag-remove-btn-bg</span>
+                    <input type='color' name='tag-remove-btn-bg' value="none" />
+                </div>
+                <div>
+                    <span class='key'>tag-remove-btn-bg--hover</span>
+                    <input type='color' name='tag-remove-btn-bg--hover' value="#c77777" />
+                </div>
+                <div>
+                    <span class='key'>tag-invalid-color</span>
+                    <input type='color' name='tag-invalid-color' value="#D39494" />
+                </div>
+            </div>
         </header>
-
-        <label><input name='toggleTagify' type='checkbox'> TOGGLE OFF</label>
 
         <form>
             <section id='section-basic'>
@@ -261,7 +376,7 @@
                 </aside>
                 <aside class='rightSide'>
                     <input name='input' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css' data-blacklist='.NET,PHP'>
-                    <button class='tags--removeAllBtn' type='button'>Remove all tags</button>
+                    <button class='tags--removeAllBtn' type='button'>Remove all these tags ⬆</button>
                 </aside>
             </section>
 
@@ -278,13 +393,17 @@
 &lt;/textarea></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "textarea")</script>
+                    <h3>CSS</h3>
+<pre class="language-css"><code>&lt;textarea name='tags2' placeholder='Movie names'>
+    The Matrix, Pulp Fiction, Mad Max
+&lt;/textarea></code></pre>
                 </aside>
                 <aside class='rightSide'>
                     <textarea name='tags2' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea>
                 </aside>
             </section>
 
-            <section id='addFromOutside'>
+            <section id='customLook'>
                 <aside class='leftSide'>
                     <h2><a href='#section-different-look'>#</a>Different look</h2>
                     <p>
@@ -300,11 +419,64 @@
     The Matrix, Pulp Fiction, Mad Max
 &lt;/textarea></code></pre>
                     <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "addFromOutside")</script>
+                    <script>renderPRE(document.currentScript, "customLook")</script>
+                    <h3>CSS</h3>
+<pre class="language-css"><code>.customLook{
+    --tag-bg                   : #0052BF;
+    --tag-hover                : #CE0078;
+    --tag-text-color           : #FFF;
+    --tags-border-color        : silver;
+    --tag-text-color--edit     : #111;
+    --tag-remove-bg            : var(--tag-hover);
+    --tag-pad                  : .6em 1em;
+    --tag-inset-shadow-size    : 1.3em;
+    --tag-remove-btn-bg--hover : black;
+
+    display: inline-block;
+    min-width: 0;
+    border: none;
+}
+
+.customLook .tagify__tag{
+    margin-top: 0;
+}
+
+.customLook .tagify__tag > div{
+    border-radius: 25px;
+}
+
+/* hide the (x) delet-tag button if there's only one tag, to force minimum 1 tag */
+.customLook .tagify__tag:only-of-type .tagify__tag__removeBtn{
+    display: none;
+}
+
+.customLook + button{
+    color: #0052BF;
+    font: bold 1.4em/1.65 Arial;
+    border: 0;
+    background: none;
+    box-shadow: 0 0 0 2px inset currentColor;
+    border-radius: 50%;
+    width: 1.65em;
+    height: 1.65em;
+    cursor: pointer;
+    outline: none;
+    transition: .1s ease-out;
+    margin: 1.5rem 0 0 5px;
+    vertical-align: top;
+}
+
+.customLook + button:hover{
+    box-shadow: 0 0 0 5px inset currentColor;
+}
+
+.customLook .tagify__input{
+    display: none;
+}
+</code></pre>
                 </aside>
                 <aside class='rightSide'>
-                    <input class='addFromOutside' value='some.name@website.com'>
-                    <button type="button">+</button>
+                    <input class='customLook' value='some.name@website.com'><button type="button">+</button>
                 </aside>
             </section>
 
@@ -577,12 +749,34 @@
             document.forms[0].reset();
 
             var toggleTagifyElm = document.querySelector('input[name=toggleTagify]');
+            var tagifyStyleSettings = document.querySelector('.tagifyStyleSettings');
             toggleTagifyElm.checked = false;
 
             // toggle Tagify on/off
             toggleTagifyElm.addEventListener('change', function(){
                 document.body.classList[this.checked ? 'add' : 'remove']('disabled');
             })
+
+            tagifyStyleSettings.addEventListener('change', onTagifyStyleSettings)
+
+            function onTagifyStyleSettings(e){
+                var value = e.target.value,
+                    name = e.target.name,
+                    rules;
+
+                try{
+                    if( name == 'tag-pad' )
+                        value = `${document.querySelector('#tag-pad-v').value}em ${document.querySelector('#tag-pad-h').value}em`
+
+                    else if( name == 'tag-inset-shadow-size' )
+                        value += 'em'
+
+                    rules = [...document.styleSheets[2].cssRules].find(x => x.selectorText == '.tagify');
+                    rules.style.setProperty("--" + name, value)
+                }
+                catch(err){
+                }
+            }
         </script>
 
 
@@ -726,11 +920,11 @@ var input = document.querySelector('textarea[name=tags2]'),
 })()
 </script>
 
-<script data-name="addFromOutside">
+<script data-name="customLook">
 (function(){
-var input = document.querySelector('.addFromOutside'),
-    button = input.nextElementSibling,
-    tagify = new Tagify(input)
+var input = document.querySelector('.customLook'),
+    tagify = new Tagify(input),
+    button = input.nextElementSibling;  // "add new tag" action-button
 
 button.addEventListener("click", onAddButtonClick)
 
@@ -1217,9 +1411,14 @@ var input = document.querySelector('input[name=tags-select-mode]'),
 
 // bind events
 tagify.on('add', onAddTag)
+tagify.DOM.input.addEventListener('focus', onSelectFocus)
 
 function onAddTag(e){
     console.log(e.detail)
+}
+
+function onSelectFocus(e){
+    console.log(e)
 }
 })()
 </script>
@@ -1249,6 +1448,7 @@ var jqTagify = $input.data('tagify');
 $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
 })()
 </script>
+
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism.min.css">
     <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js'></script>
