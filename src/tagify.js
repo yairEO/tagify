@@ -347,6 +347,7 @@ Tagify.prototype = {
 
                 if( e.type == "focus" ){
                     this.DOM.scope.classList.add('tagify--focus')
+                    this.trigger("focus")
                     //  e.target.classList.remove('placeholder');
                     if( this.settings.dropdown.enabled === 0 ){
                         this.dropdown.show.call(this);
@@ -356,6 +357,7 @@ Tagify.prototype = {
 
                 else if( e.type == "blur" ){
                     this.DOM.scope.classList.remove('tagify--focus');
+                    this.trigger("blur")
                     s && this.settings.addTagOnBlur && this.addTags(s, true).length;
                 }
 

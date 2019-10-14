@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.31.0)- tags input component
+ * Tagify (v 2.31.2)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -350,7 +350,8 @@ Tagify.prototype = {
         if (this.settings.mode == 'mix') return;
 
         if (e.type == "focus") {
-          this.DOM.scope.classList.add('tagify--focus'); //  e.target.classList.remove('placeholder');
+          this.DOM.scope.classList.add('tagify--focus');
+          this.trigger("focus"); //  e.target.classList.remove('placeholder');
 
           if (this.settings.dropdown.enabled === 0) {
             this.dropdown.show.call(this);
@@ -359,6 +360,7 @@ Tagify.prototype = {
           return;
         } else if (e.type == "blur") {
           this.DOM.scope.classList.remove('tagify--focus');
+          this.trigger("blur");
           s && this.settings.addTagOnBlur && this.addTags(s, true).length;
         } //    else{
         //  e.target.classList.add('placeholder');
