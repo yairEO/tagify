@@ -112,8 +112,8 @@ Tagify.prototype = {
     wrapper: function wrapper(input, settings) {
       return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                          ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"', "\n                          role=\"tagslist\">\n                <span contenteditable data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                      class=\"tagify__input\"\n                      role=\"textbox\"\n                      aria-multiline=\"false\"></span>\n            </tags>");
     },
-    tag: function tag(v, tagData) {
-      return "<tag title='".concat(tagData.title || v, "'\n                         contenteditable='false'\n                         spellcheck='false'\n                         class='tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "'\n                         ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(v, "</span>\n                </div>\n            </tag>");
+    tag: function tag(value, tagData) {
+      return "<tag title='".concat(tagData.title || value, "'\n                         contenteditable='false'\n                         spellcheck='false'\n                         class='tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "'\n                         ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(value, "</span>\n                </div>\n            </tag>");
     },
     dropdownItem: function dropdownItem(item) {
       var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
@@ -954,7 +954,6 @@ Tagify.prototype = {
 
         replacedNode.nodeValue = replacedNode.nodeValue.replace(tag, '');
         textnode.parentNode.insertBefore(tagElm, replacedNode);
-        tagElm.insertAdjacentHTML('afterend', '&nbsp;');
       }
     }
 

@@ -75,15 +75,15 @@ Tagify.prototype = {
             </tags>`
         },
 
-        tag(v, tagData){
-            return `<tag title='${tagData.title || v}'
+        tag(value, tagData){
+            return `<tag title='${tagData.title || value}'
                          contenteditable='false'
                          spellcheck='false'
                          class='tagify__tag ${tagData.class ? tagData.class : ""}'
                          ${this.getAttributes(tagData)}>
                 <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
                 <div>
-                    <span class='tagify__tag-text'>${v}</span>
+                    <span class='tagify__tag-text'>${value}</span>
                 </div>
             </tag>`
         },
@@ -989,7 +989,6 @@ Tagify.prototype = {
                 // clean up the tag's string and put tag element instead
                 replacedNode.nodeValue = replacedNode.nodeValue.replace(tag, '');
                 textnode.parentNode.insertBefore(tagElm, replacedNode);
-                tagElm.insertAdjacentHTML('afterend', '&nbsp;');
             }
         }
 
