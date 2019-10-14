@@ -1,6 +1,9 @@
 <a href='https://www.npmjs.com/package/@yaireo/tagify'>
     <img src="https://img.shields.io/npm/v/@yaireo/tagify.svg" />
 </a>
+<a href='http://unlicense.org'>
+    <img src="https://img.shields.io/badge/license-unlicense-lightgrey" />
+</a>
 
 [Tagify](https://yaireo.github.io/tagify) - lightweight input "tags" script
 ========
