@@ -235,8 +235,9 @@
                 background: black;
                 padding: 1em;
                 color: white;
+                border-bottom-left-radius: 6px;
                 transform: translatex(100%);
-                transition: .45s cubic-bezier(0.075, 0.82, 0.165, 1);
+                transition: .45s cubic-bezier(.65,0,.35,1);
             }
 
             .tagifyStyleSettings > div{
@@ -318,6 +319,10 @@
                 </div>
                 <div>
                     <span class='key'>tag-invalid-color</span>
+                    <input type='color' name='tag-invalid-color' value="#D39494" />
+                </div>
+                <div>
+                    <span class='key'>tag-invalid-bg</span>
                     <input type='color' name='tag-invalid-color' value="#D39494" />
                 </div>
             </div>
@@ -813,6 +818,8 @@ tagify.on('add', onAddTag)
       .on('edit', onTagEdit)
       .on('invalid', onInvalidTag)
       .on('click', onTagClick)
+      .on('focus', onTagifyFocusBlur)
+      .on('blur', onTagifyFocusBlur)
       .on('dropdown:show', onDropdownShow)
       .on('dropdown:hide', onDropdownHide)
       .on('dropdown:select', onDropdownSelect)
@@ -849,6 +856,10 @@ function onInvalidTag(e){
 function onTagClick(e){
     console.log(e.detail);
     console.log("onTagClick: ", e.detail);
+}
+
+function onTagifyFocusBlur(e){
+    console.log(e.type, "event fired")
 }
 
 function onDropdownShow(e){

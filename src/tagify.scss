@@ -16,6 +16,7 @@
     $tag-remove-btn-bg       : none !default;
     $tag-remove-btn-bg--hover: darken($tag-remove, 8) !default;
     $tag-invalid-color       : $tag-remove !default;
+    $tag-invalid-bg          : rgba($tag-remove, .5) !default;
     $showX                   : true !default;
     $tag-inset-shadow-size   : 1.1em !default;
 
@@ -28,8 +29,8 @@
     --tag-pad                  : #{$tag-pad};
     --tag-inset-shadow-size    : #{$tag-inset-shadow-size};
     --tag-invalid-color        : #{$tag-invalid-color};
-    --tag-remove-bg            : rgba($tag-remove, .3);
-
+    --tag-invalid-bg           : #{$tag-invalid-bg};
+    --tag-remove-bg            : #{rgba($tag-remove, .3)};
     --tag-remove-btn-bg        : #{$tag-remove-btn-bg};
     --tag-remove-btn-bg--hover : #{$tag-remove-btn-bg--hover};
 
@@ -219,7 +220,7 @@
                 div{
                     > span{ opacity:.5; } // filter:blur(.2px);
                     &::before{
-                        box-shadow: 0 0 0 $tag-inset-shadow-size rgba($tag-remove, .44) inset !important;
+                        box-shadow: 0 0 0 $tag-inset-shadow-size $tag-invalid-bg inset !important;
                         box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-invalid-bg) inset !important;
                         transition: .2s;
                     }
