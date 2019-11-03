@@ -467,8 +467,7 @@ Tagify.prototype = {
             split,
             tag,
             showSuggestions,
-            eventData = {},
-            that = this;
+            eventData = {};
         if (this.maxTagsReached()) return true;
 
         if (window.getSelection) {
@@ -495,11 +494,9 @@ Tagify.prototype = {
 
         this.update(); // wait until the "this.value" has been updated (see "onKeydown" method for "mix-mode")
 
-        setTimeout(function () {
-          that.trigger("input", that.extend({}, that.state.tag, {
-            textContent: that.DOM.input.textContent
-          }));
-        }, 30);
+        setTimeout(this.trigger.bind(this, "input", this.extend({}, this.state.tag, {
+          textContent: this.DOM.input.textContent
+        })), 30);
 
         if (this.state.tag) {
           this.dropdown[showSuggestions ? "show" : "hide"].call(this, this.state.tag.value);
