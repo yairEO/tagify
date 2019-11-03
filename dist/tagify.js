@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.31.2)- tags input component
+ * Tagify (v 2.31.3)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -451,8 +451,6 @@ Tagify.prototype = {
         this.input.set.call(this, value, false); // update the input with the normalized value and run validations
         // this.setRangeAtStartEnd(); // fix caret position
 
-        this.trigger("input", data);
-
         if (value.search(this.settings.delimiters) != -1) {
           if (this.addTags(value).length) {
             this.input.set.call(this); // clear the input field's value
@@ -460,6 +458,8 @@ Tagify.prototype = {
         } else if (this.settings.dropdown.enabled >= 0) {
           this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
         }
+
+        this.trigger("input", data);
       },
       onMixTagsInput: function onMixTagsInput(e) {
         var sel,
@@ -467,7 +467,8 @@ Tagify.prototype = {
             split,
             tag,
             showSuggestions,
-            eventData = {};
+            eventData = {},
+            that = this;
         if (this.maxTagsReached()) return true;
 
         if (window.getSelection) {
@@ -492,10 +493,13 @@ Tagify.prototype = {
           }
         }
 
-        this.update();
-        this.trigger("input", this.extend({}, this.state.tag, {
-          textContent: this.DOM.input.textContent
-        }));
+        this.update(); // wait until the "this.value" has been updated (see "onKeydown" method for "mix-mode")
+
+        setTimeout(function () {
+          that.trigger("input", that.extend({}, that.state.tag, {
+            textContent: that.DOM.input.textContent
+          }));
+        }, 30);
 
         if (this.state.tag) {
           this.dropdown[showSuggestions ? "show" : "hide"].call(this, this.state.tag.value);
