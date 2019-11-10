@@ -1,53 +1,63 @@
-import React from 'react';
-import Tagify from './tagify.js'
-import './tagify.css'
+import React from "react";
+import Tagify from "./tagify.js";
+import "./tagify.scss";
 
-class Tags extends React.Component{
-    constructor( props ){
-        super(props);
-        this._handleRef = this._handleRef.bind(this);
+class Tags extends React.Component {
+  constructor(props) {
+    super(props);
+    this._handleRef = this._handleRef.bind(this);
+  }
+
+  componentDidMount() {
+    this.tagify = new Tagify(this.component, this.props.settings || {});
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    // check if value has changed
+    if (nextProps.value && nextProps.value.join() != this.props.value.join()) {
+      this.tagify.loadOriginalValues(nextProps.value);
+      // this.tagify.addTags(nextProps.value, true, true)
     }
 
-    componentDidMount(){
-        this.tagify = new Tagify(this.component, this.props.settings || {});
-    }
+    this.tagify.settings.whitelist = nextProps.settings.whitelist;
 
-    shouldComponentUpdate(nextProps, nextState){
-        // check if value has changed
-        if( nextProps.value && nextProps.value.join() != this.props.value.join() ){
-            this.tagify.loadOriginalValues(nextProps.value);
-            // this.tagify.addTags(nextProps.value, true, true)
-        }
+    if (nextProps.showDropdown)
+      this.tagify.dropdown.show.call(this.tagify, nextProps.showDropdown);
 
-        this.tagify.settings.whitelist = nextProps.settings.whitelist;
+    // do not allow react to re-render since the component is modifying its own HTML
+    return false;
+  }
 
-        if( nextProps.showDropdown )
-            this.tagify.dropdown.show.call(this.tagify, nextProps.showDropdown);
+  _handleRef(component) {
+    this.component = component;
+  }
 
-        // do not allow react to re-render since the component is modifying its own HTML
-        return false;
-    }
+  render() {
+    const attrs = {
+      ref: this._handleRef,
+      name: this.props.name,
+      className: this.props.className,
+      placeholder: this.props.class,
+      autoFocus: this.props.autofocus,
+      value: this.props.children
+    };
 
-    _handleRef(component){
-        this.component = component;
-    }
+    const { className } = this.props;
 
-    render(){
-        const attrs = {
-            ref         : this._handleRef,
-            name        : this.props.name,
-            className   : this.props.className,
-            placeholder : this.props.class,
-            autoFocus   : this.props.autofocus
-        }
-
-        return React.createElement(this.props.mode, Object.assign({}, attrs, {defaultValue: this.props.initialValue}))
-    }
+    return React.createElement(
+      "div",
+      { className },
+      React.createElement(
+        this.props.mode,
+        Object.assign({}, attrs, { defaultValue: this.props.initialValue })
+      )
+    );
+  }
 }
 
 Tags.defaultProps = {
-    value: [],
-    mode: "input"
-}
+  value: [],
+  mode: "input"
+};
 
 export default Tags;
