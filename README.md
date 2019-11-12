@@ -348,6 +348,7 @@ $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 * [Random colors for each tag](https://github.com/yairEO/tagify/issues/223)
 * [Format input value for server side](https://github.com/yairEO/tagify/issues/220)
 * [Writing to tagify textarea](https://github.com/yairEO/tagify/issues/294)
+* [Scroll all tags within one line, instead of growing vertically](https://github.com/yairEO/tagify/issues/145)
 
 ## Methods
 
