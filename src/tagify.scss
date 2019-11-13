@@ -33,6 +33,8 @@
     --tag-remove-bg            : #{rgba($tag-remove, .3)};
     --tag-remove-btn-bg        : #{$tag-remove-btn-bg};
     --tag-remove-btn-bg--hover : #{$tag-remove-btn-bg--hover};
+    --tag--min-width           : 1ch;
+    --tag--max-width           : auto;
 
 
 
@@ -149,7 +151,8 @@
                 text-overflow  : ellipsis;
                 display        : inline-block;
                 vertical-align : top;
-                min-width      : 10px;
+                min-width      : var(--tag--min-width);
+                max-width      : var(--tag--max-width);
 
                 &[contenteditable]{
                     outline: none;
