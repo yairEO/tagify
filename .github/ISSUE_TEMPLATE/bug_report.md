@@ -7,6 +7,12 @@ assignees: ''
 
 ---
 
+## Prerequisites
+
+- [ ] I am running the latest version
+- [ ] I checked the documentation and found no answer
+- [ ] I checked to make sure that this issue has not already been filed
+
 ### JSBIN bug template
 
 If possible, clone & modify the below template to reproduce your issue
