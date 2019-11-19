@@ -1,6 +1,6 @@
 import React from "react";
 import Tagify from "./tagify.js";
-import "./tagify.scss";
+import "./tagify.css";
 
 class Tags extends React.Component {
   constructor(props) {
