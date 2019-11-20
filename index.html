@@ -236,7 +236,7 @@
                 padding: 1em;
                 color: white;
                 border-bottom-left-radius: 6px;
-                transform: translatex(100%);
+                transform: translatex(100.5%);
                 transition: .45s cubic-bezier(.65,0,.35,1);
             }
 
@@ -364,11 +364,11 @@
                     <h2><a href='#section-input'>#</a>text input</h2>
                     <h3>In this example:</h3>
                     <ul>
-                        <li>Input attributes that affects Tagify</li>
                         <li>Tagify instance with settings (whitelist sugegstions)</li>
+                        <li>Simulate fetching whitelist (from a server) as the user is typing</li>
                         <li>Remove all tags from an extrenal button</li>
                         <li>Listen to Tagify events (add, remove, input, edit, invalid, click, dropdown)</li>
-                        <li>Un-listen to specific event (see `onAddTag` function)</li>
+                        <li>Un-listen to specific event (see <code>onAddTag</code> function)</li>
                     </ul>
                     <h3>Intro:</h3>
                     <p>
@@ -379,6 +379,8 @@
                         Note that <code>whitelist</code> &amp; <code>blacklist</code> may also be set on to <i>Tagify</i> as <code>data-</code> attributes on the input tag itself
                         as a list of tags seperated by the same delimeter defined in the Tagify's configuration. Default is comma (<code>,</code>)
                     </p>
+                    <p>As text is typed, the <code>onInput</code> Tagify event is fired, on each key stroke. Reseting the current whitelist and fecthing a new one (from <code>mockAjax()</code>)</p>
+                    <p>In real-life scenarios, a developer might wish to use different <em>whitelists</em> suggested to the user, according to the typed text, asusming the possibilities are too large to load at-once as the inital <em>whitelist</em>.</p>
                     <h3>HTML</h3>
 <pre class="language-markup"><code><&#8203;input
     name='input'
