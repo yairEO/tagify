@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.31.3)- tags input component
+ * Tagify (v 2.31.6)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -110,14 +110,14 @@ Tagify.prototype = {
   },
   templates: {
     wrapper: function wrapper(input, settings) {
-      return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                          ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"', "\n                          role=\"tagslist\">\n                <span contenteditable data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                      class=\"tagify__input\"\n                      role=\"textbox\"\n                      aria-multiline=\"false\"></span>\n            </tags>");
+      return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                        ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"', "\n                        role=\"tagslist\">\n                <span contenteditable data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                    class=\"tagify__input\"\n                    role=\"textbox\"\n                    aria-multiline=\"false\"></span>\n            </tags>");
     },
     tag: function tag(value, tagData) {
-      return "<tag title='".concat(tagData.title || value, "'\n                         contenteditable='false'\n                         spellcheck='false'\n                         class='tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "'\n                         ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(value, "</span>\n                </div>\n            </tag>");
+      return "<tag title='".concat(tagData.title || value, "'\n                        contenteditable='false'\n                        spellcheck='false'\n                        class='tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "'\n                        ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(value, "</span>\n                </div>\n            </tag>");
     },
     dropdownItem: function dropdownItem(item) {
       var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
-      return "<div ".concat(this.getAttributes(item), "\n                         class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                         tabindex=\"0\"\n                         role=\"menuitem\"\n                         aria-labelledby=\"dropdown-label\">").concat(sanitizedValue, "</div>");
+      return "<div ".concat(this.getAttributes(item), "\n                        class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                        tabindex=\"0\"\n                        role=\"menuitem\"\n                        aria-labelledby=\"dropdown-label\">").concat(sanitizedValue, "</div>");
     }
   },
   customEventsList: ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
@@ -1000,7 +1000,7 @@ Tagify.prototype = {
     var skipInvalid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.settings.skipInvalid;
     var tagElems = [];
 
-    if (!tagsItems || !tagsItems.length) {
+    if (!tagsItems || tagsItems.length == 0) {
       // is mode is "select" clean all tags
       if (this.settings.mode == 'select') this.removeAllTags(); // console.warn('[addTags]', 'no tags to add:', tagsItems)
 

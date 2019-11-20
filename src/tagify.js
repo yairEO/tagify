@@ -66,21 +66,21 @@ Tagify.prototype = {
     templates : {
         wrapper(input, settings){
             return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
-                          ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"'}
-                          role="tagslist">
+                        ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"'}
+                        role="tagslist">
                 <span contenteditable data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
-                      class="tagify__input"
-                      role="textbox"
-                      aria-multiline="false"></span>
+                    class="tagify__input"
+                    role="textbox"
+                    aria-multiline="false"></span>
             </tags>`
         },
 
         tag(value, tagData){
             return `<tag title='${tagData.title || value}'
-                         contenteditable='false'
-                         spellcheck='false'
-                         class='tagify__tag ${tagData.class ? tagData.class : ""}'
-                         ${this.getAttributes(tagData)}>
+                        contenteditable='false'
+                        spellcheck='false'
+                        class='tagify__tag ${tagData.class ? tagData.class : ""}'
+                        ${this.getAttributes(tagData)}>
                 <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
                 <div>
                     <span class='tagify__tag-text'>${value}</span>
@@ -91,10 +91,10 @@ Tagify.prototype = {
         dropdownItem( item ){
             var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
             return `<div ${this.getAttributes(item)}
-                         class='tagify__dropdown__item ${item.class ? item.class : ""}'
-                         tabindex="0"
-                         role="menuitem"
-                         aria-labelledby="dropdown-label">${sanitizedValue}</div>`;
+                        class='tagify__dropdown__item ${item.class ? item.class : ""}'
+                        tabindex="0"
+                        role="menuitem"
+                        aria-labelledby="dropdown-label">${sanitizedValue}</div>`;
         }
     },
 
@@ -1032,7 +1032,7 @@ Tagify.prototype = {
     addTags( tagsItems, clearInput, skipInvalid = this.settings.skipInvalid ){
         var tagElems = [];
 
-        if( !tagsItems || !tagsItems.length ){
+        if( !tagsItems || tagsItems.length == 0 ){
             // is mode is "select" clean all tags
             if( this.settings.mode == 'select' )
                 this.removeAllTags()
@@ -1041,7 +1041,6 @@ Tagify.prototype = {
         }
 
         tagsItems = this.normalizeTags.call(this, tagsItems); // converts Array/String/Object to an Array of Objects
-
         if( this.settings.mode == 'mix' )
             return this.addMixTag(tagsItems[0]);
 
