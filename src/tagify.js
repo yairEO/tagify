@@ -743,10 +743,17 @@ Tagify.prototype = {
                     suggestion = s || (dataSuggest ? this.input.value + dataSuggest : null);
 
                 if( suggestion ){
-                    this.input.set.call(this, suggestion);
+                    if( this.settings.mode == 'mix' ){
+                        this.replaceTaggedText( document.createTextNode(this.state.tag.prefix + suggestion) )
+                    }
+                    else{
+                        this.input.set.call(this, suggestion);
+                        this.setRangeAtStartEnd()
+                    }
+
                     this.input.autocomplete.suggest.call(this, '');
                     this.dropdown.hide.call(this);
-                    this.setRangeAtStartEnd();
+
 
                     return true;
                 }
@@ -969,15 +976,15 @@ Tagify.prototype = {
     },
 
     /**
-     * Add a tag where it might be beside textNodes
+     * For mixed-mode: replaces a text starting with a prefix with a wrapper element (tag or something)
+     * First there *has* to be a "this.state.tag" which is a string that was just typed and is staring with a prefix
      */
-    addMixTag( tagData ){
-        if( !tagData || !this.state.tag ) return;
+    replaceTaggedText( wrapperElm ){
+        if( !this.state.tag ) return;
 
         var tag = this.state.tag.prefix + this.state.tag.value,
             iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT, null, false),
             textnode,
-            tagElm,
             idx,
             maxLoops = 100,
             replacedNode;
@@ -991,21 +998,14 @@ Tagify.prototype = {
 
                 replacedNode = textnode.splitText(idx);
 
-                this.settings.transformTag.call(this, tagData);
-                tagElm = this.createTagElem(tagData);
                 // clean up the tag's string and put tag element instead
                 replacedNode.nodeValue = replacedNode.nodeValue.replace(tag, '');
-                textnode.parentNode.insertBefore(tagElm, replacedNode);
+                textnode.parentNode.insertBefore(wrapperElm, replacedNode);
             }
         }
 
-        if( tagElm ){
-            this.value.push(tagData);
-            this.update();
-            this.trigger('add', this.extend({}, {index:this.value.length, tag:tagElm}, tagData));
-        }
-
         this.state.tag = null;
+        return replacedNode;
     },
 
     /**
@@ -1030,7 +1030,7 @@ Tagify.prototype = {
      * @return {Array} Array of DOM elements (tags)
      */
     addTags( tagsItems, clearInput, skipInvalid = this.settings.skipInvalid ){
-        var tagElems = [];
+        var tagElems = [], tagElm;
 
         if( !tagsItems || tagsItems.length == 0 ){
             // is mode is "select" clean all tags
@@ -1041,8 +1041,18 @@ Tagify.prototype = {
         }
 
         tagsItems = this.normalizeTags.call(this, tagsItems); // converts Array/String/Object to an Array of Objects
-        if( this.settings.mode == 'mix' )
-            return this.addMixTag(tagsItems[0]);
+
+        if( this.settings.mode == 'mix' ){
+            this.settings.transformTag.call(this, tagsItems[0]);
+            tagElm = this.createTagElem(tagsItems[0]);
+
+            if( this.replaceTaggedText(tagElm) ){
+                this.value.push(tagsItems[0])
+                this.update()
+                this.trigger('add', this.extend({}, {index:this.value.length, tag:tagElm}, tagsItems[0]))
+            }
+            return tagElm
+        }
 
         if( this.settings.mode == 'select' )
             tagsItems.length = 1 // only use the first tag
@@ -1453,6 +1463,7 @@ Tagify.prototype = {
 
                         case 'ArrowRight' :
                         case 'Tab' : {
+                            e.preventDefault();
                             try{
                                 var value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
                                 this.input.autocomplete.set.call(this, value)
