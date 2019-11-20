@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.31.3)- tags input component
+ * Tagify (v 2.31.6)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -110,14 +110,14 @@ Tagify.prototype = {
   },
   templates: {
     wrapper: function wrapper(input, settings) {
-      return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                          ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"', "\n                          role=\"tagslist\">\n                <span contenteditable data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                      class=\"tagify__input\"\n                      role=\"textbox\"\n                      aria-multiline=\"false\"></span>\n            </tags>");
+      return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                        ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"', "\n                        role=\"tagslist\">\n                <span contenteditable data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                    class=\"tagify__input\"\n                    role=\"textbox\"\n                    aria-multiline=\"false\"></span>\n            </tags>");
     },
     tag: function tag(value, tagData) {
-      return "<tag title='".concat(tagData.title || value, "'\n                         contenteditable='false'\n                         spellcheck='false'\n                         class='tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "'\n                         ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(value, "</span>\n                </div>\n            </tag>");
+      return "<tag title='".concat(tagData.title || value, "'\n                        contenteditable='false'\n                        spellcheck='false'\n                        class='tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "'\n                        ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(value, "</span>\n                </div>\n            </tag>");
     },
     dropdownItem: function dropdownItem(item) {
       var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
-      return "<div ".concat(this.getAttributes(item), "\n                         class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                         tabindex=\"0\"\n                         role=\"menuitem\"\n                         aria-labelledby=\"dropdown-label\">").concat(sanitizedValue, "</div>");
+      return "<div ".concat(this.getAttributes(item), "\n                        class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                        tabindex=\"0\"\n                        role=\"menuitem\"\n                        aria-labelledby=\"dropdown-label\">").concat(sanitizedValue, "</div>");
     }
   },
   customEventsList: ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
@@ -716,10 +716,15 @@ Tagify.prototype = {
             suggestion = s || (dataSuggest ? this.input.value + dataSuggest : null);
 
         if (suggestion) {
-          this.input.set.call(this, suggestion);
+          if (this.settings.mode == 'mix') {
+            this.replaceTaggedText(document.createTextNode(this.state.tag.prefix + suggestion));
+          } else {
+            this.input.set.call(this, suggestion);
+            this.setRangeAtStartEnd();
+          }
+
           this.input.autocomplete.suggest.call(this, '');
           this.dropdown.hide.call(this);
-          this.setRangeAtStartEnd();
           return true;
         }
 
@@ -932,14 +937,14 @@ Tagify.prototype = {
   },
 
   /**
-   * Add a tag where it might be beside textNodes
+   * For mixed-mode: replaces a text starting with a prefix with a wrapper element (tag or something)
+   * First there *has* to be a "this.state.tag" which is a string that was just typed and is staring with a prefix
    */
-  addMixTag: function addMixTag(tagData) {
-    if (!tagData || !this.state.tag) return;
+  replaceTaggedText: function replaceTaggedText(wrapperElm) {
+    if (!this.state.tag) return;
     var tag = this.state.tag.prefix + this.state.tag.value,
         iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT, null, false),
         textnode,
-        tagElm,
         idx,
         maxLoops = 100,
         replacedNode;
@@ -951,25 +956,15 @@ Tagify.prototype = {
         // get the index of which the tag (string) is within the textNode (if at all)
         idx = textnode.nodeValue.indexOf(tag);
         if (idx == -1) continue;
-        replacedNode = textnode.splitText(idx);
-        this.settings.transformTag.call(this, tagData);
-        tagElm = this.createTagElem(tagData); // clean up the tag's string and put tag element instead
+        replacedNode = textnode.splitText(idx); // clean up the tag's string and put tag element instead
 
         replacedNode.nodeValue = replacedNode.nodeValue.replace(tag, '');
-        textnode.parentNode.insertBefore(tagElm, replacedNode);
+        textnode.parentNode.insertBefore(wrapperElm, replacedNode);
       }
     }
 
-    if (tagElm) {
-      this.value.push(tagData);
-      this.update();
-      this.trigger('add', this.extend({}, {
-        index: this.value.length,
-        tag: tagElm
-      }, tagData));
-    }
-
     this.state.tag = null;
+    return replacedNode;
   },
 
   /**
@@ -998,9 +993,10 @@ Tagify.prototype = {
     var _this6 = this;
 
     var skipInvalid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.settings.skipInvalid;
-    var tagElems = [];
+    var tagElems = [],
+        tagElm;
 
-    if (!tagsItems || !tagsItems.length) {
+    if (!tagsItems || tagsItems.length == 0) {
       // is mode is "select" clean all tags
       if (this.settings.mode == 'select') this.removeAllTags(); // console.warn('[addTags]', 'no tags to add:', tagsItems)
 
@@ -1009,7 +1005,22 @@ Tagify.prototype = {
 
     tagsItems = this.normalizeTags.call(this, tagsItems); // converts Array/String/Object to an Array of Objects
 
-    if (this.settings.mode == 'mix') return this.addMixTag(tagsItems[0]);
+    if (this.settings.mode == 'mix') {
+      this.settings.transformTag.call(this, tagsItems[0]);
+      tagElm = this.createTagElem(tagsItems[0]);
+
+      if (this.replaceTaggedText(tagElm)) {
+        this.value.push(tagsItems[0]);
+        this.update();
+        this.trigger('add', this.extend({}, {
+          index: this.value.length,
+          tag: tagElm
+        }, tagsItems[0]));
+      }
+
+      return tagElm;
+    }
+
     if (this.settings.mode == 'select') tagsItems.length = 1; // only use the first tag
 
     this.DOM.input.removeAttribute('style');
@@ -1402,6 +1413,8 @@ Tagify.prototype = {
             case 'ArrowRight':
             case 'Tab':
               {
+                e.preventDefault();
+
                 try {
                   var value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
                   this.input.autocomplete.set.call(this, value);
