@@ -282,7 +282,7 @@ Example:
 
 ```typescript
 import {Component, OnDestroy} from '@angular/core';
-import {TagifyService} from 'ngTagify';
+import {TagifyService} from '@yaireo/tagify';
 
 @Component({
   selector: 'app-root',
@@ -312,6 +312,8 @@ export class AppComponent implements OnDestroy {
   }
 }
 ```
+
+Remember to add `TagifyService` to your module definition.
 
 ## jQuery version
 
