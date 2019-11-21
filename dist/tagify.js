@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.31.6)- tags input component
+ * Tagify (v 2.31.7)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -227,27 +227,29 @@ Tagify.prototype = {
   },
 
   /**
+   * Checks if an argument is a javascript Object
+   */
+  isObject: function isObject(obj) {
+    var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
+    return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
+  },
+
+  /**
    * merge two objects into a new one
    * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
    */
   extend: function extend(o, o1, o2) {
+    var that = this;
     if (!(o instanceof Object)) o = {};
     copy(o, o1);
     if (o2) copy(o, o2);
-
-    function isObject(obj) {
-      var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
-      return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
-    }
-
-    ;
 
     function copy(a, b) {
       // copy o2 to o
       for (var key in b) {
         if (b.hasOwnProperty(key)) {
-          if (isObject(b[key])) {
-            if (!isObject(a[key])) a[key] = Object.assign({}, b[key]);else copy(a[key], b[key]);
+          if (that.isObject(b[key])) {
+            if (!that.isObject(a[key])) a[key] = Object.assign({}, b[key]);else copy(a[key], b[key]);
           } else a[key] = b[key];
         }
       }
@@ -756,10 +758,12 @@ Tagify.prototype = {
    * @return {Boolean}
    */
   isTagDuplicate: function isTagDuplicate(v) {
+    var _this5 = this;
+
     // duplications are irrelevant for this scenario
     if (this.settings.mode == 'select') return false;
     return this.value.some(function (item) {
-      return typeof v == 'string' ? v.trim().toLowerCase() === item.value.toLowerCase() : JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase();
+      return _this5.isObject(v) ? JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase() : v.trim().toLowerCase() === item.value.toLowerCase();
     });
   },
   getTagIndexByValue: function getTagIndexByValue(value) {
@@ -902,7 +906,7 @@ Tagify.prototype = {
    * @param {String} s
    */
   parseMixTags: function parseMixTags(s) {
-    var _this5 = this;
+    var _this6 = this;
 
     var tagData,
         _this$settings2 = this.settings,
@@ -918,15 +922,15 @@ Tagify.prototype = {
       try {
         tagData = JSON.parse(preInterpolated);
       } catch (err) {
-        tagData = _this5.normalizeTags(preInterpolated)[0]; //{value:preInterpolated}
+        tagData = _this6.normalizeTags(preInterpolated)[0]; //{value:preInterpolated}
       }
 
-      if (s2.length > 1 && _this5.isTagWhitelisted(tagData.value) && (!duplicates || !_this5.isTagDuplicate(tagData))) {
-        transformTag.call(_this5, tagData);
-        tagElm = _this5.createTagElem(tagData);
+      if (s2.length > 1 && _this6.isTagWhitelisted(tagData.value) && !(!duplicates && _this6.isTagDuplicate(tagData))) {
+        transformTag.call(_this6, tagData);
+        tagElm = _this6.createTagElem(tagData);
         s2[0] = tagElm.outerHTML; //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
 
-        _this5.value.push(tagData);
+        _this6.value.push(tagData);
       }
 
       return s2.join('');
@@ -990,7 +994,7 @@ Tagify.prototype = {
    * @return {Array} Array of DOM elements (tags)
    */
   addTags: function addTags(tagsItems, clearInput) {
-    var _this6 = this;
+    var _this7 = this;
 
     var skipInvalid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.settings.skipInvalid;
     var tagElems = [],
@@ -1031,10 +1035,10 @@ Tagify.prototype = {
 
       tagData = Object.assign({}, tagData);
 
-      _this6.settings.transformTag.call(_this6, tagData); ///////////////// ( validation )//////////////////////
+      _this7.settings.transformTag.call(_this7, tagData); ///////////////// ( validation )//////////////////////
 
 
-      tagValidation = _this6.maxTagsReached() || _this6.validateTag(tagData.value);
+      tagValidation = _this7.maxTagsReached() || _this7.validateTag(tagData.value);
 
       if (tagValidation !== true) {
         if (skipInvalid) return;
@@ -1042,45 +1046,45 @@ Tagify.prototype = {
         tagElmParams["class"] = (tagData["class"] || '') + ' tagify--notAllowed';
         tagElmParams.title = tagValidation;
 
-        _this6.markTagByValue(tagData.value);
+        _this7.markTagByValue(tagData.value);
 
-        _this6.trigger("invalid", {
+        _this7.trigger("invalid", {
           data: tagData,
-          index: _this6.value.length,
+          index: _this7.value.length,
           message: tagValidation
         });
-      } ///////////////////////////)//////////////////////////
+      } /////////////////////////////////////////////////////
       // add accessibility attributes
 
 
       tagElmParams.role = "tag";
       if (tagData.readonly) tagElmParams["aria-readonly"] = true; // Create tag HTML element
 
-      tagElm = _this6.createTagElem(_this6.extend({}, tagData, tagElmParams));
+      tagElm = _this7.createTagElem(_this7.extend({}, tagData, tagElmParams));
       tagElems.push(tagElm); // mode-select overrides
 
-      if (_this6.settings.mode == 'select') {
-        if (_this6.settings.dropdown.closeOnSelect) {
-          _this6.dropdown.hide.call(_this6);
+      if (_this7.settings.mode == 'select') {
+        if (_this7.settings.dropdown.closeOnSelect) {
+          _this7.dropdown.hide.call(_this7);
 
-          _this6.events.callbacks.onFocusBlur.call(_this6, {
+          _this7.events.callbacks.onFocusBlur.call(_this7, {
             type: "blur"
           });
         }
 
         clearInput = false;
 
-        _this6.input.set.call(_this6, tagData.value, true, true);
+        _this7.input.set.call(_this7, tagData.value, true, true);
 
-        if (_this6.getLastTag()) {
+        if (_this7.getLastTag()) {
           // update current tag
-          _this6.editTagDone(_this6.getLastTag(), tagData);
+          _this7.editTagDone(_this7.getLastTag(), tagData);
 
-          _this6.value[0] = tagData;
+          _this7.value[0] = tagData;
 
-          _this6.update();
+          _this7.update();
 
-          _this6.trigger('add', {
+          _this7.trigger('add', {
             tag: tagElm,
             data: tagData
           });
@@ -1090,27 +1094,27 @@ Tagify.prototype = {
       } // add the tag to the component's DOM
 
 
-      _this6.appendTag(tagElm);
+      _this7.appendTag(tagElm);
 
       if (tagValidation === true) {
         // update state
-        _this6.value.push(tagData);
+        _this7.value.push(tagData);
 
-        _this6.update();
+        _this7.update();
 
-        _this6.trigger('add', {
+        _this7.trigger('add', {
           tag: tagElm,
-          index: _this6.value.length - 1,
+          index: _this7.value.length - 1,
           data: tagData
         });
-      } else if (!_this6.settings.keepInvalidTags) {
+      } else if (!_this7.settings.keepInvalidTags) {
         // remove invalid tags (if "keepInvalidTags" is set to "false")
         setTimeout(function () {
-          _this6.removeTag(tagElm, true);
+          _this7.removeTag(tagElm, true);
         }, 1000);
       }
 
-      _this6.dropdown.position.call(_this6); // reposition the dropdown because the just-added tag might cause a new-line
+      _this7.dropdown.position.call(_this7); // reposition the dropdown because the just-added tag might cause a new-line
 
     });
 
@@ -1240,13 +1244,13 @@ Tagify.prototype = {
     this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString() : this.value.length ? JSON.stringify(this.value) : "";
   },
   getMixedTagsAsString: function getMixedTagsAsString() {
-    var _this7 = this;
+    var _this8 = this;
 
     var result = "",
         i = 0,
         _interpolator = this.settings.mixTagsInterpolator;
     this.DOM.input.childNodes.forEach(function (node) {
-      if (node.nodeType == 1 && node.classList.contains("tagify__tag")) result += _interpolator[0] + JSON.stringify(_this7.value[i++]) + _interpolator[1];else result += node.textContent;
+      if (node.nodeType == 1 && node.classList.contains("tagify__tag")) result += _interpolator[0] + JSON.stringify(_this8.value[i++]) + _interpolator[1];else result += node.textContent;
     });
     return result;
   },
@@ -1383,7 +1387,7 @@ Tagify.prototype = {
       },
       callbacks: {
         onKeyDown: function onKeyDown(e) {
-          var _this8 = this;
+          var _this9 = this;
 
           // get the "active" element, and if there was none (yet) active, use first child
           var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
@@ -1434,7 +1438,7 @@ Tagify.prototype = {
                   this.addTags([newValue], true);
                   this.dropdown[hideDropdown ? 'hide' : 'show'].call(this);
                   if (this.settings.mode == 'select') setTimeout(function () {
-                    return _this8.DOM.input.blur();
+                    return _this9.DOM.input.blur();
                   });
                   return false;
                 } else {
@@ -1464,7 +1468,7 @@ Tagify.prototype = {
           this.dropdown.highlightOption.call(this);
         },
         onClick: function onClick(e) {
-          var _this9 = this;
+          var _this10 = this;
 
           var value, listItemElm;
           if (e.button != 0 || e.target == this.DOM.dropdown) return; // allow only mouse left-clicks
@@ -1478,7 +1482,7 @@ Tagify.prototype = {
             this.trigger("dropdown:select", value);
             this.addTags([value], true);
             if (this.settings.mode != 'select') setTimeout(function () {
-              return _this9.DOM.input.focus();
+              return _this10.DOM.input.focus();
             });
             if (this.settings.dropdown.closeOnSelect) this.dropdown.hide.call(this);
           } // clicked outside, close the list
@@ -1525,7 +1529,7 @@ Tagify.prototype = {
      * @return {[type]} [description]
      */
     filterListItems: function filterListItems(value) {
-      var _this10 = this;
+      var _this11 = this;
 
       var list = [],
           whitelist = this.settings.whitelist,
@@ -1539,7 +1543,7 @@ Tagify.prototype = {
 
       if (!value) {
         return whitelist.filter(function (item) {
-          return !_this10.isTagDuplicate(item.value || item);
+          return !_this11.isTagDuplicate(item.value || item);
         }) // don't include tags which have already been added.
         .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }

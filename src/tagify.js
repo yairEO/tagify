@@ -214,27 +214,31 @@ Tagify.prototype = {
     },
 
     /**
+     * Checks if an argument is a javascript Object
+     */
+    isObject(obj) {
+        var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
+        return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
+    },
+
+    /**
      * merge two objects into a new one
      * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
      */
     extend(o, o1, o2){
+        var that = this;
         if( !(o instanceof Object) ) o = {};
 
         copy(o, o1);
         if( o2 )
             copy(o, o2)
 
-        function isObject(obj) {
-            var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
-            return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
-        };
-
         function copy(a,b){
             // copy o2 to o
             for( var key in b )
                 if( b.hasOwnProperty(key) ){
-                    if( isObject(b[key]) ){
-                        if( !isObject(a[key]) )
+                    if( that.isObject(b[key]) ){
+                        if( !that.isObject(a[key]) )
                             a[key] = Object.assign({}, b[key]);
                         else
                             copy(a[key], b[key])
@@ -797,9 +801,9 @@ Tagify.prototype = {
             return false
 
         return this.value.some(item =>
-            typeof v == 'string'
-                ? v.trim().toLowerCase() === item.value.toLowerCase()
-                : JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase()
+            this.isObject(v)
+                ? JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase()
+                : v.trim().toLowerCase() === item.value.toLowerCase()
             )
     },
 
@@ -961,7 +965,7 @@ Tagify.prototype = {
                 tagData = this.normalizeTags(preInterpolated)[0]  //{value:preInterpolated}
             }
 
-            if( s2.length > 1   &&   this.isTagWhitelisted(tagData.value)   &&   (!duplicates  || !this.isTagDuplicate(tagData)) ){
+            if( s2.length > 1   &&   this.isTagWhitelisted(tagData.value)   &&   !(!duplicates  && this.isTagDuplicate(tagData)) ){
                 transformTag.call(this, tagData);
                 tagElm = this.createTagElem(tagData);
                 s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
@@ -1069,7 +1073,7 @@ Tagify.prototype = {
 
             this.settings.transformTag.call(this, tagData);
 
-///////////////// ( validation )//////////////////////
+            ///////////////// ( validation )//////////////////////
             tagValidation = this.maxTagsReached() || this.validateTag(tagData.value);
 
             if( tagValidation !== true ){
@@ -1083,7 +1087,7 @@ Tagify.prototype = {
                 this.markTagByValue(tagData.value);
                 this.trigger("invalid", {data:tagData, index:this.value.length, message:tagValidation});
             }
-///////////////////////////)//////////////////////////
+            /////////////////////////////////////////////////////
 
             // add accessibility attributes
             tagElmParams.role = "tag";
