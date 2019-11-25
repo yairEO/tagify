@@ -3,7 +3,7 @@
     $self: &;
     $tags-border-color       : #DDD !default;
     $tags-hover-border-color : #CCC !default;
-    $tags-focus-border-color : #85C8EA !default;
+    $tags-focus-border-color : #3595f6 !default;
 
     $tagMargin               : 5px !default;
     $tag-pad                 : .3em .5em !default;
@@ -55,7 +55,7 @@
                                            var(--tag-bg)  50%,
                                            var(--tag-bg)  75%,
                                            transparent    75%,
-                                           transparent)         0/5px 5px;
+                                           transparent)   0/5px 5px;
         box-shadow: none;
         filter: brightness(.95);
     }
@@ -76,7 +76,10 @@
     transition    : .1s;
 
     &:hover{ border-color:$tags-hover-border-color; }
-    &.tagify--focus{ border-color: $tags-focus-border-color; }
+    &.tagify--focus{
+      transition:0s;
+      border-color: $tags-focus-border-color;
+    }
 
     // Global "read-only" mode (no input button)
     &[readonly]{
@@ -244,20 +247,22 @@
     &__tag__removeBtn{
         $size: 14px;
 
-        order         : 5;
-        font          : #{$size}/#{$size + 2} Serif;
-        background    : $tag-remove-btn-bg;
-        background    : var(--tag-remove-btn-bg);
-        color         : $tag-text-color;
-        color         : var(--tag-text-color);
-        width         : $size;
-        height        : $size;
-        text-align    : center;
-        border-radius : 50px;
-        cursor        : pointer;
-        margin-right  : $size/3;
-        margin-left   : -$size/3;
-        transition    : .2s ease-out;
+        order          : 5;
+        display        : inline-flex;
+        align-items    : center;
+        justify-content: center;
+        font           : #{$size} Serif;
+        background     : $tag-remove-btn-bg;
+        background     : var(--tag-remove-btn-bg);
+        color          : $tag-text-color;
+        color          : var(--tag-text-color);
+        width          : $size;
+        height         : $size;
+        border-radius  : 50px;
+        cursor         : pointer;
+        margin-right   : $size/3;
+        margin-left    : -$size/3;
+        transition     : .2s ease-out;
 
         &::after{
             content:"\00D7";
@@ -434,18 +439,23 @@
         box-shadow: 0 2px 4px -2px rgba(black,.2);
         box-sizing: border-box;
 
+        &--text{
+            box-shadow: 0 0 0 3px rgba($tags-focus-border-color, .1);
+            font-size: 0.9em;
+        }
 
         &__item{
             box-sizing: inherit;
-            padding: .35em .6em;
-            margin: 2px;
+            padding: $tag-pad;
+            margin: 1px;
             cursor: pointer;
-            border-radius: 3px;
+            border-radius: 2px;
             position: relative;
             outline:none;
 
             &--active{
-                background:$tag-bg;
+                background: $tags-focus-border-color;
+                color: white;
             }
             &:active{
                 filter: brightness(105%);

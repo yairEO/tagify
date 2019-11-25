@@ -28,11 +28,19 @@
 
             function renderPRE(currentScript, codeScriptName){
                 if( isIE ) return;
+
+                function removeLast(s, r){
+                  s = s.split(r)
+                  return s.slice(0,-1).join(r) + s.pop()
+                }
+
                 setTimeout(function(){
                     var jsCode = document.querySelector("[data-name='"+ codeScriptName +"']").innerHTML;
 
                     // cleanup closure wraper
-                    jsCode = jsCode.replace("(function(){", "" ).replace("})()", "" ).trim();
+                    jsCode = jsCode.replace("(function(){", "").trim();
+                    jsCode = removeLast(jsCode, "})()")
+
                     // escape angled brackets between two _ESCAPE_START_ and _ESCAPE_END_ comments
                     let textsToEscape = jsCode.match(new RegExp("// _ESCAPE_START_([^]*?)// _ESCAPE_END_", 'mg'));
                     if (textsToEscape) {
@@ -75,6 +83,10 @@
             body > header .liveLink{ color:#333; text-decoration:none; font-size:1.4em; position:relative; line-height:1; }
             body > header .liveLink::before{ content:'✎'; text-decoration:none; transform:translateX(-150%); position:absolute; top:1px; left:0; }
             body > header .liveLink:hover{ text-decoration: underline; }
+
+            ul > li{
+              margin: .8em 0;
+            }
 
             section > .rightSide{
                 position: sticky;
@@ -344,10 +356,13 @@
                 <aside class='leftSide'>
                     <h2><a href='#section-basic'>#</a>Basic example</h2>
                     <p>
-                        Passing the input element as a parameter to Tagify and it will transform it into a tags-component.
+                      Passing the input element as a parameter to <em>Tagify</em> will transform it into a tags-component. Without any settings, the user will be allowed to create any tags they want, without a count limit.
                     </p>
                     <p>
-                        The input has a value which Tagify splits into 2 tags.
+                      The input has a pre-defined value which Tagify creates two from tags.
+                    </p>
+                    <p>
+                      <strong><em>Double-click</em> on a tag to edit it</strong>
                     </p>
                     <h3>HTML</h3>
 <pre class="language-markup"><code><&#8203;input name='basic' value='tag1, tag2'></code></pre>
@@ -367,12 +382,12 @@
                         <li>Tagify instance with settings (whitelist sugegstions)</li>
                         <li>Simulate fetching whitelist (from a server) as the user is typing</li>
                         <li>Remove all tags from an extrenal button</li>
-                        <li>Listen to Tagify events (add, remove, input, edit, invalid, click, dropdown)</li>
+                        <li>Listen to various Tagify <a href='https://github.com/yairEO/tagify#events'>events</a></li>
                         <li>Un-listen to specific event (see <code>onAddTag</code> function)</li>
                     </ul>
                     <h3>Intro:</h3>
                     <p>
-                        The input element is pre-ocupied with <strong>4</strong> tags. The <em>last</em> tag (CSS) has the same value as the <em>first</em> tag,
+                        The input element is pre-ocupied with <strong>4</strong> tags. The <em>last</em> tag, <em>"CSS"</em>, has the same value as the <em>first</em> tag,
                         and will be <em>removed</em>, because the <code>duplicates</code> setting is set to <code>true</code>.
                     </p>
                     <p>
@@ -439,7 +454,12 @@
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "customLook")</script>
                     <h3>CSS</h3>
-<pre class="language-css"><code>.customLook{
+<pre class="language-css"><code>
+/* Because the original input element has the class "customLook",
+ * when "tagified", the class automatically is added to the
+ * class list of the ".tagify" element
+ */
+.customLook{
     --tag-bg                   : #0052BF;
     --tag-hover                : #CE0078;
     --tag-text-color           : #FFF;
@@ -463,7 +483,9 @@
     border-radius: 25px;
 }
 
-/* hide the (x) delet-tag button if there's only one tag, to force minimum 1 tag */
+/* hide the (x) delet-tag button if there's only one tag,
+ * to force minimum 1 tag
+ */
 .customLook .tagify__tag:only-of-type .tagify__tag__removeBtn{
     display: none;
 }
@@ -844,7 +866,6 @@ var mockAjax = (function mockAjax(){
     return function(duration){
         clearTimeout(timeout); // abort last request
         return new Promise(function(resolve, reject){
-            console.log(3434343, whitelist, tagify)
             timeout = setTimeout(resolve, duration || 1000, whitelist)
         })
     }
@@ -859,23 +880,22 @@ function onAddTag(e){
 
 // tag remvoed callback
 function onRemoveTag(e){
-    console.log(e.detail);
-    console.log("tagify instance value:", tagify.value)
+    console.log("onRemoveTag:", e.detail, "tagify instance value:", tagify.value)
 }
 
 // on character(s) added/removed (user is typing/deleting)
 function onInput(e){
-    console.log(e.detail);
     console.log("onInput: ", e.detail);
 
-    // get new whitelist from some async request (mocked)
-    tagify.settings.whitelist.length = 0;
-
+    // get new whitelist from a delayed mocked request (Promise)
     mockAjax()
         .then(function(result){
-            /// https://stackoverflow.com/q/30640771/104380
-            Array.prototype.splice.apply(tagify.settings.whitelist, tagify.settings.whitelist.concat(result))
-            tagify.dropdown.show.call(tagify, e.detail.value); // render the suggestions dropdown
+            // https://stackoverflow.com/q/30640771/104380
+            // replace tagify "whitelist" array values with new values (result)
+            tagify.settings.whitelist.splice(0, result.length, ...result)
+
+            // render the suggestions dropdown
+            tagify.dropdown.show.call(tagify, e.detail.value);
         })
 }
 
@@ -909,7 +929,6 @@ function onDropdownHide(e){
 function onDropdownSelect(e){
     console.log("onDropdownSelect: ", e.detail)
 }
-
 })()
 </script>
 

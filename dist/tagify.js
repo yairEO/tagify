@@ -104,7 +104,9 @@ Tagify.prototype = {
       fuzzySearch: true,
       highlightFirst: false,
       // highlights first-matched item in the list
-      closeOnSelect: true // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
+      closeOnSelect: true,
+      // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
+      position: 'text' // 'manual' / 'text' / 'bottom'
 
     }
   },
@@ -147,7 +149,7 @@ Tagify.prototype = {
       this.settings.pattern = new RegExp(input.pattern);
     } catch (e) {} // Convert the "delimiters" setting into a REGEX object
 
-    if (this.settings && this.settings.delimiters) {
+    if (this.settings.delimiters) {
       try {
         this.settings.delimiters = new RegExp(this.settings.delimiters, "g");
       } catch (e) {}
@@ -178,6 +180,39 @@ Tagify.prototype = {
         p = document.createElement('p');
     p.appendChild(text);
     return p.innerHTML;
+  },
+
+  /**
+   * Get the caret position relative to the viewport
+   * https://stackoverflow.com/q/58985076/104380
+   *
+   * @returns {object} left, top distance in pixels
+   */
+  getCaretGlobalPosition: function getCaretGlobalPosition() {
+    var sel = document.getSelection();
+
+    if (sel.rangeCount) {
+      var r = sel.getRangeAt(0);
+      var node = r.startContainer;
+      var offset = r.startOffset;
+      var rect, r2;
+
+      if (offset > 0) {
+        r2 = document.createRange();
+        r2.setStart(node, offset - 1);
+        r2.setEnd(node, offset);
+        rect = r2.getBoundingClientRect();
+        return {
+          left: rect.right,
+          top: rect.bottom
+        };
+      }
+    }
+
+    return {
+      left: -9999,
+      top: -9999
+    };
   },
 
   /**
@@ -348,11 +383,12 @@ Tagify.prototype = {
     callbacks: {
       onFocusBlur: function onFocusBlur(e) {
         var s = e.target ? e.target.textContent.trim() : ''; // a string
+        // toggle "focus" BEM class
 
+        this.DOM.scope.classList[e.type == "focus" ? "add" : "remove"]('tagify--focus');
         if (this.settings.mode == 'mix') return;
 
         if (e.type == "focus") {
-          this.DOM.scope.classList.add('tagify--focus');
           this.trigger("focus"); //  e.target.classList.remove('placeholder');
 
           if (this.settings.dropdown.enabled === 0) {
@@ -361,9 +397,8 @@ Tagify.prototype = {
 
           return;
         } else if (e.type == "blur") {
-          this.DOM.scope.classList.remove('tagify--focus');
           this.trigger("blur");
-          s && this.settings.addTagOnBlur && this.addTags(s, true).length;
+          s && this.settings.addTagOnBlur && this.addTags(s, true);
         } //    else{
         //  e.target.classList.add('placeholder');
 
@@ -488,7 +523,6 @@ Tagify.prototype = {
                 prefix: tag[0],
                 value: tag.input.split(tag[0])[1]
               };
-              tag = this.state.tag;
               showSuggestions = this.state.tag.value.length >= this.settings.dropdown.enabled;
             }
           }
@@ -711,7 +745,9 @@ Tagify.prototype = {
      */
     autocomplete: {
       suggest: function suggest(s) {
-        if (!s || !this.input.value) this.DOM.input.removeAttribute("data-suggest");else this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));
+        var suggestionStart = s.substr(0, this.input.value.length).toLowerCase(),
+            suggestionTrimmed = s.substring(this.input.value.length);
+        if (!s || !this.input.value || suggestionStart != this.input.value.toLowerCase()) this.DOM.input.removeAttribute("data-suggest");else this.DOM.input.setAttribute("data-suggest", suggestionTrimmed);
       },
       set: function set(s) {
         var dataSuggest = this.DOM.input.getAttribute('data-suggest'),
@@ -785,7 +821,6 @@ Tagify.prototype = {
    * @return {boolean}                [found / not found]
    */
   markTagByValue: function markTagByValue(value, tagElm) {
-    var tagsElms, tagsElmsLen;
     tagElm = tagElm || this.getTagElmByValue(value); // check AGAIN if "tagElm" is defined
 
     if (tagElm) {
@@ -846,7 +881,8 @@ Tagify.prototype = {
         delimiters = _this$settings.delimiters,
         mode = _this$settings.mode,
         whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
-        isCollection = tagsItems instanceof Array && tagsItems[0] instanceof Object && "value" in tagsItems[0],
+        isArray = tagsItems instanceof Array,
+        isCollection = isArray && tagsItems[0] instanceof Object && "value" in tagsItems[0],
         temp = [],
         mapStringToCollection = function mapStringToCollection(s) {
       return s.split(delimiters).filter(function (n) {
@@ -877,7 +913,7 @@ Tagify.prototype = {
       if (!tagsItems.trim()) return []; // go over each tag and add it (if there were multiple ones)
 
       tagsItems = mapStringToCollection(tagsItems);
-    } else if (!isCollection && tagsItems instanceof Array) {
+    } else if (isArray) {
       var _ref3;
 
       tagsItems = (_ref3 = []).concat.apply(_ref3, _toConsumableArray(tagsItems.map(function (item) {
@@ -908,8 +944,7 @@ Tagify.prototype = {
   parseMixTags: function parseMixTags(s) {
     var _this6 = this;
 
-    var tagData,
-        _this$settings2 = this.settings,
+    var _this$settings2 = this.settings,
         mixTagsInterpolator = _this$settings2.mixTagsInterpolator,
         duplicates = _this$settings2.duplicates,
         transformTag = _this$settings2.transformTag;
@@ -1007,7 +1042,7 @@ Tagify.prototype = {
       return tagElems;
     }
 
-    tagsItems = this.normalizeTags.call(this, tagsItems); // converts Array/String/Object to an Array of Objects
+    tagsItems = this.normalizeTags(tagsItems); // converts Array/String/Object to an Array of Objects
 
     if (this.settings.mode == 'mix') {
       this.settings.transformTag.call(this, tagsItems[0]);
@@ -1267,7 +1302,7 @@ Tagify.prototype = {
       var _this$settings$dropdo = this.settings.dropdown,
           position = _this$settings$dropdo.position,
           classname = _this$settings$dropdo.classname,
-          _className = "".concat(position == 'manual' ? "" : "tagify__dropdown", " ").concat(classname).trim(),
+          _className = "".concat(position == 'manual' ? "" : "tagify__dropdown tagify__dropdown--".concat(position), " ").concat(classname).trim(),
           template = "<div class=\"".concat(_className, "\" role=\"menu\"></div>");
 
       return this.parseHTML(template);
@@ -1344,10 +1379,27 @@ Tagify.prototype = {
       this.DOM.dropdown.innerHTML = this.minify(listHTML);
     },
     position: function position() {
-      var rect = this.DOM.scope.getBoundingClientRect();
-      this.DOM.dropdown.style.cssText = "left: " + (rect.left + window.pageXOffset) + "px; \
-                                               top: " + (rect.top + rect.height - 1 + window.pageYOffset) + "px; \
-                                               width: " + rect.width + "px";
+      var placement = this.settings.dropdown.position,
+          rect,
+          top,
+          left,
+          width;
+
+      if (placement == 'text') {
+        rect = this.getCaretGlobalPosition();
+        top = rect.top;
+        left = rect.left;
+        width = 'auto';
+      } else {
+        rect = this.DOM.scope.getBoundingClientRect();
+        top = rect.top + rect.height - 1;
+        left = rect.left;
+        width = rect.width + "px";
+      }
+
+      this.DOM.dropdown.style.cssText = "left: " + (left + window.pageXOffset) + "px; \
+                                               top: " + (top + window.pageYOffset) + "px; \
+                                               width: " + width;
     },
 
     /**
@@ -1451,9 +1503,10 @@ Tagify.prototype = {
             case 'Backspace':
               {
                 if (this.settings.mode == 'mix') return;
-                var value = this.input.value.trim();
 
-                if (value == "" || value.charCodeAt(0) == 8203) {
+                var _value = this.input.value.trim();
+
+                if (_value == "" || _value.charCodeAt(0) == 8203) {
                   if (this.settings.backspace === true) this.removeTag();else if (this.settings.backspace == 'edit') setTimeout(this.editTag.bind(this), 0);
                 }
               }
@@ -1516,11 +1569,12 @@ Tagify.prototype = {
 
       elm.classList.add(className);
       elm.setAttribute("aria-selected", true);
-      if (adjustScroll) elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight; // set the first item from the suggestions list as the autocomplete value
+      if (adjustScroll) elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight; // Try to autocomplete the typed value with the currently highlighted dropdown item
 
       if (this.settings.autoComplete) {
         value = this.suggestedListItems[this.getNodeIndex(elm)].value || this.input.value;
         this.input.autocomplete.suggest.call(this, value);
+        this.dropdown.position.call(this); // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
       }
     },
 

@@ -54,12 +54,13 @@ Tagify.prototype = {
         transformTag        : ()=>{},
         dropdown            : {
             classname     : '',
-            enabled       : 2,    // minimum input characters needs to be typed for the dropdown to show
+            enabled       : 2,      // minimum input characters needs to be typed for the dropdown to show
             maxItems      : 10,
             itemTemplate  : '',
             fuzzySearch   : true,
             highlightFirst: false,  // highlights first-matched item in the list
-            closeOnSelect : true,  // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
+            closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
+            position      : 'text'  // 'manual' / 'text' / 'bottom'
         }
     },
 
@@ -131,7 +132,7 @@ Tagify.prototype = {
             catch(e){}
 
         // Convert the "delimiters" setting into a REGEX object
-        if( this.settings && this.settings.delimiters ){
+        if( this.settings.delimiters ){
             try { this.settings.delimiters = new RegExp(this.settings.delimiters, "g") }
             catch(e){}
         }
@@ -164,6 +165,33 @@ Tagify.prototype = {
 
         p.appendChild(text);
         return p.innerHTML;
+    },
+
+    /**
+     * Get the caret position relative to the viewport
+     * https://stackoverflow.com/q/58985076/104380
+     *
+     * @returns {object} left, top distance in pixels
+     */
+    getCaretGlobalPosition(){
+        const sel = document.getSelection()
+
+        if( sel.rangeCount ){
+            const r = sel.getRangeAt(0)
+            const node = r.startContainer
+            const offset = r.startOffset
+            let rect,  r2;
+
+            if (offset > 0) {
+                r2 = document.createRange()
+                r2.setStart(node, (offset - 1))
+                r2.setEnd(node, offset)
+                rect = r2.getBoundingClientRect()
+                return {left:rect.right, top:rect.bottom}
+            }
+        }
+
+        return {left:-9999, top:-9999}
     },
 
     /**
@@ -347,10 +375,12 @@ Tagify.prototype = {
             onFocusBlur(e){
                 var s = e.target ? e.target.textContent.trim() : ''; // a string
 
+                // toggle "focus" BEM class
+                this.DOM.scope.classList[e.type == "focus" ? "add" : "remove"]('tagify--focus')
+
                 if( this.settings.mode == 'mix' ) return;
 
                 if( e.type == "focus" ){
-                    this.DOM.scope.classList.add('tagify--focus')
                     this.trigger("focus")
                     //  e.target.classList.remove('placeholder');
                     if( this.settings.dropdown.enabled === 0 ){
@@ -360,9 +390,8 @@ Tagify.prototype = {
                 }
 
                 else if( e.type == "blur" ){
-                    this.DOM.scope.classList.remove('tagify--focus');
                     this.trigger("blur")
-                    s && this.settings.addTagOnBlur && this.addTags(s, true).length;
+                    s && this.settings.addTagOnBlur && this.addTags(s, true);
                 }
 
             //    else{
@@ -488,7 +517,6 @@ Tagify.prototype = {
                                 value  : tag.input.split(tag[0])[1],
                             }
 
-                            tag = this.state.tag;
                             showSuggestions = this.state.tag.value.length >= this.settings.dropdown.enabled
                         }
                     }
@@ -736,10 +764,13 @@ Tagify.prototype = {
          */
         autocomplete : {
             suggest( s ){
-                if( !s || !this.input.value )
+                var suggestionStart = s.substr(0, this.input.value.length).toLowerCase(),
+                    suggestionTrimmed = s.substring(this.input.value.length);
+
+                if( !s || !this.input.value || suggestionStart != this.input.value.toLowerCase()  )
                     this.DOM.input.removeAttribute("data-suggest");
                 else
-                    this.DOM.input.setAttribute("data-suggest", s.substring(this.input.value.length));
+                    this.DOM.input.setAttribute("data-suggest", suggestionTrimmed);
             },
 
             set( s ){
@@ -828,8 +859,6 @@ Tagify.prototype = {
      * @return {boolean}                [found / not found]
      */
     markTagByValue( value, tagElm ){
-        var tagsElms, tagsElmsLen
-
         tagElm = tagElm || this.getTagElmByValue(value);
 
         // check AGAIN if "tagElm" is defined
@@ -902,7 +931,8 @@ Tagify.prototype = {
         var {whitelist, delimiters, mode} = this.settings,
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
-            isCollection = tagsItems instanceof Array && tagsItems[0] instanceof Object && "value" in tagsItems[0],
+            isArray = tagsItems instanceof Array,
+            isCollection = isArray && tagsItems[0] instanceof Object && "value" in tagsItems[0],
             temp = [],
             mapStringToCollection = s => s.split(delimiters).filter(n => n).map(v => ({ value:v.trim() }))
 
@@ -924,7 +954,7 @@ Tagify.prototype = {
             tagsItems = mapStringToCollection(tagsItems);
         }
 
-        else if( !isCollection && tagsItems instanceof Array ){
+        else if( isArray ){
             tagsItems = [].concat(...tagsItems.map(item => mapStringToCollection(item)));
         }
 
@@ -950,8 +980,7 @@ Tagify.prototype = {
      * @param {String} s
      */
     parseMixTags( s ){
-        var tagData,
-            {mixTagsInterpolator, duplicates, transformTag} = this.settings;
+        var {mixTagsInterpolator, duplicates, transformTag} = this.settings;
 
         s = s.split(mixTagsInterpolator[0]).map(s1 => {
             var s2 = s1.split(mixTagsInterpolator[1]),
@@ -1044,7 +1073,7 @@ Tagify.prototype = {
             return tagElems;
         }
 
-        tagsItems = this.normalizeTags.call(this, tagsItems); // converts Array/String/Object to an Array of Objects
+        tagsItems = this.normalizeTags(tagsItems); // converts Array/String/Object to an Array of Objects
 
         if( this.settings.mode == 'mix' ){
             this.settings.transformTag.call(this, tagsItems[0]);
@@ -1302,7 +1331,7 @@ Tagify.prototype = {
 
         build(){
             var {position, classname} = this.settings.dropdown,
-                _className = `${position == 'manual' ? "" : "tagify__dropdown"} ${classname}`.trim(),
+                _className = `${position == 'manual' ? "" : `tagify__dropdown tagify__dropdown--${position}`} ${classname}`.trim(),
                 template = `<div class="${_className}" role="menu"></div>`;
             return this.parseHTML(template);
         },
@@ -1394,11 +1423,25 @@ Tagify.prototype = {
         },
 
         position(){
-            var rect = this.DOM.scope.getBoundingClientRect();
+            var placement = this.settings.dropdown.position,
+                rect, top, left, width;
 
-            this.DOM.dropdown.style.cssText = "left: "  + (rect.left + window.pageXOffset) + "px; \
-                                               top: "   + (rect.top + rect.height - 1 + window.pageYOffset)  + "px; \
-                                               width: " + rect.width + "px";
+            if( placement == 'text'  ){
+                rect  = this.getCaretGlobalPosition()
+                top   = rect.top;
+                left  = rect.left;
+                width = 'auto';
+            }
+            else{
+                rect  = this.DOM.scope.getBoundingClientRect()
+                top   = rect.top + rect.height - 1
+                left  = rect.left;
+                width = rect.width + "px"
+            }
+
+            this.DOM.dropdown.style.cssText = "left: "  + (left + window.pageXOffset) + "px; \
+                                               top: "   + (top  + window.pageYOffset) + "px; \
+                                               width: " + width;
         },
 
         /**
@@ -1469,7 +1512,7 @@ Tagify.prototype = {
                         case 'Tab' : {
                             e.preventDefault();
                             try{
-                                var value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
+                                let value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
                                 this.input.autocomplete.set.call(this, value)
                             }
                             catch(err){}
@@ -1477,7 +1520,7 @@ Tagify.prototype = {
                         }
                         case 'Enter' : {
                             e.preventDefault();
-                            var hideDropdown = this.settings.dropdown.enabled || this.settings.dropdown.closeOnSelect
+                            let hideDropdown = this.settings.dropdown.enabled || this.settings.dropdown.closeOnSelect
 
                             if( activeListElm ){
                                 newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value
@@ -1498,7 +1541,7 @@ Tagify.prototype = {
                         case 'Backspace' : {
                             if( this.settings.mode == 'mix' ) return;
 
-                            var value = this.input.value.trim()
+                            let value = this.input.value.trim()
 
                             if( value == "" || value.charCodeAt(0) == 8203 ){
                                 if( this.settings.backspace === true )
@@ -1581,10 +1624,11 @@ Tagify.prototype = {
             if( adjustScroll )
                 elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight
 
-            // set the first item from the suggestions list as the autocomplete value
+            // Try to autocomplete the typed value with the currently highlighted dropdown item
             if( this.settings.autoComplete ){
                 value = this.suggestedListItems[this.getNodeIndex(elm)].value || this.input.value;
                 this.input.autocomplete.suggest.call(this, value);
+                this.dropdown.position.call(this); // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
             }
         },
 
