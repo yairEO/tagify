@@ -6,8 +6,77 @@
         <meta name="description" content="Converts HTML input/textarea into Tags component">
         <meta name="author" content="Yair Even-Or">
 
-        <link rel="stylesheet" href="https://cdn.rawgit.com/yairEO/ec9e154c4269b9a0f264fba7f64d7383/raw/e0c395043e809c2def517280850aeec410536abd/vsync_demos.css">
         <link rel="stylesheet" href="dist/tagify.css">
+        <style>
+          html, body{ min-height:100%; }
+          body{
+              font:14px Arial; margin:0;
+              background-image  : linear-gradient(to left, #F3F3F3 100%, transparent 0%);
+              background-repeat : no-repeat;
+              background-size   : 50% 1000%;
+              overflow-x:hidden;
+          } /* display:flex; flex-flow: column nowrap; align-items:center; justify-content:center; */
+
+          .forkLink{ position:fixed; z-index:100; border:0; top:0; width:70px; right:0; opacity:.8; transition:.15s ease-out; }
+          .forkLink:hover{ opacity:1; }
+          .forkLink img{ width:100%; }
+
+          section{ display:flex; }
+          aside{ padding:3em; box-sizing:border-box; width:50%; }
+          section > .leftSide{   }
+          section > .rightSide{  }
+
+          .leftSide style {
+            display: block;
+            background: #333;
+            color: white;
+            font: 13px/1.8 Monaco, monospace;
+            padding: 1em;
+            white-space: pre;
+          }
+
+          .leftSide h2{ position:relative; text-transform:uppercase; font-size:2em; margin-top:0; }
+          .leftSide h2 > a{ position:absolute; transform:translateX(-150%); text-decoration:none; color:#AAA; font-weight:normal; }
+
+          h3{ color:#777; font-size:1.2em; margin:0 0 5px; }
+          xmp, pre{ white-space:normal; padding:8px; background:white; color:navy; border-radius:4px; }
+          pre{ white-space:pre; overflow:auto; }
+
+
+          p{ line-height:1.4; }
+          code{ padding:2px 3px; background:lightyellow; }
+          pre code{ background:none; padding:0; }
+
+          body :not(pre)>code[class*=language-], body pre[class*=language-]{ background:white; }
+
+          p{ line-height:1.4; }
+          code{ padding:2px 3px; background:lightyellow; }
+          pre code{ background:none; padding:0; }
+          pre[class*=language-]{ max-height:400px; }
+
+          /* details expander */
+          summary{ outline: none; font-size:1.3em; color: #333; cursor:pointer; margin:1em 0 0 0; user-select:none; transition: .15s ease-out; }
+          summary::after{ content:"Code"; }
+          details[open] summary{ margin-bottom: 1em; }
+
+          .forkLink{ position:absolute; top:.7em; right:50%; transform:translateX(50%); }
+          body > header{
+              display: flex;
+              align-items: center;
+              background:white;
+              border-bottom: 1px solid #DDD;
+              box-shadow: 0 0 6px rgba(0,0,0,.1);
+              padding: .8em 1em .8em 3em;
+          }
+
+          body > header .liveLink{ color:#333; text-decoration:none; font-size:1.4em; position:relative; line-height:1; }
+          body > header .liveLink::before{ content:'✎'; text-decoration:none; transform:translateX(-150%); position:absolute; top:1px; left:0; }
+          body > header .liveLink:hover{ text-decoration: underline; }
+
+          ul > li{
+            margin: .8em 0;
+          }
+        </style>
 
         <script>
             // if IE, add IE tagify's polyfills
@@ -65,39 +134,16 @@
         </script>
 
         <style>
-            p{ line-height:1.4; }
-            code{ padding:2px 3px; background:lightyellow; }
-            pre code{ background:none; padding:0; }
-            pre[class*=language-]{ max-height:400px; }
-
-            .forkLink{ position:absolute; top:.7em; right:50%; transform:translateX(50%); }
-            body > header{
-                display: flex;
-                align-items: center;
-                background:white;
-                border-bottom: 1px solid #DDD;
-                box-shadow: 0 0 6px rgba(0,0,0,.1);
-                padding: .8em 1em .8em 3em;
-            }
-
-            body > header .liveLink{ color:#333; text-decoration:none; font-size:1.4em; position:relative; line-height:1; }
-            body > header .liveLink::before{ content:'✎'; text-decoration:none; transform:translateX(-150%); position:absolute; top:1px; left:0; }
-            body > header .liveLink:hover{ text-decoration: underline; }
-
-            ul > li{
-              margin: .8em 0;
-            }
-
             section > .rightSide{
                 position: sticky;
-                top: 1em;
+                top: 0;
                 align-self: start;
             }
 
             .tagify{
                 min-width:400px;
                 max-width:600px;
-                margin: 1.5rem 0;
+                margin: 0 0 1em 0;
             }
 
             label{ cursor:pointer; }
@@ -114,117 +160,12 @@
             .disabled tags + input,
             .disabled tags + textarea{ display:block !important; width:100%; padding:6px; border:1px inset; }
 
-            /************************************/
-            /* Outside of the box */
-            .tagify--outside{
-                border: 0;
-                padding: 0;
-                margin: 0;
-            }
 
-            .tagify__input--outside{
-                display: block;
-                max-width: 600px;
-                border: 1px solid #DDD;
-                margin-top: 1.5em;
-                line-height: 1.2;
-            }
-
-            /*************************************/
-            /* Countries' flags */
-            .tagify__dropdown.extra-properties .tagify__dropdown__item{ color:#777; }
-            .tagify__dropdown.extra-properties .tagify__dropdown__item:hover{ color:black; background:#F1F1F1; }
-
-            .tagify__dropdown.extra-properties .tagify__dropdown__item > img{
-                display: inline-block;
-                vertical-align: middle;
-                height: 20px;
-                transform: scale(.75);
-                margin-right: 5px;
-                border-radius: 2px;
-                transition: .12s ease-out;
-            }
-
-            .tagify__dropdown.extra-properties .tagify__dropdown__item--active > img,
-            .tagify__dropdown.extra-properties .tagify__dropdown__item:hover > img{
-                transform: none;
-                margin-right: 12px;
-            }
-
-            .tagify.countries .tagify__input{ min-width:175px; }
-
-            .tagify.countries tag{ white-space:nowrap; }
-            .tagify.countries tag img{
-                display: inline-block;
-                height: 16px;
-                margin-right: 3px;
-                border-radius: 2px;
-            }
 
             /* .tagify.readonlyMix > tag:not([readonly]) div::before{ background:#d3e2e2; } */
 
             .tagify__input .borderd-blue > div::before{ border:2px solid #8DAFFA; }
 
-            .customSuggestionsList{
-                max-height: 300px;
-                overflow: auto;
-                border: 2px solid pink;
-            }
-
-            /*------ customLook ----------*/
-            .customLook{
-                --tag-bg: #0052BF;
-                --tag-hover: #CE0078;
-                --tag-text-color: #FFF;
-                --tags-border-color: silver;
-                --tag-text-color--edit: #111;
-                --tag-remove-bg: var(--tag-hover);
-                --tag-pad: .6em 1em;
-                --tag-inset-shadow-size: 1.3em;
-                --tag-remove-btn-bg--hover: black;
-
-                display: inline-block;
-                min-width: 0;
-                border: none;
-            }
-
-            .customLook .tagify__tag{
-                margin-top: 0;
-            }
-
-            .customLook .tagify__tag > div{
-                border-radius: 25px;
-            }
-
-            .customLook .tagify__tag:only-of-type .tagify__tag__removeBtn{
-                display: none;
-            }
-
-            .customLook + button{
-                color: #0052BF;
-                font: bold 1.4em/1.65 Arial;
-                border: 0;
-                background: none;
-                box-shadow: 0 0 0 2px inset currentColor;
-                border-radius: 50%;
-                width: 1.65em;
-                height: 1.65em;
-                cursor: pointer;
-                outline: none;
-                transition: .1s ease-out;
-                margin: 1.5rem 0 0 5px;
-                vertical-align: top;
-            }
-
-            .customLook + button:hover{
-                box-shadow: 0 0 0 5px inset currentColor;
-            }
-
-            .customLook .tagify__input{
-                display: none;
-            }
-
-            /***************************/
             header label[for="toggle__tagifyStyleSettings"]{
                 margin-left: auto;
                 font-size: 1.5em;
@@ -267,7 +208,7 @@
 
     <body>
         <header>
-            <a class='liveLink' href='https://jsbin.com/degobup/6/edit?html,js,output' target="_blank">LIVE Code Playground</a>
+            <a class='liveLink' href='https://jsbin.com/degobup/6/edit?html,js,output' target="_blank">Tagify: JSbin Code Playground</a>
             <a class='forkLink' title='Go To Repo' href='https://github.com/yairEO/tagify'>
                 <img src='https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png' alt='GitHub Repo'>
             </a>
@@ -362,12 +303,15 @@
                       The input has a pre-defined value which Tagify creates two from tags.
                     </p>
                     <p>
-                      <strong><em>Double-click</em> on a tag to edit it</strong>
+                      (<strong><em>Double-click</em> on a tag to edit it</strong>)
                     </p>
-                    <h3>HTML</h3>
+                    <details>
+                      <summary></summary>
+                      <h3>HTML</h3>
 <pre class="language-markup"><code><&#8203;input name='basic' value='tag1, tag2'></code></pre>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "basic")</script>
+                      <h3>JAVASCRIPT</h3>
+                      <script>renderPRE(document.currentScript, "basic")</script>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <input name='basic' value='tag1, tag2' autofocus>
@@ -396,7 +340,10 @@
                     </p>
                     <p>As text is typed, the <code>onInput</code> Tagify event is fired, on each key stroke. Reseting the current whitelist and fecthing a new one (from <code>mockAjax()</code>)</p>
                     <p>In real-life scenarios, a developer might wish to use different <em>whitelists</em> suggested to the user, according to the typed text, asusming the possibilities are too large to load at-once as the inital <em>whitelist</em>.</p>
-                    <h3>HTML</h3>
+
+                    <details>
+                      <summary></summary>
+                      <h3>HTML</h3>
 <pre class="language-markup"><code><&#8203;input
     name='input'
     class='some_class_name'              // This class will be copied to the Tagify component
@@ -404,8 +351,9 @@
     value='css, html, javascript, css'   // initial values, as String (can also be an Array of Objects)
     data-blacklist='.NET,PHP'>           // list of invaild tags, which cannot be added
 </code></pre>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "input")</script>
+                      <h3>JAVASCRIPT</h3>
+                      <script>renderPRE(document.currentScript, "input")</script>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <input name='input' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css' data-blacklist='.NET,PHP'>
@@ -420,16 +368,15 @@
                         In this example, the field is pre-ocupied with 3 tags, and last tag is <strong>not included</strong> in the whitelist,
                         and will be <em>removed</em> because the <code>enforceWhitelist</code> option flag is set to <code>true</code>
                     </p>
-                    <h3>HTML</h3>
+                    <details>
+                      <summary></summary>
+                      <h3>HTML</h3>
 <pre class="language-markup"><code>&lt;textarea name='tags2' placeholder='Movie names'>
     The Matrix, Pulp Fiction, Mad Max
 &lt;/textarea></code></pre>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "textarea")</script>
-                    <h3>CSS</h3>
-<pre class="language-css"><code>&lt;textarea name='tags2' placeholder='Movie names'>
-    The Matrix, Pulp Fiction, Mad Max
-&lt;/textarea></code></pre>
+                      <h3>JAVASCRIPT</h3>
+                      <script>renderPRE(document.currentScript, "textarea")</script>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <textarea name='tags2' placeholder='Movie names'>The Matrix, Pulp Fiction, Mad Max</textarea>
@@ -438,7 +385,7 @@
 
             <section id='customLook'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-different-look'>#</a>Different look</h2>
+                    <h2><a href='#section-different-look'>#</a>Easy to customize</h2>
                     <p>
                         No placeholder, and no way of adding tags from within the component, but only
                         by clicking the (+) button, which is not related to Tagify in anyway, but in this example
@@ -447,73 +394,68 @@
                     <p>
                         This example also shows how to implement minimum-allowed tags
                     </p>
-                    <h3>HTML</h3>
+                    <details>
+                      <summary></summary>
+                      <h3>HTML</h3>
 <pre class="language-markup"><code>&lt;textarea name='tags2' placeholder='Movie names'>
     The Matrix, Pulp Fiction, Mad Max
 &lt;/textarea></code></pre>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "customLook")</script>
-                    <h3>CSS</h3>
-<pre class="language-css"><code>
-/* Because the original input element has the class "customLook",
- * when "tagified", the class automatically is added to the
- * class list of the ".tagify" element
- */
-.customLook{
-    --tag-bg                   : #0052BF;
-    --tag-hover                : #CE0078;
-    --tag-text-color           : #FFF;
-    --tags-border-color        : silver;
-    --tag-text-color--edit     : #111;
-    --tag-remove-bg            : var(--tag-hover);
-    --tag-pad                  : .6em 1em;
-    --tag-inset-shadow-size    : 1.3em;
-    --tag-remove-btn-bg--hover : black;
+                      <h3>JAVASCRIPT</h3>
+                      <script>renderPRE(document.currentScript, "customLook")</script>
+                      <h3>CSS (editable)</h3>
+<style contenteditable>.customLook{
+  --tag-bg: #0052BF;
+  --tag-hover: #CE0078;
+  --tag-text-color: #FFF;
+  --tags-border-color: silver;
+  --tag-text-color--edit: #111;
+  --tag-remove-bg: var(--tag-hover);
+  --tag-pad: .6em 1em;
+  --tag-inset-shadow-size: 1.3em;
+  --tag-remove-btn-bg--hover: black;
 
-    display: inline-block;
-    min-width: 0;
-    border: none;
+  display: inline-block;
+  min-width: 0;
+  border: none;
 }
 
 .customLook .tagify__tag{
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .customLook .tagify__tag > div{
-    border-radius: 25px;
+  border-radius: 25px;
 }
 
-/* hide the (x) delet-tag button if there's only one tag,
- * to force minimum 1 tag
- */
 .customLook .tagify__tag:only-of-type .tagify__tag__removeBtn{
-    display: none;
+  display: none;
 }
 
 .customLook + button{
-    color: #0052BF;
-    font: bold 1.4em/1.65 Arial;
-    border: 0;
-    background: none;
-    box-shadow: 0 0 0 2px inset currentColor;
-    border-radius: 50%;
-    width: 1.65em;
-    height: 1.65em;
-    cursor: pointer;
-    outline: none;
-    transition: .1s ease-out;
-    margin: 1.5rem 0 0 5px;
-    vertical-align: top;
+  color: #0052BF;
+  font: bold 1.4em/1.65 Arial;
+  border: 0;
+  background: none;
+  box-shadow: 0 0 0 2px inset currentColor;
+  border-radius: 50%;
+  width: 1.65em;
+  height: 1.65em;
+  cursor: pointer;
+  outline: none;
+  transition: .1s ease-out;
+  margin: 0 0 0 5px;
+  vertical-align: top;
 }
 
 .customLook + button:hover{
-    box-shadow: 0 0 0 5px inset currentColor;
+  box-shadow: 0 0 0 5px inset currentColor;
 }
 
 .customLook .tagify__input{
-    display: none;
+  display: none;
 }
-</code></pre>
+</style>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <input class='customLook' value='some.name@website.com'><button type="button">+</button>
@@ -543,6 +485,8 @@
                         that in mind when populating a textarea with server data and expecting tags to "magically" appear. Whitelist must be specified because not
                         everything that starts with <code>@</code> or <code>#</code> (or whatever was defined) is meant to be rendered as a tag.
                     </p>
+                    <details>
+                      <summary></summary>
                     <h3>HTML</h3>
 <pre class="language-markup"><code>&lt;textarea name='mix'>
     [[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[homer simpson]] because he's a relic.
@@ -550,6 +494,7 @@
 </code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "mix")</script>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <textarea name='mix'>[[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea>
@@ -562,13 +507,14 @@
                     <p>
                         Some cases might require addition of tags from outside of the box and not within.
                     </p>
+                    <details>
+                      <summary></summary>
                     <h3>HTML</h3>
  <pre class="language-markup"><code>&gt;input name='tags-outside' class='tagify--outside' placeholder='write some tags'></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "outside-of-the-box")</script>
                     <h3>CSS</h3>
-                    <pre>
-<code class="language-css">.tagify--outside{
+<style contenteditable>.tagify--outside{
     border: 0;
     padding: 0;
     margin: 0;
@@ -579,7 +525,8 @@
     border: 1px solid #DDD;
     margin-top: 1.5em;
     margin-bottom: 1em;
-}</code></pre>
+}</style>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags-outside' class='tagify--outside' value='tag1, tag2, tag3' placeholder='write some tags'>
@@ -593,10 +540,20 @@
                         Renders the suggestions list manually, useful for situations where you wish to shown the suggestions list
                         inside a modal or your own popup implementaion, or even always show it. In this example the list is always shown.
                     </p>
+                    <details>
+                      <summary></summary>
                     <h3>HTML</h3>
 <pre class="language-markup"><code>&gt;input name='tags-manual-suggestions' placeholder='write some tags'></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "manualSuggestions")</script>
+                    <h3>CSS</h3>
+<style contenteditable>.customSuggestionsList{
+  max-height: 300px;
+  overflow: auto;
+  border: 2px solid pink;
+}
+</style>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags-manual-suggestions' placeholder='write some tags'>
@@ -623,10 +580,13 @@
                     <p>
                         The <code>keepInvalidTags</code> <em>setting</em> flag is switched <em>on</em> to <code>true</code> so invaild tags are not removed but are only marked.
                     </p>
+                    <details>
+                      <summary></summary>
                     <h3>HTML</h3>
 <pre class="language-markup"><code>&lt;input name='tags3' value='[{"value":"point"}, {"value":"soft"}]' pattern='^[A-Za-z_✲ ]{1,15}$'></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "advance-options")</script>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags3' value='[{"value":"point"}, {"value":"soft"}]' pattern='^[A-Za-z_✲ ]{1,15}$'>
@@ -652,6 +612,8 @@
                         For the example below, the first two tags have a <code>readonly</code>
                         property and that will enable the CSS to target that and hide the <code>&times;</code> button and disable the hover state.
                     </p>
+                    <details>
+                      <summary></summary>
                     <h3>HTML</h3>
                     <xmp><input name='tags3-1' placeholder="Try to add tags from the list"></xmp>
                     <h3>Javascript</h3>
@@ -659,8 +621,7 @@
                         renderPRE(document.currentScript, "extra-properties")
                     </script>
                     <h3>CSS</h3>
-                    <pre>
-<code class="language-css">.tagify__dropdown.extra-properties .tagify__dropdown__item > img{
+<style contenteditable>.tagify__dropdown.extra-properties .tagify__dropdown__item > img{
     display: inline-block;
     vertical-align: middle;
     height: 20px;
@@ -670,6 +631,7 @@
     transition: .12s ease-out;
 }
 
+.tagify__dropdown.extra-properties .tagify__dropdown__item--active > img,
 .tagify__dropdown.extra-properties .tagify__dropdown__item:hover > img{
     transform: none;
     margin-right: 12px;
@@ -680,11 +642,12 @@
 .tagify.countries tag{ white-space:nowrap; }
 .tagify.countries tag img{
     display: inline-block;
-    vertical-align: middle;
     height: 16px;
     margin-right: 3px;
     border-radius: 2px;
-}</code></pre>
+}
+</style>
+                    </details>
                 </aside>
                 <aside class='rightSide'><input class='countries' name='tags3-1' placeholder="Try to add tags from the list"></aside>
             </section>
@@ -696,12 +659,15 @@
                     <p>
                         If the original input field has a <code>readonly</code> attribute, then, via CSS, there will be no way of manually adding tags because the inline contenteditable element will be hidden.
                     </p>
+                    <details>
+                      <summary></summary>
                     <h3>HTML</h3>
                     <xmp><input name='tags4' readonly value='tag1, tag 2, another tag'></xmp>
                     <h3>Javascript</h3>
                     <script>
                         renderPRE(document.currentScript, "readonly")
                     </script>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags4' readonly value='tag1, tag 2, another tag'>
@@ -714,12 +680,15 @@
                     <p>
                         Tags that are read-only mixed with removable tags
                     </p>
+                    <details>
+                      <summary></summary>
                     <h3>HTML</h3>
                     <xmp><input name='tags-readonly-mix' class='readonlyMix' placeholder="Type something" /></xmp>
                     <h3>Javascript</h3>
                     <script>
                         renderPRE(document.currentScript, "readonly-mixed")
                     </script>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <input
@@ -750,12 +719,13 @@
                     <p>
                         Similar to native <code>&lt;Select&gt;</code> element, but allows free text as value, if
                     </p>
+                    <details>
+                      <summary></summary>
                     <h3>HTML</h3>
 <pre class="language-markup"><code>&lt;input name='tags-select-mode' class='selectMode' placeholder="Please select" /&gt;</code></pre>
                     <h3>Javascript</h3>
-                    <script>
-                        renderPRE(document.currentScript, "mode-select")
-                    </script>
+                    <script>renderPRE(document.currentScript, "mode-select")</script>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags-select-mode' class='selectMode' placeholder="Please select" />
@@ -769,6 +739,8 @@
                     <p>
                         Tagify can also be used as a jQuery plugin
                     </p>
+                    <details>
+                      <summary></summary>
                     <h3>HTML</h3>
                     <xmp>
                         <input name='tags-jquery' value='try, adding, a tag'>
@@ -776,6 +748,7 @@
                     </xmp>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "jQuery")</script>
+                    </details>
                 </aside>
                 <aside class='rightSide'>
                     <input name='tags-jquery' value='try, adding, a tag'>
@@ -840,7 +813,7 @@ var input = document.querySelector('input[name=input]'),
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
         // after 2 characters typed, all matching values from this list will be suggested in a dropdown
-        whitelist: [].concat(whitelist)
+        // whitelist: [].concat(whitelist)
     })
 
 
@@ -893,9 +866,8 @@ function onInput(e){
             // https://stackoverflow.com/q/30640771/104380
             // replace tagify "whitelist" array values with new values (result)
             tagify.settings.whitelist.splice(0, result.length, ...result)
-
-            // render the suggestions dropdown
-            tagify.dropdown.show.call(tagify, e.detail.value);
+            // render the suggestions dropdown. "newValue" is when "input" event is called while editing a tag
+            tagify.dropdown.show.call(tagify, e.detail.data.value);
         })
 }
 
@@ -988,8 +960,21 @@ var input = document.querySelector('textarea[name=tags2]'),
 
 <script data-name="customLook">
 (function(){
+var randomStringsArr = Array.apply(null, Array(100)).map(function() {
+  return Array.apply(null, Array(~~(Math.random() * 10  + 3))).map(function() {
+    return String.fromCharCode(Math.random() * (123 - 97) + 97);
+  }).join('')
+})
+
 var input = document.querySelector('.customLook'),
-    tagify = new Tagify(input),
+    settings = {
+      whitelist: randomStringsArr,
+      dropdown : {
+        position: 'text',
+        enabled: 1 // show suggestions dropdown after 1 character typed
+      }
+    },
+    tagify = new Tagify(input, settings),
     button = input.nextElementSibling;  // "add new tag" action-button
 
 button.addEventListener("click", onAddButtonClick)

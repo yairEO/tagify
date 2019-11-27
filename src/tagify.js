@@ -7,7 +7,9 @@ function Tagify( input, settings ){
 
     this.applySettings(input, settings);
 
-    this.state = {};
+    this.state = {
+        editing : {}
+    };
     this.value = []; // tags' data
 
     // events' callbacks references will be stores here, so events could be unbinded
@@ -60,7 +62,7 @@ Tagify.prototype = {
             fuzzySearch   : true,
             highlightFirst: false,  // highlights first-matched item in the list
             closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
-            position      : 'text'  // 'manual' / 'text' / 'bottom'
+            position      : 'all'  // 'manual' / 'text' / 'all'
         }
     },
 
@@ -187,7 +189,7 @@ Tagify.prototype = {
                 r2.setStart(node, (offset - 1))
                 r2.setEnd(node, offset)
                 rect = r2.getBoundingClientRect()
-                return {left:rect.right, top:rect.bottom}
+                return {left:rect.right, top:rect.top, bottom:rect.bottom}
             }
         }
 
@@ -362,7 +364,7 @@ Tagify.prototype = {
                 this.DOM[_CBR[eventName][0]][action](eventName.replace(/_/g, ''), _CBR[eventName][1]);
             }
 
-            // make sure the focus/blur event is always regesitered (and never more than one)
+            // make sure the focus/blur event is always regesitered (and never more than once)
             // TODO: Refactor this:
             this.DOM.input.removeEventListener('blur', _CBR.blur[1])
             this.DOM.input.addEventListener('blur', _CBR.blur[1])
@@ -573,11 +575,20 @@ Tagify.prototype = {
 
                 tagElm.classList.toggle('tagify--invalid', isValid !== true);
                 tagElm.isValid = isValid;
-                this.trigger("input", { tag:tagElm, index:tagElmIdx, data:this.extend({}, this.value[tagElmIdx], {newValue:value}) });
+
+                // show dropdown if typed text is equal or more than the "enabled" dropdown setting
+                if( value.length >= this.settings.dropdown.enabled ){
+                    this.state.editing.value = value;
+                    this.dropdown.show.call(this, value);
+                }
+
+                this.trigger("edit:input", { tag:tagElm, index:tagElmIdx, data:this.extend({}, this.value[tagElmIdx], {newValue:value}) });
             },
 
             onEditTagBlur( editableElm ){
-                var tagElm       = editableElm.closest('tag'),
+                if( !this.DOM.scope.contains(editableElm) ) return;
+
+                var tagElm       = editableElm.closest('.tagify__tag'),
                     tagElmIdx    = this.getNodeIndex(tagElm),
                     currentValue = this.input.normalize(editableElm),
                     value        = currentValue || editableElm.originalValue,
@@ -598,17 +609,14 @@ Tagify.prototype = {
                     isValid = this.validateTag(tagData.value)
                 }
                 else{
-                    this.editTagDone(tagElm)
+                    this.replaceTag(tagElm)
                     return
                 }
 
                 if( isValid !== undefined && isValid !== true )
                     return;
 
-                this.editTagDone(tagElm, tagData)
-
-
-                this.trigger("edit", { tag:tagElm, index:tagElmIdx, data:this.value[tagElmIdx] })
+                this.replaceTag(tagElm, tagData)
             },
 
             onEditTagkeydown(e){
@@ -619,8 +627,8 @@ Tagify.prototype = {
 
                     case 'Enter' :
                     case 'Tab' :
-                        e.preventDefault();
-                        e.target.blur();
+                        e.preventDefault()
+                        e.target.blur()
                 }
             },
 
@@ -646,34 +654,53 @@ Tagify.prototype = {
      */
     editTag( tagElm = this.getLastTag() ){
         var editableElm = tagElm.querySelector('.tagify__tag-text'),
-            _CB = this.events.callbacks;
+            tagIdx = this.getNodeIndex(tagElm),
+            _CB = this.events.callbacks,
+            that = this,
+            delayed_onEditTagBlur = function(){ setTimeout(_CB.onEditTagBlur.bind(that), 0, editableElm) }
+
 
         if( !editableElm ){
             console.warn('Cannot find element in Tag template: ', '.tagify__tag-text');
             return;
         }
 
-        tagElm.classList.add('tagify--editable');
-        editableElm.originalValue = editableElm.textContent;
+        tagElm.classList.add('tagify--editable')
+        editableElm.originalValue = editableElm.textContent
 
-        editableElm.setAttribute('contenteditable', true);
+        editableElm.setAttribute('contenteditable', true)
 
-        editableElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, editableElm));
-        editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
-        editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e));
+        editableElm.addEventListener('blur', delayed_onEditTagBlur)
+        editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
+        editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e))
 
         editableElm.focus();
         this.setRangeAtStartEnd(false, editableElm);
+
+        this.state.editing = {
+            scope: tagElm,
+            input: tagElm.querySelector("[contenteditable]")
+        }
+
+        this.trigger("edit:start", { tag:tagElm, index:tagIdx, data:this.value[tagIdx] })
+
         return this;
     },
 
     /**
-     * Exit a tag's edit-mode
+     * Exit a tag's edit-mode. if "tagData"
      */
-    editTagDone(tagElm, tagData){
+    replaceTag(tagElm, tagData){
         var editableElm = tagElm.querySelector('.tagify__tag-text'),
             clone = editableElm.cloneNode(true),
             tagElmIdx;
+
+        if( this.state.editing.locked ) return;
+
+        // when editing a tag and selecting a dropdown suggested item, the state should be "locked"
+        // so "onEditTagBlur" won't run and change the tag also *after* it was just changed.
+        this.state.editing = { locked:true }
+        setTimeout(() => delete this.state.editing.locked , 500)
 
         // update DOM nodes
         clone.removeAttribute('contenteditable')
@@ -685,13 +712,14 @@ Tagify.prototype = {
 
         // continue only if there was a reason for it
         if( tagData ){
-            editableElm.textContent = tagData.value
-            tagElm.title = tagData.value
+            clone.innerHTML = tagData.value
+            clone.title = tagData.value
 
             // update data
-            tagElmIdx = this.getNodeIndex(tagElm)
-            this.value[tagElmIdx].value = tagData.value
+            tagElmIdx = this.getNodeIndex(clone)
+            this.value[tagElmIdx] = tagData
             this.update()
+            this.trigger("edit:change", { tag:tagElm, index:tagElmIdx, data:tagData })
         }
     },
 
@@ -764,6 +792,7 @@ Tagify.prototype = {
          */
         autocomplete : {
             suggest( s ){
+                s = s || '';
                 var suggestionStart = s.substr(0, this.input.value.length).toLowerCase(),
                     suggestionTrimmed = s.substring(this.input.value.length);
 
@@ -1075,6 +1104,11 @@ Tagify.prototype = {
 
         tagsItems = this.normalizeTags(tagsItems); // converts Array/String/Object to an Array of Objects
 
+        // if in edit-mode, do not continue but instead replace the tag's text
+        if( this.state.editing.scope ){
+            return this.replaceTag(this.state.editing.scope, tagsItems[0])
+        }
+
         if( this.settings.mode == 'mix' ){
             this.settings.transformTag.call(this, tagsItems[0]);
             tagElm = this.createTagElem(tagsItems[0]);
@@ -1141,7 +1175,7 @@ Tagify.prototype = {
 
                 if( this.getLastTag() ){
                     // update current tag
-                    this.editTagDone(this.getLastTag(), tagData)
+                    this.replaceTag(this.getLastTag(), tagData)
                     this.value[0] = tagData
                     this.update()
                     this.trigger('add', { tag:tagElm, data:tagData })
@@ -1242,7 +1276,7 @@ Tagify.prototype = {
                 tagData = that.value.splice(tagIdx, 1)[0]; // remove the tag from the data object
                 that.update() // update the original input with the current value
                 that.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData });
-                that.dropdown.render.call(that);
+                that.dropdown.fill.call(that);
                 that.dropdown.position.call(that)
             }
             else if( that.settings.keepInvalidTags )
@@ -1326,14 +1360,19 @@ Tagify.prototype = {
      */
     dropdown : {
         init(){
-            this.DOM.dropdown = this.dropdown.build.call(this);
+            this.DOM.dropdown = this.dropdown.build.call(this)
+            this.DOM.dropdown.content = this.DOM.dropdown.querySelector('.tagify__dropdown__wrapper')
         },
 
         build(){
             var {position, classname} = this.settings.dropdown,
                 _className = `${position == 'manual' ? "" : `tagify__dropdown tagify__dropdown--${position}`} ${classname}`.trim(),
-                template = `<div class="${_className}" role="menu"></div>`;
-            return this.parseHTML(template);
+                elm = this.parseHTML(
+                    `<div class="${_className}" role="menu">
+                        <div class="tagify__dropdown__wrapper"></div>
+                    </div>`);
+
+            return elm;
         },
 
         show( value ){
@@ -1369,11 +1408,11 @@ Tagify.prototype = {
 
             listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
 
-            this.DOM.dropdown.innerHTML = this.minify(listHTML);
+            this.DOM.dropdown.content.innerHTML = this.minify(listHTML);
 
             // if "enforceWhitelist" is "true", highlight the first suggested item
             if( (_s.enforceWhitelist && !isManual) || _s.dropdown.highlightFirst )
-                this.dropdown.highlightOption.call(this, this.DOM.dropdown.children[0])
+                this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0])
 
             this.DOM.scope.setAttribute("aria-expanded", true)
 
@@ -1383,13 +1422,23 @@ Tagify.prototype = {
             // append the dropdown to the body element & handle events
             if( !document.body.contains(this.DOM.dropdown) ){
                 if( !isManual ){
-                    this.dropdown.position.call(this);
+                    // let the element render in the DOM first to accurately measure it
+                    this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
+                    this.DOM.dropdown.classList.add('tagify__dropdown--initial')
+
                     document.body.appendChild(this.DOM.dropdown);
+                    this.dropdown.position.call(this);
+
                     this.events.binding.call(this, false); // unbind the main events
+                    setTimeout(() =>
+                        this.DOM.dropdown.classList.remove('tagify__dropdown--initial')
+                    )
                 }
 
                 this.dropdown.events.binding.call(this);
             }
+
+            this.dropdown.visible = true;
         },
 
         hide( force ){
@@ -1399,7 +1448,6 @@ Tagify.prototype = {
             if( !dropdown || !document.body.contains(dropdown) || isManual ) return;
 
             window.removeEventListener('resize', this.dropdown.position)
-
             this.dropdown.events.binding.call(this, false); // unbind all events
 
             // must delay because if the dropdown is open, and the input (scope) is clicked,
@@ -1410,38 +1458,46 @@ Tagify.prototype = {
             scope.setAttribute("aria-expanded", false)
             dropdown.parentNode.removeChild(dropdown);
 
+            this.dropdown.visible = false;
             this.trigger("dropdown:hide", dropdown);
         },
 
         /**
-         * renders data into the suggestions list (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
+         * fill data into the suggestions list (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
          */
-        render(){
+        fill(){
             this.suggestedListItems = this.dropdown.filterListItems.call(this, '');
             var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
-            this.DOM.dropdown.innerHTML = this.minify(listHTML);
+            this.DOM.dropdown.content.innerHTML = this.minify(listHTML);
         },
 
         position(){
-            var placement = this.settings.dropdown.position,
-                rect, top, left, width;
+            var isBelowViewport, rect, top, bottom, left, width, ddElm = this.DOM.dropdown;
 
-            if( placement == 'text'  ){
-                rect  = this.getCaretGlobalPosition()
-                top   = rect.top;
-                left  = rect.left;
-                width = 'auto';
+            if( this.settings.dropdown.position == 'text' ){
+                rect   = this.getCaretGlobalPosition()
+                bottom = rect.bottom
+                top    = rect.top
+                left   = rect.left
+                width  = 'auto'
             }
+
             else{
-                rect  = this.DOM.scope.getBoundingClientRect()
-                top   = rect.top + rect.height - 1
-                left  = rect.left;
-                width = rect.width + "px"
+                rect   = this.DOM.scope.getBoundingClientRect()
+                top    = rect.top
+                bottom = rect.bottom - 1
+                left   = rect.left
+                width  = rect.width + "px"
             }
 
-            this.DOM.dropdown.style.cssText = "left: "  + (left + window.pageXOffset) + "px; \
-                                               top: "   + (top  + window.pageYOffset) + "px; \
-                                               width: " + width;
+            isBelowViewport = document.documentElement.clientHeight - top < ddElm.clientHeight;
+
+            // flip vertically if there is no space for the dropdown below the input
+            ddElm.style.cssText = "left:"  + (left + window.pageXOffset) + "px; width:" + width + ";" + (isBelowViewport
+                ? "bottom:" + (document.documentElement.clientHeight - top - window.pageYOffset - 2) + "px;"
+                : "top: "   + (bottom + window.pageYOffset) + "px");
+
+            ddElm.setAttribute('placement', isBelowViewport ? "top" : "bottom")
         },
 
         /**
@@ -1491,18 +1547,22 @@ Tagify.prototype = {
                         case 'ArrowDown' :
                         case 'ArrowUp' :
                         case 'Down' :  // >IE11
-                        case 'Up' :    // >IE11
-                            e.preventDefault();
+                        case 'Up' : {    // >IE11
+                            e.preventDefault()
+                            var dropdownItems;
+
                             if( selectedElm )
                                 selectedElm = selectedElm[(e.key == 'ArrowUp' || e.key == 'Up' ? "previous" : "next") + "ElementSibling"];
 
                             // if no element was found, loop
-                            if( !selectedElm )
-                                selectedElm = this.DOM.dropdown.children[e.key == 'ArrowUp' || e.key == 'Up' ? this.DOM.dropdown.children.length - 1 : 0];
+                            if( !selectedElm ){
+                                dropdownItems = this.DOM.dropdown.content.children
+                                selectedElm = dropdownItems[e.key == 'ArrowUp' || e.key == 'Up' ? dropdownItems.length - 1 : 0];
+                            }
 
                             this.dropdown.highlightOption.call(this, selectedElm, true);
                             break;
-
+                        }
                         case 'Escape' :
                         case 'Esc': // IE11
                             this.dropdown.hide.call(this);
@@ -1539,7 +1599,7 @@ Tagify.prototype = {
                             break;
                         }
                         case 'Backspace' : {
-                            if( this.settings.mode == 'mix' ) return;
+                            if( this.settings.mode == 'mix' || this.state.editing.scope ) return;
 
                             let value = this.input.value.trim()
 
@@ -1574,7 +1634,7 @@ Tagify.prototype = {
 
                     if( listItemElm ){
                         // make sure the list item belongs to this context of the Tagify instance (and not some other instance's manual suggestions list)
-                        if( listItemElm.parentNode !== this.DOM.dropdown )
+                        if( !this.DOM.dropdown.contains(listItemElm) )
                             return
 
                         value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;

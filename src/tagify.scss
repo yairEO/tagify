@@ -347,9 +347,12 @@
         // tries to suggest the rest of the value from the first item in the whitelist which matches it
         &::after{
             content: attr(data-suggest);
+            display: inline-block;
+            white-space: pre; /* allows spaces at the beginning */
             color: $tag-text-color;
             opacity: .3;
             pointer-events:none;
+            max-width: 100px;
         }
 
         // &--invalid{
@@ -438,10 +441,18 @@
         border: 1px solid $tags-focus-border-color;
         box-shadow: 0 2px 4px -2px rgba(black,.2);
         box-sizing: border-box;
+        transition: .3s cubic-bezier(0,1,.45,1);
+        transition-property: transform, max-height, opacity;
 
         &--text{
             box-shadow: 0 0 0 3px rgba($tags-focus-border-color, .1);
             font-size: 0.9em;
+        }
+
+        // intial state, pre-rendered
+        &--initial[placement="bottom"]{
+            max-height: 90px;
+            opacity: .7;
         }
 
         &__item{

@@ -50,9 +50,6 @@
             }
 
             /* Countries' flags */
-            .tagify__dropdown.extra-properties .tagify__dropdown__item{ color:#777; }
-            .tagify__dropdown.extra-properties .tagify__dropdown__item:hover{ color:black; background:#F1F1F1; }
-
             .tagify__dropdown.extra-properties .tagify__dropdown__item > img{
                 display: inline-block;
                 vertical-align: middle;
@@ -141,14 +138,14 @@
 
   window.tagified = {
     "basic"             : 1,
-    "textarea"          : 1,
-    "mix"               : 1,
-    "manual-suggestions": 1,
-    "outside-of-the-box": 1,
-    "advance-options"   : 1,
-    "extra-properties"  : 1,
-    "readonly"          : 1,
-    "readonly-mixed"    : 1,
+    "textarea"          : 0,
+    "mix"               : 0,
+    "manual-suggestions": 0,
+    "outside-of-the-box": 0,
+    "advance-options"   : 0,
+    "extra-properties"  : 0,
+    "readonly"          : 0,
+    "readonly-mixed"    : 0,
   };
 
   (function(){
@@ -157,7 +154,6 @@
         document.getElementById('section-' + sectionName).remove()
     }
   })()
-
 </script>
 
 <script data-name="basic">
@@ -165,7 +161,12 @@
     var sectionElm = document.querySelector('#section-basic');
 
     new Tagify(sectionElm.querySelector('input[name=value_empty_JSON]'))
-    new Tagify(sectionElm.querySelector('input[name=value_JSON]'))
+    new Tagify(sectionElm.querySelector('input[name=value_JSON]'), {
+      whitelist: ['aaabc', 'aaacb', 'aaabb', 'bbbbc', 'cccbd', 'dddbe', 'eeec', 'fffcc'],
+      dropdown: {
+        enabled: 1
+      }
+    })
 
     var input = sectionElm.querySelector('input[name=tags]');
     var whitelist = ['aaabc', 'aaacb', 'aaabb', 'bbbbc', 'cccbd', 'dddbe', 'eeec', 'fffcc'];
@@ -224,7 +225,7 @@
             /// https://stackoverflow.com/q/30640771/104380
             tagify.settings.whitelist.splice(0, result.length, ...result)
             // render the suggestions dropdown
-            tagify.dropdown.show.call(tagify, e.detail.value);
+            tagify.dropdown.show.call(tagify, e.detail.data.value);
         })
     }
 

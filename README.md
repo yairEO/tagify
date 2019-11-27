@@ -338,6 +338,12 @@ $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 
 ## FAQ
 
+To render all the tags at the same line, without tags wrapping to new lines, add this to your `.tagify` CSS:
+
+```css
+flex-wrap: nowrap;
+````
+
 * [Double-click tag fires both "edit" & "click" custom events](https://github.com/yairEO/tagify/issues/247)
 * [Manualy open the suggestions dropdown](https://github.com/yairEO/tagify/issues/254)
 * [Render your own suggestions dropdown](https://github.com/yairEO/tagify/issues/244)
@@ -349,6 +355,7 @@ $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 * [Format input value for server side](https://github.com/yairEO/tagify/issues/220)
 * [Writing to tagify textarea](https://github.com/yairEO/tagify/issues/294)
 * [Scroll all tags within one line, instead of growing vertically](https://github.com/yairEO/tagify/issues/145)
+
 
 ## Methods
 
@@ -405,7 +412,7 @@ templates               | Object     | `wrapper`, `tag`, `dropdownItem` | Object
 transformTag            | Function   | undefined                        | Takes a tag input as argument and returns a transformed value
 keepInvalidTags         | Boolean    | false                            | If `true`, do not remove tags which did not pass validation
 skipInvalid             | Boolean    | false                            | If `true`, do not temporarily add invalid tags before automatically removing them
-backspace               | *          | true                             | On backspace: (`true`) - remove last tag, (`"edit"``) - edit last tag
+backspace               | *          | true                             | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
 dropdown.enabled        | Number     | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
 dropdown.maxItems       | Number     | 10                               | Maximum items to show in the suggestions list dropdown
 dropdown.classname      | String     | `""`                             | Custom class name for the dropdown suggestions selectbox
