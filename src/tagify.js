@@ -252,7 +252,7 @@ Tagify.prototype = {
     },
 
     /**
-     * merge two objects into a new one
+     * merge objects into a single new one
      * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
      */
     extend(o, o1, o2){
@@ -310,7 +310,7 @@ Tagify.prototype = {
             }
             else{
                 try {
-                    e = new CustomEvent(eventName, {"detail":data});
+                    e = new CustomEvent(eventName, {"detail": this.extend({}, data, {tagify:this})});
                 }
                 catch(err){ console.warn(err) }
                 target.dispatchEvent(e);
@@ -406,6 +406,8 @@ Tagify.prototype = {
             onKeydown(e){
                 var s = e.target.textContent.trim(),
                     tags;
+
+                this.trigger("keydown", e);
 
                 if( this.settings.mode == 'mix' ){
                     switch( e.key ){
@@ -619,6 +621,7 @@ Tagify.prototype = {
             },
 
             onEditTagkeydown(e){
+                this.trigger("edit:keydown", e);
                 switch( e.key ){
                     case 'Esc' :
                     case 'Escape' :
@@ -687,7 +690,8 @@ Tagify.prototype = {
     },
 
     /**
-     * Exit a tag's edit-mode. if "tagData"
+     * Exit a tag's edit-mode.
+     * if "tagData" exists, replace the tag element with new data and update Tagify value
      */
     replaceTag(tagElm, tagData){
         var editableElm = tagElm.querySelector('.tagify__tag-text'),
@@ -718,7 +722,7 @@ Tagify.prototype = {
             tagElmIdx = this.getNodeIndex(clone)
             this.value[tagElmIdx] = tagData
             this.update()
-            this.trigger("edit:change", { tag:tagElm, index:tagElmIdx, data:tagData })
+            this.trigger("edit:updated", { tag:tagElm, index:tagElmIdx, data:tagData })
         }
     },
 
