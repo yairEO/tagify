@@ -287,7 +287,6 @@
 
     &:not(#{$self}--mix){
         #{ $self }__input{
-            white-space: nowrap;
             // https://stackoverflow.com/a/13470210/104380
             br { display:none; }
             * { display:inline; white-space:nowrap; }
@@ -306,6 +305,7 @@
         padding: var(--tag-pad, $tag-pad);
         line-height: inherit;
         position: relative;
+        white-space: pre-line; // #160 Line break (\n) as delimeter
 
         &::before{ display:inline-block; width:0; }
 
@@ -379,12 +379,19 @@
         }
     }
 
-    &--mix #{ $self }__input{
-        padding: $tagMargin;
-        margin: 0;
-        width: 100%;
-        height: 100%;
+    &--mix {
         line-height: 1.7;
+
+        #{ $self }__input{
+            padding: $tagMargin;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            line-height: inherit;
+
+            // no suggested-complete are shown in mix-mode while higilighting dropdown options
+            &::after{ content:none; }
+        }
     }
 
     &--select{

@@ -131,6 +131,10 @@
             <section id='section-readonly-mixed'>
                 <input name='tags-readonly-mix' class='readonlyMix' placeholder="Type something" />
             </section>
+
+            <section id='section-mode-select'>
+              <input name='tags-select-mode' class='selectMode' placeholder="Please select" />
+            </section>
         </form>
 
 <script>
@@ -138,14 +142,15 @@
 
   window.tagified = {
     "basic"             : 1,
-    "textarea"          : 0,
-    "mix"               : 0,
+    "textarea"          : 1,
+    "mix"               : 1,
     "manual-suggestions": 0,
-    "outside-of-the-box": 0,
-    "advance-options"   : 0,
-    "extra-properties"  : 0,
-    "readonly"          : 0,
-    "readonly-mixed"    : 0,
+    "outside-of-the-box": 1,
+    "advance-options"   : 1,
+    "extra-properties"  : 1,
+    "readonly"          : 1,
+    "readonly-mixed"    : 1,
+    "mode-select"       : 1,
   };
 
   (function(){
@@ -161,12 +166,16 @@
     var sectionElm = document.querySelector('#section-basic');
 
     new Tagify(sectionElm.querySelector('input[name=value_empty_JSON]'))
-    new Tagify(sectionElm.querySelector('input[name=value_JSON]'), {
-      whitelist: ['aaabc', 'aaacb', 'aaabb', 'bbbbc', 'cccbd', 'dddbe', 'eeec', 'fffcc'],
-      dropdown: {
-        enabled: 1
-      }
+    var tagify3 = new Tagify(sectionElm.querySelector('input[name=value_JSON]'), {
+      delimiters: ",|[\\n\\r]"
     })
+
+    // should allow adding multiple tags as 1 string with new lines
+    tagify3.addTags(
+      `a,b
+      c
+      d`
+    )
 
     var input = sectionElm.querySelector('input[name=tags]');
     var whitelist = ['aaabc', 'aaacb', 'aaabb', 'bbbbc', 'cccbd', 'dddbe', 'eeec', 'fffcc'];
@@ -225,7 +234,7 @@
             /// https://stackoverflow.com/q/30640771/104380
             tagify.settings.whitelist.splice(0, result.length, ...result)
             // render the suggestions dropdown
-            tagify.dropdown.show.call(tagify, e.detail.data.value);
+            tagify.dropdown.show.call(tagify, e.detail.value);
         })
     }
 
@@ -320,20 +329,22 @@
 
 <script data-name='mix'>
   tagified["mix"] && (function(){
-    var simpleMixInput = document.querySelector('[name="simple-mix"]')
+  var simpleMixInput = document.querySelector('[name="simple-mix"]')
 
-    var settings = {
-      mode: 'mix',
-      pattern: '#',
-      dropdown: {
-        enabled: 1
-      },
-      whitelist:['alice','bob','foo','bar'],
-      duplicates: true,
-    }
+  var settings = {
+    mode: 'mix',
+    pattern: '#',
+    dropdown: {
+      enabled: 1
+    },
+    whitelist:['alice','bob','foo','bar'],
+    duplicates: true,
+  }
 
-    var simpleMixTagify = new Tagify(simpleMixInput, settings);
-
+  var simpleMixTagify = new Tagify(simpleMixInput, settings);
+  setTimeout(function(){
+    simpleMixTagify.addTags("alice")
+  }, 1500)
 
   //////////////////////////////
 
@@ -830,6 +841,33 @@
           title    : 'read-only tag'
       }
   ])
+  })()
+</script>
+
+<script data-name='mode-select'>
+  tagified["mode-select"] && (function(){
+  var input = document.querySelector('input[name=tags-select-mode]'),
+      tagify = new Tagify(input, {
+          mode : "select",
+          whitelist: ["first option", "second option", "third option"],
+          blacklist: ['foo', 'bar'],
+          keepInvalidTags: true,   // do not auto-remove invalid tags
+          dropdown: {
+              // closeOnSelect: false
+          }
+      })
+
+  // bind events
+  tagify.on('add', onAddTag)
+  tagify.DOM.input.addEventListener('focus', onSelectFocus)
+
+  function onAddTag(e){
+      console.log(e.detail)
+  }
+
+  function onSelectFocus(e){
+      console.log(e)
+  }
   })()
 </script>
 

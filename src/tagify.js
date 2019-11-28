@@ -448,8 +448,8 @@ Tagify.prototype = {
 
                     case 'Down' :
                     case 'ArrowDown' :
-                        if( this.settings.mode == 'select' )
-                            this.dropdown.show.call(this)
+                       // if( this.settings.mode == 'select' ) // #333
+                        this.dropdown.show.call(this)
                         break;
 
                     case 'ArrowRight' :
@@ -484,7 +484,7 @@ Tagify.prototype = {
                 // this.setRangeAtStartEnd(); // fix caret position
 
                 if( value.search(this.settings.delimiters) != -1 ){
-                    if( this.addTags( value ).length ){
+                    if( this.addTags( value ) ){
                         this.input.set.call(this); // clear the input field's value
                     }
                 }
@@ -496,8 +496,7 @@ Tagify.prototype = {
             },
 
             onMixTagsInput( e ){
-                var sel, range, split, tag, showSuggestions,
-                    eventData = {};
+                var sel, range, split, tag, showSuggestions;
 
                 if( this.maxTagsReached() )
                     return true;
@@ -777,10 +776,8 @@ Tagify.prototype = {
             var clone = node, //.cloneNode(true),
                 v = clone.innerText;
 
-            if( "settings" in this && this.settings.delimiters )
-                v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(1));
-
-            v = v.replace(/\s/g, ' ')  // replace NBSPs with spaces characters
+            v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(1))
+                 .replace(/\s/g, ' ')  // replace NBSPs with spaces characters
                  .replace(/^\s+/, ""); // trimLeft
 
             return v;
@@ -823,10 +820,6 @@ Tagify.prototype = {
                 }
 
                 return false;
-                // if( suggestion && this.addTags(this.input.value + suggestion).length ){
-                //     this.input.set.call(this);
-                //     this.dropdown.hide.call(this);
-                // }
             }
         }
     },
@@ -1041,11 +1034,11 @@ Tagify.prototype = {
      * For mixed-mode: replaces a text starting with a prefix with a wrapper element (tag or something)
      * First there *has* to be a "this.state.tag" which is a string that was just typed and is staring with a prefix
      */
-    replaceTaggedText( wrapperElm ){
-        if( !this.state.tag ) return;
+    replaceTaggedText( wrapperElm, tagString ){
+        if( !this.state.tag && !tagString ) return;
 
-        var tag = this.state.tag.prefix + this.state.tag.value,
-            iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT, null, false),
+        tagString = tagString || this.state.tag.prefix + this.state.tag.value;
+        var iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT, null, false),
             textnode,
             idx,
             maxLoops = 100,
@@ -1055,13 +1048,13 @@ Tagify.prototype = {
             if( !maxLoops-- ) break;
             if( textnode.nodeType === Node.TEXT_NODE ){
                 // get the index of which the tag (string) is within the textNode (if at all)
-                idx = textnode.nodeValue.indexOf(tag);
+                idx = textnode.nodeValue.indexOf(tagString);
                 if( idx == -1 ) continue;
 
                 replacedNode = textnode.splitText(idx);
 
                 // clean up the tag's string and put tag element instead
-                replacedNode.nodeValue = replacedNode.nodeValue.replace(tag, '');
+                replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
                 textnode.parentNode.insertBefore(wrapperElm, replacedNode);
             }
         }
@@ -1113,11 +1106,14 @@ Tagify.prototype = {
             this.settings.transformTag.call(this, tagsItems[0]);
             tagElm = this.createTagElem(tagsItems[0]);
 
-            if( this.replaceTaggedText(tagElm) ){
-                this.value.push(tagsItems[0])
-                this.update()
-                this.trigger('add', this.extend({}, {index:this.value.length, tag:tagElm}, tagsItems[0]))
+            if( !this.replaceTaggedText(tagElm) ){
+                this.DOM.input.appendChild(tagElm)
             }
+
+            this.value.push(tagsItems[0])
+            this.update()
+            this.trigger('add', this.extend({}, {tag:tagElm}, {data:tagsItems[0]}))
+
             return tagElm
         }
 
