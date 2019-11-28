@@ -1328,6 +1328,20 @@ Tagify.prototype = {
   },
 
   /**
+   * https://stackoverflow.com/q/5944038/104380
+   * @param {DOM} node
+   */
+  getNodeHeight: function getNodeHeight(node) {
+    var height,
+        clone = node.cloneNode(true);
+    clone.style.cssText = "position:fixed; top:-9999px; opacity:0";
+    document.body.appendChild(clone);
+    height = clone.clientHeight;
+    clone.parentNode.removeChild(clone);
+    return height;
+  },
+
+  /**
    * Dropdown controller
    * @type {Object}
    */
@@ -1352,6 +1366,7 @@ Tagify.prototype = {
           _s = this.settings,
           firstListItem,
           firstListItemValue,
+          ddHeight,
           isManual = _s.dropdown.position == 'manual';
       if (!_s.whitelist.length) return; // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
@@ -1383,22 +1398,25 @@ Tagify.prototype = {
 
       if (!document.body.contains(this.DOM.dropdown)) {
         if (!isManual) {
+          this.events.binding.call(this, false); // unbind the main events
           // let the element render in the DOM first to accurately measure it
-          this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
+          // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
+
+          ddHeight = this.getNodeHeight(this.DOM.dropdown);
           this.DOM.dropdown.classList.add('tagify__dropdown--initial');
           document.body.appendChild(this.DOM.dropdown);
-          this.dropdown.position.call(this);
-          this.events.binding.call(this, false); // unbind the main events
-
+          this.dropdown.visible = true;
+          this.dropdown.position.call(this, ddHeight);
+          document.body.offsetLeft;
           setTimeout(function () {
             return _this10.DOM.dropdown.classList.remove('tagify__dropdown--initial');
           });
-        }
+        } // timeout is needed for when pressing arrow down to show the dropdown,
+        // so the key event won't get registered in the dropdown events listeners
 
-        this.dropdown.events.binding.call(this);
+
+        setTimeout(this.dropdown.events.binding.bind(this));
       }
-
-      this.dropdown.visible = true;
     },
     hide: function hide(force) {
       var _this$DOM = this.DOM,
@@ -1428,7 +1446,7 @@ Tagify.prototype = {
       var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
       this.DOM.dropdown.content.innerHTML = this.minify(listHTML);
     },
-    position: function position() {
+    position: function position(ddHeight) {
       var isBelowViewport,
           rect,
           top,
@@ -1436,6 +1454,7 @@ Tagify.prototype = {
           left,
           width,
           ddElm = this.DOM.dropdown;
+      if (!this.dropdown.visible) return;
 
       if (this.settings.dropdown.position == 'text') {
         rect = this.getCaretGlobalPosition();
@@ -1451,7 +1470,7 @@ Tagify.prototype = {
         width = rect.width + "px";
       }
 
-      isBelowViewport = document.documentElement.clientHeight - top < ddElm.clientHeight; // flip vertically if there is no space for the dropdown below the input
+      isBelowViewport = document.documentElement.clientHeight - bottom < (ddHeight || ddElm.clientHeight); // flip vertically if there is no space for the dropdown below the input
 
       ddElm.style.cssText = "left:" + (left + window.pageXOffset) + "px; width:" + width + ";" + (isBelowViewport ? "bottom:" + (document.documentElement.clientHeight - top - window.pageYOffset - 2) + "px;" : "top: " + (bottom + window.pageYOffset) + "px");
       ddElm.setAttribute('placement', isBelowViewport ? "top" : "bottom");

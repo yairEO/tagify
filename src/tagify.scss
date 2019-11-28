@@ -439,27 +439,44 @@
     // Since the dropdown is an external element, which is positioned directly on the body element
     // it cannot ingerit the CSS variables applied on the ".Tagify" element
     &__dropdown{
+        $dropdown: &;
         position: absolute;
         z-index: 9999;
         background: white;
 
-        max-height: 300px;
+
         overflow: auto;
         border: 1px solid $tags-focus-border-color;
         box-shadow: 0 2px 4px -2px rgba(black,.2);
         box-sizing: border-box;
-        transition: .3s cubic-bezier(0,1,.45,1);
+        transition: .25s cubic-bezier(0,1,.45,1);
         transition-property: transform, max-height, opacity;
 
+        // when the dropdown shows next to the caret while typing
         &--text{
             box-shadow: 0 0 0 3px rgba($tags-focus-border-color, .1);
             font-size: 0.9em;
         }
 
+        &__wrapper{
+            max-height: 300px;
+            transition: .25s cubic-bezier(0,1,.45,1);
+        }
+
         // intial state, pre-rendered
-        &--initial[placement="bottom"]{
+        &--initial{
             max-height: 90px;
             opacity: .7;
+
+            #{$dropdown}__wrapper{
+                transform: translateY(1em);
+            }
+
+            &[placement="bottom"]{
+                #{$dropdown}__wrapper{
+                    transform: translateY(-1em);
+                }
+            }
         }
 
         &__item{
