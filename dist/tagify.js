@@ -852,7 +852,7 @@ Tagify.prototype = {
 
   /**
    * Mark a tag element by its value
-   * @param  {String / Number} value  [text value to search for]
+   * @param  {String|Number} value  [text value to search for]
    * @param  {Object}          tagElm [a specific "tag" element to compare to the other tag elements siblings]
    * @return {boolean}                [found / not found]
    */
@@ -1205,12 +1205,16 @@ Tagify.prototype = {
 
   /**
    * appened (validated) tag to the component's DOM scope
-   * @return {[type]} [description]
    */
   appendTag: function appendTag(tagElm) {
     var insertBeforeNode = this.DOM.scope.lastElementChild;
     if (insertBeforeNode === this.DOM.input) this.DOM.scope.insertBefore(tagElm, insertBeforeNode);else this.DOM.scope.appendChild(tagElm);
   },
+
+  /**
+   *
+   * @param {string} html removed new lines and irrelevant spaced which might affect stlying and are better gone
+   */
   minify: function minify(html) {
     return html.replace(new RegExp("\>[\r\n ]+\<", "g"), "><");
   },
@@ -1481,15 +1485,10 @@ Tagify.prototype = {
       ddElm.style.cssText = "left:" + (left + window.pageXOffset) + "px; width:" + width + ";" + (isBelowViewport ? "bottom:" + (document.documentElement.clientHeight - top - window.pageYOffset - 2) + "px;" : "top: " + (bottom + window.pageYOffset) + "px");
       ddElm.setAttribute('placement', isBelowViewport ? "top" : "bottom");
     },
-
-    /**
-     * @type {Object}
-     */
     events: {
       /**
        * Events should only be binded when the dropdown is rendered and removed when isn't
        * @param  {Boolean} bindUnbind [optional. true when wanting to unbind all the events]
-       * @return {[type]}             [description]
        */
       binding: function binding() {
         var bindUnbind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -1667,7 +1666,8 @@ Tagify.prototype = {
 
     /**
      * returns an HTML string of the suggestions' list items
-     * @return {[type]} [description]
+     * @param {string} value string to filter the whitelist by
+     * @return {Array} list of filtered whitelist items according to the settings provided and current value
      */
     filterListItems: function filterListItems(value) {
       var _this13 = this;

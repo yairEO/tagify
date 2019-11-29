@@ -880,7 +880,7 @@ Tagify.prototype = {
 
     /**
      * Mark a tag element by its value
-     * @param  {String / Number} value  [text value to search for]
+     * @param  {String|Number} value  [text value to search for]
      * @param  {Object}          tagElm [a specific "tag" element to compare to the other tag elements siblings]
      * @return {boolean}                [found / not found]
      */
@@ -1209,7 +1209,6 @@ Tagify.prototype = {
 
     /**
      * appened (validated) tag to the component's DOM scope
-     * @return {[type]} [description]
      */
     appendTag(tagElm){
         var insertBeforeNode = this.DOM.scope.lastElementChild;
@@ -1220,6 +1219,10 @@ Tagify.prototype = {
             this.DOM.scope.appendChild(tagElm);
     },
 
+    /**
+     *
+     * @param {string} html removed new lines and irrelevant spaced which might affect stlying and are better gone
+     */
     minify( html ){
         return html.replace( new RegExp( "\>[\r\n ]+\<" , "g" ) , "><" );
     },
@@ -1520,14 +1523,10 @@ Tagify.prototype = {
             ddElm.setAttribute('placement', isBelowViewport ? "top" : "bottom")
         },
 
-        /**
-         * @type {Object}
-         */
         events : {
             /**
              * Events should only be binded when the dropdown is rendered and removed when isn't
              * @param  {Boolean} bindUnbind [optional. true when wanting to unbind all the events]
-             * @return {[type]}             [description]
              */
             binding( bindUnbind = true ){
                     // references to the ".bind()" methods must be saved so they could be unbinded later
@@ -1714,7 +1713,8 @@ Tagify.prototype = {
 
         /**
          * returns an HTML string of the suggestions' list items
-         * @return {[type]} [description]
+         * @param {string} value string to filter the whitelist by
+         * @return {Array} list of filtered whitelist items according to the settings provided and current value
          */
         filterListItems( value ){
             var list = [],
