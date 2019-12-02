@@ -8,7 +8,8 @@ function Tagify( input, settings ){
     this.applySettings(input, settings);
 
     this.state = {
-        editing : {}
+        editing : {},
+        actions: {}  // UI actions for state-locking
     };
     this.value = []; // tags' data
 
@@ -104,9 +105,6 @@ Tagify.prototype = {
     customEventsList : ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
 
     applySettings( input, settings ){
-        var attr__whitelist = input.getAttribute('data-whitelist'),
-            attr__blacklist = input.getAttribute('data-blacklist');
-
         this.DEFAULTS.templates = this.templates;
         this.DEFAULTS.dropdown.itemTemplate = this.templates.dropdownItem; // regression fallback
 
@@ -117,17 +115,14 @@ Tagify.prototype = {
         if( this.isIE )
             this.settings.autoComplete = false; // IE goes crazy if this isn't false
 
-        if( attr__blacklist ){
-            attr__blacklist = attr__blacklist.split(this.settings.delimiters);
-            if( attr__blacklist instanceof Array )
-                this.settings.blacklist = attr__blacklist;
-        }
-
-        if( attr__whitelist ){
-            attr__whitelist = attr__whitelist.split(this.settings.delimiters)
-            if( attr__whitelist instanceof Array )
-                this.settings.whitelist = attr__whitelist;
-        }
+        ["whitelist", "blacklist"].forEach(name => {
+            var attrVal = input.getAttribute('data-' + name)
+            if( attrVal ){
+                attrVal = attrVal.split(this.settings.delimiters)
+                if( attrVal instanceof Array )
+                    this.settings[name] = attrVal
+            }
+        })
 
         if( input.pattern )
             try { this.settings.pattern = new RegExp(input.pattern)  }
@@ -306,7 +301,8 @@ Tagify.prototype = {
             if( !eventName ) return;
 
             if( instance.settings.isJQueryPlugin ){
-                $(instance.DOM.originalInput).triggerHandler(eventName, [data])
+                if( eventName == 'remove' ) eventName = 'removeTag' // issue #222
+                jQuery(instance.DOM.originalInput).triggerHandler(eventName, [data])
             }
             else{
                 try {
@@ -345,7 +341,7 @@ Tagify.prototype = {
                 this.DOM.input.addEventListener(this.isIE ? "keydown" : "input", _CB[this.isIE ? "onInputIE" : "onInput"].bind(this));
 
                 if( this.settings.isJQueryPlugin )
-                    $(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
+                    jQuery(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
             }
 
             // setup callback references so events could be removed later
@@ -357,8 +353,6 @@ Tagify.prototype = {
                 click    : ['scope', _CB.onClickScope.bind(this)],
                 [editTagsEventType] : ['scope', _CB.onDoubleClickScope.bind(this)]
             });
-
-            // this.settings.editTags
 
             for( var eventName in _CBR ){
                 this.DOM[_CBR[eventName][0]][action](eventName.replace(/_/g, ''), _CBR[eventName][1]);
@@ -376,6 +370,8 @@ Tagify.prototype = {
         callbacks : {
             onFocusBlur(e){
                 var s = e.target ? e.target.textContent.trim() : ''; // a string
+
+                if( this.state.actions.selectOption ) return;
 
                 // toggle "focus" BEM class
                 this.DOM.scope.classList[e.type == "focus" ? "add" : "remove"]('tagify--focus')
@@ -571,7 +567,7 @@ Tagify.prototype = {
             onEditTagInput( editableElm ){
                 var tagElm = editableElm.closest('tag'),
                     tagElmIdx = this.getNodeIndex(tagElm),
-                    value = this.input.normalize(editableElm),
+                    value = this.input.normalize.call(this, editableElm),
                     isValid = value.toLowerCase() == editableElm.originalValue.toLowerCase() || this.validateTag(value);
 
                 tagElm.classList.toggle('tagify--invalid', isValid !== true);
@@ -591,9 +587,9 @@ Tagify.prototype = {
 
                 var tagElm       = editableElm.closest('.tagify__tag'),
                     tagElmIdx    = this.getNodeIndex(tagElm),
-                    currentValue = this.input.normalize(editableElm),
+                    currentValue = this.input.normalize.call(this, editableElm),
                     value        = currentValue || editableElm.originalValue,
-                    hasChanged   = this.input.normalize(editableElm) != editableElm.originalValue,
+                    hasChanged   = value != editableElm.originalValue,
                     isValid      = tagElm.isValid,
                     tagData      = {...this.value[tagElmIdx], value};
 
@@ -818,7 +814,6 @@ Tagify.prototype = {
 
                     this.input.autocomplete.suggest.call(this, '');
                     this.dropdown.hide.call(this);
-
 
                     return true;
                 }
@@ -1204,6 +1199,7 @@ Tagify.prototype = {
             this.input.set.call(this);
         }
 
+        this.dropdown.fill.call(this);
         return tagElems
     },
 
@@ -1545,11 +1541,11 @@ Tagify.prototype = {
                     window[action]('keydown', _CBR.onKeyDown);
                 }
 
-                window[action]('mousedown', _CBR.onClick);
+              //  window[action]('mousedown', _CBR.onClick);
 
                 this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver);
                 this.DOM.dropdown[action]('mouseleave', _CBR.onMouseLeave);
-              //  this.DOM.dropdown[action]('click', _CBR.onClick);
+                this.DOM.dropdown[action]('mousedown', _CBR.onClick);
 
                 // add the main "click" event back because it is needed for removing/clicking already existing tags, even if dropdown is shown
                 this.DOM[this.listeners.main.click[0]][action]('click', this.listeners.main.click[1])
@@ -1644,36 +1640,11 @@ Tagify.prototype = {
                 },
 
                 onClick(e){
-                    var value,
-                        listItemElm;
-
                     if( e.button != 0 || e.target == this.DOM.dropdown ) return; // allow only mouse left-clicks
 
-                    listItemElm = e.target.closest(".tagify__dropdown__item");
+                    var listItemElm = e.target.closest(".tagify__dropdown__item");
 
-                    if( listItemElm ){
-                        // make sure the list item belongs to this context of the Tagify instance (and not some other instance's manual suggestions list)
-                        if( !this.DOM.dropdown.contains(listItemElm) )
-                            return
-
-                        value = this.suggestedListItems[this.getNodeIndex(listItemElm)] || this.input.value;
-                        this.trigger("dropdown:select", value)
-                        this.addTags([value], true);
-
-                        if( this.settings.mode != 'select' )
-                            setTimeout(() => this.DOM.input.focus())
-
-                        if( this.settings.dropdown.closeOnSelect )
-                            this.dropdown.hide.call(this)
-                    }
-                    // clicked outside, close the list
-                    else{
-                        this.dropdown.hide.call(this);
-
-                        // if closest element is NOT "tagify", remove "focus" class
-                        if( !e.target.closest(".tagify") )
-                            this.events.callbacks.onFocusBlur.call(this, {type:'blur', target:this.DOM.input})
-                    }
+                    this.dropdown.selectOption.call(this, listItemElm)
                 }
             }
         },
@@ -1709,6 +1680,24 @@ Tagify.prototype = {
                 this.input.autocomplete.suggest.call(this, value);
                 this.dropdown.position.call(this); // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
             }
+        },
+
+        selectOption( elm ){
+            if( !elm ) return;
+
+            // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
+            this.state.actions.selectOption = true;
+            setTimeout(()=> this.state.actions.selectOption = false, 300)
+
+            var value = this.suggestedListItems[this.getNodeIndex(elm)] || this.input.value;
+            this.trigger("dropdown:select", value)
+            this.addTags([value], true);
+
+            if( this.settings.mode != 'select' )
+                setTimeout(() => this.DOM.input.focus(), 0)
+
+            if( this.settings.dropdown.closeOnSelect )
+                this.dropdown.hide.call(this)
         },
 
         /**

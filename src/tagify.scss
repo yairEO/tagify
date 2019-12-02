@@ -17,7 +17,6 @@
     $tag-remove-btn-bg--hover: darken($tag-remove, 8) !default;
     $tag-invalid-color       : $tag-remove !default;
     $tag-invalid-bg          : rgba($tag-remove, .5) !default;
-    $showX                   : true !default;
     $tag-inset-shadow-size   : 1.1em !default;
 
     // CSS variables
@@ -108,7 +107,6 @@
         display        : inline-flex;
         align-items    : center;
         margin         : $tagMargin 0 $tagMargin $tagMargin;
-      //  vertical-align : top;
         position       : relative;
         z-index        : 1;
         cursor         : default;
@@ -167,10 +165,6 @@
                 }
             }
 
-            @if $showX {
-             //   padding-right:nth($tag-pad, 2) * 3;
-            }
-
             &::before{
                 content: '';
                 position: absolute;
@@ -182,7 +176,7 @@
                 animation : tags--bump .3s ease-out 1;
 
                 box-shadow: 0 0 0 $tag-inset-shadow-size $tag-bg inset;
-                box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-bg) inset;
+                box-shadow: 0 0 0 calc(var(--tag-inset-shadow-size)) var(--tag-bg) inset;
             }
         }
 
@@ -251,21 +245,24 @@
         display        : inline-flex;
         align-items    : center;
         justify-content: center;
+        border-radius  : 50px;
+        cursor         : pointer;
         font           : #{$size} Serif;
         background     : $tag-remove-btn-bg;
         background     : var(--tag-remove-btn-bg);
         color          : $tag-text-color;
         color          : var(--tag-text-color);
+
         width          : $size;
         height         : $size;
-        border-radius  : 50px;
-        cursor         : pointer;
         margin-right   : $size/3;
         margin-left    : -$size/3;
+
         transition     : .2s ease-out;
 
         &::after{
-            content:"\00D7";
+            content: "\00D7";
+            line-height: 1;
         }
 
         &:hover{
@@ -444,7 +441,6 @@
         z-index: 9999;
         background: white;
 
-
         overflow: auto;
         border: 1px solid $tags-focus-border-color;
         box-shadow: 0 2px 4px -2px rgba(black,.2);
@@ -455,7 +451,7 @@
         // when the dropdown shows next to the caret while typing
         &--text{
             box-shadow: 0 0 0 3px rgba($tags-focus-border-color, .1);
-            font-size: 0.9em;
+            font-size: .9em;
         }
 
         &__wrapper{
