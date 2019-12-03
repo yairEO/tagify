@@ -426,13 +426,13 @@ editTags                | Number     | 2                                | Number
 templates               | Object     | `wrapper`, `tag`, `dropdownItem` | Object consisting of functions which return template strings
 transformTag            | Function   | undefined                        | Takes a tag input as argument and returns a transformed value
 keepInvalidTags         | Boolean    | false                            | If `true`, do not remove tags which did not pass validation
-skipInvalid             | Boolean    | false                            | If `true`, do not temporarily add invalid tags before automatically removing them
+skipInvalid             | Boolean    | false                            | If `true`, do not add invalid, temporary, tags before automatically removing them
 backspace               | *          | true                             | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
 dropdown.enabled        | Number     | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
 dropdown.maxItems       | Number     | 10                               | Maximum items to show in the suggestions list dropdown
 dropdown.classname      | String     | `""`                             | Custom class name for the dropdown suggestions selectbox
 dropdown.itemTemplate   | Function   | `""`                             | Returns a custom string for each list item in the dropdown suggestions selectbox
 dropdown.fuzzySearch    | Boolean    | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
-dropdown.position       | String     | null                             | `manual` will not render the dropdown, and you would need to do it yourself. See "events" section.
+dropdown.position       | String     | null                             | `manual` - will not render the dropdown, and you would need to do it yourself. See "events" section. <br> `text` - will place the dropdown next to the caret <br> `all` - normal, full-width design
 dropdown.highlightFirst | Boolean    | false                            | When a suggestions list is shown, highilght the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
 dropdown.closeOnSelect  | Boolean    | false                            | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)

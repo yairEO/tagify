@@ -36,7 +36,7 @@ function Tagify(input, settings) {
     return this;
   }
 
-  this.applySettings(input, settings);
+  this.applySettings(input, settings || {});
   this.state = {
     editing: {},
     actions: {} // UI actions for state-locking
@@ -87,8 +87,6 @@ Tagify.prototype = {
     // Flag - Only allow tags allowed in whitelist
     keepInvalidTags: false,
     // Flag - if true, do not remove tags which did not pass validation
-    autoComplete: true,
-    // Flag - tries to autocomplete the input's value while typing
     mixTagsAllowedAfter: /,|\.|\:|\s/,
     // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
     mixTagsInterpolator: ['[[', ']]'],
@@ -96,9 +94,20 @@ Tagify.prototype = {
     backspace: true,
     // false / true / "edit"
     skipInvalid: false,
+    // If `true`, do not add invalid, temporary, tags before automatically removing them
     editTags: 2,
     // 1 or 2 clicks to edit a tag
     transformTag: function transformTag() {},
+    // Takes a tag input string as argument and returns a transformed value
+    autoComplete: {
+      enabled: true,
+      // Tries to autocomplete the input's value while typing (match from whitelist)
+      enterKey: true,
+      // If `true`, when Enter key is pressed, use the suggested value to create a tag
+      rightKey: false // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input
+
+    },
+    // Flag - tries to autocomplete the input's value while typing
     dropdown: {
       classname: '',
       enabled: 2,
@@ -148,7 +157,13 @@ Tagify.prototype = {
         attrVal = attrVal.split(_this2.settings.delimiters);
         if (attrVal instanceof Array) _this2.settings[name] = attrVal;
       }
-    });
+    }); // backward-compatibility for old version of "autoComplete" setting:
+
+    if ("autoComplete" in settings && !this.isObject(settings.autoComplete)) {
+      this.settings.autoComplete = this.DEFAULTS.autoComplete;
+      this.settings.autoComplete.enabled = settings.autoComplete;
+    }
+
     if (input.pattern) try {
       this.settings.pattern = new RegExp(input.pattern);
     } catch (e) {} // Convert the "delimiters" setting into a REGEX object
@@ -375,7 +390,7 @@ Tagify.prototype = {
       this.state.mainEvents = bindUnbind;
 
       if (bindUnbind && !this.listeners.main) {
-        // this event should never be unbinded
+        // this event should never be unbinded:
         // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
         this.DOM.input.addEventListener(this.isIE ? "keydown" : "input", _CB[this.isIE ? "onInputIE" : "onInput"].bind(this));
         if (this.settings.isJQueryPlugin) jQuery(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this));
@@ -478,17 +493,20 @@ Tagify.prototype = {
 
           case 'Down':
           case 'ArrowDown':
-            // if( this.settings.mode == 'select' ) // #333
-            this.dropdown.show.call(this);
+            // if( this.settings.mode == 'select' ) // issue #333
+            if (!this.dropdown.visible) this.dropdown.show.call(this);
             break;
+          //    case 'ArrowRight' :
 
-          case 'ArrowRight':
           case 'Tab':
-            if (!s) return true;
+            {
+              if (!s) return true;
+            }
 
           case 'Enter':
             e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
 
+            if (this.state.inputSuggestion) return;
             this.addTags(s, true);
         }
       },
@@ -813,7 +831,14 @@ Tagify.prototype = {
         s = s || '';
         var suggestionStart = s.substr(0, this.input.value.length).toLowerCase(),
             suggestionTrimmed = s.substring(this.input.value.length);
-        if (!s || !this.input.value || suggestionStart != this.input.value.toLowerCase()) this.DOM.input.removeAttribute("data-suggest");else this.DOM.input.setAttribute("data-suggest", suggestionTrimmed);
+
+        if (!s || !this.input.value || suggestionStart != this.input.value.toLowerCase()) {
+          this.DOM.input.removeAttribute("data-suggest");
+          delete this.state.inputSuggestion;
+        } else {
+          this.DOM.input.setAttribute("data-suggest", suggestionTrimmed);
+          this.state.inputSuggestion = s;
+        }
       },
       set: function set(s) {
         var dataSuggest = this.DOM.input.getAttribute('data-suggest'),
@@ -1419,7 +1444,10 @@ Tagify.prototype = {
 
       if (_s.enforceWhitelist && !isManual || _s.dropdown.highlightFirst) this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0]);
       this.DOM.scope.setAttribute("aria-expanded", true);
-      this.trigger("dropdown:show", this.DOM.dropdown); // if the dropdown has yet to be appended to the document,
+      this.trigger("dropdown:show", this.DOM.dropdown); // set the dropdown visible state to be the same as the searched value.
+      // MUST be set *before* position() is called
+
+      this.dropdown.visible = value || true; // if the dropdown has yet to be appended to the document,
       // append the dropdown to the body element & handle events
 
       if (!document.body.contains(this.DOM.dropdown)) {
@@ -1431,7 +1459,6 @@ Tagify.prototype = {
           ddHeight = this.getNodeHeight(this.DOM.dropdown);
           this.DOM.dropdown.classList.add('tagify__dropdown--initial');
           document.body.appendChild(this.DOM.dropdown);
-          this.dropdown.visible = true;
           this.dropdown.position.call(this, ddHeight);
           setTimeout(function () {
             return _this11.DOM.dropdown.classList.remove('tagify__dropdown--initial');
@@ -1535,8 +1562,7 @@ Tagify.prototype = {
         onKeyDown: function onKeyDown(e) {
           // get the "active" element, and if there was none (yet) active, use first child
           var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
-              selectedElm = activeListElm,
-              newValue = "";
+              selectedElm = activeListElm;
 
           switch (e.key) {
             case 'ArrowDown':
