@@ -67,14 +67,18 @@ Tagify.prototype = {
         }
     },
 
+    // Using ARIA & role attributes
+    // https://www.w3.org/TR/wai-aria-practices/examples/combobox/aria1.1pattern/listbox-combo.html
     templates : {
         wrapper(input, settings){
             return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
-                        ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"'}
+                        ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="listbox" aria-expanded="false"'}
                         role="tagslist">
                 <span contenteditable data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                     class="tagify__input"
                     role="textbox"
+                    aria-controls="dropdown"
+                    aria-autocomplete="both"
                     aria-multiline="false"></span>
             </tags>`
         },
@@ -97,7 +101,7 @@ Tagify.prototype = {
             return `<div ${this.getAttributes(item)}
                         class='tagify__dropdown__item ${item.class ? item.class : ""}'
                         tabindex="0"
-                        role="menuitem"
+                        role="option"
                         aria-labelledby="dropdown-label">${sanitizedValue}</div>`;
         }
     },
@@ -1405,7 +1409,7 @@ Tagify.prototype = {
             var {position, classname} = this.settings.dropdown,
                 _className = `${position == 'manual' ? "" : `tagify__dropdown tagify__dropdown--${position}`} ${classname}`.trim(),
                 elm = this.parseHTML(
-                    `<div class="${_className}" role="menu">
+                    `<div class="${_className}" role="listbox" aria-labelledby="dropdown">
                         <div class="tagify__dropdown__wrapper"></div>
                     </div>`);
 

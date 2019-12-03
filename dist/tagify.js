@@ -114,16 +114,18 @@ Tagify.prototype = {
 
     }
   },
+  // Using ARIA & role attributes
+  // https://www.w3.org/TR/wai-aria-practices/examples/combobox/aria1.1pattern/listbox-combo.html
   templates: {
     wrapper: function wrapper(input, settings) {
-      return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                        ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="true" aria-expanded="false"', "\n                        role=\"tagslist\">\n                <span contenteditable data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                    class=\"tagify__input\"\n                    role=\"textbox\"\n                    aria-multiline=\"false\"></span>\n            </tags>");
+      return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                        ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="listbox" aria-expanded="false"', "\n                        role=\"tagslist\">\n                <span contenteditable data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                    class=\"tagify__input\"\n                    role=\"textbox\"\n                    aria-controls=\"dropdown\"\n                    aria-autocomplete=\"both\"\n                    aria-multiline=\"false\"></span>\n            </tags>");
     },
     tag: function tag(value, tagData) {
       return "<tag title='".concat(tagData.title || value, "'\n                        contenteditable='false'\n                        spellcheck='false'\n                        class='tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "'\n                        ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(value, "</span>\n                </div>\n            </tag>");
     },
     dropdownItem: function dropdownItem(item) {
       var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
-      return "<div ".concat(this.getAttributes(item), "\n                        class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                        tabindex=\"0\"\n                        role=\"menuitem\"\n                        aria-labelledby=\"dropdown-label\">").concat(sanitizedValue, "</div>");
+      return "<div ".concat(this.getAttributes(item), "\n                        class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                        tabindex=\"0\"\n                        role=\"option\"\n                        aria-labelledby=\"dropdown-label\">").concat(sanitizedValue, "</div>");
     }
   },
   customEventsList: ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
@@ -1379,7 +1381,7 @@ Tagify.prototype = {
           position = _this$settings$dropdo.position,
           classname = _this$settings$dropdo.classname,
           _className = "".concat(position == 'manual' ? "" : "tagify__dropdown tagify__dropdown--".concat(position), " ").concat(classname).trim(),
-          elm = this.parseHTML("<div class=\"".concat(_className, "\" role=\"menu\">\n                        <div class=\"tagify__dropdown__wrapper\"></div>\n                    </div>"));
+          elm = this.parseHTML("<div class=\"".concat(_className, "\" role=\"listbox\" aria-labelledby=\"dropdown\">\n                        <div class=\"tagify__dropdown__wrapper\"></div>\n                    </div>"));
 
       return elm;
     },
