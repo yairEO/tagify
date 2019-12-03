@@ -123,6 +123,9 @@ There are two possible ways to get the value of the tags:
 ## Ajax whitelist
 Dynamically-loaded suggestions list (*whitelist*) from the server (as the user types) is a frequent need to many.
 
+Tagify comes with its own loading animation, which is a very lightweight CSS-only code, and the <em>loading</em>
+state is controlled by the method `tagify.loading` which accepts `true` or `false` as arguments.
+
 Below is a basic example using the `fetch` API. I advise to abort the last request on any input before starting a new request.
 
 ```javascript
@@ -141,11 +144,15 @@ function onInput( e ){
   controller && controller.abort();
   controller = new AbortController();
 
+  // show loading animation and hide the suggestions dropdown
+  tagify.loading(true).dropdown.hide.call(tagify)
+
   fetch('http://get_suggestions.com?value=' + value, {signal:controller.signal})
     .then(RES => RES.json())
     .then(function(whitelist){
-      tagify.settings.whitelist = whitelist;
-      tagify.dropdown.show.call(tagify, value); // render the suggestions dropdown
+      // update inwhitelist Array in-place
+      tagify.settings.whitelist.splice(0, whitelist.length, ...whitelist)
+      tagify.loading(false).dropdown.show.call(tagify, value); // render the suggestions dropdown
     })
 }
 ```
@@ -372,6 +379,7 @@ getTagElms          |                                          | Returns a DOM n
 getTagElmByValue    | String                                   | Returns a specific tag DOM node by value
 editTag             | Node                                     | Goes to edit-mode in a specific tag
 replaceTag          | `tagElm`, `tagData`                      | Exit a tag's edit-mode. if "tagData" exists, replace the tag element with new data and update Tagify value
+loading             | Boolean                                  | Toogle loading state on/off (Ex. AJAX whitelist pulling)
 
 ## Events
 

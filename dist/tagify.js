@@ -338,6 +338,15 @@ Tagify.prototype = {
   },
 
   /**
+   * Toogle loading state on/off
+   * @param {Boolean} isLoading
+   */
+  loading: function loading(isLoading) {
+    this.DOM.scope.classList.toggle('tagify--loading', isLoading);
+    return this;
+  },
+
+  /**
    * DOM events listeners binding
    */
   events: {
@@ -356,7 +365,12 @@ Tagify.prototype = {
           _CBR,
           action = bindUnbind ? 'addEventListener' : 'removeEventListener',
           editTagsEventType = this.settings.editTags == 1 ? "click_" // TODO: Refactor this crappy hack to allow same event more than once
-      : this.settings.editTags == 2 ? "dblclick" : "";
+      : this.settings.editTags == 2 ? "dblclick" : ""; // do not allow the main events to be bound more than once
+
+
+      if (this.state.mainEvents && bindUnbind) return; // set the binding state of the main events, so they will not be bound more than once
+
+      this.state.mainEvents = bindUnbind;
 
       if (bindUnbind && !this.listeners.main) {
         // this event should never be unbinded
@@ -375,13 +389,11 @@ Tagify.prototype = {
       }, editTagsEventType, ['scope', _CB.onDoubleClickScope.bind(this)]);
 
       for (var eventName in _CBR) {
+        // make sure the focus/blur event is always regesitered (and never more than once)
+        if (eventName == 'blur' && !bindUnbind) return;
+
         this.DOM[_CBR[eventName][0]][action](eventName.replace(/_/g, ''), _CBR[eventName][1]);
-      } // make sure the focus/blur event is always regesitered (and never more than once)
-      // TODO: Refactor this:
-
-
-      this.DOM.input.removeEventListener('blur', _CBR.blur[1]);
-      this.DOM.input.addEventListener('blur', _CBR.blur[1]);
+      }
     },
 
     /**
@@ -389,24 +401,25 @@ Tagify.prototype = {
      */
     callbacks: {
       onFocusBlur: function onFocusBlur(e) {
-        var s = e.target ? e.target.textContent.trim() : ''; // a string
-
-        if (this.state.actions.selectOption) return; // toggle "focus" BEM class
+        var text = e.target ? e.target.textContent.trim() : '',
+            // a string
+        _s = this.settings;
+        if (this.state.actions.selectOption && (_s.dropdown.enabled || !_s.dropdown.closeOnSelect)) return; // toggle "focus" BEM class
 
         this.DOM.scope.classList[e.type == "focus" ? "add" : "remove"]('tagify--focus');
-        if (this.settings.mode == 'mix') return;
+        if (_s.mode == 'mix') return;
 
         if (e.type == "focus") {
           this.trigger("focus"); //  e.target.classList.remove('placeholder');
 
-          if (this.settings.dropdown.enabled === 0) {
+          if (_s.dropdown.enabled === 0) {
             this.dropdown.show.call(this);
           }
 
           return;
         } else if (e.type == "blur") {
           this.trigger("blur");
-          s && this.settings.addTagOnBlur && this.addTags(s, true);
+          text && _s.addTagOnBlur && this.addTags(text, true);
         } //    else{
         //  e.target.classList.add('placeholder');
 
@@ -729,16 +742,21 @@ Tagify.prototype = {
       });
     }
   },
-  // https://stackoverflow.com/a/3866442/104380
+
+  /** https://stackoverflow.com/a/59156872/104380
+   * @param {Boolean} start indicating where to place it (start or end of the node)
+   * @param {Object}  node  DOM node to place the caret at
+   */
   setRangeAtStartEnd: function setRangeAtStartEnd(start, node) {
-    var range, selection;
-    if (!document.createRange) return;
-    range = document.createRange();
-    range.selectNodeContents(node || this.DOM.input);
-    range.collapse(!!start);
-    selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
+    node = node || this.DOM.input;
+    node = node.firstChild;
+    var sel = document.getSelection();
+
+    if (sel.rangeCount) {
+      ['Start', 'End'].forEach(function (pos) {
+        return sel.getRangeAt(0)["set" + pos](node, start ? 0 : node.length);
+      });
+    }
   },
 
   /**
@@ -750,15 +768,13 @@ Tagify.prototype = {
     set: function set() {
       var s = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
       var updateDOM = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-      var caretAtEnd = arguments.length > 2 ? arguments[2] : undefined;
       var hideDropdown = this.settings.dropdown.enabled > 0 || this.settings.dropdown.closeOnSelect;
       this.input.value = s;
       if (updateDOM) this.DOM.input.innerHTML = s;
       if (!s && hideDropdown) setTimeout(this.dropdown.hide.bind(this), 20); // setTimeout duration must be HIGER than the dropdown's item "onClick" method's "focus()" event, because the "hide" method re-binds the main events and it will catch the "blur" event and will cause
 
       this.input.autocomplete.suggest.call(this, '');
-      this.input.validate.call(this); //  if( caretAtEnd )
-      //     setTimeout(this.setRangeAtStartEnd.bind(this), 50)
+      this.input.validate.call(this);
     },
 
     /**
@@ -774,7 +790,13 @@ Tagify.prototype = {
       var clone = node,
           //.cloneNode(true),
       v = clone.innerText;
-      v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(1)).replace(/\s/g, ' ') // replace NBSPs with spaces characters
+
+      try {
+        // "delimiters" might be of a non-regex value, where this will fail ("Tags With Properties" example in demo page):
+        v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(1));
+      } catch (err) {}
+
+      v = v.replace(/\s/g, ' ') // replace NBSPs with spaces characters
       .replace(/^\s+/, ""); // trimLeft
 
       return v;
@@ -1021,28 +1043,43 @@ Tagify.prototype = {
   replaceTaggedText: function replaceTaggedText(wrapperElm, tagString) {
     if (!this.state.tag && !tagString) return;
     tagString = tagString || this.state.tag.prefix + this.state.tag.value;
-    var iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT, null, false),
+    var iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT),
         textnode,
         idx,
         maxLoops = 100,
         replacedNode;
 
     while (textnode = iter.nextNode()) {
-      if (!maxLoops--) break;
+      if (!maxLoops--) break; // get the index of which the tag (string) is within the textNode (if at all)
 
-      if (textnode.nodeType === Node.TEXT_NODE) {
-        // get the index of which the tag (string) is within the textNode (if at all)
-        idx = textnode.nodeValue.indexOf(tagString);
-        if (idx == -1) continue;
-        replacedNode = textnode.splitText(idx); // clean up the tag's string and put tag element instead
+      idx = textnode.nodeValue.indexOf(tagString);
+      if (idx == -1) continue;
+      replacedNode = textnode.splitText(idx); // clean up the tag's string and put tag element instead
 
-        replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
-        textnode.parentNode.insertBefore(wrapperElm, replacedNode);
-      }
+      replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
+      textnode.parentNode.insertBefore(wrapperElm, replacedNode);
     }
 
     this.state.tag = null;
     return replacedNode;
+  },
+
+  /**
+   * For selecting a single option (not used for multiple tags)
+   * @param {Object} tagElm   Tag DOM node
+   * @param {Object} tagData  Tag data
+   */
+  selectTag: function selectTag(tagElm, tagData) {
+    this.input.set.call(this, tagData.value, true);
+    setTimeout(this.setRangeAtStartEnd.bind(this));
+    if (this.getLastTag()) this.replaceTag(this.getLastTag(), tagData);else this.appendTag(tagElm);
+    this.value[0] = tagData;
+    this.trigger('add', {
+      tag: tagElm,
+      data: tagData
+    });
+    this.update();
+    return [tagElm];
   },
 
   /**
@@ -1106,8 +1143,7 @@ Tagify.prototype = {
       return tagElm;
     }
 
-    if (this.settings.mode == 'select') tagsItems.length = 1; // only use the first tag
-
+    if (this.settings.mode == 'select') clearInput = false;
     this.DOM.input.removeAttribute('style');
     tagsItems.forEach(function (tagData) {
       var tagValidation,
@@ -1145,33 +1181,7 @@ Tagify.prototype = {
       tagElems.push(tagElm); // mode-select overrides
 
       if (_this9.settings.mode == 'select') {
-        if (_this9.settings.dropdown.closeOnSelect) {
-          _this9.dropdown.hide.call(_this9);
-
-          _this9.events.callbacks.onFocusBlur.call(_this9, {
-            type: "blur"
-          });
-        }
-
-        clearInput = false;
-
-        _this9.input.set.call(_this9, tagData.value, true, true);
-
-        if (_this9.getLastTag()) {
-          // update current tag
-          _this9.replaceTag(_this9.getLastTag(), tagData);
-
-          _this9.value[0] = tagData;
-
-          _this9.update();
-
-          _this9.trigger('add', {
-            tag: tagElm,
-            data: tagData
-          });
-
-          return [tagElm];
-        }
+        return _this9.selectTag(tagElm, tagData);
       } // add the tag to the component's DOM
 
 
@@ -1203,7 +1213,7 @@ Tagify.prototype = {
       this.input.set.call(this);
     }
 
-    this.dropdown.fill.call(this);
+    this.dropdown.refilter.call(this);
     return tagElems;
   },
 
@@ -1275,7 +1285,7 @@ Tagify.prototype = {
           index: tagIdx,
           data: tagData
         });
-        that.dropdown.fill.call(that);
+        that.dropdown.refilter.call(that);
         that.dropdown.position.call(that);
       } else if (that.settings.keepInvalidTags) that.trigger('remove', {
         tag: tagElm,
@@ -1421,7 +1431,6 @@ Tagify.prototype = {
           document.body.appendChild(this.DOM.dropdown);
           this.dropdown.visible = true;
           this.dropdown.position.call(this, ddHeight);
-          document.body.offsetLeft;
           setTimeout(function () {
             return _this11.DOM.dropdown.classList.remove('tagify__dropdown--initial');
           });
@@ -1455,7 +1464,7 @@ Tagify.prototype = {
     /**
      * fill data into the suggestions list (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
      */
-    fill: function fill() {
+    refilter: function refilter() {
       this.suggestedListItems = this.dropdown.filterListItems.call(this, '');
       var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
       this.DOM.dropdown.content.innerHTML = this.minify(listHTML);
@@ -1516,14 +1525,12 @@ Tagify.prototype = {
 
         this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver);
         this.DOM.dropdown[action]('mouseleave', _CBR.onMouseLeave);
-        this.DOM.dropdown[action]('mousedown', _CBR.onClick); // add the main "click" event back because it is needed for removing/clicking already existing tags, even if dropdown is shown
+        this.DOM.dropdown[action]('mousedown', _CBR.onClick); // add back the main "click" event because it is needed for removing/clicking already-existing tags, even if dropdown is shown
 
         this.DOM[this.listeners.main.click[0]][action]('click', this.listeners.main.click[1]);
       },
       callbacks: {
         onKeyDown: function onKeyDown(e) {
-          var _this12 = this;
-
           // get the "active" element, and if there was none (yet) active, use first child
           var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
               selectedElm = activeListElm,
@@ -1572,21 +1579,7 @@ Tagify.prototype = {
             case 'Enter':
               {
                 e.preventDefault();
-                var hideDropdown = this.settings.dropdown.enabled || this.settings.dropdown.closeOnSelect;
-
-                if (activeListElm) {
-                  newValue = this.suggestedListItems[this.getNodeIndex(activeListElm)] || this.input.value;
-                  this.trigger("dropdown:select", newValue);
-                  this.addTags([newValue], true);
-                  this.dropdown[hideDropdown ? 'hide' : 'show'].call(this);
-                  if (this.settings.mode == 'select') setTimeout(function () {
-                    return _this12.DOM.input.blur();
-                  });
-                  return false;
-                } else {
-                  this.addTags(this.input.value, true);
-                }
-
+                this.dropdown.selectOption.call(this, activeListElm);
                 break;
               }
 
@@ -1646,21 +1639,26 @@ Tagify.prototype = {
       }
     },
     selectOption: function selectOption(elm) {
-      var _this13 = this;
+      var _this12 = this;
 
       if (!elm) return; // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
 
       this.state.actions.selectOption = true;
       setTimeout(function () {
-        return _this13.state.actions.selectOption = false;
-      }, 300);
-      var value = this.suggestedListItems[this.getNodeIndex(elm)] || this.input.value;
+        return _this12.state.actions.selectOption = false;
+      }, 50);
+      var hideDropdown = this.settings.dropdown.enabled || this.settings.dropdown.closeOnSelect,
+          value = this.suggestedListItems[this.getNodeIndex(elm)] || this.input.value;
       this.trigger("dropdown:select", value);
-      this.addTags([value], true);
-      if (this.settings.mode != 'select') setTimeout(function () {
-        return _this13.DOM.input.focus();
-      }, 0);
-      if (this.settings.dropdown.closeOnSelect) this.dropdown.hide.call(this);
+      this.addTags([value], true); // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
+
+      setTimeout(function () {
+        return _this12.DOM.input.focus();
+      }, 60);
+
+      if (hideDropdown) {
+        this.dropdown.hide.call(this); // setTimeout(() => this.events.callbacks.onFocusBlur.call(this, {type:"blur"}), 60)
+      }
     },
 
     /**
@@ -1669,7 +1667,7 @@ Tagify.prototype = {
      * @return {Array} list of filtered whitelist items according to the settings provided and current value
      */
     filterListItems: function filterListItems(value) {
-      var _this14 = this;
+      var _this13 = this;
 
       var list = [],
           whitelist = this.settings.whitelist,
@@ -1683,7 +1681,7 @@ Tagify.prototype = {
 
       if (!value) {
         return whitelist.filter(function (item) {
-          return !_this14.isTagDuplicate(item.value || item);
+          return !_this13.isTagDuplicate(item.value || item);
         }) // don't include tags which have already been added.
         .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }

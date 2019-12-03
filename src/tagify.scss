@@ -63,6 +63,10 @@
         30% { transform: scale(1.2); }
     }
 
+    @keyframes rotateLoader {
+        to{ transform: rotate(1turn) }
+    }
+
     display       : flex;
     align-items   : flex-start;
     flex-wrap     : wrap;
@@ -94,6 +98,23 @@
             padding: var(--tag-pad);
             &::before{
                 @include tagReadonlyBG;
+            }
+        }
+    }
+
+    &--loading{
+        #{ $self }__input{
+            &::after{
+                content: '';
+                vertical-align: middle;
+                margin: -2px 0 -2px .5em;
+                opacity: 1;
+                width: .7em;
+                height: .7em;
+                border: 3px solid;
+                border-color: #EEE #BBB #888 transparent;
+                border-radius: 50%;
+                animation: rotateLoader .4s infinite linear;
             }
         }
     }
@@ -262,7 +283,6 @@
 
         &::after{
             content: "\00D7";
-            line-height: 1;
         }
 
         &:hover{
@@ -461,7 +481,7 @@
 
         // intial state, pre-rendered
         &--initial{
-            max-height: 90px;
+            max-height: 60px;
             opacity: .7;
 
             #{$dropdown}__wrapper{
