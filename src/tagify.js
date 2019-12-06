@@ -539,21 +539,22 @@ Tagify.prototype = {
             },
 
             onMixTagsInput( e ){
-                var sel, range, split, tag, showSuggestions;
+                var sel, range, split, tag, showSuggestions,
+                    _s = this.settings;
 
-                if( this.maxTagsReached() )
-                    return true;
+                if( this.hasMaxTags() )
+                    return true
 
                 if( window.getSelection ){
-                    sel = window.getSelection();
+                    sel = window.getSelection()
                     if( sel.rangeCount > 0 ){
-                        range = sel.getRangeAt(0).cloneRange();
-                        range.collapse(true);
-                        range.setStart(window.getSelection().focusNode, 0);
+                        range = sel.getRangeAt(0).cloneRange()
+                        range.collapse(true)
+                        range.setStart(window.getSelection().focusNode, 0)
 
-                        split = range.toString().split(this.settings.mixTagsAllowedAfter);  // ["foo", "bar", "@a"]
+                        split = range.toString().split(_s.mixTagsAllowedAfter)  // ["foo", "bar", "@a"]
 
-                        tag = split[split.length-1].match(this.settings.pattern);
+                        tag = split[split.length-1].match(_s.pattern)
 
                         if( tag ){
                             this.state.tag = {
@@ -561,7 +562,7 @@ Tagify.prototype = {
                                 value  : tag.input.split(tag[0])[1],
                             }
 
-                            showSuggestions = this.state.tag.value.length >= this.settings.dropdown.enabled
+                            showSuggestions = this.state.tag.value.length >= _s.dropdown.enabled
                         }
                     }
                 }
@@ -858,7 +859,7 @@ Tagify.prototype = {
 
                 if( suggestion ){
                     if( this.settings.mode == 'mix' ){
-                        this.replaceTaggedText( document.createTextNode(this.state.tag.prefix + suggestion) )
+                        this.replaceTextWithNode( document.createTextNode(this.state.tag.prefix + suggestion) )
                     }
                     else{
                         this.input.set.call(this, suggestion);
@@ -990,7 +991,7 @@ Tagify.prototype = {
         return result;
     },
 
-    maxTagsReached(){
+    hasMaxTags(){
         if( this.value.length >= this.settings.maxTags )
             return this.TEXTS.exceed;
         return false;
@@ -1087,28 +1088,27 @@ Tagify.prototype = {
      * For mixed-mode: replaces a text starting with a prefix with a wrapper element (tag or something)
      * First there *has* to be a "this.state.tag" which is a string that was just typed and is staring with a prefix
      */
-    replaceTaggedText( wrapperElm, tagString ){
+    replaceTextWithNode( wrapperElm, tagString ){
         if( !this.state.tag && !tagString ) return;
 
         tagString = tagString || this.state.tag.prefix + this.state.tag.value;
-        var iter = document.createNodeIterator(this.DOM.input, NodeFilter.SHOW_TEXT),
-            textnode,
-            idx,
-            maxLoops = 100,
-            replacedNode;
+        var idx, replacedNode,
+            selection = window.getSelection(),
+            nodeAtCaret = selection.anchorNode;
 
-        while( textnode = iter.nextNode() ){
-            if( !maxLoops-- ) break;
-            // get the index of which the tag (string) is within the textNode (if at all)
-            idx = textnode.nodeValue.indexOf(tagString);
-            if( idx == -1 ) continue;
+        // ex. replace #ba with the tag "bart" where "|" is where the caret is:
+        // start with: "#ba #ba| #ba"
+        // split the text node at the index of the caret
+        replacedNode = nodeAtCaret.splitText(selection.anchorOffset)
+        // "#ba #ba"
+        // get index of last occurence of "#ba"
+        idx = nodeAtCaret.nodeValue.lastIndexOf(tagString)
+        replacedNode = nodeAtCaret.splitText(idx)
+        // #ba
 
-            replacedNode = textnode.splitText(idx);
-
-            // clean up the tag's string and put tag element instead
-            replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
-            textnode.parentNode.insertBefore(wrapperElm, replacedNode);
-        }
+        // clean up the tag's string and put tag element instead
+        replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
+        nodeAtCaret.parentNode.insertBefore(wrapperElm, replacedNode);
 
         this.DOM.input.normalize()
 
@@ -1181,7 +1181,7 @@ Tagify.prototype = {
             this.settings.transformTag.call(this, tagsItems[0]);
             tagElm = this.createTagElem(tagsItems[0]);
 
-            if( !this.replaceTaggedText(tagElm) ){
+            if( !this.replaceTextWithNode(tagElm) ){
                 this.DOM.input.appendChild(tagElm)
             }
 
@@ -1208,7 +1208,7 @@ Tagify.prototype = {
             this.settings.transformTag.call(this, tagData);
 
             ///////////////// ( validation )//////////////////////
-            tagValidation = this.maxTagsReached() || this.validateTag(tagData.value);
+            tagValidation = this.hasMaxTags() || this.validateTag(tagData.value);
 
             if( tagValidation !== true ){
                 if( skipInvalid )
