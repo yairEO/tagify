@@ -416,7 +416,8 @@ mixTagsInterpolator     | Array      | `['[[', ']]']`                   | Interp
 mixTagsAllowedAfter     | Regex      | `/,|\.|\:|\s/`                   | Define conditions in which typed mix-tags content is allowing a tag to be created after.
 duplicates              | Boolean    | false                            | Should duplicate tags be allowed or not
 enforceWhitelist        | Boolean    | false                            | Should ONLY use tags allowed in whitelist
-autocomplete            | Boolean    | true                             | Tries to autocomplete the input's value while typing (match from whitelist)
+autocomplete.enabled    | Boolean    | true                             | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
+autocomplete.rightKey   | Boolean    | false                            | If `true`, when <kbd>→</kdb> is pressed, use the suggested value to create a tag, else just auto-completes the input
 whitelist               | Array      | []                               | An array of tags which only they are allowed
 blacklist               | Array      | []                               | An array of tags which aren't allowed
 addTagOnBlur            | Boolean    | true                             | Automatically adds the text which was inputed as a tag when blur event happens

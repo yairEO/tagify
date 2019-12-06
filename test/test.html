@@ -102,6 +102,7 @@
 
             <section id='section-mix'>
                 <textarea name='simple-mix'>[[alice]] text [[bob]] [[foo]], [[alice]], [[foo]]</textarea>
+                <textarea name='mix'></textarea>
                 <textarea name='mix'>
                   [[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[{"id":500, "value":"cartman", "title":"xxx"}]] [[kyle]] do not know [[homer simpson]] because he's a relic.]]
                 </textarea>
@@ -141,16 +142,16 @@
   document.forms[0].reset()
 
   window.tagified = {
-    "basic"             : 1,
-    "textarea"          : 1,
+    "basic"             : 0,
+    "textarea"          : 0,
     "mix"               : 1,
     "manual-suggestions": 0,
-    "outside-of-the-box": 1,
-    "advance-options"   : 1,
-    "extra-properties"  : 1,
-    "readonly"          : 1,
-    "readonly-mixed"    : 1,
-    "mode-select"       : 1,
+    "outside-of-the-box": 0,
+    "advance-options"   : 0,
+    "extra-properties"  : 0,
+    "readonly"          : 0,
+    "readonly-mixed"    : 0,
+    "mode-select"       : 0,
   };
 
   (function(){
@@ -355,17 +356,17 @@
           pattern          : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
           enforceWhitelist : true,
           whitelist        : [       // <--  Set the initial whitelist, which will dynamically change as you type (see "input" event below)
-              { value : 'cartman', title : 'Eric Cartman', class : 'borderd-blue' },
-              { value:"cartman", id:500, title:"xxx"},
-              { value : 'kyle', title : 'Kyle Broflovski' },
-              { value: 'Homer simpson' }
+            { value:'cartman', title:'Eric Cartman', class:'borderd-blue' },
+            { value:"cartman", id:500, title:"xxx" },
+            { value:'kyle', title:'Kyle Broflovski' },
+            { value:'Homer simpson' }
           ],
           dropdown   : {
-              enabled : 1
+              enabled : 0
           },
           callbacks        : {
-              add    : console.log,  // callback when adding a tag
-              remove : console.log   // callback when removing a tag
+            add    : console.log,  // callback when adding a tag
+            remove : console.log   // callback when removing a tag
           }
       })
 
@@ -416,20 +417,24 @@
 
   // A good place to pull server suggestion list accoring to the prefix/value
   tagify.on('input', function(e){
-      var prefix = e.detail.prefix;
+    var prefix = e.detail.prefix,
+        newWhitelist;
 
-      if( prefix ){
-          if( prefix == '@' )
-              tagify.settings.whitelist = whitelist_1;
+    if( prefix ){
+      if( prefix == '@' )
+          newWhitelist = whitelist_1
+      if( prefix == '#' )
+          newWhitelist = whitelist_2
 
-          if( prefix == '#' )
-              tagify.settings.whitelist = whitelist_2;
-
-          if( e.detail.value.length > 1 )
-              tagify.dropdown.show.call(tagify, e.detail.value);
+      if( newWhitelist ){
+        tagify.settings.whitelist.splice(0, newWhitelist.length, ...newWhitelist)
       }
 
-      console.log('mix-mode "input" event value: ', e.detail)
+      if( e.detail.value.length > 1 )
+          tagify.dropdown.show.call(tagify, e.detail.value);
+    }
+
+    console.log('mix-mode "input" event value: ', e.detail)
   })
 
   tagify.on('add', function(e){

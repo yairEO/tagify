@@ -24,6 +24,7 @@ function Tagify( input, settings ){
     this.events.customBinding.call(this);
     this.events.binding.call(this);
     input.autofocus && this.DOM.input.focus()
+
 }
 
 Tagify.prototype = {
@@ -55,11 +56,9 @@ Tagify.prototype = {
         editTags            : 2,              // 1 or 2 clicks to edit a tag
         transformTag        : ()=>{},         // Takes a tag input string as argument and returns a transformed value
         autoComplete        : {
-            enabled : true,                   // Tries to autocomplete the input's value while typing (match from whitelist)
-            enterKey: true,                   // If `true`, when Enter key is pressed, use the suggested value to create a tag
+            enabled : true,                   // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
             rightKey: false,                  // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input
         },           // Flag - tries to autocomplete the input's value while typing
-
         dropdown            : {
             classname     : '',
             enabled       : 2,      // minimum input characters needs to be typed for the dropdown to show
@@ -111,7 +110,7 @@ Tagify.prototype = {
         }
     },
 
-    customEventsList : ['click', 'add', 'remove', 'invalid', 'input', 'edit'],
+    customEventsList : ['add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select'],
 
     applySettings( input, settings ){
         this.DEFAULTS.templates = this.templates;
@@ -211,17 +210,16 @@ Tagify.prototype = {
      * @param  {Object} input [DOM element which would be "transformed" into "Tags"]
      */
     build( input ){
-        var that = this,
-            DOM  = this.DOM,
-            template = this.settings.templates.wrapper(input, this.settings);
+        var DOM  = this.DOM,
+            template = this.settings.templates.wrapper(input, this.settings)
 
-        DOM.originalInput = input;
-        DOM.scope = this.parseHTML(template);
-        DOM.input = DOM.scope.querySelector('[contenteditable]');
-        input.parentNode.insertBefore(DOM.scope, input);
+        DOM.originalInput = input
+        DOM.scope = this.parseHTML(template)
+        DOM.input = DOM.scope.querySelector('[contenteditable]')
+        input.parentNode.insertBefore(DOM.scope, input)
 
         if( this.settings.dropdown.enabled >= 0 ){
-            this.dropdown.init.call(this);
+            this.dropdown.init.call(this)
         }
     },
 
@@ -377,13 +375,12 @@ Tagify.prototype = {
 
             // setup callback references so events could be removed later
             _CBR = (this.listeners.main = this.listeners.main || {
-                paste    : ['input', _CB.onPaste.bind(this)],
                 focus    : ['input', _CB.onFocusBlur.bind(this)],
                 blur     : ['input', _CB.onFocusBlur.bind(this)],
                 keydown  : ['input', _CB.onKeydown.bind(this)],
                 click    : ['scope', _CB.onClickScope.bind(this)],
                 [editTagsEventType] : ['scope', _CB.onDoubleClickScope.bind(this)]
-            });
+            })
 
             for( var eventName in _CBR ){
                 // make sure the focus/blur event is always regesitered (and never more than once)
@@ -408,27 +405,28 @@ Tagify.prototype = {
                 // toggle "focus" BEM class
                 this.DOM.scope.classList[e.type == "focus" ? "add" : "remove"]('tagify--focus')
 
-                if( _s.mode == 'mix' ) return;
+                if( _s.mode == 'mix' ){
+                    if( e.type == "blur" )
+                        this.dropdown.hide.call(this)
+                    return
+                }
 
                 if( e.type == "focus" ){
                     this.trigger("focus")
                     //  e.target.classList.remove('placeholder');
                     if( _s.dropdown.enabled === 0 ){
-                        this.dropdown.show.call(this);
+                        this.dropdown.show.call(this)
                     }
                     return
                 }
 
                 else if( e.type == "blur" ){
                     this.trigger("blur")
-                    text && _s.addTagOnBlur && this.addTags(text, true);
+                    text && _s.addTagOnBlur && this.addTags(text, true)
                 }
 
-            //    else{
-                    //  e.target.classList.add('placeholder');
-                    this.DOM.input.removeAttribute('style');
-                    this.dropdown.hide.call(this);
-            //    }
+                this.DOM.input.removeAttribute('style')
+                this.dropdown.hide.call(this)
             },
 
             onKeydown(e){
@@ -445,12 +443,13 @@ Tagify.prototype = {
                             // find out which tag(s) were deleted and update "this.value" accordingly
                             tags = this.DOM.input.children;
 
-                            // a delay is in need before the node actually gets ditached from the document
+                            // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
+                            // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
                             setTimeout(()=>{
                                 // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
                                 [].forEach.call( tags, tagElm => values.push(tagElm.getAttribute('value')) )
                                 this.value = this.value.filter(d => values.indexOf(d.value) != -1);
-                            }, 20)
+                            })
                             break;
 
                         // currently commented to allow new lines in mixed-mode
@@ -473,6 +472,7 @@ Tagify.prototype = {
 
                     case 'Esc' :
                     case 'Escape' :
+                        if( this.dropdown.visible ) return
                         e.target.blur()
                         break;
 
@@ -483,16 +483,26 @@ Tagify.prototype = {
                             this.dropdown.show.call(this)
                         break;
 
-                //    case 'ArrowRight' :
+                    case 'ArrowRight' :
+                        if( this.state.inputSuggestion && this.settings.autoComplete.rightKey ){
+                            this.addTags(this.state.inputSuggestion, true)
+                            return;
+                        }
+                        break
                     case 'Tab' : {
                         if( !s ) return true;
                     }
 
                     case 'Enter' :
                         e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                        if( this.state.inputSuggestion )
-                            return
-                        this.addTags(s, true)
+                        // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
+                        // know if an option was just selected from the dropdown menu. If an option was selected,
+                        // the dropdown events should handle adding the tag
+                        setTimeout(()=>{
+                            if( this.state.actions.selectOption )
+                                return
+                            this.addTags(s, true)
+                        })
                 }
             },
 
@@ -512,6 +522,7 @@ Tagify.prototype = {
                 if( this.input.value == value ) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
 
                 data.isValid = this.validateTag(value);
+                this.trigger('input', data) // "input" event must be triggered at this point, before the dropdown is shown
 
                 // save the value on the input's State object
                 this.input.set.call(this, value, false); // update the input with the normalized value and run validations
@@ -525,8 +536,6 @@ Tagify.prototype = {
                 else if( this.settings.dropdown.enabled >= 0 ){
                     this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
                 }
-
-                this.trigger("input", data);
             },
 
             onMixTagsInput( e ){
@@ -560,13 +569,14 @@ Tagify.prototype = {
                 this.update()
 
                 // wait until the "this.value" has been updated (see "onKeydown" method for "mix-mode")
-                setTimeout(
-                    this.trigger.bind(this, "input", this.extend({}, this.state.tag, {textContent:this.DOM.input.textContent}))
-                , 30)
+                // the dropdown must be shown only after this event has been driggered, so an implementer could
+                // dynamically change the whitelist.
+                setTimeout(()=>{
+                    this.trigger("input", this.extend({}, this.state.tag, {textContent:this.DOM.input.textContent}))
 
-                if( this.state.tag ){
-                    this.dropdown[showSuggestions ? "show" : "hide"].call(this, this.state.tag.value);
-                }
+                    if( this.state.tag )
+                        this.dropdown[showSuggestions ? "show" : "hide"].call(this, this.state.tag.value);
+                }, 10)
             },
 
             onInputIE(e){
@@ -577,11 +587,9 @@ Tagify.prototype = {
                 })
             },
 
-            onPaste(e){
-            },
-
             onClickScope(e){
-                var tagElm = e.target.closest('tag'), tagElmIdx;
+                var tagElm = e.target.closest('tag'), tagElmIdx,
+                    _s = this.settings;
 
                 if( e.target.tagName == "TAGS" )
                     this.DOM.input.focus();
@@ -596,7 +604,7 @@ Tagify.prototype = {
                     this.trigger("click", { tag:tagElm, index:tagElmIdx, data:this.value[tagElmIdx] });
                 }
 
-                if( this.settings.mode == 'select' || this.settings.dropdown.enabled === 0 )
+                if( _s.mode == 'select' || (_s.mode != 'mix' && _s.dropdown.enabled === 0) )
                     this.dropdown.show.call(this);
             },
 
@@ -829,6 +837,7 @@ Tagify.prototype = {
          */
         autocomplete : {
             suggest( s ){
+                if( !this.settings.autoComplete.enabled ) return;
                 s = s || '';
                 var suggestionStart = s.substr(0, this.input.value.length).toLowerCase(),
                     suggestionTrimmed = s.substring(this.input.value.length);
@@ -1001,6 +1010,7 @@ Tagify.prototype = {
             temp = [],
             mapStringToCollection = s => s.split(delimiters).filter(n => n).map(v => ({ value:v.trim() }))
 
+
         // no need to continue if "tagsItems" is an Array of Objects
         if (isCollection){
             // iterate the collection items and check for values that can be splitted into multiple tags
@@ -1099,6 +1109,8 @@ Tagify.prototype = {
             replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
             textnode.parentNode.insertBefore(wrapperElm, replacedNode);
         }
+
+        this.DOM.input.normalize()
 
         this.state.tag = null;
         return replacedNode;
@@ -1402,10 +1414,11 @@ Tagify.prototype = {
     },
 
     /**
+     * Meassures an element's height, which might yet have been added DOM
      * https://stackoverflow.com/q/5944038/104380
      * @param {DOM} node
      */
-    getNodeHeight(node) {
+    getNodeHeight( node ){
         var height, clone = node.cloneNode(true)
         clone.style.cssText = "position:fixed; top:-9999px; opacity:0"
         document.body.appendChild(clone)
@@ -1481,7 +1494,7 @@ Tagify.prototype = {
             // set the dropdown visible state to be the same as the searched value.
             // MUST be set *before* position() is called
             this.dropdown.visible = value || true;
-
+            this.dropdown.position.call(this)
             // if the dropdown has yet to be appended to the document,
             // append the dropdown to the body element & handle events
             if( !document.body.contains(this.DOM.dropdown) ){
@@ -1682,6 +1695,11 @@ Tagify.prototype = {
             }
         },
 
+        /**
+         * mark the currently active suggestion option
+         * @param {Object}  elm            option DOM node
+         * @param {Boolean} adjustScroll   when navigation with keyboard arrows (up/down), aut-scroll to always show the highlighted element
+         */
         highlightOption( elm, adjustScroll ){
             var className = "tagify__dropdown__item--active",
                 value;
@@ -1715,6 +1733,10 @@ Tagify.prototype = {
             }
         },
 
+        /**
+         * Create a tag from the currently active suggestion option
+         * @param {Object} elm  DOM node to select
+         */
         selectOption( elm ){
             if( !elm ) return;
             // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
@@ -1723,6 +1745,7 @@ Tagify.prototype = {
 
             var hideDropdown = this.settings.dropdown.enabled || this.settings.dropdown.closeOnSelect,
                 value = this.suggestedListItems[this.getNodeIndex(elm)] || this.input.value;
+
 
             this.trigger("dropdown:select", value)
             this.addTags([value], true);
