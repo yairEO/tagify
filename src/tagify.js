@@ -83,7 +83,7 @@ Tagify.prototype = {
                     role="textbox"
                     aria-controls="dropdown"
                     aria-autocomplete="both"
-                    aria-multiline="false"></span>
+                    aria-multiline="${settings.mode=='mix'?true:false}"></span>
             </tags>`
         },
 
@@ -244,7 +244,7 @@ Tagify.prototype = {
         catch(err){}
 
         if( this.settings.mode == 'mix' ){
-            this.parseMixTags(value);
+            this.parseMixTags(value.trim())
         }
 
         else
