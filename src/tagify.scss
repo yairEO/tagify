@@ -133,27 +133,6 @@
         cursor         : default;
         transition     : .13s ease-out;
 
-        &.tagify--editable{
-            > div{
-                color : $tag-text-color--edit;
-                color : var(--tag-text-color--edit);
-
-                &::before{
-                    box-shadow: 0 0 0 2px $tag-hover inset !important;
-                    box-shadow: 0 0 0 2px var(--tag-hover) inset !important;
-                }
-            }
-
-            &.tagify--invalid{
-                > div{
-                    &::before{
-                        box-shadow: 0 0 0 2px $tag-invalid-color inset !important;
-                        box-shadow: 0 0 0 2px var(--tag-invalid-color) inset !important;
-                    }
-                }
-            }
-        }
-
         > div{  // :not([contenteditable])
             vertical-align : top;
             box-sizing     : border-box;
@@ -175,6 +154,8 @@
                 vertical-align : top;
                 min-width      : var(--tag--min-width);
                 max-width      : var(--tag--max-width);
+                transition     : .8s ease, .1 color;
+
 
                 &[contenteditable]{
                     outline: none;
@@ -183,6 +164,7 @@
                     // fix: sometimes the caret after the last character wasn't visible (when setting {backspace:"edit"})
                     margin: -2px;
                     padding: 2px;
+                    max-width: 350px;
                 }
             }
 
@@ -254,6 +236,27 @@
             > div{// padding: $tag-pad;
                 &::before{
                     @include tagReadonlyBG;
+                }
+            }
+        }
+
+        &--editable{
+            > div{
+                color : $tag-text-color--edit;
+                color : var(--tag-text-color--edit);
+
+                &::before{
+                    box-shadow: 0 0 0 2px $tag-hover inset !important;
+                    box-shadow: 0 0 0 2px var(--tag-hover) inset !important;
+                }
+            }
+
+            &.tagify--invalid{
+                > div{
+                    &::before{
+                        box-shadow: 0 0 0 2px $tag-invalid-color inset !important;
+                        box-shadow: 0 0 0 2px var(--tag-invalid-color) inset !important;
+                    }
                 }
             }
         }
@@ -457,34 +460,39 @@
     // it cannot ingerit the CSS variables applied on the ".Tagify" element
     &__dropdown{
         $dropdown: &;
+        $trans: .25s cubic-bezier(0,1,.5,1);
         position: absolute;
         z-index: 9999;
-        background: white;
-
-        overflow: auto;
-        border: 1px solid $tags-focus-border-color;
-        box-shadow: 0 2px 4px -2px rgba(black,.2);
-        box-sizing: border-box;
-        transition: .25s cubic-bezier(0,1,.45,1);
-        transition-property: transform, max-height, opacity;
+        margin-top: 1px;
+        overflow: hidden;
 
         // when the dropdown shows next to the caret while typing
         &--text{
             box-shadow: 0 0 0 3px rgba($tags-focus-border-color, .1);
             font-size: .9em;
+            #{$dropdown}__wrapper{
+                border-width: 1px;
+            }
         }
 
         &__wrapper{
             max-height: 300px;
-            transition: .25s cubic-bezier(0,1,.45,1);
+            overflow: hidden;
+            background: white;
+            border: 1px solid $tags-focus-border-color;
+            border-top-width: 0;
+            box-shadow: 0 2px 4px -2px rgba(black,.2);
+           // box-sizing: border-box;
+            transition: $trans;
+            &:hover{
+                overflow: auto;
+            }
         }
 
         // intial state, pre-rendered
         &--initial{
-            max-height: 60px;
-            opacity: .7;
-
             #{$dropdown}__wrapper{
+                max-height: 20px;
                 transform: translateY(1em);
             }
 
@@ -502,7 +510,7 @@
             cursor: pointer;
             border-radius: 2px;
             position: relative;
-            outline:none;
+            outline: none;
 
             &--active{
                 background: $tags-focus-border-color;

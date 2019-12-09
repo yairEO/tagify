@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param {Object} input    DOM element
+ * @param {Object} settings settings object
+ */
 function Tagify( input, settings ){
     // protection
     if( !input ){
@@ -336,6 +341,10 @@ Tagify.prototype = {
         return this;
     },
 
+    toggleFocusClass( force ){
+        this.DOM.scope.classList.toggle('tagify--focus', force)
+    },
+
     /**
      * DOM events listeners binding
      */
@@ -396,14 +405,14 @@ Tagify.prototype = {
         callbacks : {
             onFocusBlur(e){
                 var text = e.target ? e.target.textContent.trim() : '', // a string
-                    _s = this.settings;
+                    _s = this.settings,
+                    type = e.type;
 
                 if( this.state.actions.selectOption &&
                     (_s.dropdown.enabled || !_s.dropdown.closeOnSelect) )
                     return;
 
-                // toggle "focus" BEM class
-                this.DOM.scope.classList[e.type == "focus" ? "add" : "remove"]('tagify--focus')
+                this.toggleFocusClass(type == "focus")
 
                 if( _s.mode == 'mix' ){
                     if( e.type == "blur" )
@@ -411,7 +420,7 @@ Tagify.prototype = {
                     return
                 }
 
-                if( e.type == "focus" ){
+                if( type == "focus" ){
                     this.trigger("focus")
                     //  e.target.classList.remove('placeholder');
                     if( _s.dropdown.enabled === 0 ){
@@ -420,8 +429,9 @@ Tagify.prototype = {
                     return
                 }
 
-                else if( e.type == "blur" ){
+                else if( type == "blur" ){
                     this.trigger("blur")
+                    this.loading(false)
                     text && _s.addTagOnBlur && this.addTags(text, true)
                 }
 
@@ -593,7 +603,7 @@ Tagify.prototype = {
                     _s = this.settings;
 
                 if( e.target.tagName == "TAGS" )
-                    this.DOM.input.focus();
+                    this.DOM.input.focus()
 
                 else if( e.target.tagName == "X" ){
                     this.removeTag( e.target.parentNode );
@@ -638,7 +648,7 @@ Tagify.prototype = {
                     isValid      = tagElm.isValid,
                     tagData      = {...this.value[tagElmIdx], value};
 
-                this.DOM.input.focus()
+              //  this.DOM.input.focus()
 
                 if( !currentValue ){
                     this.removeTag(tagElm)
@@ -683,10 +693,10 @@ Tagify.prototype = {
 
                 if( !tagElm ) return
 
-                isEditingTag = tagElm.classList.contains('tagify--editable'),
+                isEditingTag = tagElm.classList.contains('tagify__tag--editable'),
                 isReadyOnlyTag = tagElm.hasAttribute('readonly')
 
-                if( _s.mode != 'mix' && _s.mode != 'select' && !_s.readonly && !_s.enforceWhitelist && !isEditingTag && !isReadyOnlyTag )
+                if( _s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag )
                     this.editTag(tagElm);
             }
         }
@@ -702,13 +712,12 @@ Tagify.prototype = {
             that = this,
             delayed_onEditTagBlur = function(){ setTimeout(_CB.onEditTagBlur.bind(that), 0, editableElm) }
 
-
         if( !editableElm ){
             console.warn('Cannot find element in Tag template: ', '.tagify__tag-text');
             return;
         }
 
-        tagElm.classList.add('tagify--editable')
+        tagElm.classList.add('tagify__tag--editable')
         editableElm.originalValue = editableElm.textContent
 
         editableElm.setAttribute('contenteditable', true)
@@ -717,8 +726,8 @@ Tagify.prototype = {
         editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
         editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e))
 
-        editableElm.focus();
-        this.setRangeAtStartEnd(false, editableElm);
+        editableElm.focus()
+        this.setRangeAtStartEnd(false, editableElm)
 
         this.state.editing = {
             scope: tagElm,
@@ -749,7 +758,7 @@ Tagify.prototype = {
         // update DOM nodes
         clone.removeAttribute('contenteditable')
 
-        tagElm.classList.remove('tagify--editable')
+        tagElm.classList.remove('tagify__tag--editable')
 
         // guarantee to remove all events which were added by the "editTag" method
         editableElm.parentNode.replaceChild(clone, editableElm)
@@ -773,7 +782,7 @@ Tagify.prototype = {
      */
     setRangeAtStartEnd( start, node ){
         node = node || this.DOM.input;
-        node = node.firstChild;
+        node = node.firstChild || node;
         const sel = document.getSelection()
 
         if( sel.rangeCount ){
@@ -1468,7 +1477,7 @@ Tagify.prototype = {
                 firstListItem =  this.suggestedListItems[0]
                 firstListItemValue = firstListItem.value || firstListItem
 
-                if( this.settings.autoComplete ){
+                if( _s.autoComplete ){
                     // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
                     if( firstListItemValue.indexOf(value) == 0 )
                         this.input.autocomplete.suggest.call(this, firstListItemValue)
@@ -1748,10 +1757,13 @@ Tagify.prototype = {
 
 
             this.trigger("dropdown:select", value)
-            this.addTags([value], true);
+            this.addTags([value], true)
 
             // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
-            setTimeout(() => this.DOM.input.focus(), 60);
+            setTimeout(() =>  {
+                this.DOM.input.focus()
+                this.toggleFocusClass(true)
+            })
 
             if( hideDropdown ){
                 this.dropdown.hide.call(this)

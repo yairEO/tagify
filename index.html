@@ -384,10 +384,6 @@
                     <script>renderPRE(document.currentScript, "dropdown-tags")</script>
                     <h3>CSS (editable)</h3>
 <style contenteditable>
-.tags-look{
-  padding: .2em;
-}
-
 .tags-look .tagify__dropdown__item{
   display: inline-block;
   border-radius: 3px;
@@ -1111,7 +1107,8 @@ var input = document.querySelector('[name=mix]'),
         whitelist: whitelist_1.concat(whitelist_2).map(function(item){ return typeof item == 'string' ? {value:item} : item}),
 
         dropdown : {
-            enabled: 1
+            enabled: 1,
+            position: "text"
         },
         callbacks: {
             add: console.log,  // callback when adding a tag

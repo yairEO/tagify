@@ -411,7 +411,7 @@ Name                    | Type       | Default                          | Info
 placeholder             | String     |                                  | Placeholder text. If this attribute is set on an input/textarea element it will override this setting
 delimiters              | String     | `,`                              | [regex string] split tags by any of these delimiters. Example: `",|`  |."`
 pattern                 | String     | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
-mode                    | String     | null                             | Use `select` for single-value dropdown-like select box. Sse `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
+mode                    | String     | null                             | Use `select` for single-value dropdown-like select box. See `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
 mixTagsInterpolator     | Array      | `['[[', ']]']`                   | Interpolation for mix mode. Everything between these will become a tag
 mixTagsAllowedAfter     | Regex      | `/,|\.|\:|\s/`                   | Define conditions in which typed mix-tags content is allowing a tag to be created after.
 duplicates              | Boolean    | false                            | Should duplicate tags be allowed or not
