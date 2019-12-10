@@ -107,7 +107,7 @@ Tagify.prototype = {
     autoComplete: {
       enabled: true,
       // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
-      rightKey: false // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input
+      rightKey: false // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
 
     },
     // Flag - tries to autocomplete the input's value while typing
@@ -179,6 +179,7 @@ Tagify.prototype = {
 
 
     if (this.settings.mode == 'select') this.settings.dropdown.enabled = 0;
+    if (this.settings.mode == 'mix') this.settings.autoComplete.rightKey = true;
   },
 
   /**
@@ -427,7 +428,8 @@ Tagify.prototype = {
         _s = this.settings,
             type = e.type;
         if (this.state.actions.selectOption && (_s.dropdown.enabled || !_s.dropdown.closeOnSelect)) return;
-        this.toggleFocusClass(type == "focus");
+        this.state.hasFocus = type == "focus";
+        this.toggleFocusClass(this.state.hasFocus);
 
         if (_s.mode == 'mix') {
           if (e.type == "blur") this.dropdown.hide.call(this);
@@ -654,6 +656,7 @@ Tagify.prototype = {
         });
       },
       onEditTagBlur: function onEditTagBlur(editableElm) {
+        if (!this.state.hasFocus) this.toggleFocusClass();
         if (!this.DOM.scope.contains(editableElm)) return;
 
         var tagElm = editableElm.closest('.tagify__tag'),
@@ -706,6 +709,7 @@ Tagify.prototype = {
         if (!tagElm) return;
         isEditingTag = tagElm.classList.contains('tagify__tag--editable'), isReadyOnlyTag = tagElm.hasAttribute('readonly');
         if (_s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag) this.editTag(tagElm);
+        this.toggleFocusClass(true);
       }
     }
   },
@@ -1627,14 +1631,16 @@ Tagify.prototype = {
             case 'ArrowRight':
             case 'Tab':
               {
-                e.preventDefault();
+                e.preventDefault(); // in mix-mode, treat arrowRight like Enter
 
-                try {
-                  var value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
-                  this.input.autocomplete.set.call(this, value);
-                } catch (err) {}
+                if (this.settings.mode != 'mix') {
+                  try {
+                    var value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
+                    this.input.autocomplete.set.call(this, value);
+                  } catch (err) {}
 
-                return false;
+                  return false;
+                }
               }
 
             case 'Enter':

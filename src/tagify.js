@@ -13,7 +13,7 @@ function Tagify( input, settings ){
     this.applySettings(input, settings||{});
 
     this.state = {
-        editing : {},
+        editing: {},
         actions: {}  // UI actions for state-locking
     };
     this.value = []; // tags' data
@@ -29,7 +29,6 @@ function Tagify( input, settings ){
     this.events.customBinding.call(this);
     this.events.binding.call(this);
     input.autofocus && this.DOM.input.focus()
-
 }
 
 Tagify.prototype = {
@@ -62,7 +61,7 @@ Tagify.prototype = {
         transformTag        : ()=>{},         // Takes a tag input string as argument and returns a transformed value
         autoComplete        : {
             enabled : true,                   // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
-            rightKey: false,                  // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input
+            rightKey: false,                  // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
         },           // Flag - tries to autocomplete the input's value while typing
         dropdown            : {
             classname     : '',
@@ -156,6 +155,9 @@ Tagify.prototype = {
         // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
         if( this.settings.mode == 'select' )
             this.settings.dropdown.enabled = 0
+
+        if( this.settings.mode == 'mix' )
+            this.settings.autoComplete.rightKey = true
     },
 
     /**
@@ -412,7 +414,8 @@ Tagify.prototype = {
                     (_s.dropdown.enabled || !_s.dropdown.closeOnSelect) )
                     return;
 
-                this.toggleFocusClass(type == "focus")
+                this.state.hasFocus = type == "focus";
+                this.toggleFocusClass(this.state.hasFocus)
 
                 if( _s.mode == 'mix' ){
                     if( e.type == "blur" )
@@ -638,6 +641,9 @@ Tagify.prototype = {
             },
 
             onEditTagBlur( editableElm ){
+                if( !this.state.hasFocus )
+                    this.toggleFocusClass()
+
                 if( !this.DOM.scope.contains(editableElm) ) return;
 
                 var tagElm       = editableElm.closest('.tagify__tag'),
@@ -697,7 +703,9 @@ Tagify.prototype = {
                 isReadyOnlyTag = tagElm.hasAttribute('readonly')
 
                 if( _s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag )
-                    this.editTag(tagElm);
+                    this.editTag(tagElm)
+
+                this.toggleFocusClass(true)
             }
         }
     },
@@ -1655,13 +1663,16 @@ Tagify.prototype = {
 
                         case 'ArrowRight' :
                         case 'Tab' : {
-                            e.preventDefault();
-                            try{
-                                let value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
-                                this.input.autocomplete.set.call(this, value)
+                            e.preventDefault()
+                            // in mix-mode, treat arrowRight like Enter
+                            if( this.settings.mode != 'mix' ){
+                                try{
+                                    let value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
+                                    this.input.autocomplete.set.call(this, value)
+                                }
+                                catch(err){}
+                                return false;
                             }
-                            catch(err){}
-                            return false;
                         }
                         case 'Enter' : {
                             e.preventDefault();

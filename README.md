@@ -20,7 +20,7 @@
 ```
 -->
 <p align="center">
-    <img src="https://raw.githubusercontent.com/yairEO/tagify/master/mix2.gif" />
+    <img src="https://raw.githubusercontent.com/yairEO/tagify/master/mix3.gif" />
 </p>
 <p align="center">
     <img src="https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif" />
@@ -417,7 +417,7 @@ mixTagsAllowedAfter     | Regex      | `/,|\.|\:|\s/`                   | Define
 duplicates              | Boolean    | false                            | Should duplicate tags be allowed or not
 enforceWhitelist        | Boolean    | false                            | Should ONLY use tags allowed in whitelist
 autocomplete.enabled    | Boolean    | true                             | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
-autocomplete.rightKey   | Boolean    | false                            | If `true`, when <kbd>→</kdb> is pressed, use the suggested value to create a tag, else just auto-completes the input
+autocomplete.rightKey   | Boolean    | false                            | If `true`, when <kbd>→</kdb> is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
 whitelist               | Array      | []                               | An array of tags which only they are allowed
 blacklist               | Array      | []                               | An array of tags which aren't allowed
 addTagOnBlur            | Boolean    | true                             | Automatically adds the text which was inputed as a tag when blur event happens
