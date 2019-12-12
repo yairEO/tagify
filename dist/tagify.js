@@ -1133,7 +1133,7 @@ Tagify.prototype = {
     // start with: "#ba #ba| #ba"
     // split the text node at the index of the caret
 
-    replacedNode = nodeAtCaret.splitText(selection.anchorOffset); // "#ba #ba"
+    nodeAtCaret.splitText(selection.anchorOffset); // "#ba #ba"
     // get index of last occurence of "#ba"
 
     idx = nodeAtCaret.nodeValue.lastIndexOf(tagString);

@@ -1138,7 +1138,7 @@ Tagify.prototype = {
         // ex. replace #ba with the tag "bart" where "|" is where the caret is:
         // start with: "#ba #ba| #ba"
         // split the text node at the index of the caret
-        replacedNode = nodeAtCaret.splitText(selection.anchorOffset)
+        nodeAtCaret.splitText(selection.anchorOffset)
         // "#ba #ba"
         // get index of last occurence of "#ba"
         idx = nodeAtCaret.nodeValue.lastIndexOf(tagString)
