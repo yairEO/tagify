@@ -34,7 +34,7 @@
     --tag-remove-btn-bg--hover : #{$tag-remove-btn-bg--hover};
     --tag--min-width           : 1ch;
     --tag--max-width           : auto;
-
+    --loader-size              : .8em;
 
 
     @mixin placeholder( $show:true, $opacity:.5 ){
@@ -104,6 +104,7 @@
 
     &--loading{
         #{ $self }__input{
+            &::before{ content:none; }
             &::after{
                 content: '';
                 vertical-align: middle;
@@ -111,10 +112,17 @@
                 opacity: 1;
                 width: .7em;
                 height: .7em;
+                width: var(--loader-size);
+                height: var(--loader-size);
                 border: 3px solid;
                 border-color: #EEE #BBB #888 transparent;
                 border-radius: 50%;
                 animation: rotateLoader .4s infinite linear;
+            }
+            &:empty{
+                &::after{
+                    margin-left:0;
+                }
             }
         }
     }

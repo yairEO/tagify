@@ -1,37 +1,44 @@
-<a href='https://www.npmjs.com/package/@yaireo/tagify'>
-    <img src="https://img.shields.io/npm/v/@yaireo/tagify.svg" />
-</a>
-<a href='https://simple.wikipedia.org/wiki/MIT_License'>
-    <img src="https://img.shields.io/badge/license-MIT-lightgrey" />
-</a>
+<h1 align="center">
+  <img src="https://raw.githubusercontent.com/yairEO/tagify/master/logo.svg" />
+  <br><br>
+  <a href='https://yaireo.github.io/tagify'>Tagify</a> - lightweight input "tags" script
+</h1>
 
-[Tagify](https://yaireo.github.io/tagify) - lightweight input "tags" script
-========
-
-<!--
-```
-<custom-element-demo>
-  <template>
-    <script src="https://yaireo.github.io/tagify/dist/tagify.js"></script>
-    <script src="https://yaireo.github.io/tagify/dist/tagify.css"></script>
-    <input name='tags' placeholder='write some tags' value='css, html, javascript, css'>
-  </template>
-</custom-element-demo>
-```
--->
 <p align="center">
-    <img src="https://raw.githubusercontent.com/yairEO/tagify/master/mix3.gif" />
+  Transforms an input field or a textarea into a <em>Tags Componen</em>, in an easy, customizable way,
+  with great performance and tiny code footprint, exploded with features.
+  <br>
+  <strong>Vanilla</strong> ⚡ <strong>React</strong> ⚡ <strong>Angular</strong>
+<p>
+
+<h3 align="center">
+  👉 <a href="https://yaireo.github.io/tagify">See Demos</a> 👈
+</h3>
+
+<h2 align="center">
+  <a href="https://yaireo.github.io/tagify">See Demos</a>
+</h2>
+
+<p align="center">
+  <a href='https://www.npmjs.com/package/@yaireo/tagify'>
+      <img src="https://img.shields.io/npm/v/@yaireo/tagify.svg" />
+  </a>
+  <a href='https://simple.wikipedia.org/wiki/MIT_License'>
+      <img src="https://img.shields.io/badge/license-MIT-lightgrey" />
+  </a>
+  <img src="https://img.shields.io/bundlephobia/minzip/@yaireo/tagify" />
+  <img src="https://img.shields.io/npm/dw/@yaireo/tagify" />
 </p>
 <p align="center">
-    <img src="https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif" />
+  <img src="https://raw.githubusercontent.com/yairEO/tagify/master/mix3.gif" />
+  <img src="https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif" />
 </p>
 
-Transforms an input field or a textarea into a *Tags* component, in an easy, customizable way,
-with great performance and tiny code footprint.
 
-## [Documentation & Demos](https://yaireo.github.io/tagify)
 
-## Table of contents
+
+
+## Table of Contents
 
 <!--ts-->
    * [Installation](#installation)
@@ -68,30 +75,33 @@ with great performance and tiny code footprint.
 > [See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
 
 ## Selling points
-* JS minified `~24kb` (`~7kb` GZIP)
-* CSS minified `~5kb` (`~2kb` GZIP) - generated from SCSS with variables
+* JS minified `~30kb` (`~9kb` GZIP)
+* CSS minified `~8kb` (`~2kb` GZIP) - generated from SCSS with variables
 * Easily customized, plenty of settings for common scenarios
-* No other inputs are used beside the original, and its value is kept in sync
+* Your input/textarea node values kept in sync with Tagify
 * ARIA accessibility support
-* Exposed custom [events](#events)
+* Many useful custom [events](#events)
 * Easily change direction to RTL (via the SCSS file)
 * Internet Explorer - A polyfill script can be used: `tagify.polyfills.min.js` in `/dist`
 
 ## What can Tagify do
 * Can be applied on input & textarea elements
 * Supports [mix content](#mixed-content) (text and tags together)
+* Supports [single-value](#single-value) mode (like `<select>`)
 * Supports whitelist
 * Supports blacklists
-* Shows suggestions selectbox (flexiable settings & styling)
-* Allows setting [aliases](#example-for-a-suggestion-item-alias) to suggestions for easier searching
-* Auto-complete input as-you-type (whitelist first match)
-* Can paste in multiple values: `tag 1, tag 2, tag 3`
+* Supports Templates for customized markup: <em>wrapper</em>, <em>tag item<em> & </em>suggestion item</em>
+* Shows suggestions selectbox (flexiable settings & styling) at full width or next to the typed texted (caret)
+* Allows setting suggestions' [aliases](#example-for-a-suggestion-item-alias) for easier fuzzy-searching
+* Auto-suggest input as-you-type with ability to auto-complete
+* Can paste in multiple values: `tag 1, tag 2, tag 3` or even newline-separated tags
 * Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
 * Validate tags by Regex pattern
 * Tags are [editable](#edit-tags)
 * Supports read-only mode to the whole componenet or per-tag
 * Each tag can have any properties desired (class, data-whatever, readonly...)
 * Automatically disallow duplicate tags (vis "settings" object)
+* Has built-in CSS loader, if needed (Ex. <em>AJAX</em> whitelist pulling)
 * Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
 
 ## Building the project
@@ -258,6 +268,14 @@ automatically convert everything between `[[` & `]]` to a tag, if tag exists in 
 sure when the Tagify instance is initialized, that it has tags with the correct `value` property that match
 the same values that appear between `[[` & `]]`.
 
+Applying the setting `dropdown.position:"text"` is encouraged for mixed-content tags, because the suggestions list
+will be rendered right next to the caret location and not the the bottom of the Tagify componenet, which might look
+weird when there is already a lot of content at multiple lines.
+
+## single-value
+
+Similar to native `<Select>` element, but allows typing free text as value.
+
 ## React
 
 A Tagify React component is exported as `<Tags>` from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
@@ -362,6 +380,32 @@ flex-wrap: nowrap;
 * [Format input value for server side](https://github.com/yairEO/tagify/issues/220)
 * [Writing to tagify textarea](https://github.com/yairEO/tagify/issues/294)
 * [Scroll all tags within one line, instead of growing vertically](https://github.com/yairEO/tagify/issues/145)
+
+## CSS Variables (see [MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties))
+
+These CSS variables allow easy customization without the need to manually write CSS.
+If you do wish to heavily style your Tagify components, then you can use these variables within
+your modified styles.
+
+For example how this can be used, see the [demos page](https://yaireo.github.io/tagify/#section-different-look).
+
+Name                            | Info
+------------------------------- | --------------------------------
+--tags-border-color             | The outer border color which surrounds tagify
+--tag-bg                        | Tag background color
+--tag-hover                     | Tag background color on hover (mouse)
+--tag-text-color                | Tag text color
+--tag-text-color--edit          | Tag text color when a Tag is being edited
+--tag-pad                       | Tag padding, from all sides. Ex. `.3em .5em`
+--tag--min-width                | Minimum Tag width
+--tag--max-width                | Maximum tag width, which gets trimmed with *hellip* after
+--tag-inset-shadow-size         | This is the inner shadow size, which dictates the color of the Tags. It's important the size fits *exactly* to the tag. Change this if you change the `--tag-pad` or fontsize.
+--tag-invalid-color             | For border color of edited tags with invalid value being typed into them
+--tag-invalid-bg                | Background color for invalid Tags.
+--tag-remove-bg                 | Tag background color when hovering the `×` button.
+--tag-remove-btn-bg             | The remove (`×`) button background color
+--tag-remove-btn-bg--hover      | The remove (`×`) button background color on hover
+--loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
 
 
 ## Methods

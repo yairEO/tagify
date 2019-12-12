@@ -1473,7 +1473,7 @@ Tagify.prototype = {
                 ddHeight,
                 isManual = _s.dropdown.position == 'manual';
 
-            if( !_s.whitelist.length ) return;
+            if( !_s.whitelist || !_s.whitelist.length ) return;
 
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems
