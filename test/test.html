@@ -141,15 +141,15 @@
   document.forms[0].reset()
 
   window.tagified = {
-    "basic"             : 0,
-    "textarea"          : 0,
-    "mix"               : 0,
-    "manual-suggestions": 0,
-    "outside-of-the-box": 0,
-    "advance-options"   : 0,
-    "extra-properties"  : 0,
-    "readonly"          : 0,
-    "readonly-mixed"    : 0,
+    "basic"             : 1,
+    "textarea"          : 1,
+    "mix"               : 1,
+    "manual-suggestions": 1,
+    "outside-of-the-box": 1,
+    "advance-options"   : 1,
+    "extra-properties"  : 1,
+    "readonly"          : 1,
+    "readonly-mixed"    : 1,
     "mode-select"       : 1,
   };
 
@@ -165,7 +165,26 @@
   tagified["basic"] && (function(){
     var sectionElm = document.querySelector('#section-basic');
 
-    new Tagify(sectionElm.querySelector('input[name=value_empty_JSON]'))
+    new Tagify(sectionElm.querySelector('input[name=value_empty_JSON]'), {
+        autoComplete : {
+            rightKey:true
+        },
+        dropdown: {
+            mapValueTo: "email"
+        },
+        whitelist: [
+            {
+                value: 'Chris Muller',
+                email: 'chris.muller@gmail.com',
+            },
+            {
+                value: 'Alon Silko',
+                email: 'alon@gmail.com',
+            },
+        ]
+    })
+
+
     var tagify3 = new Tagify(sectionElm.querySelector('input[name=value_JSON]'), {
       delimiters: ",|[\\n\\r]"
     })
@@ -268,7 +287,7 @@
     function onDropdownSelect(e){
         console.log("onDropdownSelect: ", e.detail)
     }
-    })()
+})()
 </script>
 
 
@@ -291,7 +310,7 @@
       tagify.on("dropdown:show", onSuggestionsListUpdate)
             .on("dropdown:hide", onSuggestionsListHide)
 
-      renderSuggestionsList()
+      renderSuggestionsList(tagify)
 
       // ES2015 argument destructuring
       function onSuggestionsListUpdate({ detail:suggestionsElm }){
@@ -303,7 +322,7 @@
       }
 
       // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement
-      function renderSuggestionsList(){
+      function renderSuggestionsList(tagify){
           tagify.dropdown.show.call(tagify) // load the list
           tagify.DOM.scope.parentNode.appendChild(tagify.DOM.dropdown)
       }
@@ -849,30 +868,30 @@
 </script>
 
 <script data-name='mode-select'>
-  tagified["mode-select"] && (function(){
-  var input = document.querySelector('input[name=tags-select-mode]'),
-      tagify = new Tagify(input, {
-          mode : "select",
-          whitelist: ["first option", "second option", "third option"],
-          blacklist: ['foo', 'bar'],
-          keepInvalidTags: true,   // do not auto-remove invalid tags
-          dropdown: {
-              // closeOnSelect: false
-          }
-      })
+tagified["mode-select"] && (function(){
+    var input = document.querySelector('input[name=tags-select-mode]'),
+        tagify = new Tagify(input, {
+            mode : "select",
+            whitelist: ["first option", "second option", "third option"],
+            blacklist: ['foo', 'bar'],
+            keepInvalidTags: true,   // do not auto-remove invalid tags
+            dropdown: {
+                // closeOnSelect: false
+            }
+        })
 
-  // bind events
-  tagify.on('add', onAddTag)
-  tagify.DOM.input.addEventListener('focus', onSelectFocus)
+    // bind events
+    tagify.on('add', onAddTag)
+    tagify.DOM.input.addEventListener('focus', onSelectFocus)
 
-  function onAddTag(e){
-      console.log(e.detail)
-  }
+    function onAddTag(e){
+        console.log(e.detail)
+    }
 
-  function onSelectFocus(e){
-      console.log(e)
-  }
-  })()
+    function onSelectFocus(e){
+        console.log(e)
+    }
+})()
 </script>
 
     </body>

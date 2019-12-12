@@ -448,34 +448,35 @@ dropdown:select | Suggestions dropdown item selected (by mouse/keyboard/touch)
 
 ## Settings
 
-Name                    | Type       | Default                          | Info
------------------------ | ---------- | -------------------------------- | --------------------------------------------------------------------------
-placeholder             | String     |                                  | Placeholder text. If this attribute is set on an input/textarea element it will override this setting
-delimiters              | String     | `,`                              | [regex string] split tags by any of these delimiters. Example: `",|`  |."`
-pattern                 | String     | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
-mode                    | String     | null                             | Use `select` for single-value dropdown-like select box. See `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
-mixTagsInterpolator     | Array      | `['[[', ']]']`                   | Interpolation for mix mode. Everything between these will become a tag
-mixTagsAllowedAfter     | Regex      | `/,|\.|\:|\s/`                   | Define conditions in which typed mix-tags content is allowing a tag to be created after.
-duplicates              | Boolean    | false                            | Should duplicate tags be allowed or not
-enforceWhitelist        | Boolean    | false                            | Should ONLY use tags allowed in whitelist
-autocomplete.enabled    | Boolean    | true                             | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
-autocomplete.rightKey   | Boolean    | false                            | If `true`, when <kbd>→</kdb> is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
-whitelist               | Array      | []                               | An array of tags which only they are allowed
-blacklist               | Array      | []                               | An array of tags which aren't allowed
-addTagOnBlur            | Boolean    | true                             | Automatically adds the text which was inputed as a tag when blur event happens
-callbacks               | Object     | {}                               | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
-maxTags                 | Number     | Infinity                         | Maximum number of allowed tags. when reached, adds a class "hasMaxTags" to `<Tags>`
-editTags                | Number     | 2                                | Number of clicks on a tag to enter "edit" mode. Other values than `1` or `2` are not allowed
-templates               | Object     | `wrapper`, `tag`, `dropdownItem` | Object consisting of functions which return template strings
-transformTag            | Function   | undefined                        | Takes a tag input as argument and returns a transformed value
-keepInvalidTags         | Boolean    | false                            | If `true`, do not remove tags which did not pass validation
-skipInvalid             | Boolean    | false                            | If `true`, do not add invalid, temporary, tags before automatically removing them
-backspace               | *          | true                             | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
-dropdown.enabled        | Number     | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
-dropdown.maxItems       | Number     | 10                               | Maximum items to show in the suggestions list dropdown
-dropdown.classname      | String     | `""`                             | Custom class name for the dropdown suggestions selectbox
-dropdown.itemTemplate   | Function   | `""`                             | Returns a custom string for each list item in the dropdown suggestions selectbox
-dropdown.fuzzySearch    | Boolean    | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
-dropdown.position       | String     | null                             | `manual` - will not render the dropdown, and you would need to do it yourself. See "events" section. <br> `text` - will place the dropdown next to the caret <br> `all` - normal, full-width design
-dropdown.highlightFirst | Boolean    | false                            | When a suggestions list is shown, highilght the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
-dropdown.closeOnSelect  | Boolean    | false                            | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
+Name                    | Type             | Default                          | Info
+----------------------- | ---------------- | -------------------------------- | --------------------------------------------------------------------------
+placeholder             | String           |                                  | Placeholder text. If this attribute is set on an input/textarea element it will override this setting
+delimiters              | String           | `,`                              | [regex string] split tags by any of these delimiters. Example: `",|`  |."`
+pattern                 | String           | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
+mode                    | String           | null                             | Use `select` for single-value dropdown-like select box. See `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
+mixTagsInterpolator     | Array            | `['[[', ']]']`                   | Interpolation for mix mode. Everything between these will become a tag
+mixTagsAllowedAfter     | Regex            | `/,|\.|\:|\s/`                   | Define conditions in which typed mix-tags content is allowing a tag to be created after.
+duplicates              | Boolean          | false                            | Should duplicate tags be allowed or not
+enforceWhitelist        | Boolean          | false                            | Should ONLY use tags allowed in whitelist
+autocomplete.enabled    | Boolean          | true                             | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
+autocomplete.rightKey   | Boolean          | false                            | If `true`, when <kbd>→</kdb> is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
+whitelist               | Array            | []                               | An array of tags which only they are allowed
+blacklist               | Array            | []                               | An array of tags which aren't allowed
+addTagOnBlur            | Boolean          | true                             | Automatically adds the text which was inputed as a tag when blur event happens
+callbacks               | Object           | {}                               | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
+maxTags                 | Number           | Infinity                         | Maximum number of allowed tags. when reached, adds a class "hasMaxTags" to `<Tags>`
+editTags                | Number           | 2                                | Number of clicks on a tag to enter "edit" mode. Other values than `1` or `2` are not allowed
+templates               | Object           | `wrapper`, `tag`, `dropdownItem` | Object consisting of functions which return template strings
+transformTag            | Function         | undefined                        | Takes a tag input as argument and returns a transformed value
+keepInvalidTags         | Boolean          | false                            | If `true`, do not remove tags which did not pass validation
+skipInvalid             | Boolean          | false                            | If `true`, do not add invalid, temporary, tags before automatically removing them
+backspace               | *                | true                             | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
+dropdown.enabled        | Number           | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
+dropdown.maxItems       | Number           | 10                               | Maximum items to show in the suggestions list dropdown
+dropdown.classname      | String           | `""`                             | Custom class name for the dropdown suggestions selectbox
+dropdown.itemTemplate   | Function         | `""`                             | Returns a custom string for each list item in the dropdown suggestions selectbox
+dropdown.fuzzySearch    | Boolean          | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
+dropdown.position       | String           | null                             | `manual` - will not render the dropdown, and you would need to do it yourself. See "events" section. <br> `text` - will place the dropdown next to the caret <br> `all` - normal, full-width design
+dropdown.highlightFirst | Boolean          | false                            | When a suggestions list is shown, highilght the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
+dropdown.closeOnSelect  | Boolean          | false                            | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
+dropdown.mapValueTo     | Function/String  |                                  | if whitelist is an Array of Objects:<br>Ex. `[{value:'foo', email:'foo@a.com'},...]`)<br> this setting controlls which data <em>key</em> will be printed in the dropdown.<br> Ex. `mapValueTo: data => "To:" + data.email`<br>Ex. `mapValueTo: "email"`

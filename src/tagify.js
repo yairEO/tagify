@@ -14,7 +14,8 @@ function Tagify( input, settings ){
 
     this.state = {
         editing: {},
-        actions: {}  // UI actions for state-locking
+        actions: {},  // UI actions for state-locking
+        dropdown: {}
     };
     this.value = []; // tags' data
 
@@ -105,7 +106,14 @@ Tagify.prototype = {
         },
 
         dropdownItem( item ){
-            var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
+            var mapValueTo = this.settings.dropdown.mapValueTo,
+                value = (mapValueTo
+                    ? typeof mapValueTo == 'function'
+                        ? mapValueTo(item)
+                        : item[mapValueTo]
+                    : item.value) || item.value,
+                sanitizedValue = (value || item).replace(/`|'/g, "&#39;");
+
             return `<div ${this.getAttributes(item)}
                         class='tagify__dropdown__item ${item.class ? item.class : ""}'
                         tabindex="0"
@@ -457,7 +465,8 @@ Tagify.prototype = {
                 else if( type == "blur" ){
                     this.trigger("blur")
                     this.loading(false)
-                    text && _s.addTagOnBlur && this.addTags(text, true)
+                    // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
+                    text && !this.state.actions.selectOption && _s.addTagOnBlur && this.addTags(text, true)
                 }
 
                 this.DOM.input.removeAttribute('style')
@@ -507,20 +516,20 @@ Tagify.prototype = {
 
                     case 'Esc' :
                     case 'Escape' :
-                        if( this.dropdown.visible ) return
+                        if( this.state.dropdown.visible ) return
                         e.target.blur()
                         break;
 
                     case 'Down' :
                     case 'ArrowDown' :
                        // if( this.settings.mode == 'select' ) // issue #333
-                        if( !this.dropdown.visible )
+                        if( !this.state.dropdown.visible )
                             this.dropdown.show.call(this)
                         break;
 
                     case 'ArrowRight' :
-                        if( this.state.inputSuggestion && this.settings.autoComplete.rightKey ){
-                            this.addTags(this.state.inputSuggestion, true)
+                        if( this.state.highlightedSuggestion && this.settings.autoComplete.rightKey ){
+                            this.addTags([this.state.highlightedSuggestion], true)
                             return;
                         }
                         break
@@ -1514,7 +1523,7 @@ Tagify.prototype = {
             this.trigger("dropdown:show", this.DOM.dropdown);
             // set the dropdown visible state to be the same as the searched value.
             // MUST be set *before* position() is called
-            this.dropdown.visible = value || true;
+            this.state.dropdown.visible = value || true;
             this.dropdown.position.call(this)
             // if the dropdown has yet to be appended to the document,
             // append the dropdown to the body element & handle events
@@ -1558,7 +1567,7 @@ Tagify.prototype = {
             scope.setAttribute("aria-expanded", false)
             dropdown.parentNode.removeChild(dropdown);
 
-            this.dropdown.visible = false;
+            this.state.dropdown.visible = false;
             this.trigger("dropdown:hide", dropdown);
         },
 
@@ -1574,7 +1583,7 @@ Tagify.prototype = {
         position(ddHeight){
             var isBelowViewport, rect, top, bottom, left, width, ddElm = this.DOM.dropdown;
 
-            if( !this.dropdown.visible ) return
+            if( !this.state.dropdown.visible ) return
 
             if( this.settings.dropdown.position == 'text' ){
                 rect   = this.getCaretGlobalPosition()
@@ -1669,7 +1678,7 @@ Tagify.prototype = {
                         case 'Tab' : {
                             e.preventDefault()
                             // in mix-mode, treat arrowRight like Enter
-                            if( this.settings.mode != 'mix' ){
+                            if( this.settings.mode != 'mix' && !this.settings.autoComplete.rightKey ){
                                 try{
                                     let value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
                                     this.input.autocomplete.set.call(this, value)
@@ -1726,7 +1735,7 @@ Tagify.prototype = {
          */
         highlightOption( elm, adjustScroll ){
             var className = "tagify__dropdown__item--active",
-                value;
+                itemData, value;
 
             // focus casues a bug in Firefox with the placeholder been shown on the input element
             // if( this.settings.dropdown.position != 'manual' )
@@ -1738,9 +1747,13 @@ Tagify.prototype = {
             })
 
             if( !elm ){
-                this.input.autocomplete.suggest.call(this);
+                this.state.highlightedSuggestion = null
+                this.input.autocomplete.suggest.call(this)
                 return;
             }
+
+            itemData = this.suggestedListItems[this.getNodeIndex(elm)]
+            this.state.highlightedSuggestion = itemData
 
            // this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
             elm.classList.add(className);
@@ -1751,7 +1764,7 @@ Tagify.prototype = {
 
             // Try to autocomplete the typed value with the currently highlighted dropdown item
             if( this.settings.autoComplete ){
-                value = this.suggestedListItems[this.getNodeIndex(elm)].value || this.input.value;
+                value = itemData.value || this.input.value;
                 this.input.autocomplete.suggest.call(this, value);
                 this.dropdown.position.call(this); // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
             }
