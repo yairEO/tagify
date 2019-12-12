@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="/logo.svg?sanitize=true" width="50%" />
+  <img src="/logo.svg?sanitize=true" width="40%" />
   <br><br>
   <a href='https://yaireo.github.io/tagify'>Tagify</a> - lightweight input "tags" script
 </h1>
@@ -393,21 +393,21 @@ For example how this can be used, see the [demos page](https://yaireo.github.io/
 
 Name                            | Info
 ------------------------------- | --------------------------------
---tags-border-color             | The outer border color which surrounds tagify
---tag-bg                        | Tag background color
---tag-hover                     | Tag background color on hover (mouse)
---tag-text-color                | Tag text color
---tag-text-color--edit          | Tag text color when a Tag is being edited
---tag-pad                       | Tag padding, from all sides. Ex. `.3em .5em`
---tag--min-width                | Minimum Tag width
---tag--max-width                | Maximum tag width, which gets trimmed with *hellip* after
---tag-inset-shadow-size         | This is the inner shadow size, which dictates the color of the Tags. It's important the size fits *exactly* to the tag. Change this if you change the `--tag-pad` or fontsize.
---tag-invalid-color             | For border color of edited tags with invalid value being typed into them
---tag-invalid-bg                | Background color for invalid Tags.
---tag-remove-bg                 | Tag background color when hovering the `×` button.
---tag-remove-btn-bg             | The remove (`×`) button background color
---tag-remove-btn-bg--hover      | The remove (`×`) button background color on hover
---loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
+`--tags-border-color`           | The outer border color which surrounds tagify
+`--tag-bg`                      | Tag background color
+`--tag-hover`                   | Tag background color on hover (mouse)
+`--tag-text-color`              | Tag text color
+`--tag-text-color--edit`        | Tag text color when a Tag is being edited
+`--tag-pad`                     | Tag padding, from all sides. Ex. `.3em .5em`
+`--tag--min-width`              | Minimum Tag width
+`--tag--max-width`              | Maximum tag width, which gets trimmed with *hellip* after
+`--tag-inset-shadow-size`       | This is the inner shadow size, which dictates the color of the Tags. It's important the size fits *exactly* to the tag. Change this if you change the `--tag-pad` or fontsize.
+`--tag-invalid-color`           | For border color of edited tags with invalid value being typed into them
+`--tag-invalid-bg`              | Background color for invalid Tags.
+`--tag-remove-bg`               | Tag background color when hovering the `×` button.
+`--tag-remove-btn-bg`           | The remove (`×`) button background color
+`--tag-remove-btn-bg--hover`    | The remove (`×`) button background color on hover
+`--loader-size`                 | Loading animation size. `1em` is pretty big, default is a bit less.
 
 
 ## Methods
