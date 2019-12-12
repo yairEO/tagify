@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/yairEO/tagify/master/logo.svg?sanitize=1" />
+  <img src="/yairEO/tagify/raw/master/logo.svg?sanitize=1" />
   <br><br>
   <a href='https://yaireo.github.io/tagify'>Tagify</a> - lightweight input "tags" script
 </h1>
