@@ -15,10 +15,6 @@
   👉 <a href="https://yaireo.github.io/tagify">See Demos</a> 👈
 </h3>
 
-<h2 align="center">
-  <a href="https://yaireo.github.io/tagify">See Demos</a>
-</h2>
-
 <p align="center">
   <a href='https://www.npmjs.com/package/@yaireo/tagify'>
       <img src="https://img.shields.io/npm/v/@yaireo/tagify.svg" />
