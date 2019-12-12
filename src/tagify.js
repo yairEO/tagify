@@ -47,7 +47,7 @@ Tagify.prototype = {
         pattern             : null,           // RegEx pattern to validate input by. Ex: /[1-9]/
         maxTags             : Infinity,       // Maximum number of tags
         callbacks           : {},             // Exposed callbacks object to be triggered on certain events
-        addTagOnBlur        : false,           // Flag - automatically adds the text which was inputed as a tag when blur event happens
+        addTagOnBlur        : true,           // Flag - automatically adds the text which was inputed as a tag when blur event happens
         duplicates          : false,          // Flag - allow tuplicate tags
         whitelist           : [],             // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
         blacklist           : [],             // A list of non-allowed tags
@@ -71,7 +71,7 @@ Tagify.prototype = {
             fuzzySearch   : true,
             highlightFirst: false,  // highlights first-matched item in the list
             closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
-            position      : 'all'  // 'manual' / 'text' / 'all'
+            position      : 'all'   // 'manual' / 'text' / 'all'
         }
     },
 

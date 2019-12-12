@@ -80,7 +80,7 @@ Tagify.prototype = {
     // Maximum number of tags
     callbacks: {},
     // Exposed callbacks object to be triggered on certain events
-    addTagOnBlur: false,
+    addTagOnBlur: true,
     // Flag - automatically adds the text which was inputed as a tag when blur event happens
     duplicates: false,
     // Flag - allow tuplicate tags
