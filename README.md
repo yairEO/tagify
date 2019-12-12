@@ -401,7 +401,7 @@ Name                            | Info
 `--tag-pad`                     | Tag padding, from all sides. Ex. `.3em .5em`
 `--tag--min-width`              | Minimum Tag width
 `--tag--max-width`              | Maximum tag width, which gets trimmed with *hellip* after
-`--tag-inset-shadow-size`       | This is the inner shadow size, which dictates the color of the Tags. It's important the size fits *exactly* to the tag. Change this if you change the `--tag-pad` or fontsize.
+`--tag-inset-shadow-size`       | This is the inner shadow size, which dictates the color of the Tags.<br>It's important the size fits *exactly* to the tag.<br>Change this if you change the `--tag-pad` or fontsize.
 `--tag-invalid-color`           | For border color of edited tags with invalid value being typed into them
 `--tag-invalid-bg`              | Background color for invalid Tags.
 `--tag-remove-bg`               | Tag background color when hovering the `×` button.
