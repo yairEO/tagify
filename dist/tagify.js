@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.31.7)- tags input component
+ * Tagify (v 3.0.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -80,7 +80,7 @@ Tagify.prototype = {
     // Maximum number of tags
     callbacks: {},
     // Exposed callbacks object to be triggered on certain events
-    addTagOnBlur: true,
+    addTagOnBlur: false,
     // Flag - automatically adds the text which was inputed as a tag when blur event happens
     duplicates: false,
     // Flag - allow tuplicate tags
@@ -180,6 +180,26 @@ Tagify.prototype = {
 
     if (this.settings.mode == 'select') this.settings.dropdown.enabled = 0;
     if (this.settings.mode == 'mix') this.settings.autoComplete.rightKey = true;
+  },
+
+  /**
+   * Creates a string of HTML element attributes
+   * @param {Object} data [Tag data]
+   */
+  getAttributes: function getAttributes(data) {
+    // only items which are objects have properties which can be used as attributes
+    if (Object.prototype.toString.call(data) != "[object Object]") return '';
+    var keys = Object.keys(data),
+        s = "",
+        propName,
+        i;
+
+    for (i = keys.length; i--;) {
+      propName = keys[i];
+      if (propName != 'class' && data.hasOwnProperty(propName) && data[propName]) s += " " + propName + (data[propName] ? "=\"".concat(data[propName], "\"") : "");
+    }
+
+    return s;
   },
 
   /**
@@ -430,6 +450,7 @@ Tagify.prototype = {
         if (this.state.actions.selectOption && (_s.dropdown.enabled || !_s.dropdown.closeOnSelect)) return;
         this.state.hasFocus = type == "focus";
         this.toggleFocusClass(this.state.hasFocus);
+        this.setRangeAtStartEnd(false);
 
         if (_s.mode == 'mix') {
           if (e.type == "blur") this.dropdown.hide.call(this);
@@ -1373,21 +1394,6 @@ Tagify.prototype = {
       return elm.parentNode.removeChild(elm);
     });
     this.dropdown.position.call(this);
-  },
-  getAttributes: function getAttributes(data) {
-    // only items which are objects have properties which can be used as attributes
-    if (Object.prototype.toString.call(data) != "[object Object]") return '';
-    var keys = Object.keys(data),
-        s = "",
-        propName,
-        i;
-
-    for (i = keys.length; i--;) {
-      propName = keys[i];
-      if (propName != 'class' && data.hasOwnProperty(propName) && data[propName]) s += " " + propName + (data[propName] ? "=\"".concat(data[propName], "\"") : "");
-    }
-
-    return s;
   },
   preUpdate: function preUpdate() {
     this.DOM.scope.classList.toggle('hasMaxTags', this.value.length >= this.settings.maxTags);

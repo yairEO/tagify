@@ -47,7 +47,7 @@ Tagify.prototype = {
         pattern             : null,           // RegEx pattern to validate input by. Ex: /[1-9]/
         maxTags             : Infinity,       // Maximum number of tags
         callbacks           : {},             // Exposed callbacks object to be triggered on certain events
-        addTagOnBlur        : true,           // Flag - automatically adds the text which was inputed as a tag when blur event happens
+        addTagOnBlur        : false,           // Flag - automatically adds the text which was inputed as a tag when blur event happens
         duplicates          : false,          // Flag - allow tuplicate tags
         whitelist           : [],             // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
         blacklist           : [],             // A list of non-allowed tags
@@ -158,6 +158,26 @@ Tagify.prototype = {
 
         if( this.settings.mode == 'mix' )
             this.settings.autoComplete.rightKey = true
+    },
+
+    /**
+     * Creates a string of HTML element attributes
+     * @param {Object} data [Tag data]
+     */
+    getAttributes( data ){
+        // only items which are objects have properties which can be used as attributes
+        if( Object.prototype.toString.call(data) != "[object Object]" )
+            return '';
+
+        var keys = Object.keys(data),
+            s = "", propName, i;
+
+        for( i=keys.length; i--; ){
+            propName = keys[i];
+            if( propName != 'class' && data.hasOwnProperty(propName) && data[propName] )
+                s += " " + propName + (data[propName] ? `="${data[propName]}"` : "");
+        }
+        return s;
     },
 
     /**
@@ -416,6 +436,8 @@ Tagify.prototype = {
 
                 this.state.hasFocus = type == "focus";
                 this.toggleFocusClass(this.state.hasFocus)
+
+                this.setRangeAtStartEnd(false)
 
                 if( _s.mode == 'mix' ){
                     if( e.type == "blur" )
@@ -1378,24 +1400,6 @@ Tagify.prototype = {
         this.update()
         Array.prototype.slice.call(this.getTagElms()).forEach(elm => elm.parentNode.removeChild(elm));
         this.dropdown.position.call(this)
-    },
-
-    getAttributes( data ){
-        // only items which are objects have properties which can be used as attributes
-        if( Object.prototype.toString.call(data) != "[object Object]" )
-            return '';
-
-        var keys = Object.keys(data),
-            s = "",
-            propName,
-            i;
-
-        for( i=keys.length; i--; ){
-            propName = keys[i];
-            if( propName != 'class' && data.hasOwnProperty(propName) && data[propName] )
-                s += " " + propName + (data[propName] ? `="${data[propName]}"` : "");
-        }
-        return s;
     },
 
     preUpdate(){
