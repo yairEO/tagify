@@ -1,14 +1,15 @@
 {
     "name": "@yaireo/tagify",
-    "version": "2.31.6",
+    "version": "3.0.0",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "lightweight, efficient Tags input component in Vanilla JS / React / Angular [super customizable, tiny size & top performance]",
-    "license" : "MIT",
+    "license": "MIT",
     "_npmUser": {
         "name": "vsync",
         "email": "vsync.design@gmail.com"
     },
     "scripts": {
+        "start": "gulp",
         "test": "jest"
     },
     "jest": {
@@ -53,6 +54,7 @@
         "gulp-sass": "^4.0.2",
         "gulp-sourcemaps": "^2.6.5",
         "gulp-tag-version": "^1.3.1",
+        "gulp-tap": "^2.0.0",
         "gulp-uglify": "^3.0.2",
         "gulp-umd": "^2.0.0",
         "gulp-util": "^3.0.8",

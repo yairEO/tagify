@@ -340,7 +340,7 @@ describe("suggestions dropdown", () => {
         expect(0).toEqual(1)
     }, 0)
 
-    it('should respect "maxItem" dropdown setting', async () => {
+    it('should respect "maxItems" dropdown setting', async () => {
         expect(0).toEqual(1)
     }, 0)
 

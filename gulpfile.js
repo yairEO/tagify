@@ -1,7 +1,11 @@
 var gulp = require('gulp'),
     $ = require( "gulp-load-plugins" )({ pattern:['*', 'gulp-'] }),
-    pkg = require('./package.json');
-
+    pkg = require('./package.json'),
+    opts = process.argv.reduce((result, item) => {
+        if( item.indexOf('--') == 0 )
+            result[item.replace('--','')] = 1
+        return result;
+    }, {});
 
 var uglifyOptions = {
     compress: {
@@ -104,6 +108,13 @@ const babelConfig = {
     presets: ['@babel/env'],
     plugins: ['@babel/proposal-object-rest-spread', '@babel/plugin-transform-destructuring']
 }
+
+
+gulp.task('xxx', function() {
+    console.log(
+        opts
+    )
+});
 ////////////////////////////////////////////////////
 // Compile main app SCSS to CSS
 
@@ -130,7 +141,7 @@ gulp.task('build_js', () => {
         .pipe( $.insert.prepend(banner) )
         .pipe( gulp.dest('./dist/') )
         .pipe($.rename('tagify.min.js'))
-        .pipe($.uglify())
+        .pipe(opts.dev ? $.tap(()=>{}) : $.uglify())
         .pipe( $.insert.prepend(banner) )
         .pipe( gulp.dest('./dist/') )
 });
@@ -138,6 +149,10 @@ gulp.task('build_js', () => {
 
 
 gulp.task('build_jquery_version', () => {
+    // do not proccess jQuery version while developeing
+    if( opts.dev )
+        return true;
+
     return gulp.src('src/tagify.js')
         .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
         .pipe( $.babel(babelConfig))
