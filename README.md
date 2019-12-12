@@ -179,22 +179,47 @@ modying the `settings.templates` Object with your own custom functions which sho
 
 ```javascript
 templates : {
-    wrapper(input, settings){
-        return `<tags class="tagify ${settings.mode ? "tagify--mix" : "" } ${input.className}" ${settings.readonly ? 'readonly' : ''}>
-            <span contenteditable data-placeholder="${input.placeholder || '&#8203;'}" class="tagify__input"></span>
-        </tags>`
-    },
+  wrapper(input, settings){
+    return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
+                        ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="listbox" aria-expanded="false"'}
+                        role="tagslist">
+                <span contenteditable data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
+                    class="tagify__input"
+                    role="textbox"
+                    aria-controls="dropdown"
+                    aria-autocomplete="both"
+                    aria-multiline="${settings.mode=='mix'?true:false}"></span>
+            </tags>`
+  },
 
-    tag(v, tagData){
-        return `<tag title='${v}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
-            <x title='' class='tagify__tag__removeBtn'></x><div><span class='tagify__tag-text'>${v}</span></div>
-        </tag>`
-    },
+  tag(value, tagData){
+      return `<tag title='${tagData.title || value}'
+                contenteditable='false'
+                spellcheck='false'
+                class='tagify__tag ${tagData.class ? tagData.class : ""}'
+                ${this.getAttributes(tagData)}>
+          <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
+          <div>
+              <span class='tagify__tag-text'>${value}</span>
+          </div>
+      </tag>`
+  },
 
-    dropdownItem( item ){
-        var sanitizedValue = (item.value || item).replace(/`|'/g, "&#39;");
-        return `<div ${this.getAttributes(item)} class='tagify__dropdown__item ${item.class ? item.class : ""}'>${sanitizedValue}</div>`;
-    }
+  dropdownItem( item ){
+    var mapValueTo = this.settings.dropdown.mapValueTo,
+        value = (mapValueTo
+            ? typeof mapValueTo == 'function'
+                ? mapValueTo(item)
+                : item[mapValueTo]
+            : item.value) || item.value,
+        sanitizedValue = (value || item).replace(/`|'/g, "&#39;");
+
+    return `<div ${this.getAttributes(item)}
+                class='tagify__dropdown__item ${item.class ? item.class : ""}'
+                tabindex="0"
+                role="option"
+                aria-labelledby="dropdown-label">${sanitizedValue}</div>`;
+  }
 }
 ```
 
