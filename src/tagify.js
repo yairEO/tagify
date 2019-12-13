@@ -1194,7 +1194,7 @@ Tagify.prototype = {
             tagElm = this.createTagElem(tagData)
 
         // add the tag to the component's DOM
-        this.appendTag.call(this, tagElm)
+        this.appendTag(tagElm)
         this.value.push(tagData)
         this.update()
         this.editTag(tagElm)
