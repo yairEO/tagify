@@ -166,10 +166,12 @@
     var sectionElm = document.querySelector('#section-basic');
 
     new Tagify(sectionElm.querySelector('input[name=value_empty_JSON]'), {
+        addTagOnBlur: false,
         autoComplete : {
             rightKey:true
         },
         dropdown: {
+            enabled: 1,
             mapValueTo: "email"
         },
         whitelist: [

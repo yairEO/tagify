@@ -68,7 +68,6 @@ Tagify.prototype = {
             classname     : '',
             enabled       : 2,      // minimum input characters needs to be typed for the dropdown to show
             maxItems      : 10,
-            itemTemplate  : '',
             fuzzySearch   : true,
             highlightFirst: false,  // highlights first-matched item in the list
             closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
@@ -82,7 +81,8 @@ Tagify.prototype = {
         wrapper(input, settings){
             return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
                         ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="listbox" aria-expanded="false"'}
-                        role="tagslist">
+                        role="tagslist"
+                        tabIndex="-1">
                 <span contenteditable data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                     class="tagify__input"
                     role="textbox"
@@ -96,6 +96,7 @@ Tagify.prototype = {
             return `<tag title='${tagData.title || value}'
                         contenteditable='false'
                         spellcheck='false'
+                        tabIndex="-1"
                         class='tagify__tag ${tagData.class ? tagData.class : ""}'
                         ${this.getAttributes(tagData)}>
                 <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
@@ -126,7 +127,6 @@ Tagify.prototype = {
 
     applySettings( input, settings ){
         this.DEFAULTS.templates = this.templates;
-        this.DEFAULTS.dropdown.itemTemplate = this.templates.dropdownItem; // regression fallback
 
         this.settings = this.extend({}, this.DEFAULTS, settings);
         this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
@@ -278,9 +278,8 @@ Tagify.prototype = {
         try{ value = JSON.parse(value) }
         catch(err){}
 
-        if( this.settings.mode == 'mix' ){
+        if( this.settings.mode == 'mix' )
             this.parseMixTags(value.trim())
-        }
 
         else
             this.addTags(value).forEach(tag => tag && tag.classList.add('tagify--noAnim'))
@@ -372,7 +371,7 @@ Tagify.prototype = {
     },
 
     toggleFocusClass( force ){
-        this.DOM.scope.classList.toggle('tagify--focus', force)
+        this.DOM.scope.classList.toggle('tagify--focus', !!force)
     },
 
     /**
@@ -438,11 +437,25 @@ Tagify.prototype = {
                     _s = this.settings,
                     type = e.type;
 
+                // goes into this scenario only on input "blur" and a tag was clicked
+                if( e.relatedTarget &&
+                    e.relatedTarget.classList.contains('tagify__tag') &&
+                    this.DOM.scope.contains(e.relatedTarget) )
+                    return
+
+                if( type == 'blur' && e.relatedTarget === this.DOM.scope ){
+                    this.dropdown.hide.call(this)
+                    this.DOM.input.focus()
+                    return
+                }
+
+
+
                 if( this.state.actions.selectOption &&
                     (_s.dropdown.enabled || !_s.dropdown.closeOnSelect) )
                     return;
 
-                this.state.hasFocus = type == "focus";
+                this.state.hasFocus = type == "focus" ? +new Date() : false
                 this.toggleFocusClass(this.state.hasFocus)
 
                 this.setRangeAtStartEnd(false)
@@ -456,7 +469,7 @@ Tagify.prototype = {
                 if( type == "focus" ){
                     this.trigger("focus")
                     //  e.target.classList.remove('placeholder');
-                    if( _s.dropdown.enabled === 0 ){
+                    if( _s.dropdown.enabled === 0 && _s.mode != "select" ){
                         this.dropdown.show.call(this)
                     }
                     return
@@ -527,12 +540,14 @@ Tagify.prototype = {
                             this.dropdown.show.call(this)
                         break;
 
-                    case 'ArrowRight' :
-                        if( this.state.highlightedSuggestion && this.settings.autoComplete.rightKey ){
-                            this.addTags([this.state.highlightedSuggestion], true)
+                    case 'ArrowRight' : {
+                        let tagData = this.state.inputSuggestion || this.state.ddItemData;
+                        if( tagData && this.settings.autoComplete.rightKey ){
+                            this.addTags([tagData], true)
                             return;
                         }
                         break
+                    }
                     case 'Tab' : {
                         if( !s ) return true;
                     }
@@ -633,24 +648,40 @@ Tagify.prototype = {
             },
 
             onClickScope(e){
-                var tagElm = e.target.closest('tag'), tagElmIdx,
-                    _s = this.settings;
+                var tagElm = e.target.closest('.tagify__tag'),
+                    _s = this.settings,
+                    timeDiffFocus = +new Date() - this.state.hasFocus,
+                    tagElmIdx;
 
-                if( e.target.tagName == "TAGS" )
+                if( e.target == this.DOM.scope ){
+                   // if( !this.state.hasFocus )
+                      //   this.dropdown.hide.call(this)
                     this.DOM.input.focus()
+                    return
+                }
 
-                else if( e.target.tagName == "X" ){
+                else if( e.target.classList.contains("tagify__tag__removeBtn") ){
                     this.removeTag( e.target.parentNode );
-                    return; // for select-mode: do not continue, so the dropdown won't be shown
+                    return
                 }
 
                 else if( tagElm ){
                     tagElmIdx = this.getNodeIndex(tagElm);
                     this.trigger("click", { tag:tagElm, index:tagElmIdx, data:this.value[tagElmIdx] });
+                    return
                 }
 
-                if( _s.mode == 'select' || (_s.mode != 'mix' && _s.dropdown.enabled === 0) )
-                    this.dropdown.show.call(this);
+                // when clicking on the input itself
+                else if( e.target == this.DOM.input && timeDiffFocus > 500 ){
+                    if( this.state.dropdown.visible )
+                        this.dropdown.hide.call(this)
+                    else if( _s.dropdown.enabled === 0 )
+                        this.dropdown.show.call(this)
+                    return
+                }
+
+                if( _s.mode == 'select' )
+                    !this.state.dropdown.visible && this.dropdown.show.call(this);
             },
 
             onEditTagInput( editableElm ){
@@ -838,7 +869,7 @@ Tagify.prototype = {
     input : {
         value : '',
         set( s = '', updateDOM = true ){
-            var hideDropdown = this.settings.dropdown.enabled > 0 || this.settings.dropdown.closeOnSelect
+            var hideDropdown = this.settings.dropdown.closeOnSelect
             this.input.value = s;
 
             if( updateDOM )
@@ -847,7 +878,7 @@ Tagify.prototype = {
             if( !s && hideDropdown )
                 setTimeout(this.dropdown.hide.bind(this), 20)  // setTimeout duration must be HIGER than the dropdown's item "onClick" method's "focus()" event, because the "hide" method re-binds the main events and it will catch the "blur" event and will cause
 
-            this.input.autocomplete.suggest.call(this, '');
+            this.input.autocomplete.suggest.call(this);
             this.input.validate.call(this);
         },
 
@@ -885,22 +916,32 @@ Tagify.prototype = {
          * @param  {String} s [description]
          */
         autocomplete : {
-            suggest( s ){
+            suggest( data ){
                 if( !this.settings.autoComplete.enabled ) return;
-                s = s || '';
-                var suggestionStart = s.substr(0, this.input.value.length).toLowerCase(),
-                    suggestionTrimmed = s.substring(this.input.value.length);
 
-                if( !s || !this.input.value || suggestionStart != this.input.value.toLowerCase() ){
+                data = data || {}
+
+                if( data && typeof data == 'string' )
+                    data = {value:data}
+
+                var suggestedText = data.value || '',
+                    suggestionStart = suggestedText.substr(0, this.input.value.length).toLowerCase(),
+                    suggestionTrimmed = suggestedText.substring(this.input.value.length);
+
+                if( !suggestedText || !this.input.value || suggestionStart != this.input.value.toLowerCase() ){
                     this.DOM.input.removeAttribute("data-suggest");
                     delete this.state.inputSuggestion
                 }
                 else{
                     this.DOM.input.setAttribute("data-suggest", suggestionTrimmed);
-                    this.state.inputSuggestion = s
+                    this.state.inputSuggestion = data
                 }
             },
 
+            /**
+             * sets the suggested text as the input's value & cleanup the suggestion autocomplete.
+             * @param {String} s [text]
+             */
             set( s ){
                 var dataSuggest = this.DOM.input.getAttribute('data-suggest'),
                     suggestion = s || (dataSuggest ? this.input.value + dataSuggest : null);
@@ -914,7 +955,7 @@ Tagify.prototype = {
                         this.setRangeAtStartEnd()
                     }
 
-                    this.input.autocomplete.suggest.call(this, '');
+                    this.input.autocomplete.suggest.call(this);
                     this.dropdown.hide.call(this);
 
                     return true;
@@ -1325,7 +1366,7 @@ Tagify.prototype = {
 
     /**
      *
-     * @param {string} html removed new lines and irrelevant spaced which might affect stlying and are better gone
+     * @param {string} html removed new lines and irrelevant spaces which might affect stlying and are better gone
      */
     minify( html ){
         return html.replace( new RegExp( "\>[\r\n ]+\<" , "g" ) , "><" );
@@ -1409,6 +1450,9 @@ Tagify.prototype = {
         this.update()
         Array.prototype.slice.call(this.getTagElms()).forEach(elm => elm.parentNode.removeChild(elm));
         this.dropdown.position.call(this)
+
+        if( this.settings.mode == 'select' )
+            this.input.set.call(this)
     },
 
     preUpdate(){
@@ -1486,7 +1530,7 @@ Tagify.prototype = {
                 ddHeight,
                 isManual = _s.dropdown.position == 'manual';
 
-            if( !_s.whitelist || !_s.whitelist.length ) return;
+            if( !_s.whitelist || !_s.whitelist.length || _s.dropdown.enable === false ) return;
 
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems
@@ -1501,7 +1545,7 @@ Tagify.prototype = {
                 if( _s.autoComplete ){
                     // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
                     if( firstListItemValue.indexOf(value) == 0 )
-                        this.input.autocomplete.suggest.call(this, firstListItemValue)
+                        this.input.autocomplete.suggest.call(this, firstListItem)
                 }
             }
             else{
@@ -1535,9 +1579,8 @@ Tagify.prototype = {
                     ddHeight = this.getNodeHeight(this.DOM.dropdown)
 
                     this.DOM.dropdown.classList.add('tagify__dropdown--initial')
-                    document.body.appendChild(this.DOM.dropdown);
-
                     this.dropdown.position.call(this, ddHeight);
+                    document.body.appendChild(this.DOM.dropdown);
 
                     setTimeout(() =>
                         this.DOM.dropdown.classList.remove('tagify__dropdown--initial')
@@ -1735,25 +1778,27 @@ Tagify.prototype = {
          */
         highlightOption( elm, adjustScroll ){
             var className = "tagify__dropdown__item--active",
-                itemData, value;
+                itemData;
 
             // focus casues a bug in Firefox with the placeholder been shown on the input element
             // if( this.settings.dropdown.position != 'manual' )
             //     elm.focus();
 
-            this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => {
-                activeElm.classList.remove(className)
-                activeElm.removeAttribute("aria-selected")
-            })
+            if( this.state.ddItemElm ){
+                this.state.ddItemElm.classList.remove(className)
+                this.state.ddItemElm.removeAttribute("aria-selected")
+            }
 
             if( !elm ){
-                this.state.highlightedSuggestion = null
+                this.state.ddItemData = null
+                this.state.ddItemElm = null
                 this.input.autocomplete.suggest.call(this)
                 return;
             }
 
             itemData = this.suggestedListItems[this.getNodeIndex(elm)]
-            this.state.highlightedSuggestion = itemData
+            this.state.ddItemData = itemData
+            this.state.ddItemElm = elm
 
            // this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
             elm.classList.add(className);
@@ -1764,9 +1809,9 @@ Tagify.prototype = {
 
             // Try to autocomplete the typed value with the currently highlighted dropdown item
             if( this.settings.autoComplete ){
-                value = itemData.value || this.input.value;
-                this.input.autocomplete.suggest.call(this, value);
-                this.dropdown.position.call(this); // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
+                this.input.autocomplete.suggest.call(this, itemData)
+                if( this.settings.dropdown.position != 'manual' )
+                    this.dropdown.position.call(this) // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
             }
         },
 
@@ -1780,9 +1825,8 @@ Tagify.prototype = {
             this.state.actions.selectOption = true;
             setTimeout(()=> this.state.actions.selectOption = false, 50)
 
-            var hideDropdown = this.settings.dropdown.enabled || this.settings.dropdown.closeOnSelect,
+            var hideDropdown = this.settings.dropdown.closeOnSelect,
                 value = this.suggestedListItems[this.getNodeIndex(elm)] || this.input.value;
-
 
             this.trigger("dropdown:select", value)
             this.addTags([value], true)
@@ -1847,10 +1891,12 @@ Tagify.prototype = {
          * @param  {Array} list  [Array of Objects]
          * @return {String}
          */
-        createListHTML( list ){
-            var getItem = this.settings.templates.dropdownItem.bind(this);
+        createListHTML( optionsArr ){
+            var template = this.settings.templates.dropdownItem.bind(this);
 
-            return list.map(getItem).join("");
+          //  console.log(   this.minify( optionsArr.map(template).join("") )   )
+
+            return this.minify( optionsArr.map(template).join("") )
         }
     }
 }

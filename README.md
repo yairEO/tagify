@@ -182,7 +182,8 @@ templates : {
   wrapper(input, settings){
     return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
                         ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="listbox" aria-expanded="false"'}
-                        role="tagslist">
+                        role="tagslist"
+                        tabIndex="-1">
                 <span contenteditable data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                     class="tagify__input"
                     role="textbox"
@@ -196,6 +197,7 @@ templates : {
       return `<tag title='${tagData.title || value}'
                 contenteditable='false'
                 spellcheck='false'
+                tabIndex="-1"
                 class='tagify__tag ${tagData.class ? tagData.class : ""}'
                 ${this.getAttributes(tagData)}>
           <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
@@ -241,8 +243,10 @@ var input = document.querySelector('input'),
         whitelist : ['aaa', 'aaab', 'aaabb', 'aaabc', 'aaabd', 'aaabe', 'aaac', 'aaacc'],
         dropdown : {
             classname : "color-blue",
-            enabled   : 3,
-            maxItems  : 5
+            enabled   : 0,         // show the dropdown immediately on focus
+            maxItems  : 5,
+            position  : "text",    // place the dropdown near the typed text
+            closeOnSelect : false, // keep the dropdown open after selecting a suggestion
         }
     });
 ```
@@ -414,21 +418,21 @@ For example how this can be used, see the [demos page](https://yaireo.github.io/
 
 Name                            | Info
 ------------------------------- | --------------------------------
-`--tags-border-color`           | The outer border color which surrounds tagify
-`--tag-bg`                      | Tag background color
-`--tag-hover`                   | Tag background color on hover (mouse)
-`--tag-text-color`              | Tag text color
-`--tag-text-color--edit`        | Tag text color when a Tag is being edited
-`--tag-pad`                     | Tag padding, from all sides. Ex. `.3em .5em`
-`--tag--min-width`              | Minimum Tag width
-`--tag--max-width`              | Maximum tag width, which gets trimmed with *hellip* after
-`--tag-inset-shadow-size`       | This is the inner shadow size, which dictates the color of the Tags.<br>It's important the size fits *exactly* to the tag.<br>Change this if you change the `--tag-pad` or fontsize.
-`--tag-invalid-color`           | For border color of edited tags with invalid value being typed into them
-`--tag-invalid-bg`              | Background color for invalid Tags.
-`--tag-remove-bg`               | Tag background color when hovering the `×` button.
-`--tag-remove-btn-bg`           | The remove (`×`) button background color
-`--tag-remove-btn-bg--hover`    | The remove (`×`) button background color on hover
-`--loader-size`                 | Loading animation size. `1em` is pretty big, default is a bit less.
+--tags-border-color             | The outer border color which surrounds tagify
+--tag-bg                        | Tag background color
+--tag-hover                     | Tag background color on hover (mouse)
+--tag-text-color                | Tag text color
+--tag-text-color--edit          | Tag text color when a Tag is being edited
+--tag-pad                       | Tag padding, from all sides. Ex. `.3em .5em`
+--tag--min-width                | Minimum Tag width
+--tag--max-width                | Maximum tag width, which gets trimmed with *hellip* after
+--tag-inset-shadow-size         | This is the inner shadow size, which dictates the color of the Tags.<br>It's important the size fits *exactly* to the tag.<br>Change this if you change the `--tag-pad` or fontsize.
+--tag-invalid-color             | For border color of edited tags with invalid value being typed into them
+--tag-invalid-bg                | Background color for invalid Tags.
+--tag-remove-bg                 | Tag background color when hovering the `×` button.
+--tag-remove-btn-bg             | The remove (`×`) button background color
+--tag-remove-btn-bg--hover      | The remove (`×`) button background color on hover
+--loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
 
 
 ## Methods
@@ -499,9 +503,8 @@ backspace               | *                | true                             | 
 dropdown.enabled        | Number           | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
 dropdown.maxItems       | Number           | 10                               | Maximum items to show in the suggestions list dropdown
 dropdown.classname      | String           | `""`                             | Custom class name for the dropdown suggestions selectbox
-dropdown.itemTemplate   | Function         | `""`                             | Returns a custom string for each list item in the dropdown suggestions selectbox
 dropdown.fuzzySearch    | Boolean          | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
 dropdown.position       | String           | null                             | `manual` - will not render the dropdown, and you would need to do it yourself. See "events" section. <br> `text` - will place the dropdown next to the caret <br> `all` - normal, full-width design
 dropdown.highlightFirst | Boolean          | false                            | When a suggestions list is shown, highilght the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
-dropdown.closeOnSelect  | Boolean          | false                            | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
+dropdown.closeOnSelect  | Boolean          | true                             | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
 dropdown.mapValueTo     | Function/String  |                                  | if whitelist is an Array of Objects:<br>Ex. `[{value:'foo', email:'foo@a.com'},...]`)<br> this setting controlls which data <em>key</em> will be printed in the dropdown.<br> Ex. `mapValueTo: data => "To:" + data.email`<br>Ex. `mapValueTo: "email"`

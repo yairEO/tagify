@@ -1,3 +1,8 @@
+:root {
+    --tagify-dd-color-primary: rgb(53,149,246); // should be same as "$tags-focus-border-color"
+    --tagify-dd-bg-color: white;
+}
+
 .tagify{
     // SCSS "default" allows overriding variables BEFORE they are set in the below lines of code
     $self: &;
@@ -75,6 +80,7 @@
     padding       : 0;
     line-height   : 1.1;
     cursor        : text;
+    outline       : none;
     position      : relative;
     transition    : .1s;
 
@@ -133,13 +139,14 @@
     + textarea{ display:none !important; }
 
     &__tag{
-        display        : inline-flex;
-        align-items    : center;
-        margin         : $tagMargin 0 $tagMargin $tagMargin;
-        position       : relative;
-        z-index        : 1;
-        cursor         : default;
-        transition     : .13s ease-out;
+        display    : inline-flex;
+        align-items: center;
+        margin     : $tagMargin 0 $tagMargin $tagMargin;
+        position   : relative;
+        z-index    : 1;
+        outline    : none;
+        cursor     : default;
+        transition : .13s ease-out;
 
         > div{  // :not([contenteditable])
             vertical-align : top;
@@ -162,7 +169,7 @@
                 vertical-align : top;
                 min-width      : var(--tag--min-width);
                 max-width      : var(--tag--max-width);
-                transition     : .8s ease, .1 color;
+                transition     : .8s ease, .1s color;
 
 
                 &[contenteditable]{
@@ -397,13 +404,6 @@
             > div{
                 padding-top:0; padding-bottom:0;
             }
-
-            &:hover:not([readonly]){
-                > div{
-                    &::before{
-                    }
-                }
-            }
         }
     }
 
@@ -471,12 +471,21 @@
         $trans: .25s cubic-bezier(0,1,.5,1);
         position: absolute;
         z-index: 9999;
-        margin-top: 1px;
+        transform: translateY(1px);
         overflow: hidden;
+
+        &[placement="top"]{
+            margin-top: 0;
+            transform: translateY(-2px);
+            #{$dropdown}__wrapper{
+                border-top-width: 1px;
+                border-bottom-width: 0;
+            }
+        }
 
         // when the dropdown shows next to the caret while typing
         &--text{
-            box-shadow: 0 0 0 3px rgba($tags-focus-border-color, .1);
+            box-shadow: 0 0 0 3px rgba(var(--tagify-dd-color-primary), .1);
             font-size: .9em;
             #{$dropdown}__wrapper{
                 border-width: 1px;
@@ -487,11 +496,14 @@
             max-height: 300px;
             overflow: hidden;
             background: white;
+            background: var(--tagify-dd-bg-color);
             border: 1px solid $tags-focus-border-color;
+            border-color: var(--tagify-dd-color-primary);
             border-top-width: 0;
             box-shadow: 0 2px 4px -2px rgba(black,.2);
            // box-sizing: border-box;
             transition: $trans;
+
             &:hover{
                 overflow: auto;
             }
@@ -501,12 +513,12 @@
         &--initial{
             #{$dropdown}__wrapper{
                 max-height: 20px;
-                transform: translateY(1em);
+                transform: translateY(-1em);
             }
 
-            &[placement="bottom"]{
+            &[placement="top"]{
                 #{$dropdown}__wrapper{
-                    transform: translateY(-1em);
+                    transform: translateY(2em);
                 }
             }
         }
@@ -522,6 +534,7 @@
 
             &--active{
                 background: $tags-focus-border-color;
+                background: var(--tagify-dd-color-primary);
                 color: white;
             }
             &:active{
