@@ -1344,12 +1344,13 @@ Tagify.prototype = {
 
   /**
    * Removed new lines and irrelevant spaces which might affect layout, and are better gone
-   * @param {string} html
+   * @param {string} s [HTML string]
    */
   minify: function minify(s) {
-    return s.replace(/\>[\r\n ]+\</g, "><").replace(/(<.*?>)|\s+/g, function (m, $1) {
+    return s ? s.replace(/\>[\r\n ]+\</g, "><").replace(/(<.*?>)|\s+/g, function (m, $1) {
       return $1 ? $1 : ' ';
-    }); // https://stackoverflow.com/a/44841484/104380
+    }) // https://stackoverflow.com/a/44841484/104380
+    : "";
   },
 
   /**
@@ -1567,6 +1568,8 @@ Tagify.prototype = {
       scope.setAttribute("aria-expanded", false);
       dropdown.parentNode.removeChild(dropdown);
       this.state.dropdown.visible = false;
+      this.state.ddItemData = null;
+      this.state.ddItemElm = null;
       this.trigger("dropdown:hide", dropdown);
     },
 
@@ -1674,7 +1677,7 @@ Tagify.prototype = {
             case 'ArrowRight':
             case 'Tab':
               {
-                e.preventDefault(); // in mix-mode, treat arrowRight like Enter
+                e.preventDefault(); // in mix-mode, treat arrowRight like Enter key, so a tag will be created
 
                 if (this.settings.mode != 'mix' && !this.settings.autoComplete.rightKey) {
                   try {
