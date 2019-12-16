@@ -1811,10 +1811,10 @@ Tagify.prototype = {
           i = 0;
 
       if (!value) {
-        return whitelist.filter(function (item) {
+        return (this.settings.duplicates ? whitelist : whitelist.filter(function (item) {
           return !_this14.isTagDuplicate(item.value || item);
         }) // don't include tags which have already been added.
-        .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
+        ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }
 
       for (; i < whitelist.length; i++) {

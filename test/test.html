@@ -375,6 +375,7 @@
           mode             : 'mix',  // <--  Enable mixed-content
           pattern          : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
           enforceWhitelist : true,
+          duplicates       : true,
           whitelist        : [       // <--  Set the initial whitelist, which will dynamically change as you type (see "input" event below)
             { value:'cartman', title:'Eric Cartman', class:'borderd-blue' },
             { value:"cartman", id:500, title:"xxx" },
@@ -382,7 +383,8 @@
             { value:'Homer simpson' }
           ],
           dropdown   : {
-              enabled : 0
+              enabled : 0,
+              maxItems: 20
           },
           callbacks        : {
             add    : console.log,  // callback when adding a tag

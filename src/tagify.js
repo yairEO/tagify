@@ -1866,9 +1866,10 @@ Tagify.prototype = {
                 i = 0;
 
             if( !value ){
-                return whitelist
-                    .filter(item => !this.isTagDuplicate(item.value || item)) // don't include tags which have already been added.
-                    .slice(0, suggestionsCount); // respect "maxItems" dropdown setting
+                return (this.settings.duplicates
+                    ? whitelist
+                    : whitelist.filter(item => !this.isTagDuplicate(item.value || item)) // don't include tags which have already been added.
+                ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
             }
 
             for( ; i < whitelist.length; i++ ){
