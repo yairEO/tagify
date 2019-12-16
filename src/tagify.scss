@@ -370,6 +370,11 @@
             white-space: nowrap;
             pointer-events: none;
             opacity: 0;
+
+            #{ $self }--mix &{
+              position: static;
+              line-height: inherit;
+            }
         }
 
         @supports ( -moz-appearance:none ){
