@@ -1343,11 +1343,13 @@ Tagify.prototype = {
   },
 
   /**
-   *
-   * @param {string} html removed new lines and irrelevant spaces which might affect stlying and are better gone
+   * Removed new lines and irrelevant spaces which might affect layout, and are better gone
+   * @param {string} html
    */
-  minify: function minify(html) {
-    return html.replace(new RegExp("\>[\r\n ]+\<", "g"), "><");
+  minify: function minify(s) {
+    return s.replace(/\>[\r\n ]+\</g, "><").replace(/(<.*?>)|\s+/g, function (m, $1) {
+      return $1 ? $1 : ' ';
+    }); // https://stackoverflow.com/a/44841484/104380
   },
 
   /**
@@ -1704,8 +1706,9 @@ Tagify.prototype = {
           }
         },
         onMouseOver: function onMouseOver(e) {
-          // event delegation check
-          if (e.target.className.includes('__item')) this.dropdown.highlightOption.call(this, e.target);
+          var ddItem = e.target.closest('.tagify__dropdown__item'); // event delegation check
+
+          ddItem && this.dropdown.highlightOption.call(this, ddItem);
         },
         onMouseLeave: function onMouseLeave(e) {
           // de-highlight any previously highlighted option
@@ -1834,9 +1837,9 @@ Tagify.prototype = {
      * @return {String}
      */
     createListHTML: function createListHTML(optionsArr) {
-      var template = this.settings.templates.dropdownItem.bind(this); //  console.log(   this.minify( optionsArr.map(template).join("") )   )
-
-      return this.minify(optionsArr.map(template).join(""));
+      var template = this.settings.templates.dropdownItem.bind(this);
+      if (optionsArr.length) //  console.log(   this.minify( optionsArr.map(template).join("") )   )
+        return this.minify(optionsArr.map(template).join(""));
     }
   }
 };

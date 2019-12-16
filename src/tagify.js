@@ -1365,11 +1365,13 @@ Tagify.prototype = {
     },
 
     /**
-     *
-     * @param {string} html removed new lines and irrelevant spaces which might affect stlying and are better gone
+     * Removed new lines and irrelevant spaces which might affect layout, and are better gone
+     * @param {string} html
      */
-    minify( html ){
-        return html.replace( new RegExp( "\>[\r\n ]+\<" , "g" ) , "><" );
+    minify( s ){
+        return s
+            .replace(/\>[\r\n ]+\</g, "><")
+            .replace(/(<.*?>)|\s+/g, (m, $1) => $1 ? $1 : ' ') // https://stackoverflow.com/a/44841484/104380
     },
 
     /**
@@ -1751,9 +1753,9 @@ Tagify.prototype = {
                 },
 
                 onMouseOver(e){
+                    var ddItem = e.target.closest('.tagify__dropdown__item')
                     // event delegation check
-                    if( e.target.className.includes('__item') )
-                        this.dropdown.highlightOption.call(this, e.target)
+                    ddItem && this.dropdown.highlightOption.call(this, ddItem)
                 },
 
                 onMouseLeave(e){
@@ -1894,6 +1896,7 @@ Tagify.prototype = {
         createListHTML( optionsArr ){
             var template = this.settings.templates.dropdownItem.bind(this);
 
+            if( optionsArr.length )
           //  console.log(   this.minify( optionsArr.map(template).join("") )   )
 
             return this.minify( optionsArr.map(template).join("") )
