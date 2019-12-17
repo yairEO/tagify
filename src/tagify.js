@@ -63,11 +63,12 @@ Tagify.prototype = {
         autoComplete        : {
             enabled : true,                   // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
             rightKey: false,                  // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
-        },           // Flag - tries to autocomplete the input's value while typing
+        },
         dropdown            : {
             classname     : '',
             enabled       : 2,      // minimum input characters needs to be typed for the dropdown to show
             maxItems      : 10,
+            searchKeys    : [],
             fuzzySearch   : true,
             highlightFirst: false,  // highlights first-matched item in the list
             closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
@@ -1855,9 +1856,11 @@ Tagify.prototype = {
          * @return {Array} list of filtered whitelist items according to the settings provided and current value
          */
         filterListItems( value ){
-            var list = [],
-                whitelist = this.settings.whitelist,
-                suggestionsCount = this.settings.dropdown.maxItems || Infinity,
+            var _s = this.settings,
+                list = [],
+                whitelist = _s.whitelist,
+                suggestionsCount = _s.dropdown.maxItems || Infinity,
+                searchKeys = _s.dropdown.searchKeys.concat(["searchBy", "value"]),
                 whitelistItem,
                 valueIsInWhitelist,
                 whitelistItemValueIndex,
@@ -1866,28 +1869,29 @@ Tagify.prototype = {
                 i = 0;
 
             if( !value ){
-                return (this.settings.duplicates
+                return (_s.duplicates
                     ? whitelist
                     : whitelist.filter(item => !this.isTagDuplicate(item.value || item)) // don't include tags which have already been added.
                 ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
             }
 
             for( ; i < whitelist.length; i++ ){
-                whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] }; //normalize value as an Object
-                searchBy = ((whitelistItem.searchBy || '') + ' ' + whitelistItem.value).toLowerCase();
-                whitelistItemValueIndex = searchBy.indexOf( value.toLowerCase() );
+                whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
+                searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
 
-                valueIsInWhitelist = this.settings.dropdown.fuzzySearch
+                whitelistItemValueIndex = searchBy.indexOf( value.toLowerCase() )
+
+                valueIsInWhitelist = _s.dropdown.fuzzySearch
                     ? whitelistItemValueIndex >= 0
                     : whitelistItemValueIndex == 0;
 
-                isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value);
+                isDuplicate = !_s.duplicates && this.isTagDuplicate(whitelistItem.value)
 
                 // match for the value within each "whitelist" item
                 if( valueIsInWhitelist && !isDuplicate && suggestionsCount-- )
-                    list.push(whitelistItem);
+                    list.push(whitelistItem)
 
-                if( suggestionsCount == 0 ) break;
+                if( suggestionsCount == 0 ) break
             }
 
             return list;
@@ -1900,10 +1904,6 @@ Tagify.prototype = {
          */
         createListHTML( optionsArr ){
             var template = this.settings.templates.dropdownItem.bind(this);
-
-            if( optionsArr.length )
-          //  console.log(   this.minify( optionsArr.map(template).join("") )   )
-
             return this.minify( optionsArr.map(template).join("") )
         }
     }

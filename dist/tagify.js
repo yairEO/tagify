@@ -111,12 +111,12 @@ Tagify.prototype = {
       rightKey: false // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
 
     },
-    // Flag - tries to autocomplete the input's value while typing
     dropdown: {
       classname: '',
       enabled: 2,
       // minimum input characters needs to be typed for the dropdown to show
       maxItems: 10,
+      searchKeys: [],
       fuzzySearch: true,
       highlightFirst: false,
       // highlights first-matched item in the list
@@ -1800,9 +1800,11 @@ Tagify.prototype = {
     filterListItems: function filterListItems(value) {
       var _this14 = this;
 
-      var list = [],
-          whitelist = this.settings.whitelist,
-          suggestionsCount = this.settings.dropdown.maxItems || Infinity,
+      var _s = this.settings,
+          list = [],
+          whitelist = _s.whitelist,
+          suggestionsCount = _s.dropdown.maxItems || Infinity,
+          searchKeys = _s.dropdown.searchKeys.concat(["searchBy", "value"]),
           whitelistItem,
           valueIsInWhitelist,
           whitelistItemValueIndex,
@@ -1811,7 +1813,7 @@ Tagify.prototype = {
           i = 0;
 
       if (!value) {
-        return (this.settings.duplicates ? whitelist : whitelist.filter(function (item) {
+        return (_s.duplicates ? whitelist : whitelist.filter(function (item) {
           return !_this14.isTagDuplicate(item.value || item);
         }) // don't include tags which have already been added.
         ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
@@ -1822,10 +1824,12 @@ Tagify.prototype = {
           value: whitelist[i]
         }; //normalize value as an Object
 
-        searchBy = ((whitelistItem.searchBy || '') + ' ' + whitelistItem.value).toLowerCase();
+        searchBy = searchKeys.reduce(function (values, k) {
+          return values + " " + (whitelistItem[k] || "");
+        }, "").toLowerCase();
         whitelistItemValueIndex = searchBy.indexOf(value.toLowerCase());
-        valueIsInWhitelist = this.settings.dropdown.fuzzySearch ? whitelistItemValueIndex >= 0 : whitelistItemValueIndex == 0;
-        isDuplicate = !this.settings.duplicates && this.isTagDuplicate(whitelistItem.value); // match for the value within each "whitelist" item
+        valueIsInWhitelist = _s.dropdown.fuzzySearch ? whitelistItemValueIndex >= 0 : whitelistItemValueIndex == 0;
+        isDuplicate = !_s.duplicates && this.isTagDuplicate(whitelistItem.value); // match for the value within each "whitelist" item
 
         if (valueIsInWhitelist && !isDuplicate && suggestionsCount--) list.push(whitelistItem);
         if (suggestionsCount == 0) break;
@@ -1841,8 +1845,7 @@ Tagify.prototype = {
      */
     createListHTML: function createListHTML(optionsArr) {
       var template = this.settings.templates.dropdownItem.bind(this);
-      if (optionsArr.length) //  console.log(   this.minify( optionsArr.map(template).join("") )   )
-        return this.minify(optionsArr.map(template).join(""));
+      return this.minify(optionsArr.map(template).join(""));
     }
   }
 };

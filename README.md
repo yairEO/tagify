@@ -134,6 +134,9 @@ state is controlled by the method `tagify.loading` which accepts `true` or `fals
 
 Below is a basic example using the `fetch` API. I advise to abort the last request on any input before starting a new request.
 
+<details>
+  <summary>Example:</summary>
+
 ```javascript
 var input = document.querySelector('input'),
     tagify = new Tagify(input, {whitelist:[]}),
@@ -162,7 +165,7 @@ function onInput( e ){
     })
 }
 ```
-
+</details>
 
 ## Edit tags
 Tags which aren't `read-only` can be edited by double-clicking them.
@@ -175,7 +178,8 @@ The value is saved on `blur` or by pressing `enter` key. Pressing `Escape` will 
 It's possible to control the templates for the following HTML elements tagify generates by
 modying the `settings.templates` Object with your own custom functions which should output a string.
 
-### The defaults are:
+<details>
+  <summary><strong>Default templates</strong></summary>
 
 ```javascript
 templates : {
@@ -224,6 +228,7 @@ templates : {
   }
 }
 ```
+</details>
 
 ## Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
@@ -266,8 +271,8 @@ Will render:
 By default searching the suggestions is using fuzzy-search (see [settings](#settings)).
 
 If you wish to assign *alias* to items (in your suggestion list), add the `searchBy` property to whitelist items you wish
-to have an *alias* for. In the blow example, when typing any of the words from the `searchBy` property, the suggestion listen will
-match "Israel".
+to have an *alias* for. In the below example, when typing a part of string which is included in the `searchBy` property, the suggested item will
+match "Israel" will be rendered in the suggestion list selectbox.
 
 ### [Example](https://yaireo.github.io/tagify/#section-extra-properties) for a suggestion item alias
 
@@ -279,8 +284,32 @@ whitelist = [
 ]
 ```
 
+Another handy setting is `dropdown.searchKeys` which, like the above `dropdown.searchBy` setting, allows
+expanding the search of any typed terms to more than the `value` property of the whitelist items (if items are a *Collection*).
 
-## mixed-content
+### Example whitelist:
+
+```javascript
+[
+  {
+    value    : "foo",
+    nickname : "bar",
+    email    : "baz@mail.com"
+  },
+  ...
+]
+```
+
+// setting to search in other keys:
+```javascript
+{
+  dropdown: {
+    searchKeys: ["nickname", "email"] // "value" & "searchBy" key are searched in, regardless
+  }
+}
+```
+
+## Mixed-Content
 
 > To use this feature it must be toggled - see [settings](#settings).
 
@@ -297,7 +326,7 @@ Applying the setting `dropdown.position:"text"` is encouraged for mixed-content 
 will be rendered right next to the caret location and not the the bottom of the Tagify componenet, which might look
 weird when there is already a lot of content at multiple lines.
 
-## single-value
+## Single-Value
 
 Similar to native `<Select>` element, but allows typing free text as value.
 
@@ -312,7 +341,8 @@ Check the [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-6vd3i) f
 
 **TagifyComponent** which will be used by your template as `<tagify>`
 
-Example:
+<details>
+  <summary>Example:</summary>
 
 ```
 <div>
@@ -325,10 +355,15 @@ Example:
   <button (click)="addTags()">add Tags</button>
 </div>
 ```
+</details>
 
 **TagifyService**
 
-(The tagifyService is a singletone injected by angular, do not create a new instance of it)
+> (The tagifyService is a singletone injected by angular, do not create a new instance of it)
+Remember to add `TagifyService` to your module definition.
+
+<details>
+  <summary>Example:</summary>
 
 ```typescript
 import {Component, OnDestroy} from '@angular/core';
@@ -362,8 +397,9 @@ export class AppComponent implements OnDestroy {
   }
 }
 ```
+</details>
 
-Remember to add `TagifyService` to your module definition.
+
 
 ## jQuery version
 
@@ -508,3 +544,4 @@ dropdown.position       | String           | null                             | 
 dropdown.highlightFirst | Boolean          | false                            | When a suggestions list is shown, highilght the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
 dropdown.closeOnSelect  | Boolean          | true                             | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
 dropdown.mapValueTo     | Function/String  |                                  | if whitelist is an Array of Objects:<br>Ex. `[{value:'foo', email:'foo@a.com'},...]`)<br> this setting controlls which data <em>key</em> will be printed in the dropdown.<br> Ex. `mapValueTo: data => "To:" + data.email`<br>Ex. `mapValueTo: "email"`
+dropdown.searchKeys     | Array            | `["value", "searchBy"]`          | When a user types something and trying to match the whitelist items for suggestions, this setting allows matching other keys of a whitelist objects
