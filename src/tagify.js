@@ -905,20 +905,26 @@ Tagify.prototype = {
         },
 
         // remove any child DOM elements that aren't of type TEXT (like <br>)
-        normalize( node = this.DOM.input ){
-            var clone = node, //.cloneNode(true),
-                v = clone.innerText;
+        normalize( node ){
+            var clone = node || this.DOM.input, //.cloneNode(true),
+                v = [];
+
+            // when a text was pasted in FF, the "this.DOM.input" element will have <br> but no newline symbols (\n), and this will
+            // result in tags no being properly created if one wishes to create a separate tag per newline.
+            clone.childNodes.forEach(n => n.nodeType==3 && v.push(n.nodeValue))
+            v = v.join("\n")
 
             try{
                 // "delimiters" might be of a non-regex value, where this will fail ("Tags With Properties" example in demo page):
-                v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(1))
+                v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(0))
             }
             catch(err){}
 
-            v = v.replace(/\s/g, ' ')  // replace NBSPs with spaces characters
-                 .replace(/^\s+/, ""); // trimLeft
 
-            return v;
+            v = v.replace(/\s/g, ' ')  // replace NBSPs with spaces characters
+                 .replace(/^\s+/, "") // trimLeft
+
+            return v
         },
 
         /**

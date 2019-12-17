@@ -188,7 +188,8 @@
 
 
     var tagify3 = new Tagify(sectionElm.querySelector('input[name=value_JSON]'), {
-      delimiters: ",|[\\n\\r]"
+      delimiters: ",|[\\n\\r]",
+      addTagOnBlur: false
     })
 
     // should allow adding multiple tags as 1 string with new lines
