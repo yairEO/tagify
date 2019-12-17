@@ -491,23 +491,34 @@ Tagify.prototype = {
 
         if (this.settings.mode == 'mix') {
           switch (e.key) {
+            case 'Left':
+            case 'ArrowLeft':
+              {
+                // when left arrow was pressed, raise a flag so when the dropdown is shown, right-arrow will be ignored
+                // because it seems likely the user wishes to use the arrows to move the caret
+                this.state.actions.ArrowLeft = true;
+                break;
+              }
+
             case 'Delete':
             case 'Backspace':
-              var values = []; // find out which tag(s) were deleted and update "this.value" accordingly
+              {
+                var values = []; // find out which tag(s) were deleted and update "this.value" accordingly
 
-              tags = this.DOM.input.children; // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
-              // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
+                tags = this.DOM.input.children; // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
+                // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
 
-              setTimeout(function () {
-                // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
-                [].forEach.call(tags, function (tagElm) {
-                  return values.push(tagElm.getAttribute('value'));
+                setTimeout(function () {
+                  // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
+                  [].forEach.call(tags, function (tagElm) {
+                    return values.push(tagElm.getAttribute('value'));
+                  });
+                  _this4.value = _this4.value.filter(function (d) {
+                    return values.indexOf(d.value) != -1;
+                  });
                 });
-                _this4.value = _this4.value.filter(function (d) {
-                  return values.indexOf(d.value) != -1;
-                });
-              });
-              break;
+                break;
+              }
             // currently commented to allow new lines in mixed-mode
             // case 'Enter' :
             //     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
@@ -621,6 +632,8 @@ Tagify.prototype = {
             tag = split[split.length - 1].match(_s.pattern);
 
             if (tag) {
+              this.state.actions.ArrowLeft = false; // start fresh, assuming the user did not (yet) used any arrow to move the caret
+
               this.state.tag = {
                 prefix: tag[0],
                 value: tag.input.split(tag[0])[1]
@@ -1036,11 +1049,12 @@ Tagify.prototype = {
    */
   validateTag: function validateTag(s) {
     var value = s.trim(),
+        _s = this.settings,
         result = true; // check for empty value
 
     if (!value) result = this.TEXTS.empty; // check if pattern should be used and if so, use it to test the value
-    else if (this.settings.pattern && !this.settings.pattern.test(value)) result = this.TEXTS.pattern; // if duplicates are not allowed and there is a duplicate
-      else if (!this.settings.duplicates && this.isTagDuplicate(value)) result = this.TEXTS.duplicate;else if (this.isTagBlacklisted(value) || this.settings.enforceWhitelist && !this.isTagWhitelisted(value)) result = this.TEXTS.notAllowed;
+    else if (_s.pattern && !_s.pattern.test(value)) result = this.TEXTS.pattern; // if duplicates are not allowed and there is a duplicate
+      else if (!_s.duplicates && this.isTagDuplicate(value)) result = this.TEXTS.duplicate;else if (this.isTagBlacklisted(value) || _s.enforceWhitelist && !this.isTagWhitelisted(value)) result = this.TEXTS.notAllowed;
     return result;
   },
   hasMaxTags: function hasMaxTags() {
@@ -1097,16 +1111,20 @@ Tagify.prototype = {
       tagsItems = (_ref3 = []).concat.apply(_ref3, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item);
       })));
-    } // search if the tag exists in the whitelist as an Object (has props), to be able to use its properties
+    } // search if the tag exists in the whitelist as an Object (has props),
+    // to be able to use its properties
 
 
     if (whitelistWithProps) {
       tagsItems.forEach(function (item) {
+        // the "value" prop should preferably be unique
         var matchObj = whitelist.filter(function (WL_item) {
           return WL_item.value.toLowerCase() == item.value.toLowerCase();
         });
-        if (matchObj[0]) temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
-        else if (mode != 'mix') temp.push(item);
+
+        if (matchObj[0]) {
+          temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
+        } else if (mode != 'mix') temp.push(item);
       });
       tagsItems = temp;
     }
@@ -1177,7 +1195,6 @@ Tagify.prototype = {
     replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
     nodeAtCaret.parentNode.insertBefore(wrapperElm, replacedNode);
     this.DOM.input.normalize();
-    this.state.tag = null;
     return replacedNode;
   },
 
@@ -1226,11 +1243,12 @@ Tagify.prototype = {
 
     var skipInvalid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.settings.skipInvalid;
     var tagElems = [],
-        tagElm;
+        tagElm,
+        _s = this.settings;
 
     if (!tagsItems || tagsItems.length == 0) {
       // is mode is "select" clean all tags
-      if (this.settings.mode == 'select') this.removeAllTags(); // console.warn('[addTags]', 'no tags to add:', tagsItems)
+      if (_s.mode == 'select') this.removeAllTags(); // console.warn('[addTags]', 'no tags to add:', tagsItems)
 
       return tagElems;
     }
@@ -1242,16 +1260,19 @@ Tagify.prototype = {
       return this.replaceTag(this.state.editing.scope, tagsItems[0]);
     }
 
-    if (this.settings.mode == 'mix') {
-      this.settings.transformTag.call(this, tagsItems[0]);
+    if (_s.mode == 'mix') {
+      _s.transformTag.call(this, tagsItems[0]);
+
       tagElm = this.createTagElem(tagsItems[0]);
 
       if (!this.replaceTextWithNode(tagElm)) {
         this.DOM.input.appendChild(tagElm);
       }
 
+      tagsItems[0].prefix = tagsItems[0].prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source || _s.pattern)[0];
       this.value.push(tagsItems[0]);
       this.update();
+      this.state.tag = null;
       this.trigger('add', this.extend({}, {
         tag: tagElm
       }, {
@@ -1260,7 +1281,7 @@ Tagify.prototype = {
       return tagElm;
     }
 
-    if (this.settings.mode == 'select') clearInput = false;
+    if (_s.mode == 'select') clearInput = false;
     this.DOM.input.removeAttribute('style');
     tagsItems.forEach(function (tagData) {
       var tagValidation,
@@ -1269,7 +1290,7 @@ Tagify.prototype = {
 
       tagData = Object.assign({}, tagData);
 
-      _this10.settings.transformTag.call(_this10, tagData); ///////////////// ( validation )//////////////////////
+      _s.transformTag.call(_this10, tagData); ///////////////// ( validation )//////////////////////
 
 
       tagValidation = _this10.hasMaxTags() || _this10.validateTag(tagData.value);
@@ -1297,7 +1318,7 @@ Tagify.prototype = {
       tagElm = _this10.createTagElem(_this10.extend({}, tagData, tagElmParams));
       tagElems.push(tagElm); // mode-select overrides
 
-      if (_this10.settings.mode == 'select') {
+      if (_s.mode == 'select') {
         return _this10.selectTag(tagElm, tagData);
       } // add the tag to the component's DOM
 
@@ -1315,7 +1336,7 @@ Tagify.prototype = {
           index: _this10.value.length - 1,
           data: tagData
         });
-      } else if (!_this10.settings.keepInvalidTags) {
+      } else if (!_s.keepInvalidTags) {
         // remove invalid tags (if "keepInvalidTags" is set to "false")
         setTimeout(function () {
           _this10.removeTag(tagElm, true);
@@ -1605,6 +1626,8 @@ Tagify.prototype = {
         width = rect.width + "px";
       }
 
+      top = Math.floor(top);
+      bottom = Math.ceil(bottom);
       isBelowViewport = document.documentElement.clientHeight - bottom < (ddHeight || ddElm.clientHeight); // flip vertically if there is no space for the dropdown below the input
 
       ddElm.style.cssText = "left:" + (left + window.pageXOffset) + "px; width:" + width + ";" + (isBelowViewport ? "bottom:" + (document.documentElement.clientHeight - top - window.pageYOffset - 2) + "px;" : "top: " + (bottom + window.pageYOffset) + "px");
@@ -1675,6 +1698,8 @@ Tagify.prototype = {
               break;
 
             case 'ArrowRight':
+              if (this.state.actions.ArrowLeft) return;
+
             case 'Tab':
               {
                 e.preventDefault(); // in mix-mode, treat arrowRight like Enter key, so a tag will be created

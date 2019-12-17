@@ -103,7 +103,7 @@
             <section id='section-mix'>
                 <textarea name='simple-mix' placeholder="type something">[[alice]] text [[bob]] [[foo]], [[alice]], [[foo]]</textarea>
                 <textarea name='mix' placeholder="type something">
-                  [[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[{"id":500, "value":"cartman", "title":"xxx"}]] [[kyle]] do not know [[homer simpson]] because he's a relic.]]
+                  [[{"id":101, "value":"cartman", "title":"Eric Cartman", "prefix":"@"}]] and [[{"id":500, "value":"cartman", "title":"xxx", "prefix":"@"}]] [[kyle]] do not know [[homer simpson]] because he's a relic.]]
                 </textarea>
             </section>
 
@@ -142,15 +142,15 @@
 
   window.tagified = {
     "basic"             : 1,
-    "textarea"          : 1,
+    "textarea"          : 0,
     "mix"               : 1,
-    "manual-suggestions": 1,
-    "outside-of-the-box": 1,
-    "advance-options"   : 1,
-    "extra-properties"  : 1,
-    "readonly"          : 1,
-    "readonly-mixed"    : 1,
-    "mode-select"       : 1,
+    "manual-suggestions": 0,
+    "outside-of-the-box": 0,
+    "advance-options"   : 0,
+    "extra-properties"  : 0,
+    "readonly"          : 0,
+    "readonly-mixed"    : 0,
+    "mode-select"       : 0,
   };
 
   (function(){
@@ -377,10 +377,10 @@
           enforceWhitelist : true,
           duplicates       : true,
           whitelist        : [       // <--  Set the initial whitelist, which will dynamically change as you type (see "input" event below)
-            { value:'cartman', title:'Eric Cartman', class:'borderd-blue' },
-            { value:"cartman", id:500, title:"xxx" },
-            { value:'kyle', title:'Kyle Broflovski' },
-            { value:'Homer simpson' }
+            { value:'cartman', title:'Eric Cartman', class:'borderd-blue', prefix:'@' },
+            { value:"cartman", id:500, title:"xxx", prefix:'@' },
+            { value:'kyle', title:'Kyle Broflovski', prefix:'@' },
+            { value:'Homer simpson', prefix:'#' }
           ],
           dropdown   : {
               enabled : 0,
