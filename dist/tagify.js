@@ -503,6 +503,9 @@ Tagify.prototype = {
             case 'Delete':
             case 'Backspace':
               {
+                var selection = document.getSelection(),
+                    isFF = !!navigator.userAgent.match(/firefox/i);
+                if (isFF && selection && selection.anchorOffset == 0) this.removeTag(selection.anchorNode.previousSibling);
                 var values = []; // find out which tag(s) were deleted and update "this.value" accordingly
 
                 tags = this.DOM.input.children; // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
