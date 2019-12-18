@@ -336,19 +336,22 @@ Tagify.prototype = {
      */
     EventDispatcher( instance ){
         // Create a DOM EventTarget object
-        var target = document.createTextNode('');
+        var target = document.createTextNode('')
+
+        function addRemove(op, events, cb){
+            if( cb )
+                events.split(' ').forEach(name => target[op + 'EventListener'].call(target, name, cb))
+        }
 
         // Pass EventTarget interface calls to DOM EventTarget object
         this.off = function(events, cb){
-            if( cb )
-                events.split(' ').forEach(name => target.removeEventListener.call(target, name, cb))
-            return this;
+            addRemove('remove', events, cb)
+            return this
         };
 
         this.on = function(events, cb){
-            if( cb )
-                events.split(' ').forEach(name => target.addEventListener.call(target, name, cb))
-            return this;
+            addRemove('add', events, cb)
+            return this
         };
 
         this.trigger = function(eventName, data){
@@ -361,7 +364,7 @@ Tagify.prototype = {
             }
             else{
                 try {
-                    e = new CustomEvent(eventName, {"detail": this.extend({}, data, {tagify:this})});
+                    e = new CustomEvent(eventName, {"detail": this.extend({}, data, {tagify:this})})
                 }
                 catch(err){ console.warn(err) }
                 target.dispatchEvent(e);

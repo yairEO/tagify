@@ -54,7 +54,7 @@
           p{ line-height:1.4; }
           code{ padding:2px 3px; background:lightyellow; }
           pre code{ background:none; padding:0; }
-          pre[class*=language-]{ max-height:400px; }
+          pre[class*=language-]{ max-height:1000px; }
 
           /* details expander */
           summary{ outline: none; font-size:1.3em; color: #333; cursor:pointer; margin:1em 0 0 0; user-select:none; transition: .15s ease-out; }
@@ -318,7 +318,7 @@
                     <details>
                       <summary></summary>
                       <h3>HTML</h3>
-<pre class="language-markup"><code><&#8203;input name='basic' value='tag1, tag2'></code></pre>
+<pre class="language-markup"><code>&lt;input name='basic' value='tag1, tag2'&gt;</code></pre>
                       <h3>JAVASCRIPT</h3>
                       <script>renderPRE(document.currentScript, "basic")</script>
                     </details>
@@ -356,12 +356,12 @@
                     <details>
                       <summary></summary>
                       <h3>HTML</h3>
-<pre class="language-markup"><code><&#8203;input
+<pre class="language-markup"><code>&lt;input
     name='input'
     class='some_class_name'              // This class will be copied to the Tagify component
     placeholder='write some tags'        // This text will be shown after the last tag
     value='css, html, javascript, css'   // initial values, as String (can also be an Array of Objects)
-    data-blacklist='.NET,PHP'>           // list of invaild tags, which cannot be added
+    data-blacklist='.NET,PHP'&gt;        // list of invaild tags, which cannot be added
 </code></pre>
                       <h3>JAVASCRIPT</h3>
                       <script>renderPRE(document.currentScript, "input")</script>
@@ -905,8 +905,7 @@ tagify.on('add', onAddTag)
       .on('click', onTagClick)
       .on('focus', onTagifyFocusBlur)
       .on('blur', onTagifyFocusBlur)
-      .on('dropdown:show', onDropdownShow)
-      .on('dropdown:hide', onDropdownHide)
+      .on('dropdown:hide dropdown:show', e => console.log(e.type))
       .on('dropdown:select', onDropdownSelect)
 
 var mockAjax = (function mockAjax(){
@@ -965,14 +964,6 @@ function onTagClick(e){
 
 function onTagifyFocusBlur(e){
     console.log(e.type, "event fired")
-}
-
-function onDropdownShow(e){
-    console.log("onDropdownShow: ", e.detail)
-}
-
-function onDropdownHide(e){
-    console.log("onDropdownHide: ", e.detail)
 }
 
 function onDropdownSelect(e){

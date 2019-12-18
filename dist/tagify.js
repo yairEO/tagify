@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.1.1)- tags input component
+ * Tagify (v 3.2.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -348,19 +348,22 @@ Tagify.prototype = {
    */
   EventDispatcher: function EventDispatcher(instance) {
     // Create a DOM EventTarget object
-    var target = document.createTextNode(''); // Pass EventTarget interface calls to DOM EventTarget object
+    var target = document.createTextNode('');
+
+    function addRemove(op, events, cb) {
+      if (cb) events.split(' ').forEach(function (name) {
+        return target[op + 'EventListener'].call(target, name, cb);
+      });
+    } // Pass EventTarget interface calls to DOM EventTarget object
+
 
     this.off = function (events, cb) {
-      if (cb) events.split(' ').forEach(function (name) {
-        return target.removeEventListener.call(target, name, cb);
-      });
+      addRemove('remove', events, cb);
       return this;
     };
 
     this.on = function (events, cb) {
-      if (cb) events.split(' ').forEach(function (name) {
-        return target.addEventListener.call(target, name, cb);
-      });
+      addRemove('add', events, cb);
       return this;
     };
 

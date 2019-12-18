@@ -490,7 +490,20 @@ loading             | Boolean                                  | Toogle loading 
 
 ## Events
 
-all triggered events return the instance's scope (tagify)
+All triggered events return the instance's scope (tagify).<br>
+See `e.detail` for custom event additional data.
+
+<details>
+  <summary>Examples:</summary>
+```javascript
+var tagify = new Tagify(...),
+
+// events are chainable and multiple events may be binded for the same callback
+tagify
+  .on('input', e => console.log(e.detail))
+  .on('edit:input edit:updated edit:start edit:keydown', e => console.log(e.type, e.detail))
+```
+</details>
 
 Name            | Info
 --------------- | --------------------------------------------------------------------------
