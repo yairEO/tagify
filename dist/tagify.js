@@ -333,6 +333,15 @@ Tagify.prototype = {
 
     return o;
   },
+  cloneEvent: function cloneEvent(e) {
+    var clonedEvent = {};
+
+    for (var v in e) {
+      clonedEvent[v] = e[v];
+    }
+
+    return clonedEvent;
+  },
 
   /**
    * A constructor for exposing events to the outside
@@ -341,13 +350,17 @@ Tagify.prototype = {
     // Create a DOM EventTarget object
     var target = document.createTextNode(''); // Pass EventTarget interface calls to DOM EventTarget object
 
-    this.off = function (name, cb) {
-      if (cb) target.removeEventListener.call(target, name, cb);
+    this.off = function (events, cb) {
+      if (cb) events.split(' ').forEach(function (name) {
+        return target.removeEventListener.call(target, name, cb);
+      });
       return this;
     };
 
-    this.on = function (name, cb) {
-      if (cb) target.addEventListener.call(target, name, cb);
+    this.on = function (events, cb) {
+      if (cb) events.split(' ').forEach(function (name) {
+        return target.addEventListener.call(target, name, cb);
+      });
       return this;
     };
 
@@ -465,7 +478,9 @@ Tagify.prototype = {
         }
 
         if (type == "focus") {
-          this.trigger("focus"); //  e.target.classList.remove('placeholder');
+          this.trigger("focus", {
+            relatedTarget: e.relatedTarget
+          }); //  e.target.classList.remove('placeholder');
 
           if (_s.dropdown.enabled === 0 && _s.mode != "select") {
             this.dropdown.show.call(this);
@@ -473,7 +488,9 @@ Tagify.prototype = {
 
           return;
         } else if (type == "blur") {
-          this.trigger("blur");
+          this.trigger("blur", {
+            relatedTarget: e.relatedTarget
+          });
           this.loading(false); // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
 
           text && !this.state.actions.selectOption && _s.addTagOnBlur && this.addTags(text, true);
@@ -487,7 +504,9 @@ Tagify.prototype = {
 
         var s = e.target.textContent.trim(),
             tags;
-        this.trigger("keydown", e);
+        this.trigger("keydown", {
+          originalEvent: this.cloneEvent(e)
+        });
 
         if (this.settings.mode == 'mix') {
           switch (e.key) {
@@ -685,7 +704,8 @@ Tagify.prototype = {
           this.trigger("click", {
             tag: tagElm,
             index: tagElmIdx,
-            data: this.value[tagElmIdx]
+            data: this.value[tagElmIdx],
+            originalEvent: this.cloneEvent(e)
           });
           return;
         } // when clicking on the input itself
@@ -696,7 +716,7 @@ Tagify.prototype = {
 
         if (_s.mode == 'select') !this.state.dropdown.visible && this.dropdown.show.call(this);
       },
-      onEditTagInput: function onEditTagInput(editableElm) {
+      onEditTagInput: function onEditTagInput(editableElm, e) {
         var tagElm = editableElm.closest('tag'),
             tagElmIdx = this.getNodeIndex(tagElm),
             value = this.input.normalize.call(this, editableElm),
@@ -714,7 +734,8 @@ Tagify.prototype = {
           index: tagElmIdx,
           data: this.extend({}, this.value[tagElmIdx], {
             newValue: value
-          })
+          }),
+          originalEvent: this.cloneEvent(e)
         });
       },
       onEditTagBlur: function onEditTagBlur(editableElm) {
@@ -750,7 +771,9 @@ Tagify.prototype = {
         this.replaceTag(tagElm, tagData);
       },
       onEditTagkeydown: function onEditTagkeydown(e) {
-        this.trigger("edit:keydown", e);
+        this.trigger("edit:keydown", {
+          originalEvent: this.cloneEvent(e)
+        });
 
         switch (e.key) {
           case 'Esc':

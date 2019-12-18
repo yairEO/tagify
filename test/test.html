@@ -213,7 +213,7 @@
   tagify.on('add', onAddTag)
         .on('remove', onRemoveTag)
         .on('input', onInput)
-        .on('edit', onTagEdit)
+        .on('edit:input edit:updated edit:start edit:keydown', e => console.log(e.type, e))
         .on('invalid', onInvalidTag)
         .on('click', onTagClick)
         .on('focus', onTagifyFocusBlur)
@@ -258,10 +258,6 @@
             // render the suggestions dropdown
             tagify.dropdown.show.call(tagify, e.detail.value);
         })
-    }
-
-    function onTagEdit(e){
-        console.log("onTagEdit: ", e.detail);
     }
 
     // invalid tag added callback
