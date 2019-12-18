@@ -958,7 +958,7 @@ Tagify.prototype = {
 
                 data = data || {}
 
-                if( data && typeof data == 'string' )
+                if( typeof data == 'string' )
                     data = {value:data}
 
                 var suggestedText = data.value || '',

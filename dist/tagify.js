@@ -957,7 +957,7 @@ Tagify.prototype = {
       suggest: function suggest(data) {
         if (!this.settings.autoComplete.enabled) return;
         data = data || {};
-        if (data && typeof data == 'string') data = {
+        if (typeof data == 'string') data = {
           value: data
         };
         var suggestedText = data.value || '',
