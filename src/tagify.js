@@ -1014,7 +1014,7 @@ Tagify.prototype = {
     },
 
     getTagElms(){
-        return this.DOM.scope.querySelectorAll('tag')
+        return this.DOM.scope.querySelectorAll('.tagify__tag')
     },
 
     getLastTag(){
@@ -1351,8 +1351,7 @@ Tagify.prototype = {
                 tagElmParams.class = (tagData.class || '') + ' tagify--notAllowed';
                 tagElmParams.title = tagValidation;
 
-                this.markTagByValue(tagData.value);
-                this.trigger("invalid", {data:tagData, index:this.value.length, message:tagValidation});
+                this.markTagByValue(tagData.value)
             }
             /////////////////////////////////////////////////////
 
@@ -1378,11 +1377,13 @@ Tagify.prototype = {
                 // update state
                 this.value.push(tagData);
                 this.update();
-                this.trigger('add', { tag:tagElm, index:this.value.length - 1, data:tagData });
+                this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
             }
-            else if( !_s.keepInvalidTags ){
-                // remove invalid tags (if "keepInvalidTags" is set to "false")
-                setTimeout(() => { this.removeTag(tagElm, true) }, 1000);
+            else{
+                this.trigger("invalid", {data:tagData, index:this.value.length, tag:tagElm, message:tagValidation})
+                if( !_s.keepInvalidTags )
+                    // remove invalid tags (if "keepInvalidTags" is set to "false")
+                    setTimeout(() => this.removeTag(tagElm, true), 1000)
             }
 
             this.dropdown.position.call(this) // reposition the dropdown because the just-added tag might cause a new-line

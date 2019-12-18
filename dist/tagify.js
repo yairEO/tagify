@@ -1006,7 +1006,7 @@ Tagify.prototype = {
     return index;
   },
   getTagElms: function getTagElms() {
-    return this.DOM.scope.querySelectorAll('tag');
+    return this.DOM.scope.querySelectorAll('.tagify__tag');
   },
   getLastTag: function getLastTag() {
     var lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
@@ -1336,12 +1336,6 @@ Tagify.prototype = {
         tagElmParams.title = tagValidation;
 
         _this10.markTagByValue(tagData.value);
-
-        _this10.trigger("invalid", {
-          data: tagData,
-          index: _this10.value.length,
-          message: tagValidation
-        });
       } /////////////////////////////////////////////////////
       // add accessibility attributes
 
@@ -1370,11 +1364,18 @@ Tagify.prototype = {
           index: _this10.value.length - 1,
           data: tagData
         });
-      } else if (!_s.keepInvalidTags) {
-        // remove invalid tags (if "keepInvalidTags" is set to "false")
-        setTimeout(function () {
-          _this10.removeTag(tagElm, true);
-        }, 1000);
+      } else {
+        _this10.trigger("invalid", {
+          data: tagData,
+          index: _this10.value.length,
+          tag: tagElm,
+          message: tagValidation
+        });
+
+        if (!_s.keepInvalidTags) // remove invalid tags (if "keepInvalidTags" is set to "false")
+          setTimeout(function () {
+            return _this10.removeTag(tagElm, true);
+          }, 1000);
       }
 
       _this10.dropdown.position.call(_this10); // reposition the dropdown because the just-added tag might cause a new-line
