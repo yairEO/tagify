@@ -7,28 +7,29 @@ function Tagify( input, settings ){
     // protection
     if( !input ){
         console.warn('Tagify: ', 'invalid input element ', input)
-        return this;
+        return this
     }
 
-    this.applySettings(input, settings||{});
+    this.applySettings(input, settings||{})
 
     this.state = {
         editing : {},
         actions : {},   // UI actions for state-locking
         dropdown: {}
     };
-    this.value = []; // tags' data
+    this.value = [] // tags' data
 
     // events' callbacks references will be stores here, so events could be unbinded
-    this.listeners = {};
+    this.listeners = {}
 
-    this.DOM = {}; // Store all relevant DOM elements in an Object
-    this.extend(this, new this.EventDispatcher(this));
-    this.build(input);
-    this.loadOriginalValues();
+    this.DOM = {} // Store all relevant DOM elements in an Object
+    this.extend(this, new this.EventDispatcher(this))
+    this.build(input)
+    this.getCSSVars()
+    this.loadOriginalValues()
 
     this.events.customBinding.call(this);
-    this.events.binding.call(this);
+    this.events.binding.call(this)
     input.autofocus && this.DOM.input.focus()
 }
 
@@ -239,6 +240,17 @@ Tagify.prototype = {
         }
 
         return {left:-9999, top:-9999}
+    },
+
+    getCSSVars(){
+        var compStyle = getComputedStyle(this.DOM.scope, null)
+
+        function getProp(name){
+            compStyle.getPropertyValue(name)
+        }
+        this.CSSVars = {
+            "tagHideTransition": getProp('--tag-hide-transition')
+        }
     },
 
     /**

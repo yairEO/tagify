@@ -39,6 +39,7 @@
     --tag-remove-btn-bg--hover : #{$tag-remove-btn-bg--hover};
     --tag--min-width           : 1ch;
     --tag--max-width           : auto;
+    --tag-hide-transition      : .3s;
     --loader-size              : .8em;
 
 
@@ -227,6 +228,7 @@
                 opacity        : 0;
                 transform      : scale(0);
                 transition     : .3s;
+                transition     : var(--tag-hide-transition);
                 pointer-events : none;
             }
 

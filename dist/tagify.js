@@ -56,6 +56,7 @@ function Tagify(input, settings) {
 
   this.extend(this, new this.EventDispatcher(this));
   this.build(input);
+  this.getCSSVars();
   this.loadOriginalValues();
   this.events.customBinding.call(this);
   this.events.binding.call(this);
@@ -256,6 +257,17 @@ Tagify.prototype = {
     return {
       left: -9999,
       top: -9999
+    };
+  },
+  getCSSVars: function getCSSVars() {
+    var compStyle = getComputedStyle(this.DOM.scope, null);
+
+    function getProp(name) {
+      compStyle.getPropertyValue(name);
+    }
+
+    this.CSSVars = {
+      "tagHideTransition": getProp('--tag-hide-transition')
     };
   },
 
