@@ -495,6 +495,7 @@ See `e.detail` for custom event additional data.
 
 <details>
   <summary>Examples:</summary>
+
 ```javascript
 var tagify = new Tagify(...),
 
