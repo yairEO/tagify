@@ -542,7 +542,7 @@ whitelist               | Array            | []                               | 
 blacklist               | Array            | []                               | An array of tags which aren't allowed
 addTagOnBlur            | Boolean          | true                             | Automatically adds the text which was inputed as a tag when blur event happens
 callbacks               | Object           | {}                               | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
-maxTags                 | Number           | Infinity                         | Maximum number of allowed tags. when reached, adds a class "hasMaxTags" to `<Tags>`
+maxTags                 | Number           | Infinity                         | Maximum number of allowed tags. when reached, adds a class "tagify--hasMaxTags" to `<Tags>`
 editTags                | Number           | 2                                | Number of clicks on a tag to enter "edit" mode. Other values than `1` or `2` are not allowed
 templates               | Object           | `wrapper`, `tag`, `dropdownItem` | Object consisting of functions which return template strings
 transformTag            | Function         | undefined                        | Takes a tag input as argument and returns a transformed value

@@ -242,14 +242,25 @@ Tagify.prototype = {
         return {left:-9999, top:-9999}
     },
 
+    /**
+     * Get specific CSS variables which are relevant to this script and parse them as needed.
+     * The result is saved on the instance in "this.CSSVars"
+     */
     getCSSVars(){
         var compStyle = getComputedStyle(this.DOM.scope, null)
 
-        function getProp(name){
-            compStyle.getPropertyValue(name)
+        const getProp = name => compStyle.getPropertyValue('--'+name)
+
+        function seprateUnitFromValue(a){
+            if( !a ) return {}
+            a = a.trim().split(' ')[0]
+            var unit  = a.split(/\d+/g).filter(n=>n).pop().trim(),
+                value = +a.split(unit).filter(n=>n)[0].trim()
+            return {value, unit}
         }
+
         this.CSSVars = {
-            "tagHideTransition": getProp('--tag-hide-transition')
+            tagHideTransition: (({value, unit}) => unit=='s' ? value * 1000 : value)(seprateUnitFromValue(getProp('tag-hide-transition')))
         }
     },
 
@@ -352,7 +363,7 @@ Tagify.prototype = {
 
         function addRemove(op, events, cb){
             if( cb )
-                events.split(' ').forEach(name => target[op + 'EventListener'].call(target, name, cb))
+                events.split(/\s\s+/g).forEach(name => target[op + 'EventListener'].call(target, name, cb))
         }
 
         // Pass EventTarget interface calls to DOM EventTarget object
@@ -1457,7 +1468,10 @@ Tagify.prototype = {
      * @param  {Boolean}        silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
      * @param  {Number}         tranDuration    [Transition duration in MS]
      */
-    removeTag( tagElm = this.getLastTag(), silent, tranDuration = 250 ){
+    removeTag( tagElm, silent, tranDuration ){
+        tagElm = tagElm || this.getLastTag()
+        tranDuration = tranDuration || this.CSSVars.tagHideTransition
+
         if( typeof tagElm == 'string' )
             tagElm = this.getTagElmByValue(tagElm)
 
@@ -1497,7 +1511,7 @@ Tagify.prototype = {
             tagElm.classList.add('tagify--hide');
 
             // manual timeout (hack, since transitionend cannot be used because of hover)
-            setTimeout(removeNode, 400);
+            setTimeout(removeNode, tranDuration);
         }
 
         if( tranDuration && tranDuration > 10 ) animation()
@@ -1516,7 +1530,8 @@ Tagify.prototype = {
     },
 
     preUpdate(){
-        this.DOM.scope.classList.toggle('hasMaxTags',  this.value.length >= this.settings.maxTags)
+        this.DOM.scope.classList.toggle('tagify--hasMaxTags',  this.value.length >= this.settings.maxTags)
+        this.DOM.scope.classList.toggle('tagify--noTags',  !this.value.length)
     },
 
     /**

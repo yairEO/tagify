@@ -241,8 +241,8 @@
 
   // tag remvoed callback
   function onRemoveTag(e){
-      console.log(e.detail);
-      console.log("tagify instance value:", tagify.value)
+      console.log("Tag removed:", e.detail);
+      console.log("tagify instance value:", tagify.value, tagify.getTagElms())
   }
 
   // on character(s) added/removed (user is typing/deleting)

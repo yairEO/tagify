@@ -259,15 +259,39 @@ Tagify.prototype = {
       top: -9999
     };
   },
+
+  /**
+   * Get specific CSS variables which are relevant to this script and parse them as needed.
+   * The result is saved on the instance in "this.CSSVars"
+   */
   getCSSVars: function getCSSVars() {
     var compStyle = getComputedStyle(this.DOM.scope, null);
 
-    function getProp(name) {
-      compStyle.getPropertyValue(name);
+    var getProp = function getProp(name) {
+      return compStyle.getPropertyValue('--' + name);
+    };
+
+    function seprateUnitFromValue(a) {
+      if (!a) return {};
+      a = a.trim().split(' ')[0];
+      var unit = a.split(/\d+/g).filter(function (n) {
+        return n;
+      }).pop().trim(),
+          value = +a.split(unit).filter(function (n) {
+        return n;
+      })[0].trim();
+      return {
+        value: value,
+        unit: unit
+      };
     }
 
     this.CSSVars = {
-      "tagHideTransition": getProp('--tag-hide-transition')
+      tagHideTransition: function (_ref) {
+        var value = _ref.value,
+            unit = _ref.unit;
+        return unit == 's' ? value * 1000 : value;
+      }(seprateUnitFromValue(getProp('tag-hide-transition')))
     };
   },
 
@@ -363,7 +387,7 @@ Tagify.prototype = {
     var target = document.createTextNode('');
 
     function addRemove(op, events, cb) {
-      if (cb) events.split(' ').forEach(function (name) {
+      if (cb) events.split(/\s\s+/g).forEach(function (name) {
         return target[op + 'EventListener'].call(target, name, cb);
       });
     } // Pass EventTarget interface calls to DOM EventTarget object
@@ -1134,10 +1158,10 @@ Tagify.prototype = {
 
 
     if (isCollection) {
-      var _ref2;
+      var _ref3;
 
       // iterate the collection items and check for values that can be splitted into multiple tags
-      tagsItems = (_ref2 = []).concat.apply(_ref2, _toConsumableArray(tagsItems.map(function (item) {
+      tagsItems = (_ref3 = []).concat.apply(_ref3, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item.value).map(function (newItem) {
           return _objectSpread({}, item, {}, newItem);
         });
@@ -1152,9 +1176,9 @@ Tagify.prototype = {
 
       tagsItems = mapStringToCollection(tagsItems);
     } else if (isArray) {
-      var _ref3;
+      var _ref4;
 
-      tagsItems = (_ref3 = []).concat.apply(_ref3, _toConsumableArray(tagsItems.map(function (item) {
+      tagsItems = (_ref4 = []).concat.apply(_ref4, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item);
       })));
     } // search if the tag exists in the whitelist as an Object (has props),
@@ -1442,10 +1466,9 @@ Tagify.prototype = {
    * @param  {Boolean}        silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
    * @param  {Number}         tranDuration    [Transition duration in MS]
    */
-  removeTag: function removeTag() {
-    var tagElm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getLastTag();
-    var silent = arguments.length > 1 ? arguments[1] : undefined;
-    var tranDuration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 250;
+  removeTag: function removeTag(tagElm, silent, tranDuration) {
+    tagElm = tagElm || this.getLastTag();
+    tranDuration = tranDuration || this.CSSVars.tagHideTransition;
     if (typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
     if (!(tagElm instanceof HTMLElement)) return;
     var tagData,
@@ -1487,7 +1510,7 @@ Tagify.prototype = {
 
       tagElm.classList.add('tagify--hide'); // manual timeout (hack, since transitionend cannot be used because of hover)
 
-      setTimeout(removeNode, 400);
+      setTimeout(removeNode, tranDuration);
     }
 
     if (tranDuration && tranDuration > 10) animation();else removeNode();
@@ -1502,7 +1525,8 @@ Tagify.prototype = {
     if (this.settings.mode == 'select') this.input.set.call(this);
   },
   preUpdate: function preUpdate() {
-    this.DOM.scope.classList.toggle('hasMaxTags', this.value.length >= this.settings.maxTags);
+    this.DOM.scope.classList.toggle('tagify--hasMaxTags', this.value.length >= this.settings.maxTags);
+    this.DOM.scope.classList.toggle('tagify--noTags', !this.value.length);
   },
 
   /**
