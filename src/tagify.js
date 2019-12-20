@@ -460,8 +460,6 @@ Tagify.prototype = {
                     return
                 }
 
-
-
                 if( this.state.actions.selectOption &&
                     (_s.dropdown.enabled || !_s.dropdown.closeOnSelect) )
                     return;
@@ -701,7 +699,7 @@ Tagify.prototype = {
                 else if( e.target == this.DOM.input && timeDiffFocus > 500 ){
                     if( this.state.dropdown.visible )
                         this.dropdown.hide.call(this)
-                    else if( _s.dropdown.enabled === 0 )
+                    else if( _s.dropdown.enabled === 0 && _s.mode != 'mix' )
                         this.dropdown.show.call(this)
                     return
                 }
@@ -883,7 +881,7 @@ Tagify.prototype = {
      */
     setRangeAtStartEnd( start, node ){
         node = node || this.DOM.input;
-        node = node.firstChild || node;
+        node = node.lastChild || node;
         const sel = document.getSelection()
 
         if( sel.rangeCount ){
@@ -1211,6 +1209,7 @@ Tagify.prototype = {
         }).join('')
 
         this.DOM.input.innerHTML = s;
+        this.DOM.input.appendChild(document.createTextNode(''))
         this.update();
         return s;
     },
@@ -1311,6 +1310,7 @@ Tagify.prototype = {
             _s.transformTag.call(this, tagsItems[0]);
             tagElm = this.createTagElem(tagsItems[0]);
 
+            // insert the new tag to the END if "addTags" was called from outside
             if( !this.replaceTextWithNode(tagElm) ){
                 this.DOM.input.appendChild(tagElm)
             }
@@ -1321,6 +1321,9 @@ Tagify.prototype = {
 
             this.state.tag = null;
             this.trigger('add', this.extend({}, {tag:tagElm}, {data:tagsItems[0]}))
+
+            // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
+            this.DOM.input.appendChild(document.createTextNode(''))
 
             return tagElm
         }
