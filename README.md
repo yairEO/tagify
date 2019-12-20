@@ -494,9 +494,10 @@ All triggered events return the instance's scope (tagify).<br>
 See `e.detail` for custom event additional data.
 
 <details>
-  <summary>Examples:</summary>
+  <summary>See Examples</summary>
+
 ```javascript
-var tagify = new Tagify(...),
+var tagify = new Tagify(...)
 
 // events are chainable and multiple events may be binded for the same callback
 tagify
