@@ -483,8 +483,6 @@ Tagify.prototype = {
                     return
                 }
 
-
-
                 if( this.state.actions.selectOption &&
                     (_s.dropdown.enabled || !_s.dropdown.closeOnSelect) )
                     return;
@@ -1235,6 +1233,7 @@ Tagify.prototype = {
 
         this.DOM.input.innerHTML = s
         this.DOM.input.appendChild(document.createTextNode(''))
+        this.DOM.input.appendChild(document.createTextNode(''))
         this.update();
         return s;
     },
@@ -1349,6 +1348,9 @@ Tagify.prototype = {
 
             this.state.tag = null;
             this.trigger('add', this.extend({}, {tag:tagElm}, {data:tagsItems[0]}))
+
+            // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
+            this.DOM.input.appendChild(document.createTextNode(''))
 
             return tagElm
         }
