@@ -56,6 +56,7 @@ function Tagify(input, settings) {
 
   this.extend(this, new this.EventDispatcher(this));
   this.build(input);
+  this.getCSSVars();
   this.loadOriginalValues();
   this.events.customBinding.call(this);
   this.events.binding.call(this);
@@ -260,6 +261,41 @@ Tagify.prototype = {
   },
 
   /**
+   * Get specific CSS variables which are relevant to this script and parse them as needed.
+   * The result is saved on the instance in "this.CSSVars"
+   */
+  getCSSVars: function getCSSVars() {
+    var compStyle = getComputedStyle(this.DOM.scope, null);
+
+    var getProp = function getProp(name) {
+      return compStyle.getPropertyValue('--' + name);
+    };
+
+    function seprateUnitFromValue(a) {
+      if (!a) return {};
+      a = a.trim().split(' ')[0];
+      var unit = a.split(/\d+/g).filter(function (n) {
+        return n;
+      }).pop().trim(),
+          value = +a.split(unit).filter(function (n) {
+        return n;
+      })[0].trim();
+      return {
+        value: value,
+        unit: unit
+      };
+    }
+
+    this.CSSVars = {
+      tagHideTransition: function (_ref) {
+        var value = _ref.value,
+            unit = _ref.unit;
+        return unit == 's' ? value * 1000 : value;
+      }(seprateUnitFromValue(getProp('tag-hide-transition')))
+    };
+  },
+
+  /**
    * builds the HTML of this component
    * @param  {Object} input [DOM element which would be "transformed" into "Tags"]
    */
@@ -351,7 +387,7 @@ Tagify.prototype = {
     var target = document.createTextNode('');
 
     function addRemove(op, events, cb) {
-      if (cb) events.split(' ').forEach(function (name) {
+      if (cb) events.split(/\s\s+/g).forEach(function (name) {
         return target[op + 'EventListener'].call(target, name, cb);
       });
     } // Pass EventTarget interface calls to DOM EventTarget object
@@ -1006,7 +1042,7 @@ Tagify.prototype = {
     return index;
   },
   getTagElms: function getTagElms() {
-    return this.DOM.scope.querySelectorAll('tag');
+    return this.DOM.scope.querySelectorAll('.tagify__tag');
   },
   getLastTag: function getLastTag() {
     var lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
@@ -1122,10 +1158,10 @@ Tagify.prototype = {
 
 
     if (isCollection) {
-      var _ref2;
+      var _ref3;
 
       // iterate the collection items and check for values that can be splitted into multiple tags
-      tagsItems = (_ref2 = []).concat.apply(_ref2, _toConsumableArray(tagsItems.map(function (item) {
+      tagsItems = (_ref3 = []).concat.apply(_ref3, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item.value).map(function (newItem) {
           return _objectSpread({}, item, {}, newItem);
         });
@@ -1140,9 +1176,9 @@ Tagify.prototype = {
 
       tagsItems = mapStringToCollection(tagsItems);
     } else if (isArray) {
-      var _ref3;
+      var _ref4;
 
-      tagsItems = (_ref3 = []).concat.apply(_ref3, _toConsumableArray(tagsItems.map(function (item) {
+      tagsItems = (_ref4 = []).concat.apply(_ref4, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item);
       })));
     } // search if the tag exists in the whitelist as an Object (has props),
@@ -1302,8 +1338,10 @@ Tagify.prototype = {
 
       if (!this.replaceTextWithNode(tagElm)) {
         this.DOM.input.appendChild(tagElm);
-      }
+      } // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
 
+
+      this.DOM.input.appendChild(document.createTextNode(''));
       tagsItems[0].prefix = tagsItems[0].prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source || _s.pattern)[0];
       this.value.push(tagsItems[0]);
       this.update();
@@ -1312,9 +1350,7 @@ Tagify.prototype = {
         tag: tagElm
       }, {
         data: tagsItems[0]
-      })); // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
-
-      this.DOM.input.appendChild(document.createTextNode(''));
+      }));
       return tagElm;
     }
 
@@ -1339,12 +1375,6 @@ Tagify.prototype = {
         tagElmParams.title = tagValidation;
 
         _this10.markTagByValue(tagData.value);
-
-        _this10.trigger("invalid", {
-          data: tagData,
-          index: _this10.value.length,
-          message: tagValidation
-        });
       } /////////////////////////////////////////////////////
       // add accessibility attributes
 
@@ -1373,11 +1403,18 @@ Tagify.prototype = {
           index: _this10.value.length - 1,
           data: tagData
         });
-      } else if (!_s.keepInvalidTags) {
-        // remove invalid tags (if "keepInvalidTags" is set to "false")
-        setTimeout(function () {
-          _this10.removeTag(tagElm, true);
-        }, 1000);
+      } else {
+        _this10.trigger("invalid", {
+          data: tagData,
+          index: _this10.value.length,
+          tag: tagElm,
+          message: tagValidation
+        });
+
+        if (!_s.keepInvalidTags) // remove invalid tags (if "keepInvalidTags" is set to "false")
+          setTimeout(function () {
+            return _this10.removeTag(tagElm, true);
+          }, 1000);
       }
 
       _this10.dropdown.position.call(_this10); // reposition the dropdown because the just-added tag might cause a new-line
@@ -1432,10 +1469,9 @@ Tagify.prototype = {
    * @param  {Boolean}        silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
    * @param  {Number}         tranDuration    [Transition duration in MS]
    */
-  removeTag: function removeTag() {
-    var tagElm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.getLastTag();
-    var silent = arguments.length > 1 ? arguments[1] : undefined;
-    var tranDuration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 250;
+  removeTag: function removeTag(tagElm, silent, tranDuration) {
+    tagElm = tagElm || this.getLastTag();
+    tranDuration = tranDuration || this.CSSVars.tagHideTransition;
     if (typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
     if (!(tagElm instanceof HTMLElement)) return;
     var tagData,
@@ -1477,7 +1513,7 @@ Tagify.prototype = {
 
       tagElm.classList.add('tagify--hide'); // manual timeout (hack, since transitionend cannot be used because of hover)
 
-      setTimeout(removeNode, 400);
+      setTimeout(removeNode, tranDuration);
     }
 
     if (tranDuration && tranDuration > 10) animation();else removeNode();
@@ -1492,7 +1528,8 @@ Tagify.prototype = {
     if (this.settings.mode == 'select') this.input.set.call(this);
   },
   preUpdate: function preUpdate() {
-    this.DOM.scope.classList.toggle('hasMaxTags', this.value.length >= this.settings.maxTags);
+    this.DOM.scope.classList.toggle('tagify--hasMaxTags', this.value.length >= this.settings.maxTags);
+    this.DOM.scope.classList.toggle('tagify--noTags', !this.value.length);
   },
 
   /**
