@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.2.0)- tags input component
+ * Tagify (v 3.2.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -713,7 +713,7 @@ Tagify.prototype = {
           return;
         } // when clicking on the input itself
         else if (e.target == this.DOM.input && timeDiffFocus > 500) {
-            if (this.state.dropdown.visible) this.dropdown.hide.call(this);else if (_s.dropdown.enabled === 0) this.dropdown.show.call(this);
+            if (this.state.dropdown.visible) this.dropdown.hide.call(this);else if (_s.dropdown.enabled === 0 && _s.mode != 'mix') this.dropdown.show.call(this);
             return;
           }
 
@@ -891,7 +891,7 @@ Tagify.prototype = {
    */
   setRangeAtStartEnd: function setRangeAtStartEnd(start, node) {
     node = node || this.DOM.input;
-    node = node.firstChild || node;
+    node = node.lastChild || node;
     var sel = document.getSelection();
 
     if (sel.rangeCount) {
@@ -1201,6 +1201,7 @@ Tagify.prototype = {
       return s2.join('');
     }).join('');
     this.DOM.input.innerHTML = s;
+    this.DOM.input.appendChild(document.createTextNode(''));
     this.update();
     return s;
   },
@@ -1297,7 +1298,7 @@ Tagify.prototype = {
     if (_s.mode == 'mix') {
       _s.transformTag.call(this, tagsItems[0]);
 
-      tagElm = this.createTagElem(tagsItems[0]);
+      tagElm = this.createTagElem(tagsItems[0]); // insert the new tag to the END if "addTags" was called from outside
 
       if (!this.replaceTextWithNode(tagElm)) {
         this.DOM.input.appendChild(tagElm);
@@ -1311,7 +1312,9 @@ Tagify.prototype = {
         tag: tagElm
       }, {
         data: tagsItems[0]
-      }));
+      })); // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
+
+      this.DOM.input.appendChild(document.createTextNode(''));
       return tagElm;
     }
 
