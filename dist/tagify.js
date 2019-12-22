@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.2.2)- tags input component
+ * Tagify (v 3.2.3)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -387,7 +387,7 @@ Tagify.prototype = {
     var target = document.createTextNode('');
 
     function addRemove(op, events, cb) {
-      if (cb) events.split(/\s\s+/g).forEach(function (name) {
+      if (cb) events.split(/\s+/g).forEach(function (name) {
         return target[op + 'EventListener'].call(target, name, cb);
       });
     } // Pass EventTarget interface calls to DOM EventTarget object
@@ -399,7 +399,7 @@ Tagify.prototype = {
     };
 
     this.on = function (events, cb) {
-      addRemove('add', events, cb);
+      if (cb && typeof cb == 'function') addRemove('add', events, cb);
       return this;
     };
 
@@ -910,7 +910,7 @@ Tagify.prototype = {
       clone.innerHTML = tagData.value;
       clone.title = tagData.value; // update data
 
-      tagElmIdx = this.getNodeIndex(clone);
+      tagElmIdx = this.getNodeIndex(tagElm);
       this.value[tagElmIdx] = tagData;
       this.update();
       this.trigger("edit:updated", {
@@ -1238,6 +1238,7 @@ Tagify.prototype = {
     }).join('');
     this.DOM.input.innerHTML = s;
     this.DOM.input.appendChild(document.createTextNode(''));
+    this.DOM.input.appendChild(document.createTextNode(''));
     this.update();
     return s;
   },
@@ -1350,7 +1351,9 @@ Tagify.prototype = {
         tag: tagElm
       }, {
         data: tagsItems[0]
-      }));
+      })); // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
+
+      this.DOM.input.appendChild(document.createTextNode(''));
       return tagElm;
     }
 

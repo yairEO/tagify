@@ -363,7 +363,7 @@ Tagify.prototype = {
 
         function addRemove(op, events, cb){
             if( cb )
-                events.split(/\s\s+/g).forEach(name => target[op + 'EventListener'].call(target, name, cb))
+                events.split(/\s+/g).forEach(name => target[op + 'EventListener'].call(target, name, cb))
         }
 
         // Pass EventTarget interface calls to DOM EventTarget object
@@ -373,7 +373,8 @@ Tagify.prototype = {
         };
 
         this.on = function(events, cb){
-            addRemove('add', events, cb)
+            if(cb && typeof cb == 'function')
+                addRemove('add', events, cb)
             return this
         };
 
@@ -891,7 +892,7 @@ Tagify.prototype = {
             clone.title = tagData.value
 
             // update data
-            tagElmIdx = this.getNodeIndex(clone)
+            tagElmIdx = this.getNodeIndex(tagElm)
             this.value[tagElmIdx] = tagData
             this.update()
             this.trigger("edit:updated", { tag:tagElm, index:tagElmIdx, data:tagData })
