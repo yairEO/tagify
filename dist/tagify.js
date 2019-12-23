@@ -803,12 +803,12 @@ Tagify.prototype = {
 
           isValid = this.validateTag(tagData.value);
         } else {
-          this.replaceTag(tagElm);
+          this.onEditTagDone(tagElm);
           return;
         }
 
         if (isValid !== undefined && isValid !== true) return;
-        this.replaceTag(tagElm, tagData);
+        this.onEditTagDone(tagElm, tagData);
       },
       onEditTagkeydown: function onEditTagkeydown(e) {
         this.trigger("edit:keydown", {
@@ -881,6 +881,16 @@ Tagify.prototype = {
     });
     return this;
   },
+  onEditTagDone: function onEditTagDone(tagElm, tagData) {
+    var eventData = {
+      tag: tagElm,
+      index: this.getNodeIndex(tagElm),
+      data: tagData
+    };
+    this.trigger("edit:beforeUpdate", eventData);
+    this.replaceTag(tagElm, tagData);
+    this.trigger("edit:updated", eventData);
+  },
 
   /**
    * Exit a tag's edit-mode.
@@ -891,7 +901,7 @@ Tagify.prototype = {
 
     var editableElm = tagElm.querySelector('.tagify__tag-text'),
         clone = editableElm.cloneNode(true),
-        tagElmIdx;
+        tagElmIdx = this.getNodeIndex(tagElm);
     if (this.state.editing.locked) return; // when editing a tag and selecting a dropdown suggested item, the state should be "locked"
     // so "onEditTagBlur" won't run and change the tag also *after* it was just changed.
 
@@ -911,14 +921,8 @@ Tagify.prototype = {
       clone.innerHTML = tagData.value;
       clone.title = tagData.value; // update data
 
-      tagElmIdx = this.getNodeIndex(tagElm);
       this.value[tagElmIdx] = tagData;
       this.update();
-      this.trigger("edit:updated", {
-        tag: tagElm,
-        index: tagElmIdx,
-        data: tagData
-      });
     }
   },
 
@@ -1240,7 +1244,6 @@ Tagify.prototype = {
     }).join('');
     this.DOM.input.innerHTML = s;
     this.DOM.input.appendChild(document.createTextNode(''));
-    this.DOM.input.appendChild(document.createTextNode(''));
     this.update();
     return s;
   },
@@ -1263,8 +1266,7 @@ Tagify.prototype = {
     // get index of last occurence of "#ba"
 
     idx = nodeAtCaret.nodeValue.lastIndexOf(tagString);
-    replacedNode = nodeAtCaret.splitText(idx); // #ba
-    // clean up the tag's string and put tag element instead
+    replacedNode = nodeAtCaret.splitText(idx); // clean up the tag's string and put tag element instead
 
     replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
     nodeAtCaret.parentNode.insertBefore(wrapperElm, replacedNode);
@@ -1322,16 +1324,15 @@ Tagify.prototype = {
 
     if (!tagsItems || tagsItems.length == 0) {
       // is mode is "select" clean all tags
-      if (_s.mode == 'select') this.removeAllTags(); // console.warn('[addTags]', 'no tags to add:', tagsItems)
-
+      if (_s.mode == 'select') this.removeAllTags();
       return tagElems;
-    }
+    } // converts Array/String/Object to an Array of Objects
 
-    tagsItems = this.normalizeTags(tagsItems); // converts Array/String/Object to an Array of Objects
-    // if in edit-mode, do not continue but instead replace the tag's text
+
+    tagsItems = this.normalizeTags(tagsItems); // if in edit-mode, do not continue but instead replace the tag's text
 
     if (this.state.editing.scope) {
-      return this.replaceTag(this.state.editing.scope, tagsItems[0]);
+      return this.onEditTagDone(this.state.editing.scope, tagsItems[0]);
     }
 
     if (_s.mode == 'mix') {
