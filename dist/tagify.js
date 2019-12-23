@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.2.3)- tags input component
+ * Tagify (v 3.2.4)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -323,19 +323,20 @@ Tagify.prototype = {
   /**
    * if the original input had any values, add them as tags
    */
-  loadOriginalValues: function loadOriginalValues() {
-    var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.DOM.originalInput.value;
-    // if the original input already had any value (tags)
+  loadOriginalValues: function loadOriginalValues(value) {
+    value = value || this.DOM.originalInput.value; // if the original input already had any value (tags)
+
     if (!value) return;
     this.removeAllTags();
+    if (this.settings.mode == 'mix') this.parseMixTags(value.trim());else {
+      try {
+        value = JSON.parse(value);
+      } catch (err) {}
 
-    try {
-      value = JSON.parse(value);
-    } catch (err) {}
-
-    if (this.settings.mode == 'mix') this.parseMixTags(value.trim());else this.addTags(value).forEach(function (tag) {
-      return tag && tag.classList.add('tagify--noAnim');
-    });
+      this.addTags(value).forEach(function (tag) {
+        return tag && tag.classList.add('tagify--noAnim');
+      });
+    }
   },
 
   /**
@@ -1213,7 +1214,8 @@ Tagify.prototype = {
     var _this$settings2 = this.settings,
         mixTagsInterpolator = _this$settings2.mixTagsInterpolator,
         duplicates = _this$settings2.duplicates,
-        transformTag = _this$settings2.transformTag;
+        transformTag = _this$settings2.transformTag,
+        enforceWhitelist = _this$settings2.enforceWhitelist;
     s = s.split(mixTagsInterpolator[0]).map(function (s1) {
       var s2 = s1.split(mixTagsInterpolator[1]),
           preInterpolated = s2[0],
@@ -1226,13 +1228,13 @@ Tagify.prototype = {
         tagData = _this9.normalizeTags(preInterpolated)[0]; //{value:preInterpolated}
       }
 
-      if (s2.length > 1 && _this9.isTagWhitelisted(tagData.value) && !(!duplicates && _this9.isTagDuplicate(tagData))) {
+      if (s2.length > 1 && (!enforceWhitelist || _this9.isTagWhitelisted(tagData.value)) && !(!duplicates && _this9.isTagDuplicate(tagData))) {
         transformTag.call(_this9, tagData);
         tagElm = _this9.createTagElem(tagData);
         s2[0] = tagElm.outerHTML; //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
 
         _this9.value.push(tagData);
-      }
+      } else if (s1) return mixTagsInterpolator[0] + s1;
 
       return s2.join('');
     }).join('');

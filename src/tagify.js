@@ -293,20 +293,22 @@ Tagify.prototype = {
     /**
      * if the original input had any values, add them as tags
      */
-    loadOriginalValues( value = this.DOM.originalInput.value ){
+    loadOriginalValues( value ){
+        value = value || this.DOM.originalInput.value
+
         // if the original input already had any value (tags)
         if( !value ) return;
 
         this.removeAllTags();
 
-        try{ value = JSON.parse(value) }
-        catch(err){}
-
         if( this.settings.mode == 'mix' )
             this.parseMixTags(value.trim())
 
-        else
-            this.addTags(value).forEach(tag => tag && tag.classList.add('tagify--noAnim'))
+        else{
+          try{ value = JSON.parse(value) }
+          catch(err){}
+          this.addTags(value).forEach(tag => tag && tag.classList.add('tagify--noAnim'))
+        }
     },
 
     /**
@@ -1208,7 +1210,7 @@ Tagify.prototype = {
      * @param {String} s
      */
     parseMixTags( s ){
-        var {mixTagsInterpolator, duplicates, transformTag} = this.settings;
+        var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist} = this.settings;
 
         s = s.split(mixTagsInterpolator[0]).map(s1 => {
             var s2 = s1.split(mixTagsInterpolator[1]),
@@ -1222,13 +1224,14 @@ Tagify.prototype = {
                 tagData = this.normalizeTags(preInterpolated)[0]  //{value:preInterpolated}
             }
 
-
-            if( s2.length > 1   &&   this.isTagWhitelisted(tagData.value)   &&   !(!duplicates  && this.isTagDuplicate(tagData)) ){
+            if( s2.length > 1   &&   (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&   !(!duplicates  && this.isTagDuplicate(tagData)) ){
                 transformTag.call(this, tagData);
                 tagElm = this.createTagElem(tagData);
                 s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
                 this.value.push(tagData);
             }
+            else if(s1)
+              return mixTagsInterpolator[0] + s1
             return s2.join('')
         }).join('')
 
