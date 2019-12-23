@@ -443,6 +443,7 @@ flex-wrap: nowrap;
 * [Format input value for server side](https://github.com/yairEO/tagify/issues/220)
 * [Writing to tagify textarea](https://github.com/yairEO/tagify/issues/294)
 * [Scroll all tags within one line, instead of growing vertically](https://github.com/yairEO/tagify/issues/145)
+* [Insert emoji at caret location when editing a tag](https://github.com/yairEO/tagify/issues/365)
 
 ## CSS Variables (see [MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties))
 
@@ -507,23 +508,24 @@ tagify
 ```
 </details>
 
-Name            | Info
---------------- | --------------------------------------------------------------------------
-add             | A tag has been added
-remove          | A tag has been removed
-invalid         | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
-input           | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes `value`, `inputElm` & `isValid`
-click           | Clicking a tag. Exposes the tag element, its index & data
-keydown         | When tagify input has focus and a key was pressed
-focus           | The component currently has focus
-blur            | The component lost focus
-edit:input      | Typing inside an edited tag
-edit:updated    | A tag as been updated (changed view editing or by directly calling the `replaceTag()` method)
-edit:start      | A tag is now in "edit mode"
-edit:keydown    | keydown event while an edited tag is in focus
-dropdown:show   | Suggestions dropdown is to be rendered. The dropdown DOM node is passed in the callback, [see demo](https://yaireo.github.io/tagify/#section-basic).
-dropdown:hide   | Suggestions dropdown has been removed from the DOM
-dropdown:select | Suggestions dropdown item selected (by mouse/keyboard/touch)
+Name               | Info
+------------------ | --------------------------------------------------------------------------
+add                | A tag has been added
+remove             | A tag has been removed
+invalid            | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
+input              | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes `value`, `inputElm` & `isValid`
+click              | Clicking a tag. Exposes the tag element, its index & data
+keydown            | When tagify input has focus and a key was pressed
+focus              | The component currently has focus
+blur               | The component lost focus
+edit:input         | Typing inside an edited tag
+edit:beforeUpdate  | Just before a tag has been updated, while still in "edit" mode
+edit:updated       | A tag as been updated (changed view editing or by directly calling the `replaceTag()` method)
+edit:start         | A tag is now in "edit mode"
+edit:keydown       | keydown event while an edited tag is in focus
+dropdown:show      | Suggestions dropdown is to be rendered. The dropdown DOM node is passed in the callback, [see demo](https://yaireo.github.io/tagify/#section-basic).
+dropdown:hide      | Suggestions dropdown has been removed from the DOM
+dropdown:select    | Suggestions dropdown item selected (by mouse/keyboard/touch)
 
 
 ## Settings

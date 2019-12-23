@@ -159,6 +159,16 @@
         document.getElementById('section-' + sectionName).remove()
     }
   })()
+
+  function insertNodeAtSelection(addedNode, baseNode, idx){
+    if( typeof addedNode == 'string' ){
+      addedNode = document.createTextNode(addedNode)
+    }
+
+    var replacedNode = baseNode.splitText(idx)
+    replacedNode.parentNode.insertBefore(addedNode,  replacedNode)
+    replacedNode.parentNode.normalize() // crucial step is to merges all text nodes
+  }
 </script>
 
 <script data-name="basic">
@@ -213,7 +223,9 @@
   tagify.on('add', onAddTag)
         .on('remove', onRemoveTag)
         .on('input', onInput)
-        .on('edit:input edit:updated edit:start edit:keydown', e => console.log(e.type, e))
+        .on('edit:beforeUpdate', onPreUpdate)
+        .on('edit:start edit:keydown click', saveCaretPos)
+        .on('edit:input edit:updated edit:start', e => console.log(e.type, e))
         .on('invalid', onInvalidTag)
         .on('click', onTagClick)
         .on('focus', onTagifyFocusBlur)
@@ -231,6 +243,21 @@
           })
       }
   })()
+
+  function saveCaretPos(e){
+    // a delay is needed because the caret does not change location yet when `keydown` event is fired
+    setTimeout(function(sel){
+      cachedSelection = {
+        anchorNode   : sel.anchorNode,
+        anchorOffset : sel.anchorOffset
+      }
+    }, 0, window.getSelection())
+  }
+
+  function onPreUpdate(e){
+    insertNodeAtSelection('😀', cachedSelection.anchorNode, cachedSelection.anchorOffset)
+    console.log("onPreUpdate", cachedSelection)
+  }
 
   // tag added callback
   function onAddTag(e){
