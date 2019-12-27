@@ -433,7 +433,8 @@ Tagify.prototype = {
    * @param {Boolean} isLoading
    */
   loading: function loading(isLoading) {
-    this.DOM.scope.classList.toggle('tagify--loading', isLoading);
+    // IE11 doesn't support toggle with second parameter
+    this.DOM.scope.classList[isLoading ? "add" : "remove"]('tagify--loading');
     return this;
   },
   toggleFocusClass: function toggleFocusClass(force) {
