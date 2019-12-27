@@ -8,7 +8,7 @@
   Transforms an input field or a textarea into a <em>Tags Componen</em>, in an easy, customizable way,
   with great performance and tiny code footprint, exploded with features.
   <br>
-  <strong>Vanilla</strong> ⚡ <strong>React</strong> ⚡ <strong>Angular</strong>
+  <strong>Vanilla</strong> ⚡ <strong>React</strong> ⚡ <strong>Vue</strong> ⚡ <strong>Angular</strong>
 <p>
 
 <h3 align="center">
