@@ -305,7 +305,10 @@ Tagify.prototype = {
             this.parseMixTags(value.trim())
 
         else{
-          try{ value = JSON.parse(value) }
+          try{
+            if( typeof JSON.parse(value) !== 'string' )
+              value = JSON.parse(value)
+          }
           catch(err){}
           this.addTags(value).forEach(tag => tag && tag.classList.add('tagify--noAnim'))
         }

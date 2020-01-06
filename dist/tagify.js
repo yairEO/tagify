@@ -330,7 +330,7 @@ Tagify.prototype = {
     this.removeAllTags();
     if (this.settings.mode == 'mix') this.parseMixTags(value.trim());else {
       try {
-        value = JSON.parse(value);
+        if (typeof JSON.parse(value) !== 'string') value = JSON.parse(value);
       } catch (err) {}
 
       this.addTags(value).forEach(function (tag) {
