@@ -1221,7 +1221,7 @@ Tagify.prototype = {
     parseMixTags( s ){
         var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist} = this.settings;
 
-        s = s.split(mixTagsInterpolator[0]).map(s1 => {
+        s = s.split(mixTagsInterpolator[0]).map((s1, i) => {
             var s2 = s1.split(mixTagsInterpolator[1]),
                 preInterpolated = s2[0],
                 tagData,
@@ -1240,7 +1240,7 @@ Tagify.prototype = {
                 this.value.push(tagData);
             }
             else if(s1)
-              return mixTagsInterpolator[0] + s1
+              return i ? mixTagsInterpolator[0] + s1 : s1
 
             return s2.join('')
         }).join('')
