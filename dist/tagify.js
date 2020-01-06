@@ -103,7 +103,7 @@ Tagify.prototype = {
     skipInvalid: false,
     // If `true`, do not add invalid, temporary, tags before automatically removing them
     editTags: 2,
-    // 1 or 2 clicks to edit a tag
+    // 1 or 2 clicks to edit a tag. false/null for not allowing editing
     transformTag: function transformTag() {},
     // Takes a tag input string as argument and returns a transformed value
     autoComplete: {
@@ -458,9 +458,7 @@ Tagify.prototype = {
 
       var _CB = this.events.callbacks,
           _CBR,
-          action = bindUnbind ? 'addEventListener' : 'removeEventListener',
-          editTagsEventType = this.settings.editTags == 1 ? "click_" // TODO: Refactor this crappy hack to allow same event more than once
-      : this.settings.editTags == 2 ? "dblclick" : ""; // do not allow the main events to be bound more than once
+          action = bindUnbind ? 'addEventListener' : 'removeEventListener'; // do not allow the main events to be bound more than once
 
 
       if (this.state.mainEvents && bindUnbind) return; // set the binding state of the main events, so they will not be bound more than once
@@ -475,18 +473,19 @@ Tagify.prototype = {
       } // setup callback references so events could be removed later
 
 
-      _CBR = this.listeners.main = this.listeners.main || _defineProperty({
+      _CBR = this.listeners.main = this.listeners.main || {
         focus: ['input', _CB.onFocusBlur.bind(this)],
         blur: ['input', _CB.onFocusBlur.bind(this)],
         keydown: ['input', _CB.onKeydown.bind(this)],
-        click: ['scope', _CB.onClickScope.bind(this)]
-      }, editTagsEventType, ['scope', _CB.onDoubleClickScope.bind(this)]);
+        click: ['scope', _CB.onClickScope.bind(this)],
+        dblclick: ['scope', _CB.onDoubleClickScope.bind(this)]
+      };
 
       for (var eventName in _CBR) {
         // make sure the focus/blur event is always regesitered (and never more than once)
         if (eventName == 'blur' && !bindUnbind) return;
 
-        this.DOM[_CBR[eventName][0]][action](eventName.replace(/_/g, ''), _CBR[eventName][1]);
+        this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
       }
     },
 
@@ -748,6 +747,7 @@ Tagify.prototype = {
             data: this.value[tagElmIdx],
             originalEvent: this.cloneEvent(e)
           });
+          if (this.settings.editTags == 1) this.events.callbacks.onDoubleClickScope.call(this, e);
           return;
         } // when clicking on the input itself
         else if (e.target == this.DOM.input && timeDiffFocus > 500) {
@@ -834,7 +834,7 @@ Tagify.prototype = {
             isReadyOnlyTag;
         if (!tagElm) return;
         isEditingTag = tagElm.classList.contains('tagify__tag--editable'), isReadyOnlyTag = tagElm.hasAttribute('readonly');
-        if (_s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag) this.editTag(tagElm);
+        if (_s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags) this.editTag(tagElm);
         this.toggleFocusClass(true);
       }
     }
@@ -850,6 +850,7 @@ Tagify.prototype = {
 
     var editableElm = tagElm.querySelector('.tagify__tag-text'),
         tagIdx = this.getNodeIndex(tagElm),
+        tagData = this.value[tagIdx],
         _CB = this.events.callbacks,
         that = this,
         delayed_onEditTagBlur = function delayed_onEditTagBlur() {
@@ -861,6 +862,7 @@ Tagify.prototype = {
       return;
     }
 
+    if ("editable" in tagData && !tagData.editable) return;
     tagElm.classList.add('tagify__tag--editable');
     editableElm.originalValue = editableElm.textContent;
     editableElm.setAttribute('contenteditable', true);
@@ -878,7 +880,7 @@ Tagify.prototype = {
     this.trigger("edit:start", {
       tag: tagElm,
       index: tagIdx,
-      data: this.value[tagIdx]
+      data: tagData
     });
     return this;
   },
@@ -1164,10 +1166,10 @@ Tagify.prototype = {
 
 
     if (isCollection) {
-      var _ref3;
+      var _ref2;
 
       // iterate the collection items and check for values that can be splitted into multiple tags
-      tagsItems = (_ref3 = []).concat.apply(_ref3, _toConsumableArray(tagsItems.map(function (item) {
+      tagsItems = (_ref2 = []).concat.apply(_ref2, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item.value).map(function (newItem) {
           return _objectSpread({}, item, {}, newItem);
         });
@@ -1182,9 +1184,9 @@ Tagify.prototype = {
 
       tagsItems = mapStringToCollection(tagsItems);
     } else if (isArray) {
-      var _ref4;
+      var _ref3;
 
-      tagsItems = (_ref4 = []).concat.apply(_ref4, _toConsumableArray(tagsItems.map(function (item) {
+      tagsItems = (_ref3 = []).concat.apply(_ref3, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item);
       })));
     } // search if the tag exists in the whitelist as an Object (has props),

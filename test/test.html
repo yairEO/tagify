@@ -93,7 +93,7 @@
             <section id='section-basic'>
                 <input name='tags' class='some_class_name' placeholder='write some tags' value='"xxx"' autofocus data-blacklist='.NET,PHP'>
                 <input name='value_empty_JSON' class='value_empty_JSON' value='[]'>
-                <input name='value_JSON' class='value_JSON' value='[{"value":"foo"}, {"value":"bar", "title":"xxx"}]'>
+                <input name='value_JSON' class='value_JSON' value='[{"value":"foo", "editable":false}, {"value":"bar", "title":"xxx"}]'>
             </section>
 
             <section id='section-textarea'>
@@ -141,16 +141,16 @@
   document.forms[0].reset()
 
   window.tagified = {
-    "basic"             : 0,
-    "textarea"          : 0,
+    "basic"             : 1,
+    "textarea"          : 1,
     "mix"               : 1,
-    "manual-suggestions": 0,
-    "outside-of-the-box": 0,
-    "advance-options"   : 0,
-    "extra-properties"  : 0,
-    "readonly"          : 0,
-    "readonly-mixed"    : 0,
-    "mode-select"       : 0,
+    "manual-suggestions": 1,
+    "outside-of-the-box": 1,
+    "advance-options"   : 1,
+    "extra-properties"  : 1,
+    "readonly"          : 1,
+    "readonly-mixed"    : 1,
+    "mode-select"       : 1,
   };
 
   (function(){
@@ -214,6 +214,7 @@
 
     // init Tagify script on the above inputs
     var tagify = new Tagify(input, {
+        editTags : 1,
         // after 2 characters typed, all matching values from this list will be suggested in a dropdown
         // whitelist: [].concat(whitelist)
     })

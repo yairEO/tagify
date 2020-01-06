@@ -59,7 +59,7 @@ Tagify.prototype = {
         mixTagsInterpolator : ['[[', ']]'],   // Interpolation for mix mode. Everything between this will becmoe a tag
         backspace           : true,           // false / true / "edit"
         skipInvalid         : false,          // If `true`, do not add invalid, temporary, tags before automatically removing them
-        editTags            : 2,              // 1 or 2 clicks to edit a tag
+        editTags            : 2,              // 1 or 2 clicks to edit a tag. false/null for not allowing editing
         transformTag        : ()=>{},         // Takes a tag input string as argument and returns a transformed value
         autoComplete        : {
             enabled : true,                   // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
@@ -429,12 +429,7 @@ Tagify.prototype = {
         binding( bindUnbind = true ){
             var _CB = this.events.callbacks,
                 _CBR,
-                action = bindUnbind ? 'addEventListener' : 'removeEventListener',
-                editTagsEventType = this.settings.editTags == 1
-                    ? "click_"  // TODO: Refactor this crappy hack to allow same event more than once
-                    : this.settings.editTags == 2
-                        ? "dblclick"
-                        : ""
+                action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
             // do not allow the main events to be bound more than once
             if( this.state.mainEvents && bindUnbind )
@@ -458,14 +453,14 @@ Tagify.prototype = {
                 blur     : ['input', _CB.onFocusBlur.bind(this)],
                 keydown  : ['input', _CB.onKeydown.bind(this)],
                 click    : ['scope', _CB.onClickScope.bind(this)],
-                [editTagsEventType] : ['scope', _CB.onDoubleClickScope.bind(this)]
+                dblclick : ['scope', _CB.onDoubleClickScope.bind(this)]
             })
 
             for( var eventName in _CBR ){
                 // make sure the focus/blur event is always regesitered (and never more than once)
                 if( eventName == 'blur' && !bindUnbind ) return;
 
-                this.DOM[_CBR[eventName][0]][action](eventName.replace(/_/g, ''), _CBR[eventName][1]);
+                this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
             }
         },
 
@@ -722,6 +717,10 @@ Tagify.prototype = {
                 else if( tagElm ){
                     tagElmIdx = this.getNodeIndex(tagElm);
                     this.trigger("click", { tag:tagElm, index:tagElmIdx, data:this.value[tagElmIdx], originalEvent:this.cloneEvent(e) });
+
+                    if( this.settings.editTags == 1 )
+                      this.events.callbacks.onDoubleClickScope.call(this, e)
+
                     return
                 }
 
@@ -823,7 +822,7 @@ Tagify.prototype = {
                 isEditingTag = tagElm.classList.contains('tagify__tag--editable'),
                 isReadyOnlyTag = tagElm.hasAttribute('readonly')
 
-                if( _s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag )
+                if( _s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags )
                     this.editTag(tagElm)
 
                 this.toggleFocusClass(true)
@@ -837,6 +836,7 @@ Tagify.prototype = {
     editTag( tagElm = this.getLastTag() ){
         var editableElm = tagElm.querySelector('.tagify__tag-text'),
             tagIdx = this.getNodeIndex(tagElm),
+            tagData = this.value[tagIdx],
             _CB = this.events.callbacks,
             that = this,
             delayed_onEditTagBlur = function(){ setTimeout(_CB.onEditTagBlur.bind(that), 0, editableElm) }
@@ -845,6 +845,9 @@ Tagify.prototype = {
             console.warn('Cannot find element in Tag template: ', '.tagify__tag-text');
             return;
         }
+
+        if( "editable" in tagData && !tagData.editable )
+          return
 
         tagElm.classList.add('tagify__tag--editable')
         editableElm.originalValue = editableElm.textContent
@@ -863,7 +866,7 @@ Tagify.prototype = {
             input: tagElm.querySelector("[contenteditable]")
         }
 
-        this.trigger("edit:start", { tag:tagElm, index:tagIdx, data:this.value[tagIdx] })
+        this.trigger("edit:start", { tag:tagElm, index:tagIdx, data:tagData })
 
         return this;
     },
