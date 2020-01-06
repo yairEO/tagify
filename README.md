@@ -174,8 +174,8 @@ or by changing the `editTags` *setting* to `1`, making tags editable by single-c
 The value is saved on `blur` or by pressing `enter` key. Pressing `Escape` will revert the change trigger `blur`.
 <kbd>ctrl</kbd><kbd>z</kbd> will revert the change if an edited tag was marked as not valid (perhaps duplicate or blacklisted)
 
-To prevent *all* tags from being allowed to be editable, set the `editTags` setting to `false` (or `null`).
-To do the same for only specific tag(s), set those tags' data with `editable` property set to `false`:
+To prevent *all* tags from being allowed to be editable, set the `editTags` setting to `false` (or `null`).<br>
+To do the same but for specific tag(s), set those tags' data with `editable` property set to `false`:
 
 ```
 <input value='[{"value":"foo", "editable":false}, {"value":"bar"}]'>
@@ -554,7 +554,7 @@ blacklist               | Array            | []                               | 
 addTagOnBlur            | Boolean          | true                             | Automatically adds the text which was inputed as a tag when blur event happens
 callbacks               | Object           | {}                               | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
 maxTags                 | Number           | Infinity                         | Maximum number of allowed tags. when reached, adds a class "tagify--hasMaxTags" to `<Tags>`
-editTags                | Number           | 2                                | Number of clicks on a tag to enter "edit" mode. Other values than `1` or `2` will disallow tags to be editable
+editTags                | Number           | 2                                | Number of clicks on a tag to enter "edit" mode. Only `1` or `2` work. `false` or `null` will disallow editing
 templates               | Object           | `wrapper`, `tag`, `dropdownItem` | Object consisting of functions which return template strings
 transformTag            | Function         | undefined                        | Takes a tag input as argument and returns a transformed value
 keepInvalidTags         | Boolean          | false                            | If `true`, do not remove tags which did not pass validation
