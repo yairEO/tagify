@@ -1,5 +1,5 @@
 import React from "react";
-import Tagify from "./tagify.js";
+import Tagify from "./tagify.min.js";
 import "./tagify.css";
 
 class Tags extends React.Component {
