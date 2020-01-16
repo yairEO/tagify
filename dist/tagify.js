@@ -1724,24 +1724,24 @@ Tagify.prototype = {
       bottom = Math.ceil(bottom);
       isBelowViewport = document.documentElement.clientHeight - bottom < (ddHeight || ddElm.clientHeight);
       var isAttachedToBody = this.settings.dropdown.appendTo.isEqualNode(document.body);
-      var posLeft, posTop, posBottom;
+      var css = ["width:" + width];
 
       if (isAttachedToBody) {
-        posLeft = left + window.pageXOffset;
-        posTop = bottom + window.pageYOffset;
-        posBottom = document.documentElement.clientHeight - top - window.pageYOffset - 2;
-      } else {
-        posLeft = this.DOM.scope.offsetLeft;
-        posTop = this.DOM.scope.offsetTop + rect.height - 1;
-        posBottom = ddHeight || ddElm.clientHeight;
-      }
+        css.push("left:" + (left + window.pageXOffset) + "px"); // flip vertically if there is no space for the dropdown below the input
 
-      var css = ["width:" + width, "left:" + posLeft + "px"]; // flip vertically if there is no space for the dropdown below the input
-
-      if (isBelowViewport) {
-        css.push("bottom:" + posBottom + "px");
+        if (isBelowViewport) {
+          css.push("bottom:" + (document.documentElement.clientHeight - top - window.pageYOffset - 2) + "px");
+        } else {
+          css.push("top:" + (bottom + window.pageYOffset) + "px");
+        }
       } else {
-        css.push("top:" + posTop + "px");
+        css.push("left:" + this.DOM.scope.offsetLeft + "px"); // flip vertically if there is no space for the dropdown below the input
+
+        if (isBelowViewport) {
+          css.push("top:" + (this.DOM.scope.offsetTop - (ddHeight || ddElm.clientHeight) + 2) + "px");
+        } else {
+          css.push("top:" + (this.DOM.scope.offsetTop + rect.height - 1) + "px");
+        }
       }
 
       ddElm.style.cssText = css.join(';');
