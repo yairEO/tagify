@@ -4,7 +4,7 @@
 </template>
 
 <script>
-import Tagify from "./tagify";
+import Tagify from "./tagify.min.js";
 export default {
   name: "tagify",
   props: {
