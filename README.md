@@ -561,6 +561,7 @@ keepInvalidTags         | Boolean          | false                            | 
 skipInvalid             | Boolean          | false                            | If `true`, do not add invalid, temporary, tags before automatically removing them
 backspace               | *                | true                             | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
 dropdown.enabled        | Number           | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
+dropdown.appendTo       | HTMLElement      | document.body                    | HTMLElement in which is append
 dropdown.maxItems       | Number           | 10                               | Maximum items to show in the suggestions list dropdown
 dropdown.classname      | String           | `""`                             | Custom class name for the dropdown suggestions selectbox
 dropdown.fuzzySearch    | Boolean          | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*

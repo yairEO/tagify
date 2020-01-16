@@ -25,7 +25,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -113,6 +113,8 @@ Tagify.prototype = {
 
     },
     dropdown: {
+      appendTo: null,
+      // default to document.body
       classname: '',
       enabled: 2,
       // minimum input characters needs to be typed for the dropdown to show
@@ -170,7 +172,16 @@ Tagify.prototype = {
 
     if (input.pattern) try {
       this.settings.pattern = new RegExp(input.pattern);
-    } catch (e) {} // Convert the "delimiters" setting into a REGEX object
+    } catch (e) {} // The extend fn does not extend HTML elements of settings
+    // so we copy manually this value
+
+    if (settings && settings.dropdown && settings.dropdown.appendTo) {
+      this.settings.dropdown.appendTo = settings.dropdown.appendTo;
+    } else {
+      // Default value of dropdown appendTo: <body>
+      this.settings.dropdown.appendTo = document.body;
+    } // Convert the "delimiters" setting into a REGEX object
+
 
     if (this.settings.delimiters) {
       try {
@@ -1633,9 +1644,9 @@ Tagify.prototype = {
 
       this.state.dropdown.visible = value || true;
       this.dropdown.position.call(this); // if the dropdown has yet to be appended to the document,
-      // append the dropdown to the body element & handle events
+      // append the dropdown to the appendTo element & handle events
 
-      if (!document.body.contains(this.DOM.dropdown)) {
+      if (!this.settings.dropdown.appendTo.contains(this.DOM.dropdown)) {
         if (!isManual) {
           this.events.binding.call(this, false); // unbind the main events
           // let the element render in the DOM first to accurately measure it
@@ -1644,7 +1655,7 @@ Tagify.prototype = {
           ddHeight = this.getNodeHeight(this.DOM.dropdown);
           this.DOM.dropdown.classList.add('tagify__dropdown--initial');
           this.dropdown.position.call(this, ddHeight);
-          document.body.appendChild(this.DOM.dropdown);
+          this.settings.dropdown.appendTo.appendChild(this.DOM.dropdown);
           setTimeout(function () {
             return _this12.DOM.dropdown.classList.remove('tagify__dropdown--initial');
           });
@@ -1660,7 +1671,7 @@ Tagify.prototype = {
           scope = _this$DOM.scope,
           dropdown = _this$DOM.dropdown,
           isManual = this.settings.dropdown.position == 'manual' && !force;
-      if (!dropdown || !document.body.contains(dropdown) || isManual) return;
+      if (!dropdown || !this.settings.dropdown.appendTo.contains(dropdown) || isManual) return;
       window.removeEventListener('resize', this.dropdown.position);
       this.dropdown.events.binding.call(this, false); // unbind all events
       // must delay because if the dropdown is open, and the input (scope) is clicked,
@@ -1711,9 +1722,29 @@ Tagify.prototype = {
 
       top = Math.floor(top);
       bottom = Math.ceil(bottom);
-      isBelowViewport = document.documentElement.clientHeight - bottom < (ddHeight || ddElm.clientHeight); // flip vertically if there is no space for the dropdown below the input
+      isBelowViewport = document.documentElement.clientHeight - bottom < (ddHeight || ddElm.clientHeight);
+      var isAttachedToBody = this.settings.dropdown.appendTo.isEqualNode(document.body);
+      var posLeft, posTop, posBottom;
 
-      ddElm.style.cssText = "left:" + (left + window.pageXOffset) + "px; width:" + width + ";" + (isBelowViewport ? "bottom:" + (document.documentElement.clientHeight - top - window.pageYOffset - 2) + "px;" : "top: " + (bottom + window.pageYOffset) + "px");
+      if (isAttachedToBody) {
+        posLeft = left + window.pageXOffset;
+        posTop = bottom + window.pageYOffset;
+        posBottom = document.documentElement.clientHeight - top - window.pageYOffset - 2;
+      } else {
+        posLeft = this.DOM.scope.offsetLeft;
+        posTop = this.DOM.scope.offsetTop + rect.height - 1;
+        posBottom = ddHeight || ddElm.clientHeight;
+      }
+
+      var css = ["width:" + width, "left:" + posLeft + "px"]; // flip vertically if there is no space for the dropdown below the input
+
+      if (isBelowViewport) {
+        css.push("bottom:" + posBottom + "px");
+      } else {
+        css.push("top:" + posTop + "px");
+      }
+
+      ddElm.style.cssText = css.join(';');
       ddElm.setAttribute('placement', isBelowViewport ? "top" : "bottom");
     },
     events: {

@@ -66,6 +66,7 @@ Tagify.prototype = {
             rightKey: false,                  // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
         },
         dropdown            : {
+            appendTo      : null, // default to document.body
             classname     : '',
             enabled       : 2,      // minimum input characters needs to be typed for the dropdown to show
             maxItems      : 10,
@@ -155,6 +156,15 @@ Tagify.prototype = {
         if( input.pattern )
             try { this.settings.pattern = new RegExp(input.pattern)  }
             catch(e){}
+
+        // The extend fn does not extend HTML elements of settings
+        // so we copy manually this value
+        if( settings && settings.dropdown && settings.dropdown.appendTo ) {
+            this.settings.dropdown.appendTo = settings.dropdown.appendTo;
+        } else {
+            // Default value of dropdown appendTo: <body>
+            this.settings.dropdown.appendTo = document.body;
+        }
 
         // Convert the "delimiters" setting into a REGEX object
         if( this.settings.delimiters ){
@@ -1666,8 +1676,8 @@ Tagify.prototype = {
             this.state.dropdown.visible = value || true;
             this.dropdown.position.call(this)
             // if the dropdown has yet to be appended to the document,
-            // append the dropdown to the body element & handle events
-            if( !document.body.contains(this.DOM.dropdown) ){
+            // append the dropdown to the appendTo element & handle events
+            if( !this.settings.dropdown.appendTo.contains(this.DOM.dropdown) ){
                 if( !isManual ){
                     this.events.binding.call(this, false); // unbind the main events
                     // let the element render in the DOM first to accurately measure it
@@ -1676,7 +1686,7 @@ Tagify.prototype = {
 
                     this.DOM.dropdown.classList.add('tagify__dropdown--initial')
                     this.dropdown.position.call(this, ddHeight);
-                    document.body.appendChild(this.DOM.dropdown);
+                    this.settings.dropdown.appendTo.appendChild(this.DOM.dropdown);
 
                     setTimeout(() =>
                         this.DOM.dropdown.classList.remove('tagify__dropdown--initial')
@@ -1693,7 +1703,7 @@ Tagify.prototype = {
             var {scope, dropdown} = this.DOM,
                 isManual = this.settings.dropdown.position == 'manual' && !force;
 
-            if( !dropdown || !document.body.contains(dropdown) || isManual ) return;
+            if( !dropdown || !this.settings.dropdown.appendTo.contains(dropdown) || isManual ) return;
 
             window.removeEventListener('resize', this.dropdown.position)
             this.dropdown.events.binding.call(this, false); // unbind all events
@@ -1745,12 +1755,40 @@ Tagify.prototype = {
 
             top = Math.floor(top)
             bottom = Math.ceil(bottom)
+
             isBelowViewport = document.documentElement.clientHeight - bottom < (ddHeight || ddElm.clientHeight);
 
+            const isAttachedToBody = this.settings.dropdown.appendTo.isEqualNode(document.body);
+
+            let posLeft,
+                posTop,
+                posBottom;
+
+            if (isAttachedToBody) {
+                posLeft = left + window.pageXOffset;
+                posTop = bottom + window.pageYOffset;
+                posBottom = document.documentElement.clientHeight - top - window.pageYOffset - 2;
+            }
+            else {
+                posLeft = this.DOM.scope.offsetLeft;
+                posTop = this.DOM.scope.offsetTop + rect.height - 1;
+                posBottom = ddHeight || ddElm.clientHeight;
+            }
+
+            const css = [
+                "width:" + width,
+                "left:"  + (posLeft) + "px",
+            ];
+
             // flip vertically if there is no space for the dropdown below the input
-            ddElm.style.cssText = "left:"  + (left + window.pageXOffset) + "px; width:" + width + ";" + (isBelowViewport
-                ? "bottom:" + (document.documentElement.clientHeight - top - window.pageYOffset - 2) + "px;"
-                : "top: "   + (bottom + window.pageYOffset) + "px");
+            if ( isBelowViewport ) {
+                css.push("bottom:" + (posBottom) + "px");
+            }
+            else {
+                css.push("top:" + (posTop) + "px");
+            }
+
+            ddElm.style.cssText = css.join(';');
 
             ddElm.setAttribute('placement', isBelowViewport ? "top" : "bottom")
         },
