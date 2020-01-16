@@ -51,6 +51,7 @@ Tagify.prototype = {
         skipInvalid         : false,
         transformTag        : ()=>{},
         dropdown            : {
+            appendTo     : null, // default to document.body
             classname    : '',
             enabled      : 2,    // minimum input characters needs to be typed for the dropdown to show
             maxItems     : 10,
@@ -125,7 +126,15 @@ Tagify.prototype = {
             try { this.settings.pattern = new RegExp(input.pattern)  }
             catch(e){}
 
-        // Convert the "delimiters" setting into a REGEX object
+        // The extend fn does not extend HTML elements of settings
+        // so we copy manually this value
+        if( settings && settings.dropdown && settings.dropdown.appendTo ) {
+            this.settings.dropdown.appendTo = settings.dropdown.appendTo;
+        } else {
+            // Default value of dropdown appendTo: <body>
+            this.settings.dropdown.appendTo = document.body;
+        }
+
         if( this.settings && this.settings.delimiters ){
             try { this.settings.delimiters = new RegExp(this.settings.delimiters, "g") }
             catch(e){}
@@ -1180,20 +1189,21 @@ Tagify.prototype = {
 
             this.trigger("dropdown:show", this.DOM.dropdown);
 
+
             if( this.settings.dropdown.position == 'manual' ) return;
 
             // if the dropdown has yet to be appended to the document,
-            // append the dropdown to the body element & handle events
-            else if( !document.body.contains(this.DOM.dropdown) ){
+            // append the dropdown to the appendTo element & handle events
+            else if( !this.settings.dropdown.appendTo.contains(this.DOM.dropdown) ){
                 this.dropdown.position.call(this);
-                document.body.appendChild(this.DOM.dropdown);
+                this.settings.dropdown.appendTo.appendChild(this.DOM.dropdown);
                 this.events.binding.call(this, false); // unbind the main events
                 this.dropdown.events.binding.call(this);
             }
         },
 
         hide(){
-            if( !this.DOM.dropdown || !document.body.contains(this.DOM.dropdown) ) return;
+            if( !this.DOM.dropdown || !this.settings.dropdown.appendTo.contains(this.DOM.dropdown) ) return;
 
             this.DOM.dropdown.parentNode.removeChild(this.DOM.dropdown);
             this.DOM.scope.setAttribute("aria-expanded", false)
@@ -1208,8 +1218,21 @@ Tagify.prototype = {
         position(){
             var rect = this.DOM.scope.getBoundingClientRect();
 
-            this.DOM.dropdown.style.cssText = "left: "  + (rect.left + window.pageXOffset) + "px; \
-                                               top: "   + (rect.top + rect.height - 1 + window.pageYOffset)  + "px; \
+            const isAttachedToBody = this.settings.dropdown.appendTo.isEqualNode(document.body);
+            let posTop, posLeft;
+
+            if (isAttachedToBody) {
+                posTop = window.pageYOffset + rect.top;
+                posLeft = window.pageXOffset + rect.left;
+            } else {
+                posTop = this.DOM.scope.offsetTop;
+                posLeft = this.DOM.scope.offsetLeft;
+            }
+
+            posTop += rect.height - 1;
+
+            this.DOM.dropdown.style.cssText = "left: "  + (posLeft) + "px; \
+                                               top: "   + (posTop)  + "px; \
                                                width: " + rect.width + "px";
         },
 

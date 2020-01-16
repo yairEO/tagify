@@ -1,5 +1,5 @@
 /**
- * Tagify (v 2.22.2)- tags input component
+ * Tagify (v 2.22.3)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -23,7 +23,9 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -90,6 +92,8 @@ Tagify.prototype = {
     skipInvalid: false,
     transformTag: function transformTag() {},
     dropdown: {
+      appendTo: null,
+      // default to document.body
       classname: '',
       enabled: 2,
       // minimum input characters needs to be typed for the dropdown to show
@@ -134,7 +138,15 @@ Tagify.prototype = {
 
     if (input.pattern) try {
       this.settings.pattern = new RegExp(input.pattern);
-    } catch (e) {} // Convert the "delimiters" setting into a REGEX object
+    } catch (e) {} // The extend fn does not extend HTML elements of settings
+    // so we copy manually this value
+
+    if (settings && settings.dropdown && settings.dropdown.appendTo) {
+      this.settings.dropdown.appendTo = settings.dropdown.appendTo;
+    } else {
+      // Default value of dropdown appendTo: <body>
+      this.settings.dropdown.appendTo = document.body;
+    }
 
     if (this.settings && this.settings.delimiters) {
       try {
@@ -787,7 +799,7 @@ Tagify.prototype = {
       // iterate the collection items and check for values that can be splitted into multiple tags
       tagsItems = (_ref = []).concat.apply(_ref, _toConsumableArray(tagsItems.map(function (item) {
         return mapStringToCollection(item.value).map(function (newItem) {
-          return _objectSpread({}, item, newItem);
+          return _objectSpread({}, item, {}, newItem);
         });
       })));
       return tagsItems;
@@ -1145,17 +1157,17 @@ Tagify.prototype = {
       this.DOM.scope.setAttribute("aria-expanded", true);
       this.trigger("dropdown:show", this.DOM.dropdown);
       if (this.settings.dropdown.position == 'manual') return; // if the dropdown has yet to be appended to the document,
-      // append the dropdown to the body element & handle events
-      else if (!document.body.contains(this.DOM.dropdown)) {
+      // append the dropdown to the appendTo element & handle events
+      else if (!this.settings.dropdown.appendTo.contains(this.DOM.dropdown)) {
           this.dropdown.position.call(this);
-          document.body.appendChild(this.DOM.dropdown);
+          this.settings.dropdown.appendTo.appendChild(this.DOM.dropdown);
           this.events.binding.call(this, false); // unbind the main events
 
           this.dropdown.events.binding.call(this);
         }
     },
     hide: function hide() {
-      if (!this.DOM.dropdown || !document.body.contains(this.DOM.dropdown)) return;
+      if (!this.DOM.dropdown || !this.settings.dropdown.appendTo.contains(this.DOM.dropdown)) return;
       this.DOM.dropdown.parentNode.removeChild(this.DOM.dropdown);
       this.DOM.scope.setAttribute("aria-expanded", false);
       window.removeEventListener('resize', this.dropdown.position);
@@ -1167,8 +1179,20 @@ Tagify.prototype = {
     },
     position: function position() {
       var rect = this.DOM.scope.getBoundingClientRect();
-      this.DOM.dropdown.style.cssText = "left: " + (rect.left + window.pageXOffset) + "px; \
-                                               top: " + (rect.top + rect.height - 1 + window.pageYOffset) + "px; \
+      var isAttachedToBody = this.settings.dropdown.appendTo.isEqualNode(document.body);
+      var posTop, posLeft;
+
+      if (isAttachedToBody) {
+        posTop = window.pageYOffset + rect.top;
+        posLeft = window.pageXOffset + rect.left;
+      } else {
+        posTop = this.DOM.scope.offsetTop;
+        posLeft = this.DOM.scope.offsetLeft;
+      }
+
+      posTop += rect.height - 1;
+      this.DOM.dropdown.style.cssText = "left: " + posLeft + "px; \
+                                               top: " + posTop + "px; \
                                                width: " + rect.width + "px";
     },
 
