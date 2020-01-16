@@ -366,27 +366,28 @@ dropdown:hide   | Suggestions dropdown has been removed from the DOM
 
 ## Settings
 
-Name                  | Type       | Default                          | Info
-----------------------| ---------- | -------------------------------- | --------------------------------------------------------------------------
-delimiters            | String     | ","                              | [regex] split tags by any of these delimiters. Example: `",| |."`
-pattern               | String     | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/``
-mode                  | String     | null                             | use 'mix' as value to allow mixed-content. The 'pattern' setting must be set to some character.
-duplicates            | Boolean    | false                            | Should duplicate tags be allowed or not
-enforceWhitelist      | Boolean    | false                            | Should ONLY use tags allowed in whitelist
-autocomplete          | Boolean    | true                             | Tries to autocomplete the input's value while typing (match from whitelist)
-whitelist             | Array      | []                               | An array of tags which only they are allowed
-blacklist             | Array      | []                               | An array of tags which aren't allowed
-addTagOnBlur          | Boolean    | true                             | Automatically adds the text which was inputed as a tag when blur event happens
-callbacks             | Object     | {}                               | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
-maxTags               | Number     | Infinity                         | Maximum number of allowed tags. when reached, adds a class "hasMaxTags" to `<Tags>`
-templates             | Object     | `wrapper`, `tag`, `dropdownItem` | Object consisting of functions which return template strings
-transformTag          | Function   | undefined                        | Takes a tag input as argument and returns a transformed value
-keepInvalidTags       | Boolean    | false                            | If `true`, do not remove tags which did not pass validation
-skipInvalid           | Boolean    | false                            | If `true`, do not temporarily add invalid tags before automatically removing them
-backspace             | *          | true                             | On backspace: (`true`) - remove last tag, (`"edit"``) - edit last tag
-dropdown.enabled      | Number     | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
-dropdown.maxItems     | Number     | 10                               | Maximum items to show in the suggestions list dropdown
-dropdown.classname    | String     | ""                               | Custom class name for the dropdown suggestions selectbox
-dropdown.itemTemplate | Function   | ""                               | Returns a custom string for each list item in the dropdown suggestions selectbox
-dropdown.fuzzySearch  | Boolean    | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
-dropdown.position     | String     | null                             | `manual` will not render the dropdown, and you would need to do it yourself. See "events" section.
+Name                  | Type        | Default                          | Info
+----------------------| ----------  | -------------------------------- | --------------------------------------------------------------------------
+delimiters            | String      | ","                              | [regex] split tags by any of these delimiters. Example: `",| |."`
+pattern               | String      | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/``
+mode                  | String      | null                             | use 'mix' as value to allow mixed-content. The 'pattern' setting must be set to some character.
+duplicates            | Boolean     | false                            | Should duplicate tags be allowed or not
+enforceWhitelist      | Boolean     | false                            | Should ONLY use tags allowed in whitelist
+autocomplete          | Boolean     | true                             | Tries to autocomplete the input's value while typing (match from whitelist)
+whitelist             | Array       | []                               | An array of tags which only they are allowed
+blacklist             | Array       | []                               | An array of tags which aren't allowed
+addTagOnBlur          | Boolean     | true                             | Automatically adds the text which was inputed as a tag when blur event happens
+callbacks             | Object      | {}                               | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
+maxTags               | Number      | Infinity                         | Maximum number of allowed tags. when reached, adds a class "hasMaxTags" to `<Tags>`
+templates             | Object      | `wrapper`, `tag`, `dropdownItem` | Object consisting of functions which return template strings
+transformTag          | Function    | undefined                        | Takes a tag input as argument and returns a transformed value
+keepInvalidTags       | Boolean     | false                            | If `true`, do not remove tags which did not pass validation
+skipInvalid           | Boolean     | false                            | If `true`, do not temporarily add invalid tags before automatically removing them
+backspace             | *           | true                             | On backspace: (`true`) - remove last tag, (`"edit"``) - edit last tag
+dropdown.enabled      | Number      | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
+dropdown.appendTo     | HTMLElement | document.body                    | HTMLElement in which is append
+dropdown.maxItems     | Number      | 10                               | Maximum items to show in the suggestions list dropdown
+dropdown.classname    | String      | ""                               | Custom class name for the dropdown suggestions selectbox
+dropdown.itemTemplate | Function    | ""                               | Returns a custom string for each list item in the dropdown suggestions selectbox
+dropdown.fuzzySearch  | Boolean     | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
+dropdown.position     | String      | null                             | `manual` will not render the dropdown, and you would need to do it yourself. See "events" section.
