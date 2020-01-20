@@ -1,3 +1,17 @@
+var isFirefox = typeof InstallTrigger !== 'undefined';
+
+/**
+ * utility method
+ * https://stackoverflow.com/a/6234804/104380
+ */
+function escapeHTML( s ){
+    return s.replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 /**
  * @constructor
  * @param {Object} input    DOM element
@@ -95,15 +109,15 @@ Tagify.prototype = {
         },
 
         tag(value, tagData){
-            return `<tag title='${tagData.title || value}'
+            return `<tag title="${escapeHTML(tagData.title || value)}"
                         contenteditable='false'
                         spellcheck='false'
                         tabIndex="-1"
-                        class='tagify__tag ${tagData.class ? tagData.class : ""}'
+                        class="tagify__tag ${tagData.class ? tagData.class : ""}"
                         ${this.getAttributes(tagData)}>
                 <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
                 <div>
-                    <span class='tagify__tag-text'>${value}</span>
+                    <span class='tagify__tag-text'>${escapeHTML(value)}</span>
                 </div>
             </tag>`
         },
@@ -201,18 +215,6 @@ Tagify.prototype = {
             node   = parser.parseFromString(s.trim(), "text/html");
 
         return node.body.firstElementChild;
-    },
-
-    /**
-     * utility method
-     * https://stackoverflow.com/a/25396011/104380
-     */
-    escapeHTML( s ){
-        var text = document.createTextNode(s),
-            p    = document.createElement('p');
-
-        p.appendChild(text);
-        return p.innerHTML;
     },
 
     /**
@@ -521,8 +523,7 @@ Tagify.prototype = {
             },
 
             onKeydown(e){
-                var s = e.target.textContent.trim(),
-                    tags;
+                var s = e.target.textContent.trim();
 
                 this.trigger("keydown", {originalEvent:this.cloneEvent(e)});
 
@@ -538,21 +539,22 @@ Tagify.prototype = {
 
                         case 'Delete':
                         case 'Backspace' : {
-                            var selection = document.getSelection(),
-                                isFF = !!navigator.userAgent.match(/firefox/i);
+                           // e.preventDefault()
+                            var selection = document.getSelection();
 
-                            if( isFF && selection && selection.anchorOffset == 0 )
+                            if( isFirefox && selection && selection.anchorOffset == 0 )
                                 this.removeTag(selection.anchorNode.previousSibling)
 
                             var values = [];
-                            // find out which tag(s) were deleted and update "this.value" accordingly
-                            tags = this.DOM.input.children;
 
                             // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                             // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
                             setTimeout(()=>{
+                                var tagElms = this.DOM.input.querySelectorAll('.tagify__tag');
+
+                                // find out which tag(s) were deleted and update "this.value" accordingly
                                 // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
-                                [].forEach.call( tags, tagElm => values.push(tagElm.getAttribute('value')) )
+                                [].forEach.call( tagElms, node => values.push(node.getAttribute('value')) )
                                 this.value = this.value.filter(d => values.indexOf(d.value) != -1);
                             })
                             break;
@@ -675,12 +677,12 @@ Tagify.prototype = {
                     }
                 }
 
-                this.update()
 
                 // wait until the "this.value" has been updated (see "onKeydown" method for "mix-mode")
                 // the dropdown must be shown only after this event has been driggered, so an implementer could
                 // dynamically change the whitelist.
                 setTimeout(()=>{
+                    this.update()
                     this.trigger("input", this.extend({}, this.state.tag, {textContent:this.DOM.input.textContent}))
 
                     if( this.state.tag )
@@ -1237,8 +1239,9 @@ Tagify.prototype = {
             }
 
             if( s2.length > 1   &&   (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&   !(!duplicates  && this.isTagDuplicate(tagData)) ){
-                transformTag.call(this, tagData);
-                tagElm = this.createTagElem(tagData);
+                transformTag.call(this, tagData)
+                tagElm = this.createTagElem(tagData)
+                tagElm.classList.add('tagify--noAnim')
                 s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
                 this.value.push(tagData);
             }
@@ -1345,8 +1348,8 @@ Tagify.prototype = {
         }
 
         if( _s.mode == 'mix' ){
-            _s.transformTag.call(this, tagsItems[0]);
-            tagElm = this.createTagElem(tagsItems[0]);
+            _s.transformTag.call(this, tagsItems[0])
+            tagElm = this.createTagElem(tagsItems[0])
 
             // insert the new tag to the END if "addTags" was called from outside
             if( !this.replaceTextWithNode(tagElm) ){
@@ -1355,6 +1358,7 @@ Tagify.prototype = {
 
             // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
             this.DOM.input.appendChild(document.createTextNode(''))
+            setTimeout(()=> tagElm.classList.add('tagify--noAnim'), 300 )
 
             tagsItems[0].prefix = tagsItems[0].prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0]
             this.value.push(tagsItems[0])
@@ -1365,6 +1369,7 @@ Tagify.prototype = {
 
             // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
             this.DOM.input.appendChild(document.createTextNode(''))
+
 
             return tagElm
         }
@@ -1471,7 +1476,7 @@ Tagify.prototype = {
      */
     createTagElem( tagData ){
         var tagElm,
-            v = this.escapeHTML(tagData.value),
+            v = escapeHTML(tagData.value),
             template = this.settings.templates.tag.call(this, v, tagData);
 
         if( this.settings.readonly )
@@ -1572,14 +1577,33 @@ Tagify.prototype = {
     getMixedTagsAsString(){
         var result = "",
             i = 0,
+            currentTags = this.value,
             _interpolator = this.settings.mixTagsInterpolator;
 
-        this.DOM.input.childNodes.forEach((node) => {
-            if( node.nodeType == 1 && node.classList.contains("tagify__tag") )
-                result += _interpolator[0] + JSON.stringify(this.value[i++]) + _interpolator[1]
+        function iterateChildren(rootNode){
+          rootNode.childNodes.forEach((node) => {
+            if( node.nodeType == 1 ){
+              if( node.classList.contains("tagify__tag") ){
+                result += _interpolator[0] + JSON.stringify(currentTags[i++]) + _interpolator[1]
+                return
+              }
+
+              // Chrome adds <div><br></div> for empty new lines, and FF only adds <br>
+              if( isFirefox && node.tagName == 'BR' )
+                result += "\r\n";
+
+              else if( node.tagName == 'DIV' ){
+                result += "\r\n";
+                iterateChildren(node)
+              }
+            }
             else
-                result += node.textContent;
-        })
+              result += node.textContent;
+          })
+        }
+
+        iterateChildren(this.DOM.input)
+
         return result;
     },
 
