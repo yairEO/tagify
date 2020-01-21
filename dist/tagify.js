@@ -1645,6 +1645,7 @@ Tagify.prototype = {
           this.DOM.dropdown.classList.add('tagify__dropdown--initial');
           this.dropdown.position.call(this, ddHeight);
           document.body.appendChild(this.DOM.dropdown);
+		  this.trigger("dropdown:rendered", this.DOM.dropdown);
           setTimeout(function () {
             return _this12.DOM.dropdown.classList.remove('tagify__dropdown--initial');
           });
