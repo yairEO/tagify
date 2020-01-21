@@ -1861,7 +1861,6 @@ Tagify.prototype = {
                             if( this.state.actions.ArrowLeft )
                                 return
                         case 'Tab' : {
-                            e.preventDefault()
                             // in mix-mode, treat arrowRight like Enter key, so a tag will be created
                             if( this.settings.mode != 'mix' && !this.settings.autoComplete.rightKey ){
                                 try{
