@@ -1805,20 +1805,22 @@ Tagify.prototype = {
                         onKeyDown    : _CB.onKeyDown.bind(this),
                         onMouseOver  : _CB.onMouseOver.bind(this),
                         onMouseLeave : _CB.onMouseLeave.bind(this),
-                        onClick      : _CB.onClick.bind(this)
+                        onClick      : _CB.onClick.bind(this),
+                        onScroll     : _CB.onScroll.bind(this)
                     }),
                     action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
                 if( this.settings.dropdown.position != 'manual' ){
-                    window[action]('resize', _CBR.position);
-                    window[action]('keydown', _CBR.onKeyDown);
+                    window[action]('resize', _CBR.position)
+                    window[action]('keydown', _CBR.onKeyDown)
                 }
 
               //  window[action]('mousedown', _CBR.onClick);
 
-                this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver);
-                this.DOM.dropdown[action]('mouseleave', _CBR.onMouseLeave);
-                this.DOM.dropdown[action]('mousedown', _CBR.onClick);
+                this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver)
+                this.DOM.dropdown[action]('mouseleave', _CBR.onMouseLeave)
+                this.DOM.dropdown[action]('mousedown', _CBR.onClick)
+                this.DOM.dropdown.content[action]('scroll', _CBR.onScroll)
 
                 // add back the main "click" event because it is needed for removing/clicking already-existing tags, even if dropdown is shown
                 this.DOM[this.listeners.main.click[0]][action]('click', this.listeners.main.click[1])
@@ -1907,6 +1909,13 @@ Tagify.prototype = {
                     var listItemElm = e.target.closest(".tagify__dropdown__item");
 
                     this.dropdown.selectOption.call(this, listItemElm)
+                },
+
+                onScroll(e){
+                    var elm = e.target,
+                        pos = elm.scrollTop / (elm.scrollHeight - elm.parentNode.clientHeight) * 100;
+
+                    this.trigger("dropdown:scroll", {percentage:Math.round(pos)})
                 }
             }
         },

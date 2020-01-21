@@ -89,7 +89,6 @@
 
             .customSuggestionsList{
                 max-height: 300px;
-                overflow: auto;
                 border: 2px solid pink;
             }
         </style>
@@ -148,16 +147,16 @@
   document.forms[0].reset()
 
   window.tagified = {
-    "basic"             : 0,
-    "textarea"          : 0,
+    "basic"             : 1,
+    "textarea"          : 1,
     "mix"               : 1,
-    "manual-suggestions": 0,
-    "outside-of-the-box": 0,
-    "advance-options"   : 0,
-    "extra-properties"  : 0,
-    "readonly"          : 0,
-    "readonly-mixed"    : 0,
-    "mode-select"       : 0,
+    "manual-suggestions": 1,
+    "outside-of-the-box": 1,
+    "advance-options"   : 1,
+    "extra-properties"  : 1,
+    "readonly"          : 1,
+    "readonly-mixed"    : 1,
+    "mode-select"       : 1,
   };
 
   (function(){
@@ -345,6 +344,7 @@
 
       tagify.on("dropdown:show", onSuggestionsListUpdate)
             .on("dropdown:hide", onSuggestionsListHide)
+            .on('dropdown:scroll', onDropdownScroll)
 
       renderSuggestionsList(tagify)
 
@@ -355,6 +355,10 @@
 
       function onSuggestionsListHide(){
           console.log("hide dropdown")
+      }
+
+      function onDropdownScroll(e){
+        console.log(e.detail)
       }
 
       // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement
