@@ -533,6 +533,7 @@ edit:keydown       | keydown event while an edited tag is in focus
 dropdown:show      | Suggestions dropdown is to be rendered. The dropdown DOM node is passed in the callback, [see demo](https://yaireo.github.io/tagify/#section-basic).
 dropdown:hide      | Suggestions dropdown has been removed from the DOM
 dropdown:select    | Suggestions dropdown item selected (by mouse/keyboard/touch)
+dropdown:scroll    | Tells the percentage scrolled. (`event.detail.percentage`)
 
 
 ## Settings

@@ -1009,6 +1009,7 @@ var input = document.querySelector('input[name=tags-manual-suggestions]'),
 
     tagify.on("dropdown:show", onSuggestionsListUpdate)
           .on("dropdown:hide", onSuggestionsListHide)
+          .on('dropdown:scroll', onDropdownScroll)
 
     renderSuggestionsList()
 
@@ -1020,6 +1021,10 @@ var input = document.querySelector('input[name=tags-manual-suggestions]'),
     function onSuggestionsListHide(){
         console.log("hide dropdown")
     }
+
+    function onDropdownScroll(e){
+        console.log(e.detail)
+      }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement
     function renderSuggestionsList(){

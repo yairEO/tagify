@@ -145,7 +145,7 @@ Tagify.prototype = {
       return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                        ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="listbox" aria-expanded="false"', "\n                        role=\"tagslist\"\n                        tabIndex=\"-1\">\n                <span contenteditable data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                    class=\"tagify__input\"\n                    role=\"textbox\"\n                    aria-controls=\"dropdown\"\n                    aria-autocomplete=\"both\"\n                    aria-multiline=\"").concat(settings.mode == 'mix' ? true : false, "\"></span>\n            </tags>");
     },
     tag: function tag(value, tagData) {
-      return "<tag title=\"".concat(escapeHTML(tagData.title || value), "\"\n                        contenteditable='false'\n                        spellcheck='false'\n                        tabIndex=\"-1\"\n                        class=\"tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "\"\n                        ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(escapeHTML(value), "</span>\n                </div>\n            </tag>");
+      return "<tag title=\"".concat(tagData.title || value, "\"\n                        contenteditable='false'\n                        spellcheck='false'\n                        tabIndex=\"-1\"\n                        class=\"tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "\"\n                        ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(value, "</span>\n                </div>\n            </tag>");
     },
     dropdownItem: function dropdownItem(item) {
       var mapValueTo = this.settings.dropdown.mapValueTo,
@@ -1170,7 +1170,7 @@ Tagify.prototype = {
         isCollection = isArray && tagsItems[0] instanceof Object && "value" in tagsItems[0],
         temp = [],
         mapStringToCollection = function mapStringToCollection(s) {
-      return s.split(delimiters).filter(function (n) {
+      return (s + "").split(delimiters).filter(function (n) {
         return n;
       }).map(function (v) {
         return {

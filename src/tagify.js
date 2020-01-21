@@ -109,7 +109,7 @@ Tagify.prototype = {
         },
 
         tag(value, tagData){
-            return `<tag title="${escapeHTML(tagData.title || value)}"
+            return `<tag title="${(tagData.title || value)}"
                         contenteditable='false'
                         spellcheck='false'
                         tabIndex="-1"
@@ -117,7 +117,7 @@ Tagify.prototype = {
                         ${this.getAttributes(tagData)}>
                 <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
                 <div>
-                    <span class='tagify__tag-text'>${escapeHTML(value)}</span>
+                    <span class='tagify__tag-text'>${value}</span>
                 </div>
             </tag>`
         },
@@ -1187,7 +1187,7 @@ Tagify.prototype = {
             isArray = tagsItems instanceof Array,
             isCollection = isArray && tagsItems[0] instanceof Object && "value" in tagsItems[0],
             temp = [],
-            mapStringToCollection = s => s.split(delimiters).filter(n => n).map(v => ({ value:v.trim() }))
+            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:v.trim() }))
 
 
         // no need to continue if "tagsItems" is an Array of Objects
