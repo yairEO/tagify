@@ -540,16 +540,29 @@ Tagify.prototype = {
                         case 'Delete':
                         case 'Backspace' : {
                            // e.preventDefault()
-                            var selection = document.getSelection();
+                            var selection = document.getSelection(),
+                                values = [],
+                                lastInputValue = this.DOM.input.innerHTML;
 
-                            if( isFirefox && selection && selection.anchorOffset == 0 )
-                                this.removeTag(selection.anchorNode.previousSibling)
+                            // if( isFirefox && selection && selection.anchorOffset == 0 )
+                            //     this.removeTag(selection.anchorNode.previousSibling)
 
-                            var values = [];
 
                             // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                             // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
                             setTimeout(()=>{
+                                // fixes #384, where the first and only tag will not get removed with backspace
+                                if( this.DOM.input.innerHTML.length >= lastInputValue.length ){
+                                    this.removeTag(selection.anchorNode.previousElementSibling)
+
+                                    // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
+                                    if( this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR" ){
+                                        this.DOM.input.innerHTML = ""
+                                        this.value.length = 0
+                                        return true
+                                    }
+                                }
+
                                 var tagElms = this.DOM.input.querySelectorAll('.tagify__tag');
 
                                 // find out which tag(s) were deleted and update "this.value" accordingly
@@ -564,7 +577,7 @@ Tagify.prototype = {
                         //     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                     }
 
-                    return true;
+                    return true
                 }
 
                 switch( e.key ){

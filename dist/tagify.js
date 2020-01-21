@@ -562,12 +562,26 @@ Tagify.prototype = {
             case 'Backspace':
               {
                 // e.preventDefault()
-                var selection = document.getSelection();
-                if (isFirefox && selection && selection.anchorOffset == 0) this.removeTag(selection.anchorNode.previousSibling);
-                var values = []; // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
+                var selection = document.getSelection(),
+                    values = [],
+                    lastInputValue = this.DOM.input.innerHTML; // if( isFirefox && selection && selection.anchorOffset == 0 )
+                //     this.removeTag(selection.anchorNode.previousSibling)
+                // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                 // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
 
                 setTimeout(function () {
+                  // fixes #384, where the first and only tag will not get removed with backspace
+                  if (_this4.DOM.input.innerHTML.length >= lastInputValue.length) {
+                    _this4.removeTag(selection.anchorNode.previousElementSibling); // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
+
+
+                    if (_this4.DOM.input.children.length == 2 && _this4.DOM.input.children[1].tagName == "BR") {
+                      _this4.DOM.input.innerHTML = "";
+                      _this4.value.length = 0;
+                      return true;
+                    }
+                  }
+
                   var tagElms = _this4.DOM.input.querySelectorAll('.tagify__tag'); // find out which tag(s) were deleted and update "this.value" accordingly
                   // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
 
