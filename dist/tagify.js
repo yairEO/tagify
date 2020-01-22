@@ -497,7 +497,8 @@ Tagify.prototype = {
         var text = e.target ? e.target.textContent.trim() : '',
             // a string
         _s = this.settings,
-            type = e.type; // goes into this scenario only on input "blur" and a tag was clicked
+            type = e.type,
+            shouldAddTags; // goes into this scenario only on input "blur" and a tag was clicked
 
         if (e.relatedTarget && e.relatedTarget.classList.contains('tagify__tag') && this.DOM.scope.contains(e.relatedTarget)) return;
 
@@ -531,9 +532,10 @@ Tagify.prototype = {
           this.trigger("blur", {
             relatedTarget: e.relatedTarget
           });
-          this.loading(false); // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
+          this.loading(false);
+          shouldAddTags = this.settings.mode == 'select' ? !this.value.length || this.value[0].value != text : text && !this.state.actions.selectOption && _s.addTagOnBlur; // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
 
-          text && !this.state.actions.selectOption && _s.addTagOnBlur && this.addTags(text, true);
+          shouldAddTags && this.addTags(text, true);
         }
 
         this.DOM.input.removeAttribute('style');
@@ -638,7 +640,7 @@ Tagify.prototype = {
 
           case 'Tab':
             {
-              if (!s) return true;
+              if (!s || this.settings.mode == 'select') return true;
             }
 
           case 'Enter':
@@ -1299,8 +1301,9 @@ Tagify.prototype = {
    * @param {Object} tagData  Tag data
    */
   selectTag: function selectTag(tagElm, tagData) {
-    this.input.set.call(this, tagData.value, true);
-    setTimeout(this.setRangeAtStartEnd.bind(this));
+    this.input.set.call(this, tagData.value, true); // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
+
+    if (this.state.actions.selectOption) setTimeout(this.setRangeAtStartEnd.bind(this));
     if (this.getLastTag()) this.replaceTag(this.getLastTag(), tagData);else this.appendTag(tagElm);
     this.value[0] = tagData;
     this.trigger('add', {
