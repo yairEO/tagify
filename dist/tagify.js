@@ -1278,7 +1278,7 @@ Tagify.prototype = {
     tagString = tagString || this.state.tag.prefix + this.state.tag.value;
     var idx,
         replacedNode,
-        selection = window.getSelection(),
+        selection = this.state.selection || window.getSelection(),
         nodeAtCaret = selection.anchorNode; // ex. replace #ba with the tag "bart" where "|" is where the caret is:
     // start with: "#ba #ba| #ba"
     // split the text node at the index of the caret
@@ -1639,6 +1639,7 @@ Tagify.prototype = {
           firstListItem,
           firstListItemValue,
           ddHeight,
+          selection = window.getSelection(),
           isManual = _s.dropdown.position == 'manual';
       if (!_s.whitelist || !_s.whitelist.length || _s.dropdown.enable === false) return; // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
@@ -1669,6 +1670,10 @@ Tagify.prototype = {
       // MUST be set *before* position() is called
 
       this.state.dropdown.visible = value || true;
+      this.state.selection = {
+        anchorOffset: selection.anchorOffset,
+        anchorNode: selection.anchorNode
+      };
       this.dropdown.position.call(this); // if the dropdown has yet to be appended to the document,
       // append the dropdown to the body element & handle events
 
@@ -1709,8 +1714,7 @@ Tagify.prototype = {
       scope.setAttribute("aria-expanded", false);
       dropdown.parentNode.removeChild(dropdown);
       this.state.dropdown.visible = false;
-      this.state.ddItemData = null;
-      this.state.ddItemElm = null;
+      this.state.ddItemData = this.state.ddItemElm = this.state.selection = null;
       this.trigger("dropdown:hide", dropdown);
     },
 

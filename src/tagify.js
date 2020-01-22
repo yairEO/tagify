@@ -1285,7 +1285,7 @@ Tagify.prototype = {
 
         tagString = tagString || this.state.tag.prefix + this.state.tag.value;
         var idx, replacedNode,
-            selection = window.getSelection(),
+            selection = this.state.selection || window.getSelection(),
             nodeAtCaret = selection.anchorNode;
 
         // ex. replace #ba with the tag "bart" where "|" is where the caret is:
@@ -1670,6 +1670,7 @@ Tagify.prototype = {
                 firstListItem,
                 firstListItemValue,
                 ddHeight,
+                selection = window.getSelection(),
                 isManual = _s.dropdown.position == 'manual';
 
             if( !_s.whitelist || !_s.whitelist.length || _s.dropdown.enable === false ) return;
@@ -1710,6 +1711,11 @@ Tagify.prototype = {
             // set the dropdown visible state to be the same as the searched value.
             // MUST be set *before* position() is called
             this.state.dropdown.visible = value || true;
+            this.state.selection = {
+                anchorOffset : selection.anchorOffset,
+                anchorNode: selection.anchorNode
+            }
+
             this.dropdown.position.call(this)
             // if the dropdown has yet to be appended to the document,
             // append the dropdown to the body element & handle events
@@ -1742,7 +1748,7 @@ Tagify.prototype = {
             if( !dropdown || !document.body.contains(dropdown) || isManual ) return;
 
             window.removeEventListener('resize', this.dropdown.position)
-            this.dropdown.events.binding.call(this, false); // unbind all events
+            this.dropdown.events.binding.call(this, false) // unbind all events
 
             // must delay because if the dropdown is open, and the input (scope) is clicked,
             // the dropdown should be now closed, and the next click should re-open it,
@@ -1750,11 +1756,12 @@ Tagify.prototype = {
             setTimeout(this.events.binding.bind(this), 250)  // re-bind main events
 
             scope.setAttribute("aria-expanded", false)
-            dropdown.parentNode.removeChild(dropdown);
+            dropdown.parentNode.removeChild(dropdown)
 
-            this.state.dropdown.visible = false;
-            this.state.ddItemData = null
-            this.state.ddItemElm = null
+            this.state.dropdown.visible = false
+            this.state.ddItemData =
+            this.state.ddItemElm =
+            this.state.selection = null
 
             this.trigger("dropdown:hide", dropdown);
         },
