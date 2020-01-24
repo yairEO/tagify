@@ -240,7 +240,7 @@
                 div::before{ animation:none; }
             }
 
-            &--notAllowed{
+            &--notAllowed:not(.tagify__tag--editable){
                 div{
                     > span{ opacity:.5; } // filter:blur(.2px);
                     &::before{

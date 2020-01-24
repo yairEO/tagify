@@ -147,9 +147,9 @@
   document.forms[0].reset()
 
   window.tagified = {
-    "basic"             : 0,
+    "basic"             : 1,
     "textarea"          : 0,
-    "mix"               : 1,
+    "mix"               : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
     "advance-options"   : 0,
@@ -221,16 +221,19 @@
     // init Tagify script on the above inputs
     var tagify = new Tagify(input, {
         editTags : 1,
+        keepInvalidTags: true
         // after 2 characters typed, all matching values from this list will be suggested in a dropdown
         // whitelist: [].concat(whitelist)
     })
+
+    tagify.addTags( `a,a,b,a,a` )
 
 
   // Chainable event listeners
   tagify.on('add', onAddTag)
         .on('remove', onRemoveTag)
         .on('input', onInput)
-        .on('edit:beforeUpdate', onPreUpdate)
+       // .on('edit:beforeUpdate', onPreUpdate)
         .on('edit:start edit:keydown click', saveCaretPos)
         .on('edit:input edit:updated edit:start', e => console.log(e.type, e))
         .on('invalid', onInvalidTag)
@@ -296,9 +299,7 @@
 
     // invalid tag added callback
     function onInvalidTag(e){
-      console.log( e.detail )
-      debugger;
-        console.log("onInvalidTag: ", e.detail);
+      console.log("onInvalidTag: ", e.detail);
     }
 
     // invalid tag added callback
