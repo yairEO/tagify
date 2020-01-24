@@ -927,10 +927,9 @@ Tagify.prototype = {
             tagData = this.tagsDataById[tagElm.__tagifyId]
 
         // if tag is invalid, make the according changes in the newly created element
-        tagData = tagData.isValid === true ? newTagData : this.extend(tagData, this.getInvaildTagParams(tagData, tagData))
+        tagData = tagElm.isValid === true ? tagData : this.extend(tagData, this.getInvaildTagParams(tagData, tagData))
 
-        var newTag = this.createTagElem(tagData),
-            tagElmIdx = this.getNodeIndex(tagElm)
+        var newTag = this.createTagElem(tagData);
 
         // when editing a tag and selecting a dropdown suggested item, the state should be "locked"
         // so "onEditTagBlur" won't run and change the tag also *after* it was just changed.
@@ -942,9 +941,13 @@ Tagify.prototype = {
         newTag.__tagifyId = tagElm.__tagifyId;
         tagElm.parentNode.replaceChild(newTag, tagElm)
 
-        // update state
-        if( tagElm.isValid === true )
-            this.value[tagElmIdx] = tagData
+        // update value by traversing all valid tags
+        this.value = [];
+        [].forEach.call(this.getTagElms(), node => {
+            if( node.classList.contains('tagify--notAllowed') ) return
+            this.value.push( this.tagsDataById[node.__tagifyId] )
+        })
+
         this.tagsDataById[tagElm.__tagifyId] = tagData
         this.update()
     },
@@ -1544,6 +1547,22 @@ Tagify.prototype = {
         return tagElm;
     },
 
+    reCheckInvalidTags(){
+        // find all invalid tags and re-check them
+        var tagElms = this.DOM.scope.querySelectorAll('.tagify__tag.tagify--notAllowed');
+        [].forEach.call(tagElms, node => {
+            var nodeData = this.tagsDataById[node.__tagifyId],
+                wasNodeDuplicate = node.getAttribute('title') == this.TEXTS.duplicate,
+                isNodeValid = this.validateTag(nodeData.value, nodeData.__tagifyId) === true;
+
+            // if this tag node was marked as a dulpicate, unmark it (it might have been marked as "notAllowed" for other reasons)
+            if( wasNodeDuplicate && isNodeValid ){
+                node.isValid = true
+                this.replaceTag(node, nodeData)
+            }
+        })
+    },
+
     /**
      * Removes a tag
      * @param  {Object|String}  tagElm          [DOM element or a String value. if undefined or null, remove last added tag]
@@ -1573,26 +1592,8 @@ Tagify.prototype = {
             silent = true
 
         function removeNode(){
-            var tagElms;
-
             if( !tagElm.parentNode ) return
             tagElm.parentNode.removeChild(tagElm)
-
-            // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
-            if( that.settings.keepInvalidTags ){
-                // find all invalid tags and re-check them
-                tagElms = that.DOM.scope.querySelectorAll('.tagify__tag.tagify--notAllowed');
-                [].forEach.call(tagElms, node => {
-                    var nodeData = that.tagsDataById[node.__tagifyId],
-                        wasNodeDuplicate = node.getAttribute('title') == that.TEXTS.duplicate,
-                        isNodeValid = that.validateTag(nodeData.value, nodeData.__tagifyId);
-
-                    // if this tag node was marked as a dulpicate, unmark it (it might have been marked as "notAllowed" for other reasons)
-                    if( wasNodeDuplicate && isNodeValid ){
-                        that.replaceTag(node, nodeData)
-                    }
-                })
-            }
 
             if( !silent ){
                 that.removeValueById(uid)
@@ -1601,6 +1602,10 @@ Tagify.prototype = {
                 that.trigger('remove', { tag:tagElm, index:tagIdx, data:that.tagsDataById[uid] })
                 that.dropdown.refilter.call(that)
                 that.dropdown.position.call(that)
+
+                // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
+                if( that.settings.keepInvalidTags )
+                    that.reCheckInvalidTags()
             }
             else if( that.settings.keepInvalidTags )
                 that.trigger('remove', { tag:tagElm, index:tagIdx })
