@@ -46,6 +46,14 @@ var removeCollectionProp = function removeCollectionProp(collection, unwantedPro
     return props;
   });
 };
+
+function decode(s) {
+  var el = document.createElement('div');
+  return s.replace(/\&#?[0-9a-z]+;/gi, function (enc) {
+    el.innerHTML = enc;
+    return el.innerText;
+  });
+}
 /**
  * utility method
  * https://stackoverflow.com/a/6234804/104380
@@ -54,7 +62,8 @@ var removeCollectionProp = function removeCollectionProp(collection, unwantedPro
 
 function escapeHTML(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
+} // ☝☝☝ ALL THE ABOVE WILL BE MOVED INTO SEPARATE FILES ☝☝☝
+
 /**
  * @constructor
  * @param {Object} input    DOM element
@@ -584,14 +593,14 @@ Tagify.prototype = {
                 // e.preventDefault()
                 var selection = document.getSelection(),
                     values = [],
-                    lastInputValue = this.DOM.input.innerHTML; // if( isFirefox && selection && selection.anchorOffset == 0 )
+                    lastInputValue = decode(this.DOM.input.innerHTML); // if( isFirefox && selection && selection.anchorOffset == 0 )
                 //     this.removeTag(selection.anchorNode.previousSibling)
                 // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                 // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
 
                 setTimeout(function () {
                   // fixes #384, where the first and only tag will not get removed with backspace
-                  if (_this4.DOM.input.innerHTML.length >= lastInputValue.length) {
+                  if (decode(_this4.DOM.input.innerHTML).length >= lastInputValue.length) {
                     _this4.removeTag(selection.anchorNode.previousElementSibling); // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
 
 
@@ -612,7 +621,8 @@ Tagify.prototype = {
                   _this4.value = _this4.value.filter(function (d) {
                     return values.indexOf(d.value) != -1;
                   });
-                });
+                }, 50); // Firefox needs this higher duration for some reason or things get buggy when to deleting text from the end
+
                 break;
               }
             // currently commented to allow new lines in mixed-mode
