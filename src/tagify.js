@@ -863,13 +863,13 @@ Tagify.prototype = {
     /**
      * @param {Node} tagElm the tag element to edit. if nothing specified, use last last
      */
-    editTag( tagElm = this.getLastTag() ){
+    editTag( tagElm = this.getLastTag(), opts ){
         var editableElm = tagElm.querySelector('.tagify__tag-text'),
             tagIdx = this.getNodeIndex(tagElm),
             tagData = this.tagsDataById[tagElm.__tagifyId],
             _CB = this.events.callbacks,
             that = this,
-            isValid,
+            isValid = true,
             delayed_onEditTagBlur = function(){ setTimeout(_CB.onEditTagBlur.bind(that), 0, editableElm) }
 
         if( !editableElm ){
@@ -891,7 +891,9 @@ Tagify.prototype = {
 
         editableElm.focus()
         this.setRangeAtStartEnd(false, editableElm)
-        isValid = this.editTagToggleValidity(tagElm, tagData.value)
+
+        if( !opts.skipValidation )
+            isValid = this.editTagToggleValidity(tagElm, tagData.value)
 
         this.state.editing = {
             scope: tagElm,
@@ -1365,14 +1367,19 @@ Tagify.prototype = {
      * add an empty "tag" element in an editable state
      */
     addEmptyTag(){
-        var tagData = {value:""},
+        var tagData = {
+                value:"",
+                __tagifyId: getUID()
+            },
             tagElm = this.createTagElem(tagData)
+
+        // must be assigned ASAP, before "validateTag" method below
+        this.tagsDataById[tagData.__tagifyId] = tagData
+        tagElm.__tagifyId = tagData.__tagifyId
 
         // add the tag to the component's DOM
         this.appendTag(tagElm)
-        this.value.push(tagData)
-        this.update()
-        this.editTag(tagElm)
+        this.editTag(tagElm, {skipValidation:true})
     },
 
     /**
