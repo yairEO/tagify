@@ -112,7 +112,6 @@ Tagify.prototype = {
                 <span contenteditable data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                     class="tagify__input"
                     role="textbox"
-                    aria-controls="dropdown"
                     aria-autocomplete="both"
                     aria-multiline="${settings.mode=='mix'?true:false}"></span>
             </tags>`
@@ -144,8 +143,7 @@ Tagify.prototype = {
             return `<div ${this.getAttributes(item)}
                         class='tagify__dropdown__item ${item.class ? item.class : ""}'
                         tabindex="0"
-                        role="option"
-                        aria-labelledby="dropdown-label">${sanitizedValue}</div>`;
+                        role="option">${sanitizedValue}</div>`;
         }
     },
 
