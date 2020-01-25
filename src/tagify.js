@@ -817,6 +817,7 @@ Tagify.prototype = {
 
                 if( !currentValue ){
                     this.removeTag(tagElm)
+                    this.onEditTagDone()
                     return
                 }
 
@@ -872,7 +873,10 @@ Tagify.prototype = {
     /**
      * @param {Node} tagElm the tag element to edit. if nothing specified, use last last
      */
-    editTag( tagElm = this.getLastTag(), opts ){
+    editTag( tagElm, opts ){
+        tagElm = tagElm || this.getLastTag()
+        opts = opts || {}
+
         var editableElm = tagElm.querySelector('.tagify__tag-text'),
             tagIdx = this.getNodeIndex(tagElm),
             tagData = this.tagsDataById[tagElm.__tagifyId],
@@ -924,8 +928,11 @@ Tagify.prototype = {
     onEditTagDone(tagElm, tagData){
       var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData }
       this.trigger("edit:beforeUpdate", eventData)
-      this.replaceTag(tagElm, tagData)
+
+      tagElm && this.replaceTag(tagElm, tagData)
+
       this.trigger("edit:updated", eventData)
+      this.dropdown.hide.call(this)
     },
 
     /**
@@ -952,14 +959,19 @@ Tagify.prototype = {
         newTag.__tagifyId = tagElm.__tagifyId;
         tagElm.parentNode.replaceChild(newTag, tagElm)
 
-        // update value by traversing all valid tags
+        this.tagsDataById[tagElm.__tagifyId] = tagData
+        this.updateValueByDOMTags()
+    },
+
+    /**
+     * update value by traversing all valid tags
+     */
+    updateValueByDOMTags(){
         this.value = [];
         [].forEach.call(this.getTagElms(), node => {
             if( node.classList.contains('tagify--notAllowed') ) return
             this.value.push( this.tagsDataById[node.__tagifyId] )
         })
-
-        this.tagsDataById[tagElm.__tagifyId] = tagData
         this.update()
     },
 
