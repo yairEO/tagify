@@ -1803,7 +1803,7 @@ Tagify.prototype = {
 
             this.DOM.scope.setAttribute("aria-expanded", true)
 
-            this.trigger("dropdown:show", this.DOM.dropdown);
+            this.trigger("dropdown:show", this.DOM.dropdown)
             // set the dropdown visible state to be the same as the searched value.
             // MUST be set *before* position() is called
             this.state.dropdown.visible = value || true;
@@ -1827,7 +1827,7 @@ Tagify.prototype = {
                     document.body.appendChild(this.DOM.dropdown);
 
                     setTimeout(() =>
-                        this.DOM.dropdown.classList.remove('tagify__dropdown--initial')
+                      this.DOM.dropdown.classList.remove('tagify__dropdown--initial')
                     )
                 }
 
@@ -1869,6 +1869,7 @@ Tagify.prototype = {
             this.suggestedListItems = this.dropdown.filterListItems.call(this, '');
             var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
             this.DOM.dropdown.content.innerHTML = this.minify(listHTML);
+            this.trigger("dropdown:updated", this.DOM.dropdown)
         },
 
         position(ddHeight){

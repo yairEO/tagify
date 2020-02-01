@@ -1828,6 +1828,7 @@ Tagify.prototype = {
       this.suggestedListItems = this.dropdown.filterListItems.call(this, '');
       var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
       this.DOM.dropdown.content.innerHTML = this.minify(listHTML);
+      this.trigger("dropdown:updated", this.DOM.dropdown);
     },
     position: function position(ddHeight) {
       var isBelowViewport,
