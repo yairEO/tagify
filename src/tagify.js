@@ -859,7 +859,7 @@ Tagify.prototype = {
 
                 if( !tagElm ) return
 
-                isEditingTag = tagElm.classList.contains('tagify__tag--editable'),
+                isEditingTag = tagElm.classList.contains('tagify__tag--editable')
                 isReadyOnlyTag = tagElm.hasAttribute('readonly')
 
                 if( _s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags )
@@ -1313,8 +1313,13 @@ Tagify.prototype = {
 
             if( s2.length > 1   &&   (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&   !(!duplicates  && this.isTagDuplicate(tagData)) ){
                 transformTag.call(this, tagData)
+                tagData.__tagifyId = getUID()
                 tagElm = this.createTagElem(tagData)
                 tagElm.classList.add('tagify--noAnim')
+
+                tagElm.__tagifyId = tagData.__tagifyId
+                this.tagsDataById[tagElm.__tagifyId] = tagData
+
                 s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
                 this.value.push(tagData);
             }

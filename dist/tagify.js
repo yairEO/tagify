@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.3.0)- tags input component
+ * Tagify (v 3.3.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -880,7 +880,8 @@ Tagify.prototype = {
             isEditingTag,
             isReadyOnlyTag;
         if (!tagElm) return;
-        isEditingTag = tagElm.classList.contains('tagify__tag--editable'), isReadyOnlyTag = tagElm.hasAttribute('readonly');
+        isEditingTag = tagElm.classList.contains('tagify__tag--editable');
+        isReadyOnlyTag = tagElm.hasAttribute('readonly');
         if (_s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags) this.editTag(tagElm);
         this.toggleFocusClass(true);
       }
@@ -1317,8 +1318,11 @@ Tagify.prototype = {
 
       if (s2.length > 1 && (!enforceWhitelist || _this10.isTagWhitelisted(tagData.value)) && !(!duplicates && _this10.isTagDuplicate(tagData))) {
         transformTag.call(_this10, tagData);
+        tagData.__tagifyId = getUID();
         tagElm = _this10.createTagElem(tagData);
         tagElm.classList.add('tagify--noAnim');
+        tagElm.__tagifyId = tagData.__tagifyId;
+        _this10.tagsDataById[tagElm.__tagifyId] = tagData;
         s2[0] = tagElm.outerHTML; //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
 
         _this10.value.push(tagData);

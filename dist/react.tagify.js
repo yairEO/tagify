@@ -9,6 +9,9 @@ class Tags extends React.Component {
   }
 
   componentDidMount() {
+    if( this.props.value )
+      this.component.value = this.props.value
+
     this.tagify = new Tagify(this.component, this.props.settings || {});
   }
 
