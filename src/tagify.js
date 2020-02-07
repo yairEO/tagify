@@ -119,7 +119,7 @@ Tagify.prototype = {
                         ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="listbox" aria-expanded="false"'}
                         role="tagslist"
                         tabIndex="-1">
-                <span contenteditable='true' data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
+                <span contenteditable='${settings.contenteditable == undefined ? true : settings.contenteditable}' data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                     class="tagify__input"
                     role="textbox"
                     aria-autocomplete="both"

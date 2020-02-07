@@ -94,11 +94,7 @@
     // Global "read-only" mode (no input button)
     &[readonly]{
         cursor: default;
-        > #{ $self }__input{
-            visibility: hidden;
-            width: 0;
-            margin: $tagMargin 0;
-        }
+        border: 0;
         #{ $self }__tag__removeBtn{ display:none; }
         #{ $self }__tag > div{
             padding: $tag-pad;
