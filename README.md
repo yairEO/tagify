@@ -48,6 +48,7 @@
    * [Suggestions selectbox](#suggestions-selectbox)
    * [React wrapper](#react)
    * [Angular wrapper](#angular)
+   * [Vue Example](https://medium.com/@krishnadeepuv/tagify-with-vue-234cdb03abd3)
    * [jQuery version](#jquery-version)
    * [FAQ](#FAQ)
    * [Methods](#methods)
@@ -333,6 +334,8 @@ Applying the setting `dropdown.position:"text"` is encouraged for mixed-content 
 will be rendered right next to the caret location and not the the bottom of the Tagify componenet, which might look
 weird when there is already a lot of content at multiple lines.
 
+If a tag does not exists in the *whitelist*, it may be created by the user and all you should do is listen to the `add` event and update your local/remote state.
+
 ## Single-Value
 
 Similar to native `<Select>` element, but allows typing free text as value.
@@ -547,7 +550,7 @@ mode                    | String           | null                             | 
 mixTagsInterpolator     | Array            | `['[[', ']]']`                   | Interpolation for mix mode. Everything between these will become a tag
 mixTagsAllowedAfter     | Regex            | `/,|\.|\:|\s/`                   | Define conditions in which typed mix-tags content is allowing a tag to be created after.
 duplicates              | Boolean          | false                            | Should duplicate tags be allowed or not
-enforceWhitelist        | Boolean          | false                            | Should ONLY use tags allowed in whitelist
+enforceWhitelist        | Boolean          | false                            | Should ONLY use tags allowed in whitelist.<br>In `mix-mode`, setting it  to `false` will not allow creating new tags.
 autocomplete.enabled    | Boolean          | true                             | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
 autocomplete.rightKey   | Boolean          | false                            | If `true`, when <kbd>→</kdb> is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
 whitelist               | Array            | []                               | An array of tags which only they are allowed

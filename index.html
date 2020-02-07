@@ -556,8 +556,14 @@
                     </p>
                     <p>
                         When a <code>textarea</code> already has mixed-content and it wasn't pre-configured using a whitelist, the tags will ignored, so keep
-                        that in mind when populating a textarea with server data and expecting tags to "magically" appear. Whitelist must be specified because not
-                        everything that starts with <code>@</code> or <code>#</code> (or whatever was defined) is meant to be rendered as a tag.
+                        that in mind when populating a textarea with server data and expecting tags to "magically" appear. Whitelist <strong><em>must</em></strong> exist because not
+                        everything that starts with <code>@</code> or <code>#</code> (or whatever was defined as <code>pattern</code>) is meant to be rendered as a tag.
+                    </p>
+                    <h4>Creating new tags:</h4>
+                    <p>
+                        To create new tags (ones not included in your <code>whitelist</code> collection), simply make sure
+                        to keep the <code>enforceWhitelist</code> setting as <code>false</code>, which is the <em>default</em>.
+                        After a new tags has been added, you should listen to the <code>add</code> and probably update your local state (Ex. server request).
                     </p>
                     <details>
                       <summary></summary>
@@ -1102,14 +1108,14 @@ var input = document.querySelector('[name=mix]'),
     //  mixTagsInterpolator: ["{{", "}}"],
         mode: 'mix',  // <--  Enable mixed-content
         pattern: /@|#/,  // <--  Text starting with @ or # (if single, String can be used here)
-        enforceWhitelist: true,
 
         // Array for initial interpolation, which allows only these tags to be used
         whitelist: whitelist_1.concat(whitelist_2).map(function(item){ return typeof item == 'string' ? {value:item} : item}),
 
         dropdown : {
             enabled: 1,
-            position: "text"
+            position: "text",
+            highlightFirst: true  // automatically highlights first sugegstion item in the dropdown
         },
         callbacks: {
             add: console.log,  // callback when adding a tag

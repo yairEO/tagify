@@ -555,5 +555,14 @@
                 filter: brightness(105%);
             }
         }
+
+        &__createTagBtn{
+          width: 100%;
+          background: $tags-focus-border-color;
+          background: var(--tagify-dd-color-primary);
+          color: white;
+          color: var(--tagify-dd-bg-color);
+          border: none;
+        }
     }
 }

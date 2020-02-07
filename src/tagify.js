@@ -1766,7 +1766,7 @@ Tagify.prototype = {
         },
 
         show( value ){
-            var listHTML,
+            var HTMLContent,
                 _s = this.settings,
                 firstListItem,
                 firstListItemValue,
@@ -1779,28 +1779,33 @@ Tagify.prototype = {
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems
             // TODO: add a Setting to control items' sort order for "listItems"
-            this.suggestedListItems = this.dropdown.filterListItems.call(this, value);
+            this.suggestedListItems = this.dropdown.filterListItems.call(this, value)
 
-            // hide suggestions list if no suggestions were matched
-            if( this.suggestedListItems.length ){
-                firstListItem =  this.suggestedListItems[0]
-                firstListItemValue = firstListItem.value || firstListItem
-
-                if( _s.autoComplete ){
-                    // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
-                    if( firstListItemValue.indexOf(value) == 0 )
-                        this.input.autocomplete.suggest.call(this, firstListItem)
+            if( !this.suggestedListItems.length ){
+                // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
+                // then add a custom suggestion item to the dropdown
+                if( _s.mode == 'mix' && !_s.enforceWhitelist ){
+                    this.suggestedListItems = [{value}]
+                }
+                // hide suggestions list if no suggestions were matched & cleanup
+                else{
+                    this.input.autocomplete.suggest.call(this);
+                    this.dropdown.hide.call(this);
+                    return;
                 }
             }
-            else{
-                this.input.autocomplete.suggest.call(this);
-                this.dropdown.hide.call(this);
-                return;
+
+            firstListItem =  this.suggestedListItems[0]
+            firstListItemValue = firstListItem.value || firstListItem
+
+            if( _s.autoComplete ){
+                // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
+                if( firstListItemValue.indexOf(value) == 0 )
+                    this.input.autocomplete.suggest.call(this, firstListItem)
             }
 
-            listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
-
-            this.DOM.dropdown.content.innerHTML = this.minify(listHTML);
+            HTMLContent = this.dropdown.createListHTML.call(this, this.suggestedListItems);
+            this.DOM.dropdown.content.innerHTML = this.minify(HTMLContent);
 
             // if "enforceWhitelist" is "true", highlight the first suggested item
             if( (_s.enforceWhitelist && !isManual) || _s.dropdown.highlightFirst )

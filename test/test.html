@@ -147,16 +147,16 @@
   document.forms[0].reset()
 
   window.tagified = {
-    "basic"             : 0,
-    "textarea"          : 0,
+    "basic"             : 1,
+    "textarea"          : 1,
     "mix"               : 1,
-    "manual-suggestions": 0,
-    "outside-of-the-box": 0,
-    "advance-options"   : 0,
-    "extra-properties"  : 0,
-    "readonly"          : 0,
-    "readonly-mixed"    : 0,
-    "mode-select"       : 0,
+    "manual-suggestions": 1,
+    "outside-of-the-box": 1,
+    "advance-options"   : 1,
+    "extra-properties"  : 1,
+    "readonly"          : 1,
+    "readonly-mixed"    : 1,
+    "mode-select"       : 1,
   };
 
   (function(){
@@ -397,6 +397,7 @@
     dropdown: {
       enabled: 1
     },
+    enforceWhitelist : true,
     whitelist:['alice','bob','foo','bar'],
     duplicates: true,
   }
@@ -413,7 +414,6 @@
       tagify = new Tagify(input, {
           mode             : 'mix',  // <--  Enable mixed-content
           pattern          : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
-          enforceWhitelist : true,
           duplicates       : true,
           whitelist        : [       // <--  Set the initial whitelist, which will dynamically change as you type (see "input" event below)
             { value:'cartman', title:'Eric Cartman', class:'borderd-blue', prefix:'@' },
@@ -423,7 +423,9 @@
           ],
           dropdown   : {
               enabled : 0,
-              maxItems: 20
+              maxItems: 20,
+              position: "text",
+              highlightFirst: true
           },
           callbacks        : {
             add    : console.log,  // callback when adding a tag
