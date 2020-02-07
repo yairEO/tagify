@@ -119,7 +119,7 @@ Tagify.prototype = {
                         ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="listbox" aria-expanded="false"'}
                         role="tagslist"
                         tabIndex="-1">
-                <span contenteditable data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
+                <span contenteditable='true' data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                     class="tagify__input"
                     role="textbox"
                     aria-autocomplete="both"
@@ -314,7 +314,7 @@ Tagify.prototype = {
      * if the original input had any values, add them as tags
      */
     loadOriginalValues( value ){
-        value = value || this.DOM.originalInput.value
+        value = value || this.DOM.originalInput.value || this.DOM.originalInput.textContent
 
         // if the original input already had any value (tags)
         if( !value ) return;
