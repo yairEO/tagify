@@ -157,7 +157,7 @@ Tagify.prototype = {
         }
     },
 
-    customEventsList : ['add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select'],
+    customEventsList : ['add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'edit:invalid', 'dropdown:show', 'dropdown:hide', 'dropdown:select'],
 
     applySettings( input, settings ){
         this.DEFAULTS.templates = this.templates;
@@ -821,18 +821,28 @@ Tagify.prototype = {
                     return
                 }
 
-                if( hasChanged ){
+                let invalidCause = null;
+                if( hasChanged ) {
                     this.settings.transformTag.call(this, tagData)
                     // re-validate after tag transformation
-                    isValid = this.validateTag(tagData.value) === true
+                    invalidCause = this.validateTag(tagData.value);
+                    isValid = invalidCause === true
                 }
                 else{
                     this.onEditTagDone(tagElm)
                     return
                 }
 
-                if( isValid !== true )
+                if( isValid !== true ) {
+                    let tagElmIdx = this.getNodeIndex(tagElm);
+                    this.trigger("edit:invalid", {
+                        tag          : tagElm,
+                        tagIndex     : tagElmIdx,
+                        tagData      : tagData,
+                        cause        : invalidCause
+                    });
                     return;
+                }
 
                 this.onEditTagDone(tagElm, tagData)
             },
