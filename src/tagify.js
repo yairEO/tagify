@@ -49,7 +49,8 @@ function Tagify( input, settings ){
         editing : {},
         actions : {},   // UI actions for state-locking
         dropdown: {}
-    };
+    }
+
     this.value = [] // tags' data
     this.tagsDataById = {}
 
@@ -319,7 +320,7 @@ Tagify.prototype = {
         // if the original input already had any value (tags)
         if( !value ) return;
 
-        this.removeAllTags();
+        this.removeAllTags()
 
         if( this.settings.mode == 'mix' )
             this.parseMixTags(value.trim())
@@ -566,6 +567,7 @@ Tagify.prototype = {
                            // e.preventDefault()
                             var selection = document.getSelection(),
                                 values = [],
+                                ids = [],
                                 lastInputValue = decode(this.DOM.input.innerHTML);
 
                             // if( isFirefox && selection && selection.anchorOffset == 0 )
@@ -586,12 +588,22 @@ Tagify.prototype = {
                                     }
                                 }
 
-                                var tagElms = this.DOM.input.querySelectorAll('.tagify__tag');
+                                var tagElms = this.getTagElms();
 
                                 // find out which tag(s) were deleted and update "this.value" accordingly
                                 // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
-                                [].forEach.call( tagElms, node => values.push(node.getAttribute('value')) )
-                                this.value = this.value.filter(d => values.indexOf(d.value) != -1);
+                                [].forEach.call( tagElms, node => {
+                                    ids.push(node.__tagifyId)
+                                    values.push(node.getAttribute('value'))
+                                })
+
+                                // update "tagsDataById" with removed items
+                                for( let id in this.tagsDataById ){
+                                    if( !ids.includes(id) )
+                                        delete this.tagsDataById[id]
+                                }
+
+                                this.value = this.value.filter(d => values.indexOf(d.value) != -1)
                             }, 50) // Firefox needs this higher duration for some reason or things get buggy when to deleting text from the end
                             break;
                         }
@@ -687,7 +699,18 @@ Tagify.prototype = {
 
             onMixTagsInput( e ){
                 var sel, range, split, tag, showSuggestions,
-                    _s = this.settings;
+                    _s = this.settings,
+                    lastTagsCount = Object.keys(this.tagsDataById).length,
+                    tagsCount = this.getTagElms().length;
+
+console.log(this.tagsDataById)
+                // check if any tags were magically added through browser redo/undo
+                if( tagsCount > lastTagsCount ){
+                    let value = [].map.call(this.getTagElms(), node => node.__tagifyId)
+                    console.log( value)
+                  //  console.log( this.getMixedTagsAsString(value)  )
+                    return
+                }
 
                 if( this.hasMaxTags() )
                     return true
@@ -824,15 +847,17 @@ Tagify.prototype = {
                 if( hasChanged ){
                     this.settings.transformTag.call(this, tagData)
                     // re-validate after tag transformation
-                    isValid = this.validateTag(tagData.value) === true
+                    isValid = this.validateTag(tagData.value)
                 }
                 else{
                     this.onEditTagDone(tagElm)
                     return
                 }
 
-                if( isValid !== true )
+                if( isValid !== true ){
+                    this.trigger("invalid", {data:tagData, tag:tagElm, message:isValid})
                     return;
+                }
 
                 this.onEditTagDone(tagElm, tagData)
             },
@@ -1297,7 +1322,9 @@ Tagify.prototype = {
      * @param {String} s
      */
     parseMixTags( s ){
-        var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist} = this.settings;
+        var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist} = this.settings,
+            id,
+            ids = [];
 
         s = s.split(mixTagsInterpolator[0]).map((s1, i) => {
             var s2 = s1.split(mixTagsInterpolator[1]),
@@ -1313,15 +1340,17 @@ Tagify.prototype = {
 
             if( s2.length > 1   &&   (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&   !(!duplicates  && this.isTagDuplicate(tagData)) ){
                 transformTag.call(this, tagData)
-                tagData.__tagifyId = getUID()
+
+                id = getUID()
+                ids.push(id)
+
+                tagData.__tagifyId = id
                 tagElm = this.createTagElem(tagData)
                 tagElm.classList.add('tagify--noAnim')
-
-                tagElm.__tagifyId = tagData.__tagifyId
-                this.tagsDataById[tagElm.__tagifyId] = tagData
+                this.tagsDataById[id] = tagData
 
                 s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
-                this.value.push(tagData);
+                this.value.push(tagData)
             }
             else if(s1)
               return i ? mixTagsInterpolator[0] + s1 : s1
@@ -1331,6 +1360,7 @@ Tagify.prototype = {
 
         this.DOM.input.innerHTML = s
         this.DOM.input.appendChild(document.createTextNode(''))
+        this.getTagElms().forEach((elm, idx) => elm.__tagifyId = ids[idx])
         this.update()
         return s
     },
@@ -1428,7 +1458,8 @@ Tagify.prototype = {
         // converts Array/String/Object to an Array of Objects
         tagsItems = this.normalizeTags(tagsItems);
 
-        // if in edit-mode, do not continue but instead replace the tag's text
+        // if in edit-mode, do not continue but instead replace the tag's text.
+        // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
         if( this.state.editing.scope ){
             return this.onEditTagDone(this.state.editing.scope, tagsItems[0])
         }
@@ -1676,7 +1707,6 @@ Tagify.prototype = {
         this.value = this.value.filter(item => item.__tagifyId != uid)
     },
 
-
     preUpdate(){
         this.DOM.scope.classList.toggle('tagify--hasMaxTags',  this.value.length >= this.settings.maxTags)
         this.DOM.scope.classList.toggle('tagify--noTags',  !this.value.length)
@@ -1695,7 +1725,7 @@ Tagify.prototype = {
             : this.value.length
                 ? JSON.stringify(value)
                 : ""
-         this.DOM.originalInput.dispatchEvent(new Event('change'))
+        this.DOM.originalInput.dispatchEvent(new Event('change'))
     },
 
     getMixedTagsAsString(value){
