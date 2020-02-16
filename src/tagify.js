@@ -664,7 +664,7 @@ Tagify.prototype = {
 
                 if( this.input.value == value ) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
 
-                eventData.isValid = this.validateTag(value);
+                eventData.isValid = this.validateTag({value});
                 this.trigger('input', eventData) // "input" event must be triggered at this point, before the dropdown is shown
 
                 // save the value on the input's State object
@@ -1024,7 +1024,7 @@ Tagify.prototype = {
          * Marks the tagify's input as "invalid" if the value did not pass "validateTag()"
          */
         validate(){
-            var isValid = !this.input.value || this.validateTag(this.input.value)
+            var isValid = !this.input.value || this.validateTag({value:this.input.value})
 
             if( this.settings.mode == 'select' )
                 this.DOM.scope.classList.toggle('tagify--invalid', isValid !== true)
@@ -1483,7 +1483,7 @@ Tagify.prototype = {
             _s.transformTag.call(this, tagData);
 
             ///////////////// ( validation )//////////////////////
-            tagValidation = this.hasMaxTags() || this.validateTag(tagData.value);
+            tagValidation = this.hasMaxTags() || this.validateTag(tagData);
 
             if( tagValidation !== true ){
                 if( skipInvalid )
@@ -1637,6 +1637,9 @@ Tagify.prototype = {
             tagElm.parentNode.removeChild(tagElm)
 
             if( !silent ){
+                if (tagIdx > -1)
+                    that.value.splice(tagIdx, 1)
+
                 // that.removeValueById(tagData.__uid)
                 that.update() // update the original input with the current value
                 that.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData })
