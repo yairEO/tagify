@@ -8,6 +8,14 @@ const removeCollectionProp = (collection, unwantedProp) => collection.map(v => {
     return props
 })
 
+/**
+ * Checks if an argument is a javascript Object
+ */
+function isObject(obj) {
+    var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
+    return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
+}
+
 function decode( s ) {
   var el = document.createElement('div');
     return s.replace(/\&#?[0-9a-z]+;/gi, function(enc){
@@ -52,7 +60,6 @@ function Tagify( input, settings ){
     }
 
     this.value = [] // tags' data
-    this.tagsDataById = {}
 
     // events' callbacks references will be stores here, so events could be unbinded
     this.listeners = {}
@@ -180,7 +187,7 @@ Tagify.prototype = {
         })
 
         // backward-compatibility for old version of "autoComplete" setting:
-        if( "autoComplete" in settings && !this.isObject(settings.autoComplete) ){
+        if( "autoComplete" in settings && !isObject(settings.autoComplete) ){
             this.settings.autoComplete = this.DEFAULTS.autoComplete
             this.settings.autoComplete.enabled = settings.autoComplete
         }
@@ -336,14 +343,6 @@ Tagify.prototype = {
     },
 
     /**
-     * Checks if an argument is a javascript Object
-     */
-    isObject(obj) {
-        var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
-        return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
-    },
-
-    /**
      * merge objects into a single new one
      * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
      */
@@ -359,8 +358,8 @@ Tagify.prototype = {
             // copy o2 to o
             for( var key in b )
                 if( b.hasOwnProperty(key) ){
-                    if( that.isObject(b[key]) ){
-                        if( !that.isObject(a[key]) )
+                    if( isObject(b[key]) ){
+                        if( !isObject(a[key]) )
                             a[key] = Object.assign({}, b[key]);
                         else
                             copy(a[key], b[key])
@@ -566,8 +565,6 @@ Tagify.prototype = {
                         case 'Backspace' : {
                            // e.preventDefault()
                             var selection = document.getSelection(),
-                                values = [],
-                                ids = [],
                                 lastInputValue = decode(this.DOM.input.innerHTML);
 
                             // if( isFirefox && selection && selection.anchorOffset == 0 )
@@ -588,22 +585,9 @@ Tagify.prototype = {
                                     }
                                 }
 
-                                var tagElms = this.getTagElms();
-
                                 // find out which tag(s) were deleted and update "this.value" accordingly
                                 // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
-                                [].forEach.call( tagElms, node => {
-                                    ids.push(node.__tagifyId)
-                                    values.push(node.getAttribute('value'))
-                                })
-
-                                // update "tagsDataById" with removed items
-                                for( let id in this.tagsDataById ){
-                                    if( !ids.includes(id) )
-                                        delete this.tagsDataById[id]
-                                }
-
-                                this.value = this.value.filter(d => values.indexOf(d.value) != -1)
+                                this.value = [].map.call(this.getTagElms(), node => node.__tagifyTagData)
                             }, 50) // Firefox needs this higher duration for some reason or things get buggy when to deleting text from the end
                             break;
                         }
@@ -668,7 +652,7 @@ Tagify.prototype = {
             onInput(e){
                 var value = this.settings.mode == 'mix' ? this.DOM.input.textContent : this.input.normalize.call(this),
                     showSuggestions = value.length >= this.settings.dropdown.enabled,
-                    data = {value, inputElm:this.DOM.input};
+                    eventData = {value, inputElm:this.DOM.input};
 
                 if( this.settings.mode == 'mix' )
                     return this.events.callbacks.onMixTagsInput.call(this, e);
@@ -680,8 +664,8 @@ Tagify.prototype = {
 
                 if( this.input.value == value ) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
 
-                data.isValid = this.validateTag(value);
-                this.trigger('input', data) // "input" event must be triggered at this point, before the dropdown is shown
+                eventData.isValid = this.validateTag(value);
+                this.trigger('input', eventData) // "input" event must be triggered at this point, before the dropdown is shown
 
                 // save the value on the input's State object
                 this.input.set.call(this, value, false); // update the input with the normalized value and run validations
@@ -700,15 +684,13 @@ Tagify.prototype = {
             onMixTagsInput( e ){
                 var sel, range, split, tag, showSuggestions,
                     _s = this.settings,
-                    lastTagsCount = Object.keys(this.tagsDataById).length,
+                    lastTagsCount = this.value.length,
                     tagsCount = this.getTagElms().length;
 
-console.log(this.tagsDataById)
-                // check if any tags were magically added through browser redo/undo
+                // check if ANY tags were magically added through browser redo/undo
                 if( tagsCount > lastTagsCount ){
-                    let value = [].map.call(this.getTagElms(), node => node.__tagifyId)
-                    console.log( value)
-                  //  console.log( this.getMixedTagsAsString(value)  )
+                    this.value = [].map.call(this.getTagElms(), node => node.__tagifyTagData)
+                    this.update()
                     return
                 }
 
@@ -804,10 +786,10 @@ console.log(this.tagsDataById)
                 var tagElm = editableElm.closest('tag'),
                     tagElmIdx = this.getNodeIndex(tagElm),
                     value = this.input.normalize.call(this, editableElm),
-                    isValid = value.toLowerCase() == editableElm.originalValue.toLowerCase() || this.validateTag(value);
+                    isValid = value.toLowerCase() == editableElm.originalValue.toLowerCase() || this.validateTag({value});
 
                 tagElm.classList.toggle('tagify--invalid', isValid !== true);
-                tagElm.isValid = isValid === true;
+                tagElm.__tagifyTagData.__isValid = isValid;
 
                 // show dropdown if typed text is equal or more than the "enabled" dropdown setting
                 if( value.length >= this.settings.dropdown.enabled ){
@@ -833,8 +815,8 @@ console.log(this.tagsDataById)
                     currentValue = this.input.normalize.call(this, editableElm),
                     value        = currentValue || editableElm.originalValue,
                     hasChanged   = value != editableElm.originalValue,
-                    isValid      = tagElm.isValid,
-                    tagData      = {...this.tagsDataById[tagElm.__tagifyId], value};
+                    isValid      = tagElm.__tagifyTagData.__isValid,
+                    tagData      = this.extend({}, tagElm.__tagifyTagData, {value});
 
               //  this.DOM.input.focus()
 
@@ -847,7 +829,7 @@ console.log(this.tagsDataById)
                 if( hasChanged ){
                     this.settings.transformTag.call(this, tagData)
                     // re-validate after tag transformation
-                    isValid = this.validateTag(tagData.value)
+                    isValid = this.validateTag(tagData)
                 }
                 else{
                     this.onEditTagDone(tagElm)
@@ -904,7 +886,7 @@ console.log(this.tagsDataById)
 
         var editableElm = tagElm.querySelector('.tagify__tag-text'),
             tagIdx = this.getNodeIndex(tagElm),
-            tagData = this.tagsDataById[tagElm.__tagifyId],
+            tagData = tagElm.__tagifyTagData,
             _CB = this.events.callbacks,
             that = this,
             isValid = true,
@@ -944,10 +926,12 @@ console.log(this.tagsDataById)
     },
 
     editTagToggleValidity( tagElm, value ){
-        var isValid = this.validateTag(value, tagElm.__tagifyId)
+        var tagData = tagElm.__tagifyTagData,
+            isValid = this.validateTag(tagData);
+
         tagElm.classList.toggle('tagify--invalid', isValid !== true)
-        tagElm.isValid = isValid
-        return isValid;
+        tagData.__isValid = isValid
+        return isValid
     },
 
     onEditTagDone(tagElm, tagData){
@@ -967,10 +951,11 @@ console.log(this.tagsDataById)
      */
     replaceTag(tagElm, tagData){
         if( !tagData || !tagData.value )
-            tagData = this.tagsDataById[tagElm.__tagifyId]
+            tagData = tagElm.__tagifyTagData
 
         // if tag is invalid, make the according changes in the newly created element
-        tagData = tagElm.isValid === true ? tagData : this.extend(tagData, this.getInvaildTagParams(tagData, tagData))
+        if( tagData.__isValid != true )
+            this.extend( tagData, this.getInvaildTagParams(tagData, tagData.__isValid) )
 
         var newTag = this.createTagElem(tagData);
 
@@ -981,10 +966,7 @@ console.log(this.tagsDataById)
         setTimeout(() => delete this.state.editing.locked, 500)
 
         // update DOM
-        newTag.__tagifyId = tagElm.__tagifyId;
         tagElm.parentNode.replaceChild(newTag, tagElm)
-
-        this.tagsDataById[tagElm.__tagifyId] = tagData
         this.updateValueByDOMTags()
     },
 
@@ -993,10 +975,12 @@ console.log(this.tagsDataById)
      */
     updateValueByDOMTags(){
         this.value = [];
+
         [].forEach.call(this.getTagElms(), node => {
             if( node.classList.contains('tagify--notAllowed') ) return
-            this.value.push( this.tagsDataById[node.__tagifyId] )
+            this.value.push( node.__tagifyTagData )
         })
+
         this.update()
     },
 
@@ -1150,7 +1134,7 @@ console.log(this.tagsDataById)
      * @param  {String/Object} v [text value / tag data object]
      * @return {Boolean}
      */
-    isTagDuplicate( v, uid ){
+    isTagDuplicate( value ){
         // duplications are irrelevant for this scenario
         if( this.settings.mode == 'select' )
             return false
@@ -1158,11 +1142,12 @@ console.log(this.tagsDataById)
         return this.value.some(item =>
             // if this item has the same uid as the one checked, it cannot be a duplicate of itself.
             // most of the time uid will be "undefined"
-            item.__tagifyId == uid
+            item.value == value
                 ? false
-                : this.isObject(v)
-                    ? JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase()
-                    : v.trim().toLowerCase() === item.value.toLowerCase()
+                : value.trim().toLowerCase() === item.value.toLowerCase()
+                // : isObject(value)
+                //     ? JSON.stringify(item).toLowerCase() === JSON.stringify(value).toLowerCase()
+                //     : value.trim().toLowerCase() === item.value.toLowerCase()
             )
     },
 
@@ -1224,8 +1209,8 @@ console.log(this.tagsDataById)
      * @param  {String} uid      [unique ID, to not inclue own tag when cheking for duplicates]
      * @return {Boolean/String}  ["true" if validation has passed, String for a fail]
      */
-    validateTag( s, uid ){
-        var value = s.trim(),
+    validateTag( tagData ){
+        var value = tagData.value.trim(),
             _s = this.settings,
             result = true;
 
@@ -1237,7 +1222,7 @@ console.log(this.tagsDataById)
             result = this.TEXTS.pattern;
 
         // if duplicates are not allowed and there is a duplicate
-        else if( !_s.duplicates && this.isTagDuplicate(value, uid) )
+        else if( !_s.duplicates && this.isTagDuplicate(tagData.value) )
             result = this.TEXTS.duplicate;
 
         else if( this.isTagBlacklisted(value) ||(_s.enforceWhitelist && !this.isTagWhitelisted(value)) )
@@ -1323,8 +1308,7 @@ console.log(this.tagsDataById)
      */
     parseMixTags( s ){
         var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist} = this.settings,
-            id,
-            ids = [];
+            tagsDataSet = [];
 
         s = s.split(mixTagsInterpolator[0]).map((s1, i) => {
             var s2 = s1.split(mixTagsInterpolator[1]),
@@ -1338,16 +1322,12 @@ console.log(this.tagsDataById)
                 tagData = this.normalizeTags(preInterpolated)[0]  //{value:preInterpolated}
             }
 
-            if( s2.length > 1   &&   (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&   !(!duplicates  && this.isTagDuplicate(tagData)) ){
+            if( s2.length > 1   &&   (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&   !(!duplicates  && this.isTagDuplicate(tagData.value)) ){
                 transformTag.call(this, tagData)
 
-                id = getUID()
-                ids.push(id)
-
-                tagData.__tagifyId = id
                 tagElm = this.createTagElem(tagData)
+                tagsDataSet.push( tagData )
                 tagElm.classList.add('tagify--noAnim')
-                this.tagsDataById[id] = tagData
 
                 s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
                 this.value.push(tagData)
@@ -1360,7 +1340,7 @@ console.log(this.tagsDataById)
 
         this.DOM.input.innerHTML = s
         this.DOM.input.appendChild(document.createTextNode(''))
-        this.getTagElms().forEach((elm, idx) => elm.__tagifyId = ids[idx])
+        this.getTagElms().forEach((elm, idx) => elm.__tagifyTagData = tagsDataSet[idx])
         this.update()
         return s
     },
@@ -1423,15 +1403,11 @@ console.log(this.tagsDataById)
      * add an empty "tag" element in an editable state
      */
     addEmptyTag(){
-        var tagData = {
-                value:"",
-                __tagifyId: getUID()
-            },
+        var tagData = {value:""},
             tagElm = this.createTagElem(tagData)
 
         // must be assigned ASAP, before "validateTag" method below
-        this.tagsDataById[tagData.__tagifyId] = tagData
-        tagElm.__tagifyId = tagData.__tagifyId
+        tagElm.__tagifyTagData = tagData;
 
         // add the tag to the component's DOM
         this.appendTag(tagElm)
@@ -1504,11 +1480,6 @@ console.log(this.tagsDataById)
             // shallow-clone tagData so later modifications will not apply to the source
             tagData = Object.assign({}, tagData)
 
-            // generate unique ID for this tag, not to keep the data object on the DOM node itself
-            tagData.__tagifyId = getUID()
-            // must be assigned ASAP, before "validateTag" method below
-            this.tagsDataById[tagData.__tagifyId] = tagData;
-
             _s.transformTag.call(this, tagData);
 
             ///////////////// ( validation )//////////////////////
@@ -1534,7 +1505,7 @@ console.log(this.tagsDataById)
 
             // Create tag HTML element
             tagElm = this.createTagElem( this.extend({}, tagData, tagElmParams) )
-            tagElm.__tagifyId = tagData.__tagifyId
+            tagElm.__tagifyTagData = tagData
             tagElems.push(tagElm)
 
             // mode-select overrides
@@ -1605,8 +1576,11 @@ console.log(this.tagsDataById)
         if( this.settings.readonly )
             tagData.readonly = true;
 
-        template = this.minify(template);
-        tagElm = this.parseHTML(template);
+        // tagData.__uid = tagData.__uid || getUID()
+
+        template = this.minify(template)
+        tagElm = this.parseHTML(template)
+        tagElm.__tagifyTagData = tagData
 
         return tagElm;
     },
@@ -1614,15 +1588,16 @@ console.log(this.tagsDataById)
     reCheckInvalidTags(){
         // find all invalid tags and re-check them
         var tagElms = this.DOM.scope.querySelectorAll('.tagify__tag.tagify--notAllowed');
+
         [].forEach.call(tagElms, node => {
-            var nodeData = this.tagsDataById[node.__tagifyId],
+            var tagData = node.__tagifyTagData,
                 wasNodeDuplicate = node.getAttribute('title') == this.TEXTS.duplicate,
-                isNodeValid = this.validateTag(nodeData.value, nodeData.__tagifyId) === true;
+                isNodeValid = this.validateTag(tagData) === true;
 
             // if this tag node was marked as a dulpicate, unmark it (it might have been marked as "notAllowed" for other reasons)
             if( wasNodeDuplicate && isNodeValid ){
-                node.isValid = true
-                this.replaceTag(node, nodeData)
+                tagData.__isValid = true
+                this.replaceTag(node, tagData)
             }
         })
     },
@@ -1634,6 +1609,7 @@ console.log(this.tagsDataById)
      * @param  {Number}         tranDuration    [Transition duration in MS]
      */
     removeTag( tagElm, silent, tranDuration ){
+        var tagData;
         tagElm = tagElm || this.getLastTag()
         tranDuration = tranDuration || this.CSSVars.tagHideTransition
 
@@ -1644,7 +1620,6 @@ console.log(this.tagsDataById)
             return;
 
         let that = this,
-            uid = tagElm.__tagifyId,
             tagIdx = this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
 
         if( this.settings.mode == 'select' ){
@@ -1657,13 +1632,14 @@ console.log(this.tagsDataById)
 
         function removeNode(){
             if( !tagElm.parentNode ) return
+
+            tagData = tagElm.__tagifyTagData;
             tagElm.parentNode.removeChild(tagElm)
 
             if( !silent ){
-                that.removeValueById(uid)
-                delete that.tagsDataById[uid]
+                // that.removeValueById(tagData.__uid)
                 that.update() // update the original input with the current value
-                that.trigger('remove', { tag:tagElm, index:tagIdx, data:that.tagsDataById[uid] })
+                that.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData })
                 that.dropdown.refilter.call(that)
                 that.dropdown.position.call(that)
 
@@ -1704,7 +1680,7 @@ console.log(this.tagsDataById)
      * @param {String} uid
      */
     removeValueById( uid ){
-        this.value = this.value.filter(item => item.__tagifyId != uid)
+      //  this.value = this.value.filter(item => item.__tagifyTagData.__uid != uid)
     },
 
     preUpdate(){
@@ -1718,7 +1694,7 @@ console.log(this.tagsDataById)
      */
     update(){
         this.preUpdate()
-        var value = removeCollectionProp(this.value, "__tagifyId")
+        var value = this.value // removeCollectionProp(this.value, "__uId")
 
         this.DOM.originalInput.value = this.settings.mode == 'mix'
             ? this.getMixedTagsAsString(value)
@@ -2166,7 +2142,7 @@ console.log(this.tagsDataById)
             if( !value ){
                 return (_s.duplicates
                     ? whitelist
-                    : whitelist.filter(item => !this.isTagDuplicate(item.value || item)) // don't include tags which have already been added.
+                    : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
                 ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
             }
 
@@ -2180,7 +2156,7 @@ console.log(this.tagsDataById)
                     ? whitelistItemValueIndex >= 0
                     : whitelistItemValueIndex == 0;
 
-                isDuplicate = !_s.duplicates && this.isTagDuplicate(whitelistItem.value)
+                isDuplicate = !_s.duplicates && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
 
                 // match for the value within each "whitelist" item
                 if( valueIsInWhitelist && !isDuplicate && suggestionsCount-- )
