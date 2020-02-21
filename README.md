@@ -545,6 +545,7 @@ Name                    | Type             | Default                          | 
 ----------------------- | ---------------- | -------------------------------- | --------------------------------------------------------------------------
 placeholder             | String           |                                  | Placeholder text. If this attribute is set on an input/textarea element it will override this setting
 delimiters              | String           | `,`                              | [regex string] split tags by any of these delimiters. Example: `",|`  |."`
+outputDelimiter         | String           | null                             | join tags with this character to produce the value for original input field. if null, a JSON array is produced instead
 pattern                 | String           | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
 mode                    | String           | null                             | Use `select` for single-value dropdown-like select box. See `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
 mixTagsInterpolator     | Array            | `['[[', ']]']`                   | Interpolation for mix mode. Everything between these will become a tag

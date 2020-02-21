@@ -80,6 +80,7 @@ Tagify.prototype = {
 
     DEFAULTS : {
         delimiters          : ",",            // [RegEx] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
+        outputDelimiter     : null,           // join tags with this character to produce the value for original input field
         pattern             : null,           // RegEx pattern to validate input by. Ex: /[1-9]/
         maxTags             : Infinity,       // Maximum number of tags
         callbacks           : {},             // Exposed callbacks object to be triggered on certain events
@@ -1693,7 +1694,9 @@ Tagify.prototype = {
         this.DOM.originalInput.value = this.settings.mode == 'mix'
             ? this.getMixedTagsAsString(value)
             : this.value.length
-                ? JSON.stringify(value)
+                ? (this.settings.outputDelimiter 
+                    ? value.map(({value}) => value).join(this.settings.outputDelimiter) 
+                    : JSON.stringify(value))
                 : ""
          this.DOM.originalInput.dispatchEvent(new Event('change'))
     },
