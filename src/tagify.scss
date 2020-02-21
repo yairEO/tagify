@@ -15,6 +15,7 @@
 
     $tag-text-color          : black !default;
     $tag-text-color--edit    : black !default;
+    $tag-placeholder-color   : $tag-text-color !default;
     $tag-bg                  : #E5E5E5 !default;
     $tag-hover               : #D3E2E2 !default;
     $tag-remove              : #D39494 !default;
@@ -375,7 +376,7 @@
             position: absolute;
             top: 0;
             z-index: 1;
-            color: $tag-text-color;
+            color: $tag-placeholder-color;
             white-space: nowrap;
             pointer-events: none;
             opacity: 0;
