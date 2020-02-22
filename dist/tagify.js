@@ -744,7 +744,7 @@ Tagify.prototype = {
             range.setStart(window.getSelection().focusNode, 0);
             split = range.toString().split(_s.mixTagsAllowedAfter); // ["foo", "bar", "@a"]
 
-            tag = split[split.length - 1].match(_s.pattern);
+            tag = split[split.length - 1].match(_s.pattern); // tag = range.toString().match(_s.pattern) // allow spaces
 
             if (tag) {
               this.state.actions.ArrowLeft = false; // start fresh, assuming the user did not (yet) used any arrow to move the caret
@@ -1222,7 +1222,7 @@ Tagify.prototype = {
         result = true; // check for empty value
 
     if (!value) result = this.TEXTS.empty; // check if pattern should be used and if so, use it to test the value
-    else if (_s.pattern && !_s.pattern.test(value)) result = this.TEXTS.pattern; // if duplicates are not allowed and there is a duplicate
+    else if (_s.pattern && _s.pattern instanceof RegExp && !_s.pattern.test(value)) result = this.TEXTS.pattern; // if duplicates are not allowed and there is a duplicate
       else if (!_s.duplicates && this.isTagDuplicate(tagData.value)) result = this.TEXTS.duplicate;else if (this.isTagBlacklisted(value) || _s.enforceWhitelist && !this.isTagWhitelisted(value)) result = this.TEXTS.notAllowed;
     return result;
   },
@@ -1689,8 +1689,7 @@ Tagify.prototype = {
    */
   update: function update() {
     this.preUpdate();
-    var value = this.value; // removeCollectionProp(this.value, "__uId")
-
+    var value = removeCollectionProp(this.value, "__isValid");
     this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : this.value.length ? JSON.stringify(value) : "";
     this.DOM.originalInput.dispatchEvent(new Event('change'));
   },
@@ -1837,11 +1836,12 @@ Tagify.prototype = {
       if (!dropdown || !document.body.contains(dropdown) || isManual) return;
       window.removeEventListener('resize', this.dropdown.position);
       this.dropdown.events.binding.call(this, false); // unbind all events
-      // must delay because if the dropdown is open, and the input (scope) is clicked,
-      // the dropdown should be now closed, and the next click should re-open it,
-      // and without this timeout, clicking to close will re-open immediately
+      // if the dropdown is open, and the input (scope) is clicked,
+      // the dropdown should be now "closed", and the next click (on the scope)
+      // should re-open it, and without a timeout, clicking to close will re-open immediately
 
-      setTimeout(this.events.binding.bind(this), 250); // re-bind main events
+      clearTimeout(this.dropdownHide__bindEventsTimeout);
+      this.dropdownHide__bindEventsTimeout = setTimeout(this.events.binding.bind(this), 250); // re-bind main events
 
       scope.setAttribute("aria-expanded", false);
       dropdown.parentNode.removeChild(dropdown);

@@ -147,16 +147,16 @@
   document.forms[0].reset()
 
   window.tagified = {
-    "basic"             : 1,
-    "textarea"          : 1,
+    "basic"             : 0,
+    "textarea"          : 0,
     "mix"               : 1,
-    "manual-suggestions": 1,
-    "outside-of-the-box": 1,
-    "advance-options"   : 1,
-    "extra-properties"  : 1,
-    "readonly"          : 1,
-    "readonly-mixed"    : 1,
-    "mode-select"       : 1,
+    "manual-suggestions": 0,
+    "outside-of-the-box": 0,
+    "advance-options"   : 0,
+    "extra-properties"  : 0,
+    "readonly"          : 0,
+    "readonly-mixed"    : 0,
+    "mode-select"       : 0,
   };
 
   (function(){
@@ -220,6 +220,7 @@
 
     // init Tagify script on the above inputs
     var tagify = new Tagify(input, {
+        pattern: /^[A-Za-z_✲ "]$/,
         editTags : 1,
         keepInvalidTags: true
         // after 2 characters typed, all matching values from this list will be suggested in a dropdown
@@ -501,7 +502,11 @@
   })
 
   tagify.on('add', function(e){
-      console.log(e)
+      console.log("add", e)
+  })
+
+  tagify.on('remove', function(e){
+      console.log("remove", e)
   })
 
   })()

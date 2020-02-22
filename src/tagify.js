@@ -707,6 +707,7 @@ Tagify.prototype = {
                         split = range.toString().split(_s.mixTagsAllowedAfter)  // ["foo", "bar", "@a"]
 
                         tag = split[split.length-1].match(_s.pattern)
+                        // tag = range.toString().match(_s.pattern) // allow spaces
 
                         if( tag ){
                             this.state.actions.ArrowLeft = false // start fresh, assuming the user did not (yet) used any arrow to move the caret
@@ -714,6 +715,7 @@ Tagify.prototype = {
                                 prefix : tag[0],
                                 value  : tag.input.split(tag[0])[1],
                             }
+
 
                             showSuggestions = this.state.tag.value.length >= _s.dropdown.enabled
                         }
@@ -1217,8 +1219,9 @@ Tagify.prototype = {
         // check for empty value
         if( !value )
             result = this.TEXTS.empty;
+
         // check if pattern should be used and if so, use it to test the value
-        else if( _s.pattern && !(_s.pattern.test(value)) )
+        else if( _s.pattern && _s.pattern instanceof RegExp && !(_s.pattern.test(value)) )
             result = this.TEXTS.pattern;
 
         // if duplicates are not allowed and there is a duplicate
@@ -1697,7 +1700,7 @@ Tagify.prototype = {
      */
     update(){
         this.preUpdate()
-        var value = this.value // removeCollectionProp(this.value, "__uId")
+        var value = removeCollectionProp(this.value, "__isValid")
 
         this.DOM.originalInput.value = this.settings.mode == 'mix'
             ? this.getMixedTagsAsString(value)
@@ -1786,6 +1789,8 @@ Tagify.prototype = {
 
             if( !_s.whitelist || !_s.whitelist.length || _s.dropdown.enable === false ) return;
 
+            clearTimeout(this.dropdownHide__bindEventsTime
+
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems
             // TODO: add a Setting to control items' sort order for "listItems"
@@ -1866,10 +1871,11 @@ Tagify.prototype = {
             window.removeEventListener('resize', this.dropdown.position)
             this.dropdown.events.binding.call(this, false) // unbind all events
 
-            // must delay because if the dropdown is open, and the input (scope) is clicked,
-            // the dropdown should be now closed, and the next click should re-open it,
-            // and without this timeout, clicking to close will re-open immediately
-            setTimeout(this.events.binding.bind(this), 250)  // re-bind main events
+            // if the dropdown is open, and the input (scope) is clicked,
+            // the dropdown should be now "closed", and the next click (on the scope)
+            // should re-open it, and without a timeout, clicking to close will re-open immediately
+            clearTimeout(this.dropdownHide__bindEventsTimeout)
+            this.dropdownHide__bindEventsTimeout = setTimeout(this.events.binding.bind(this), 250)  // re-bind main events
 
             scope.setAttribute("aria-expanded", false)
             dropdown.parentNode.removeChild(dropdown)
