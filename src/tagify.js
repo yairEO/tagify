@@ -572,7 +572,8 @@ Tagify.prototype = {
                         case 'Backspace' : {
                            // e.preventDefault()
                             var selection = document.getSelection(),
-                                lastInputValue = decode(this.DOM.input.innerHTML);
+                                lastInputValue = decode(this.DOM.input.innerHTML),
+                                lastTagElems = this.getTagElms();
 
                             // if( isFirefox && selection && selection.anchorOffset == 0 )
                             //     this.removeTag(selection.anchorNode.previousSibling)
@@ -592,9 +593,17 @@ Tagify.prototype = {
                                     }
                                 }
 
-                                // find out which tag(s) were deleted and update "this.value" accordingly
+                                // find out which tag(s) were deleted and trigger "remove" event
                                 // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
-                                this.value = [].map.call(this.getTagElms(), node => node.__tagifyTagData)
+                                this.value = [].map.call(lastTagElems, (node, nodeIdx) => {
+                                    var tagData = node.__tagifyTagData
+
+                                    if( node.parentNode )
+                                        return tagData
+                                    else
+                                        this.trigger('remove', { tag:node, index:nodeIdx, data:tagData })
+                                })
+                                .filter(n=>n)  // remove empty items in the mapped array
                             }, 50) // Firefox needs this higher duration for some reason or things get buggy when to deleting text from the end
                             break;
                         }
@@ -1796,7 +1805,7 @@ Tagify.prototype = {
 
             if( !_s.whitelist || !_s.whitelist.length || _s.dropdown.enable === false ) return;
 
-            clearTimeout(this.dropdownHide__bindEventsTime
+            clearTimeout(this.dropdownHide__bindEventsTime)
 
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems

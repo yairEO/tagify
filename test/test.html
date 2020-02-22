@@ -429,8 +429,8 @@
               highlightFirst: true
           },
           callbacks        : {
-            add    : console.log,  // callback when adding a tag
-            remove : console.log   // callback when removing a tag
+            add    : e=>console.log("ADD: ", e.detail),  // callback when adding a tag
+            remove : e=>console.log("REMOVE: ", e.detail)   // callback when removing a tag
           }
       })
 
@@ -501,13 +501,6 @@
     console.log('mix-mode "input" event value: ', e.detail)
   })
 
-  tagify.on('add', function(e){
-      console.log("add", e)
-  })
-
-  tagify.on('remove', function(e){
-      console.log("remove", e)
-  })
 
   })()
 </script>

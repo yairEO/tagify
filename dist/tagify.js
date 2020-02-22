@@ -525,6 +525,9 @@ Tagify.prototype = {
             // a string
         _s = this.settings,
             type = e.type,
+            eventData = {
+          relatedTarget: e.relatedTarget
+        },
             shouldAddTags; // goes into this scenario only on input "blur" and a tag was clicked
 
         if (e.relatedTarget && e.relatedTarget.classList.contains('tagify__tag') && this.DOM.scope.contains(e.relatedTarget)) return;
@@ -541,14 +544,19 @@ Tagify.prototype = {
         this.setRangeAtStartEnd(false);
 
         if (_s.mode == 'mix') {
-          if (e.type == "blur") this.dropdown.hide.call(this);
+          if (type == "focus") {
+            this.trigger("focus", eventData);
+          } else if (e.type == "blur") {
+            this.trigger("blur", eventData);
+            this.loading(false);
+            this.dropdown.hide.call(this);
+          }
+
           return;
         }
 
         if (type == "focus") {
-          this.trigger("focus", {
-            relatedTarget: e.relatedTarget
-          }); //  e.target.classList.remove('placeholder');
+          this.trigger("focus", eventData); //  e.target.classList.remove('placeholder');
 
           if (_s.dropdown.enabled === 0 && _s.mode != "select") {
             this.dropdown.show.call(this);
@@ -556,9 +564,7 @@ Tagify.prototype = {
 
           return;
         } else if (type == "blur") {
-          this.trigger("blur", {
-            relatedTarget: e.relatedTarget
-          });
+          this.trigger("blur", eventData);
           this.loading(false);
           shouldAddTags = this.settings.mode == 'select' ? !this.value.length || this.value[0].value != text : text && !this.state.actions.selectOption && _s.addTagOnBlur; // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
 
@@ -592,7 +598,8 @@ Tagify.prototype = {
               {
                 // e.preventDefault()
                 var selection = document.getSelection(),
-                    lastInputValue = decode(this.DOM.input.innerHTML); // if( isFirefox && selection && selection.anchorOffset == 0 )
+                    lastInputValue = decode(this.DOM.input.innerHTML),
+                    lastTagElems = this.getTagElms(); // if( isFirefox && selection && selection.anchorOffset == 0 )
                 //     this.removeTag(selection.anchorNode.previousSibling)
                 // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                 // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
@@ -608,13 +615,20 @@ Tagify.prototype = {
                       _this4.value.length = 0;
                       return true;
                     }
-                  } // find out which tag(s) were deleted and update "this.value" accordingly
+                  } // find out which tag(s) were deleted and trigger "remove" event
                   // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
 
 
-                  _this4.value = [].map.call(_this4.getTagElms(), function (node) {
-                    return node.__tagifyTagData;
-                  });
+                  _this4.value = [].map.call(lastTagElems, function (node, nodeIdx) {
+                    var tagData = node.__tagifyTagData;
+                    if (node.parentNode) return tagData;else _this4.trigger('remove', {
+                      tag: node,
+                      index: nodeIdx,
+                      data: tagData
+                    });
+                  }).filter(function (n) {
+                    return n;
+                  }); // remove empty items in the mapped array
                 }, 50); // Firefox needs this higher duration for some reason or things get buggy when to deleting text from the end
 
                 break;
@@ -1763,7 +1777,8 @@ Tagify.prototype = {
           ddHeight,
           selection = window.getSelection(),
           isManual = _s.dropdown.position == 'manual';
-      if (!_s.whitelist || !_s.whitelist.length || _s.dropdown.enable === false) return; // if no value was supplied, show all the "whitelist" items in the dropdown
+      if (!_s.whitelist || !_s.whitelist.length || _s.dropdown.enable === false) return;
+      clearTimeout(this.dropdownHide__bindEventsTime); // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
 
