@@ -1157,16 +1157,7 @@ Tagify.prototype = {
         if( this.settings.mode == 'select' )
             return false
 
-        return this.value.some(item =>
-            // if this item has the same uid as the one checked, it cannot be a duplicate of itself.
-            // most of the time uid will be "undefined"
-            item.value == value
-                ? false
-                : value.trim().toLowerCase() === item.value.toLowerCase()
-                // : isObject(value)
-                //     ? JSON.stringify(item).toLowerCase() === JSON.stringify(value).toLowerCase()
-                //     : value.trim().toLowerCase() === item.value.toLowerCase()
-            )
+        return this.value.some(item => value.trim().toLowerCase() === item.value.toLowerCase())
     },
 
     getTagIndexByValue( value ){
@@ -1241,7 +1232,7 @@ Tagify.prototype = {
             result = this.TEXTS.pattern;
 
         // if duplicates are not allowed and there is a duplicate
-        else if( !_s.duplicates && this.isTagDuplicate(tagData.value) )
+        else if( !_s.duplicates && this.isTagDuplicate(value) )
             result = this.TEXTS.duplicate;
 
         else if( this.isTagBlacklisted(value) ||(_s.enforceWhitelist && !this.isTagWhitelisted(value)) )
@@ -1490,6 +1481,15 @@ Tagify.prototype = {
             clearInput = false;
 
         this.DOM.input.removeAttribute('style');
+
+        // if "duplicates" setting is "false":
+        // filter duplicates within tagsItems (they are still not added to the state "this.value")
+        if( !_s.duplicates )
+            tagsItems = tagsItems.reduce((filtered, item) => {
+                if( !filtered.some(filteredItem => JSON.stringify(filteredItem) == JSON.stringify(item)) )
+                    filtered.push(item)
+                return filtered
+            }, [])
 
         tagsItems.forEach(tagData => {
             var tagValidation,

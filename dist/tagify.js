@@ -1164,14 +1164,8 @@ Tagify.prototype = {
     // duplications are irrelevant for this scenario
     if (this.settings.mode == 'select') return false;
     return this.value.some(function (item) {
-      return (// if this item has the same uid as the one checked, it cannot be a duplicate of itself.
-        // most of the time uid will be "undefined"
-        item.value == value ? false : value.trim().toLowerCase() === item.value.toLowerCase()
-      );
-    } // : isObject(value)
-    //     ? JSON.stringify(item).toLowerCase() === JSON.stringify(value).toLowerCase()
-    //     : value.trim().toLowerCase() === item.value.toLowerCase()
-    );
+      return value.trim().toLowerCase() === item.value.toLowerCase();
+    });
   },
   getTagIndexByValue: function getTagIndexByValue(value) {
     var result = [];
@@ -1237,7 +1231,7 @@ Tagify.prototype = {
 
     if (!value) result = this.TEXTS.empty; // check if pattern should be used and if so, use it to test the value
     else if (_s.pattern && _s.pattern instanceof RegExp && !_s.pattern.test(value)) result = this.TEXTS.pattern; // if duplicates are not allowed and there is a duplicate
-      else if (!_s.duplicates && this.isTagDuplicate(tagData.value)) result = this.TEXTS.duplicate;else if (this.isTagBlacklisted(value) || _s.enforceWhitelist && !this.isTagWhitelisted(value)) result = this.TEXTS.notAllowed;
+      else if (!_s.duplicates && this.isTagDuplicate(value)) result = this.TEXTS.duplicate;else if (this.isTagBlacklisted(value) || _s.enforceWhitelist && !this.isTagWhitelisted(value)) result = this.TEXTS.notAllowed;
     return result;
   },
   getInvaildTagParams: function getInvaildTagParams(tagData, validation) {
@@ -1489,7 +1483,15 @@ Tagify.prototype = {
     }
 
     if (_s.mode == 'select') clearInput = false;
-    this.DOM.input.removeAttribute('style');
+    this.DOM.input.removeAttribute('style'); // if "duplicates" setting is "false":
+    // filter duplicates within tagsItems (they are still not added to the state "this.value")
+
+    if (!_s.duplicates) tagsItems = tagsItems.reduce(function (filtered, item) {
+      if (!filtered.some(function (filteredItem) {
+        return JSON.stringify(filteredItem) == JSON.stringify(item);
+      })) filtered.push(item);
+      return filtered;
+    }, []);
     tagsItems.forEach(function (tagData) {
       var tagValidation,
           tagElm,
