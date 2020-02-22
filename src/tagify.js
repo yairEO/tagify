@@ -492,6 +492,7 @@ Tagify.prototype = {
                 var text = e.target ? e.target.textContent.trim() : '', // a string
                     _s = this.settings,
                     type = e.type,
+                    eventData = {relatedTarget:e.relatedTarget},
                     shouldAddTags;
 
                 // goes into this scenario only on input "blur" and a tag was clicked
@@ -516,13 +517,19 @@ Tagify.prototype = {
                 this.setRangeAtStartEnd(false)
 
                 if( _s.mode == 'mix' ){
-                    if( e.type == "blur" )
-                        this.dropdown.hide.call(this)
+                    if( type == "focus" ){
+                      this.trigger("focus", eventData)
+                    }
+                    else if( e.type == "blur" ){
+                      this.trigger("blur", eventData)
+                      this.loading(false)
+                      this.dropdown.hide.call(this)
+                    }
                     return
                 }
 
                 if( type == "focus" ){
-                    this.trigger("focus", {relatedTarget:e.relatedTarget})
+                    this.trigger("focus", eventData)
                     //  e.target.classList.remove('placeholder');
                     if( _s.dropdown.enabled === 0 && _s.mode != "select" ){
                         this.dropdown.show.call(this)
@@ -531,7 +538,7 @@ Tagify.prototype = {
                 }
 
                 else if( type == "blur" ){
-                    this.trigger("blur", {relatedTarget:e.relatedTarget})
+                    this.trigger("blur", eventData)
                     this.loading(false)
 
                     shouldAddTags = this.settings.mode == 'select'
