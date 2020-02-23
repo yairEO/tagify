@@ -804,7 +804,7 @@ Tagify.prototype = {
                 var tagElm = editableElm.closest('tag'),
                     tagElmIdx = this.getNodeIndex(tagElm),
                     value = this.input.normalize.call(this, editableElm),
-                    isValid = value.toLowerCase() == editableElm.originalValue.toLowerCase() || this.validateTag({value});
+                    isValid = this.validateTag({value}); // the value chould have been invalid in the first-place so make sure to re-validate it
 
                 tagElm.classList.toggle('tagify--invalid', isValid !== true);
                 tagElm.__tagifyTagData.__isValid = isValid;
@@ -833,7 +833,7 @@ Tagify.prototype = {
                     currentValue = this.input.normalize.call(this, editableElm),
                     value        = currentValue || editableElm.originalValue,
                     hasChanged   = value != editableElm.originalValue,
-                    isValid      = tagElm.__tagifyTagData.__isValid,
+                    isValid      = this.validateTag({value}), //tagElm.__tagifyTagData.__isValid,
                     tagData      = this.extend({}, tagElm.__tagifyTagData, {value});
 
               //  this.DOM.input.focus()
@@ -944,22 +944,22 @@ Tagify.prototype = {
     },
 
     editTagToggleValidity( tagElm, value ){
-        var tagData = tagElm.__tagifyTagData,
-            isValid = this.validateTag(tagData);
+        var tagData = tagElm.__tagifyTagData;
+        //this.validateTag(tagData);
 
-        tagElm.classList.toggle('tagify--invalid', isValid !== true)
-        tagData.__isValid = isValid
-        return isValid
+        tagElm.classList.toggle('tagify--invalid', tagData.__isValid !== true)
+        return tagData.__isValid
     },
 
     onEditTagDone(tagElm, tagData){
-      var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData }
-      this.trigger("edit:beforeUpdate", eventData)
+        this.editTagToggleValidity(tagElm)
+        var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData }
+        this.trigger("edit:beforeUpdate", eventData)
 
-      tagElm && this.replaceTag(tagElm, tagData)
+        tagElm && this.replaceTag(tagElm, tagData)
 
-      this.trigger("edit:updated", eventData)
-      this.dropdown.hide.call(this)
+        this.trigger("edit:updated", eventData)
+        this.dropdown.hide.call(this)
     },
 
     /**
@@ -1153,11 +1153,14 @@ Tagify.prototype = {
      * @return {Boolean}
      */
     isTagDuplicate( value ){
+        var duplications;
         // duplications are irrelevant for this scenario
         if( this.settings.mode == 'select' )
             return false
 
-        return this.value.some(item => value.trim().toLowerCase() === item.value.toLowerCase())
+        duplications = this.value.reduce((acc, item) => value.trim().toLowerCase() === item.value.toLowerCase() ? acc+1 : acc, 0)
+        return duplications
+        // this.value.some(item => value.trim().toLowerCase() === item.value.toLowerCase())
     },
 
     getTagIndexByValue( value ){
@@ -1447,12 +1450,15 @@ Tagify.prototype = {
         // if in edit-mode, do not continue but instead replace the tag's text.
         // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
         if( this.state.editing.scope ){
+            tagsItems[0].__isValid = true; // must be "true" at this point because it must have been coming from the dropdown sugegstions list
             return this.onEditTagDone(this.state.editing.scope, tagsItems[0])
         }
 
         if( _s.mode == 'mix' ){
             _s.transformTag.call(this, tagsItems[0])
             tagElm = this.createTagElem(tagsItems[0])
+
+            // TODO: should check if the tag is valid
 
             // insert the new tag to the END if "addTags" was called from outside
             if( !this.replaceTextWithNode(tagElm) ){
@@ -1482,18 +1488,8 @@ Tagify.prototype = {
 
         this.DOM.input.removeAttribute('style');
 
-        // if "duplicates" setting is "false":
-        // filter duplicates within tagsItems (they are still not added to the state "this.value")
-        if( !_s.duplicates )
-            tagsItems = tagsItems.reduce((filtered, item) => {
-                if( !filtered.some(filteredItem => JSON.stringify(filteredItem) == JSON.stringify(item)) )
-                    filtered.push(item)
-                return filtered
-            }, [])
-
         tagsItems.forEach(tagData => {
-            var tagValidation,
-                tagElm,
+            var tagElm,
                 tagElmParams = {}
 
             // shallow-clone tagData so later modifications will not apply to the source
@@ -1502,16 +1498,16 @@ Tagify.prototype = {
             _s.transformTag.call(this, tagData);
 
             ///////////////// ( validation )//////////////////////
-            tagValidation = this.hasMaxTags() || this.validateTag(tagData);
+            tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData);
 
-            if( tagValidation !== true ){
+            if( tagData.__isValid !== true ){
                 if( skipInvalid )
                     return
 
-                this.extend(tagElmParams, this.getInvaildTagParams(tagData, tagValidation))
+                this.extend(tagElmParams, this.getInvaildTagParams(tagData, tagData.__isValid))
 
-                // mark, for a brief moment, the tag this current tag is a duplcate of
-                if( tagValidation == this.TEXTS.duplicate )
+                // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
+                if( tagData.__isValid == this.TEXTS.duplicate )
                     this.markTagByValue(tagData.value)
             }
             /////////////////////////////////////////////////////
@@ -1535,14 +1531,14 @@ Tagify.prototype = {
             // add the tag to the component's DOM
             this.appendTag(tagElm)
 
-            if( tagValidation === true ){
+            if( tagData.__isValid === true ){
                 // update state
                 this.value.push(tagData);
                 this.update();
                 this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
             }
             else{
-                this.trigger("invalid", {data:tagData, index:this.value.length, tag:tagElm, message:tagValidation})
+                this.trigger("invalid", {data:tagData, index:this.value.length, tag:tagElm, message:tagData.__isValid})
                 if( !_s.keepInvalidTags )
                     // remove invalid tags (if "keepInvalidTags" is set to "false")
                     setTimeout(() => this.removeTag(tagElm, true), 1000)

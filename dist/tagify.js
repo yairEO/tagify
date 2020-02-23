@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.4.1)- tags input component
+ * Tagify (v 3.5.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -829,9 +829,10 @@ Tagify.prototype = {
         var tagElm = editableElm.closest('tag'),
             tagElmIdx = this.getNodeIndex(tagElm),
             value = this.input.normalize.call(this, editableElm),
-            isValid = value.toLowerCase() == editableElm.originalValue.toLowerCase() || this.validateTag({
+            isValid = this.validateTag({
           value: value
-        });
+        }); // the value chould have been invalid in the first-place so make sure to re-validate it
+
         tagElm.classList.toggle('tagify--invalid', isValid !== true);
         tagElm.__tagifyTagData.__isValid = isValid; // show dropdown if typed text is equal or more than the "enabled" dropdown setting
 
@@ -856,8 +857,11 @@ Tagify.prototype = {
             currentValue = this.input.normalize.call(this, editableElm),
             value = currentValue || editableElm.originalValue,
             hasChanged = value != editableElm.originalValue,
-            isValid = tagElm.__tagifyTagData.__isValid,
-            tagData = this.extend({}, tagElm.__tagifyTagData, {
+            isValid = this.validateTag({
+          value: value
+        }),
+            //tagElm.__tagifyTagData.__isValid,
+        tagData = this.extend({}, tagElm.__tagifyTagData, {
           value: value
         }); //  this.DOM.input.focus()
 
@@ -966,13 +970,13 @@ Tagify.prototype = {
     return this;
   },
   editTagToggleValidity: function editTagToggleValidity(tagElm, value) {
-    var tagData = tagElm.__tagifyTagData,
-        isValid = this.validateTag(tagData);
-    tagElm.classList.toggle('tagify--invalid', isValid !== true);
-    tagData.__isValid = isValid;
-    return isValid;
+    var tagData = tagElm.__tagifyTagData; //this.validateTag(tagData);
+
+    tagElm.classList.toggle('tagify--invalid', tagData.__isValid !== true);
+    return tagData.__isValid;
   },
   onEditTagDone: function onEditTagDone(tagElm, tagData) {
+    this.editTagToggleValidity(tagElm);
     var eventData = {
       tag: tagElm,
       index: this.getNodeIndex(tagElm),
@@ -1161,11 +1165,13 @@ Tagify.prototype = {
    * @return {Boolean}
    */
   isTagDuplicate: function isTagDuplicate(value) {
-    // duplications are irrelevant for this scenario
+    var duplications; // duplications are irrelevant for this scenario
+
     if (this.settings.mode == 'select') return false;
-    return this.value.some(function (item) {
-      return value.trim().toLowerCase() === item.value.toLowerCase();
-    });
+    duplications = this.value.reduce(function (acc, item) {
+      return value.trim().toLowerCase() === item.value.toLowerCase() ? acc + 1 : acc;
+    }, 0);
+    return duplications; // this.value.some(item => value.trim().toLowerCase() === item.value.toLowerCase())
   },
   getTagIndexByValue: function getTagIndexByValue(value) {
     var result = [];
@@ -1451,13 +1457,16 @@ Tagify.prototype = {
     // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
     if (this.state.editing.scope) {
+      tagsItems[0].__isValid = true; // must be "true" at this point because it must have been coming from the dropdown sugegstions list
+
       return this.onEditTagDone(this.state.editing.scope, tagsItems[0]);
     }
 
     if (_s.mode == 'mix') {
       _s.transformTag.call(this, tagsItems[0]);
 
-      tagElm = this.createTagElem(tagsItems[0]); // insert the new tag to the END if "addTags" was called from outside
+      tagElm = this.createTagElem(tagsItems[0]); // TODO: should check if the tag is valid
+      // insert the new tag to the END if "addTags" was called from outside
 
       if (!this.replaceTextWithNode(tagElm)) {
         this.DOM.input.appendChild(tagElm);
@@ -1483,18 +1492,9 @@ Tagify.prototype = {
     }
 
     if (_s.mode == 'select') clearInput = false;
-    this.DOM.input.removeAttribute('style'); // if "duplicates" setting is "false":
-    // filter duplicates within tagsItems (they are still not added to the state "this.value")
-
-    if (!_s.duplicates) tagsItems = tagsItems.reduce(function (filtered, item) {
-      if (!filtered.some(function (filteredItem) {
-        return JSON.stringify(filteredItem) == JSON.stringify(item);
-      })) filtered.push(item);
-      return filtered;
-    }, []);
+    this.DOM.input.removeAttribute('style');
     tagsItems.forEach(function (tagData) {
-      var tagValidation,
-          tagElm,
+      var tagElm,
           tagElmParams = {}; // shallow-clone tagData so later modifications will not apply to the source
 
       tagData = Object.assign({}, tagData);
@@ -1502,15 +1502,15 @@ Tagify.prototype = {
       _s.transformTag.call(_this10, tagData); ///////////////// ( validation )//////////////////////
 
 
-      tagValidation = _this10.hasMaxTags() || _this10.validateTag(tagData);
+      tagData.__isValid = _this10.hasMaxTags() || _this10.validateTag(tagData);
 
-      if (tagValidation !== true) {
+      if (tagData.__isValid !== true) {
         if (skipInvalid) return;
 
-        _this10.extend(tagElmParams, _this10.getInvaildTagParams(tagData, tagValidation)); // mark, for a brief moment, the tag this current tag is a duplcate of
+        _this10.extend(tagElmParams, _this10.getInvaildTagParams(tagData, tagData.__isValid)); // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
 
 
-        if (tagValidation == _this10.TEXTS.duplicate) _this10.markTagByValue(tagData.value);
+        if (tagData.__isValid == _this10.TEXTS.duplicate) _this10.markTagByValue(tagData.value);
       } /////////////////////////////////////////////////////
       // add accessibility attributes
 
@@ -1529,7 +1529,7 @@ Tagify.prototype = {
 
       _this10.appendTag(tagElm);
 
-      if (tagValidation === true) {
+      if (tagData.__isValid === true) {
         // update state
         _this10.value.push(tagData);
 
@@ -1545,7 +1545,7 @@ Tagify.prototype = {
           data: tagData,
           index: _this10.value.length,
           tag: tagElm,
-          message: tagValidation
+          message: tagData.__isValid
         });
 
         if (!_s.keepInvalidTags) // remove invalid tags (if "keepInvalidTags" is set to "false")

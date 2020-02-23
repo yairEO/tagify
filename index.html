@@ -1060,8 +1060,8 @@ var input = document.querySelector('textarea[name=tags2]'),
   // generate random whilist items (for the demo)
 var randomStringsArr = Array.apply(null, Array(100)).map(function() {
   return Array.apply(null, Array(~~(Math.random() * 10  + 3))).map(function() {
-    return String.fromCharCode(Math.random() * (123 - 97) + 97);
-  }).join('')
+    return String.fromCharCode(Math.random() * (123 - 97) + 97)
+  }).join('') + '@gmail.com'
 })
 
 var input = document.querySelector('.customLook'),
