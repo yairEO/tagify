@@ -552,8 +552,8 @@ mixTagsInterpolator     | Array            | `['[[', ']]']`                   | 
 mixTagsAllowedAfter     | Regex            | `/,|\.|\:|\s/`                   | Define conditions in which typed mix-tags content is allowing a tag to be created after.
 duplicates              | Boolean          | false                            | Should duplicate tags be allowed or not
 enforceWhitelist        | Boolean          | false                            | Should ONLY use tags allowed in whitelist.<br>In `mix-mode`, setting it  to `false` will not allow creating new tags.
-autocomplete.enabled    | Boolean          | true                             | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
-autocomplete.rightKey   | Boolean          | false                            | If `true`, when <kbd>→</kdb> is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
+autoComplete.enabled    | Boolean          | true                             | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
+autoComplete.rightKey   | Boolean          | false                            | If `true`, when <kbd>→</kdb> is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
 whitelist               | Array            | []                               | An array of tags which only they are allowed
 blacklist               | Array            | []                               | An array of tags which aren't allowed
 addTagOnBlur            | Boolean          | true                             | Automatically adds the text which was inputed as a tag when blur event happens
@@ -570,7 +570,7 @@ dropdown.maxItems       | Number           | 10                               | 
 dropdown.classname      | String           | `""`                             | Custom class name for the dropdown suggestions selectbox
 dropdown.fuzzySearch    | Boolean          | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
 dropdown.position       | String           | null                             | `manual` - will not render the dropdown, and you would need to do it yourself. See "events" section. <br> `text` - will place the dropdown next to the caret <br> `all` - normal, full-width design
-dropdown.highlightFirst | Boolean          | false                            | When a suggestions list is shown, highilght the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
+dropdown.highlightFirst | Boolean          | false                            | When a suggestions list is shown, highlight the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
 dropdown.closeOnSelect  | Boolean          | true                             | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
 dropdown.mapValueTo     | Function/String  |                                  | if whitelist is an Array of Objects:<br>Ex. `[{value:'foo', email:'foo@a.com'},...]`)<br> this setting controlls which data <em>key</em> will be printed in the dropdown.<br> Ex. `mapValueTo: data => "To:" + data.email`<br>Ex. `mapValueTo: "email"`
 dropdown.searchKeys     | Array            | `["value", "searchBy"]`          | When a user types something and trying to match the whitelist items for suggestions, this setting allows matching other keys of a whitelist objects
