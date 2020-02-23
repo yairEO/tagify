@@ -952,11 +952,13 @@ Tagify.prototype = {
     },
 
     onEditTagDone(tagElm, tagData){
-        this.editTagToggleValidity(tagElm)
         var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData }
         this.trigger("edit:beforeUpdate", eventData)
 
-        tagElm && this.replaceTag(tagElm, tagData)
+        if( tagElm ){
+            this.editTagToggleValidity(tagElm)
+            this.replaceTag(tagElm, tagData)
+        }
 
         this.trigger("edit:updated", eventData)
         this.dropdown.hide.call(this)
