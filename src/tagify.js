@@ -1721,6 +1721,7 @@ Tagify.prototype = {
             : this.value.length
                 ? JSON.stringify(value)
                 : ""
+
         this.DOM.originalInput.dispatchEvent(new Event('change'))
     },
 

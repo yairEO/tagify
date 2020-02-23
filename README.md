@@ -454,6 +454,7 @@ flex-wrap: nowrap;
 * [Writing to tagify textarea](https://github.com/yairEO/tagify/issues/294)
 * [Scroll all tags within one line, instead of growing vertically](https://github.com/yairEO/tagify/issues/145)
 * [Insert emoji at caret location when editing a tag](https://github.com/yairEO/tagify/issues/365)
+* [propagate `change` event](https://github.com/yairEO/tagify/issues/413)
 
 ## CSS Variables (see [MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties))
 
