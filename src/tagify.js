@@ -1722,7 +1722,7 @@ Tagify.prototype = {
                 ? JSON.stringify(value)
                 : ""
 
-        this.DOM.originalInput.dispatchEvent(new Event('change'))
+        this.DOM.originalInput.dispatchEvent(new CustomEvent('change'))
     },
 
     getMixedTagsAsString(value){

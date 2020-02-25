@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.5.0)- tags input component
+ * Tagify (v 3.5.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -1711,7 +1711,7 @@ Tagify.prototype = {
     this.preUpdate();
     var value = removeCollectionProp(this.value, "__isValid");
     this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : this.value.length ? JSON.stringify(value) : "";
-    this.DOM.originalInput.dispatchEvent(new Event('change'));
+    this.DOM.originalInput.dispatchEvent(new CustomEvent('change'));
   },
   getMixedTagsAsString: function getMixedTagsAsString(value) {
     var result = "",
