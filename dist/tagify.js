@@ -1782,8 +1782,10 @@ Tagify.prototype = {
           firstListItemValue,
           ddHeight,
           selection = window.getSelection(),
+          allowNewTags = _s.mode == 'mix' && !_s.enforceWhitelist,
+          noWhitelist = !_s.whitelist || !_s.whitelist.length,
           isManual = _s.dropdown.position == 'manual';
-      if (!_s.whitelist || !_s.whitelist.length || _s.dropdown.enable === false) return;
+      if (noWhitelist && !allowNewTags || _s.dropdown.enable === false) return;
       clearTimeout(this.dropdownHide__bindEventsTimeout); // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
@@ -1793,7 +1795,7 @@ Tagify.prototype = {
       if (!this.suggestedListItems.length) {
         // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
         // then add a custom suggestion item to the dropdown
-        if (_s.mode == 'mix' && !_s.enforceWhitelist) {
+        if (allowNewTags) {
           this.suggestedListItems = [{
             value: value
           }];
