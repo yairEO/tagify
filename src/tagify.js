@@ -1804,7 +1804,7 @@ Tagify.prototype = {
 
             if( !_s.whitelist || !_s.whitelist.length || _s.dropdown.enable === false ) return;
 
-            clearTimeout(this.dropdownHide__bindEventsTime)
+            clearTimeout(this.dropdownHide__bindEventsTimeout)
 
             // if no value was supplied, show all the "whitelist" items in the dropdown
             // @type [Array] listItems

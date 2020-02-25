@@ -1784,7 +1784,7 @@ Tagify.prototype = {
           selection = window.getSelection(),
           isManual = _s.dropdown.position == 'manual';
       if (!_s.whitelist || !_s.whitelist.length || _s.dropdown.enable === false) return;
-      clearTimeout(this.dropdownHide__bindEventsTime); // if no value was supplied, show all the "whitelist" items in the dropdown
+      clearTimeout(this.dropdownHide__bindEventsTimeout); // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
 
