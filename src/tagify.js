@@ -558,6 +558,9 @@ Tagify.prototype = {
 
                 this.trigger("keydown", {originalEvent:this.cloneEvent(e)});
 
+                /**
+                 * ONLY FOR MIX-MODE:
+                 */
                 if( this.settings.mode == 'mix' ){
                     switch( e.key ){
                         case 'Left' :
@@ -570,10 +573,12 @@ Tagify.prototype = {
 
                         case 'Delete':
                         case 'Backspace' : {
-                           // e.preventDefault()
                             var selection = document.getSelection(),
                                 lastInputValue = decode(this.DOM.input.innerHTML),
                                 lastTagElems = this.getTagElms();
+
+                            if( selection.anchorNode.previousElementSibling )
+                                e.preventDefault()
 
                             // if( isFirefox && selection && selection.anchorOffset == 0 )
                             //     this.removeTag(selection.anchorNode.previousSibling)

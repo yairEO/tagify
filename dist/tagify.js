@@ -581,6 +581,9 @@ Tagify.prototype = {
         this.trigger("keydown", {
           originalEvent: this.cloneEvent(e)
         });
+        /**
+         * ONLY FOR MIX-MODE:
+         */
 
         if (this.settings.mode == 'mix') {
           switch (e.key) {
@@ -596,10 +599,10 @@ Tagify.prototype = {
             case 'Delete':
             case 'Backspace':
               {
-                // e.preventDefault()
                 var selection = document.getSelection(),
                     lastInputValue = decode(this.DOM.input.innerHTML),
-                    lastTagElems = this.getTagElms(); // if( isFirefox && selection && selection.anchorOffset == 0 )
+                    lastTagElems = this.getTagElms();
+                if (selection.anchorNode.previousElementSibling) e.preventDefault(); // if( isFirefox && selection && selection.anchorOffset == 0 )
                 //     this.removeTag(selection.anchorNode.previousSibling)
                 // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                 // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
