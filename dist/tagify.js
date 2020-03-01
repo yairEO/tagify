@@ -89,7 +89,7 @@ function Tagify(input, settings) {
 
   this.applySettings(input, settings || {});
   this.state = {
-    editing: {},
+    editing: false,
     actions: {},
     // UI actions for state-locking
     dropdown: {}
@@ -864,8 +864,9 @@ Tagify.prototype = {
         if (!this.DOM.scope.contains(editableElm)) return;
         var tagElm = editableElm.closest('.tagify__tag'),
             currentValue = this.input.normalize.call(this, editableElm),
-            value = currentValue || editableElm.originalValue,
-            hasChanged = value != editableElm.originalValue,
+            value = currentValue,
+            //  || editableElm.originalValue,
+        hasChanged = value != editableElm.originalValue,
             tagData = this.extend({}, tagElm.__tagifyTagData, {
           value: value
         }),
@@ -875,7 +876,7 @@ Tagify.prototype = {
 
         if (!currentValue) {
           this.removeTag(tagElm);
-          this.onEditTagDone();
+          this.onEditTagDone(null, tagData);
           return;
         }
 
@@ -884,8 +885,8 @@ Tagify.prototype = {
 
           isValid = this.validateTag(tagData);
         } else {
-          tagElm.__tagifyTagData.__isValid = this.validateTag(tagData);
-          this.onEditTagDone(tagElm);
+          tagData.__isValid = this.validateTag(tagData);
+          this.onEditTagDone(tagElm, tagData);
           return;
         }
 
@@ -959,7 +960,7 @@ Tagify.prototype = {
     tagElm.classList.add('tagify__tag--editable');
     editableElm.originalValue = editableElm.textContent;
     editableElm.setAttribute('contenteditable', true);
-    editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, editableElm));
+    editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm));
     editableElm.addEventListener('blur', delayed_onEditTagBlur);
     editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
     editableElm.addEventListener('keydown', function (e) {
@@ -984,7 +985,7 @@ Tagify.prototype = {
     return tagData.__isValid;
   },
   onEditTagDone: function onEditTagDone(tagElm, tagData) {
-    tagData = tagData || tagElm.__tagifyTagData;
+    tagData = tagData || {};
     var eventData = {
       tag: tagElm,
       index: this.getNodeIndex(tagElm),
@@ -1476,9 +1477,10 @@ Tagify.prototype = {
     }
 
     if (_s.mode == 'mix') {
-      _s.transformTag.call(this, tagsItems[0]);
+      _s.transformTag.call(this, tagsItems[0]); // TODO: should check if the tag is valid
 
-      tagElm = this.createTagElem(tagsItems[0]); // TODO: should check if the tag is valid
+
+      tagElm = this.createTagElem(tagsItems[0]); // tries to replace a taged textNode with a tagElm, and if not able,
       // insert the new tag to the END if "addTags" was called from outside
 
       if (!this.replaceTextWithNode(tagElm)) {
@@ -2103,7 +2105,7 @@ Tagify.prototype = {
       this.trigger("dropdown:select", value);
       this.addTags([value], true); // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
 
-      setTimeout(function () {
+      if (!this.state.editing) setTimeout(function () {
         _this13.DOM.input.focus();
 
         _this13.toggleFocusClass(true);

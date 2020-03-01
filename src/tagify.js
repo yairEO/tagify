@@ -54,7 +54,7 @@ function Tagify( input, settings ){
     this.applySettings(input, settings||{})
 
     this.state = {
-        editing : {},
+        editing : false,
         actions : {},   // UI actions for state-locking
         dropdown: {}
     }
@@ -846,7 +846,7 @@ Tagify.prototype = {
 
                 var tagElm       = editableElm.closest('.tagify__tag'),
                     currentValue = this.input.normalize.call(this, editableElm),
-                    value        = currentValue || editableElm.originalValue,
+                    value        = currentValue, //  || editableElm.originalValue,
                     hasChanged   = value != editableElm.originalValue,
                     tagData      = this.extend({}, tagElm.__tagifyTagData, {value}),
                     isValid      = this.validateTag(tagData);
@@ -856,7 +856,7 @@ Tagify.prototype = {
 
                 if( !currentValue ){
                     this.removeTag(tagElm)
-                    this.onEditTagDone()
+                    this.onEditTagDone(null, tagData)
                     return
                 }
 
@@ -866,8 +866,8 @@ Tagify.prototype = {
                     isValid = this.validateTag(tagData)
                 }
                 else{
-                    tagElm.__tagifyTagData.__isValid = this.validateTag(tagData)
-                    this.onEditTagDone(tagElm)
+                    tagData.__isValid = this.validateTag(tagData)
+                    this.onEditTagDone(tagElm, tagData)
                     return
                 }
 
@@ -941,7 +941,7 @@ Tagify.prototype = {
 
         editableElm.setAttribute('contenteditable', true)
 
-        editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, editableElm))
+        editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm))
         editableElm.addEventListener('blur', delayed_onEditTagBlur)
         editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
         editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e))
@@ -967,7 +967,7 @@ Tagify.prototype = {
     },
 
     onEditTagDone(tagElm, tagData){
-        tagData = tagData || tagElm.__tagifyTagData
+        tagData = tagData || {}
         var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData }
         this.trigger("edit:beforeUpdate", eventData)
 
@@ -1256,7 +1256,7 @@ Tagify.prototype = {
         else if( !_s.duplicates && this.isTagDuplicate(value) )
             result = this.TEXTS.duplicate;
 
-        else if( this.isTagBlacklisted(value) ||(_s.enforceWhitelist && !this.isTagWhitelisted(value)) )
+        else if( this.isTagBlacklisted(value) || (_s.enforceWhitelist && !this.isTagWhitelisted(value)) )
             result = this.TEXTS.notAllowed;
 
         return result;
@@ -1474,10 +1474,11 @@ Tagify.prototype = {
 
         if( _s.mode == 'mix' ){
             _s.transformTag.call(this, tagsItems[0])
-            tagElm = this.createTagElem(tagsItems[0])
 
             // TODO: should check if the tag is valid
 
+            tagElm = this.createTagElem(tagsItems[0])
+            // tries to replace a taged textNode with a tagElm, and if not able,
             // insert the new tag to the END if "addTags" was called from outside
             if( !this.replaceTextWithNode(tagElm) ){
                 this.DOM.input.appendChild(tagElm)
@@ -1489,6 +1490,7 @@ Tagify.prototype = {
 
             tagsItems[0].prefix = tagsItems[0].prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0]
             this.value.push(tagsItems[0])
+
             this.update()
 
             this.state.tag = null;
@@ -2157,10 +2159,11 @@ Tagify.prototype = {
             this.addTags([value], true)
 
             // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
-            setTimeout(() =>  {
-                this.DOM.input.focus()
-                this.toggleFocusClass(true)
-            })
+            if( !this.state.editing )
+                setTimeout(() =>  {
+                    this.DOM.input.focus()
+                    this.toggleFocusClass(true)
+                })
 
             if( hideDropdown ){
                 this.dropdown.hide.call(this)
