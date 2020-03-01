@@ -678,15 +678,15 @@ Tagify.prototype = {
                 if( this.settings.mode == 'mix' )
                     return this.events.callbacks.onMixTagsInput.call(this, e);
 
+                eventData.isValid = this.validateTag({value});
+                this.trigger('input', eventData) // "input" event must be triggered at this point, before the dropdown is shown
+
                 if( !value ){
                     this.input.set.call(this, '');
                     return;
                 }
 
                 if( this.input.value == value ) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
-
-                eventData.isValid = this.validateTag({value});
-                this.trigger('input', eventData) // "input" event must be triggered at this point, before the dropdown is shown
 
                 // save the value on the input's State object
                 this.input.set.call(this, value, false); // update the input with the normalized value and run validations
