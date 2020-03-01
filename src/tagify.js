@@ -819,8 +819,8 @@ Tagify.prototype = {
 
                 // show dropdown if typed text is equal or more than the "enabled" dropdown setting
                 if( value.length >= this.settings.dropdown.enabled ){
-                    this.state.editing.value = value;
-                    this.dropdown.show.call(this, value);
+                    this.state.editing.value = value
+                    this.dropdown.show.call(this, value)
                 }
 
                 this.trigger("edit:input", {
@@ -852,7 +852,6 @@ Tagify.prototype = {
                     isValid      = this.validateTag(tagData);
 
               //  this.DOM.input.focus()
-                this.state.editing = false;
 
                 if( !currentValue ){
                     this.removeTag(tagElm)
@@ -866,7 +865,7 @@ Tagify.prototype = {
                     isValid = this.validateTag(tagData)
                 }
                 else{
-                    tagData.__isValid = this.validateTag(tagData)
+                  //  tagData.__isValid = this.validateTag(tagData)
                     this.onEditTagDone(tagElm, tagData)
                     return
                 }
@@ -879,13 +878,14 @@ Tagify.prototype = {
                 this.onEditTagDone(tagElm, tagData)
             },
 
-            onEditTagkeydown(e){
+            onEditTagkeydown(e, tagElm){
                 this.trigger("edit:keydown", {originalEvent:this.cloneEvent(e)})
                 switch( e.key ){
                     case 'Esc' :
                     case 'Escape' :
                         e.target.textContent = e.target.originalValue;
-
+                        // revert back data as it was pre-edit
+                        tagElm.__tagifyTagData = tagElm.__tagifyTagData.__originalData
                     case 'Enter' :
                     case 'Tab' :
                         e.preventDefault()
@@ -926,7 +926,10 @@ Tagify.prototype = {
             _CB = this.events.callbacks,
             that = this,
             isValid = true,
-            delayed_onEditTagBlur = function(){ setTimeout(_CB.onEditTagBlur.bind(that), 0, editableElm) }
+            delayed_onEditTagBlur = function(){
+                that.state.editing = false;
+                setTimeout(_CB.onEditTagBlur.bind(that), 0, editableElm)
+            }
 
         if( !editableElm ){
             console.warn('Cannot find element in Tag template: ', '.tagify__tag-text');
@@ -936,6 +939,9 @@ Tagify.prototype = {
         if( tagData instanceof Object && "editable" in tagData && !tagData.editable )
           return
 
+        // cache the original data, on the DOM node, before any modification ocurs, for possible revert
+        tagElm.__tagifyTagData.__originalData = this.extend({}, tagData)
+
         tagElm.classList.add('tagify__tag--editable')
         editableElm.originalValue = editableElm.textContent
 
@@ -944,7 +950,7 @@ Tagify.prototype = {
         editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm))
         editableElm.addEventListener('blur', delayed_onEditTagBlur)
         editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
-        editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e))
+        editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e, tagElm))
 
         editableElm.focus()
         this.setRangeAtStartEnd(false, editableElm)
@@ -959,7 +965,15 @@ Tagify.prototype = {
 
     editTagToggleValidity( tagElm, value ){
         var tagData = tagElm.__tagifyTagData,
-            toggleState = !!(tagData.__isValid && tagData.__isValid != true);
+            toggleState;
+
+        if( !tagData ){
+            console.warn("tag has no data: ", tagElm, tagData)
+            return;
+        }
+
+        toggleState = !!(tagData.__isValid && tagData.__isValid != true);
+
         //this.validateTag(tagData);
 
         tagElm.classList.toggle('tagify--invalid', toggleState)
@@ -970,6 +984,8 @@ Tagify.prototype = {
         tagData = tagData || {}
         var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData }
         this.trigger("edit:beforeUpdate", eventData)
+
+        delete tagData.__originalData;
 
         if( tagElm ){
             this.editTagToggleValidity(tagElm)

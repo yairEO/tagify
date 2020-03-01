@@ -872,8 +872,6 @@ Tagify.prototype = {
         }),
             isValid = this.validateTag(tagData); //  this.DOM.input.focus()
 
-        this.state.editing = false;
-
         if (!currentValue) {
           this.removeTag(tagElm);
           this.onEditTagDone(null, tagData);
@@ -885,7 +883,7 @@ Tagify.prototype = {
 
           isValid = this.validateTag(tagData);
         } else {
-          tagData.__isValid = this.validateTag(tagData);
+          //  tagData.__isValid = this.validateTag(tagData)
           this.onEditTagDone(tagElm, tagData);
           return;
         }
@@ -901,7 +899,7 @@ Tagify.prototype = {
 
         this.onEditTagDone(tagElm, tagData);
       },
-      onEditTagkeydown: function onEditTagkeydown(e) {
+      onEditTagkeydown: function onEditTagkeydown(e, tagElm) {
         this.trigger("edit:keydown", {
           originalEvent: this.cloneEvent(e)
         });
@@ -909,7 +907,9 @@ Tagify.prototype = {
         switch (e.key) {
           case 'Esc':
           case 'Escape':
-            e.target.textContent = e.target.originalValue;
+            e.target.textContent = e.target.originalValue; // revert back data as it was pre-edit
+
+            tagElm.__tagifyTagData = tagElm.__tagifyTagData.__originalData;
 
           case 'Enter':
           case 'Tab':
@@ -948,6 +948,7 @@ Tagify.prototype = {
         that = this,
         isValid = true,
         delayed_onEditTagBlur = function delayed_onEditTagBlur() {
+      that.state.editing = false;
       setTimeout(_CB.onEditTagBlur.bind(that), 0, editableElm);
     };
 
@@ -956,7 +957,9 @@ Tagify.prototype = {
       return;
     }
 
-    if (tagData instanceof Object && "editable" in tagData && !tagData.editable) return;
+    if (tagData instanceof Object && "editable" in tagData && !tagData.editable) return; // cache the original data, on the DOM node, before any modification ocurs, for possible revert
+
+    tagElm.__tagifyTagData.__originalData = this.extend({}, tagData);
     tagElm.classList.add('tagify__tag--editable');
     editableElm.originalValue = editableElm.textContent;
     editableElm.setAttribute('contenteditable', true);
@@ -964,7 +967,7 @@ Tagify.prototype = {
     editableElm.addEventListener('blur', delayed_onEditTagBlur);
     editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
     editableElm.addEventListener('keydown', function (e) {
-      return _CB.onEditTagkeydown.call(_this6, e);
+      return _CB.onEditTagkeydown.call(_this6, e, tagElm);
     });
     editableElm.focus();
     this.setRangeAtStartEnd(false, editableElm);
@@ -979,7 +982,14 @@ Tagify.prototype = {
   },
   editTagToggleValidity: function editTagToggleValidity(tagElm, value) {
     var tagData = tagElm.__tagifyTagData,
-        toggleState = !!(tagData.__isValid && tagData.__isValid != true); //this.validateTag(tagData);
+        toggleState;
+
+    if (!tagData) {
+      console.warn("tag has no data: ", tagElm, tagData);
+      return;
+    }
+
+    toggleState = !!(tagData.__isValid && tagData.__isValid != true); //this.validateTag(tagData);
 
     tagElm.classList.toggle('tagify--invalid', toggleState);
     return tagData.__isValid;
@@ -992,6 +1002,7 @@ Tagify.prototype = {
       data: tagData
     };
     this.trigger("edit:beforeUpdate", eventData);
+    delete tagData.__originalData;
 
     if (tagElm) {
       this.editTagToggleValidity(tagElm);
