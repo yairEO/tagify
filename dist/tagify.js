@@ -599,6 +599,7 @@ Tagify.prototype = {
             case 'Delete':
             case 'Backspace':
               {
+                if (this.state.editing) return;
                 var selection = document.getSelection(),
                     lastInputValue = decode(this.DOM.input.innerHTML),
                     lastTagElems = this.getTagElms();
@@ -852,6 +853,12 @@ Tagify.prototype = {
           originalEvent: this.cloneEvent(e)
         });
       },
+      onEditTagFocus: function onEditTagFocus(tagElm) {
+        this.state.editing = {
+          scope: tagElm,
+          input: tagElm.querySelector("[contenteditable]")
+        };
+      },
       onEditTagBlur: function onEditTagBlur(editableElm) {
         if (!this.state.hasFocus) this.toggleFocusClass();
         if (!this.DOM.scope.contains(editableElm)) return;
@@ -859,13 +866,12 @@ Tagify.prototype = {
             currentValue = this.input.normalize.call(this, editableElm),
             value = currentValue || editableElm.originalValue,
             hasChanged = value != editableElm.originalValue,
-            isValid = this.validateTag({
+            tagData = this.extend({}, tagElm.__tagifyTagData, {
           value: value
         }),
-            //tagElm.__tagifyTagData.__isValid,
-        tagData = this.extend({}, tagElm.__tagifyTagData, {
-          value: value
-        }); //  this.DOM.input.focus()
+            isValid = this.validateTag(tagData); //  this.DOM.input.focus()
+
+        this.state.editing = false;
 
         if (!currentValue) {
           this.removeTag(tagElm);
@@ -874,10 +880,11 @@ Tagify.prototype = {
         }
 
         if (hasChanged) {
-          this.settings.transformTag.call(this, tagData); // re-validate after tag transformation
+          this.settings.transformTag.call(this, tagData); // MUST re-validate after tag transformation
 
           isValid = this.validateTag(tagData);
         } else {
+          tagElm.__tagifyTagData.__isValid = this.validateTag(tagData);
           this.onEditTagDone(tagElm);
           return;
         }
@@ -952,6 +959,7 @@ Tagify.prototype = {
     tagElm.classList.add('tagify__tag--editable');
     editableElm.originalValue = editableElm.textContent;
     editableElm.setAttribute('contenteditable', true);
+    editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, editableElm));
     editableElm.addEventListener('blur', delayed_onEditTagBlur);
     editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
     editableElm.addEventListener('keydown', function (e) {
@@ -960,10 +968,6 @@ Tagify.prototype = {
     editableElm.focus();
     this.setRangeAtStartEnd(false, editableElm);
     if (!opts.skipValidation) isValid = this.editTagToggleValidity(tagElm, tagData.value);
-    this.state.editing = {
-      scope: tagElm,
-      input: tagElm.querySelector("[contenteditable]")
-    };
     this.trigger("edit:start", {
       tag: tagElm,
       index: tagIdx,
@@ -973,12 +977,14 @@ Tagify.prototype = {
     return this;
   },
   editTagToggleValidity: function editTagToggleValidity(tagElm, value) {
-    var tagData = tagElm.__tagifyTagData; //this.validateTag(tagData);
+    var tagData = tagElm.__tagifyTagData,
+        toggleState = !!(tagData.__isValid && tagData.__isValid != true); //this.validateTag(tagData);
 
-    tagElm.classList.toggle('tagify--invalid', tagData.__isValid !== true);
+    tagElm.classList.toggle('tagify--invalid', toggleState);
     return tagData.__isValid;
   },
   onEditTagDone: function onEditTagDone(tagElm, tagData) {
+    tagData = tagData || tagElm.__tagifyTagData;
     var eventData = {
       tag: tagElm,
       index: this.getNodeIndex(tagElm),
@@ -1005,7 +1011,7 @@ Tagify.prototype = {
 
     if (!tagData || !tagData.value) tagData = tagElm.__tagifyTagData; // if tag is invalid, make the according changes in the newly created element
 
-    if (tagData.__isValid != true) this.extend(tagData, this.getInvaildTagParams(tagData, tagData.__isValid));
+    if (tagData.__isValid && tagData.__isValid != true) this.extend(tagData, this.getInvaildTagParams(tagData, tagData.__isValid));
     var newTag = this.createTagElem(tagData); // when editing a tag and selecting a dropdown suggested item, the state should be "locked"
     // so "onEditTagBlur" won't run and change the tag also *after* it was just changed.
 
@@ -1536,7 +1542,7 @@ Tagify.prototype = {
 
       _this10.appendTag(tagElm);
 
-      if (tagData.__isValid === true) {
+      if (tagData.__isValid && !!tagData.__isValid) {
         // update state
         _this10.value.push(tagData);
 
@@ -1798,7 +1804,7 @@ Tagify.prototype = {
       if (!this.suggestedListItems.length) {
         // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
         // then add a custom suggestion item to the dropdown
-        if (allowNewTags) {
+        if (allowNewTags && !this.state.editing.scope) {
           this.suggestedListItems = [{
             value: value
           }];

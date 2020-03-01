@@ -573,6 +573,8 @@ Tagify.prototype = {
 
                         case 'Delete':
                         case 'Backspace' : {
+                            if( this.state.editing ) return
+
                             var selection = document.getSelection(),
                                 lastInputValue = decode(this.DOM.input.innerHTML),
                                 lastTagElems = this.getTagElms();
@@ -829,6 +831,13 @@ Tagify.prototype = {
                 })
             },
 
+            onEditTagFocus( tagElm ){
+                this.state.editing = {
+                    scope: tagElm,
+                    input: tagElm.querySelector("[contenteditable]")
+                }
+            },
+
             onEditTagBlur( editableElm ){
                 if( !this.state.hasFocus )
                     this.toggleFocusClass()
@@ -839,10 +848,11 @@ Tagify.prototype = {
                     currentValue = this.input.normalize.call(this, editableElm),
                     value        = currentValue || editableElm.originalValue,
                     hasChanged   = value != editableElm.originalValue,
-                    isValid      = this.validateTag({value}), //tagElm.__tagifyTagData.__isValid,
-                    tagData      = this.extend({}, tagElm.__tagifyTagData, {value});
+                    tagData      = this.extend({}, tagElm.__tagifyTagData, {value}),
+                    isValid      = this.validateTag(tagData);
 
               //  this.DOM.input.focus()
+                this.state.editing = false;
 
                 if( !currentValue ){
                     this.removeTag(tagElm)
@@ -852,10 +862,11 @@ Tagify.prototype = {
 
                 if( hasChanged ){
                     this.settings.transformTag.call(this, tagData)
-                    // re-validate after tag transformation
+                    // MUST re-validate after tag transformation
                     isValid = this.validateTag(tagData)
                 }
                 else{
+                    tagElm.__tagifyTagData.__isValid = this.validateTag(tagData)
                     this.onEditTagDone(tagElm)
                     return
                 }
@@ -930,6 +941,7 @@ Tagify.prototype = {
 
         editableElm.setAttribute('contenteditable', true)
 
+        editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, editableElm))
         editableElm.addEventListener('blur', delayed_onEditTagBlur)
         editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
         editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e))
@@ -940,25 +952,22 @@ Tagify.prototype = {
         if( !opts.skipValidation )
             isValid = this.editTagToggleValidity(tagElm, tagData.value)
 
-        this.state.editing = {
-            scope: tagElm,
-            input: tagElm.querySelector("[contenteditable]")
-        }
-
         this.trigger("edit:start", { tag:tagElm, index:tagIdx, data:tagData, isValid })
 
         return this;
     },
 
     editTagToggleValidity( tagElm, value ){
-        var tagData = tagElm.__tagifyTagData;
+        var tagData = tagElm.__tagifyTagData,
+            toggleState = !!(tagData.__isValid && tagData.__isValid != true);
         //this.validateTag(tagData);
 
-        tagElm.classList.toggle('tagify--invalid', tagData.__isValid !== true)
+        tagElm.classList.toggle('tagify--invalid', toggleState)
         return tagData.__isValid
     },
 
     onEditTagDone(tagElm, tagData){
+        tagData = tagData || tagElm.__tagifyTagData
         var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData }
         this.trigger("edit:beforeUpdate", eventData)
 
@@ -981,7 +990,7 @@ Tagify.prototype = {
             tagData = tagElm.__tagifyTagData
 
         // if tag is invalid, make the according changes in the newly created element
-        if( tagData.__isValid != true )
+        if( tagData.__isValid && tagData.__isValid != true )
             this.extend( tagData, this.getInvaildTagParams(tagData, tagData.__isValid) )
 
         var newTag = this.createTagElem(tagData);
@@ -1539,7 +1548,7 @@ Tagify.prototype = {
             // add the tag to the component's DOM
             this.appendTag(tagElm)
 
-            if( tagData.__isValid === true ){
+            if( tagData.__isValid && !!tagData.__isValid ){
                 // update state
                 this.value.push(tagData);
                 this.update();
@@ -1828,7 +1837,7 @@ Tagify.prototype = {
             if( !this.suggestedListItems.length ){
                 // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
                 // then add a custom suggestion item to the dropdown
-                if( allowNewTags ){
+                if( allowNewTags && !this.state.editing.scope ){
                     this.suggestedListItems = [{value}]
                 }
                 // hide suggestions list if no suggestions were matched & cleanup
