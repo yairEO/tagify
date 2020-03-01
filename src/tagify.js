@@ -577,7 +577,7 @@ Tagify.prototype = {
                                 lastInputValue = decode(this.DOM.input.innerHTML),
                                 lastTagElems = this.getTagElms();
 
-                            if( selection.anchorNode.previousElementSibling )
+                            if( selection.anchorNode.nodeType == 3 && !selection.anchorNode.nodeValue && selection.anchorNode.previousElementSibling )
                                 e.preventDefault()
 
                             // if( isFirefox && selection && selection.anchorOffset == 0 )
@@ -703,7 +703,7 @@ Tagify.prototype = {
             },
 
             onMixTagsInput( e ){
-                var sel, range, split, tag, showSuggestions,
+                var range, split, tag, showSuggestions, selection,
                     _s = this.settings,
                     lastTagsCount = this.value.length,
                     tagsCount = this.getTagElms().length;
@@ -719,11 +719,13 @@ Tagify.prototype = {
                     return true
 
                 if( window.getSelection ){
-                    sel = window.getSelection()
-                    if( sel.rangeCount > 0 ){
-                        range = sel.getRangeAt(0).cloneRange()
+                    selection = window.getSelection()
+
+                    // only detect tags if selection is inside a textNode (not somehow on already-existing tag)
+                    if( selection.rangeCount > 0 && selection.anchorNode.nodeType == 3 ){
+                        range = selection.getRangeAt(0).cloneRange()
                         range.collapse(true)
-                        range.setStart(window.getSelection().focusNode, 0)
+                        range.setStart(selection.focusNode, 0)
 
                         split = range.toString().split(_s.mixTagsAllowedAfter)  // ["foo", "bar", "@a"]
 
@@ -736,7 +738,6 @@ Tagify.prototype = {
                                 prefix : tag[0],
                                 value  : tag.input.split(tag[0])[1],
                             }
-
 
                             showSuggestions = this.state.tag.value.length >= _s.dropdown.enabled
                         }
@@ -901,6 +902,7 @@ Tagify.prototype = {
     },
 
     /**
+     * Enters a tag into "edit" mode
      * @param {Node} tagElm the tag element to edit. if nothing specified, use last last
      */
     editTag( tagElm, opts ){
@@ -1486,7 +1488,6 @@ Tagify.prototype = {
             // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
             this.DOM.input.appendChild(document.createTextNode(''))
 
-
             return tagElm
         }
 
@@ -1692,12 +1693,18 @@ Tagify.prototype = {
 
     removeAllTags(){
         this.value = []
-        this.update()
-        Array.prototype.slice.call(this.getTagElms()).forEach(elm => elm.parentNode.removeChild(elm));
+
+        if( this.settings.mode == 'mix' )
+            this.DOM.input.innerHTML = ''
+        else
+            Array.prototype.slice.call(this.getTagElms()).forEach(elm => elm.parentNode.removeChild(elm))
+
         this.dropdown.position.call(this)
 
         if( this.settings.mode == 'select' )
             this.input.set.call(this)
+
+        this.update()
     },
 
     /**

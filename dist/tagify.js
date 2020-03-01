@@ -602,7 +602,7 @@ Tagify.prototype = {
                 var selection = document.getSelection(),
                     lastInputValue = decode(this.DOM.input.innerHTML),
                     lastTagElems = this.getTagElms();
-                if (selection.anchorNode.previousElementSibling) e.preventDefault(); // if( isFirefox && selection && selection.anchorOffset == 0 )
+                if (selection.anchorNode.nodeType == 3 && !selection.anchorNode.nodeValue && selection.anchorNode.previousElementSibling) e.preventDefault(); // if( isFirefox && selection && selection.anchorOffset == 0 )
                 //     this.removeTag(selection.anchorNode.previousSibling)
                 // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                 // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
@@ -733,11 +733,11 @@ Tagify.prototype = {
       onMixTagsInput: function onMixTagsInput(e) {
         var _this5 = this;
 
-        var sel,
-            range,
+        var range,
             split,
             tag,
             showSuggestions,
+            selection,
             _s = this.settings,
             lastTagsCount = this.value.length,
             tagsCount = this.getTagElms().length; // check if ANY tags were magically added through browser redo/undo
@@ -753,12 +753,12 @@ Tagify.prototype = {
         if (this.hasMaxTags()) return true;
 
         if (window.getSelection) {
-          sel = window.getSelection();
+          selection = window.getSelection(); // only detect tags if selection is inside a textNode (not somehow on already-existing tag)
 
-          if (sel.rangeCount > 0) {
-            range = sel.getRangeAt(0).cloneRange();
+          if (selection.rangeCount > 0 && selection.anchorNode.nodeType == 3) {
+            range = selection.getRangeAt(0).cloneRange();
             range.collapse(true);
-            range.setStart(window.getSelection().focusNode, 0);
+            range.setStart(selection.focusNode, 0);
             split = range.toString().split(_s.mixTagsAllowedAfter); // ["foo", "bar", "@a"]
 
             tag = split[split.length - 1].match(_s.pattern); // tag = range.toString().match(_s.pattern) // allow spaces
@@ -925,6 +925,7 @@ Tagify.prototype = {
   },
 
   /**
+   * Enters a tag into "edit" mode
    * @param {Node} tagElm the tag element to edit. if nothing specified, use last last
    */
   editTag: function editTag(tagElm, opts) {
@@ -1687,12 +1688,12 @@ Tagify.prototype = {
   },
   removeAllTags: function removeAllTags() {
     this.value = [];
-    this.update();
-    Array.prototype.slice.call(this.getTagElms()).forEach(function (elm) {
+    if (this.settings.mode == 'mix') this.DOM.input.innerHTML = '';else Array.prototype.slice.call(this.getTagElms()).forEach(function (elm) {
       return elm.parentNode.removeChild(elm);
     });
     this.dropdown.position.call(this);
     if (this.settings.mode == 'select') this.input.set.call(this);
+    this.update();
   },
 
   /**
