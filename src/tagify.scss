@@ -9,10 +9,8 @@
     $tags-border-color       : #DDD !default;
     $tags-hover-border-color : #CCC !default;
     $tags-focus-border-color : #3595f6 !default;
-
     $tagMargin               : 5px !default;
     $tag-pad                 : .3em .5em !default;
-
     $tag-text-color          : black !default;
     $tag-text-color--edit    : black !default;
     $tag-bg                  : #E5E5E5 !default;
@@ -23,6 +21,7 @@
     $tag-invalid-color       : $tag-remove !default;
     $tag-invalid-bg          : rgba($tag-remove, .5) !default;
     $tag-inset-shadow-size   : 1.1em !default;
+    $placeholder-color       : $tag-text-color !default;
 
     // CSS variables
     --tags-border-color        : #{$tags-border-color};
@@ -40,6 +39,7 @@
     --tag--min-width           : 1ch;
     --tag--max-width           : auto;
     --tag-hide-transition      : .3s;
+    --placeholder-color        : #{$placeholder-color };
     --loader-size              : .8em;
 
 
@@ -375,7 +375,8 @@
             position: absolute;
             top: 0;
             z-index: 1;
-            color: $tag-text-color;
+            color: $placeholder-color;
+            color: var(--placeholder-color);
             white-space: nowrap;
             pointer-events: none;
             opacity: 0;
