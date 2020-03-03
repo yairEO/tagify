@@ -1,12 +1,12 @@
 <h1 align="center">
   <img src="/logo.svg?sanitize=true" width="40%" />
   <br><br>
-  <a href='https://yaireo.github.io/tagify'>Tagify</a> - lightweight input "tags" script
+  <a href='https://yaireo.github.io/tagify'>Tagify</a> - <em>tags</em> input component
 </h1>
 
 <p align="center">
-  Transforms an input field or a textarea into a <em>Tags Componen</em>, in an easy, customizable way,
-  with great performance and tiny code footprint, exploded with features.
+  Transforms an input field or a textarea into a <em>Tags component</em>, in an easy, customizable way,
+  with great performance and small code footprint, exploded with features.
   <br>
   <strong>Vanilla</strong> ⚡ <strong>React</strong> ⚡ <strong>Vue</strong> ⚡ <strong>Angular</strong>
 <p>
@@ -570,7 +570,7 @@ dropdown.enabled        | Number           | 2                                | 
 dropdown.maxItems       | Number           | 10                               | Maximum items to show in the suggestions list dropdown
 dropdown.classname      | String           | `""`                             | Custom class name for the dropdown suggestions selectbox
 dropdown.fuzzySearch    | Boolean          | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
-dropdown.position       | String           | null                             | `manual` - will not render the dropdown, and you would need to do it yourself. See "events" section. <br> `text` - will place the dropdown next to the caret <br> `all` - normal, full-width design
+dropdown.position       | String           | null                             | <ul><li>`manual` - will not render the dropdown, and you would need to do it yourself. [See demo](https://yaireo.github.io/tagify/#section-manual-suggestions)</li><li>`text` - will place the dropdown next to the caret</li><li>`all` - normal, full-width design</li></ul>
 dropdown.highlightFirst | Boolean          | false                            | When a suggestions list is shown, highlight the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
 dropdown.closeOnSelect  | Boolean          | true                             | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
 dropdown.mapValueTo     | Function/String  |                                  | if whitelist is an Array of Objects:<br>Ex. `[{value:'foo', email:'foo@a.com'},...]`)<br> this setting controlls which data <em>key</em> will be printed in the dropdown.<br> Ex. `mapValueTo: data => "To:" + data.email`<br>Ex. `mapValueTo: "email"`
