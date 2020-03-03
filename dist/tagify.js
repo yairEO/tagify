@@ -603,7 +603,10 @@ Tagify.prototype = {
                 var selection = document.getSelection(),
                     lastInputValue = decode(this.DOM.input.innerHTML),
                     lastTagElems = this.getTagElms();
-                if (selection.anchorNode.nodeType == 3 && !selection.anchorNode.nodeValue && selection.anchorNode.previousElementSibling) e.preventDefault(); // if( isFirefox && selection && selection.anchorOffset == 0 )
+                if (selection.anchorNode.nodeType == 3 && // node at caret location is a Text node
+                !selection.anchorNode.nodeValue && // has some text
+                selection.anchorNode.previousElementSibling) // text node has a Tag node before it
+                  e.preventDefault(); // if( isFirefox && selection && selection.anchorOffset == 0 )
                 //     this.removeTag(selection.anchorNode.previousSibling)
                 // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                 // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
@@ -1387,6 +1390,7 @@ Tagify.prototype = {
     }).join('');
     this.DOM.input.innerHTML = s;
     this.DOM.input.appendChild(document.createTextNode(''));
+    this.DOM.input.normalize();
     this.getTagElms().forEach(function (elm, idx) {
       return elm.__tagifyTagData = tagsDataSet[idx];
     });
@@ -1555,7 +1559,7 @@ Tagify.prototype = {
 
       _this10.appendTag(tagElm);
 
-      if (tagData.__isValid && !!tagData.__isValid) {
+      if (tagData.__isValid && tagData.__isValid === true) {
         // update state
         _this10.value.push(tagData);
 

@@ -579,7 +579,9 @@ Tagify.prototype = {
                                 lastInputValue = decode(this.DOM.input.innerHTML),
                                 lastTagElems = this.getTagElms();
 
-                            if( selection.anchorNode.nodeType == 3 && !selection.anchorNode.nodeValue && selection.anchorNode.previousElementSibling )
+                            if( selection.anchorNode.nodeType == 3 &&   // node at caret location is a Text node
+                                !selection.anchorNode.nodeValue    &&   // has some text
+                                selection.anchorNode.previousElementSibling )  // text node has a Tag node before it
                                 e.preventDefault()
 
                             // if( isFirefox && selection && selection.anchorOffset == 0 )
@@ -1387,6 +1389,7 @@ Tagify.prototype = {
 
         this.DOM.input.innerHTML = s
         this.DOM.input.appendChild(document.createTextNode(''))
+        this.DOM.input.normalize()
         this.getTagElms().forEach((elm, idx) => elm.__tagifyTagData = tagsDataSet[idx])
         this.update()
         return s
@@ -1566,7 +1569,7 @@ Tagify.prototype = {
             // add the tag to the component's DOM
             this.appendTag(tagElm)
 
-            if( tagData.__isValid && !!tagData.__isValid ){
+            if( tagData.__isValid && tagData.__isValid === true ){
                 // update state
                 this.value.push(tagData);
                 this.update();
