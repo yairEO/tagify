@@ -195,7 +195,7 @@
                 animation : tags--bump .3s ease-out 1;
 
                 box-shadow: 0 0 0 $tag-inset-shadow-size $tag-bg inset;
-                box-shadow: 0 0 0 calc(var(--tag-inset-shadow-size)) var(--tag-bg) inset;
+                box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-bg) inset;
             }
         }
 
