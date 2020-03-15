@@ -344,7 +344,7 @@ Similar to native `<Select>` element, but allows typing free text as value.
 
 A Tagify React component is exported as `<Tags>` from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
 
-Check the [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-6vd3i) for a live React integration example
+Check the [**live demo**](https://codesandbox.io/s/tagify-demo-react-mh6on) for a live React integration example
 
 
 ## Angular
