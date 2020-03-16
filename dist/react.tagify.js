@@ -23,8 +23,11 @@ class Tags extends React.Component {
       tagify.loadOriginalValues(nextProps.value)
       // this.tagify.addTags(nextProps.value, true, true)
     }
+    
+    // Enabled Loading 
+    tagify.loading(nextProps.loading);
 
-    this.tagify.settings.whitelist = nextProps.settings.whitelist
+    tagify.settings.whitelist = nextProps.settings.whitelist
 
     if (nextProps.showDropdown) {
       tagify.dropdown.show.call(tagify, nextProps.showDropdown)
