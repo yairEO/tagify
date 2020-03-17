@@ -351,17 +351,31 @@
         &::before{ display:inline-block; width:0; }
 
         &:empty{
-          display: flex; // https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
-          &::before{ @include placeholder; width:auto; }
+            @supports ( -moz-appearance:none ){
+                display: flex; // https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
+            }
+            &::before{ @include placeholder; width:auto; }
         }
 
         &:focus{ outline:none;
-            &::before{ @include placeholder(false);
+            &::before{
+                @include placeholder(false);
                 @supports ( -moz-appearance:none ){
                     display:none;
                 }
+
+                /* ALL MS BROWSERS: hide placeholder (on focus) otherwise the caret is places after it, which is weird */
+                /* IE10+ CSS styles go here */
+                @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+                    display: none;
+                }
+                /* IE Edge 12+ CSS styles go here */
+                @supports ( -ms-ime-align:auto ) {
+                    display: none;
+                }
             }
-            &:empty::before{ @include placeholder(true, .3);
+            &:empty::before{
+                @include placeholder(true, .3);
                 @supports ( -moz-appearance:none ){
                     display:inline-block;
                 }
@@ -382,8 +396,8 @@
             opacity: 0;
 
             #{ $self }--mix &{
-              position: static;
-              line-height: inherit;
+                position: static;
+                line-height: inherit;
             }
         }
 
