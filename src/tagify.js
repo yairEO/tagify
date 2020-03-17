@@ -314,8 +314,9 @@ Tagify.prototype = {
      * revert any changes made by this component
      */
     destroy(){
-        this.DOM.scope.parentNode.removeChild(this.DOM.scope);
-        this.dropdown.hide.call(this, true);
+        this.DOM.scope.parentNode.removeChild(this.DOM.scope)
+        this.dropdown.hide.call(this, true)
+        clearTimeout(this.dropdownHide__bindEventsTimeout)
     },
 
     /**

@@ -344,7 +344,22 @@ Similar to native `<Select>` element, but allows typing free text as value.
 
 A Tagify React component is exported as `<Tags>` from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
 
-Check the [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-6vd3i) for a live React integration example
+```javascript
+import Tags from "@yaireo/tagify/dist/react.tagify" // React-wrapper file
+
+const App = () => {
+  return (
+    <Tags
+      settings={settings}  // tagify settings object
+      value="a,b,c"
+      {...tagifyProps}   // dynamic props such as "loading", "showDropdown:'abc'", "value"
+      onChange={e => console.log("CHANGED:", e)}
+    />
+  )
+})
+```
+
+Check the [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for a React integration example.
 
 
 ## Angular
@@ -523,7 +538,7 @@ tagify
 Name               | Info
 ------------------ | --------------------------------------------------------------------------
 add                | A tag has been added
-remove             | A tag has been removed
+remove             | A tag has been removed ([use `removeTag`](https://github.com/yairEO/tagify/issues/222) intead with *jQuery*)
 invalid            | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
 input              | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes `value`, `inputElm` & `isValid`
 click              | Clicking a tag. Exposes the tag element, its index & data

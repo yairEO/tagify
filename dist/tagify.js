@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.6.1)- tags input component
+ * Tagify (v 3.6.2)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -353,6 +353,7 @@ Tagify.prototype = {
   destroy: function destroy() {
     this.DOM.scope.parentNode.removeChild(this.DOM.scope);
     this.dropdown.hide.call(this, true);
+    clearTimeout(this.dropdownHide__bindEventsTimeout);
   },
 
   /**
