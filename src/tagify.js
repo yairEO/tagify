@@ -56,6 +56,7 @@ function Tagify( input, settings ){
     this.state = {
         editing : false,
         actions : {},   // UI actions for state-locking
+        mixMode : {},
         dropdown: {}
     }
 
@@ -97,7 +98,7 @@ Tagify.prototype = {
         blacklist           : [],             // A list of non-allowed tags
         enforceWhitelist    : false,          // Flag - Only allow tags allowed in whitelist
         keepInvalidTags     : false,          // Flag - if true, do not remove tags which did not pass validation
-        mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content is allowing a tag to be added after
+        mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content allows a tag to be added after
         mixTagsInterpolator : ['[[', ']]'],   // Interpolation for mix mode. Everything between this will becmoe a tag
         backspace           : true,           // false / true / "edit"
         skipInvalid         : false,          // If `true`, do not add invalid, temporary, tags before automatically removing them
@@ -708,7 +709,7 @@ Tagify.prototype = {
             },
 
             onMixTagsInput( e ){
-                var range, split, tag, showSuggestions, selection,
+                var range, rangeText, match, matchedPatternCount, tag, showSuggestions, selection,
                     _s = this.settings,
                     lastTagsCount = this.value.length,
                     tagsCount = this.getTagElms().length;
@@ -732,20 +733,37 @@ Tagify.prototype = {
                         range.collapse(true)
                         range.setStart(selection.focusNode, 0)
 
-                        split = range.toString().split(_s.mixTagsAllowedAfter)  // ["foo", "bar", "@a"]
 
-                        tag = split[split.length-1].match(_s.pattern)
-                        // tag = range.toString().match(_s.pattern) // allow spaces
+                        rangeText = range.toString().slice(0, range.endOffset)  // slice the range so everything AFTER the caret will be trimmed
+                        // split = range.toString().split(_s.mixTagsAllowedAfter)  // ["foo", "bar", "@baz"]
+                        matchedPatternCount = rangeText.split(_s.pattern).length - 1;
+
+                        match = rangeText.match( _s.pattern )
+                        if( !match ) return
+
+                        // tag string, example: "@aaa ccc"
+                        tag = rangeText.slice( rangeText.lastIndexOf(match[match.length-1]) )
 
                         if( tag ){
                             this.state.actions.ArrowLeft = false // start fresh, assuming the user did not (yet) used any arrow to move the caret
                             this.state.tag = {
-                                prefix : tag[0],
-                                value  : tag.input.split(tag[0])[1],
+                                prefix : tag.match(_s.pattern)[0],
+                                value  : tag.replace(_s.pattern, ''), // ret rid of the prefix
                             }
 
                             showSuggestions = this.state.tag.value.length >= _s.dropdown.enabled
+
+                            if( this.state.tag.value.length && this.state.dropdown.visible === false )
+                                showSuggestions = false
+
+                            // scenario: (do not show suggestions of previous matched tag)
+                            // (2 tags exist)                          " a@a.com and @"
+                            // (second tag is removed by backspace)    " a@a.com and "
+                            if( matchedPatternCount < this.state.mixMode.matchedPatternCount )
+                                showSuggestions = false
                         }
+
+                        this.state.mixMode.matchedPatternCount = matchedPatternCount
                     }
                 }
 
