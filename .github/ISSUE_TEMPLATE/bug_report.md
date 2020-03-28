@@ -16,7 +16,7 @@ assignees: ''
 ### Demo Page
 <!--- JSBIN bug template -->
 <!--- If possible, clone & modify the below template to reproduce your issue -->
-https://jsbin.com/degobup/edit?html,js,output
+https://jsbin.com/jekuqap/edit?html,js,output
 
 
 ### Explanation
