@@ -570,14 +570,21 @@
                 filter: brightness(105%);
             }
         }
-
-        &__createTagBtn{
-          width: 100%;
+        /* CURRENTLY NOT USED
+        &__addNewBtn{
+          width: 1.22em;
+          height: 1.22em;
+          line-height: 1;
+          font-size: 1.2em;
+          border-radius: 50%;
+          text-align: center;
           background: $tags-focus-border-color;
           background: var(--tagify-dd-color-primary);
           color: white;
           color: var(--tagify-dd-bg-color);
           border: none;
+          cursor: pointer;
         }
+        */
     }
 }

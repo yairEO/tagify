@@ -60,7 +60,7 @@
 
     npm i @yaireo/tagify --save
 
-### usage (in your bundle):
+### Usage (in your bundle):
 
     import Tagify from '@yaireo/tagify'
 
@@ -71,35 +71,29 @@
 > SCSS location: `@yaireo/tagify/src/tagify.scss`
 > [See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
 
-## Selling points
-* JS minified `~30kb` (`~9kb` GZIP)
-* CSS minified `~8kb` (`~2kb` GZIP) - generated from SCSS with variables
-* Easily customized, plenty of settings for common scenarios
-* Your input/textarea node values kept in sync with Tagify
-* ARIA accessibility support
-* Many useful custom [events](#events)
-* Easily change direction to RTL (via the SCSS file)
-* Internet Explorer - A polyfill script can be used: `tagify.polyfills.min.js` in `/dist`
-
-## What can Tagify do
+## Features
 * Can be applied on input & textarea elements
 * Supports [mix content](#mixed-content) (text and tags together)
 * Supports [single-value](#single-value) mode (like `<select>`)
-* Supports whitelist
-* Supports blacklists
-* Supports Templates for customized markup: <em>wrapper</em>, <em>tag item<em> & </em>suggestion item</em>
-* Shows suggestions selectbox (flexiable settings & styling) at full width or next to the typed texted (caret)
+* Supports whitelist/blacklist
+* Supports Templates for: <em>component wrapper</em>, <em>tag items<em>, <em>suggestion list<em> & </em>suggestion items</em>
+* Shows suggestions selectbox (flexiable settings & styling) at *full (component) width* or *next to* the typed texted (caret)
 * Allows setting suggestions' [aliases](#example-for-a-suggestion-item-alias) for easier fuzzy-searching
 * Auto-suggest input as-you-type with ability to auto-complete
 * Can paste in multiple values: `tag 1, tag 2, tag 3` or even newline-separated tags
 * Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
 * Validate tags by Regex pattern
 * Tags are [editable](#edit-tags)
+* ARIA accessibility support
 * Supports read-only mode to the whole componenet or per-tag
 * Each tag can have any properties desired (class, data-whatever, readonly...)
 * Automatically disallow duplicate tags (vis "settings" object)
 * Has built-in CSS loader, if needed (Ex. <em>AJAX</em> whitelist pulling)
 * Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
+* Easily change direction to RTL (via the SCSS file)
+* Internet Explorer - A polyfill script can be used: `tagify.polyfills.min.js` in `/dist`
+* Many useful custom [events](#events)
+* Original input/textarea element values kept in sync with Tagify
 
 ## Building the project
 Simply run `gulp` in your terminal, from the project's path ([Gulp](https://gulpjs.com) should be installed first).
@@ -121,11 +115,11 @@ tagify.addTags(["banana", "orange", "apple"])
 tagify.addTags([{value:"banana", color:"yellow"}, {value:"apple", color:"red"}, {value:"watermelon", color:"green"}])
 ```
 
-## output value
+## Output value
 There are two possible ways to get the value of the tags:
 
 1. Access the tagify's instance's `value` prop: `tagify.value` (Array of tags)
-2. Access the original input's value: `inputElm.value` (Stringified Array of tags)
+2. Access the *original* input's value: `inputElm.value` (Stringified Array of tags)
 
 ## Ajax whitelist
 Dynamically-loaded suggestions list (*whitelist*) from the server (as the user types) is a frequent need to many.
@@ -219,20 +213,21 @@ templates : {
       </tag>`
   },
 
-  dropdownItem( item ){
-    var mapValueTo = this.settings.dropdown.mapValueTo,
-        value = (mapValueTo
-            ? typeof mapValueTo == 'function'
-                ? mapValueTo(item)
-                : item[mapValueTo]
-            : item.value) || item.value,
-        sanitizedValue = (value || item).replace(/`|'/g, "&#39;");
+  dropdown(settings){
+      var _s = settings.dropdown,
+          className = `${_s.position == 'manual' ? "" : `tagify__dropdown tagify__dropdown--${_s.position}`} ${_s.classname}`.trim();
 
+      return `<div class="${className}" role="listbox" aria-labelledby="dropdown">
+                  <div class="tagify__dropdown__wrapper"></div>
+                  <button class="tagify__dropdown__addNewBtn">add new</button>
+              </div>`
+  },
+
+  dropdownItem( item ){
     return `<div ${this.getAttributes(item)}
-                class='tagify__dropdown__item ${item.class ? item.class : ""}'
-                tabindex="0"
-                role="option"
-                aria-labelledby="dropdown-label">${sanitizedValue}</div>`;
+                        class='tagify__dropdown__item ${item.class ? item.class : ""}'
+                        tabindex="0"
+                        role="option">${item.value}</div>`
   }
 }
 ```
@@ -247,32 +242,35 @@ Using the keyboard arrows up/down will highlight an option from the list, and hi
 
 It is possible to tweak the selectbox dropdown via 2 settings:
 
- - enabled - this is a numeral value which tells Tagify when to show the suggestions dropdown, when a minimum of N characters were typed.
- - maxItems - Limits the number of items the suggestions selectbox will render
+ - `enabled` - this is a numeral value which tells Tagify when to show the suggestions dropdown, when a minimum of N characters were typed.
+ - `maxItems` - Limits the number of items the suggestions selectbox will render
 
 ```javascript
 var input = document.querySelector('input'),
     tagify = new Tagify(input, {
         whitelist : ['aaa', 'aaab', 'aaabb', 'aaabc', 'aaabd', 'aaabe', 'aaac', 'aaacc'],
         dropdown : {
-            classname : "color-blue",
-            enabled   : 0,         // show the dropdown immediately on focus
-            maxItems  : 5,
-            position  : "text",    // place the dropdown near the typed text
-            closeOnSelect : false, // keep the dropdown open after selecting a suggestion
+            classname     : "color-blue",
+            enabled       : 0,              // show the dropdown immediately on focus
+            maxItems      : 5,
+            position      : "text",         // place the dropdown near the typed text
+            closeOnSelect : false,          // keep the dropdown open after selecting a suggestion
+            highlightFirst: true
         }
     });
 ```
 
-Will render:
+<p align="center">🠋 **Will render:** 🠋</p>
 
 ```html
-<div class="tagify__dropdown" style="left: 993.5px; top: 106.375px; width: 616px;">
-    <div class="tagify__dropdown__item" value="aaab">aaab</div>
-    <div class="tagify__dropdown__item" value="aaabb">aaabb</div>
-    <div class="tagify__dropdown__item" value="aaabc">aaabc</div>
-    <div class="tagify__dropdown__item" value="aaabd">aaabd</div>
-    <div class="tagify__dropdown__item" value="aaabe">aaabe</div>
+<div class="tagify__dropdown tagify__dropdown--text" style="left:993.5px; top:106.375px; width:616px;">
+    <div class="tagify__dropdown__wrapper">
+      <div class="tagify__dropdown__item tagify__dropdown__item--active" value="aaab">aaab</div>
+      <div class="tagify__dropdown__item" value="aaabb">aaabb</div>
+      <div class="tagify__dropdown__item" value="aaabc">aaabc</div>
+      <div class="tagify__dropdown__item" value="aaabd">aaabd</div>
+      <div class="tagify__dropdown__item" value="aaabe">aaabe</div>
+    </div>
 </div>
 ```
 
@@ -451,7 +449,7 @@ $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 
 ## FAQ
 
-To render all the tags at the same line, without tags wrapping to new lines, add this to your `.tagify` CSS:
+To render all tags at the same line, without tags wrapping to new lines, add this to your `.tagify` *CSS Rule*:
 
 ```css
 flex-wrap: nowrap;
@@ -498,6 +496,7 @@ Name                            | Info
 --tag-remove-btn-bg--hover      | The remove (`×`) button background color on hover
 --loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
 --tag-hide-transition           | Controls the transition property when a tag is removed. default is '.3s'
+--placeholder-colo              | Placeholder text color
 
 
 ## Methods
@@ -561,11 +560,11 @@ dropdown:scroll    | Tells the percentage scrolled. (`event.detail.percentage`)
 Name                    | Type             | Default                          | Info
 ----------------------- | ---------------- | -------------------------------- | --------------------------------------------------------------------------
 placeholder             | String           |                                  | Placeholder text. If this attribute is set on an input/textarea element it will override this setting
-delimiters              | String           | `,`                              | [regex string] split tags by any of these delimiters. Example: `",|`  |."`
-pattern                 | String           | null                             | Validate input by REGEX pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
+delimiters              | String           | `,`                              | [RegEx **string**] split tags by any of these delimiters. Example: `",|`  |."`
+pattern                 | String/RegEx     | null                             | Validate input by RegEx pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
 mode                    | String           | null                             | Use `select` for single-value dropdown-like select box. See `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
 mixTagsInterpolator     | Array            | `['[[', ']]']`                   | Interpolation for mix mode. Everything between these will become a tag
-mixTagsAllowedAfter     | Regex            | `/,|\.|\:|\s/`                   | Define conditions in which typed mix-tags content is allowing a tag to be created after.
+mixTagsAllowedAfter     | RegEx            | `/,|\.|\:|\s/`                   | Define conditions in which typed mix-tags content is allowing a tag to be created after.
 duplicates              | Boolean          | false                            | Should duplicate tags be allowed or not
 enforceWhitelist        | Boolean          | false                            | Should ONLY use tags allowed in whitelist.<br>In `mix-mode`, setting it  to `false` will not allow creating new tags.
 autoComplete.enabled    | Boolean          | true                             | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
@@ -581,9 +580,9 @@ transformTag            | Function         | undefined                        | 
 keepInvalidTags         | Boolean          | false                            | If `true`, do not remove tags which did not pass validation
 skipInvalid             | Boolean          | false                            | If `true`, do not add invalid, temporary, tags before automatically removing them
 backspace               | *                | true                             | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
-dropdown.enabled        | Number           | 2                                | Minimum characters to input to show the suggestions list. "false" to disable
-dropdown.maxItems       | Number           | 10                               | Maximum items to show in the suggestions list dropdown
-dropdown.classname      | String           | `""`                             | Custom class name for the dropdown suggestions selectbox
+dropdown.enabled        | Number           | 2                                | Minimum characters input for showing a suggestions list. `false` will not render a suggestions list.
+dropdown.maxItems       | Number           | 10                               | Maximum items to show in the suggestions list
+dropdown.classname      | String           | `""`                             | Custom *classname* for the dropdown suggestions selectbox
 dropdown.fuzzySearch    | Boolean          | true                             | Enables filtering dropdown items values' by string *containing* and not only *beginning*
 dropdown.position       | String           | null                             | <ul><li>`manual` - will not render the dropdown, and you would need to do it yourself. [See demo](https://yaireo.github.io/tagify/#section-manual-suggestions)</li><li>`text` - will place the dropdown next to the caret</li><li>`all` - normal, full-width design</li></ul>
 dropdown.highlightFirst | Boolean          | false                            | When a suggestions list is shown, highlight the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)

@@ -31,9 +31,10 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var isFirefox = typeof InstallTrigger !== 'undefined';
 
-var getUID = function getUID() {
-  return (new Date().getTime() + Math.floor(Math.random() * 10000 + 1)).toString(16);
-};
+var sameStr = function sameStr(s1, s2) {
+  return s1.toLowerCase() == s2.toLowerCase();
+}; // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
+
 
 var removeCollectionProp = function removeCollectionProp(collection, unwantedProp) {
   return collection.map(function (v) {
@@ -65,12 +66,61 @@ function decode(s) {
 }
 /**
  * utility method
+ * https://stackoverflow.com/a/35385518/104380
+ * @param  {String} s [HTML string]
+ * @return {Object}   [DOM node]
+ */
+
+
+function parseHTML(s) {
+  var parser = new DOMParser(),
+      node = parser.parseFromString(s.trim(), "text/html");
+  return node.body.firstElementChild;
+}
+/**
+ * Removed new lines and irrelevant spaces which might affect layout, and are better gone
+ * @param {string} s [HTML string]
+ */
+
+
+function minify(s) {
+  return s ? s.replace(/\>[\r\n ]+\</g, "><").replace(/(<.*?>)|\s+/g, function (m, $1) {
+    return $1 ? $1 : ' ';
+  }) // https://stackoverflow.com/a/44841484/104380
+  : "";
+}
+/**
+ * utility method
  * https://stackoverflow.com/a/6234804/104380
  */
 
 
 function escapeHTML(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/`|'/g, "&#039;");
+}
+/**
+ * merge objects into a single new one
+ * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
+ */
+
+
+function extend(o, o1, o2) {
+  if (!(o instanceof Object)) o = {};
+  copy(o, o1);
+  if (o2) copy(o, o2);
+
+  function copy(a, b) {
+    // copy o2 to o
+    for (var key in b) {
+      if (b.hasOwnProperty(key)) {
+        if (isObject(b[key])) {
+          if (!isObject(a[key])) a[key] = Object.assign({}, b[key]);else copy(a[key], b[key]);
+        } else a[key] = b[key];
+      }
+    }
+  }
+
+  return o;
 } // ☝☝☝ ALL THE ABOVE WILL BE MOVED INTO SEPARATE FILES ☝☝☝
 
 /**
@@ -101,7 +151,7 @@ function Tagify(input, settings) {
   this.listeners = {};
   this.DOM = {}; // Store all relevant DOM elements in an Object
 
-  this.extend(this, new this.EventDispatcher(this));
+  extend(this, new this.EventDispatcher(this));
   this.build(input);
   this.getCSSVars();
   this.loadOriginalValues();
@@ -162,7 +212,7 @@ Tagify.prototype = {
     dropdown: {
       classname: '',
       enabled: 2,
-      // minimum input characters needs to be typed for the dropdown to show
+      // minimum input characters needs to be typed for the suggestions dropdown to show
       maxItems: 10,
       searchKeys: [],
       fuzzySearch: true,
@@ -177,17 +227,24 @@ Tagify.prototype = {
   // Using ARIA & role attributes
   // https://www.w3.org/TR/wai-aria-practices/examples/combobox/aria1.1pattern/listbox-combo.html
   templates: {
+    /**
+     *
+     * @param {DOM Object} input     Original input DOm element
+     * @param {Object}     settings  Tagify instance settings Object
+     */
     wrapper: function wrapper(input, settings) {
       return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                        ").concat(settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="listbox" aria-expanded="false"', "\n                        role=\"tagslist\"\n                        tabIndex=\"-1\">\n                <span contenteditable data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                    class=\"tagify__input\"\n                    role=\"textbox\"\n                    aria-autocomplete=\"both\"\n                    aria-multiline=\"").concat(settings.mode == 'mix' ? true : false, "\"></span>\n            </tags>");
     },
     tag: function tag(value, tagData) {
       return "<tag title=\"".concat(tagData.title || value, "\"\n                        contenteditable='false'\n                        spellcheck='false'\n                        tabIndex=\"-1\"\n                        class=\"tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "\"\n                        ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(value, "</span>\n                </div>\n            </tag>");
     },
+    dropdown: function dropdown(settings) {
+      var _s = settings.dropdown,
+          className = "".concat(_s.position == 'manual' ? "" : "tagify__dropdown tagify__dropdown--".concat(_s.position), " ").concat(_s.classname).trim();
+      return "<div class=\"".concat(className, "\" role=\"listbox\" aria-labelledby=\"dropdown\">\n                        <div class=\"tagify__dropdown__wrapper\"></div>\n                    </div>");
+    },
     dropdownItem: function dropdownItem(item) {
-      var mapValueTo = this.settings.dropdown.mapValueTo,
-          value = (mapValueTo ? typeof mapValueTo == 'function' ? mapValueTo(item) : item[mapValueTo] : item.value) || item.value,
-          sanitizedValue = (value || item).replace(/`|'/g, "&#39;");
-      return "<div ".concat(this.getAttributes(item), "\n                        class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                        tabindex=\"0\"\n                        role=\"option\">").concat(sanitizedValue, "</div>");
+      return "<div ".concat(this.getAttributes(item), "\n                        class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                        tabindex=\"0\"\n                        role=\"option\">").concat(item.value, "</div>");
     }
   },
   customEventsList: ['add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select'],
@@ -195,7 +252,7 @@ Tagify.prototype = {
     var _this2 = this;
 
     this.DEFAULTS.templates = this.templates;
-    this.settings = this.extend({}, this.DEFAULTS, settings);
+    this.settings = extend({}, this.DEFAULTS, settings);
     this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
 
     this.settings.placeholder = input.getAttribute('placeholder') || this.settings.placeholder || "";
@@ -248,18 +305,6 @@ Tagify.prototype = {
     }
 
     return s;
-  },
-
-  /**
-   * utility method
-   * https://stackoverflow.com/a/35385518/104380
-   * @param  {String} s [HTML string]
-   * @return {Object}   [DOM node]
-   */
-  parseHTML: function parseHTML(s) {
-    var parser = new DOMParser(),
-        node = parser.parseFromString(s.trim(), "text/html");
-    return node.body.firstElementChild;
   },
 
   /**
@@ -339,7 +384,7 @@ Tagify.prototype = {
     var DOM = this.DOM,
         template = this.settings.templates.wrapper(input, this.settings);
     DOM.originalInput = input;
-    DOM.scope = this.parseHTML(template);
+    DOM.scope = parseHTML(template);
     DOM.input = DOM.scope.querySelector('[contenteditable]');
     input.parentNode.insertBefore(DOM.scope, input);
 
@@ -374,30 +419,6 @@ Tagify.prototype = {
         return tag && tag.classList.add('tagify--noAnim');
       });
     }
-  },
-
-  /**
-   * merge objects into a single new one
-   * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
-   */
-  extend: function extend(o, o1, o2) {
-    var that = this;
-    if (!(o instanceof Object)) o = {};
-    copy(o, o1);
-    if (o2) copy(o, o2);
-
-    function copy(a, b) {
-      // copy o2 to o
-      for (var key in b) {
-        if (b.hasOwnProperty(key)) {
-          if (isObject(b[key])) {
-            if (!isObject(a[key])) a[key] = Object.assign({}, b[key]);else copy(a[key], b[key]);
-          } else a[key] = b[key];
-        }
-      }
-    }
-
-    return o;
   },
   cloneEvent: function cloneEvent(e) {
     var clonedEvent = {};
@@ -444,7 +465,7 @@ Tagify.prototype = {
       } else {
         try {
           e = new CustomEvent(eventName, {
-            "detail": this.extend({}, data, {
+            "detail": extend({}, data, {
               tagify: this
             })
           });
@@ -462,7 +483,8 @@ Tagify.prototype = {
    * @param {Boolean} isLoading
    */
   loading: function loading(isLoading) {
-    // IE11 doesn't support toggle with second parameter
+    this.state.isLoading = isLoading; // IE11 doesn't support toggle with second parameter
+
     this.DOM.scope.classList[isLoading ? "add" : "remove"]('tagify--loading');
     return this;
   },
@@ -527,12 +549,16 @@ Tagify.prototype = {
             // a string
         _s = this.settings,
             type = e.type,
+            ddEnabled = _s.dropdown.enabled >= 0,
             eventData = {
           relatedTarget: e.relatedTarget
         },
+            isTargetTag = e.relatedTarget && e.relatedTarget.classList.contains('tagify__tag') && this.DOM.scope.contains(e.relatedTarget),
+            isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
+            isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
             shouldAddTags; // goes into this scenario only on input "blur" and a tag was clicked
 
-        if (e.relatedTarget && e.relatedTarget.classList.contains('tagify__tag') && this.DOM.scope.contains(e.relatedTarget)) return;
+        if (isTargetTag) return;
 
         if (type == 'blur' && e.relatedTarget === this.DOM.scope) {
           this.dropdown.hide.call(this);
@@ -540,7 +566,7 @@ Tagify.prototype = {
           return;
         }
 
-        if (this.state.actions.selectOption && (_s.dropdown.enabled || !_s.dropdown.closeOnSelect)) return;
+        if (isTargetSelectOption || isTargetAddNewBtn) return;
         this.state.hasFocus = type == "focus" ? +new Date() : false;
         this.toggleFocusClass(this.state.hasFocus);
         this.setRangeAtStartEnd(false);
@@ -551,7 +577,9 @@ Tagify.prototype = {
           } else if (e.type == "blur") {
             this.trigger("blur", eventData);
             this.loading(false);
-            this.dropdown.hide.call(this);
+            this.dropdown.hide.call(this); // reset state which needs reseting
+
+            this.state.dropdown.visible = undefined;
           }
 
           return;
@@ -771,9 +799,8 @@ Tagify.prototype = {
 
             matchedPatternCount = rangeText.split(_s.pattern).length - 1;
             match = rangeText.match(_s.pattern);
-            if (!match) return; // tag string, example: "@aaa ccc"
-
-            tag = rangeText.slice(rangeText.lastIndexOf(match[match.length - 1]));
+            if (match) // tag string, example: "@aaa ccc"
+              tag = rangeText.slice(rangeText.lastIndexOf(match[match.length - 1]));
 
             if (tag) {
               this.state.actions.ArrowLeft = false; // start fresh, assuming the user did not (yet) used any arrow to move the caret
@@ -801,7 +828,7 @@ Tagify.prototype = {
         setTimeout(function () {
           _this5.update();
 
-          _this5.trigger("input", _this5.extend({}, _this5.state.tag, {
+          _this5.trigger("input", extend({}, _this5.state.tag, {
             textContent: _this5.DOM.input.textContent
           }));
 
@@ -867,7 +894,7 @@ Tagify.prototype = {
         this.trigger("edit:input", {
           tag: tagElm,
           index: tagElmIdx,
-          data: this.extend({}, this.value[tagElmIdx], {
+          data: extend({}, this.value[tagElmIdx], {
             newValue: value
           }),
           originalEvent: this.cloneEvent(e)
@@ -887,7 +914,7 @@ Tagify.prototype = {
             value = currentValue,
             //  || editableElm.originalValue,
         hasChanged = value != editableElm.originalValue,
-            tagData = this.extend({}, tagElm.__tagifyTagData, {
+            tagData = extend({}, tagElm.__tagifyTagData, {
           value: value
         }),
             isValid = this.validateTag(tagData); //  this.DOM.input.focus()
@@ -979,7 +1006,7 @@ Tagify.prototype = {
 
     if (tagData instanceof Object && "editable" in tagData && !tagData.editable) return; // cache the original data, on the DOM node, before any modification ocurs, for possible revert
 
-    tagElm.__tagifyTagData.__originalData = this.extend({}, tagData);
+    tagElm.__tagifyTagData.__originalData = extend({}, tagData);
     tagElm.classList.add('tagify__tag--editable');
     editableElm.originalValue = editableElm.textContent;
     editableElm.setAttribute('contenteditable', true);
@@ -1043,7 +1070,7 @@ Tagify.prototype = {
 
     if (!tagData || !tagData.value) tagData = tagElm.__tagifyTagData; // if tag is invalid, make the according changes in the newly created element
 
-    if (tagData.__isValid && tagData.__isValid != true) this.extend(tagData, this.getInvaildTagParams(tagData, tagData.__isValid));
+    if (tagData.__isValid && tagData.__isValid != true) extend(tagData, this.getInvaildTagParams(tagData, tagData.__isValid));
     var newTag = this.createTagElem(tagData); // when editing a tag and selecting a dropdown suggested item, the state should be "locked"
     // so "onEditTagBlur" won't run and change the tag also *after* it was just changed.
 
@@ -1528,7 +1555,7 @@ Tagify.prototype = {
       this.value.push(tagsItems[0]);
       this.update();
       this.state.tag = null;
-      this.trigger('add', this.extend({}, {
+      this.trigger('add', extend({}, {
         tag: tagElm
       }, {
         data: tagsItems[0]
@@ -1553,9 +1580,7 @@ Tagify.prototype = {
 
       if (tagData.__isValid !== true) {
         if (skipInvalid) return;
-
-        _this10.extend(tagElmParams, _this10.getInvaildTagParams(tagData, tagData.__isValid)); // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
-
+        extend(tagElmParams, _this10.getInvaildTagParams(tagData, tagData.__isValid)); // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
 
         if (tagData.__isValid == _this10.TEXTS.duplicate) _this10.markTagByValue(tagData.value);
       } /////////////////////////////////////////////////////
@@ -1565,7 +1590,7 @@ Tagify.prototype = {
       tagElmParams.role = "tag";
       if (tagData.readonly) tagElmParams["aria-readonly"] = true; // Create tag HTML element
 
-      tagElm = _this10.createTagElem(_this10.extend({}, tagData, tagElmParams));
+      tagElm = _this10.createTagElem(extend({}, tagData, tagElmParams));
       tagElm.__tagifyTagData = tagData;
       tagElems.push(tagElm); // mode-select overrides
 
@@ -1622,17 +1647,6 @@ Tagify.prototype = {
   },
 
   /**
-   * Removed new lines and irrelevant spaces which might affect layout, and are better gone
-   * @param {string} s [HTML string]
-   */
-  minify: function minify(s) {
-    return s ? s.replace(/\>[\r\n ]+\</g, "><").replace(/(<.*?>)|\s+/g, function (m, $1) {
-      return $1 ? $1 : ' ';
-    }) // https://stackoverflow.com/a/44841484/104380
-    : "";
-  },
-
-  /**
    * creates a DOM tag element and injects it into the component (this.DOM.scope)
    * @param  {Object}  tagData [text value & properties for the created tag]
    * @return {Object} [DOM element]
@@ -1643,8 +1657,8 @@ Tagify.prototype = {
         template = this.settings.templates.tag.call(this, v, tagData);
     if (this.settings.readonly) tagData.readonly = true; // tagData.__uid = tagData.__uid || getUID()
 
-    template = this.minify(template);
-    tagElm = this.parseHTML(template);
+    template = minify(template);
+    tagElm = parseHTML(template);
     tagElm.__tagifyTagData = tagData;
     return tagElm;
   },
@@ -1804,17 +1818,8 @@ Tagify.prototype = {
    */
   dropdown: {
     init: function init() {
-      this.DOM.dropdown = this.dropdown.build.call(this);
+      this.DOM.dropdown = parseHTML(this.settings.templates.dropdown(this.settings));
       this.DOM.dropdown.content = this.DOM.dropdown.querySelector('.tagify__dropdown__wrapper');
-    },
-    build: function build() {
-      var _this$settings$dropdo = this.settings.dropdown,
-          position = _this$settings$dropdo.position,
-          classname = _this$settings$dropdo.classname,
-          _className = "".concat(position == 'manual' ? "" : "tagify__dropdown tagify__dropdown--".concat(position), " ").concat(classname).trim(),
-          elm = this.parseHTML("<div class=\"".concat(_className, "\" role=\"listbox\" aria-labelledby=\"dropdown\">\n                        <div class=\"tagify__dropdown__wrapper\"></div>\n                    </div>"));
-
-      return elm;
     },
     show: function show(value) {
       var _this12 = this;
@@ -1827,18 +1832,25 @@ Tagify.prototype = {
           selection = window.getSelection(),
           allowNewTags = _s.mode == 'mix' && !_s.enforceWhitelist,
           noWhitelist = !_s.whitelist || !_s.whitelist.length,
-          isManual = _s.dropdown.position == 'manual';
-      if (noWhitelist && !allowNewTags || _s.dropdown.enable === false) return;
+          isManual = _s.dropdown.position == 'manual'; // ⚠️ Do not render suggestions list  if:
+      // 1. there's no whitelist (can happen while async loading) AND new tags arn't allowed
+      // 2. dropdown is disabled
+      // 3. loader is showing (controlled outside of this code)
+
+      if (noWhitelist && !allowNewTags || _s.dropdown.enable === false || this.state.isLoading) return;
       clearTimeout(this.dropdownHide__bindEventsTimeout); // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
 
-      this.suggestedListItems = this.dropdown.filterListItems.call(this, value);
+      this.suggestedListItems = this.dropdown.filterListItems.call(this, value); // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
+      // then add a custom suggestion item to the dropdown
 
-      if (!this.suggestedListItems.length) {
-        // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
-        // then add a custom suggestion item to the dropdown
-        if (allowNewTags && !this.state.editing.scope) {
+      if (this.suggestedListItems.length) {
+        if (value && allowNewTags && !this.state.editing.scope && !sameStr(this.suggestedListItems[0].value, value)) this.suggestedListItems.unshift({
+          value: value
+        });
+      } else {
+        if (value && allowNewTags && !this.state.editing.scope) {
           this.suggestedListItems = [{
             value: value
           }];
@@ -1851,15 +1863,15 @@ Tagify.prototype = {
       }
 
       firstListItem = this.suggestedListItems[0];
-      firstListItemValue = firstListItem.value || firstListItem;
+      firstListItemValue = isObject(firstListItem) ? firstListItem.value : firstListItem;
 
-      if (_s.autoComplete) {
+      if (_s.autoComplete && firstListItemValue) {
         // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
         if (firstListItemValue.indexOf(value) == 0) this.input.autocomplete.suggest.call(this, firstListItem);
       }
 
       HTMLContent = this.dropdown.createListHTML.call(this, this.suggestedListItems);
-      this.DOM.dropdown.content.innerHTML = this.minify(HTMLContent); // if "enforceWhitelist" is "true", highlight the first suggested item
+      this.DOM.dropdown.content.innerHTML = minify(HTMLContent); // if "enforceWhitelist" is "true", highlight the first suggested item
 
       if (_s.enforceWhitelist && !isManual || _s.dropdown.highlightFirst) this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0]);
       this.DOM.scope.setAttribute("aria-expanded", true);
@@ -1922,7 +1934,7 @@ Tagify.prototype = {
     refilter: function refilter() {
       this.suggestedListItems = this.dropdown.filterListItems.call(this, '');
       var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
-      this.DOM.dropdown.content.innerHTML = this.minify(listHTML);
+      this.DOM.dropdown.content.innerHTML = minify(listHTML);
       this.trigger("dropdown:updated", this.DOM.dropdown);
     },
     position: function position(ddHeight) {
@@ -2069,8 +2081,10 @@ Tagify.prototype = {
         onClick: function onClick(e) {
           if (e.button != 0 || e.target == this.DOM.dropdown) return; // allow only mouse left-clicks
 
-          var listItemElm = e.target.closest(".tagify__dropdown__item");
-          this.dropdown.selectOption.call(this, listItemElm);
+          var listItemElm = e.target.closest(".tagify__dropdown__item"),
+              addNewBtn = e.target.closest(".tagify__dropdown__addNewBtn");
+          if (listItemElm) this.dropdown.selectOption.call(this, listItemElm); // if( addNewBtn )
+          //     this.dropdown.events.callbacks.onClickAddNewBtn.call(this)
         },
         onScroll: function onScroll(e) {
           var elm = e.target,
@@ -2079,6 +2093,20 @@ Tagify.prototype = {
             percentage: Math.round(pos)
           });
         }
+        /*
+        onClickAddNewBtn(e){
+            this.state.actions.addNew = true
+            setTimeout(()=> this.state.actions.addNew = false, 150)
+              if( this.state.tag.value )
+                this.addTags([this.state.tag], true)
+              this.dropdown.hide.call(this)
+              setTimeout(() => {
+                this.DOM.input.focus()
+                this.toggleFocusClass(true)
+            })
+        }
+        */
+
       }
     },
 
@@ -2200,8 +2228,19 @@ Tagify.prototype = {
      * @return {String}
      */
     createListHTML: function createListHTML(optionsArr) {
-      var template = this.settings.templates.dropdownItem.bind(this);
-      return this.minify(optionsArr.map(template).join(""));
+      var _this15 = this;
+
+      return optionsArr.map(function (item) {
+        if (typeof item == 'string') item = {
+          value: item
+        };
+        var mapValueTo = _this15.settings.dropdown.mapValueTo,
+            value = mapValueTo ? typeof mapValueTo == 'function' ? mapValueTo(item) : item[mapValueTo] : item.value,
+            data = extend({}, item, {
+          value: escapeHTML(value || "")
+        });
+        return _this15.settings.templates.dropdownItem.call(_this15, data);
+      }).join("");
     }
   }
 };

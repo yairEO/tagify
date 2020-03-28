@@ -357,11 +357,11 @@
                       <summary></summary>
                       <h3>HTML</h3>
 <pre class="language-markup"><code>&lt;input
-    name='input'
-    class='some_class_name'              // This class will be copied to the Tagify component
-    placeholder='write some tags'        // This text will be shown after the last tag
-    value='css, html, javascript, css'   // initial values, as String (can also be an Array of Objects)
-    data-blacklist='.NET,PHP'&gt;        // list of invaild tags, which cannot be added
+  name='input'
+  class='some_class_name'            // This class will be copied to the Tagify component
+  placeholder='write some tags'      // This text will be shown after the last tag
+  value='css, html, javascript, css' // initial values, as String (can also be an Array of Objects)
+  data-blacklist='.NET,PHP'&gt;      // list of invaild tags, which cannot be added
 </code></pre>
                       <h3>JAVASCRIPT</h3>
                       <script>renderPRE(document.currentScript, "input")</script>
@@ -879,7 +879,7 @@
 // The DOM element you wish to replace with Tagify
 var input = document.querySelector('input[name=basic]');
 
-// init Tagify script on the above inputs
+// initialize Tagify on the above input node reference
 new Tagify(input)
 })()
 </script>
@@ -891,12 +891,11 @@ new Tagify(input)
 var input = document.querySelector('input[name=input]'),
     whitelist = ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "Java", "Javascript", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"],
 
-    // init Tagify script on the above inputs
-    tagify = new Tagify(input, {
-        // after 2 characters typed, all matching values from this list will be suggested in a dropdown
-        // whitelist: [].concat(whitelist)
-    })
-
+// initialize Tagify on the above input node reference
+var = tagify = new Tagify(input, {
+    // after 2 characters typed, all matching values from this list will be suggested in a dropdown
+    // whitelist: [].concat(whitelist)
+})
 
 // "remove all tags" button event listener
 document.querySelector('.tags--removeAllBtn')
@@ -1136,6 +1135,10 @@ var input = document.querySelector('[name=mix]'),
 // A good place to pull server suggestion list accoring to the prefix/value
 tagify.on('input', function(e){
     var prefix = e.detail.prefix;
+
+    // first, clean the whitlist array, because the below code, while not, might be async,
+    // therefore it should be up to you to decide WHEN to render the suggestions dropdown
+    tagify.settings.whitelist.length = 0;
 
     if( prefix ){
         if( prefix == '@' )
