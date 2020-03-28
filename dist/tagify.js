@@ -575,6 +575,14 @@ Tagify.prototype = {
 
         if (_s.mode == 'mix') {
           if (type == "focus") {
+            // firefox won't show caret if last thing is a tag (and not a text-node),
+            // so an empty textnode should be added
+            if (isFirefox && this.DOM.input.lastChild.nodeType == 1) {
+              this.DOM.input.appendChild(document.createTextNode(""));
+              this.setRangeAtStartEnd(true);
+              return;
+            }
+
             this.trigger("focus", eventData);
           } else if (e.type == "blur") {
             this.trigger("blur", eventData);
