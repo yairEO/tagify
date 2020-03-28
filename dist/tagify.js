@@ -333,6 +333,8 @@ Tagify.prototype = {
           bottom: rect.bottom
         };
       }
+
+      return node.getBoundingClientRect();
     }
 
     return {

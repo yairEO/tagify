@@ -309,11 +309,13 @@ Tagify.prototype = {
 
             if (offset > 0) {
                 r2 = document.createRange()
-                r2.setStart(node, (offset - 1))
+                r2.setStart(node, offset - 1)
                 r2.setEnd(node, offset)
                 rect = r2.getBoundingClientRect()
                 return {left:rect.right, top:rect.top, bottom:rect.bottom}
             }
+
+            return node.getBoundingClientRect()
         }
 
         return {left:-9999, top:-9999}
