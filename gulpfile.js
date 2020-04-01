@@ -110,11 +110,6 @@ const babelConfig = {
 }
 
 
-gulp.task('xxx', function() {
-    console.log(
-        opts
-    )
-});
 ////////////////////////////////////////////////////
 // Compile main app SCSS to CSS
 
@@ -130,8 +125,27 @@ gulp.task('scss', () => {
         .pipe($.autoprefixer({ overrideBrowserslist:['> 5%'] }) )
         .pipe($.cleanCss())
         .pipe(gulp.dest('./dist'))
-});
+})
 
+// https://medium.com/recraftrelic/building-a-react-component-as-a-npm-module-18308d4ccde9
+gulp.task('react_wrapper', () => {
+    const babelConf = {
+        presets: ['@babel/env', '@babel/preset-react'],
+        plugins: ['@babel/proposal-object-rest-spread', '@babel/plugin-transform-destructuring']
+    }
+
+    const umdConf = {
+        exports: function(file) {
+          return null;
+        }
+    }
+
+    return gulp.src('src/react.tagify.js')
+        .pipe( $.babel(babelConf))
+        .pipe( $.umd(umdConf) )
+        .pipe( $.insert.prepend(banner) )
+        .pipe( gulp.dest('./dist/') )
+})
 
 
 gulp.task('build_js', () => {
@@ -144,7 +158,7 @@ gulp.task('build_js', () => {
         .pipe(opts.dev ? $.tap(()=>{}) : $.uglify())
         .pipe( $.insert.prepend(banner) )
         .pipe( gulp.dest('./dist/') )
-});
+})
 
 
 
@@ -160,7 +174,7 @@ gulp.task('build_jquery_version', () => {
         .pipe($.uglify())
         .pipe($.insert.prepend(banner))
         .pipe(gulp.dest('./dist/'))
-});
+})
 
 
 gulp.task('minify', () => {

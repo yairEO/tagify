@@ -10,7 +10,8 @@
     },
     "scripts": {
         "start": "gulp",
-        "test": "jest"
+        "test": "jest",
+        "prepublish": "rm -rf ./dist && npm run start"
     },
     "jest": {
         "preset": "jest-puppeteer"
@@ -27,13 +28,17 @@
     "bugs": {
         "url": "https://github.com/yaireo/tagify/issues"
     },
+    "peerDependencies": {
+      "react": "^16.12.0",
+      "react-dom": "^16.12.0"
+    },
     "devDependencies": {
         "@babel/core": "^7.5.5",
         "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
         "@babel/plugin-transform-destructuring": "^7.5.0",
         "@babel/preset-env": "^7.5.5",
+        "@babel/preset-react": "^7.9.4",
         "babel-core": "^6.26.3",
-        "babel-preset-env": "^1.7.0",
         "beepbeep": "^1.2.2",
         "gulp": "^3.9.1",
         "gulp-autoprefixer": "6.1.0",
