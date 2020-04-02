@@ -112,7 +112,8 @@ function Tagify( input, settings ){
         editing : false,
         actions : {},   // UI actions for state-locking
         mixMode : {},
-        dropdown: {}
+        dropdown: {},
+        flaggedTags: {} // in mix-mode, when a string is detetced as potential tag, and the user has chocen to close the suggestions dropdown, keep the record of the tasg here
     }
 
     this.value = [] // tags' data
@@ -748,6 +749,7 @@ Tagify.prototype = {
                 var range, rangeText, match, matchedPatternCount, tag, showSuggestions, selection,
                     _s = this.settings,
                     lastTagsCount = this.value.length,
+                    matchFlaggedTag,
                     tagsCount = this.getTagElms().length;
 
                 // check if ANY tags were magically added through browser redo/undo
@@ -769,7 +771,6 @@ Tagify.prototype = {
                         range.collapse(true)
                         range.setStart(selection.focusNode, 0)
 
-
                         rangeText = range.toString().slice(0, range.endOffset)  // slice the range so everything AFTER the caret will be trimmed
                         // split = range.toString().split(_s.mixTagsAllowedAfter)  // ["foo", "bar", "@baz"]
                         matchedPatternCount = rangeText.split(_s.pattern).length - 1;
@@ -786,18 +787,39 @@ Tagify.prototype = {
                                 prefix : tag.match(_s.pattern)[0],
                                 value  : tag.replace(_s.pattern, ''), // ret rid of the prefix
                             }
+                            this.state.tag.baseOffset = selection.baseOffset - this.state.tag.value.length
 
                             showSuggestions = this.state.tag.value.length >= _s.dropdown.enabled
 
-                            if( this.state.tag.value.length && this.state.dropdown.visible === false )
-                                showSuggestions = false
+                            // When writeing something that might look like a tag (an email address) but isn't one - it is unwanted
+                            // the suggestions dropdown be shown, so the user closes it (in any way), and while continue typing,
+                            // dropdown should stay closed until another tag is typed.
+                            // if( this.state.tag.value.length && this.state.dropdown.visible === false )
+                            //     showSuggestions = false
 
-                            // scenario: (do not show suggestions of previous matched tag)
+                            // test for similar flagged tags to the current tag
+
+                            try{
+                                matchFlaggedTag = this.state.flaggedTags[this.state.tag.baseOffset]
+                                matchFlaggedTag = matchFlaggedTag.prefix   == this.state.tag.prefix &&
+                                                  matchFlaggedTag.value[0] == this.state.tag.value[0]
+
+
+                                // reset
+                                if( this.state.flaggedTags[this.state.tag.baseOffset] && !this.state.tag.value )
+                                    delete this.state.flaggedTags[this.state.tag.baseOffset];
+                            }
+                            catch(err){}
+
+                            // scenario: (do not show suggestions of previous matched tag, if more than 1 detected)
                             // (2 tags exist)                          " a@a.com and @"
                             // (second tag is removed by backspace)    " a@a.com and "
-
-                            if( matchedPatternCount < this.state.mixMode.matchedPatternCount )
+                            if( matchFlaggedTag || matchedPatternCount < this.state.mixMode.matchedPatternCount )
                                 showSuggestions = false
+                        }
+                        // no (potential) tag found
+                        else{
+                            this.state.flaggedTags = {}
                         }
 
                         this.state.mixMode.matchedPatternCount = matchedPatternCount
@@ -1568,7 +1590,7 @@ Tagify.prototype = {
 
             this.update()
 
-            this.state.tag = null;
+            this.state.tag = null
             this.trigger('add', extend({}, {tag:tagElm}, {data:tagsItems[0]}))
 
             // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
@@ -1985,6 +2007,12 @@ Tagify.prototype = {
             this.state.ddItemData =
             this.state.ddItemElm =
             this.state.selection = null
+
+            // if the user closed the dropdown (in mix-mode) while a potential tag was detected, flag the current tag
+            // so the dropdown won't be shown on following user input for that "tag"
+            if( this.state.tag && this.state.tag.value.length ){
+                this.state.flaggedTags[this.state.tag.baseOffset] = this.state.tag
+            }
 
             this.trigger("dropdown:hide", dropdown);
         },
