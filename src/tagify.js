@@ -889,10 +889,15 @@ Tagify.prototype = {
             },
 
             onEditTagInput( editableElm, e ){
-                var tagElm = editableElm.closest('tag'),
+                var tagElm = editableElm.closest('.tagify__tag'),
                     tagElmIdx = this.getNodeIndex(tagElm),
                     value = this.input.normalize.call(this, editableElm),
-                    isValid = this.validateTag({value}); // the value chould have been invalid in the first-place so make sure to re-validate it
+                    hasChanged = value != editableElm.originalValue,
+                    isValid = this.validateTag({value}); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
+
+                // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
+                if( !hasChanged && editableElm.originalIsValid === true )
+                    isValid = true
 
                 tagElm.classList.toggle('tagify--invalid', isValid !== true);
                 tagElm.__tagifyTagData.__isValid = isValid;
@@ -1037,6 +1042,8 @@ Tagify.prototype = {
 
         if( !opts.skipValidation )
             isValid = this.editTagToggleValidity(tagElm, tagData.value)
+
+        editableElm.originalIsValid = isValid
 
         this.trigger("edit:start", { tag:tagElm, index:tagIdx, data:tagData, isValid })
 
