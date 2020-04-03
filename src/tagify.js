@@ -1062,7 +1062,8 @@ Tagify.prototype = {
 
     onEditTagDone(tagElm, tagData){
         tagData = tagData || {}
-        var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData }
+        var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData };
+
         this.trigger("edit:beforeUpdate", eventData)
 
         delete tagData.__originalData;
@@ -1074,6 +1075,16 @@ Tagify.prototype = {
 
         this.trigger("edit:updated", eventData)
         this.dropdown.hide.call(this)
+
+        if( tagData.__isValid === true )
+            this.getTagElms('tagify--notAllowed').forEach(notAllowedTag => {
+                var isValid = this.validateTag(notAllowedTag.__tagifyTagData)
+                if( isValid  === true){
+                    notAllowedTag.__tagifyTagData.__isValid = isValid
+                    delete this.state.editing.locked // unfortunatly this must be cleaned so "replaceTag" could re-run
+                    this.replaceTag(notAllowedTag)
+                }
+            })
     },
 
     /**
@@ -1252,8 +1263,9 @@ Tagify.prototype = {
         return index;
     },
 
-    getTagElms(){
-        return this.DOM.scope.querySelectorAll('.tagify__tag')
+    getTagElms( ...classess ){
+        var classname = ['.tagify__tag', ...classess].join('.')
+        return this.DOM.scope.querySelectorAll(classname)
     },
 
     getLastTag(){
