@@ -560,7 +560,7 @@ dropdown:scroll    | Tells the percentage scrolled. (`event.detail.percentage`)
 Name                    | Type             | Default                          | Info
 ----------------------- | ---------------- | -------------------------------- | --------------------------------------------------------------------------
 placeholder             | String           |                                  | Placeholder text. If this attribute is set on an input/textarea element it will override this setting
-delimiters              | String           | `,`                              | [RegEx **string**] split tags by any of these delimiters. Example: `",|`  |."`
+delimiters              | String           | `,`                              | [RegEx **string**] split tags by any of these delimiters. Example: `",|.| "`
 pattern                 | String/RegEx     | null                             | Validate input by RegEx pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
 mode                    | String           | null                             | Use `select` for single-value dropdown-like select box. See `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
 mixTagsInterpolator     | Array            | `['[[', ']]']`                   | Interpolation for mix mode. Everything between these will become a tag
