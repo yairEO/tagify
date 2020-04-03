@@ -9,7 +9,7 @@
         "email": "vsync.design@gmail.com"
     },
     "scripts": {
-        "start": "gulp",
+        "start": "",
         "test": "jest",
         "prepublish": "rm -rf ./dist && npm run start"
     },
