@@ -1,6 +1,6 @@
 {
     "name": "@yaireo/tagify",
-    "version": "3.6.8",
+    "version": "3.6.9",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "lightweight, efficient Tags input component in Vanilla JS / React / Angular [super customizable, tiny size & top performance]",
     "license": "MIT",
@@ -28,8 +28,8 @@
         "url": "https://github.com/yaireo/tagify/issues"
     },
     "peerDependencies": {
-      "react": "^16.12.0",
-      "react-dom": "^16.12.0"
+      "react": "*",
+      "react-dom": "*"
     },
     "devDependencies": {
         "@babel/core": "^7.5.5",
