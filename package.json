@@ -1,6 +1,6 @@
 {
     "name": "@yaireo/tagify",
-    "version": "3.6.7",
+    "version": "3.6.8",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "lightweight, efficient Tags input component in Vanilla JS / React / Angular [super customizable, tiny size & top performance]",
     "license": "MIT",
@@ -10,8 +10,7 @@
     },
     "scripts": {
         "start": "",
-        "test": "jest",
-        "prepublish": "rm -rf ./dist && npm run start"
+        "test": "jest"
     },
     "jest": {
         "preset": "jest-puppeteer"
