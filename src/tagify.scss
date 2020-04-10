@@ -25,6 +25,8 @@
 
     // CSS variables
     --tags-border-color        : #{$tags-border-color};
+    --tags-hover-border-color  : #{$tags-hover-border-color};
+    --tags-focus-border-color  : #{$tags-focus-border-color};
     --tag-bg                   : #{$tag-bg};
     --tag-hover                : #{$tag-hover};
     --tag-text-color           : #{$tag-text-color};
@@ -85,10 +87,15 @@
     position      : relative;
     transition    : .1s;
 
-    &:hover{ border-color:$tags-hover-border-color; }
+    &:hover{
+        border-color: $tags-hover-border-color;
+        border-color: var(--tags-hover-border-color);
+    }
+
     &.tagify--focus{
-      transition:0s;
+      transition: 0s;
       border-color: $tags-focus-border-color;
+      border-color: var(--tags-focus-border-color);
     }
 
     // Global "read-only" mode (no input button)

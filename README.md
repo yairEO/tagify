@@ -449,7 +449,11 @@ $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 
 ## FAQ
 
-To render all tags at the same line, without tags wrapping to new lines, add this to your `.tagify` *CSS Rule*:
+List of questions & scenarios which might come up during development with Tagify:
+
+----
+
+Render tags in one single line, without tags wrapping to new lines, add this to your `.tagify` *CSS Rule*:
 
 ```css
 flex-wrap: nowrap;
@@ -469,6 +473,7 @@ flex-wrap: nowrap;
 * [Insert emoji at caret location when editing a tag](https://github.com/yairEO/tagify/issues/365)
 * [propagate `change` event](https://github.com/yairEO/tagify/issues/413)
 * [Manually update tag data after it was added](https://github.com/yairEO/tagify/issues/433)
+* [Ajax Whitelist with "enforceWhitelist" setting enabled](https://github.com/yairEO/tagify/issues/465)
 
 ## CSS Variables (see [MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties))
 
@@ -481,6 +486,8 @@ For example how this can be used, see the [demos page](https://yaireo.github.io/
 Name                            | Info
 ------------------------------- | --------------------------------
 --tags-border-color             | The outer border color which surrounds tagify
+--tags-hover-border-color       | *hover* state
+--tags-focus-border-color       | *focus* state
 --tag-bg                        | Tag background color
 --tag-hover                     | Tag background color on hover (mouse)
 --tag-text-color                | Tag text color

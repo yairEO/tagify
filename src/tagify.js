@@ -544,13 +544,10 @@ Tagify.prototype = {
 
                 if( _s.mode == 'mix' ){
                     if( type == "focus" ){
-                        // firefox won't show caret if last thing is a tag (and not a text-node),
+                        // firefox won't show caret if last element is a tag (and not a textNode),
                         // so an empty textnode should be added
-                        if( isFirefox && this.DOM.input.lastChild.nodeType == 1 ){
-                            this.DOM.input.appendChild(document.createTextNode(""))
-                            this.setRangeAtStartEnd(true)
+                        if( this.fixFirefoxLastTagNoCaret() )
                             return
-                        }
 
                         this.trigger("focus", eventData)
                     }
@@ -629,8 +626,10 @@ Tagify.prototype = {
                             // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
                             setTimeout(()=>{
                                 // fixes #384, where the first and only tag will not get removed with backspace
-                                if( decode(this.DOM.input.innerHTML).length >= lastInputValue.length ){
+                                if( !selection.anchorOffset && decode(this.DOM.input.innerHTML).length >= lastInputValue.length ){
                                     this.removeTag(selection.anchorNode.previousElementSibling)
+                                    this.DOM.input.normalize()
+                                    this.fixFirefoxLastTagNoCaret()
 
                                     // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
                                     if( this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR" ){
@@ -994,6 +993,14 @@ Tagify.prototype = {
 
                 this.toggleFocusClass(true)
             }
+        }
+    },
+
+    fixFirefoxLastTagNoCaret(){
+        if( isFirefox && this.DOM.input.lastChild.nodeType == 1 ){
+            this.DOM.input.appendChild(document.createTextNode(""))
+            this.setRangeAtStartEnd(true)
+            return true
         }
     },
 
@@ -1441,14 +1448,15 @@ Tagify.prototype = {
                     temp.push(item)
             })
 
-            tagsItems = temp;
+            if( temp.length )
+                tagsItems = temp;
         }
 
         return tagsItems;
     },
 
     /**
-     * Used to parse the initial value of a textarea (or input) element and gemerate mixed text w/ tags
+     * Parse the initial value of a textarea (or input) element and generate mixed text w/ tags
      * https://stackoverflow.com/a/57598892/104380
      * @param {String} s
      */
@@ -2047,7 +2055,9 @@ Tagify.prototype = {
         },
 
         position(ddHeight){
-            var isBelowViewport, rect, top, bottom, left, width, ddElm = this.DOM.dropdown;
+            var isBelowViewport, rect, top, bottom, left, width,
+                ddElm = this.DOM.dropdown,
+                ddTarget = this.DOM[this.settings.dropdown.position == 'input' ? 'input' : 'scope']
 
             if( !this.state.dropdown.visible ) return
 
@@ -2060,7 +2070,7 @@ Tagify.prototype = {
             }
 
             else{
-                rect   = this.DOM.scope.getBoundingClientRect()
+                rect   = ddTarget.getBoundingClientRect()
                 top    = rect.top
                 bottom = rect.bottom - 1
                 left   = rect.left
