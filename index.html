@@ -364,7 +364,7 @@
   class='some_class_name'            // This class will be copied to the Tagify component
   placeholder='write some tags'      // This text will be shown after the last tag
   value='css, html, javascript, css' // initial values, as String (can also be an Array of Objects)
-  data-blacklist='.NET,PHP'&gt;      // list of invaild tags, which cannot be added
+  data-blacklist='.NET,PHP'&gt;         // list of invaild tags, which cannot be added
 </code></pre>
                       <h3>JAVASCRIPT</h3>
                       <script>renderPRE(document.currentScript, "input")</script>
@@ -602,12 +602,19 @@
     padding: 0;
     margin: 0;
 }
-.tagify__input--outside{
-    display: block;
-    max-width: 600px;
-    border: 1px solid #DDD;
-    margin-top: 1.5em;
-    margin-bottom: 1em;
+
+.tagify--outside .tagify__input{
+  order: -1;
+  flex: 100%;
+  border: 1px solid var(--tags-border-color);
+  margin-bottom: 1em;
+  transition: .1s;
+}
+
+.tagify--outside .tagify__input:hover{ border-color:var(--tags-hover-border-color); }
+.tagify--outside.tagify--focus .tagify__input{
+  transition:0s;
+  border-color: var(--tags-focus-border-color);
 }</style>
                     </details>
                 </aside>
@@ -1175,14 +1182,13 @@ tagify.on('add', function(e){
 
 var input = document.querySelector('input[name=tags-outside]'),
     // init Tagify script on the above inputs
-    tagify = new Tagify(input);
-
-    // add a class to Tagify's input element
-    tagify.DOM.input.classList.add('tagify__input--outside');
-
-    // re-place Tagify's input element outside of the <tags> element (tagify.DOM.scope), just before it
-    tagify.DOM.scope.parentNode.insertBefore(tagify.DOM.input, tagify.DOM.scope);
-
+    tagify = new Tagify(input, {
+      whitelist: ["foo", "bar", "baz"],
+      dropdown: {
+        position: "input",
+        enabled : 0 // always opens dropdown when input gets focus
+      }
+    })
 })()
 </script>
 

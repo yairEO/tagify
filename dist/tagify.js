@@ -468,10 +468,10 @@ Tagify.prototype = {
         jQuery(instance.DOM.originalInput).triggerHandler(eventName, [data]);
       } else {
         try {
+          var eventData = extend({}, data);
+          eventData.tagify = this;
           e = new CustomEvent(eventName, {
-            "detail": extend({}, data, {
-              tagify: this
-            })
+            "detail": eventData
           });
         } catch (err) {
           console.warn(err);
@@ -874,8 +874,7 @@ Tagify.prototype = {
       onClickScope: function onClickScope(e) {
         var tagElm = e.target.closest('.tagify__tag'),
             _s = this.settings,
-            timeDiffFocus = +new Date() - this.state.hasFocus,
-            tagElmIdx;
+            timeDiffFocus = +new Date() - this.state.hasFocus;
 
         if (e.target == this.DOM.scope) {
           // if( !this.state.hasFocus )
@@ -886,11 +885,10 @@ Tagify.prototype = {
           this.removeTag(e.target.parentNode);
           return;
         } else if (tagElm) {
-          tagElmIdx = this.getNodeIndex(tagElm);
           this.trigger("click", {
             tag: tagElm,
-            index: tagElmIdx,
-            data: this.value[tagElmIdx],
+            index: this.getNodeIndex(tagElm),
+            data: this.tagData(tagElm),
             originalEvent: this.cloneEvent(e)
           });
           if (this.settings.editTags == 1) this.events.callbacks.onDoubleClickScope.call(this, e);
@@ -1005,6 +1003,11 @@ Tagify.prototype = {
         isReadyOnlyTag = tagElm.hasAttribute('readonly');
         if (_s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags) this.editTag(tagElm);
         this.toggleFocusClass(true);
+        this.trigger('dblclick', {
+          tag: tagElm,
+          index: this.getNodeIndex(tagElm),
+          data: this.tagData(tagElm)
+        });
       }
     }
   },
@@ -1285,6 +1288,18 @@ Tagify.prototype = {
   getLastTag: function getLastTag() {
     var lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
     return lastTag[lastTag.length - 1];
+  },
+
+  /** setter/getter
+   * Each tag DOM node contains a custom property called "__tagifyTagData" which hosts its data
+   * @param {Node}   tagElm
+   * @param {Object} data
+   */
+  tagData: function tagData(tagElm, data) {
+    if (data && data instanceof Object) for (var p in data) {
+      tagElm.__tagifyTagData[p] = data[p];
+    }
+    return tagElm.__tagifyTagData;
   },
 
   /**
@@ -1823,7 +1838,8 @@ Tagify.prototype = {
   update: function update() {
     this.preUpdate();
     var value = removeCollectionProp(this.value, "__isValid");
-    this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : this.value.length ? JSON.stringify(value) : "";
+    if (this.settings.originalInputValueFormat) value = this.settings.originalInputValueFormat(value);else value = JSON.stringify(value);
+    this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : value.length ? value : "";
     this.DOM.originalInput.dispatchEvent(new CustomEvent('change'));
   },
   getMixedTagsAsString: function getMixedTagsAsString(value) {
