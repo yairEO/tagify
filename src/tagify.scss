@@ -392,9 +392,11 @@
 
         &::before{
             content: attr(data-placeholder);
-            line-height: 1.8;
             position: absolute;
             top: 0;
+            bottom: 0;
+            height: 1em;
+            margin: auto 0;
             z-index: 1;
             color: $placeholder-color;
             color: var(--placeholder-color);

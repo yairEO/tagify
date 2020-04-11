@@ -32,8 +32,18 @@
             background: #333;
             color: white;
             font: 13px/1.8 Monaco, monospace;
-            padding: 1em;
+            padding: 1.1em;
             white-space: pre;
+            position:relative;
+            border-radius: 5px;
+          }
+
+          style[contenteditable]::before{
+            content: "Editable";
+            position: absolute;
+            top: 2px;
+            right: 8px;
+            color: salmon;
           }
 
           .leftSide{ padding-top:0; }
@@ -364,7 +374,7 @@
   class='some_class_name'            // This class will be copied to the Tagify component
   placeholder='write some tags'      // This text will be shown after the last tag
   value='css, html, javascript, css' // initial values, as String (can also be an Array of Objects)
-  data-blacklist='.NET,PHP'&gt;      // list of invaild tags, which cannot be added
+  data-blacklist='.NET,PHP'&gt;         // list of invaild tags, which cannot be added
 </code></pre>
                       <h3>JAVASCRIPT</h3>
                       <script>renderPRE(document.currentScript, "input")</script>
@@ -390,7 +400,7 @@
 </code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "dropdown-tags")</script>
-                    <h3>CSS (editable)</h3>
+                    <h3>CSS</h3>
 <style contenteditable>
 .tags-look .tagify__dropdown__item{
   display: inline-block;
@@ -465,7 +475,7 @@
 &lt;/textarea></code></pre>
                       <h3>JAVASCRIPT</h3>
                       <script>renderPRE(document.currentScript, "customLook")</script>
-                      <h3>CSS (editable)</h3>
+                      <h3>CSS</h3>
 <style contenteditable>.customLook{
   --tag-bg                  : #0052BF;
   --tag-hover               : #CE0078;
@@ -588,7 +598,10 @@
                 <aside class='leftSide'>
                     <h2><a href='#outside-of-the-box'>#</a>outside-of-the-box</h2>
                     <p>
-                        Some cases might require addition of tags from outside of the box and not within.
+  Some designs might require showing the tags outside of the input box, so to set this up
+  some manual CSS changes has to be made, and also the <code>dropdown.position</code> <em>setting</em>
+  should be set to <code>"input"</code> so the suggestions dropdown will be rendered right next to <em>input</em>
+  element and not relative to the whole component (which is the default)
                     </p>
                     <details>
                       <summary></summary>
@@ -599,15 +612,20 @@
                     <h3>CSS</h3>
 <style contenteditable>.tagify--outside{
     border: 0;
-    padding: 0;
-    margin: 0;
 }
-.tagify__input--outside{
-    display: block;
-    max-width: 600px;
-    border: 1px solid #DDD;
-    margin-top: 1.5em;
-    margin-bottom: 1em;
+
+.tagify--outside .tagify__input{
+  order: -1;
+  flex: 100%;
+  border: 1px solid var(--tags-border-color);
+  margin-bottom: 1em;
+  transition: .1s;
+}
+
+.tagify--outside .tagify__input:hover{ border-color:var(--tags-hover-border-color); }
+.tagify--outside.tagify--focus .tagify__input{
+  transition:0s;
+  border-color: var(--tags-focus-border-color);
 }</style>
                     </details>
                 </aside>
@@ -1173,16 +1191,15 @@ tagify.on('add', function(e){
 <script data-name="outside-of-the-box">
 (function(){
 
-var input = document.querySelector('input[name=tags-outside]'),
-    // init Tagify script on the above inputs
-    tagify = new Tagify(input);
-
-    // add a class to Tagify's input element
-    tagify.DOM.input.classList.add('tagify__input--outside');
-
-    // re-place Tagify's input element outside of the <tags> element (tagify.DOM.scope), just before it
-    tagify.DOM.scope.parentNode.insertBefore(tagify.DOM.input, tagify.DOM.scope);
-
+var input = document.querySelector('input[name=tags-outside]')
+// init Tagify script on the above inputs
+var tagify = new Tagify(input, {
+  whitelist: ["foo", "bar", "baz"],
+  dropdown: {
+    position: "input",
+    enabled : 0 // always opens dropdown when input gets focus
+  }
+})
 })()
 </script>
 
