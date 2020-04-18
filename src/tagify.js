@@ -997,8 +997,9 @@ Tagify.prototype = {
     },
 
     fixFirefoxLastTagNoCaret(){
-        if( isFirefox && this.DOM.input.lastChild.nodeType == 1 ){
-            this.DOM.input.appendChild(document.createTextNode(""))
+        var inputElm = this.DOM.input
+        if( isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1 ){
+            inputElm.appendChild(document.createTextNode(""))
             this.setRangeAtStartEnd(true)
             return true
         }
@@ -1863,14 +1864,13 @@ Tagify.prototype = {
         this.preUpdate()
         var value = removeCollectionProp(this.value, "__isValid")
 
-        if( this.settings.originalInputValueFormat )
-            value = this.settings.originalInputValueFormat(value)
-        else
-            value = JSON.stringify(value)
-
         this.DOM.originalInput.value = this.settings.mode == 'mix'
             ? this.getMixedTagsAsString(value)
-            : value.length ? value : ""
+            : value.length
+                ? this.settings.originalInputValueFormat
+                    ? this.settings.originalInputValueFormat(value)
+                    : JSON.stringify(value)
+                : ""
 
         this.DOM.originalInput.dispatchEvent(new CustomEvent('change'))
     },
