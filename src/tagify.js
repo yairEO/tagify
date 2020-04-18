@@ -628,9 +628,8 @@ Tagify.prototype = {
                             // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
                             setTimeout(()=>{
                                 // fixes #384, where the first and only tag will not get removed with backspace
-                                if( !selection.anchorOffset && decode(this.DOM.input.innerHTML).length >= lastInputValue.length ){
+                                if( selection.anchorNode == this.DOM.input || (!selection.anchorOffset && decode(this.DOM.input.innerHTML).length >= lastInputValue.length) ){
                                     this.removeTag(selection.anchorNode.previousElementSibling)
-                                    this.DOM.input.normalize()
                                     this.fixFirefoxLastTagNoCaret()
 
                                     // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
@@ -1294,9 +1293,8 @@ Tagify.prototype = {
      * @param {Object} data
      */
     tagData(tagElm, data){
-        if( data && data instanceof Object )
-            for(var p in data )
-                tagElm.__tagifyTagData[p] = data[p]
+        if( data )
+            tagElm.__tagifyTagData = extend({}, tagElm.__tagifyTagData || {}, data)
 
         return tagElm.__tagifyTagData
     },
@@ -1622,9 +1620,7 @@ Tagify.prototype = {
                 this.DOM.input.appendChild(tagElm)
             }
 
-            // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
-            this.DOM.input.appendChild(document.createTextNode(''))
-            setTimeout(()=> tagElm.classList.add('tagify--noAnim'), 300 )
+            setTimeout(()=> tagElm.classList.add('tagify--noAnim'), 300)
 
             tagsItems[0].prefix = tagsItems[0].prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0]
             this.value.push(tagsItems[0])
@@ -1635,7 +1631,7 @@ Tagify.prototype = {
             this.trigger('add', extend({}, {tag:tagElm}, {data:tagsItems[0]}))
 
             // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
-            this.DOM.input.appendChild(document.createTextNode(''))
+            this.fixFirefoxLastTagNoCaret()
 
             return tagElm
         }
@@ -1806,6 +1802,7 @@ Tagify.prototype = {
                 that.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData })
                 that.dropdown.refilter.call(that)
                 that.dropdown.position.call(that)
+                that.DOM.input.normalize() // best-practice when in mix-mode (safe to do always anyways)
 
                 // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
                 if( that.settings.keepInvalidTags )
