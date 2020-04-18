@@ -364,7 +364,8 @@
             &::before{ @include placeholder; width:auto; }
         }
 
-        &:focus{ outline:none;
+        &:focus{
+            outline:none;
             &::before{
                 @include placeholder(false);
                 @supports ( -moz-appearance:none ){
@@ -409,14 +410,14 @@
                 line-height: inherit;
             }
         }
-
+/* Seems firefox newer versions don't need this any more
         @supports ( -moz-appearance:none ){
             &::before{
                 line-height: inherit;
                 position:relative;
             }
         }
-
+*/
         // tries to suggest the rest of the value from the first item in the whitelist which matches it
         &::after{
             content: attr(data-suggest);
@@ -454,6 +455,8 @@
             width: 100%;
             height: 100%;
             line-height: inherit;
+
+            &::before{ height:auto; }
 
             // no suggested-complete are shown in mix-mode while higilighting dropdown options
             &::after{ content:none; }
