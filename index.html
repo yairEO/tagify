@@ -175,8 +175,8 @@
             .disabled tags tag,
             .disabled tags div{ display:none !important; }
 
-            .disabled tags + input,
-            .disabled tags + textarea{ display:block !important; width:100%; padding:6px; border:1px inset; }
+            .showOriginal tags + input,
+            .showOriginal tags + textarea{ display:block !important; width:100%; padding:6px; border:1px inset; }
 
             /* .tagify.readonlyMix > tag:not([readonly]) div::before{ background:#d3e2e2; } */
 
@@ -186,8 +186,42 @@
                 margin-left: auto;
                 font-size: 1.5em;
                 line-height: 1;
+                position: relative;
+                animation: 1s settingsIconFrames 3;
             }
 
+            header label[for="toggle__tagifyStyleSettings"]::before{
+              content: '';
+              position: absolute;
+              z-index: -1;
+              top: -2px;
+              left: 0;
+              width: 100%;
+              height: 120%;
+              border-radius: 50%;
+              pointer-events: none;
+              animation: 1s settingsIconShockwavesFrames 3;
+            }
+
+            @keyframes settingsIconFrames {
+              30%{ transform: scale(1.2);  }
+            }
+
+            @keyframes settingsIconShockwavesFrames {
+              0%{ transform: scale(.6); box-shadow: 0 0 10px 2px red; }
+              90%{ transform: scale(10); box-shadow: 0 0 40px 2px yellow; }
+              100%{ transform: scale(12); opacity:0; }
+            }
+/*
+            header label[for="toggle__tagifyStyleSettings"]::before{
+              content: "☝";
+              position: absolute;
+              font-size: 3rem;
+              left: -15px;
+              top: .5em;
+              pointer-events: none;
+            }
+*/
             #toggle__tagifyStyleSettings:checked + .tagifyStyleSettings{
                 transform: none;
             }
@@ -232,7 +266,7 @@
             <input hidden type='checkbox' id='toggle__tagifyStyleSettings' />
             <div class='tagifyStyleSettings'>
                 <label for='toggle__tagifyStyleSettings'>⚙️</label>
-                <label><input name='toggleTagify' type='checkbox'> TOGGLE TAGIFY <em>ON/OFF</em></label>
+                <label><input name='toggleTagify' type='checkbox'> Show Original Input</label>
                 <br><br>
                 <h3>CSS Variables:</h3>
                 <div>
@@ -254,6 +288,10 @@
                 <div>
                     <span class='key'>tag--max-width</span>
                     <input type="range" name="tag--max-width" data-units='ch' style='flex:1' min="1" max="20" step="1" value="auto">
+                </div>
+                <div>
+                    <span class='key'>loader-size</span>
+                    <input type="range" name="loader-size" data-units='em' style='flex:1' min="0.1" max="1.4" step="0.05" value="auto">
                 </div>
 
 
@@ -305,11 +343,6 @@
                     <span class='key'>tag-invalid-bg</span>
                     <input type='color' name='tag-invalid-color' value="#D39494" />
                 </div>
-
-                <div>
-                    <span class='key'>loader-size</span>
-                    <input type="range" name="loader-size" data-units='em' style='flex:1' min="0.1" max="1.4" step="0.05" value="auto">
-                </div>
             </div>
         </header>
 
@@ -350,7 +383,7 @@
                         <li>Only allow tags from the whitelist to exist</li>
                         <li>Manually create initial <em>whitelist</em> from the original input's value</li>
                         <li>Simulate fetching <em>whitelist</em> (from a server) as the user is typing</li>
-                        <li>"Remove all tags" by an extrenal button</li>
+                        <li><em>"Remove all tags"</em> by an extrenal button</li>
                         <li>Listen to various Tagify <a href='https://github.com/yairEO/tagify#events'>events</a></li>
                         <li>Un-listen to specific event (see <code>onAddTag</code> function)</li>
                     </ul>
@@ -868,7 +901,7 @@
 
             // toggle Tagify on/off
             toggleTagifyElm.addEventListener('change', function(){
-                document.body.classList[this.checked ? 'add' : 'remove']('disabled');
+                document.body.classList[this.checked ? 'add' : 'remove']('showOriginal');
             })
 
             tagifyStyleSettings.addEventListener('change', onTagifyStyleSettings)
