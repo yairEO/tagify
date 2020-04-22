@@ -1,5 +1,6 @@
 const isFirefox = typeof InstallTrigger !== 'undefined'
-const sameStr = ( s1, s2 ) => s1.toLowerCase() == s2.toLowerCase()
+// const isEdge = /Edge/.test(navigator.userAgent)
+const sameStr = (s1, s2) => s1.toLowerCase() == s2.toLowerCase()
 // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
 const removeCollectionProp = (collection, unwantedProp) => collection.map(v => {
     var props = {}
@@ -713,7 +714,7 @@ Tagify.prototype = {
             },
 
             onInput(e){
-                var value = this.settings.mode == 'mix' ? this.DOM.input.textContent : this.input.normalize.call(this),
+                var value = this.input.normalize.call(this),
                     showSuggestions = value.length >= this.settings.dropdown.enabled,
                     eventData = {value, inputElm:this.DOM.input};
 
@@ -1596,11 +1597,11 @@ Tagify.prototype = {
             // is mode is "select" clean all tags
             if( _s.mode == 'select' )
                 this.removeAllTags()
-            return tagElems;
+            return tagElems
         }
 
         // converts Array/String/Object to an Array of Objects
-        tagsItems = this.normalizeTags(tagsItems);
+        tagsItems = this.normalizeTags(tagsItems)
 
         // if in edit-mode, do not continue but instead replace the tag's text.
         // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
@@ -1638,9 +1639,9 @@ Tagify.prototype = {
         }
 
         if( _s.mode == 'select' )
-            clearInput = false;
+            clearInput = false
 
-        this.DOM.input.removeAttribute('style');
+        this.DOM.input.removeAttribute('style')
 
         tagsItems.forEach(tagData => {
             var tagElm,
@@ -1889,11 +1890,12 @@ Tagify.prototype = {
                 return
               }
 
+
               // Chrome adds <div><br></div> for empty new lines, and FF only adds <br>
               if( isFirefox && node.tagName == 'BR' )
                 result += "\r\n";
 
-              else if( node.tagName == 'DIV' ){
+              else if( node.tagName == 'DIV' || node.tagName == 'P' ){
                 result += "\r\n";
                 iterateChildren(node)
               }
