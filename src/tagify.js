@@ -1269,6 +1269,10 @@ Tagify.prototype = {
         }
     },
 
+    getTagIdx( tagData ){
+        return this.value.findIndex(item => JSON.stringify(item) == JSON.stringify(tagData) )
+    },
+
     getNodeIndex( node ){
         var index = 0;
 
@@ -1766,11 +1770,11 @@ Tagify.prototype = {
      * @param  {Object|String}  tagElm          [DOM element or a String value. if undefined or null, remove last added tag]
      * @param  {Boolean}        silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
      * @param  {Number}         tranDuration    [Transition duration in MS]
+     * TODO: Allow multiple tags to be removed at-once
      */
     removeTag( tagElm, silent, tranDuration ){
-        var tagData;
         tagElm = tagElm || this.getLastTag()
-        tranDuration = tranDuration || this.CSSVars.tagHideTransition
+        tranDuration = typeof tranDuration == "number" ? tranDuration : this.CSSVars.tagHideTransition
 
         if( typeof tagElm == 'string' )
             tagElm = this.getTagElmByValue(tagElm)
@@ -1779,7 +1783,12 @@ Tagify.prototype = {
             return;
 
         let that = this,
-            tagIdx = this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
+            tagData = tagElm.__tagifyTagData,
+            // tag index MUST be derived from "this.value" index, because when called repeatedly, the tag nodes still exists
+            // for example if called twice, the first idx would be "0" and the other "1", but when the tags are actually removed, they
+            // are removed in a synchronized way, so after the first tag was removed (only 1 left now), the other one cannot be removed becuase
+            // its index now does not exists
+            tagIdx = this.getTagIdx(tagData) // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
 
         if( this.settings.mode == 'select' ){
             tranDuration = 0;
@@ -1792,13 +1801,9 @@ Tagify.prototype = {
         function removeNode(){
             if( !tagElm.parentNode ) return
 
-            tagData = tagElm.__tagifyTagData;
             tagElm.parentNode.removeChild(tagElm)
 
             if( !silent ){
-                if (tagIdx > -1)
-                    that.value.splice(tagIdx, 1)
-
                 // that.removeValueById(tagData.__uid)
                 that.update() // update the original input with the current value
                 that.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData })
@@ -1826,6 +1831,14 @@ Tagify.prototype = {
         if( tranDuration && tranDuration > 10 ) animation()
         else removeNode()
 
+        // update state regardless of animation
+        if( !silent ){
+            if( tagIdx > -1 )
+                that.value.splice(tagIdx, 1)
+
+            // that.removeValueById(tagData.__uid)
+            that.update() // update the original input with the current value
+        }
     },
 
     removeAllTags(){
