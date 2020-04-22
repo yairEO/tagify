@@ -526,6 +526,7 @@ flex-wrap: nowrap;
 * [propagate `change` event](https://github.com/yairEO/tagify/issues/413)
 * [Manually update tag data after it was added](https://github.com/yairEO/tagify/issues/433)
 * [Ajax Whitelist with "enforceWhitelist" setting enabled](https://github.com/yairEO/tagify/issues/465)
+* [Custom (mutiple) tag valitation & AJAX](https://github.com/yairEO/tagify/issues/474)
 
 ## CSS Variables (see [MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties))
 
