@@ -64,19 +64,30 @@ function (_React$Component) {
   _createClass(Tags, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      if (this.props.value) this.component.value = this.props.value;
       this.tagify = new _tagifyMin["default"](this.component, this.props.settings || {});
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      var tagify = this.tagify;
+      tagify.dropdown.hide.call(tagify);
+      clearTimeout(tagify.dropdownHide__bindEventsTimeout);
     }
   }, {
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps, nextState) {
-      var tagify = this.tagify; // check if value has changed
+      var tagify = this.tagify,
+          currentValue = this.props.value instanceof Array ? this.props.value : [this.props.value]; // check if value has changed
 
-      if (nextProps.value && nextProps.value.join() !== this.props.value.join()) {
+      if (nextProps.value && nextProps.value instanceof Array && nextProps.value.join() !== currentValue.join()) {
         tagify.loadOriginalValues(nextProps.value); // this.tagify.addTags(nextProps.value, true, true)
       }
 
-      this.tagify.settings.whitelist = nextProps.settings.whitelist;
+      tagify.settings.whitelist = nextProps.settings.whitelist;
+
+      if ("loading" in nextProps) {
+        tagify.loading(nextProps.loading);
+      }
 
       if (nextProps.showDropdown) {
         tagify.dropdown.show.call(tagify, nextProps.showDropdown);
@@ -102,7 +113,8 @@ function (_React$Component) {
         className: this.props.className,
         placeholder: this.props["class"],
         autoFocus: this.props.autofocus,
-        value: this.props.children
+        value: this.props.children || this.props.value,
+        onChange: this.props.onChange || function () {}
       };
       var className = this.props.className;
       return _react["default"].createElement("div", {
