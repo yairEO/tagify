@@ -614,6 +614,8 @@ Tagify.prototype = {
                             if( this.state.editing ) return
 
                             var selection = document.getSelection(),
+                                deleteKeyTagDetected = e.key == 'Delete' && selection.anchorOffset == selection.anchorNode.length,
+                                backspaceKeyTagDetected =  selection.anchorNode.nodeType == 1 || !selection.anchorOffset && selection.anchorNode.previousElementSibling,
                                 lastInputValue = decode(this.DOM.input.innerHTML),
                                 lastTagElems = this.getTagElms();
 
@@ -622,14 +624,26 @@ Tagify.prototype = {
                                 selection.anchorNode.previousElementSibling )  // text node has a Tag node before it
                                 e.preventDefault()
 
+                            if( (backspaceKeyTagDetected || deleteKeyTagDetected) && !this.settings.backspace ){
+                                e.preventDefault()
+                                return
+                            }
+
+
                             // if( isFirefox && selection && selection.anchorOffset == 0 )
                             //     this.removeTag(selection.anchorNode.previousSibling)
 
                             // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                             // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
                             setTimeout(()=>{
+                                var currentValue = decode(this.DOM.input.innerHTML),
+                                    // when there's a tag and a character after it, and user hits Backspace, the text will get deleted instanctly,
+                                    // and because of the timeout, the code must understand a text was removed and a tag should NOT be removed, because
+                                    // the caret was on textNode and not just after a tag element
+                                    shoudlDeleteOnlyTag = selection.anchorNode == this.DOM.input && currentValue.length == lastInputValue.length;
+
                                 // fixes #384, where the first and only tag will not get removed with backspace
-                                if( selection.anchorNode == this.DOM.input || (!selection.anchorOffset && decode(this.DOM.input.innerHTML).length >= lastInputValue.length) ){
+                                if( ( shoudlDeleteOnlyTag || !selection.anchorOffset && currentValue.length >= lastInputValue.length) ){
                                     this.removeTag(selection.anchorNode.previousElementSibling)
                                     this.fixFirefoxLastTagNoCaret()
 
@@ -652,7 +666,7 @@ Tagify.prototype = {
                                         this.trigger('remove', { tag:node, index:nodeIdx, data:tagData })
                                 })
                                 .filter(n=>n)  // remove empty items in the mapped array
-                            }, 50) // Firefox needs this higher duration for some reason or things get buggy when to deleting text from the end
+                            }, 50) // Firefox needs this higher duration for some reason or things get buggy when deleting text from the end
                             break;
                         }
                         // currently commented to allow new lines in mixed-mode
