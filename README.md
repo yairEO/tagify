@@ -76,7 +76,7 @@
 * Supports [mix content](#mixed-content) (text and tags together)
 * Supports [single-value](#single-value) mode (like `<select>`)
 * Supports whitelist/blacklist
-* Supports Templates for: <em>component wrapper</em>, <em>tag items<em>, <em>suggestion list<em> & </em>suggestion items</em>
+* Supports Templates for: <em>component wrapper</em>, <em>tag items</em>, <em>suggestion list</em> & <em>suggestion items</em>
 * Shows suggestions selectbox (flexiable settings & styling) at *full (component) width* or *next to* the typed texted (caret)
 * Allows setting suggestions' [aliases](#example-for-a-suggestion-item-alias) for easier fuzzy-searching
 * Auto-suggest input as-you-type with ability to auto-complete
