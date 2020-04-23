@@ -505,7 +505,7 @@ Tagify.prototype = {
 
             for( var eventName in _CBR ){
                 // make sure the focus/blur event is always regesitered (and never more than once)
-                if( eventName == 'blur' && !bindUnbind ) return;
+                if( eventName == 'blur' && !bindUnbind ) continue;
 
                 this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
             }
@@ -544,7 +544,6 @@ Tagify.prototype = {
 
                 this.setRangeAtStartEnd(false)
 
-
                 if( _s.mode == 'mix' ){
                     if( type == "focus" ){
                         // firefox won't show caret if last element is a tag (and not a textNode),
@@ -566,10 +565,11 @@ Tagify.prototype = {
                     return
                 }
 
+
                 if( type == "focus" ){
                     this.trigger("focus", eventData)
                     //  e.target.classList.remove('placeholder');
-                    if( _s.dropdown.enabled === 0 && _s.mode != "select" ){
+                    if( _s.dropdown.enabled === 0  ){  // && _s.mode != "select"
                         this.dropdown.show.call(this)
                     }
                     return
@@ -586,6 +586,7 @@ Tagify.prototype = {
                     // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
                     shouldAddTags && this.addTags(text, true)
                 }
+
 
                 this.DOM.input.removeAttribute('style')
                 this.dropdown.hide.call(this)
@@ -1568,6 +1569,9 @@ Tagify.prototype = {
      * @param {Object} tagData  Tag data
      */
     selectTag(tagElm, tagData){
+        if( this.settings.enforceWhitelist && !this.isTagWhitelisted(tagData.value) )
+            return
+
         this.input.set.call(this, tagData.value, true)
 
         // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
@@ -1998,7 +2002,12 @@ Tagify.prototype = {
                 // hide suggestions list if no suggestions were matched & cleanup
                 else{
                     this.input.autocomplete.suggest.call(this);
-                    this.dropdown.hide.call(this);
+                    this.dropdown.hide.call(this)
+
+                    // special case: only on "select", if a tag is added, then lur event happens, it cannot be deleted by clicking (x)
+                    if(  _s.mode == 'select' )
+                        this.events.binding.call(this)
+
                     return;
                 }
             }
@@ -2031,6 +2040,7 @@ Tagify.prototype = {
             }
 
             this.dropdown.position.call(this)
+
             // if the dropdown has yet to be appended to the document,
             // append the dropdown to the body element & handle events
             if( !document.body.contains(this.DOM.dropdown) ){
@@ -2059,6 +2069,7 @@ Tagify.prototype = {
             var {scope, dropdown} = this.DOM,
                 isManual = this.settings.dropdown.position == 'manual' && !force;
 
+            // if there's no dropdown, this means the dropdown events aren't binded
             if( !dropdown || !document.body.contains(dropdown) || isManual ) return;
 
             window.removeEventListener('resize', this.dropdown.position)
@@ -2069,6 +2080,7 @@ Tagify.prototype = {
             // should re-open it, and without a timeout, clicking to close will re-open immediately
             clearTimeout(this.dropdownHide__bindEventsTimeout)
             this.dropdownHide__bindEventsTimeout = setTimeout(this.events.binding.bind(this), 250)  // re-bind main events
+
 
             scope.setAttribute("aria-expanded", false)
             dropdown.parentNode.removeChild(dropdown)

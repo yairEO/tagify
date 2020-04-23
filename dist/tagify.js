@@ -538,7 +538,7 @@ Tagify.prototype = {
 
       for (var eventName in _CBR) {
         // make sure the focus/blur event is always regesitered (and never more than once)
-        if (eventName == 'blur' && !bindUnbind) return;
+        if (eventName == 'blur' && !bindUnbind) continue;
 
         this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
       }
@@ -595,7 +595,8 @@ Tagify.prototype = {
         if (type == "focus") {
           this.trigger("focus", eventData); //  e.target.classList.remove('placeholder');
 
-          if (_s.dropdown.enabled === 0 && _s.mode != "select") {
+          if (_s.dropdown.enabled === 0) {
+            // && _s.mode != "select"
             this.dropdown.show.call(this);
           }
 
@@ -1561,6 +1562,7 @@ Tagify.prototype = {
    * @param {Object} tagData  Tag data
    */
   selectTag: function selectTag(tagElm, tagData) {
+    if (this.settings.enforceWhitelist && !this.isTagWhitelisted(tagData.value)) return;
     this.input.set.call(this, tagData.value, true); // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
 
     if (this.state.actions.selectOption) setTimeout(this.setRangeAtStartEnd.bind(this));
@@ -1953,7 +1955,9 @@ Tagify.prototype = {
         } // hide suggestions list if no suggestions were matched & cleanup
         else {
             this.input.autocomplete.suggest.call(this);
-            this.dropdown.hide.call(this);
+            this.dropdown.hide.call(this); // special case: only on "select", if a tag is added, then lur event happens, it cannot be deleted by clicking (x)
+
+            if (_s.mode == 'select') this.events.binding.call(this);
             return;
           }
       }
@@ -2006,7 +2010,8 @@ Tagify.prototype = {
       var _this$DOM = this.DOM,
           scope = _this$DOM.scope,
           dropdown = _this$DOM.dropdown,
-          isManual = this.settings.dropdown.position == 'manual' && !force;
+          isManual = this.settings.dropdown.position == 'manual' && !force; // if there's no dropdown, this means the dropdown events aren't binded
+
       if (!dropdown || !document.body.contains(dropdown) || isManual) return;
       window.removeEventListener('resize', this.dropdown.position);
       this.dropdown.events.binding.call(this, false); // unbind all events
