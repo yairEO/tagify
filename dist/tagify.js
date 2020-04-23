@@ -29,7 +29,7 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-var isFirefox = typeof InstallTrigger !== 'undefined';
+var isFirefox = typeof InstallTrigger !== 'undefined'; // const isEdge = /Edge/.test(navigator.userAgent)
 
 var sameStr = function sameStr(s1, s2) {
   return s1.toLowerCase() == s2.toLowerCase();
@@ -638,22 +638,33 @@ Tagify.prototype = {
               {
                 if (this.state.editing) return;
                 var selection = document.getSelection(),
+                    deleteKeyTagDetected = e.key == 'Delete' && selection.anchorOffset == selection.anchorNode.length,
+                    backspaceKeyTagDetected = selection.anchorNode.nodeType == 1 || !selection.anchorOffset && selection.anchorNode.previousElementSibling,
                     lastInputValue = decode(this.DOM.input.innerHTML),
                     lastTagElems = this.getTagElms();
                 if (selection.anchorNode.nodeType == 3 && // node at caret location is a Text node
                 !selection.anchorNode.nodeValue && // has some text
                 selection.anchorNode.previousElementSibling) // text node has a Tag node before it
-                  e.preventDefault(); // if( isFirefox && selection && selection.anchorOffset == 0 )
+                  e.preventDefault();
+
+                if ((backspaceKeyTagDetected || deleteKeyTagDetected) && !this.settings.backspace) {
+                  e.preventDefault();
+                  return;
+                } // if( isFirefox && selection && selection.anchorOffset == 0 )
                 //     this.removeTag(selection.anchorNode.previousSibling)
                 // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                 // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
 
-                setTimeout(function () {
-                  // fixes #384, where the first and only tag will not get removed with backspace
-                  if (!selection.anchorOffset && decode(_this4.DOM.input.innerHTML).length >= lastInputValue.length) {
-                    _this4.removeTag(selection.anchorNode.previousElementSibling);
 
-                    _this4.DOM.input.normalize();
+                setTimeout(function () {
+                  var currentValue = decode(_this4.DOM.input.innerHTML),
+                      // when there's a tag and a character after it, and user hits Backspace, the text will get deleted instanctly,
+                  // and because of the timeout, the code must understand a text was removed and a tag should NOT be removed, because
+                  // the caret was on textNode and not just after a tag element
+                  shoudlDeleteOnlyTag = selection.anchorNode == _this4.DOM.input && currentValue.length == lastInputValue.length; // fixes #384, where the first and only tag will not get removed with backspace
+
+                  if (shoudlDeleteOnlyTag || !selection.anchorOffset && currentValue.length >= lastInputValue.length) {
+                    _this4.removeTag(selection.anchorNode.previousElementSibling);
 
                     _this4.fixFirefoxLastTagNoCaret(); // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
 
@@ -677,7 +688,7 @@ Tagify.prototype = {
                   }).filter(function (n) {
                     return n;
                   }); // remove empty items in the mapped array
-                }, 50); // Firefox needs this higher duration for some reason or things get buggy when to deleting text from the end
+                }, 50); // Firefox needs this higher duration for some reason or things get buggy when deleting text from the end
 
                 break;
               }
@@ -743,7 +754,7 @@ Tagify.prototype = {
         }
       },
       onInput: function onInput(e) {
-        var value = this.settings.mode == 'mix' ? this.DOM.input.textContent : this.input.normalize.call(this),
+        var value = this.input.normalize.call(this),
             showSuggestions = value.length >= this.settings.dropdown.enabled,
             eventData = {
           value: value,
@@ -1012,8 +1023,10 @@ Tagify.prototype = {
     }
   },
   fixFirefoxLastTagNoCaret: function fixFirefoxLastTagNoCaret() {
-    if (isFirefox && this.DOM.input.lastChild.nodeType == 1) {
-      this.DOM.input.appendChild(document.createTextNode(""));
+    var inputElm = this.DOM.input;
+
+    if (isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1) {
+      inputElm.appendChild(document.createTextNode(""));
       this.setRangeAtStartEnd(true);
       return true;
     }
@@ -1270,6 +1283,11 @@ Tagify.prototype = {
       }
     }
   },
+  getTagIdx: function getTagIdx(tagData) {
+    return this.value.findIndex(function (item) {
+      return JSON.stringify(item) == JSON.stringify(tagData);
+    });
+  },
   getNodeIndex: function getNodeIndex(node) {
     var index = 0;
     if (node) while (node = node.previousElementSibling) {
@@ -1296,9 +1314,7 @@ Tagify.prototype = {
    * @param {Object} data
    */
   tagData: function tagData(tagElm, data) {
-    if (data && data instanceof Object) for (var p in data) {
-      tagElm.__tagifyTagData[p] = data[p];
-    }
+    if (data) tagElm.__tagifyTagData = extend({}, tagElm.__tagifyTagData || {}, data);
     return tagElm.__tagifyTagData;
   },
 
@@ -1615,10 +1631,8 @@ Tagify.prototype = {
 
       if (!this.replaceTextWithNode(tagElm)) {
         this.DOM.input.appendChild(tagElm);
-      } // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
+      }
 
-
-      this.DOM.input.appendChild(document.createTextNode(''));
       setTimeout(function () {
         return tagElm.classList.add('tagify--noAnim');
       }, 300);
@@ -1632,7 +1646,7 @@ Tagify.prototype = {
         data: tagsItems[0]
       })); // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
 
-      this.DOM.input.appendChild(document.createTextNode(''));
+      this.fixFirefoxLastTagNoCaret();
       return tagElm;
     }
 
@@ -1757,15 +1771,20 @@ Tagify.prototype = {
    * @param  {Object|String}  tagElm          [DOM element or a String value. if undefined or null, remove last added tag]
    * @param  {Boolean}        silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
    * @param  {Number}         tranDuration    [Transition duration in MS]
+   * TODO: Allow multiple tags to be removed at-once
    */
   removeTag: function removeTag(tagElm, silent, tranDuration) {
-    var tagData;
     tagElm = tagElm || this.getLastTag();
-    tranDuration = tranDuration || this.CSSVars.tagHideTransition;
+    tranDuration = typeof tranDuration == "number" ? tranDuration : this.CSSVars.tagHideTransition;
     if (typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
     if (!(tagElm instanceof HTMLElement)) return;
     var that = this,
-        tagIdx = this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
+        tagData = tagElm.__tagifyTagData,
+        // tag index MUST be derived from "this.value" index, because when called repeatedly, the tag nodes still exists
+    // for example if called twice, the first idx would be "0" and the other "1", but when the tags are actually removed, they
+    // are removed in a synchronized way, so after the first tag was removed (only 1 left now), the other one cannot be removed becuase
+    // its index now does not exists
+    tagIdx = this.getTagIdx(tagData); // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
 
     if (this.settings.mode == 'select') {
       tranDuration = 0;
@@ -1776,12 +1795,10 @@ Tagify.prototype = {
 
     function removeNode() {
       if (!tagElm.parentNode) return;
-      tagData = tagElm.__tagifyTagData;
       tagElm.parentNode.removeChild(tagElm);
 
       if (!silent) {
-        if (tagIdx > -1) that.value.splice(tagIdx, 1); // that.removeValueById(tagData.__uid)
-
+        // that.removeValueById(tagData.__uid)
         that.update(); // update the original input with the current value
 
         that.trigger('remove', {
@@ -1790,7 +1807,9 @@ Tagify.prototype = {
           data: tagData
         });
         that.dropdown.refilter.call(that);
-        that.dropdown.position.call(that); // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
+        that.dropdown.position.call(that);
+        that.DOM.input.normalize(); // best-practice when in mix-mode (safe to do always anyways)
+        // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
 
         if (that.settings.keepInvalidTags) that.reCheckInvalidTags();
       } else if (that.settings.keepInvalidTags) that.trigger('remove', {
@@ -1808,7 +1827,13 @@ Tagify.prototype = {
       setTimeout(removeNode, tranDuration);
     }
 
-    if (tranDuration && tranDuration > 10) animation();else removeNode();
+    if (tranDuration && tranDuration > 10) animation();else removeNode(); // update state regardless of animation
+
+    if (!silent) {
+      if (tagIdx > -1) that.value.splice(tagIdx, 1); // that.removeValueById(tagData.__uid)
+
+      that.update(); // update the original input with the current value
+    }
   },
   removeAllTags: function removeAllTags() {
     this.value = [];
@@ -1838,8 +1863,7 @@ Tagify.prototype = {
   update: function update() {
     this.preUpdate();
     var value = removeCollectionProp(this.value, "__isValid");
-    if (this.settings.originalInputValueFormat) value = this.settings.originalInputValueFormat(value);else value = JSON.stringify(value);
-    this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : value.length ? value : "";
+    this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : value.length ? this.settings.originalInputValueFormat ? this.settings.originalInputValueFormat(value) : JSON.stringify(value) : "";
     this.DOM.originalInput.dispatchEvent(new CustomEvent('change'));
   },
   getMixedTagsAsString: function getMixedTagsAsString(value) {
@@ -1857,7 +1881,7 @@ Tagify.prototype = {
           } // Chrome adds <div><br></div> for empty new lines, and FF only adds <br>
 
 
-          if (isFirefox && node.tagName == 'BR') result += "\r\n";else if (node.tagName == 'DIV') {
+          if (isFirefox && node.tagName == 'BR') result += "\r\n";else if (node.tagName == 'DIV' || node.tagName == 'P') {
             result += "\r\n";
             iterateChildren(node);
           }
