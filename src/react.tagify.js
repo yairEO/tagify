@@ -31,7 +31,7 @@ class Tags extends React.Component {
       nextProps.value instanceof Array &&
       nextProps.value.join() !== currentValue.join()
     ) {
-      tagify.loadOriginalValues(nextProps.value)
+      tagify.loadOriginalValues(nextProps.value.join())
       // this.tagify.addTags(nextProps.value, true, true)
     }
 
