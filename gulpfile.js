@@ -136,7 +136,7 @@ gulp.task('react_wrapper', () => {
 
     const umdConf = {
         exports: function(file) {
-          return null;
+          return 'Tags';
         }
     }
 

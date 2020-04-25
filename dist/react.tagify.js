@@ -134,5 +134,5 @@ Tags.defaultProps = {
 };
 var _default = Tags;
 exports["default"] = _default;
-return ;
+return Tags;
 }));
