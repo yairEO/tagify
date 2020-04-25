@@ -35,7 +35,8 @@ class Tags extends React.Component {
       // this.tagify.addTags(nextProps.value, true, true)
     }
 
-    tagify.settings.whitelist = nextProps.settings.whitelist
+    if( nextProps.settings.whitelist && nextProps.settings.whitelist.length )
+     tagify.settings.whitelist = nextProps.settings.whitelist
 
     if ("loading" in nextProps) {
       tagify.loading(nextProps.loading)
@@ -61,7 +62,7 @@ class Tags extends React.Component {
       ref        : this._handleRef,
       name       : this.props.name,
       className  : this.props.className,
-      placeholder: this.props.class,
+      placeholder: this.props.placeholder,
       autoFocus  : this.props.autofocus,
       value      : this.props.children || this.props.value,
       onChange   : this.props.onChange || function(){}

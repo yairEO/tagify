@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.7.0)- tags input component
+ * Tagify (v 3.7.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -80,10 +80,10 @@ function (_React$Component) {
           currentValue = this.props.value instanceof Array ? this.props.value : [this.props.value]; // check if value has changed
 
       if (nextProps.value && nextProps.value instanceof Array && nextProps.value.join() !== currentValue.join()) {
-        tagify.loadOriginalValues(nextProps.value); // this.tagify.addTags(nextProps.value, true, true)
+        tagify.loadOriginalValues(nextProps.value.join()); // this.tagify.addTags(nextProps.value, true, true)
       }
 
-      tagify.settings.whitelist = nextProps.settings.whitelist;
+      if (nextProps.settings.whitelist && nextProps.settings.whitelist.length) tagify.settings.whitelist = nextProps.settings.whitelist;
 
       if ("loading" in nextProps) {
         tagify.loading(nextProps.loading);
@@ -111,7 +111,7 @@ function (_React$Component) {
         ref: this._handleRef,
         name: this.props.name,
         className: this.props.className,
-        placeholder: this.props["class"],
+        placeholder: this.props.placeholder,
         autoFocus: this.props.autofocus,
         value: this.props.children || this.props.value,
         onChange: this.props.onChange || function () {}

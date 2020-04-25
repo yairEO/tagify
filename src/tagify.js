@@ -1894,9 +1894,12 @@ Tagify.prototype = {
      */
     update(){
         this.preUpdate()
-        var value = removeCollectionProp(this.value, "__isValid")
+        var inputElm = this.DOM.originalInput,
+            lastValue = inputElm.value,
+            value = removeCollectionProp(this.value, "__isValid"),
+            event = new Event("change", {bubbles: true})
 
-        this.DOM.originalInput.value = this.settings.mode == 'mix'
+        inputElm.value = this.settings.mode == 'mix'
             ? this.getMixedTagsAsString(value)
             : value.length
                 ? this.settings.originalInputValueFormat
@@ -1904,7 +1907,12 @@ Tagify.prototype = {
                     : JSON.stringify(value)
                 : ""
 
-        this.DOM.originalInput.dispatchEvent(new CustomEvent('change'))
+        // React hack: https://github.com/facebook/react/issues/11488
+        event.simulated = true
+        if (inputElm._valueTracker)
+          inputElm._valueTracker.setValue(lastValue)
+
+        inputElm.dispatchEvent(event)
     },
 
     getMixedTagsAsString(value){
@@ -2004,9 +2012,9 @@ Tagify.prototype = {
                     this.input.autocomplete.suggest.call(this);
                     this.dropdown.hide.call(this)
 
-                    // special case: only on "select", if a tag is added, then lur event happens, it cannot be deleted by clicking (x)
-                    if(  _s.mode == 'select' )
-                        this.events.binding.call(this)
+                    // special case: only on "select", if a tag is added, then blur event happens, it cannot be deleted by clicking (x)
+                  //  if(  _s.mode == 'select' )
+                    this.events.binding.call(this)
 
                     return;
                 }
@@ -2076,7 +2084,7 @@ Tagify.prototype = {
             this.dropdown.events.binding.call(this, false) // unbind all events
 
             // if the dropdown is open, and the input (scope) is clicked,
-            // the dropdown should be now "closed", and the next click (on the scope)
+            // the dropdown should be now "close", and the next click (on the scope)
             // should re-open it, and without a timeout, clicking to close will re-open immediately
             clearTimeout(this.dropdownHide__bindEventsTimeout)
             this.dropdownHide__bindEventsTimeout = setTimeout(this.events.binding.bind(this), 250)  // re-bind main events

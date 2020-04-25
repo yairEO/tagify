@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.7.0)- tags input component
+ * Tagify (v 3.7.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -1864,9 +1864,17 @@ Tagify.prototype = {
    */
   update: function update() {
     this.preUpdate();
-    var value = removeCollectionProp(this.value, "__isValid");
-    this.DOM.originalInput.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : value.length ? this.settings.originalInputValueFormat ? this.settings.originalInputValueFormat(value) : JSON.stringify(value) : "";
-    this.DOM.originalInput.dispatchEvent(new CustomEvent('change'));
+    var inputElm = this.DOM.originalInput,
+        lastValue = inputElm.value,
+        value = removeCollectionProp(this.value, "__isValid"),
+        event = new Event("change", {
+      bubbles: true
+    });
+    inputElm.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : value.length ? this.settings.originalInputValueFormat ? this.settings.originalInputValueFormat(value) : JSON.stringify(value) : ""; // React hack: https://github.com/facebook/react/issues/11488
+
+    event.simulated = true;
+    if (inputElm._valueTracker) inputElm._valueTracker.setValue(lastValue);
+    inputElm.dispatchEvent(event);
   },
   getMixedTagsAsString: function getMixedTagsAsString(value) {
     var result = "",
@@ -1955,9 +1963,10 @@ Tagify.prototype = {
         } // hide suggestions list if no suggestions were matched & cleanup
         else {
             this.input.autocomplete.suggest.call(this);
-            this.dropdown.hide.call(this); // special case: only on "select", if a tag is added, then lur event happens, it cannot be deleted by clicking (x)
+            this.dropdown.hide.call(this); // special case: only on "select", if a tag is added, then blur event happens, it cannot be deleted by clicking (x)
+            //  if(  _s.mode == 'select' )
 
-            if (_s.mode == 'select') this.events.binding.call(this);
+            this.events.binding.call(this);
             return;
           }
       }
@@ -2016,7 +2025,7 @@ Tagify.prototype = {
       window.removeEventListener('resize', this.dropdown.position);
       this.dropdown.events.binding.call(this, false); // unbind all events
       // if the dropdown is open, and the input (scope) is clicked,
-      // the dropdown should be now "closed", and the next click (on the scope)
+      // the dropdown should be now "close", and the next click (on the scope)
       // should re-open it, and without a timeout, clicking to close will re-open immediately
 
       clearTimeout(this.dropdownHide__bindEventsTimeout);
