@@ -48,7 +48,7 @@
    * [Suggestions selectbox](#suggestions-selectbox)
    * [React wrapper](#react)
    * [Angular wrapper](#angular)
-   * [Vue Example](https://medium.com/@krishnadeepuv/tagify-with-vue-234cdb03abd3)
+   * [Vue Example](https://codesandbox.io/s/tagify-tags-component-vue-example-l8ok4)
    * [jQuery version](#jquery-version)
    * [FAQ](#FAQ)
    * [Methods](#methods)
