@@ -121,6 +121,21 @@ There are two possible ways to get the value of the tags:
 1. Access the tagify's instance's `value` prop: `tagify.value` (Array of tags)
 2. Access the *original* input's value: `inputElm.value` (Stringified Array of tags)
 
+The most common way is to simply listen to the `change` event on the *original input*
+
+```javascript
+var inputElm = document.querySelector,
+    tagify = new Tagify (inputElm);
+
+inputElm.addEventListener('change', onChange)
+
+function onChange(e){
+  // outputs a String
+  console.log(e.target.value)
+}
+
+```
+
 ## Ajax whitelist
 Dynamically-loaded suggestions list (*whitelist*) from the server (as the user types) is a frequent need to many.
 
@@ -351,13 +366,13 @@ const App = () => {
       settings={settings}  // tagify settings object
       value="a,b,c"
       {...tagifyProps}   // dynamic props such as "loading", "showDropdown:'abc'", "value"
-      onChange={e => console.log("CHANGED:", e)}
+      onChange={e => (e.persist(), console.log("CHANGED:", e.target.value))}
     />
   )
 })
 ```
 
-Check the [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for a React integration example.
+### See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
 
 
 ## Angular
