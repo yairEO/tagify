@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.7.1)- tags input component
+ * Tagify (v 3.7.2)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -1876,17 +1876,16 @@ Tagify.prototype = {
     if (inputElm._valueTracker) inputElm._valueTracker.setValue(lastValue);
     inputElm.dispatchEvent(event);
   },
-  getMixedTagsAsString: function getMixedTagsAsString(value) {
+  getMixedTagsAsString: function getMixedTagsAsString() {
     var result = "",
         i = 0,
-        currentTags = value,
         _interpolator = this.settings.mixTagsInterpolator;
 
     function iterateChildren(rootNode) {
       rootNode.childNodes.forEach(function (node) {
         if (node.nodeType == 1) {
-          if (node.classList.contains("tagify__tag")) {
-            result += _interpolator[0] + JSON.stringify(currentTags[i++]) + _interpolator[1];
+          if (node.classList.contains("tagify__tag") && node.__tagifyTagData) {
+            result += _interpolator[0] + JSON.stringify(node.__tagifyTagData) + _interpolator[1];
             return;
           } // Chrome adds <div><br></div> for empty new lines, and FF only adds <br>
 

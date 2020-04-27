@@ -36,7 +36,7 @@ class Tags extends React.Component {
     }
 
     if( nextProps.settings.whitelist && nextProps.settings.whitelist.length )
-     tagify.settings.whitelist = nextProps.settings.whitelist
+      tagify.settings.whitelist = nextProps.settings.whitelist
 
     if ("loading" in nextProps) {
       tagify.loading(nextProps.loading)

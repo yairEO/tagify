@@ -1914,20 +1914,18 @@ Tagify.prototype = {
         inputElm.dispatchEvent(event)
     },
 
-    getMixedTagsAsString(value){
+    getMixedTagsAsString(){
         var result = "",
             i = 0,
-            currentTags = value,
             _interpolator = this.settings.mixTagsInterpolator;
 
         function iterateChildren(rootNode){
           rootNode.childNodes.forEach((node) => {
             if( node.nodeType == 1 ){
-              if( node.classList.contains("tagify__tag") ){
-                result += _interpolator[0] + JSON.stringify(currentTags[i++]) + _interpolator[1]
+              if( node.classList.contains("tagify__tag") && node.__tagifyTagData ){
+                result += _interpolator[0] + JSON.stringify( node.__tagifyTagData ) + _interpolator[1]
                 return
               }
-
 
               // Chrome adds <div><br></div> for empty new lines, and FF only adds <br>
               if( isFirefox && node.tagName == 'BR' )
