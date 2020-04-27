@@ -571,7 +571,7 @@ Name                            | Info
 --tag-remove-btn-bg--hover      | The remove (`×`) button background color on hover
 --loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
 --tag-hide-transition           | Controls the transition property when a tag is removed. default is '.3s'
---placeholder-colo              | Placeholder text color
+--placeholder-color             | Placeholder text color
 
 
 ## Methods
