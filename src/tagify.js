@@ -93,6 +93,22 @@ function extend(o, o1, o2){
     return o;
 }
 
+/**
+ * Two things are happening here:
+ * 1) normalize()ing to NFD Unicode normal form decomposes combined graphemes
+ * into the combination of simple ones. The è of Crème ends up expressed as e + ̀.
+ * 2) Using a regex character class to match the U+0300 → U+036F range, it is now
+ * trivial to globally get rid of the diacritics, which the Unicode standard
+ * conveniently groups as the Combining Diacritical Marks Unicode block.
+ *
+ * Extracted from: https://stackoverflow.com/a/37511463/104380
+ */
+function unaccent (string) {
+    if (typeof(string) === 'string') {
+        return string.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    }
+}
+
 // ☝☝☝ ALL THE ABOVE WILL BE MOVED INTO SEPARATE FILES ☝☝☝
 
 /**
@@ -173,7 +189,8 @@ Tagify.prototype = {
             fuzzySearch   : true,
             highlightFirst: false,  // highlights first-matched item in the list
             closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
-            position      : 'all'   // 'manual' / 'text' / 'all'
+            position      : 'all',  // 'manual' / 'text' / 'all',
+            unaccent      : true    // needs a polyfill to work with IE. https://github.com/andyearnshaw/Intl.js/
         }
     },
 
@@ -2399,7 +2416,9 @@ Tagify.prototype = {
                 whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
                 searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
 
-                whitelistItemValueIndex = searchBy.indexOf( value.toLowerCase() )
+                whitelistItemValueIndex = _s.dropdown.unaccent
+                    ? unaccent(searchBy).indexOf(unaccent(value.toLowerCase()))
+                    : searchBy.indexOf(value.toLowerCase());
 
                 valueIsInWhitelist = _s.dropdown.fuzzySearch
                     ? whitelistItemValueIndex >= 0
