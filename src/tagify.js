@@ -1916,6 +1916,7 @@ Tagify.prototype = {
 
     getMixedTagsAsString(){
         var result = "",
+            that = this,
             i = 0,
             _interpolator = this.settings.mixTagsInterpolator;
 
@@ -1927,9 +1928,9 @@ Tagify.prototype = {
                 return
               }
 
-              // Chrome adds <div><br></div> for empty new lines, and FF only adds <br>
-              if( isFirefox && node.tagName == 'BR' )
+              if( node.tagName == 'BR' && (node.parentNode == that.DOM.input || node.parentNode.childNodes.length == 1 ) ){
                 result += "\r\n";
+              }
 
               else if( node.tagName == 'DIV' || node.tagName == 'P' ){
                 result += "\r\n";
