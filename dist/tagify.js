@@ -533,7 +533,8 @@ Tagify.prototype = {
         blur: ['input', _CB.onFocusBlur.bind(this)],
         keydown: ['input', _CB.onKeydown.bind(this)],
         click: ['scope', _CB.onClickScope.bind(this)],
-        dblclick: ['scope', _CB.onDoubleClickScope.bind(this)]
+        dblclick: ['scope', _CB.onDoubleClickScope.bind(this)],
+        paste: ['input', _CB.onPaste.bind(this)]
       };
 
       for (var eventName in _CBR) {
@@ -913,6 +914,14 @@ Tagify.prototype = {
 
         if (_s.mode == 'select') !this.state.dropdown.visible && this.dropdown.show.call(this);
       },
+      onPaste: function onPaste(e) {
+        var clipboardData, pastedData;
+        e.preventDefault(); // Get pasted data via clipboard API
+
+        clipboardData = e.clipboardData || window.clipboardData;
+        pastedData = clipboardData.getData('Text');
+        this.input.set.call(this, pastedData);
+      },
       onEditTagInput: function onEditTagInput(editableElm, e) {
         var tagElm = editableElm.closest('.tagify__tag'),
             tagElmIdx = this.getNodeIndex(tagElm),
@@ -1201,6 +1210,7 @@ Tagify.prototype = {
 
       this.input.autocomplete.suggest.call(this);
       this.input.validate.call(this);
+      this.setRangeAtStartEnd()
     },
 
     /**
@@ -1867,9 +1877,10 @@ Tagify.prototype = {
     var inputElm = this.DOM.originalInput,
         lastValue = inputElm.value,
         value = removeCollectionProp(this.value, "__isValid"),
-        event = new Event("change", {
+        event = new CustomEvent("change", {
       bubbles: true
-    });
+    }); // must use "CustomEvent" and not "Event" to support IE
+
     inputElm.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : value.length ? this.settings.originalInputValueFormat ? this.settings.originalInputValueFormat(value) : JSON.stringify(value) : ""; // React hack: https://github.com/facebook/react/issues/11488
 
     event.simulated = true;
@@ -1878,6 +1889,7 @@ Tagify.prototype = {
   },
   getMixedTagsAsString: function getMixedTagsAsString() {
     var result = "",
+        that = this,
         i = 0,
         _interpolator = this.settings.mixTagsInterpolator;
 
@@ -1887,10 +1899,11 @@ Tagify.prototype = {
           if (node.classList.contains("tagify__tag") && node.__tagifyTagData) {
             result += _interpolator[0] + JSON.stringify(node.__tagifyTagData) + _interpolator[1];
             return;
-          } // Chrome adds <div><br></div> for empty new lines, and FF only adds <br>
+          }
 
-
-          if (isFirefox && node.tagName == 'BR') result += "\r\n";else if (node.tagName == 'DIV' || node.tagName == 'P') {
+          if (node.tagName == 'BR' && (node.parentNode == that.DOM.input || node.parentNode.childNodes.length == 1)) {
+            result += "\r\n";
+          } else if (node.tagName == 'DIV' || node.tagName == 'P') {
             result += "\r\n";
             iterateChildren(node);
           }
