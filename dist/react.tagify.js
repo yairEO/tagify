@@ -76,6 +76,7 @@ function (_React$Component) {
   }, {
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps, nextState) {
+      var nextSettings = nextProps.settings || {};
       var tagify = this.tagify,
           currentValue = this.props.value instanceof Array ? this.props.value : [this.props.value]; // check if value has changed
 
@@ -83,7 +84,7 @@ function (_React$Component) {
         tagify.loadOriginalValues(nextProps.value.join()); // this.tagify.addTags(nextProps.value, true, true)
       }
 
-      if (nextProps.settings.whitelist && nextProps.settings.whitelist.length) tagify.settings.whitelist = nextProps.settings.whitelist;
+      if (nextSettings.whitelist && nextSettings.whitelist.length) tagify.settings.whitelist = nextSettings.whitelist;
 
       if ("loading" in nextProps) {
         tagify.loading(nextProps.loading);
@@ -114,6 +115,7 @@ function (_React$Component) {
         placeholder: this.props.placeholder,
         autoFocus: this.props.autofocus,
         value: this.props.children || this.props.value,
+        readOnly: this.props.readonly,
         onChange: this.props.onChange || function () {}
       };
       var className = this.props.className;

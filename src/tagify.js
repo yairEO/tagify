@@ -68,7 +68,7 @@ function escapeHTML( s ){
  * merge objects into a single new one
  * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
  */
-function extend(o, o1, o2){
+function extend( o, o1, o2) {
     if( !(o instanceof Object) ) o = {};
 
     copy(o, o1);
@@ -91,6 +91,22 @@ function extend(o, o1, o2){
     }
 
     return o;
+}
+
+/**
+ *  Extracted from: https://stackoverflow.com/a/37511463/104380
+ * @param {String} s
+ */
+function unaccent( s ){
+    // if not supported, do not continue.
+    // developers should use a polyfill:
+    // https://github.com/walling/unorm
+    if( !String.prototype.normalize )
+        return s
+
+    if (typeof(s) === 'string')
+        return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+
 }
 
 // ☝☝☝ ALL THE ABOVE WILL BE MOVED INTO SEPARATE FILES ☝☝☝
@@ -171,6 +187,7 @@ Tagify.prototype = {
             maxItems      : 10,
             searchKeys    : [],
             fuzzySearch   : true,
+            accentedSearch: true,
             highlightFirst: false,  // highlights first-matched item in the list
             closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
             position      : 'all'   // 'manual' / 'text' / 'all'
@@ -2414,7 +2431,9 @@ Tagify.prototype = {
                 whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
                 searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
 
-                whitelistItemValueIndex = searchBy.indexOf( value.toLowerCase() )
+                whitelistItemValueIndex = _s.dropdown.accentedSearch
+                    ? unaccent(searchBy).indexOf(unaccent(value.toLowerCase()))
+                    : searchBy.indexOf(value.toLowerCase())
 
                 valueIsInWhitelist = _s.dropdown.fuzzySearch
                     ? whitelistItemValueIndex >= 0

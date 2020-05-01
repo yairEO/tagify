@@ -121,6 +121,19 @@ function extend(o, o1, o2) {
   }
 
   return o;
+}
+/**
+ *  Extracted from: https://stackoverflow.com/a/37511463/104380
+ * @param {String} s
+ */
+
+
+function unaccent(s) {
+  // if not supported, do not continue.
+  // developers should use a polyfill:
+  // https://github.com/walling/unorm
+  if (!String.prototype.normalize) return s;
+  if (typeof s === 'string') return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 } // ☝☝☝ ALL THE ABOVE WILL BE MOVED INTO SEPARATE FILES ☝☝☝
 
 /**
@@ -218,6 +231,7 @@ Tagify.prototype = {
       maxItems: 10,
       searchKeys: [],
       fuzzySearch: true,
+      accentedSearch: true,
       highlightFirst: false,
       // highlights first-matched item in the list
       closeOnSelect: true,
@@ -1210,7 +1224,7 @@ Tagify.prototype = {
 
       this.input.autocomplete.suggest.call(this);
       this.input.validate.call(this);
-      this.setRangeAtStartEnd()
+      this.setRangeAtStartEnd();
     },
 
     /**
@@ -2340,7 +2354,7 @@ Tagify.prototype = {
         searchBy = searchKeys.reduce(function (values, k) {
           return values + " " + (whitelistItem[k] || "");
         }, "").toLowerCase();
-        whitelistItemValueIndex = searchBy.indexOf(value.toLowerCase());
+        whitelistItemValueIndex = _s.dropdown.accentedSearch ? unaccent(searchBy).indexOf(unaccent(value.toLowerCase())) : searchBy.indexOf(value.toLowerCase());
         valueIsInWhitelist = _s.dropdown.fuzzySearch ? whitelistItemValueIndex >= 0 : whitelistItemValueIndex == 0;
         isDuplicate = !_s.duplicates && this.isTagDuplicate(isObject(whitelistItem) ? whitelistItem.value : whitelistItem); // match for the value within each "whitelist" item
 
