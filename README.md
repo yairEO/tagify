@@ -25,50 +25,50 @@
   <img src="https://img.shields.io/bundlephobia/minzip/@yaireo/tagify" />
   <img src="https://img.shields.io/npm/dw/@yaireo/tagify" />
 </p>
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/yairEO/tagify/master/mix3.gif" />
   <img src="https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif" />
 </p>
 
-
-
-
-
 ## Table of Contents
 
 <!--ts-->
-   * [Installation](#installation)
-   * [Selling points](#selling-points)
-   * [What can Tagify do](#what-can-tagify-do)
-   * [Building the project](#building-the-project)
-   * [Adding tags dynamically](#adding-tags-dynamically)
-   * [Ajax whitelist](#ajax-whitelist)
-   * [Edit tags](#edit-tags)
-   * [DOM Templates](#dom-templates)
-   * [Suggestions selectbox](#suggestions-selectbox)
-   * [React wrapper](#react)
-   * [Angular wrapper](#angular)
-   * [Vue Example](https://codesandbox.io/s/tagify-tags-component-vue-example-l8ok4)
-   * [jQuery version](#jquery-version)
-   * [FAQ](#FAQ)
-   * [Methods](#methods)
-   * [Events](#events)
-   * [Settings](#settings)
+* [Installation](#installation)
+* [What can Tagify do](#features)
+* [Building the project](#building-the-project)
+* [Adding tags dynamically](#adding-tags-dynamically)
+* [Ajax whitelist](#ajax-whitelist)
+* [Edit tags](#edit-tags)
+* [DOM Templates](#dom-templates)
+* [Suggestions selectbox](#suggestions-selectbox)
+* [React wrapper](#react)
+* [Angular wrapper](#angular)
+* [Vue Example](https://codesandbox.io/s/tagify-tags-component-vue-example-l8ok4)
+* [jQuery version](#jquery-version)
+* [FAQ](#FAQ)
+* [Methods](#methods)
+* [Events](#events)
+* [Settings](#settings)
 <!--te-->
 
 ## Installation
 
-    npm i @yaireo/tagify --save
+```sh
+npm i @yaireo/tagify --save
+```
 
 ### Usage (in your bundle):
 
-    import Tagify from '@yaireo/tagify'
+```js
+import Tagify from '@yaireo/tagify'
 
-    var tagify = new Tagify(...)
+var tagify = new Tagify(...)
+```
 
-> Don't forget to include `tagify.css` file in your project.
-> CSS location: `@yaireo/tagify/dist/tagify.css`
-> SCSS location: `@yaireo/tagify/src/tagify.scss`
+> Don't forget to **include `tagify.css`** file in your project.  
+> CSS location: `@yaireo/tagify/dist/tagify.css`  
+> SCSS location: `@yaireo/tagify/src/tagify.scss`  
 > [See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
 
 ## Features
@@ -136,6 +136,7 @@ function onChange(e){
 
 ```
 
+
 ## Ajax whitelist
 Dynamically-loaded suggestions list (*whitelist*) from the server (as the user types) is a frequent need to many.
 
@@ -187,7 +188,7 @@ The value is saved on `blur` or by pressing `enter` key. Pressing `Escape` will 
 To prevent *all* tags from being allowed to be editable, set the `editTags` setting to `false` (or `null`).<br>
 To do the same but for specific tag(s), set those tags' data with `editable` property set to `false`:
 
-```
+```html
 <input value='[{"value":"foo", "editable":false}, {"value":"bar"}]'>
 ```
 
@@ -275,7 +276,7 @@ var input = document.querySelector('input'),
     });
 ```
 
-<p align="center">🠋 **Will render:** 🠋</p>
+<p align="center"><b>Will render</b></p>
 
 ```html
 <div class="tagify__dropdown tagify__dropdown--text" style="left:993.5px; top:106.375px; width:616px;">
@@ -507,7 +508,7 @@ Another example for complex tags state might be disabled tags, or ones with cust
 
 To chnage the format, assuming your tags have no commas and are fairly simple:
 
-```
+```js
 var tagify = new Tagify(inputElm, {
   originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
 })
@@ -571,7 +572,7 @@ Name                            | Info
 --tag-remove-btn-bg--hover      | The remove (`×`) button background color on hover
 --loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
 --tag-hide-transition           | Controls the transition property when a tag is removed. default is '.3s'
---placeholder-colo              | Placeholder text color
+--placeholder-color             | Placeholder text color
 
 
 ## Methods
