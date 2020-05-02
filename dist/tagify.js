@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.7.2)- tags input component
+ * Tagify (v 3.7.3)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -667,7 +667,7 @@ Tagify.prototype = {
                   e.preventDefault();
                   return;
                 } // if( isFirefox && selection && selection.anchorOffset == 0 )
-                //     this.removeTag(selection.anchorNode.previousSibling)
+                //     this.removeTags(selection.anchorNode.previousSibling)
                 // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                 // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
 
@@ -680,7 +680,7 @@ Tagify.prototype = {
                   shoudlDeleteOnlyTag = selection.anchorNode == _this4.DOM.input && currentValue.length == lastInputValue.length; // fixes #384, where the first and only tag will not get removed with backspace
 
                   if (shoudlDeleteOnlyTag || !selection.anchorOffset && currentValue.length >= lastInputValue.length) {
-                    _this4.removeTag(selection.anchorNode.previousElementSibling);
+                    _this4.removeTags(selection.anchorNode.previousElementSibling);
 
                     _this4.fixFirefoxLastTagNoCaret(); // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
 
@@ -721,7 +721,7 @@ Tagify.prototype = {
             if (!this.state.dropdown.visible) {
               if (s == "" || s.charCodeAt(0) == 8203) {
                 // 8203: ZERO WIDTH SPACE unicode
-                if (this.settings.backspace === true) this.removeTag();else if (this.settings.backspace == 'edit') setTimeout(this.editTag.bind(this), 0); // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
+                if (this.settings.backspace === true) this.removeTags();else if (this.settings.backspace == 'edit') setTimeout(this.editTag.bind(this), 0); // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
               }
             }
 
@@ -909,7 +909,7 @@ Tagify.prototype = {
           this.DOM.input.focus();
           return;
         } else if (e.target.classList.contains("tagify__tag__removeBtn")) {
-          this.removeTag(e.target.parentNode);
+          this.removeTags(e.target.parentNode);
           return;
         } else if (tagElm) {
           this.trigger("click", {
@@ -984,7 +984,7 @@ Tagify.prototype = {
             isValid = this.validateTag(tagData); //  this.DOM.input.focus()
 
         if (!currentValue) {
-          this.removeTag(tagElm);
+          this.removeTags(tagElm);
           this.onEditTagDone(null, tagData);
           return;
         }
@@ -1733,7 +1733,7 @@ Tagify.prototype = {
 
         if (!_s.keepInvalidTags) // remove invalid tags (if "keepInvalidTags" is set to "false")
           setTimeout(function () {
-            return _this11.removeTag(tagElm, true);
+            return _this11.removeTags(tagElm, true);
           }, 1000);
       }
 
@@ -1795,70 +1795,87 @@ Tagify.prototype = {
   /**
    * Removes a tag
    * @param  {Object|String}  tagElm          [DOM element or a String value. if undefined or null, remove last added tag]
-   * @param  {Boolean}        silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
+   * @param  {Boolean}        silent          [A flag, which when turned on, does not remove any value and does not update the original input value but simply removes the tag from tagify]
    * @param  {Number}         tranDuration    [Transition duration in MS]
    * TODO: Allow multiple tags to be removed at-once
    */
-  removeTag: function removeTag(tagElm, silent, tranDuration) {
-    tagElm = tagElm || this.getLastTag();
+  removeTags: function removeTags(tagElms, silent, tranDuration) {
+    var _this13 = this;
+
+    tagElms = tagElms && tagElms instanceof HTMLElement ? [tagElms] : tagElms instanceof Array ? tagElms : tagElms ? [tagElms] : [this.getLastTag()]; // normalize tagElms array values:
+    // 1. removing invalid items
+    // 2, if an item is String try to get the matching Tag HTML node
+
+    tagElms = tagElms.reduce(function (elms, tagElm) {
+      if (tagElm) {
+        if (typeof tagElm == 'string') tagElm = _this13.getTagElmByValue(tagElm);
+        tagElm && elms.push(tagElm);
+      }
+
+      return elms;
+    }, []);
     tranDuration = typeof tranDuration == "number" ? tranDuration : this.CSSVars.tagHideTransition;
-    if (typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
-    if (!(tagElm instanceof HTMLElement)) return;
-    var that = this,
-        tagData = tagElm.__tagifyTagData,
-        // tag index MUST be derived from "this.value" index, because when called repeatedly, the tag nodes still exists
-    // for example if called twice, the first idx would be "0" and the other "1", but when the tags are actually removed, they
-    // are removed in a synchronized way, so after the first tag was removed (only 1 left now), the other one cannot be removed becuase
-    // its index now does not exists
-    tagIdx = this.getTagIdx(tagData); // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
 
     if (this.settings.mode == 'select') {
       tranDuration = 0;
       this.input.set.call(this);
+    } // if only a single tag is to be removed
+
+
+    if (tagElms.length == 1) {
+      if (tagElms[0].classList.contains('tagify--notAllowed')) silent = true;
     }
 
-    if (tagElm.classList.contains('tagify--notAllowed')) silent = true;
+    function removeNode(tagElm) {
+      if (!tagElm.parentNode) return; // tag index MUST be derived from "this.value" index, because when called repeatedly, the tag nodes still exists
+      // for example if called twice, the first idx would be "0" and the other "1", but when the tags are actually removed, they
+      // are removed in a synchronized way, so after the first tag was removed (only 1 left now), the other one cannot be removed becuase
+      // its index now does not exists
 
-    function removeNode() {
-      if (!tagElm.parentNode) return;
+      var tagData = tagElm.__tagifyTagData,
+          tagIdx = this.getTagIdx(tagData); // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
+
       tagElm.parentNode.removeChild(tagElm);
 
       if (!silent) {
-        // that.removeValueById(tagData.__uid)
-        that.update(); // update the original input with the current value
-
-        that.trigger('remove', {
+        // this.removeValueById(tagData.__uid)
+        this.trigger('remove', {
           tag: tagElm,
           index: tagIdx,
           data: tagData
         });
-        that.dropdown.refilter.call(that);
-        that.dropdown.position.call(that);
-        that.DOM.input.normalize(); // best-practice when in mix-mode (safe to do always anyways)
+        this.dropdown.refilter.call(this);
+        this.dropdown.position.call(this);
+        this.DOM.input.normalize(); // best-practice when in mix-mode (safe to do always anyways)
         // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
 
-        if (that.settings.keepInvalidTags) that.reCheckInvalidTags();
-      } else if (that.settings.keepInvalidTags) that.trigger('remove', {
+        if (this.settings.keepInvalidTags) this.reCheckInvalidTags();
+      } else if (this.settings.keepInvalidTags) this.trigger('remove', {
         tag: tagElm,
         index: tagIdx
       });
     }
 
     function animation() {
+      var tagElm = tagElms[0];
       tagElm.style.width = parseFloat(window.getComputedStyle(tagElm).width) + 'px';
       document.body.clientTop; // force repaint for the width to take affect before the "hide" class below
 
       tagElm.classList.add('tagify--hide'); // manual timeout (hack, since transitionend cannot be used because of hover)
 
-      setTimeout(removeNode, tranDuration);
+      setTimeout(removeNode.bind(this), tranDuration, tagElm);
     }
 
-    if (tranDuration && tranDuration > 10) animation();else removeNode(); // update state regardless of animation
+    if (tranDuration && tranDuration > 10 && tagElms.length == 1) animation.call(this);else tagElms.forEach(removeNode.bind(this)); // update state regardless of animation
 
     if (!silent) {
-      if (tagIdx > -1) that.value.splice(tagIdx, 1); // that.removeValueById(tagData.__uid)
+      tagElms.forEach(function (tagElm) {
+        var tagIdx = _this13.getTagIdx(tagElm.__tagifyTagData);
 
-      that.update(); // update the original input with the current value
+        if (tagIdx > -1) _this13.value.splice(tagIdx, 1);
+      }); // that.removeValueById(tagData.__uid)
+
+      this.update(); // update the original input with the current value
     }
   },
   removeAllTags: function removeAllTags() {
@@ -1954,7 +1971,7 @@ Tagify.prototype = {
       this.DOM.dropdown.content = this.DOM.dropdown.querySelector('.tagify__dropdown__wrapper');
     },
     show: function show(value) {
-      var _this13 = this;
+      var _this14 = this;
 
       var HTMLContent,
           _s = this.settings,
@@ -2032,7 +2049,7 @@ Tagify.prototype = {
           this.dropdown.position.call(this, ddHeight);
           document.body.appendChild(this.DOM.dropdown);
           setTimeout(function () {
-            return _this13.DOM.dropdown.classList.remove('tagify__dropdown--initial');
+            return _this14.DOM.dropdown.classList.remove('tagify__dropdown--initial');
           });
         } // timeout is needed for when pressing arrow down to show the dropdown,
         // so the key event won't get registered in the dropdown events listeners
@@ -2207,7 +2224,7 @@ Tagify.prototype = {
                 var _value = this.input.value.trim();
 
                 if (_value == "" || _value.charCodeAt(0) == 8203) {
-                  if (this.settings.backspace === true) this.removeTag();else if (this.settings.backspace == 'edit') setTimeout(this.editTag.bind(this), 0);
+                  if (this.settings.backspace === true) this.removeTags();else if (this.settings.backspace == 'edit') setTimeout(this.editTag.bind(this), 0);
                 }
               }
           }
@@ -2295,13 +2312,13 @@ Tagify.prototype = {
      * @param {Object} elm  DOM node to select
      */
     selectOption: function selectOption(elm) {
-      var _this14 = this;
+      var _this15 = this;
 
       if (!elm) return; // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
 
       this.state.actions.selectOption = true;
       setTimeout(function () {
-        return _this14.state.actions.selectOption = false;
+        return _this15.state.actions.selectOption = false;
       }, 50);
       var hideDropdown = this.settings.dropdown.closeOnSelect,
           value = this.suggestedListItems[this.getNodeIndex(elm)] || this.input.value;
@@ -2309,9 +2326,9 @@ Tagify.prototype = {
       this.addTags([value], true); // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
 
       if (!this.state.editing) setTimeout(function () {
-        _this14.DOM.input.focus();
+        _this15.DOM.input.focus();
 
-        _this14.toggleFocusClass(true);
+        _this15.toggleFocusClass(true);
       });
 
       if (hideDropdown) {
@@ -2325,7 +2342,7 @@ Tagify.prototype = {
      * @return {Array} list of filtered whitelist items according to the settings provided and current value
      */
     filterListItems: function filterListItems(value) {
-      var _this15 = this;
+      var _this16 = this;
 
       var _s = this.settings,
           list = [],
@@ -2341,7 +2358,7 @@ Tagify.prototype = {
 
       if (!value) {
         return (_s.duplicates ? whitelist : whitelist.filter(function (item) {
-          return !_this15.isTagDuplicate(isObject(item) ? item.value : item);
+          return !_this16.isTagDuplicate(isObject(item) ? item.value : item);
         }) // don't include tags which have already been added.
         ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }
@@ -2371,21 +2388,23 @@ Tagify.prototype = {
      * @return {String}
      */
     createListHTML: function createListHTML(optionsArr) {
-      var _this16 = this;
+      var _this17 = this;
 
       return optionsArr.map(function (item) {
         if (typeof item == 'string') item = {
           value: item
         };
-        var mapValueTo = _this16.settings.dropdown.mapValueTo,
+        var mapValueTo = _this17.settings.dropdown.mapValueTo,
             value = mapValueTo ? typeof mapValueTo == 'function' ? mapValueTo(item) : item[mapValueTo] : item.value,
             data = extend({}, item, {
           value: escapeHTML(value || "")
         });
-        return _this16.settings.templates.dropdownItem.call(_this16, data);
+        return _this17.settings.templates.dropdownItem.call(_this17, data);
       }).join("");
     }
   }
-};
+}; // legacy support for changed methods names
+
+Tagify.prototype.removeTag = Tagify.prototype.removeTags;
 return Tagify;
 }));

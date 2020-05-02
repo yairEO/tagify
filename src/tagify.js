@@ -649,7 +649,7 @@ Tagify.prototype = {
 
 
                             // if( isFirefox && selection && selection.anchorOffset == 0 )
-                            //     this.removeTag(selection.anchorNode.previousSibling)
+                            //     this.removeTags(selection.anchorNode.previousSibling)
 
                             // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                             // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
@@ -662,7 +662,7 @@ Tagify.prototype = {
 
                                 // fixes #384, where the first and only tag will not get removed with backspace
                                 if( ( shoudlDeleteOnlyTag || !selection.anchorOffset && currentValue.length >= lastInputValue.length) ){
-                                    this.removeTag(selection.anchorNode.previousElementSibling)
+                                    this.removeTags(selection.anchorNode.previousElementSibling)
                                     this.fixFirefoxLastTagNoCaret()
 
                                     // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
@@ -700,7 +700,7 @@ Tagify.prototype = {
                         if( !this.state.dropdown.visible ){
                             if( s == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
                                 if( this.settings.backspace === true )
-                                    this.removeTag();
+                                    this.removeTags();
                                 else if( this.settings.backspace == 'edit' )
                                     setTimeout(this.editTag.bind(this), 0) // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
                             }
@@ -893,7 +893,7 @@ Tagify.prototype = {
                 }
 
                 else if( e.target.classList.contains("tagify__tag__removeBtn") ){
-                    this.removeTag( e.target.parentNode );
+                    this.removeTags( e.target.parentNode );
                     return
                 }
 
@@ -982,7 +982,7 @@ Tagify.prototype = {
               //  this.DOM.input.focus()
 
                 if( !currentValue ){
-                    this.removeTag(tagElm)
+                    this.removeTags(tagElm)
                     this.onEditTagDone(null, tagData)
                     return
                 }
@@ -1376,8 +1376,8 @@ Tagify.prototype = {
     },
 
     getTagElmByValue( value ){
-        var tagIdx = this.getTagIndexByValue(value)[0];
-        return this.getTagElms()[tagIdx];
+        var tagIdx = this.getTagIndexByValue(value)[0]
+        return this.getTagElms()[tagIdx]
     },
 
     /**
@@ -1740,15 +1740,15 @@ Tagify.prototype = {
 
             if( tagData.__isValid && tagData.__isValid === true ){
                 // update state
-                this.value.push(tagData);
-                this.update();
+                this.value.push(tagData)
+                this.update()
                 this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
             }
             else{
                 this.trigger("invalid", {data:tagData, index:this.value.length, tag:tagElm, message:tagData.__isValid})
                 if( !_s.keepInvalidTags )
                     // remove invalid tags (if "keepInvalidTags" is set to "false")
-                    setTimeout(() => this.removeTag(tagElm, true), 1000)
+                    setTimeout(() => this.removeTags(tagElm, true), 1000)
             }
 
             this.dropdown.position.call(this) // reposition the dropdown because the just-added tag might cause a new-line
@@ -1816,76 +1816,96 @@ Tagify.prototype = {
     /**
      * Removes a tag
      * @param  {Object|String}  tagElm          [DOM element or a String value. if undefined or null, remove last added tag]
-     * @param  {Boolean}        silent          [A flag, which when turned on, does not removes any value and does not update the original input value but simply removes the tag from tagify]
+     * @param  {Boolean}        silent          [A flag, which when turned on, does not remove any value and does not update the original input value but simply removes the tag from tagify]
      * @param  {Number}         tranDuration    [Transition duration in MS]
      * TODO: Allow multiple tags to be removed at-once
      */
-    removeTag( tagElm, silent, tranDuration ){
-        tagElm = tagElm || this.getLastTag()
+    removeTags( tagElms, silent, tranDuration ){
+        tagElms = tagElms && tagElms instanceof HTMLElement
+            ? [tagElms]
+            : tagElms instanceof Array
+                ? tagElms
+                : tagElms
+                    ? [tagElms]
+                    : [this.getLastTag()]
+
+        // normalize tagElms array values:
+        // 1. removing invalid items
+        // 2, if an item is String try to get the matching Tag HTML node
+        tagElms = tagElms.reduce((elms, tagElm) => {
+            if( tagElm ){
+                if( typeof tagElm == 'string' )
+                    tagElm = this.getTagElmByValue(tagElm)
+
+
+                tagElm && elms.push(tagElm)
+            }
+
+            return elms
+        }, [])
+
         tranDuration = typeof tranDuration == "number" ? tranDuration : this.CSSVars.tagHideTransition
-
-        if( typeof tagElm == 'string' )
-            tagElm = this.getTagElmByValue(tagElm)
-
-        if( !(tagElm instanceof HTMLElement) )
-            return;
-
-        let that = this,
-            tagData = tagElm.__tagifyTagData,
-            // tag index MUST be derived from "this.value" index, because when called repeatedly, the tag nodes still exists
-            // for example if called twice, the first idx would be "0" and the other "1", but when the tags are actually removed, they
-            // are removed in a synchronized way, so after the first tag was removed (only 1 left now), the other one cannot be removed becuase
-            // its index now does not exists
-            tagIdx = this.getTagIdx(tagData) // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
 
         if( this.settings.mode == 'select' ){
             tranDuration = 0;
             this.input.set.call(this)
         }
 
-        if( tagElm.classList.contains('tagify--notAllowed') )
-            silent = true
+        // if only a single tag is to be removed
+        if( tagElms.length == 1 ){
+            if( tagElms[0].classList.contains('tagify--notAllowed') )
+                silent = true
+        }
 
-        function removeNode(){
+        function removeNode(tagElm){
             if( !tagElm.parentNode ) return
+            // tag index MUST be derived from "this.value" index, because when called repeatedly, the tag nodes still exists
+            // for example if called twice, the first idx would be "0" and the other "1", but when the tags are actually removed, they
+            // are removed in a synchronized way, so after the first tag was removed (only 1 left now), the other one cannot be removed becuase
+            // its index now does not exists
+            var tagData = tagElm.__tagifyTagData,
+                tagIdx = this.getTagIdx(tagData) // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
 
             tagElm.parentNode.removeChild(tagElm)
 
             if( !silent ){
-                // that.removeValueById(tagData.__uid)
-                that.update() // update the original input with the current value
-                that.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData })
-                that.dropdown.refilter.call(that)
-                that.dropdown.position.call(that)
-                that.DOM.input.normalize() // best-practice when in mix-mode (safe to do always anyways)
+                // this.removeValueById(tagData.__uid)
+                this.trigger('remove', { tag:tagElm, index:tagIdx, data:tagData })
+                this.dropdown.refilter.call(this)
+                this.dropdown.position.call(this)
+                this.DOM.input.normalize() // best-practice when in mix-mode (safe to do always anyways)
 
                 // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
-                if( that.settings.keepInvalidTags )
-                    that.reCheckInvalidTags()
+                if( this.settings.keepInvalidTags )
+                    this.reCheckInvalidTags()
             }
-            else if( that.settings.keepInvalidTags )
-                that.trigger('remove', { tag:tagElm, index:tagIdx })
+            else if( this.settings.keepInvalidTags )
+                this.trigger('remove', { tag:tagElm, index:tagIdx })
         }
 
         function animation(){
-            tagElm.style.width = parseFloat(window.getComputedStyle(tagElm).width) + 'px';
-            document.body.clientTop; // force repaint for the width to take affect before the "hide" class below
-            tagElm.classList.add('tagify--hide');
+            var tagElm = tagElms[0]
+            tagElm.style.width = parseFloat(window.getComputedStyle(tagElm).width) + 'px'
+            document.body.clientTop // force repaint for the width to take affect before the "hide" class below
+            tagElm.classList.add('tagify--hide')
 
             // manual timeout (hack, since transitionend cannot be used because of hover)
-            setTimeout(removeNode, tranDuration);
+            setTimeout(removeNode.bind(this), tranDuration, tagElm)
         }
 
-        if( tranDuration && tranDuration > 10 ) animation()
-        else removeNode()
+        if( tranDuration && tranDuration > 10 && tagElms.length == 1 ) animation.call(this)
+        else tagElms.forEach(removeNode.bind(this))
 
         // update state regardless of animation
         if( !silent ){
-            if( tagIdx > -1 )
-                that.value.splice(tagIdx, 1)
+            tagElms.forEach(tagElm => {
+                var tagIdx = this.getTagIdx(tagElm.__tagifyTagData)
+                if( tagIdx > -1 )
+                   this.value.splice(tagIdx, 1)
+            })
 
             // that.removeValueById(tagData.__uid)
-            that.update() // update the original input with the current value
+            this.update() // update the original input with the current value
         }
     },
 
@@ -2271,7 +2291,7 @@ Tagify.prototype = {
 
                             if( value == "" || value.charCodeAt(0) == 8203 ){
                                 if( this.settings.backspace === true )
-                                    this.removeTag()
+                                    this.removeTags()
                                 else if( this.settings.backspace == 'edit' )
                                     setTimeout(this.editTag.bind(this), 0)
                             }
@@ -2472,3 +2492,6 @@ Tagify.prototype = {
         }
     }
 }
+
+// legacy support for changed methods names
+Tagify.prototype.removeTag = Tagify.prototype.removeTags
