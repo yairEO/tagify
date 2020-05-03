@@ -1,3 +1,8 @@
+// console.json = console.json || function(argument){
+//     for(var arg=0; arg < arguments.length; ++arg)
+//         console.log(  JSON.stringify(arguments[arg], null, 4)  )
+// }
+
 const isFirefox = typeof InstallTrigger !== 'undefined'
 // const isEdge = /Edge/.test(navigator.userAgent)
 const sameStr = (s1, s2) => s1.toLowerCase() == s2.toLowerCase()
@@ -967,9 +972,13 @@ Tagify.prototype = {
             },
 
             onEditTagBlur( editableElm ){
+                this.state.editing = false;
+
                 if( !this.state.hasFocus )
                     this.toggleFocusClass()
 
+                // one scenario is when selecting a suggestion from the dropdown, when editing, and by selecting it
+                // the "onEditTagDone" is called directly, already replacing the tag, so the argument "editableElm" node isn't in the DOM
                 if( !this.DOM.scope.contains(editableElm) ) return;
 
                 var tagElm       = editableElm.closest('.tagify__tag'),
@@ -1065,7 +1074,6 @@ Tagify.prototype = {
             that = this,
             isValid = true,
             delayed_onEditTagBlur = function(){
-                that.state.editing = false;
                 setTimeout(_CB.onEditTagBlur.bind(that), 0, editableElm)
             }
 
@@ -1136,12 +1144,13 @@ Tagify.prototype = {
         this.trigger("edit:updated", eventData)
         this.dropdown.hide.call(this)
 
+        // need to re-validate all invalid tags, which might not be invalid anymore
+        // (if one of them was a duplicate of a tag which was edited and not they aren't a duplicate of the edited one)
         if( tagData.__isValid === true )
             this.getTagElms('tagify--notAllowed').forEach(notAllowedTag => {
                 var isValid = this.validateTag(notAllowedTag.__tagifyTagData)
                 if( isValid  === true){
                     notAllowedTag.__tagifyTagData.__isValid = isValid
-                    delete this.state.editing.locked // unfortunatly this must be cleaned so "replaceTag" could re-run
                     this.replaceTag(notAllowedTag)
                 }
             })
@@ -1161,12 +1170,6 @@ Tagify.prototype = {
             extend( tagData, this.getInvaildTagParams(tagData, tagData.__isValid) )
 
         var newTag = this.createTagElem(tagData);
-
-        // when editing a tag and selecting a dropdown suggested item, the state should be "locked"
-        // so "onEditTagBlur" won't run and change the tag also *after* it was just changed.
-        if( this.state.editing.locked ) return;
-        this.state.editing = { locked:true }
-        setTimeout(() => delete this.state.editing.locked, 500)
 
         // update DOM
         tagElm.parentNode.replaceChild(newTag, tagElm)
@@ -1594,7 +1597,7 @@ Tagify.prototype = {
     },
 
     /**
-     * For selecting a single option (not used for multiple tags)
+     * For selecting a single option (not used for multiple tags, but for "mode:select" only)
      * @param {Object} tagElm   Tag DOM node
      * @param {Object} tagData  Tag data
      */
@@ -1655,12 +1658,7 @@ Tagify.prototype = {
         // converts Array/String/Object to an Array of Objects
         tagsItems = this.normalizeTags(tagsItems)
 
-        // if in edit-mode, do not continue but instead replace the tag's text.
-        // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
-        if( this.state.editing.scope ){
-            tagsItems[0].__isValid = true; // must be "true" at this point because it must have been coming from the dropdown sugegstions list
-            return this.onEditTagDone(this.state.editing.scope, tagsItems[0])
-        }
+
 
         if( _s.mode == 'mix' ){
             _s.transformTag.call(this, tagsItems[0])
@@ -2399,22 +2397,32 @@ Tagify.prototype = {
          */
         selectOption( elm ){
             if( !elm ) return;
+
+            // if in edit-mode, do not continue but instead replace the tag's text.
+            // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
+
             // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
             this.state.actions.selectOption = true;
             setTimeout(()=> this.state.actions.selectOption = false, 50)
 
             var hideDropdown = this.settings.dropdown.closeOnSelect,
-                value = this.suggestedListItems[this.getNodeIndex(elm)] || this.input.value;
+                value = this.suggestedListItems[this.getNodeIndex(elm)].value || this.input.value;
 
             this.trigger("dropdown:select", value)
-            this.addTags([value], true)
+
+            if( this.state.editing )
+                this.onEditTagDone(this.state.editing.scope, {...this.state.editing.scope.__tagifyTagData, value, __isValid:true})
 
             // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
-            if( !this.state.editing )
-                setTimeout(() => {
-                    this.DOM.input.focus()
-                    this.toggleFocusClass(true)
-                })
+            else{
+                this.addTags([value], true)
+            }
+
+            // todo: consider not doing this on mix-mode
+            setTimeout(() => {
+                this.DOM.input.focus()
+                this.toggleFocusClass(true)
+            })
 
             if( hideDropdown ){
                 this.dropdown.hide.call(this)
