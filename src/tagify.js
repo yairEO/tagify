@@ -1157,7 +1157,7 @@ Tagify.prototype = {
     },
 
     /**
-     * Replaces an exisitng tag with a new one and update the relevant state
+     * Replaces an exisitng tag with a new one. Used for updating a tag's data
      * @param {Object} tagElm  [DOM node to replace]
      * @param {Object} tagData [data to create new tag from]
      */
@@ -1169,7 +1169,7 @@ Tagify.prototype = {
         if( tagData.__isValid && tagData.__isValid != true )
             extend( tagData, this.getInvaildTagParams(tagData, tagData.__isValid) )
 
-        var newTag = this.createTagElem(tagData);
+        var newTag = this.createTagElem(tagData)
 
         // update DOM
         tagElm.parentNode.replaceChild(newTag, tagElm)
@@ -1177,10 +1177,10 @@ Tagify.prototype = {
     },
 
     /**
-     * update value by traversing all valid tags
+     * update "value" (Array of Objects) by traversing all valid tags
      */
     updateValueByDOMTags(){
-        this.value = [];
+        this.value.length = 0
 
         [].forEach.call(this.getTagElms(), node => {
             if( node.classList.contains('tagify--notAllowed') ) return
