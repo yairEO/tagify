@@ -178,6 +178,7 @@ gulp.task('build_jquery_version', () => {
 
 
 gulp.task('minify', () => {
+  return true
     // gulp.src('dist/tagify.js')
     //     .pipe($.uglify())
     //     .on('error', handleError)
@@ -218,7 +219,33 @@ gulp.task('lint_js', () => {
         // lint error, return the stream and pipe to failAfterError last.
         .pipe($.eslint.failAfterError())
         .on('error', $.beepbeep)
-});
+})
+
+
+gulp.task('polyfills', () => {
+  var stream = rollup({
+    entry: 'src/tagify.polyfills.js',
+    outputName: 'tagify.polyfills.min.js'
+  })
+
+  return stream
+})
+
+
+function rollup({entry, outputName, dest}){
+  return $.rollupStream({
+      input:entry,
+      format: 'iife',
+      plugins: []
+    })
+    // give the file the name you want to output with
+    .pipe( $.vinylSourceStream(outputName))
+    .pipe( $.streamify( $.uglify() ) )
+    .on('error', handleError)
+
+    // and output to ./dist/app.js as normal.
+    .pipe(gulp.dest('./dist'));
+}
 
 
 /**
@@ -260,7 +287,7 @@ gulp.task('watch', () => {
 
 
 gulp.task('default', ( done ) => {
-    $.runSequence(['build_js', 'scss'], 'build_jquery_version', 'react_wrapper', 'minify', 'watch', done);
+    $.runSequence(['build_js', 'scss'], 'build_jquery_version', 'react_wrapper', 'polyfills', 'minify', 'watch', done);
 });
 
 

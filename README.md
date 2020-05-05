@@ -577,6 +577,8 @@ Name                            | Info
 
 ## Methods
 
+`Tagify` is [prototype](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Object_prototypes) based and There are many methods, but I've chosen to list the most relevant ones:
+
 Name                | Parameters                                  | Info
 ------------------- | ------------------------------------------- | --------------------------------------------------------------------------
 destroy             |                                             | Reverts the input element back as it was before Tagify was applied
@@ -631,6 +633,42 @@ dropdown:hide      | Suggestions dropdown has been removed from the DOM
 dropdown:select    | Suggestions dropdown item selected (by mouse/keyboard/touch)
 dropdown:scroll    | Tells the percentage scrolled. (`event.detail.percentage`)
 
+
+## Hooks
+
+**Promise**-based hooks for *async* program flow scenarios.
+
+Allows to "hook" (intervene) at certain points of the program, which were selected as a suitable place to pause and wait for
+further instructions on how to procceed.
+
+<details>
+  <summary>For example, if a developer wishes to add a (native) confirmation popup before a tag is removed (by a user action):
+</summary>
+
+```javascript
+var input = document.querySelector('input')
+var tagify = new Tagify(input,{
+    hooks: {
+        /**
+         * Removes a tag
+         * @param  {Array}  tags [Array of Objects [{node:..., data:...}, {...}, ...]]
+         */
+        beforeRemoveTag : function( tags ){
+            return new Promise((resolve, reject) => {
+                confirm("Remove " + tags[0].data.value + "?")
+                    ? resolve()
+                    : reject()
+            })
+        }
+    }
+})
+```
+</details>
+
+
+Name                   | Parameters                                  | Info
+---------------------- | ------------------------------------------- | --------------------------------------------------------------------------
+beforeRemoveTag        | Array <sub>(of Objects)</sub>               | [Example](https://jsbin.com/xoseyux/edit?html,js,output)
 
 ## Settings
 
