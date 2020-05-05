@@ -938,7 +938,9 @@ Tagify.prototype = {
         if (_s.mode == 'select') !this.state.dropdown.visible && this.dropdown.show.call(this);
       },
       onPaste: function onPaste(e) {
-        var clipboardData, pastedData;
+        var clipboardData, pastedData; // TODO: find a way to inject the parse, pasted text into the correct place in "mix" mode
+
+        if (this.settings.mode == 'mix') return;
         e.preventDefault(); // Get pasted data via clipboard API
 
         clipboardData = e.clipboardData || window.clipboardData;

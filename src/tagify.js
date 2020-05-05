@@ -933,6 +933,10 @@ Tagify.prototype = {
             onPaste(e){
                 var clipboardData, pastedData;
 
+                // TODO: find a way to inject the parse, pasted text into the correct place in "mix" mode
+                if( this.settings.mode == 'mix' )
+                    return
+
                 e.preventDefault()
 
                 // Get pasted data via clipboard API
