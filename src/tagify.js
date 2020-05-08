@@ -512,6 +512,7 @@ Tagify.prototype = {
             // set the binding state of the main events, so they will not be bound more than once
             this.state.mainEvents = bindUnbind;
 
+            // everything inside gets executed only once-per instance
             if( bindUnbind && !this.listeners.main ){
                 // this event should never be unbinded:
                 // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
@@ -623,7 +624,7 @@ Tagify.prototype = {
             onKeydown(e){
                 var s = e.target.textContent.trim();
 
-                this.trigger("keydown", {originalEvent:this.cloneEvent(e)});
+                this.trigger("keydown", {originalEvent:this.cloneEvent(e)})
 
                 /**
                  * ONLY FOR MIX-MODE:
@@ -653,6 +654,7 @@ Tagify.prototype = {
                                 selection.anchorNode.previousElementSibling )  // text node has a Tag node before it
                                 e.preventDefault()
 
+                            // TODO: a better way to detect if nodes were deleted is simply check the "this.value" before & after
                             if( (backspaceKeyTagDetected || deleteKeyTagDetected) && !this.settings.backspace ){
                                 e.preventDefault()
                                 return
@@ -2423,7 +2425,9 @@ Tagify.prototype = {
             setTimeout(()=> this.state.actions.selectOption = false, 50)
 
             var hideDropdown = this.settings.dropdown.closeOnSelect,
-                value = this.suggestedListItems[this.getNodeIndex(elm)].value || this.input.value;
+                selectedOption = this.suggestedListItems[this.getNodeIndex(elm)],
+                value = selectedOption.value || selectedOption || this.input.value;
+
 
             this.trigger("dropdown:select", value)
 

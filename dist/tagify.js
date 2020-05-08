@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.7.4)- tags input component
+ * Tagify (v 3.8.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -541,7 +541,7 @@ Tagify.prototype = {
 
       if (this.state.mainEvents && bindUnbind) return; // set the binding state of the main events, so they will not be bound more than once
 
-      this.state.mainEvents = bindUnbind;
+      this.state.mainEvents = bindUnbind; // everything inside gets executed only once-per instance
 
       if (bindUnbind && !this.listeners.main) {
         // this event should never be unbinded:
@@ -670,7 +670,7 @@ Tagify.prototype = {
                 if (selection.anchorNode.nodeType == 3 && // node at caret location is a Text node
                 !selection.anchorNode.nodeValue && // has some text
                 selection.anchorNode.previousElementSibling) // text node has a Tag node before it
-                  e.preventDefault();
+                  e.preventDefault(); // TODO: a better way to detect if nodes were deleted is simply check the "this.value" before & after
 
                 if ((backspaceKeyTagDetected || deleteKeyTagDetected) && !this.settings.backspace) {
                   e.preventDefault();
@@ -2326,7 +2326,8 @@ Tagify.prototype = {
         return _this14.state.actions.selectOption = false;
       }, 50);
       var hideDropdown = this.settings.dropdown.closeOnSelect,
-          value = this.suggestedListItems[this.getNodeIndex(elm)].value || this.input.value;
+          selectedOption = this.suggestedListItems[this.getNodeIndex(elm)],
+          value = selectedOption.value || selectedOption || this.input.value;
       this.trigger("dropdown:select", value);
       if (this.state.editing) this.onEditTagDone(this.state.editing.scope, _objectSpread(_objectSpread({}, this.state.editing.scope.__tagifyTagData), {}, {
         value: value,
