@@ -38,17 +38,22 @@
 * [What can Tagify do](#features)
 * [Building the project](#building-the-project)
 * [Adding tags dynamically](#adding-tags-dynamically)
+* [Output value](#output-value)
 * [Ajax whitelist](#ajax-whitelist)
 * [Edit tags](#edit-tags)
 * [DOM Templates](#dom-templates)
 * [Suggestions selectbox](#suggestions-selectbox)
+* [Tags mixed with free-text](#mixed-content)
+* [Single-Value Only](#single-value)
 * [React wrapper](#react)
 * [Angular wrapper](#angular)
 * [Vue Example](https://codesandbox.io/s/tagify-tags-component-vue-example-l8ok4)
 * [jQuery version](#jquery-version)
 * [FAQ](#FAQ)
+* [CSS Variables](#css-variables)
 * [Methods](#methods)
 * [Events](#events)
+* [Hooks](#hooks)
 * [Settings](#settings)
 <!--te-->
 
@@ -135,6 +140,29 @@ function onChange(e){
 }
 
 ```
+
+### [Modify original input value format](https://jsbin.com/paxijaj/edit?html,js,output)
+
+Default format is a JSON string:<br>
+`'[{"value":"cat"}, {"value":"dog"}]'`
+
+I **recommend** keeping this because some situations might have values such as addresses (tags contain commas):<br>
+`'[{"value":"Apt. 2A, Jacksonville, FL 39404"}, {"value":"Forrest Ray, 191-103 Integer Rd., Corona New Mexico"}]'`
+
+Another example for complex tags state might be disabled tags, or ones with custom identifier *class*:<br>
+*(tags can be clicked, so delevopers can choose to use this to disable/enable tags)*<br>
+`'[{"value":"cat", "disabled":true}, {"value":"dog"}, {"value":"bird", "class":"color-green"}]'`
+
+To chnage the format, assuming your tags have no commas and are fairly simple:
+
+```js
+var tagify = new Tagify(inputElm, {
+  originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
+})
+```
+
+**Output:**<br>
+`"cat,dog"`
 
 
 ## Ajax whitelist
@@ -494,30 +522,6 @@ attach "onChange" event listeners to your `<input>`/`<textarea>` elements, so th
 
 ----
 
-### [Modify original input value format](https://jsbin.com/paxijaj/edit?html,js,output)
-
-Default format is a JSON string:<br>
-`'[{"value":"cat"}, {"value":"dog"}]'`
-
-I **recommend** keeping this because some situations might have values such as addresses (tags contain commas):<br>
-`'[{"value":"Apt. 2A, Jacksonville, FL 39404"}, {"value":"Forrest Ray, 191-103 Integer Rd., Corona New Mexico"}]'`
-
-Another example for complex tags state might be disabled tags, or ones with custom identifier *class*:<br>
-*(tags can be clicked, so delevopers can choose to use this to disable/enable tags)*<br>
-`'[{"value":"cat", "disabled":true}, {"value":"dog"}, {"value":"bird", "class":"color-green"}]'`
-
-To chnage the format, assuming your tags have no commas and are fairly simple:
-
-```js
-var tagify = new Tagify(inputElm, {
-  originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',')
-})
-```
-
-**Output:**<br>
-`"cat,dog"`
-
----
 
 ### Render tags in one single line
 
@@ -544,13 +548,15 @@ flex-wrap: nowrap;
 * [Ajax Whitelist with "enforceWhitelist" setting enabled](https://github.com/yairEO/tagify/issues/465)
 * [Custom (mutiple) tag valitation & AJAX](https://github.com/yairEO/tagify/issues/474)
 
-## CSS Variables (see [MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties))
+## CSS Variables
 
-These CSS variables allow easy customization without the need to manually write CSS.
-If you do wish to heavily style your Tagify components, then you can use these variables within
-your modified styles.
+> Learn more about [CSS Variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties)) (custom properties)
 
-For example how this can be used, see the [demos page](https://yaireo.github.io/tagify/#section-different-look).
+Tagify's utilizes *CSS variables* which allow easy customization without the need to manually write CSS.
+If you do wish to heavily style your Tagify components, then you can (and should) use the below variables within
+your modified styles as much as you can.
+
+For a *live* example, see the [demos page](https://yaireo.github.io/tagify/#section-different-look).
 
 Name                            | Info
 ------------------------------- | --------------------------------
