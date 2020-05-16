@@ -1,6 +1,6 @@
 {
     "name": "@yaireo/tagify",
-    "version": "3.8.0",
+    "version": "3.9.0",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "lightweight, efficient Tags input component in Vanilla JS / React / Angular [super customizable, tiny size & top performance]",
     "license": "MIT",
