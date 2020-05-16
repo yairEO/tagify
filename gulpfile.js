@@ -39,7 +39,7 @@ var eslint_settings = {
         sourceType: "module"
     },
     "parserOptions": {
-        "ecmaVersion" : 6,
+        "ecmaVersion" : 9,
         "sourceType": "module",
         "ecmaFeatures": {
             "jsx": false,
@@ -178,7 +178,6 @@ gulp.task('build_jquery_version', () => {
 
 
 gulp.task('minify', () => {
-  return true
     // gulp.src('dist/tagify.js')
     //     .pipe($.uglify())
     //     .on('error', handleError)
@@ -191,11 +190,11 @@ gulp.task('minify', () => {
     //     .pipe($.rename('jQuery.tagify.min.js'))
     //     .pipe(gulp.dest('./dist/'))
 
-    gulp.src('src/tagify.polyfills.js')
-        .pipe($.uglify())
-        .on('error', handleError)
-        .pipe($.rename('tagify.polyfills.min.js'))
-        .pipe(gulp.dest('./dist/'))
+    // gulp.src('src/tagify.polyfills.js')
+    //     .pipe($.uglify())
+    //     .on('error', handleError)
+    //     .pipe($.rename('tagify.polyfills.min.js'))
+    //     .pipe(gulp.dest('./dist/'))
 });
 
 function handleError(err) {
@@ -282,12 +281,12 @@ function inc(importance) {
 gulp.task('watch', () => {
     //gulp.watch('./images/sprite/**/*.png', ['sprite']);
     gulp.watch('./src/*.scss', ['scss']);
-    gulp.watch('./src/tagify.js').on('change', ()=>{ $.runSequence('build_js', 'build_jquery_version', 'minify') });
+    gulp.watch('./src/tagify.js').on('change', ()=>{ $.runSequence('build_js', 'lint_js', 'build_jquery_version') });
 });
 
 
 gulp.task('default', ( done ) => {
-    $.runSequence(['build_js', 'scss'], 'build_jquery_version', 'react_wrapper', 'polyfills', 'minify', 'watch', done);
+    $.runSequence(['build_js', 'scss'], 'build_jquery_version', 'react_wrapper', 'polyfills', 'watch', done);
 });
 
 
