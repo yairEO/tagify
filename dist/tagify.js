@@ -2004,7 +2004,7 @@ Tagify.prototype = {
       // 2. dropdown is disabled
       // 3. loader is showing (controlled outside of this code)
 
-      if (noWhitelist && !allowNewTags || _s.dropdown.enable === false || this.state.isLoading || this.state.dropdown.visible) return;
+      if (noWhitelist && !allowNewTags || _s.dropdown.enable === false || this.state.isLoading) return;
       clearTimeout(this.dropdownHide__bindEventsTimeout); // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
