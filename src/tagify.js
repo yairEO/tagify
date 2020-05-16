@@ -946,17 +946,16 @@ Tagify.prototype = {
             onPaste(e){
                 var clipboardData, pastedData;
 
-                // TODO: find a way to inject the parse, pasted text into the correct place in "mix" mode
-                if( this.settings.mode == 'mix' )
-                    return
-
                 e.preventDefault()
 
                 // Get pasted data via clipboard API
                 clipboardData = e.clipboardData || window.clipboardData
                 pastedData = clipboardData.getData('Text')
 
-                this.input.set.call(this, pastedData)
+                if( this.settings.mode == 'mix' )
+                    this.insertTextAtCursor(pastedData)
+                else
+                    this.input.set.call(this, pastedData)
             },
 
             onEditTagInput( editableElm, e ){
@@ -1226,6 +1225,20 @@ Tagify.prototype = {
                 sel.getRangeAt(0)["set" + pos](node, start ? 0 : node.length)
             )
         }
+    },
+
+    insertTextAtCaret( text ){
+        var sel = window.getSelection(),
+            node = document.createTextNode(text),
+            range;
+
+        if (sel.getRangeAt && sel.rangeCount){
+            range = sel.getRangeAt(0)
+            range.deleteContents()
+            range.insertNode(node)
+        }
+
+        this.setRangeAtStartEnd(false, node)
     },
 
     /**
