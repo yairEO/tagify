@@ -88,7 +88,7 @@ var tagify = new Tagify(...)
 * Can paste in multiple values: `tag 1, tag 2, tag 3` or even newline-separated tags
 * Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
 * Validate tags by Regex pattern
-* Tags are [editable](#edit-tags)
+* Tags may be [editable](#edit-tags) (duoble-click)
 * <del>ARIA accessibility support</del>(Component too generic for any meaningful ARIA)
 * Supports read-only mode to the whole componenet or per-tag
 * Each tag can have any properties desired (class, data-whatever, readonly...)
@@ -96,7 +96,7 @@ var tagify = new Tagify(...)
 * Has built-in CSS loader, if needed (Ex. <em>AJAX</em> whitelist pulling)
 * Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
 * Easily change direction to RTL (via the SCSS file)
-* Internet Explorer - A polyfill script can be used: `tagify.polyfills.min.js` in `/dist`
+* Internet Explorer - A polyfill script should be used: `tagify.polyfills.min.js` (in `/dist`)
 * Many useful custom [events](#events)
 * Original input/textarea element values kept in sync with Tagify
 
