@@ -150,7 +150,7 @@
 
   window.tagified = {
     "mix"               : 1,
-    "basic"             : 0,
+    "basic"             : 1,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
@@ -204,6 +204,14 @@
         ]
     })
 
+    emptyJSONTagify.on('input', function(e){
+      console.log(11111, "input")
+    })
+
+    emptyJSONTagify.on('keydown', function(e){
+      console.log(2222, "keydown")
+    })
+
 
 
     var tagify3 = new Tagify(sectionElm.querySelector('input[name=value_JSON]'), {
@@ -217,6 +225,7 @@
       c
       d`
     )
+
 
     var input = sectionElm.querySelector('input[name=tags]');
     var whitelist = ['aaabc', 'aaacb', 'aaabb', 'bbbbc', 'cccbd', 'dddbe', 'eeec', 'fffcc'];
@@ -508,6 +517,10 @@
     }
 
     console.log('mix-mode "input" event value: ', e.detail)
+  })
+
+  tagify.on('keydown', function(e){
+    console.log(123)
   })
 
   // window.addEventListener("dblclick", insertTag)

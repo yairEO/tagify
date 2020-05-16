@@ -1188,7 +1188,7 @@ Tagify.prototype = {
     [].forEach.call(this.getTagElms(), function (node) {
       if (node.classList.contains('tagify--notAllowed')) return;
 
-      _this7.value.push(_this7.getData(node));
+      _this7.value.push(_this7.tagData(node));
     });
     this.update();
   },
@@ -2005,6 +2005,12 @@ Tagify.prototype = {
       // 3. loader is showing (controlled outside of this code)
 
       if (noWhitelist && !allowNewTags || _s.dropdown.enable === false || this.state.isLoading) return;
+
+      if (this.state.dropdown.visible) {
+        this.dropdown.refilter.call(this, value);
+        return;
+      }
+
       clearTimeout(this.dropdownHide__bindEventsTimeout); // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
@@ -2045,6 +2051,7 @@ Tagify.prototype = {
       // MUST be set *before* position() is called
 
       this.state.dropdown.visible = value || true;
+      this.state.dropdown.query = value;
       this.state.selection = {
         anchorOffset: selection.anchorOffset,
         anchorNode: selection.anchorNode
@@ -2097,7 +2104,7 @@ Tagify.prototype = {
       setTimeout(function () {
         _this14.state.dropdown.visible = false;
       }, 100);
-      this.state.ddItemData = this.state.ddItemElm = this.state.selection = null; // if the user closed the dropdown (in mix-mode) while a potential tag was detected, flag the current tag
+      this.state.dropdown.query = this.state.ddItemData = this.state.ddItemElm = this.state.selection = null; // if the user closed the dropdown (in mix-mode) while a potential tag was detected, flag the current tag
       // so the dropdown won't be shown on following user input for that "tag"
 
       if (this.state.tag && this.state.tag.value.length) {
@@ -2110,8 +2117,9 @@ Tagify.prototype = {
     /**
      * fill data into the suggestions list (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
      */
-    refilter: function refilter() {
-      this.suggestedListItems = this.dropdown.filterListItems.call(this, '');
+    refilter: function refilter(value) {
+      value = value || this.state.dropdown.query || '';
+      this.suggestedListItems = this.dropdown.filterListItems.call(this, value);
       var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
       this.DOM.dropdown.content.innerHTML = minify(listHTML);
       this.trigger("dropdown:updated", this.DOM.dropdown);
