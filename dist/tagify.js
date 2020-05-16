@@ -959,6 +959,7 @@ Tagify.prototype = {
       onEditTagInput: function onEditTagInput(editableElm, e) {
         var tagElm = editableElm.closest('.tagify__tag'),
             tagElmIdx = this.getNodeIndex(tagElm),
+            tagData = this.tagData(tagElm),
             value = this.input.normalize.call(this, editableElm),
             hasChanged = value != editableElm.originalValue,
             isValid = this.validateTag({
@@ -968,7 +969,9 @@ Tagify.prototype = {
 
         if (!hasChanged && editableElm.originalIsValid === true) isValid = true;
         tagElm.classList.toggle('tagify--invalid', isValid !== true);
-        tagElm.__tagifyTagData.__isValid = isValid; // show dropdown if typed text is equal or more than the "enabled" dropdown setting
+        tagData.__isValid = isValid;
+        tagElm.title = isValid === true ? tagData.title || tagData.value : isValid; // change the tag's title to indicate why is the tag invalid (if it's so)
+        // show dropdown if typed text is equal or more than the "enabled" dropdown setting
 
         if (value.length >= this.settings.dropdown.enabled) {
           this.state.editing.value = value;
