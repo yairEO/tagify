@@ -364,6 +364,7 @@
     &__input{
         $placeholder-width : 110px;
         @mixin placeholder-show{ opacity:.5; transform:none; };
+        flex: 1;
         display: block;
         min-width: $placeholder-width;
         margin: $tagMargin;
