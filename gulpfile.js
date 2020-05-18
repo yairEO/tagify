@@ -22,57 +22,6 @@ var uglifyOptions = {
     "screw-ie8" : true
 };
 
-var eslint_settings = {
-    rulePaths: [],
-    rules: {
-        "no-mixed-spaces-and-tabs" : [2, "smart-tabs"],
-        "block-spacing"            : [2, "always"],
-        "comma-style"              : [2, "last"],
-        "no-debugger"              : [1],
-        "no-alert"                 : [1],
-        "indent"                   : [1, 4, {"SwitchCase":1}],
-        'strict'                   : 0,
-        'no-undef'                 : 1
-    },
-    ecmaFeatures : {
-        modules: true,
-        sourceType: "module"
-    },
-    "parserOptions": {
-        "ecmaVersion" : 9,
-        "sourceType": "module",
-        "ecmaFeatures": {
-            "jsx": false,
-            "experimentalObjectRestSpread": true
-        }
-    },
-    globals : [
-        'FB',
-        'ga',
-        'jQuery',
-        '$',
-        '_',
-        'd3',
-        'Router',
-        'ttip',
-        'Cookies',
-        'fastdom',
-        'describe',
-        'beforeEach',
-        'it',
-        'expect',
-        'assert',
-        'done',
-        'dataLayer',
-        'validator'
-    ],
-    baseConfig: {
-        //parser: 'babel-eslint',
-    },
-    envs: [
-        'browser', 'es6'
-    ]
-};
 
 var banner = `/**
  * Tagify (v ${pkg.version})- tags input component
@@ -210,7 +159,7 @@ gulp.task('lint_js', () => {
         // eslint() attaches the lint output to the eslint property
         // of the file object so it can be used by other modules.
         .pipe($.cached('linting'))
-        .pipe($.eslint(eslint_settings))
+        .pipe($.eslint())
         // $.eslint.format() outputs the lint results to the console.
         // Alternatively use eslint.formatEach() (see Docs).
         .pipe($.eslint.format())
@@ -281,7 +230,7 @@ function inc(importance) {
 gulp.task('watch', () => {
     //gulp.watch('./images/sprite/**/*.png', ['sprite']);
     gulp.watch('./src/*.scss', ['scss']);
-    gulp.watch('./src/tagify.js').on('change', ()=>{ $.runSequence('build_js', 'lint_js', 'build_jquery_version') });
+    gulp.watch('./src/tagify.js').on('change', ()=>{ $.runSequence('build_js', 'build_jquery_version') });
 });
 
 
