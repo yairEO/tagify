@@ -953,7 +953,7 @@ Tagify.prototype = {
                 pastedData = clipboardData.getData('Text')
 
                 if( this.settings.mode == 'mix' )
-                    this.insertTextAtCursor(pastedData)
+                    this.insertTextAtCaret(pastedData)
                 else
                     this.input.set.call(this, pastedData)
             },
@@ -1629,6 +1629,7 @@ Tagify.prototype = {
         // "#ba #ba"
         // get index of last occurence of "#ba"
         idx = nodeAtCaret.nodeValue.lastIndexOf(tagString)
+
         replacedNode = nodeAtCaret.splitText(idx)
 
         // clean up the tag's string and put tag element instead
@@ -1853,7 +1854,7 @@ Tagify.prototype = {
                     // start fresh
                     tagData = {value:tagData.value}
 
-              //  this.getWhitelistItemsByValue({value:item.value})
+                //  this.getWhitelistItemsByValue({value:item.value})
                 this.replaceTag(node, tagData)
             }
         })
@@ -2092,11 +2093,6 @@ Tagify.prototype = {
             // 2. dropdown is disabled
             // 3. loader is showing (controlled outside of this code)
             if( (noWhitelist && !allowNewTags) || _s.dropdown.enable === false || this.state.isLoading ) return;
-
-            if( this.state.dropdown.visible ){
-                this.dropdown.refilter.call(this, value)
-                return
-            }
 
             clearTimeout(this.dropdownHide__bindEventsTimeout)
 

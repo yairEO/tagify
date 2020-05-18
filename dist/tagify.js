@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.9.1)- tags input component
+ * Tagify (v 3.9.2)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -952,7 +952,7 @@ Tagify.prototype = {
 
         clipboardData = e.clipboardData || window.clipboardData;
         pastedData = clipboardData.getData('Text');
-        if (this.settings.mode == 'mix') this.insertTextAtCursor(pastedData);else this.input.set.call(this, pastedData);
+        if (this.settings.mode == 'mix') this.insertTextAtCaret(pastedData);else this.input.set.call(this, pastedData);
       },
       onEditTagInput: function onEditTagInput(editableElm, e) {
         var tagElm = editableElm.closest('.tagify__tag'),
@@ -1355,7 +1355,7 @@ Tagify.prototype = {
    */
   tagData: function tagData(tagElm, data) {
     if (!tagElm) {
-      throw new Error("tag elment doesn't exist");
+      console.warn("tag elment doesn't exist", tagElm, data);
       return data;
     }
 
@@ -2019,12 +2019,6 @@ Tagify.prototype = {
       // 3. loader is showing (controlled outside of this code)
 
       if (noWhitelist && !allowNewTags || _s.dropdown.enable === false || this.state.isLoading) return;
-
-      if (this.state.dropdown.visible) {
-        this.dropdown.refilter.call(this, value);
-        return;
-      }
-
       clearTimeout(this.dropdownHide__bindEventsTimeout); // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
