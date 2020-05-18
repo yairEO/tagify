@@ -1383,7 +1383,7 @@ Tagify.prototype = {
      */
     tagData(tagElm, data){
         if( !tagElm ){
-            throw new Error("tag elment doesn't exist")
+            console.warn("tag elment doesn't exist",tagElm, data)
             return data
         }
 
