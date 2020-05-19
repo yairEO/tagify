@@ -1567,7 +1567,7 @@ Tagify.prototype = {
     },
 
     getWhitelistItemsByValue({value}){
-        return this.settings.whitelist.filter( item => sameStr(item.value, value))[0]
+        return this.settings.whitelist.filter( item => sameStr(item.value || item, value))[0]
     },
 
     /**
