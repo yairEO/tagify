@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.9.2)- tags input component
+ * Tagify (v 3.9.3)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -1145,6 +1145,10 @@ Tagify.prototype = {
   },
   onEditTagDone: function onEditTagDone(tagElm, tagData) {
     tagData = tagData || {};
+    var newValue = tagData.value;
+    tagData = tagData.__original || tagData.__originalData;
+    tagData.value = newValue;
+    debugger;
     var eventData = {
       tag: tagElm,
       index: this.getNodeIndex(tagElm),

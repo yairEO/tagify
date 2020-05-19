@@ -1158,6 +1158,14 @@ Tagify.prototype = {
 
     onEditTagDone(tagElm, tagData){
         tagData = tagData || {}
+
+        var newValue = tagData.value
+
+        tagData = tagData.__original || tagData.__originalData;
+        tagData.value = newValue
+
+        debugger
+
         var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData };
 
         this.trigger("edit:beforeUpdate", eventData)
