@@ -1641,8 +1641,6 @@ Tagify.prototype = {
         replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
         nodeAtCaret.parentNode.insertBefore(wrapperElm, replacedNode);
 
-        this.DOM.input.normalize()
-
         return replacedNode;
     },
 
