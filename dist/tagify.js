@@ -959,7 +959,7 @@ Tagify.prototype = {
             tagElmIdx = this.getNodeIndex(tagElm),
             tagData = this.tagData(tagElm),
             value = this.input.normalize.call(this, editableElm),
-            hasChanged = value != editableElm.originalValue,
+            hasChanged = value != tagData.__originalData.value,
             isValid = this.validateTag({
           value: value
         }); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
@@ -1000,39 +1000,49 @@ Tagify.prototype = {
         var tagElm = editableElm.closest('.tagify__tag'),
             currentValue = this.input.normalize.call(this, editableElm),
             value = currentValue,
-            //  || editableElm.originalValue,
-        hasChanged = value != editableElm.originalValue,
-            tagData = extend({}, tagElm.__tagifyTagData, {
+            newTagData = extend({}, this.tagData(tagElm), {
           value: value
         }),
-            isValid = this.validateTag(tagData); //  this.DOM.input.focus()
+            hasChanged = value != newTagData.__originalData.value,
+            isValid = this.validateTag(newTagData); //  this.DOM.input.focus()
 
         if (!currentValue) {
           this.removeTags(tagElm);
-          this.onEditTagDone(null, tagData);
+          this.onEditTagDone(null, newTagData);
           return;
         }
 
         if (hasChanged) {
-          this.settings.transformTag.call(this, tagData); // MUST re-validate after tag transformation
+          this.settings.transformTag.call(this, newTagData); // MUST re-validate after tag transformation
 
-          isValid = this.validateTag(tagData);
+          isValid = this.validateTag(newTagData);
         } else {
-          //  tagData.__isValid = this.validateTag(tagData)
-          this.onEditTagDone(tagElm, tagData);
+          // if nothing changed revert back to how it was before editing
+          this.onEditTagDone(tagElm, newTagData.__originalData);
           return;
         }
 
         if (isValid !== true) {
           this.trigger("invalid", {
-            data: tagData,
+            data: newTagData,
             tag: tagElm,
             message: isValid
           });
           return;
-        }
+        } // check if the new value is in the whiteilst, if not check if there
+        // is any pre-invalidation data, and lastly resort to fresh emptty Object
 
-        this.onEditTagDone(tagElm, tagData);
+
+        newTagData = this.getWhitelistItemsByValue({
+          value: value
+        }) || newTagData.__preInvalidData || {};
+        newTagData = Object.assign({}, newTagData, {
+          value: value
+        }); // clone it, not to mess with the whitelist
+        //transform it again
+
+        this.settings.transformTag.call(this, newTagData);
+        this.onEditTagDone(tagElm, newTagData);
       },
       onEditTagkeydown: function onEditTagkeydown(e, tagElm) {
         this.trigger("edit:keydown", {
@@ -1042,9 +1052,7 @@ Tagify.prototype = {
         switch (e.key) {
           case 'Esc':
           case 'Escape':
-            e.target.textContent = e.target.originalValue; // revert back data as it was pre-edit
-
-            tagElm.__tagifyTagData = tagElm.__tagifyTagData.__originalData;
+            e.target.textContent = tagElm.__tagifyTagData.__originalData.value;
 
           case 'Enter':
           case 'Tab':
@@ -1109,7 +1117,6 @@ Tagify.prototype = {
 
     tagElm.__tagifyTagData.__originalData = extend({}, tagData);
     tagElm.classList.add('tagify__tag--editable');
-    editableElm.originalValue = editableElm.textContent;
     editableElm.setAttribute('contenteditable', true);
     editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm));
     editableElm.addEventListener('blur', delayed_onEditTagBlur);
@@ -1145,10 +1152,6 @@ Tagify.prototype = {
   },
   onEditTagDone: function onEditTagDone(tagElm, tagData) {
     tagData = tagData || {};
-    var newValue = tagData.value;
-    tagData = tagData.__original || tagData.__originalData;
-    tagData.value = newValue;
-    debugger;
     var eventData = {
       tag: tagElm,
       index: this.getNodeIndex(tagElm),
@@ -1522,8 +1525,8 @@ Tagify.prototype = {
           value: item.value
         });
 
-        if (matchObj[0]) {
-          temp.push(matchObj[0]); // set the Array (with the found Object) as the new value
+        if (matchObj) {
+          temp.push(matchObj); // set the Array (with the found Object) as the new value
         } else if (mode != 'mix') temp.push(item);
       });
       if (temp.length) tagsItems = temp;
@@ -1535,7 +1538,7 @@ Tagify.prototype = {
     var value = _ref4.value;
     return this.settings.whitelist.filter(function (item) {
       return sameStr(item.value, value);
-    });
+    })[0];
   },
 
   /**
@@ -1718,7 +1721,7 @@ Tagify.prototype = {
       if (tagData.__isValid !== true) {
         if (skipInvalid) return;
         extend(tagElmParams, _this10.getInvaildTagParams(tagData, tagData.__isValid), {
-          __original: originalData
+          __preInvalidData: originalData
         }); // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
 
         if (tagData.__isValid == _this10.TEXTS.duplicate) _this10.markTagByValue(tagData.value);
@@ -1810,7 +1813,7 @@ Tagify.prototype = {
 
 
       if (wasNodeDuplicate && isNodeValid) {
-        if (tagData.__original) tagData = tagData.__original;else // start fresh
+        if (tagData.__preInvalidData) tagData = tagData.__preInvalidData;else // start fresh
           tagData = {
             value: tagData.value
           }; //  this.getWhitelistItemsByValue({value:item.value})

@@ -963,7 +963,7 @@ Tagify.prototype = {
                     tagElmIdx = this.getNodeIndex(tagElm),
                     tagData = this.tagData(tagElm),
                     value = this.input.normalize.call(this, editableElm),
-                    hasChanged = value != editableElm.originalValue,
+                    hasChanged = value != tagData.__originalData.value,
                     isValid = this.validateTag({value}); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
 
                 // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
@@ -1011,36 +1011,43 @@ Tagify.prototype = {
 
                 var tagElm       = editableElm.closest('.tagify__tag'),
                     currentValue = this.input.normalize.call(this, editableElm),
-                    value        = currentValue, //  || editableElm.originalValue,
-                    hasChanged   = value != editableElm.originalValue,
-                    tagData      = extend({}, tagElm.__tagifyTagData, {value}),
-                    isValid      = this.validateTag(tagData);
+                    value        = currentValue,
+                    newTagData   = extend({}, this.tagData(tagElm), {value}),
+                    hasChanged   = value != newTagData.__originalData.value,
+                    isValid      = this.validateTag(newTagData);
 
                 //  this.DOM.input.focus()
 
                 if( !currentValue ){
                     this.removeTags(tagElm)
-                    this.onEditTagDone(null, tagData)
+                    this.onEditTagDone(null, newTagData)
                     return
                 }
 
                 if( hasChanged ){
-                    this.settings.transformTag.call(this, tagData)
+                    this.settings.transformTag.call(this, newTagData)
                     // MUST re-validate after tag transformation
-                    isValid = this.validateTag(tagData)
+                    isValid = this.validateTag(newTagData)
                 }
                 else{
-                    //  tagData.__isValid = this.validateTag(tagData)
-                    this.onEditTagDone(tagElm, tagData)
+                    // if nothing changed revert back to how it was before editing
+                    this.onEditTagDone(tagElm, newTagData.__originalData)
                     return
                 }
 
                 if( isValid !== true ){
-                    this.trigger("invalid", {data:tagData, tag:tagElm, message:isValid})
+                    this.trigger("invalid", {data:newTagData, tag:tagElm, message:isValid})
                     return;
                 }
 
-                this.onEditTagDone(tagElm, tagData)
+                // check if the new value is in the whiteilst, if not check if there
+                // is any pre-invalidation data, and lastly resort to fresh emptty Object
+                newTagData = this.getWhitelistItemsByValue({value}) || newTagData.__preInvalidData || {}
+                newTagData = Object.assign({}, newTagData, {value}) // clone it, not to mess with the whitelist
+                //transform it again
+                this.settings.transformTag.call(this, newTagData)
+
+                this.onEditTagDone(tagElm, newTagData)
             },
 
             onEditTagkeydown(e, tagElm){
@@ -1048,9 +1055,7 @@ Tagify.prototype = {
                 switch( e.key ){
                     case 'Esc' :
                     case 'Escape' :
-                        e.target.textContent = e.target.originalValue;
-                        // revert back data as it was pre-edit
-                        tagElm.__tagifyTagData = tagElm.__tagifyTagData.__originalData
+                        e.target.textContent = tagElm.__tagifyTagData.__originalData.value
                     case 'Enter' :
                     case 'Tab' :
                         e.preventDefault()
@@ -1117,7 +1122,6 @@ Tagify.prototype = {
         tagElm.__tagifyTagData.__originalData = extend({}, tagData)
 
         tagElm.classList.add('tagify__tag--editable')
-        editableElm.originalValue = editableElm.textContent
 
         editableElm.setAttribute('contenteditable', true)
 
@@ -1158,13 +1162,6 @@ Tagify.prototype = {
 
     onEditTagDone(tagElm, tagData){
         tagData = tagData || {}
-
-        var newValue = tagData.value
-
-        tagData = tagData.__original || tagData.__originalData;
-        tagData.value = newValue
-
-        debugger
 
         var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData };
 
@@ -1555,8 +1552,8 @@ Tagify.prototype = {
             tagsItems.forEach(item => {
                 // the "value" prop should preferably be unique
                 var matchObj = this.getWhitelistItemsByValue({value:item.value})
-                if( matchObj[0] ){
-                    temp.push( matchObj[0] ); // set the Array (with the found Object) as the new value
+                if( matchObj ){
+                    temp.push( matchObj ); // set the Array (with the found Object) as the new value
                 }
                 else if( mode != 'mix' )
                     temp.push(item)
@@ -1570,7 +1567,7 @@ Tagify.prototype = {
     },
 
     getWhitelistItemsByValue({value}){
-        return this.settings.whitelist.filter( item => sameStr(item.value, value))
+        return this.settings.whitelist.filter( item => sameStr(item.value, value))[0]
     },
 
     /**
@@ -1762,7 +1759,7 @@ Tagify.prototype = {
                 if( skipInvalid )
                     return
 
-                extend(tagElmParams, this.getInvaildTagParams(tagData, tagData.__isValid), {__original:originalData})
+                extend(tagElmParams, this.getInvaildTagParams(tagData, tagData.__isValid), {__preInvalidData:originalData})
 
                 // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
                 if( tagData.__isValid == this.TEXTS.duplicate )
@@ -1856,8 +1853,8 @@ Tagify.prototype = {
 
             // if this tag node was marked as a dulpicate, unmark it (it might have been marked as "notAllowed" for other reasons)
             if( wasNodeDuplicate && isNodeValid ){
-                if( tagData.__original )
-                    tagData = tagData.__original
+                if( tagData.__preInvalidData )
+                    tagData = tagData.__preInvalidData
                 else
                     // start fresh
                     tagData = {value:tagData.value}
