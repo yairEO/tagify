@@ -7,21 +7,6 @@ var gulp = require('gulp'),
         return result;
     }, {});
 
-var uglifyOptions = {
-    compress: {
-        sequences    : true,
-        conditionals : true,
-        booleans     : true,
-        unused       : true,
-        if_return    : true,
-        join_vars    : true,
-        properties   : true,
-        dead_code    : true
-    },
-    mangle      : true,
-    "screw-ie8" : true
-};
-
 
 var banner = `/**
  * Tagify (v ${pkg.version})- tags input component
@@ -103,6 +88,7 @@ gulp.task('build_js', () => {
         .pipe( $.umd() )
         .pipe( $.insert.prepend(banner) )
         .pipe( gulp.dest('./dist/') )
+
         .pipe($.rename('tagify.min.js'))
         .pipe(opts.dev ? $.tap(()=>{}) : $.uglify())
         .pipe( $.insert.prepend(banner) )
