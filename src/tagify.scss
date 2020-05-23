@@ -378,7 +378,9 @@
 
         &:empty{
             @supports ( -moz-appearance:none ){
-                display: flex; // https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
+              // clicking twice on the input (not fast) disallows typing (bug) only when the input has "display:flex".
+              // disabled the below rule for the above reason:
+              //  display: flex; // https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
             }
             &::before{ @include placeholder; width:auto; }
         }
@@ -404,7 +406,9 @@
             &:empty::before{
                 @include placeholder(true, .3);
                 @supports ( -moz-appearance:none ){
-                    display:inline-block;
+                    // remove ":after" pseudo element: https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
+                    content: unset;
+                    // display:inline-block;
                 }
             }
         }
