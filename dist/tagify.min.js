@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.9.3)- tags input component
+ * Tagify (v 3.10.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
