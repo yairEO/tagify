@@ -565,6 +565,7 @@ Tagify.prototype = {
                     isTargetTag = e.relatedTarget && e.relatedTarget.classList.contains('tagify__tag') && this.DOM.scope.contains(e.relatedTarget),
                     isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
                     isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
+                    selection = window.getSelection(),
                     shouldAddTags;
 
                 // goes into this scenario only on input "blur" and a tag was clicked
@@ -583,8 +584,6 @@ Tagify.prototype = {
                 this.state.hasFocus = type == "focus" ? +new Date() : false
                 this.toggleFocusClass(this.state.hasFocus)
 
-                this.setRangeAtStartEnd(false)
-
                 if( _s.mode == 'mix' ){
                     if( type == "focus" ){
                         // firefox won't show caret if last element is a tag (and not a textNode),
@@ -601,6 +600,12 @@ Tagify.prototype = {
                         this.dropdown.hide.call(this)
                         // reset state which needs reseting
                         this.state.dropdown.visible = undefined
+
+                        // save last selection place to be able to inject anything from outside to that specific place
+                        this.state.selection = {
+                            anchorOffset : selection.anchorOffset,
+                            anchorNode: selection.anchorNode
+                        }
                     }
 
                     return
@@ -1616,10 +1621,10 @@ Tagify.prototype = {
      * For mixed-mode: replaces a text starting with a prefix with a wrapper element (tag or something)
      * First there *has* to be a "this.state.tag" which is a string that was just typed and is staring with a prefix
      */
-    replaceTextWithNode( wrapperElm, tagString ){
-        if( !this.state.tag && !tagString ) return;
+    replaceTextWithNode( wrapperElm, strToReplace ){
+        if( !this.state.tag && !strToReplace ) return;
 
-        tagString = tagString || this.state.tag.prefix + this.state.tag.value;
+        strToReplace = strToReplace || this.state.tag.prefix + this.state.tag.value;
         var idx, replacedNode,
             selection = this.state.selection || window.getSelection(),
             nodeAtCaret = selection.anchorNode;
@@ -1630,15 +1635,35 @@ Tagify.prototype = {
         nodeAtCaret.splitText(selection.anchorOffset)
         // "#ba #ba"
         // get index of last occurence of "#ba"
-        idx = nodeAtCaret.nodeValue.lastIndexOf(tagString)
+        idx = nodeAtCaret.nodeValue.lastIndexOf(strToReplace)
 
         replacedNode = nodeAtCaret.splitText(idx)
 
         // clean up the tag's string and put tag element instead
-        replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
+        replacedNode.nodeValue = replacedNode.nodeValue.replace(strToReplace, '');
         nodeAtCaret.parentNode.insertBefore(wrapperElm, replacedNode);
 
         return replacedNode;
+    },
+
+    /**
+     * injects nodes/text at caret position, which is saved on the "state" when "blur" event gets triggered
+     * @param {Node} injectedNode [the node to inject at the caret position]
+     * @param {Object} selection [optional selection Object. must have "anchorNode" & "anchorOffset"]
+     */
+    injectAtCaret( injectedNode, selection ){
+        var selection = this.state.selection,
+            splittdNode;
+
+        if( !selection.anchorNode || !selection.anchorOffset) return;
+
+        if( typeof injectedNode == 'string' )
+            injectedNode = document.createTextNode(injectedNode);
+
+        splittdNode = selection.anchorNode.splitText(selection.anchorOffset)
+        splittdNode.parentNode.insertBefore(injectedNode, splittdNode)
+
+        return this
     },
 
     /**
@@ -2218,7 +2243,9 @@ Tagify.prototype = {
                 this.state.flaggedTags[this.state.tag.baseOffset] = this.state.tag
             }
 
-            this.trigger("dropdown:hide", dropdown);
+            this.trigger("dropdown:hide", dropdown)
+
+            return this
         },
 
         /**
