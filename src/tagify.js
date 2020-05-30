@@ -501,6 +501,19 @@ Tagify.prototype = {
         this.DOM.scope.classList.toggle('tagify--focus', !!force)
     },
 
+    triggerChangeEvent(){
+        var inputElm = this.DOM.originalInput,
+            lastValue = inputElm.value,
+            event = new CustomEvent("change", {bubbles: true}); // must use "CustomEvent" and not "Event" to support IE
+
+        // React hack: https://github.com/facebook/react/issues/11488
+        event.simulated = true
+        if (inputElm._valueTracker)
+            inputElm._valueTracker.setValue(lastValue)
+
+        inputElm.dispatchEvent(event)
+    },
+
     /**
      * DOM events listeners binding
      */
@@ -572,10 +585,13 @@ Tagify.prototype = {
                 if( isTargetTag )
                     return
 
-                if( type == 'blur' && e.relatedTarget === this.DOM.scope ){
-                    this.dropdown.hide.call(this)
-                    this.DOM.input.focus()
-                    return
+                if( type == 'blur' ){
+                    this.triggerChangeEvent()
+                    if( e.relatedTarget === this.DOM.scope ){
+                        this.dropdown.hide.call(this)
+                        this.DOM.input.focus()
+                        return
+                    }
                 }
 
                 if( isTargetSelectOption || isTargetAddNewBtn )
@@ -2025,9 +2041,7 @@ Tagify.prototype = {
     update(){
         this.preUpdate()
         var inputElm = this.DOM.originalInput,
-            lastValue = inputElm.value,
-            value = removeCollectionProp(this.value, "__isValid"),
-            event = new CustomEvent("change", {bubbles: true})  // must use "CustomEvent" and not "Event" to support IE
+            value = removeCollectionProp(this.value, "__isValid");
 
         inputElm.value = this.settings.mode == 'mix'
             ? this.getMixedTagsAsString(value)
@@ -2036,13 +2050,6 @@ Tagify.prototype = {
                     ? this.settings.originalInputValueFormat(value)
                     : JSON.stringify(value)
                 : ""
-
-        // React hack: https://github.com/facebook/react/issues/11488
-        event.simulated = true
-        if (inputElm._valueTracker)
-            inputElm._valueTracker.setValue(lastValue)
-
-        inputElm.dispatchEvent(event)
     },
 
     getMixedTagsAsString(){
