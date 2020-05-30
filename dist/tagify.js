@@ -529,6 +529,18 @@ Tagify.prototype = {
   toggleFocusClass: function toggleFocusClass(force) {
     this.DOM.scope.classList.toggle('tagify--focus', !!force);
   },
+  triggerChangeEvent: function triggerChangeEvent() {
+    var inputElm = this.DOM.originalInput,
+        lastValue = inputElm.value,
+        event = new CustomEvent("change", {
+      bubbles: true
+    }); // must use "CustomEvent" and not "Event" to support IE
+    // React hack: https://github.com/facebook/react/issues/11488
+
+    event.simulated = true;
+    if (inputElm._valueTracker) inputElm._valueTracker.setValue(lastValue);
+    inputElm.dispatchEvent(event);
+  },
 
   /**
    * DOM events listeners binding
@@ -595,20 +607,24 @@ Tagify.prototype = {
             isTargetTag = e.relatedTarget && e.relatedTarget.classList.contains('tagify__tag') && this.DOM.scope.contains(e.relatedTarget),
             isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
             isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
+            selection = window.getSelection(),
             shouldAddTags; // goes into this scenario only on input "blur" and a tag was clicked
 
         if (isTargetTag) return;
 
-        if (type == 'blur' && e.relatedTarget === this.DOM.scope) {
-          this.dropdown.hide.call(this);
-          this.DOM.input.focus();
-          return;
+        if (type == 'blur') {
+          this.triggerChangeEvent();
+
+          if (e.relatedTarget === this.DOM.scope) {
+            this.dropdown.hide.call(this);
+            this.DOM.input.focus();
+            return;
+          }
         }
 
         if (isTargetSelectOption || isTargetAddNewBtn) return;
         this.state.hasFocus = type == "focus" ? +new Date() : false;
         this.toggleFocusClass(this.state.hasFocus);
-        this.setRangeAtStartEnd(false);
 
         if (_s.mode == 'mix') {
           if (type == "focus") {
@@ -621,7 +637,12 @@ Tagify.prototype = {
             this.loading(false);
             this.dropdown.hide.call(this); // reset state which needs reseting
 
-            this.state.dropdown.visible = undefined;
+            this.state.dropdown.visible = undefined; // save last selection place to be able to inject anything from outside to that specific place
+
+            this.state.selection = {
+              anchorOffset: selection.anchorOffset,
+              anchorNode: selection.anchorNode
+            };
           }
 
           return;
@@ -801,14 +822,10 @@ Tagify.prototype = {
           value: value
         });
         this.trigger('input', eventData); // "input" event must be triggered at this point, before the dropdown is shown
+        // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
+        // and so many keys do not change the input, and for those do not continue.
 
-        if (!value) {
-          this.input.set.call(this, '');
-          return;
-        }
-
-        if (this.input.value == value) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
-        // save the value on the input's State object
+        if (this.input.value == value) return; // save the value on the input's State object
 
         this.input.set.call(this, value, false); // update the input with the normalized value and run validations
         // this.setRangeAtStartEnd(); // fix caret position
@@ -1593,9 +1610,9 @@ Tagify.prototype = {
    * For mixed-mode: replaces a text starting with a prefix with a wrapper element (tag or something)
    * First there *has* to be a "this.state.tag" which is a string that was just typed and is staring with a prefix
    */
-  replaceTextWithNode: function replaceTextWithNode(wrapperElm, tagString) {
-    if (!this.state.tag && !tagString) return;
-    tagString = tagString || this.state.tag.prefix + this.state.tag.value;
+  replaceTextWithNode: function replaceTextWithNode(wrapperElm, strToReplace) {
+    if (!this.state.tag && !strToReplace) return;
+    strToReplace = strToReplace || this.state.tag.prefix + this.state.tag.value;
     var idx,
         replacedNode,
         selection = this.state.selection || window.getSelection(),
@@ -1606,12 +1623,27 @@ Tagify.prototype = {
     nodeAtCaret.splitText(selection.anchorOffset); // "#ba #ba"
     // get index of last occurence of "#ba"
 
-    idx = nodeAtCaret.nodeValue.lastIndexOf(tagString);
+    idx = nodeAtCaret.nodeValue.lastIndexOf(strToReplace);
     replacedNode = nodeAtCaret.splitText(idx); // clean up the tag's string and put tag element instead
 
-    replacedNode.nodeValue = replacedNode.nodeValue.replace(tagString, '');
+    replacedNode.nodeValue = replacedNode.nodeValue.replace(strToReplace, '');
     nodeAtCaret.parentNode.insertBefore(wrapperElm, replacedNode);
     return replacedNode;
+  },
+
+  /**
+   * injects nodes/text at caret position, which is saved on the "state" when "blur" event gets triggered
+   * @param {Node} injectedNode [the node to inject at the caret position]
+   * @param {Object} selection [optional selection Object. must have "anchorNode" & "anchorOffset"]
+   */
+  injectAtCaret: function injectAtCaret(injectedNode, selection) {
+    var selection = this.state.selection,
+        splittdNode;
+    if (!selection.anchorNode || !selection.anchorOffset) return;
+    if (typeof injectedNode == 'string') injectedNode = document.createTextNode(injectedNode);
+    splittdNode = selection.anchorNode.splitText(selection.anchorOffset);
+    splittdNode.parentNode.insertBefore(injectedNode, splittdNode);
+    return this;
   },
 
   /**
@@ -1944,17 +1976,8 @@ Tagify.prototype = {
   update: function update() {
     this.preUpdate();
     var inputElm = this.DOM.originalInput,
-        lastValue = inputElm.value,
-        value = removeCollectionProp(this.value, "__isValid"),
-        event = new CustomEvent("change", {
-      bubbles: true
-    }); // must use "CustomEvent" and not "Event" to support IE
-
-    inputElm.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : value.length ? this.settings.originalInputValueFormat ? this.settings.originalInputValueFormat(value) : JSON.stringify(value) : ""; // React hack: https://github.com/facebook/react/issues/11488
-
-    event.simulated = true;
-    if (inputElm._valueTracker) inputElm._valueTracker.setValue(lastValue);
-    inputElm.dispatchEvent(event);
+        value = removeCollectionProp(this.value, "__isValid");
+    inputElm.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : value.length ? this.settings.originalInputValueFormat ? this.settings.originalInputValueFormat(value) : JSON.stringify(value) : "";
   },
   getMixedTagsAsString: function getMixedTagsAsString() {
     var result = "",
@@ -2058,10 +2081,15 @@ Tagify.prototype = {
       }
 
       HTMLContent = this.dropdown.createListHTML.call(this, this.suggestedListItems);
-      this.DOM.dropdown.content.innerHTML = minify(HTMLContent); // if "enforceWhitelist" is "true", highlight the first suggested item
+      this.DOM.dropdown.content.innerHTML = minify(HTMLContent);
+      if (_s.dropdown.highlightFirst) this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0]);
+      this.DOM.scope.setAttribute("aria-expanded", true); // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
+      // called multiple times, regardless if the dropdown is currently visisble, but the events-binding
+      // should only be called if the dropdown wasn't previously visible.
 
-      if (_s.enforceWhitelist && !isManual || _s.dropdown.highlightFirst) this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0]);
-      this.DOM.scope.setAttribute("aria-expanded", true); // set the dropdown visible state to be the same as the searched value.
+      if (!this.state.dropdown.visible) // timeout is needed for when pressing arrow down to show the dropdown,
+        // so the key event won't get registered in the dropdown events listeners
+        setTimeout(this.dropdown.events.binding.bind(this)); // set the dropdown visible state to be the same as the searched value.
       // MUST be set *before* position() is called
 
       this.state.dropdown.visible = value || true;
@@ -2071,7 +2099,7 @@ Tagify.prototype = {
         anchorNode: selection.anchorNode
       }; // try to positioning the dropdown (it might not yet be on the page, doesn't matter, next code handles this)
 
-      this.dropdown.position.call(this); // if the dropdown has yet to be appended to the document,
+      if (!isManual) this.dropdown.position.call(this); // if the dropdown has yet to be appended to the document,
       // append the dropdown to the body element & handle events
 
       if (!document.body.contains(this.DOM.dropdown)) {
@@ -2085,11 +2113,7 @@ Tagify.prototype = {
           setTimeout(function () {
             return _this13.DOM.dropdown.classList.remove('tagify__dropdown--initial');
           });
-        } // timeout is needed for when pressing arrow down to show the dropdown,
-        // so the key event won't get registered in the dropdown events listeners
-
-
-        setTimeout(this.dropdown.events.binding.bind(this));
+        }
       }
 
       this.trigger("dropdown:show", this.DOM.dropdown);
@@ -2126,16 +2150,22 @@ Tagify.prototype = {
       }
 
       this.trigger("dropdown:hide", dropdown);
+      return this;
     },
 
     /**
      * fill data into the suggestions list (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
      */
     refilter: function refilter(value) {
+      var HTMLstr;
       value = value || this.state.dropdown.query || '';
       this.suggestedListItems = this.dropdown.filterListItems.call(this, value);
-      var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems);
-      this.DOM.dropdown.content.innerHTML = minify(listHTML);
+
+      if (this.suggestedListItems.length) {
+        HTMLstr = this.dropdown.createListHTML.call(this, this.suggestedListItems);
+        this.DOM.dropdown.content.innerHTML = minify(HTMLstr);
+      } else this.dropdown.hide.call(this);
+
       this.trigger("dropdown:updated", this.DOM.dropdown);
     },
     position: function position(ddHeight) {
@@ -2382,8 +2412,10 @@ Tagify.prototype = {
       });
 
       if (hideDropdown) {
-        this.dropdown.hide.call(this);
+        return this.dropdown.hide.call(this);
       }
+
+      this.dropdown.refilter.call(this);
     },
 
     /**
