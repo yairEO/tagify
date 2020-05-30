@@ -781,12 +781,9 @@ Tagify.prototype = {
                 eventData.isValid = this.validateTag({value});
                 this.trigger('input', eventData) // "input" event must be triggered at this point, before the dropdown is shown
 
-                if( !value ){
-                    this.input.set.call(this, '');
-                    return;
-                }
-
-                if( this.input.value == value ) return; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead
+                // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
+                // and so many keys do not change the input, and for those do not continue.
+                if( this.input.value == value ) return;
 
                 // save the value on the input's State object
                 this.input.set.call(this, value, false); // update the input with the normalized value and run validations
@@ -2135,11 +2132,19 @@ Tagify.prototype = {
             HTMLContent = this.dropdown.createListHTML.call(this, this.suggestedListItems);
             this.DOM.dropdown.content.innerHTML = minify(HTMLContent);
 
-            // if "enforceWhitelist" is "true", highlight the first suggested item
-            if( (_s.enforceWhitelist && !isManual) || _s.dropdown.highlightFirst )
+            if( _s.dropdown.highlightFirst )
                 this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0])
 
             this.DOM.scope.setAttribute("aria-expanded", true)
+
+
+            // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
+            // called multiple times, regardless if the dropdown is currently visisble, but the events-binding
+            // should only be called if the dropdown wasn't previously visible.
+            if( !this.state.dropdown.visible )
+                // timeout is needed for when pressing arrow down to show the dropdown,
+                // so the key event won't get registered in the dropdown events listeners
+                setTimeout(this.dropdown.events.binding.bind(this))
 
             // set the dropdown visible state to be the same as the searched value.
             // MUST be set *before* position() is called
@@ -2152,7 +2157,8 @@ Tagify.prototype = {
             }
 
             // try to positioning the dropdown (it might not yet be on the page, doesn't matter, next code handles this)
-            this.dropdown.position.call(this)
+            if( !isManual )
+                this.dropdown.position.call(this)
 
             // if the dropdown has yet to be appended to the document,
             // append the dropdown to the body element & handle events
@@ -2170,10 +2176,6 @@ Tagify.prototype = {
                         this.DOM.dropdown.classList.remove('tagify__dropdown--initial')
                     )
                 }
-
-                // timeout is needed for when pressing arrow down to show the dropdown,
-                // so the key event won't get registered in the dropdown events listeners
-                setTimeout(this.dropdown.events.binding.bind(this))
             }
 
             this.trigger("dropdown:show", this.DOM.dropdown)
@@ -2223,10 +2225,18 @@ Tagify.prototype = {
          * fill data into the suggestions list (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
          */
         refilter( value ){
+            var HTMLstr;
+
             value = value || this.state.dropdown.query || ''
             this.suggestedListItems = this.dropdown.filterListItems.call(this, value)
-            var listHTML = this.dropdown.createListHTML.call(this, this.suggestedListItems)
-            this.DOM.dropdown.content.innerHTML = minify(listHTML)
+
+            if( this.suggestedListItems.length ){
+                HTMLstr = this.dropdown.createListHTML.call(this, this.suggestedListItems)
+                this.DOM.dropdown.content.innerHTML = minify(HTMLstr)
+            }
+            else
+                this.dropdown.hide.call(this)
+
             this.trigger("dropdown:updated", this.DOM.dropdown)
         },
 
@@ -2491,8 +2501,10 @@ Tagify.prototype = {
             })
 
             if( hideDropdown ){
-                this.dropdown.hide.call(this)
+                return this.dropdown.hide.call(this)
             }
+
+            this.dropdown.refilter.call(this)
         },
 
         /**
