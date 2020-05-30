@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.10.0)- tags input component
+ * Tagify (v 3.10.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -538,7 +538,7 @@ Tagify.prototype = {
     // React hack: https://github.com/facebook/react/issues/11488
 
     event.simulated = true;
-    if (inputElm._valueTracker) inputElm._valueTracker.setValue(lastValue);
+    if (inputElm._valueTracker) inputElm._valueTracker.setValue('');
     inputElm.dispatchEvent(event);
   },
 
