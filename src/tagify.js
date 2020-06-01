@@ -7,10 +7,10 @@ const isFirefox = typeof InstallTrigger !== 'undefined'
 // const isEdge = /Edge/.test(navigator.userAgent)
 const sameStr = (s1, s2) => s1.toLowerCase() == s2.toLowerCase()
 // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
-const removeCollectionProp = (collection, unwantedProp) => collection.map(v => {
+const removeCollectionProp = (collection, unwantedProps) => collection.map(v => {
     var props = {}
     for( var p in v )
-        if( p != unwantedProp )
+        if( !unwantedProps.includes(p) )
             props[p] = v[p]
     return props
 })
@@ -405,24 +405,24 @@ Tagify.prototype = {
     loadOriginalValues( value ){
         value = value || this.DOM.originalInput.value
 
-        // if the original input already had any value (tags)
-        if( !value ) return;
+        if( value ){
+            this.removeAllTags()
 
-        this.removeAllTags()
+            if( this.settings.mode == 'mix' )
+                this.parseMixTags(value.trim())
 
-        if( this.settings.mode == 'mix' )
-            this.parseMixTags(value.trim())
-
-        else{
-            try{
-                if( typeof JSON.parse(value) !== 'string' )
-                    value = JSON.parse(value)
+            else{
+                try{
+                    if( typeof JSON.parse(value) !== 'string' )
+                        value = JSON.parse(value)
+                }
+                catch(err){}
+                this.addTags(value).forEach(tag => tag && tag.classList.add('tagify--noAnim'))
             }
-            catch(err){}
-            this.addTags(value).forEach(tag => tag && tag.classList.add('tagify--noAnim'))
         }
 
         this.state.lastOriginalValueReported = this.DOM.originalInput.value
+        this.state.loadedOriginalValues = true
     },
 
     cloneEvent(e){
@@ -1932,7 +1932,9 @@ Tagify.prototype = {
                 tagElm = this.getTagElmByValue(tagElm)
 
             if( tagElm )
-                elms.push({node:tagElm, data:this.tagData(tagElm, {'__REMOVED':true})})
+                // because the DOM node might be removed by async animation, the state will be updated while
+                // the node might still be in the DOM, so the "update" method should know which nodes to ignore
+                elms.push({node:tagElm, data:this.tagData(tagElm, {'__removed':true})})
 
             return elms
         }, [])
@@ -1992,7 +1994,11 @@ Tagify.prototype = {
                 // update state regardless of animation
                 if( !silent ){
                     tagsToRemove.forEach(tag => {
-                        var tagIdx = this.getTagIdx(tag.data)
+                        // remove "__removed" so the comparison in "getTagIdx" could work
+                        var tagData = Object.assign({}, tag.data) // shallow clone
+                        delete tagData.__removed
+
+                        var tagIdx = this.getTagIdx(tagData)
                         if( tagIdx > -1 )
                             this.value.splice(tagIdx, 1)
                     })
@@ -2044,7 +2050,7 @@ Tagify.prototype = {
 
         var inputElm = this.DOM.originalInput,
             { withoutChangeEvent } = args || {},
-            value = removeCollectionProp(this.value, "__isValid");
+            value = removeCollectionProp(this.value, ['__isValid', '__removed']);
 
         inputElm.value = this.settings.mode == 'mix'
             ? this.getMixedTagsAsString(value)
@@ -2054,7 +2060,7 @@ Tagify.prototype = {
                     : JSON.stringify(value)
                 : ""
 
-        if( !withoutChangeEvent )
+        if( !withoutChangeEvent && this.state.loadedOriginalValues )
             this.triggerChangeEvent()
     },
 
@@ -2068,7 +2074,7 @@ Tagify.prototype = {
             rootNode.childNodes.forEach((node) => {
                 if( node.nodeType == 1 ){
                     if( node.classList.contains("tagify__tag") && that.tagData(node) ){
-                        if( that.tagData(node).__REMOVED )
+                        if( that.tagData(node).__removed )
                             return;
                         else
                             result += _interpolator[0] + JSON.stringify( node.__tagifyTagData ) + _interpolator[1]

@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.10.1)- tags input component
+ * Tagify (v 3.10.2)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -40,12 +40,12 @@ var sameStr = function sameStr(s1, s2) {
 }; // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
 
 
-var removeCollectionProp = function removeCollectionProp(collection, unwantedProp) {
+var removeCollectionProp = function removeCollectionProp(collection, unwantedProps) {
   return collection.map(function (v) {
     var props = {};
 
     for (var p in v) {
-      if (p != unwantedProp) props[p] = v[p];
+      if (!unwantedProps.includes(p)) props[p] = v[p];
     }
 
     return props;
@@ -433,20 +433,23 @@ Tagify.prototype = {
    * if the original input had any values, add them as tags
    */
   loadOriginalValues: function loadOriginalValues(value) {
-    value = value || this.DOM.originalInput.value; // if the original input already had any value (tags)
+    value = value || this.DOM.originalInput.value;
 
-    if (!value) return;
-    this.removeAllTags();
-    if (this.settings.mode == 'mix') this.parseMixTags(value.trim());else {
-      try {
-        if (typeof JSON.parse(value) !== 'string') value = JSON.parse(value);
-      } catch (err) {}
+    if (value) {
+      this.removeAllTags();
+      if (this.settings.mode == 'mix') this.parseMixTags(value.trim());else {
+        try {
+          if (typeof JSON.parse(value) !== 'string') value = JSON.parse(value);
+        } catch (err) {}
 
-      this.addTags(value).forEach(function (tag) {
-        return tag && tag.classList.add('tagify--noAnim');
-      });
+        this.addTags(value).forEach(function (tag) {
+          return tag && tag.classList.add('tagify--noAnim');
+        });
+      }
     }
+
     this.state.lastOriginalValueReported = this.DOM.originalInput.value;
+    this.state.loadedOriginalValues = true;
   },
   cloneEvent: function cloneEvent(e) {
     var clonedEvent = {};
@@ -1879,12 +1882,14 @@ Tagify.prototype = {
 
     tagsToRemove = tagElms.reduce(function (elms, tagElm) {
       if (tagElm && typeof tagElm == 'string') tagElm = _this12.getTagElmByValue(tagElm);
-      if (tagElm) elms.push({
-        node: tagElm,
-        data: _this12.tagData(tagElm, {
-          '__REMOVED': true
-        })
-      });
+      if (tagElm) // because the DOM node might be removed by async animation, the state will be updated while
+        // the node might still be in the DOM, so the "update" method should know which nodes to ignore
+        elms.push({
+          node: tagElm,
+          data: _this12.tagData(tagElm, {
+            '__removed': true
+          })
+        });
       return elms;
     }, []);
     tranDuration = typeof tranDuration == "number" ? tranDuration : this.CSSVars.tagHideTransition;
@@ -1942,7 +1947,12 @@ Tagify.prototype = {
 
       if (!silent) {
         tagsToRemove.forEach(function (tag) {
-          var tagIdx = _this12.getTagIdx(tag.data);
+          // remove "__removed" so the comparison in "getTagIdx" could work
+          var tagData = Object.assign({}, tag.data); // shallow clone
+
+          delete tagData.__removed;
+
+          var tagIdx = _this12.getTagIdx(tagData);
 
           if (tagIdx > -1) _this12.value.splice(tagIdx, 1);
         }); // that.removeValueById(tagData.__uid)
@@ -1984,10 +1994,10 @@ Tagify.prototype = {
     var inputElm = this.DOM.originalInput,
         _ref5 = args || {},
         withoutChangeEvent = _ref5.withoutChangeEvent,
-        value = removeCollectionProp(this.value, "__isValid");
+        value = removeCollectionProp(this.value, ['__isValid', '__removed']);
 
     inputElm.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : value.length ? this.settings.originalInputValueFormat ? this.settings.originalInputValueFormat(value) : JSON.stringify(value) : "";
-    if (!withoutChangeEvent) this.triggerChangeEvent();
+    if (!withoutChangeEvent && this.state.loadedOriginalValues) this.triggerChangeEvent();
   },
   getMixedTagsAsString: function getMixedTagsAsString() {
     var result = "",
@@ -1999,7 +2009,7 @@ Tagify.prototype = {
       rootNode.childNodes.forEach(function (node) {
         if (node.nodeType == 1) {
           if (node.classList.contains("tagify__tag") && that.tagData(node)) {
-            if (that.tagData(node).__REMOVED) return;else result += _interpolator[0] + JSON.stringify(node.__tagifyTagData) + _interpolator[1];
+            if (that.tagData(node).__removed) return;else result += _interpolator[0] + JSON.stringify(node.__tagifyTagData) + _interpolator[1];
             return;
           }
 
