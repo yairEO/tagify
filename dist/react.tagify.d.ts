@@ -169,9 +169,10 @@ declare module '@yaireo/tagify/dist/react.tagify' {
   }
 
   export interface ReactTagifyTemplates {
-    wrapper: any;
-    tag: any;
-    dropdownItem: any;
+    wrapper: (input: HTMLInputElement, settings: ReactTagifySettings) => string;
+    tag: (value: string, tagData: any) => string;
+    dropdown: (settings: ReactTagifySettings) => string;
+    dropdownItem: (item: any) => string;
   }
 
   export interface ReactTagifySettings {
