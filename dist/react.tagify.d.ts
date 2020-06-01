@@ -306,7 +306,7 @@ declare module '@yaireo/tagify/dist/react.tagify' {
     ref?: Ref<ReactTagify>;
   }
 
-  export interface ReactTagifyEvent extends ChangeEvent {
+  export interface ReactTagifyEvent extends ChangeEvent<HTMLInputElement> {
     type?: any;
     detail: any;
   }
