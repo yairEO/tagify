@@ -2435,9 +2435,9 @@ Tagify.prototype = {
                     if( e.button != 0 || e.target == this.DOM.dropdown ) return; // allow only mouse left-clicks
 
                     var listItemElm = e.target.closest(".tagify__dropdown__item"),
-                        addNewBtn = e.target.closest(".tagify__dropdown__addNewBtn")
+                        actionBtn = e.target.closest(".tagify__dropdown__item__action")
 
-                    if( listItemElm )
+                    if( listItemElm && !actionBtn )
                         this.dropdown.selectOption.call(this, listItemElm)
 
 
