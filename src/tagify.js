@@ -421,6 +421,8 @@ Tagify.prototype = {
             catch(err){}
             this.addTags(value).forEach(tag => tag && tag.classList.add('tagify--noAnim'))
         }
+
+        this.state.lastOriginalValueReported = this.DOM.originalInput.value
     },
 
     cloneEvent(e){
@@ -503,8 +505,10 @@ Tagify.prototype = {
 
     triggerChangeEvent(){
         var inputElm = this.DOM.originalInput,
-            lastValue = inputElm.value,
+            changed = this.state.lastOriginalValueReported !== inputElm.value,
             event = new CustomEvent("change", {bubbles: true}); // must use "CustomEvent" and not "Event" to support IE
+
+        if( !changed ) return;
 
         // React hack: https://github.com/facebook/react/issues/11488
         event.simulated = true
@@ -512,6 +516,8 @@ Tagify.prototype = {
             inputElm._valueTracker.setValue('')
 
         inputElm.dispatchEvent(event)
+
+        this.state.lastOriginalValueReported = inputElm.value
     },
 
     /**
@@ -587,6 +593,7 @@ Tagify.prototype = {
 
                 if( type == 'blur' ){
                     this.triggerChangeEvent()
+
                     if( e.relatedTarget === this.DOM.scope ){
                         this.dropdown.hide.call(this)
                         this.DOM.input.focus()
@@ -831,7 +838,7 @@ Tagify.prototype = {
                 // check if ANY tags were magically added through browser redo/undo
                 if( tagsCount > lastTagsCount ){
                     this.value = [].map.call(this.getTagElms(), node => node.__tagifyTagData)
-                    this.update()
+                    this.update({withoutChangeEvent:true})
                     return
                 }
 
@@ -907,7 +914,7 @@ Tagify.prototype = {
                 // the dropdown must be shown only after this event has been driggered, so an implementer could
                 // dynamically change the whitelist.
                 setTimeout(()=>{
-                    this.update()
+                    this.update({withoutChangeEvent:true})
                     this.trigger("input", extend({}, this.state.tag, {textContent:this.DOM.input.textContent}))
 
                     if( this.state.tag )
@@ -971,7 +978,7 @@ Tagify.prototype = {
                 pastedData = clipboardData.getData('Text')
 
                 if( this.settings.mode == 'mix' )
-                    this.insertTextAtCaret(pastedData)
+                    this.injectAtCaret(pastedData, window.getSelection())
                 else
                     this.input.set.call(this, pastedData)
             },
@@ -1250,18 +1257,34 @@ Tagify.prototype = {
         }
     },
 
-    insertTextAtCaret( text ){
-        var sel = window.getSelection(),
-            node = document.createTextNode(text),
+    /**
+     * injects nodes/text at caret position, which is saved on the "state" when "blur" event gets triggered
+     * @param {Node} injectedNode [the node to inject at the caret position]
+     * @param {Object} selection [optional selection Object. must have "anchorNode" & "anchorOffset"]
+     */
+    injectAtCaret( injectedNode, selection ){
+        var selection = selection || this.state.selection || {},
+            sel = window.getSelection(),
             range;
+
+        if( !selection.anchorNode || selection.anchorOffset === undefined) return;
+
+        if( typeof injectedNode == 'string' )
+            injectedNode = document.createTextNode(injectedNode);
 
         if (sel.getRangeAt && sel.rangeCount){
             range = sel.getRangeAt(0)
             range.deleteContents()
-            range.insertNode(node)
+            range.insertNode(injectedNode)
         }
 
-        this.setRangeAtStartEnd(false, node)
+        this.DOM.input.focus()
+        this.setRangeAtStartEnd(true, injectedNode.nextSibling)
+
+        this.updateValueByDOMTags()
+        this.update()
+
+        return this
     },
 
     /**
@@ -1629,7 +1652,7 @@ Tagify.prototype = {
         this.DOM.input.appendChild(document.createTextNode(''))
         this.DOM.input.normalize()
         this.getTagElms().forEach((elm, idx) => this.tagData(elm,  tagsDataSet[idx]))
-        this.update()
+        this.update({withoutChangeEvent:true})
         return s
     },
 
@@ -1660,26 +1683,6 @@ Tagify.prototype = {
         nodeAtCaret.parentNode.insertBefore(wrapperElm, replacedNode);
 
         return replacedNode;
-    },
-
-    /**
-     * injects nodes/text at caret position, which is saved on the "state" when "blur" event gets triggered
-     * @param {Node} injectedNode [the node to inject at the caret position]
-     * @param {Object} selection [optional selection Object. must have "anchorNode" & "anchorOffset"]
-     */
-    injectAtCaret( injectedNode, selection ){
-        var selection = this.state.selection,
-            splittdNode;
-
-        if( !selection.anchorNode || !selection.anchorOffset) return;
-
-        if( typeof injectedNode == 'string' )
-            injectedNode = document.createTextNode(injectedNode);
-
-        splittdNode = selection.anchorNode.splitText(selection.anchorOffset)
-        splittdNode.parentNode.insertBefore(injectedNode, splittdNode)
-
-        return this
     },
 
     /**
@@ -1925,13 +1928,11 @@ Tagify.prototype = {
         // 3. get the tag data
         // 4. return a collection of Objects
         tagsToRemove = tagElms.reduce((elms, tagElm) => {
-            if( tagElm ){
-                if( typeof tagElm == 'string' )
-                    tagElm = this.getTagElmByValue(tagElm)
+            if( tagElm && typeof tagElm == 'string')
+                tagElm = this.getTagElmByValue(tagElm)
 
-
-                tagElm && elms.push({node:tagElm, data:tagElm.__tagifyTagData})
-            }
+            if( tagElm )
+                elms.push({node:tagElm, data:this.tagData(tagElm, {'__REMOVED':true})})
 
             return elms
         }, [])
@@ -2038,9 +2039,11 @@ Tagify.prototype = {
      * update the origianl (hidden) input field's value
      * see - https://stackoverflow.com/q/50957841/104380
      */
-    update(){
+    update( args ){
         this.preUpdate()
+
         var inputElm = this.DOM.originalInput,
+            { withoutChangeEvent } = args || {},
             value = removeCollectionProp(this.value, "__isValid");
 
         inputElm.value = this.settings.mode == 'mix'
@@ -2050,6 +2053,9 @@ Tagify.prototype = {
                     ? this.settings.originalInputValueFormat(value)
                     : JSON.stringify(value)
                 : ""
+
+        if( !withoutChangeEvent )
+            this.triggerChangeEvent()
     },
 
     getMixedTagsAsString(){
@@ -2061,8 +2067,11 @@ Tagify.prototype = {
         function iterateChildren(rootNode){
             rootNode.childNodes.forEach((node) => {
                 if( node.nodeType == 1 ){
-                    if( node.classList.contains("tagify__tag") && node.__tagifyTagData ){
-                        result += _interpolator[0] + JSON.stringify( node.__tagifyTagData ) + _interpolator[1]
+                    if( node.classList.contains("tagify__tag") && that.tagData(node) ){
+                        if( that.tagData(node).__REMOVED )
+                            return;
+                        else
+                            result += _interpolator[0] + JSON.stringify( node.__tagifyTagData ) + _interpolator[1]
                         return
                     }
 

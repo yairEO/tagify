@@ -446,6 +446,7 @@ Tagify.prototype = {
         return tag && tag.classList.add('tagify--noAnim');
       });
     }
+    this.state.lastOriginalValueReported = this.DOM.originalInput.value;
   },
   cloneEvent: function cloneEvent(e) {
     var clonedEvent = {};
@@ -531,15 +532,17 @@ Tagify.prototype = {
   },
   triggerChangeEvent: function triggerChangeEvent() {
     var inputElm = this.DOM.originalInput,
-        lastValue = inputElm.value,
+        changed = this.state.lastOriginalValueReported !== inputElm.value,
         event = new CustomEvent("change", {
       bubbles: true
     }); // must use "CustomEvent" and not "Event" to support IE
-    // React hack: https://github.com/facebook/react/issues/11488
+
+    if (!changed) return; // React hack: https://github.com/facebook/react/issues/11488
 
     event.simulated = true;
     if (inputElm._valueTracker) inputElm._valueTracker.setValue('');
     inputElm.dispatchEvent(event);
+    this.state.lastOriginalValueReported = inputElm.value;
   },
 
   /**
@@ -857,7 +860,9 @@ Tagify.prototype = {
           this.value = [].map.call(this.getTagElms(), function (node) {
             return node.__tagifyTagData;
           });
-          this.update();
+          this.update({
+            withoutChangeEvent: true
+          });
           return;
         }
 
@@ -918,7 +923,9 @@ Tagify.prototype = {
 
 
         setTimeout(function () {
-          _this5.update();
+          _this5.update({
+            withoutChangeEvent: true
+          });
 
           _this5.trigger("input", extend({}, _this5.state.tag, {
             textContent: _this5.DOM.input.textContent
@@ -969,7 +976,7 @@ Tagify.prototype = {
 
         clipboardData = e.clipboardData || window.clipboardData;
         pastedData = clipboardData.getData('Text');
-        if (this.settings.mode == 'mix') this.insertTextAtCaret(pastedData);else this.input.set.call(this, pastedData);
+        if (this.settings.mode == 'mix') this.injectAtCaret(pastedData, window.getSelection());else this.input.set.call(this, pastedData);
       },
       onEditTagInput: function onEditTagInput(editableElm, e) {
         var tagElm = editableElm.closest('.tagify__tag'),
@@ -1233,18 +1240,30 @@ Tagify.prototype = {
       });
     }
   },
-  insertTextAtCaret: function insertTextAtCaret(text) {
-    var sel = window.getSelection(),
-        node = document.createTextNode(text),
+
+  /**
+   * injects nodes/text at caret position, which is saved on the "state" when "blur" event gets triggered
+   * @param {Node} injectedNode [the node to inject at the caret position]
+   * @param {Object} selection [optional selection Object. must have "anchorNode" & "anchorOffset"]
+   */
+  injectAtCaret: function injectAtCaret(injectedNode, selection) {
+    var selection = selection || this.state.selection || {},
+        sel = window.getSelection(),
         range;
+    if (!selection.anchorNode || selection.anchorOffset === undefined) return;
+    if (typeof injectedNode == 'string') injectedNode = document.createTextNode(injectedNode);
 
     if (sel.getRangeAt && sel.rangeCount) {
       range = sel.getRangeAt(0);
       range.deleteContents();
-      range.insertNode(node);
+      range.insertNode(injectedNode);
     }
 
-    this.setRangeAtStartEnd(false, node);
+    this.DOM.input.focus();
+    this.setRangeAtStartEnd(true, injectedNode.nextSibling);
+    this.updateValueByDOMTags();
+    this.update();
+    return this;
   },
 
   /**
@@ -1602,7 +1621,9 @@ Tagify.prototype = {
     this.getTagElms().forEach(function (elm, idx) {
       return _this9.tagData(elm, tagsDataSet[idx]);
     });
-    this.update();
+    this.update({
+      withoutChangeEvent: true
+    });
     return s;
   },
 
@@ -1629,21 +1650,6 @@ Tagify.prototype = {
     replacedNode.nodeValue = replacedNode.nodeValue.replace(strToReplace, '');
     nodeAtCaret.parentNode.insertBefore(wrapperElm, replacedNode);
     return replacedNode;
-  },
-
-  /**
-   * injects nodes/text at caret position, which is saved on the "state" when "blur" event gets triggered
-   * @param {Node} injectedNode [the node to inject at the caret position]
-   * @param {Object} selection [optional selection Object. must have "anchorNode" & "anchorOffset"]
-   */
-  injectAtCaret: function injectAtCaret(injectedNode, selection) {
-    var selection = this.state.selection,
-        splittdNode;
-    if (!selection.anchorNode || !selection.anchorOffset) return;
-    if (typeof injectedNode == 'string') injectedNode = document.createTextNode(injectedNode);
-    splittdNode = selection.anchorNode.splitText(selection.anchorOffset);
-    splittdNode.parentNode.insertBefore(injectedNode, splittdNode);
-    return this;
   },
 
   /**
@@ -1872,14 +1878,13 @@ Tagify.prototype = {
     // 4. return a collection of Objects
 
     tagsToRemove = tagElms.reduce(function (elms, tagElm) {
-      if (tagElm) {
-        if (typeof tagElm == 'string') tagElm = _this12.getTagElmByValue(tagElm);
-        tagElm && elms.push({
-          node: tagElm,
-          data: tagElm.__tagifyTagData
-        });
-      }
-
+      if (tagElm && typeof tagElm == 'string') tagElm = _this12.getTagElmByValue(tagElm);
+      if (tagElm) elms.push({
+        node: tagElm,
+        data: _this12.tagData(tagElm, {
+          '__REMOVED': true
+        })
+      });
       return elms;
     }, []);
     tranDuration = typeof tranDuration == "number" ? tranDuration : this.CSSVars.tagHideTransition;
@@ -1973,11 +1978,16 @@ Tagify.prototype = {
    * update the origianl (hidden) input field's value
    * see - https://stackoverflow.com/q/50957841/104380
    */
-  update: function update() {
+  update: function update(args) {
     this.preUpdate();
+
     var inputElm = this.DOM.originalInput,
+        _ref5 = args || {},
+        withoutChangeEvent = _ref5.withoutChangeEvent,
         value = removeCollectionProp(this.value, "__isValid");
+
     inputElm.value = this.settings.mode == 'mix' ? this.getMixedTagsAsString(value) : value.length ? this.settings.originalInputValueFormat ? this.settings.originalInputValueFormat(value) : JSON.stringify(value) : "";
+    if (!withoutChangeEvent) this.triggerChangeEvent();
   },
   getMixedTagsAsString: function getMixedTagsAsString() {
     var result = "",
@@ -1988,8 +1998,8 @@ Tagify.prototype = {
     function iterateChildren(rootNode) {
       rootNode.childNodes.forEach(function (node) {
         if (node.nodeType == 1) {
-          if (node.classList.contains("tagify__tag") && node.__tagifyTagData) {
-            result += _interpolator[0] + JSON.stringify(node.__tagifyTagData) + _interpolator[1];
+          if (node.classList.contains("tagify__tag") && that.tagData(node)) {
+            if (that.tagData(node).__REMOVED) return;else result += _interpolator[0] + JSON.stringify(node.__tagifyTagData) + _interpolator[1];
             return;
           }
 
