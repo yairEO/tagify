@@ -1114,6 +1114,24 @@ Tagify.prototype = {
       return true;
     }
   },
+  placeCaretAfterTag: function placeCaretAfterTag(tagElm) {
+    var nextSibling = tagElm.nextSibling;
+    var sel = window.getSelection(),
+        range = sel.getRangeAt(0);
+
+    if (!nextSibling) {
+      nextSibling = document.createTextNode("");
+      tagElm.appendChild(nextSibling);
+      tagElm.parentNode.insertBefore(nextSibling, tagElm.nextSibling);
+    }
+
+    if (sel.rangeCount) {
+      range.setStartAfter(tagElm);
+      range.setEndAfter(tagElm);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  },
 
   /**
    * Enters a tag into "edit" mode
@@ -1717,31 +1735,7 @@ Tagify.prototype = {
     tagsItems = this.normalizeTags(tagsItems);
 
     if (_s.mode == 'mix') {
-      _s.transformTag.call(this, tagsItems[0]); // TODO: should check if the tag is valid
-
-
-      tagElm = this.createTagElem(tagsItems[0]); // tries to replace a taged textNode with a tagElm, and if not able,
-      // insert the new tag to the END if "addTags" was called from outside
-
-      if (!this.replaceTextWithNode(tagElm)) {
-        this.DOM.input.appendChild(tagElm);
-      }
-
-      setTimeout(function () {
-        return tagElm.classList.add('tagify--noAnim');
-      }, 300);
-      tagsItems[0].prefix = tagsItems[0].prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source || _s.pattern)[0];
-      this.value.push(tagsItems[0]);
-      this.update();
-      this.state.tag = null;
-      this.trigger('add', extend({}, {
-        tag: tagElm
-      }, {
-        data: tagsItems[0]
-      })); // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
-
-      this.fixFirefoxLastTagNoCaret();
-      return tagElm;
+      return this.addMixTags(tagsItems);
     }
 
     if (_s.mode == 'select') clearInput = false;
@@ -1815,6 +1809,42 @@ Tagify.prototype = {
 
     this.dropdown.refilter.call(this);
     return tagElems;
+  },
+
+  /**
+   * Adds a mix-content tag
+   * @param {String/Array} tagsItems   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
+   */
+  addMixTags: function addMixTags(tagsItems) {
+    var _s = this.settings,
+        tagElm;
+
+    _s.transformTag.call(this, tagsItems[0]); // TODO: should check if the tag is valid
+
+
+    tagElm = this.createTagElem(tagsItems[0]); // tries to replace a taged textNode with a tagElm, and if not able,
+    // insert the new tag to the END if "addTags" was called from outside
+
+    if (!this.replaceTextWithNode(tagElm)) {
+      this.DOM.input.appendChild(tagElm);
+    }
+
+    setTimeout(function () {
+      return tagElm.classList.add('tagify--noAnim');
+    }, 300);
+    tagsItems[0].prefix = tagsItems[0].prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source || _s.pattern)[0];
+    this.value.push(tagsItems[0]);
+    this.update();
+    this.state.tag = null;
+    this.trigger('add', extend({}, {
+      tag: tagElm
+    }, {
+      data: tagsItems[0]
+    })); // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
+
+    this.fixFirefoxLastTagNoCaret();
+    setTimeout(this.placeCaretAfterTag.bind(this), 100, tagElm);
+    return tagElm;
   },
 
   /**
