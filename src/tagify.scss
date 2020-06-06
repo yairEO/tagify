@@ -44,6 +44,13 @@
     --placeholder-color        : #{$placeholder-color };
     --loader-size              : .8em;
 
+    @mixin firefox {
+        @at-root {
+            @-moz-document url-prefix() {
+                & { @content; }
+            }
+        }
+    }
 
     @mixin placeholder( $show:true, $opacity:.5 ){
         transition:.2s ease-out;
@@ -377,11 +384,12 @@
         &::before{ display:inline-block; width:0; }
 
         &:empty{
-            @supports ( -moz-appearance:none ){
+            @include firefox {
               // clicking twice on the input (not fast) disallows typing (bug) only when the input has "display:flex".
               // disabled the below rule for the above reason:
               //  display: flex; // https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
             }
+
             &::before{ @include placeholder; width:auto; }
         }
 
@@ -389,7 +397,7 @@
             outline:none;
             &::before{
                 @include placeholder(false);
-                @supports ( -moz-appearance:none ){
+                @include firefox {
                     display:none;
                 }
 
@@ -403,12 +411,20 @@
                     display: none;
                 }
             }
-            &:empty::before{
-                @include placeholder(true, .3);
-                @supports ( -moz-appearance:none ){
-                    // remove ":after" pseudo element: https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
-                    content: unset;
-                    // display:inline-block;
+            &:empty{
+                &::before{
+                    @include placeholder(true, .3);
+                    @include firefox {
+                        // remove ":after" pseudo element: https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
+                        content: unset;
+                        // display:inline-block;
+                    }
+                }
+
+                 &::after{
+                    @include firefox {
+                        display: none;
+                    }
                 }
             }
         }
