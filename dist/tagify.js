@@ -543,7 +543,7 @@ Tagify.prototype = {
     if (!changed) return; // React hack: https://github.com/facebook/react/issues/11488
 
     event.simulated = true;
-    if (inputElm._valueTracker) inputElm._valueTracker.setValue('');
+    if (inputElm._valueTracker) inputElm._valueTracker.setValue(Math.random());
     inputElm.dispatchEvent(event);
     this.state.lastOriginalValueReported = inputElm.value;
   },
