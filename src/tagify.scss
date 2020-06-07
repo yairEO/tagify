@@ -120,7 +120,7 @@
     }
 
     // Global "read-only" mode (no input button)
-    &[readonly]{
+    &[readonly]:not(.tagify--mix){
         cursor: default;
         > #{ $self }__input{
             visibility: hidden;

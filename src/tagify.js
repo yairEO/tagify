@@ -217,7 +217,7 @@ Tagify.prototype = {
             return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
                         ${settings.readonly ? 'readonly' : ''}
                         tabIndex="-1">
-                <span contenteditable data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
+                <span ${settings.mode != 'mix' ? 'contenteditable' : ''} data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                     class="tagify__input"
                     role="textbox"
                     aria-autocomplete="both"
@@ -382,7 +382,7 @@ Tagify.prototype = {
 
         DOM.originalInput = input
         DOM.scope = parseHTML(template)
-        DOM.input = DOM.scope.querySelector('[contenteditable]')
+        DOM.input = DOM.scope.querySelector('.tagify__input')
         input.parentNode.insertBefore(DOM.scope, input)
 
         if( this.settings.dropdown.enabled >= 0 ){
