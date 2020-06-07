@@ -10,7 +10,8 @@
     },
     "scripts": {
         "start": "",
-        "test": "jest"
+        "test": "jest",
+        "serve": "http-server -o -c-1"
     },
     "jest": {
         "preset": "jest-puppeteer"
