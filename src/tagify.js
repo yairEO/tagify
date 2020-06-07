@@ -980,7 +980,8 @@ Tagify.prototype = {
                 if( this.settings.mode == 'mix' )
                     this.injectAtCaret(pastedData, window.getSelection())
                 else
-                    this.input.set.call(this, pastedData)
+                  this.addTags(pastedData)
+                    // this.input.set.call(this, pastedData)
             },
 
             onEditTagInput( editableElm, e ){
