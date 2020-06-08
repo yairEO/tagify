@@ -201,7 +201,8 @@ Tagify.prototype = {
         },
 
         hooks : {
-            beforeRemoveTag: () => Promise.resolve()
+            beforeRemoveTag: () => Promise.resolve(),
+            suggestionClick: () => Promise.resolve()
         }
     },
 
@@ -217,7 +218,7 @@ Tagify.prototype = {
             return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
                         ${settings.readonly ? 'readonly' : ''}
                         tabIndex="-1">
-                <span ${settings.mode != 'mix' ? 'contenteditable' : ''} data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
+                <span ${!settings.readonly || settings.mode != 'mix' ? 'contenteditable' : ''} data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                     class="tagify__input"
                     role="textbox"
                     aria-autocomplete="both"
@@ -609,11 +610,6 @@ Tagify.prototype = {
 
                 if( _s.mode == 'mix' ){
                     if( type == "focus" ){
-                        // firefox won't show caret if last element is a tag (and not a textNode),
-                        // so an empty textnode should be added
-                        if( this.fixFirefoxLastTagNoCaret() )
-                            return
-
                         this.trigger("focus", eventData)
                     }
 
@@ -956,12 +952,20 @@ Tagify.prototype = {
                 }
 
                 // when clicking on the input itself
-                else if( e.target == this.DOM.input && timeDiffFocus > 500 ){
-                    if( this.state.dropdown.visible )
-                        this.dropdown.hide.call(this)
-                    else if( _s.dropdown.enabled === 0 && _s.mode != 'mix' )
-                        this.dropdown.show.call(this)
-                    return
+                else if( e.target == this.DOM.input ){
+                    if( _s.mode == 'mix' ){
+                        // firefox won't show caret if last element is a tag (and not a textNode),
+                        // so an empty textnode should be added
+                        this.fixFirefoxLastTagNoCaret()
+                    }
+
+                    if( timeDiffFocus > 500 ){
+                        if( this.state.dropdown.visible )
+                            this.dropdown.hide.call(this)
+                        else if( _s.dropdown.enabled === 0 && _s.mode != 'mix' )
+                            this.dropdown.show.call(this)
+                        return
+                    }
                 }
 
                 if( _s.mode == 'select' )
@@ -1111,8 +1115,9 @@ Tagify.prototype = {
 
     fixFirefoxLastTagNoCaret(){
         var inputElm = this.DOM.input
+
         if( isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1 ){
-            inputElm.appendChild(document.createTextNode(""))
+            inputElm.appendChild(document.createTextNode("\u200b"))
             this.setRangeAtStartEnd(true)
             return true
         }
@@ -2465,12 +2470,17 @@ Tagify.prototype = {
                 onClick(e){
                     if( e.button != 0 || e.target == this.DOM.dropdown ) return; // allow only mouse left-clicks
 
-                    var listItemElm = e.target.closest(".tagify__dropdown__item"),
-                        actionBtn = e.target.closest(".tagify__dropdown__item__action")
+                    var listItemElm = e.target.closest(".tagify__dropdown__item")
 
-                    if( listItemElm && !actionBtn )
-                        this.dropdown.selectOption.call(this, listItemElm)
+                    // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
+                    this.state.actions.selectOption = true;
+                    setTimeout(()=> this.state.actions.selectOption = false, 50)
 
+                    this.settings.hooks.suggestionClick(e)
+                        .then(() => {
+                            if( listItemElm )
+                                this.dropdown.selectOption.call(this, listItemElm)
+                        })
 
                     // if( addNewBtn )
                     //     this.dropdown.events.callbacks.onClickAddNewBtn.call(this)
@@ -2554,10 +2564,6 @@ Tagify.prototype = {
 
             // if in edit-mode, do not continue but instead replace the tag's text.
             // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
-
-            // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
-            this.state.actions.selectOption = true;
-            setTimeout(()=> this.state.actions.selectOption = false, 50)
 
             var hideDropdown = this.settings.dropdown.closeOnSelect,
                 selectedOption = this.suggestedListItems[this.getNodeIndex(elm)],
