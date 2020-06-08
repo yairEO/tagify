@@ -597,12 +597,14 @@ getTagIndexByValue       | String                                               
 parseMixTags             | String                                                                    | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
 getTagElms               |                                                                           | Returns a DOM nodes list of all the tags
 getTagElmByValue         | String                                                                    | Returns a specific tag DOM node by value
+tagData                  | HTMLElement, Object                                                       | set/get tag data on a tag element (has`.tagify__tag` class by default)
 editTag                  | Node                                                                      | Goes to edit-mode in a specific tag
 replaceTag               | `tagElm`, Object <sub>(`tagData`)</sub>                                   | Exit a tag's edit-mode. if "tagData" exists, replace the tag element with new data and update Tagify value
 loading                  | Boolean                                                                   | Toogle loading state on/off (Ex. AJAX whitelist pulling)
 tagLoading               | HTMLElement, Boolean                                                      | same as above but for a specific tag element
 createTagElem            | Object <sub>(`tagData`)</sub>                                             | Returns a tag element from the supplied tag data
 injectAtCaret            | HTMLElement <sub>(`injectedNode`)</sub>, Object <sub>(`selection`)</sub>  | Injects text or HTML node at last caret position. The `selection` parameter is *optional*
+
 
 ## Events
 
