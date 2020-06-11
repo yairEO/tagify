@@ -2307,7 +2307,8 @@ Tagify.prototype = {
         },
 
         /**
-         * fill data into the suggestions list (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
+         * fill data into the suggestions list
+         * (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
          */
         refilter( value ){
             var HTMLstr;
@@ -2481,6 +2482,7 @@ Tagify.prototype = {
                             if( listItemElm )
                                 this.dropdown.selectOption.call(this, listItemElm)
                         })
+                        .catch(err => err)
 
                     // if( addNewBtn )
                     //     this.dropdown.events.callbacks.onClickAddNewBtn.call(this)

@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.11.0)- tags input component
+ * Tagify (v 3.11.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -2212,7 +2212,8 @@ Tagify.prototype = {
     },
 
     /**
-     * fill data into the suggestions list (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
+     * fill data into the suggestions list
+     * (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
      */
     refilter: function refilter(value) {
       var HTMLstr;
@@ -2380,6 +2381,8 @@ Tagify.prototype = {
           }, 50);
           this.settings.hooks.suggestionClick(e).then(function () {
             if (listItemElm) _this15.dropdown.selectOption.call(_this15, listItemElm);
+          })["catch"](function (err) {
+            return err;
           }); // if( addNewBtn )
           //     this.dropdown.events.callbacks.onClickAddNewBtn.call(this)
         },
