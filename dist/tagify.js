@@ -804,6 +804,7 @@ Tagify.prototype = {
             }
 
           case 'Enter':
+            if (e.keyCode == 229) return;
             e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
             // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
             // know if an option was just selected from the dropdown menu. If an option was selected,
