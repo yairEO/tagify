@@ -10,6 +10,9 @@ class Tags extends React.Component {
 
   componentDidMount() {
     this.tagify = new Tagify(this.component, this.props.settings || {})
+
+    // allows accessing Tagify methods from outside
+    if (this.props.tagifyRef) this.props.tagifyRef.current = this.tagify
   }
 
   componentWillUnmount() {
@@ -60,25 +63,21 @@ class Tags extends React.Component {
 
   render() {
     const attrs = {
-      ref        : this._handleRef,
-      name       : this.props.name,
-      className  : this.props.className,
+      ref: this._handleRef,
+      name: this.props.name,
+      className: this.props.className,
       placeholder: this.props.placeholder,
-      autoFocus  : this.props.autofocus,
-      value      : this.props.children || this.props.value,
-      readOnly   : this.props.readonly,
-      onChange   : this.props.onChange || function(){}
+      autoFocus: this.props.autofocus,
+      value: this.props.children || this.props.value,
+      readOnly: this.props.readonly,
+      onChange: this.props.onChange || function() {},
+      defaultValue: this.props.initialValue
     }
-
-    const {className} = this.props
 
     return React.createElement(
       "div",
-      {className},
-      React.createElement(
-        this.props.mode,
-        Object.assign({}, attrs, {defaultValue: this.props.initialValue})
-      )
+      null,
+      React.createElement(this.props.mode, attrs)
     )
   }
 }

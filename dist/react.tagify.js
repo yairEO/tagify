@@ -96,7 +96,9 @@ function (_React$Component) {
   _createClass(Tags, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      this.tagify = new _tagifyMin["default"](this.component, this.props.settings || {});
+      this.tagify = new _tagifyMin["default"](this.component, this.props.settings || {}); // allows accessing Tagify methods from outside
+
+      if (this.props.tagifyRef) this.props.tagifyRef.current = this.tagify;
     }
   }, {
     key: "componentWillUnmount",
@@ -148,14 +150,10 @@ function (_React$Component) {
         autoFocus: this.props.autofocus,
         value: this.props.children || this.props.value,
         readOnly: this.props.readonly,
-        onChange: this.props.onChange || function () {}
-      };
-      var className = this.props.className;
-      return _react["default"].createElement("div", {
-        className: className
-      }, _react["default"].createElement(this.props.mode, Object.assign({}, attrs, {
+        onChange: this.props.onChange || function () {},
         defaultValue: this.props.initialValue
-      })));
+      };
+      return _react["default"].createElement("div", null, _react["default"].createElement(this.props.mode, attrs));
     }
   }]);
 
