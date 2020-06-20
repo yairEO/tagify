@@ -511,14 +511,15 @@ Tagify.prototype = {
 
         if( !changed ) return;
 
+        // must apply this BEFORE triggering the simulated event
+        this.state.lastOriginalValueReported = inputElm.value
+
         // React hack: https://github.com/facebook/react/issues/11488
         event.simulated = true
         if (inputElm._valueTracker)
             inputElm._valueTracker.setValue(Math.random())
 
         inputElm.dispatchEvent(event)
-
-        this.state.lastOriginalValueReported = inputElm.value
     },
 
     /**
