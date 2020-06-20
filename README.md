@@ -405,6 +405,7 @@ To gain full acess to Tagify's inner methods, A custom `ref` can be used:
 
     <Tags tagifyRef={tagifyRef} ... />
 
+
 ### See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
 
 
