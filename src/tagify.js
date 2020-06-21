@@ -520,6 +520,9 @@ Tagify.prototype = {
             inputElm._valueTracker.setValue(Math.random())
 
         inputElm.dispatchEvent(event)
+
+        // React, for some reason, clears the input's value after "dispatchEvent" is fired
+        inputElm.value = this.state.lastOriginalValueReported
     },
 
     /**

@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.11.2)- tags input component
+ * Tagify (v 3.11.3)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -549,7 +549,9 @@ Tagify.prototype = {
 
     event.simulated = true;
     if (inputElm._valueTracker) inputElm._valueTracker.setValue(Math.random());
-    inputElm.dispatchEvent(event);
+    inputElm.dispatchEvent(event); // React, for some reason, clears the input's value after "dispatchEvent" is fired
+
+    inputElm.value = this.state.lastOriginalValueReported;
   },
 
   /**
