@@ -215,7 +215,7 @@ Tagify.prototype = {
          * @param {Object}     settings  Tagify instance settings Object
          */
         wrapper(input, settings){
-            return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
+            return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${settings.required ? "tagify--required" : ""} ${input.className}"
                         ${settings.readonly ? 'readonly' : ''}
                         tabIndex="-1">
                 <span ${!settings.readonly || settings.mode != 'mix' ? 'contenteditable' : ''} data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
@@ -263,8 +263,9 @@ Tagify.prototype = {
         this.DEFAULTS.templates = this.templates;
 
         this.settings = extend({}, this.DEFAULTS, settings);
-        this.settings.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
-        this.settings.placeholder = input.getAttribute('placeholder') || this.settings.placeholder || "";
+        this.settings.readonly = input.hasAttribute('readonly') // if "readonly" do not include an "input" element inside the Tags component
+        this.settings.placeholder = input.getAttribute('placeholder') || this.settings.placeholder || ""
+        this.settings.required = input.hasAttribute('required')
 
         if( this.isIE )
             this.settings.autoComplete = false; // IE goes crazy if this isn't false
@@ -421,6 +422,9 @@ Tagify.prototype = {
                 this.addTags(value).forEach(tag => tag && tag.classList.add('tagify--noAnim'))
             }
         }
+
+        else
+            this.postUpdate()
 
         this.state.lastOriginalValueReported = this.DOM.originalInput.value
         this.state.loadedOriginalValues = true
@@ -597,13 +601,14 @@ Tagify.prototype = {
                     return
 
                 if( type == 'blur' ){
-                    this.triggerChangeEvent()
-
                     if( e.relatedTarget === this.DOM.scope ){
                         this.dropdown.hide.call(this)
                         this.DOM.input.focus()
                         return
                     }
+
+                    this.postUpdate()
+                    this.triggerChangeEvent()
                 }
 
                 if( isTargetSelectOption || isTargetAddNewBtn )
@@ -1077,7 +1082,7 @@ Tagify.prototype = {
 
                 // check if the new value is in the whiteilst, if not check if there
                 // is any pre-invalidation data, and lastly resort to fresh emptty Object
-                newTagData = this.getWhitelistItemsByValue({value}) || newTagData.__preInvalidData || {}
+                newTagData = this.getWhitelistItemsByValue(value) || newTagData.__preInvalidData || {}
                 newTagData = Object.assign({}, newTagData, {value}) // clone it, not to mess with the whitelist
                 //transform it again
                 this.settings.transformTag.call(this, newTagData)
@@ -1342,12 +1347,14 @@ Tagify.prototype = {
          * Marks the tagify's input as "invalid" if the value did not pass "validateTag()"
          */
         validate(){
-            var isValid = !this.input.value || this.validateTag({value:this.input.value})
+            var isValid = !this.input.value || this.validateTag({value:this.input.value}) === true
 
             if( this.settings.mode == 'select' )
-                this.DOM.scope.classList.toggle('tagify--invalid', isValid !== true)
+                this.toggleInvalidClass(!isValid)
             else
-                this.DOM.input.classList.toggle('tagify__input--invalid', isValid !== true)
+                this.DOM.input.classList.toggle('tagify__input--invalid', !isValid)
+
+            return isValid
         },
 
         // remove any child DOM elements that aren't of type TEXT (like <br>)
@@ -1590,17 +1597,8 @@ Tagify.prototype = {
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
             isArray = tagsItems instanceof Array,
-            isCollection = isArray && tagsItems[0] instanceof Object && "value" in tagsItems[0],
             temp = [],
             mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:v.trim() }))
-
-
-        // no need to continue if "tagsItems" is an Array of Objects
-        if (isCollection){
-            // iterate the collection items and check for values that can be splitted into multiple tags
-            tagsItems = [].concat(...tagsItems.map(item => mapStringToCollection(item.value).map(newItem => ({...item,...newItem})) ));
-            return tagsItems;
-        }
 
         if( typeof tagsItems == 'number' )
             tagsItems = tagsItems.toString();
@@ -1613,8 +1611,13 @@ Tagify.prototype = {
             tagsItems = mapStringToCollection(tagsItems);
         }
 
+        // assuming Array of Strings
         else if( isArray ){
-            tagsItems = [].concat(...tagsItems.map(item => mapStringToCollection(item)));
+            // flatten the 2D array
+            tagsItems = [].concat(...tagsItems.map(item => item.value
+                ? mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
+                : mapStringToCollection(item)
+            ));
         }
 
         // search if the tag exists in the whitelist as an Object (has props),
@@ -1622,8 +1625,9 @@ Tagify.prototype = {
         if( whitelistWithProps ){
             tagsItems.forEach(item => {
                 // the "value" prop should preferably be unique
-                var matchObj = this.getWhitelistItemsByValue({value:item.value})
-                if( matchObj ){
+                var matchObj = this.getWhitelistItemsByValue(item.value)
+
+                if( matchObj && matchObj instanceof Object ){
                     temp.push( matchObj ); // set the Array (with the found Object) as the new value
                 }
                 else if( mode != 'mix' )
@@ -1637,8 +1641,8 @@ Tagify.prototype = {
         return tagsItems;
     },
 
-    getWhitelistItemsByValue({value}){
-        return this.settings.whitelist.filter( item => sameStr(item.value || item, value))[0]
+    getWhitelistItemsByValue(value){
+        return this.settings.whitelist.filter(item => sameStr(item.value || item, value))[0]
     },
 
     /**
@@ -1777,7 +1781,6 @@ Tagify.prototype = {
         // converts Array/String/Object to an Array of Objects
         tagsItems = this.normalizeTags(tagsItems)
 
-
         if( _s.mode == 'mix' ){
             return this.addMixTags(tagsItems)
         }
@@ -1862,8 +1865,9 @@ Tagify.prototype = {
 
         _s.transformTag.call(this, tagsItems[0])
 
-        // TODO: should check if the tag is valid
+        tagsItems[0].prefix = tagsItems[0].prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0];
 
+        // TODO: should check if the tag is valid
         tagElm = this.createTagElem(tagsItems[0])
         // tries to replace a taged textNode with a tagElm, and if not able,
         // insert the new tag to the END if "addTags" was called from outside
@@ -1873,7 +1877,6 @@ Tagify.prototype = {
 
         setTimeout(()=> tagElm.classList.add('tagify--noAnim'), 300)
 
-        tagsItems[0].prefix = tagsItems[0].prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0]
 
         this.value.push(tagsItems[0])
         this.update()
@@ -1923,7 +1926,9 @@ Tagify.prototype = {
         return tagElm;
     },
 
-    // find all invalid tags and re-check them
+    /**
+     * find all invalid tags and re-check them
+     */
     reCheckInvalidTags(){
         var tagElms = this.DOM.scope.querySelectorAll('.tagify__tag.tagify--notAllowed');
 
@@ -1940,11 +1945,11 @@ Tagify.prototype = {
                     // start fresh
                     tagData = {value:tagData.value}
 
-                //  this.getWhitelistItemsByValue({value:item.value})
                 this.replaceTag(node, tagData)
             }
         })
     },
+
     /**
      * Removes a tag
      * @param  {Array|Node|String}  tagElms         [DOM element(s) or a String value. if undefined or null, remove last added tag]
@@ -1992,6 +1997,9 @@ Tagify.prototype = {
             if( tagsToRemove[0].node.classList.contains('tagify--notAllowed') )
                 silent = true
         }
+
+        if( !tagsToRemove.length )
+            return;
 
         this.settings.hooks.beforeRemoveTag(tagsToRemove)
             .then(() => {
@@ -2077,9 +2085,11 @@ Tagify.prototype = {
     },
     */
 
-    preUpdate(){
+    postUpdate(){
+        var hasValue = this.settings.mode == 'mix' ? this.DOM.originalInput.value : this.value.length;
         this.DOM.scope.classList.toggle('tagify--hasMaxTags',  this.value.length >= this.settings.maxTags)
         this.DOM.scope.classList.toggle('tagify--noTags',  !this.value.length)
+        this.DOM.scope.classList.toggle('tagify--empty', !hasValue)
     },
 
     /**
@@ -2087,11 +2097,10 @@ Tagify.prototype = {
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update( args ){
-        this.preUpdate()
-
         var inputElm = this.DOM.originalInput,
             { withoutChangeEvent } = args || {},
             value = removeCollectionProp(this.value, ['__isValid', '__removed']);
+
 
         inputElm.value = this.settings.mode == 'mix'
             ? this.getMixedTagsAsString(value)
@@ -2100,6 +2109,8 @@ Tagify.prototype = {
                     ? this.settings.originalInputValueFormat(value)
                     : JSON.stringify(value)
                 : ""
+
+        this.postUpdate()
 
         if( !withoutChangeEvent && this.state.loadedOriginalValues )
             this.triggerChangeEvent()
