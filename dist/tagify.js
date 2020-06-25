@@ -810,6 +810,7 @@ Tagify.prototype = {
 
           case 'Tab':
             {
+              e.preventDefault();
               if (!s || this.settings.mode == 'select') return true;
             }
 

@@ -792,6 +792,7 @@ Tagify.prototype = {
                         break
                     }
                     case 'Tab' : {
+                        e.preventDefault()
                         if( !s || this.settings.mode == 'select' ) return true;
                     }
 
