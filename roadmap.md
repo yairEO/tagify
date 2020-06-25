@@ -1,0 +1,2 @@
+- add SCSS variable for input color (not tag color)
+- dragable sortable tags
