@@ -22,6 +22,7 @@
     $tag-invalid-bg          : rgba($tag-remove, .5) !default;
     $tag-inset-shadow-size   : 1.1em !default;
     $placeholder-color       : $tag-text-color !default;
+    $input-color             : red !default;
 
     // CSS variables
     --tags-border-color        : #{$tags-border-color};
@@ -38,10 +39,11 @@
     --tag-remove-bg            : #{rgba($tag-remove, .3)};
     --tag-remove-btn-bg        : #{$tag-remove-btn-bg};
     --tag-remove-btn-bg--hover : #{$tag-remove-btn-bg--hover};
+    --input-color              : #{$input-color};
     --tag--min-width           : 1ch;
     --tag--max-width           : auto;
     --tag-hide-transition      : .3s;
-    --placeholder-color        : #{$placeholder-color };
+    --placeholder-color        : #{$placeholder-color};
     --loader-size              : .8em;
 
     @mixin firefox {
@@ -313,45 +315,45 @@
                 }
             }
         }
-    }
 
-    &__tag__removeBtn{
-        $size: 14px;
+        &__removeBtn{
+            $size: 14px;
 
-        order          : 5;
-        display        : inline-flex;
-        align-items    : center;
-        justify-content: center;
-        border-radius  : 50px;
-        cursor         : pointer;
-        font           : #{$size} Serif;
-        background     : $tag-remove-btn-bg;
-        background     : var(--tag-remove-btn-bg);
-        color          : $tag-text-color;
-        color          : var(--tag-text-color);
+            order          : 5;
+            display        : inline-flex;
+            align-items    : center;
+            justify-content: center;
+            border-radius  : 50px;
+            cursor         : pointer;
+            font           : #{$size} Serif;
+            background     : $tag-remove-btn-bg;
+            background     : var(--tag-remove-btn-bg);
+            color          : $tag-text-color;
+            color          : var(--tag-text-color);
 
-        width          : $size;
-        height         : $size;
-        margin-right   : $size/3;
-        margin-left    : -$size/3;
+            width          : $size;
+            height         : $size;
+            margin-right   : $size/3;
+            margin-left    : -$size/3;
 
-        transition     : .2s ease-out;
+            transition     : .2s ease-out;
 
-        &::after{
-            content: "\00D7";
-        }
+            &::after{
+                content: "\00D7";
+            }
 
-        &:hover{
-            color:white;
-            background:$tag-remove-btn-bg--hover;
-            background:var(--tag-remove-btn-bg--hover);
-            // + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
-            + div{
-                > span{ opacity:.5; } // filter:blur(.2px);
-                &::before{
-                    box-shadow: 0 0 0 $tag-inset-shadow-size rgba($tag-remove, .3) inset !important;
-                    box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-remove-bg) inset !important;
-                    transition:.2s;
+            &:hover{
+                color:white;
+                background:$tag-remove-btn-bg--hover;
+                background:var(--tag-remove-btn-bg--hover);
+                // + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
+                + div{
+                    > span{ opacity:.5; } // filter:blur(.2px);
+                    &::before{
+                        box-shadow: 0 0 0 $tag-inset-shadow-size rgba($tag-remove, .3) inset !important;
+                        box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-remove-bg) inset !important;
+                        transition:.2s;
+                    }
                 }
             }
         }
@@ -380,6 +382,8 @@
         line-height: inherit;
         position: relative;
         white-space: pre-line; // #160 Line break (\n) as delimeter
+        color: $input-color;
+        color: var(--input-color);
 
         &::before{ display:inline-block; width:0; }
 
