@@ -22,7 +22,7 @@
     $tag-invalid-bg          : rgba($tag-remove, .5) !default;
     $tag-inset-shadow-size   : 1.1em !default;
     $placeholder-color       : $tag-text-color !default;
-    $input-color             : red !default;
+    $input-color             : inherit !default;
 
     // CSS variables
     --tags-border-color        : #{$tags-border-color};
