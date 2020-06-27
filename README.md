@@ -504,10 +504,10 @@ These can also be set by Tagify settings argument Object manually and not *decle
 Attribute         | Example                                               | Info
 ----------------- | ----------------------------------------------------- | --------------------
 [pattern](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern) | <pre lang=html>`<input pattern='^[A-Za-z_✲ ]{1,15}$'>`</pre>               | Tag Regex pattern which tag input is validated by.
-[placeholder](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#htmlattrdefplaceholder) | <pre lang=html>`<input placeholder='please type your tags'>`</pre>        | This attribute's value will be used as a constant<br> placeholder, which is visible unless something is being typed.
+[placeholder](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#htmlattrdefplaceholder) | <pre lang=html>`<input placeholder='please type your tags'>`</pre>        | This attribute's value will be used as a constant placeholder, which is visible unless something is being typed.
 readOnly          | <pre lang=html>`<input readOnly>`</pre> | No user-interaction (add/remove/edit) allowed.
 autofocus         | <pre lang=html>`<input autofocus>`</pre> | Automatically focus the the Tagify component when the component is loaded
-required          | <pre lang=html>`<input required>`</pre> | Adds a `required` attribute to the Tagify wrapper element. <br> Does nothing more.
+required          | <pre lang=html>`<input required>`</pre> | Adds a `required` attribute to the Tagify wrapper element. Does nothing more.
 readonly          | <pre lang=html>`<input readonly>`</pre> | Adds a `readonly` attribute to the Tagify wrapper element.
 
 
