@@ -398,7 +398,7 @@ const App = () => {
       onChange={e => (e.persist(), console.log("CHANGED:", e.target.value))}
     />
   )
-}
+})
 ```
 
 To gain full acess to Tagify's inner methods, A custom `ref` can be used:
@@ -496,6 +496,21 @@ $('[name=tags]').tagify();
 $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 ````
 
+## HTML input & textarea attributes
+
+The below list of attributes affect Tagify.<br>
+These can also be set by Tagify settings argument Object manually and not *declerativly* (via attributes).
+
+Attribute         | Example                                               | Info
+----------------- | ----------------------------------------------------- | --------------------
+[pattern](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern) | <pre lang=html>`<input pattern='^[A-Za-z_✲ ]{1,15}$'>`</pre>               | Tag Regex pattern which tag input is validated by.
+[placeholder](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#htmlattrdefplaceholder) | <pre lang=html>`<input placeholder='please type your tags'>`</pre>        | This attribute's value will be used as a constant<br> placeholder, which is visible unless something is being typed.
+readOnly          | <pre lang=html>`<input readOnly>`</pre> | No user-interaction (add/remove/edit) allowed.
+autofocus         | <pre lang=html>`<input autofocus>`</pre> | Automatically focus the the Tagify component when the component is loaded
+required          | <pre lang=html>`<input required>`</pre> | Adds a `required` attribute to the Tagify wrapper element. <br> Does nothing more.
+readonly          | <pre lang=html>`<input readonly>`</pre> | Adds a `readonly` attribute to the Tagify wrapper element.
+
+
 ## FAQ
 
 List of questions & scenarios which might come up during development with Tagify:
@@ -584,6 +599,9 @@ Name                            | Info
 --loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
 --tag-hide-transition           | Controls the transition property when a tag is removed. default is '.3s'
 --placeholder-color             | Placeholder text color
+--input-color                   | Input text color
+
+### For [SCSS variables, see here](https://github.com/yairEO/tagify/blob/master/src/tagify.scss#L9-L24)
 
 
 ## Methods
@@ -609,7 +627,7 @@ loading                  | Boolean                                              
 tagLoading               | HTMLElement, Boolean                                                      | same as above but for a specific tag element
 createTagElem            | Object <sub>(`tagData`)</sub>                                             | Returns a tag element from the supplied tag data
 injectAtCaret            | HTMLElement <sub>(`injectedNode`)</sub>, Object <sub>(`selection`)</sub>  | Injects text or HTML node at last caret position. The `selection` parameter is *optional*
-
+toggleInvalidClass       | Boolean                                                                   | Toggles `tagify--invalid` class to the Tagify wrapper element
 
 ## Events
 
@@ -686,7 +704,7 @@ var tagify = new Tagify(input,{
 Name                   | Parameters                                  | Info
 ---------------------- | ------------------------------------------- | --------------------------------------------------------------------------
 beforeRemoveTag        | Array <sub>(of Objects)</sub>               | [Example](https://jsbin.com/xoseyux/edit?html,js,output)
-onSuggestionClick      | Object <sub>(click event data)</sub>        |
+onSuggestionClick      | Object <sub>(click event data)</sub>        | [Example](https://jsbin.com/tuwihuf/edit?html,js,output)
 
 ## Settings
 
