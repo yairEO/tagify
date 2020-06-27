@@ -220,8 +220,9 @@ Tagify.prototype = {
          * @param {Object}     settings  Tagify instance settings Object
          */
         wrapper(input, settings){
-            return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${settings.required ? "tagify--required" : ""} ${input.className}"
+            return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
                         ${settings.readonly ? 'readonly' : ''}
+                        ${settings.required ? "required" : ""}
                         tabIndex="-1">
                 <span ${!settings.readonly || settings.mode != 'mix' ? 'contenteditable' : ''} data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                     class="tagify__input"
@@ -2226,7 +2227,7 @@ Tagify.prototype = {
             }
 
             firstListItem =  this.suggestedListItems[0]
-            firstListItemValue = isObject(firstListItem) ? firstListItem.value : firstListItem
+            firstListItemValue = ""+isObject(firstListItem) ? firstListItem.value : firstListItem
 
             if( _s.autoComplete && firstListItemValue ){
                 // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
@@ -2235,6 +2236,7 @@ Tagify.prototype = {
             }
 
             HTMLContent = this.dropdown.createListHTML.call(this, this.suggestedListItems);
+
             this.DOM.dropdown.content.innerHTML = minify(HTMLContent);
 
             if( _s.dropdown.highlightFirst )
@@ -2673,14 +2675,15 @@ Tagify.prototype = {
          */
         createListHTML( optionsArr ){
             return optionsArr.map(item => {
-                if( typeof item == 'string')
+                if( typeof item == 'string' || typeof item == 'number' )
                     item = {value:item}
 
                 var mapValueTo = this.settings.dropdown.mapValueTo,
                     value = (mapValueTo
                         ? typeof mapValueTo == 'function' ? mapValueTo(item) : item[mapValueTo]
                         : item.value),
-                    data = extend({}, item, {value:escapeHTML(value||"")})
+                    escapedValue = value && typeof value == 'string' ? escapeHTML(value) : value,
+                    data = extend({}, item, {value:escapedValue})
 
                 return this.settings.templates.dropdownItem.call(this, data)
             }).join("")

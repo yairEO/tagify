@@ -2134,7 +2134,7 @@ Tagify.prototype = {
       }
 
       firstListItem = this.suggestedListItems[0];
-      firstListItemValue = isObject(firstListItem) ? firstListItem.value : firstListItem;
+      firstListItemValue = "" + isObject(firstListItem) ? firstListItem.value : firstListItem;
 
       if (_s.autoComplete && firstListItemValue) {
         // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
@@ -2540,13 +2540,14 @@ Tagify.prototype = {
       var _this18 = this;
 
       return optionsArr.map(function (item) {
-        if (typeof item == 'string') item = {
+        if (typeof item == 'string' || typeof item == 'number') item = {
           value: item
         };
         var mapValueTo = _this18.settings.dropdown.mapValueTo,
             value = mapValueTo ? typeof mapValueTo == 'function' ? mapValueTo(item) : item[mapValueTo] : item.value,
+            escapedValue = value && typeof value == 'string' ? escapeHTML(value) : value,
             data = extend({}, item, {
-          value: escapeHTML(value || "")
+          value: escapedValue
         });
         return _this18.settings.templates.dropdownItem.call(_this18, data);
       }).join("");
