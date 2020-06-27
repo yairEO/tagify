@@ -398,7 +398,7 @@ const App = () => {
       onChange={e => (e.persist(), console.log("CHANGED:", e.target.value))}
     />
   )
-})
+}
 ```
 
 To gain full acess to Tagify's inner methods, A custom `ref` can be used:
