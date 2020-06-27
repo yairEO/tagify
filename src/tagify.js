@@ -1494,7 +1494,7 @@ Tagify.prototype = {
         if( this.settings.mode == 'select' )
             return false
 
-        duplications = this.value.reduce((acc, item) => value.trim().toLowerCase() === item.value.toLowerCase() ? acc+1 : acc, 0)
+        duplications = this.value.reduce((acc, item) => (""+value).trim().toLowerCase() === item.value.toLowerCase() ? acc+1 : acc, 0)
         return duplications
         // this.value.some(item => value.trim().toLowerCase() === item.value.toLowerCase())
     },
@@ -2227,7 +2227,7 @@ Tagify.prototype = {
             }
 
             firstListItem =  this.suggestedListItems[0]
-            firstListItemValue = ""+isObject(firstListItem) ? firstListItem.value : firstListItem
+            firstListItemValue = ""+(isObject(firstListItem) ? firstListItem.value : firstListItem)
 
             if( _s.autoComplete && firstListItemValue ){
                 // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
