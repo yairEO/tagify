@@ -498,8 +498,8 @@ $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 
 ## HTML input & textarea attributes
 
-The below list of attributes affect Tagify.<br>
-These can also be set by Tagify settings argument Object manually and not *declerativly* (via attributes).
+The below list of *attributes* affect *Tagify*.<br>
+These can also be set by Tagify [settings](#settings) Object manually, and not *declerativly* (via attributes).
 
 Attribute         | Example                                               | Info
 ----------------- | ----------------------------------------------------- | --------------------
