@@ -221,61 +221,12 @@ To do the same but for specific tag(s), set those tags' data with `editable` pro
 ```
 
 ## DOM Templates
-It's possible to control the templates for the following HTML elements tagify generates by
-modying the `settings.templates` Object with your own custom functions which should output a string.
+It's possible to control the templates for some of the HTML elements tagify is using by
+modying the `settings.templates` Object with your own custom functions which **must return** an *HTML string*.
 
-<details>
-  <summary><strong>Default templates</strong></summary>
+Available templates are: `wrapper`, `tag`, `dropdown`. & `dropdownItem`.
 
-```javascript
-templates : {
-  wrapper(input, settings){
-    return `<tags class="tagify ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
-                        ${settings.readonly ? 'readonly aria-readonly="true"' : 'aria-haspopup="listbox" aria-expanded="false"'}
-                        role="tagslist"
-                        tabIndex="-1">
-                <span contenteditable data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
-                    class="tagify__input"
-                    role="textbox"
-                    aria-controls="dropdown"
-                    aria-autocomplete="both"
-                    aria-multiline="${settings.mode=='mix'?true:false}"></span>
-            </tags>`
-  },
-
-  tag(value, tagData){
-      return `<tag title='${tagData.title || value}'
-                contenteditable='false'
-                spellcheck='false'
-                tabIndex="-1"
-                class='tagify__tag ${tagData.class ? tagData.class : ""}'
-                ${this.getAttributes(tagData)}>
-          <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
-          <div>
-              <span class='tagify__tag-text'>${value}</span>
-          </div>
-      </tag>`
-  },
-
-  dropdown(settings){
-      var _s = settings.dropdown,
-          className = `${_s.position == 'manual' ? "" : `tagify__dropdown tagify__dropdown--${_s.position}`} ${_s.classname}`.trim();
-
-      return `<div class="${className}" role="listbox" aria-labelledby="dropdown">
-                  <div class="tagify__dropdown__wrapper"></div>
-                  <button class="tagify__dropdown__addNewBtn">add new</button>
-              </div>`
-  },
-
-  dropdownItem( item ){
-    return `<div ${this.getAttributes(item)}
-                        class='tagify__dropdown__item ${item.class ? item.class : ""}'
-                        tabindex="0"
-                        role="option">${item.value}</div>`
-  }
-}
-```
-</details>
+[View templates](https://github.com/yairEO/tagify/blob/master/src/tagify.js#L216-L264)
 
 ## Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
@@ -610,24 +561,25 @@ Name                            | Info
 
 Name                     | Parameters                                                                | Info
 ------------------------ | ------------------------------------------------------------------------- | --------------------------------------------------------------------------
-destroy                  |                                                                           | Reverts the input element back as it was before Tagify was applied
-removeAllTags            |                                                                           | Removes all tags and resets the original input tag's value property
-addTags                  | `tagsItems`, `clearInput`, `skipInvalid`                                  | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
-removeTags               | Array/Node/String, `silent`, `tranDuration`                               | (#502) Remove single/multiple Tags. When nothing passed, removes last tag. <ul><li>`silent` - A flag, which when turned on, does not remove any value and does not update the original input value but simply removes the tag from tagify</li><li>`tranDuration` - delay for animation, after which the tag will be removed from the DOM</li></ul>
-loadOriginalValues       | String/Array                                                              | Converts the input's value into tags. This method gets called automatically when instansiating Tagify. Also works for mixed-tags
-getWhitelistItemsByValue | Object                                                                    | `{value}` - return an Array of found matching items (case-insensetive)
-getTagIndexByValue       | String                                                                    | Returns the index of a specific tag, by value
-parseMixTags             | String                                                                    | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
-getTagElms               |                                                                           | Returns a DOM nodes list of all the tags
-getTagElmByValue         | String                                                                    | Returns a specific tag DOM node by value
-tagData                  | HTMLElement, Object                                                       | set/get tag data on a tag element (has`.tagify__tag` class by default)
-editTag                  | Node                                                                      | Goes to edit-mode in a specific tag
-replaceTag               | `tagElm`, Object <sub>(`tagData`)</sub>                                   | Exit a tag's edit-mode. if "tagData" exists, replace the tag element with new data and update Tagify value
-loading                  | Boolean                                                                   | Toogle loading state on/off (Ex. AJAX whitelist pulling)
-tagLoading               | HTMLElement, Boolean                                                      | same as above but for a specific tag element
-createTagElem            | Object <sub>(`tagData`)</sub>                                             | Returns a tag element from the supplied tag data
-injectAtCaret            | HTMLElement <sub>(`injectedNode`)</sub>, Object <sub>(`selection`)</sub>  | Injects text or HTML node at last caret position. The `selection` parameter is *optional*
-toggleInvalidClass       | Boolean                                                                   | Toggles `tagify--invalid` class to the Tagify wrapper element
+`destroy`                |                                                                           | Reverts the input element back as it was before Tagify was applied
+`removeAllTags`          |                                                                           | Removes all tags and resets the original input tag's value property
+`addTags`                | `tagsItems`, `clearInput`, `skipInvalid`                                  | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
+`removeTags`             | Array/Node/String, `silent`, `tranDuration`                               | (#502) Remove single/multiple Tags. When nothing passed, removes last tag. <ul><li>`silent` - A flag, which when turned on, does not remove any value and does not update the original input value but simply removes the tag from tagify</li><li>`tranDuration` - delay for animation, after which the tag will be removed from the DOM</li></ul>
+`loadOriginalValues`     | String/Array                                                              | Converts the input's value into tags. This method gets called automatically when instansiating Tagify. Also works for mixed-tags
+`getWhitelistItemsByValue` Object                                                                    | `{value}` - return an Array of found matching items (case-insensetive)
+`getTagIndexByValue`     | String                                                                    | Returns the index of a specific tag, by value
+`parseMixTags`           | String                                                                    | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
+`getTagElms`             |                                                                           | Returns a DOM nodes list of all the tags
+`getTagElmByValue`       | String                                                                    | Returns a specific tag DOM node by value
+`tagData`                | HTMLElement, Object                                                       | set/get tag data on a tag element (has`.tagify__tag` class by default)
+`editTag`                | Node                                                                      | Goes to edit-mode in a specific tag
+`replaceTag`             | `tagElm`, Object <sub>(`tagData`)</sub>                                   | Exit a tag's edit-mode. if "tagData" exists, replace the tag element with new data and update Tagify value
+`loading`                | Boolean                                                                   | Toogle loading state on/off (Ex. AJAX whitelist pulling)
+`tagLoading`             | HTMLElement, Boolean                                                      | same as above but for a specific tag element
+`createTagElem`          | Object <sub>(`tagData`)</sub>                                             | Returns a tag element from the supplied tag data
+`injectAtCaret`          | HTMLElement <sub>(`injectedNode`)</sub>, Object <sub>(`selection`)</sub>  | Injects text or HTML node at last caret position. The `selection` parameter is *optional*
+`toggleInvalidClass`     | Boolean                                                                   | Toggles `tagify--invalid` class to the Tagify wrapper element
+`dropdown.selectAll`     |                                                                           | Add **all** whitelist items as tags and close the suggestion dropdown
 
 ## Events
 

@@ -211,6 +211,8 @@ Tagify.prototype = {
         }
     },
 
+    parseHTML,
+
     // Using ARIA & role attributes
     // https://www.w3.org/TR/wai-aria-practices/examples/combobox/aria1.1pattern/listbox-combo.html
     templates : {
@@ -323,8 +325,8 @@ Tagify.prototype = {
 
         for( i=keys.length; i--; ){
             propName = keys[i];
-            if( propName != 'class' && data.hasOwnProperty(propName) && data[propName] )
-                s += " " + propName + (data[propName] ? `="${data[propName]}"` : "");
+            if( propName != 'class' && data.hasOwnProperty(propName) && data[propName] !== undefined )
+                s += " " + propName + (data[propName] !== undefined ? `="${data[propName]}"` : "");
         }
         return s;
     },
@@ -2235,15 +2237,12 @@ Tagify.prototype = {
                     this.input.autocomplete.suggest.call(this, firstListItem)
             }
 
-            HTMLContent = this.dropdown.createListHTML.call(this, this.suggestedListItems);
-
-            this.DOM.dropdown.content.innerHTML = minify(HTMLContent);
+            this.dropdown.fill.call(this)
 
             if( _s.dropdown.highlightFirst )
                 this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0])
 
             this.DOM.scope.setAttribute("aria-expanded", true)
-
 
             // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
             // called multiple times, regardless if the dropdown is currently visisble, but the events-binding
@@ -2330,6 +2329,11 @@ Tagify.prototype = {
             return this
         },
 
+        fill(){
+            var HTMLContent = this.dropdown.createListHTML.call(this, this.suggestedListItems)
+            this.DOM.dropdown.content.innerHTML = minify(HTMLContent)
+        },
+
         /**
          * fill data into the suggestions list
          * (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
@@ -2341,8 +2345,7 @@ Tagify.prototype = {
             this.suggestedListItems = this.dropdown.filterListItems.call(this, value)
 
             if( this.suggestedListItems.length ){
-                HTMLstr = this.dropdown.createListHTML.call(this, this.suggestedListItems)
-                this.DOM.dropdown.content.innerHTML = minify(HTMLstr)
+                this.dropdown.fill.call(this)
             }
             else
                 this.dropdown.hide.call(this)
@@ -2592,7 +2595,8 @@ Tagify.prototype = {
             // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
             var hideDropdown = this.settings.dropdown.closeOnSelect,
-                selectedOption = this.suggestedListItems[this.getNodeIndex(elm)],
+                tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
+                selectedOption = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '',
                 value = selectedOption.value || selectedOption || this.input.value;
 
 
@@ -2617,6 +2621,20 @@ Tagify.prototype = {
             }
 
             this.dropdown.refilter.call(this)
+        },
+
+        selectAll(){
+            // some whitelist items might have already been added as tags so when addings all of them,
+            // skip shoing already-added ones
+            var skipInvalid = this.settings.skipInvalid;
+            this.settings.skipInvalid = true;
+
+            this.addTags(this.settings.whitelist, true)
+
+            this.settings.skipInvalid = skipInvalid;
+
+            this.dropdown.hide.call(this)
+            return this
         },
 
         /**
@@ -2674,16 +2692,16 @@ Tagify.prototype = {
          * @return {String}
          */
         createListHTML( optionsArr ){
-            return optionsArr.map(item => {
-                if( typeof item == 'string' || typeof item == 'number' )
-                    item = {value:item}
+            return optionsArr.map((suggestion, idx) => {
+                if( typeof suggestion == 'string' || typeof suggestion == 'number' )
+                    suggestion = {value:suggestion}
 
                 var mapValueTo = this.settings.dropdown.mapValueTo,
                     value = (mapValueTo
-                        ? typeof mapValueTo == 'function' ? mapValueTo(item) : item[mapValueTo]
-                        : item.value),
+                        ? typeof mapValueTo == 'function' ? mapValueTo(suggestion) : suggestion[mapValueTo]
+                        : suggestion.value),
                     escapedValue = value && typeof value == 'string' ? escapeHTML(value) : value,
-                    data = extend({}, item, {value:escapedValue})
+                    data = extend({}, suggestion, { value:escapedValue, tagifySuggestionIdx:idx })
 
                 return this.settings.templates.dropdownItem.call(this, data)
             }).join("")
