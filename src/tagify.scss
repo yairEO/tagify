@@ -373,7 +373,7 @@
     &__input{
         $placeholder-width : 110px;
         @mixin placeholder-show{ opacity:.5; transform:none; };
-        flex: 1;
+        flex-grow: 1;
         display: block;
         min-width: $placeholder-width;
         margin: $tagMargin;
@@ -436,9 +436,6 @@
 
         &::before{
             content: attr(data-placeholder);
-            position: absolute;
-            top: 0;
-            bottom: 0;
             height: 1em;
             line-height: 1em;
             margin: auto 0;
