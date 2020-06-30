@@ -704,7 +704,7 @@ var tagify = new Tagify(input,{
 Name                   | Parameters                                  | Info
 ---------------------- | ------------------------------------------- | --------------------------------------------------------------------------
 beforeRemoveTag        | Array <sub>(of Objects)</sub>               | [Example](https://jsbin.com/xoseyux/edit?html,js,output)
-onSuggestionClick      | Object <sub>(click event data)</sub>        | [Example](https://jsbin.com/tuwihuf/edit?html,js,output)
+suggestionClick      | Object <sub>(click event data)</sub>        | [Example](https://jsbin.com/tuwihuf/edit?html,js,output)
 
 ## Settings
 
