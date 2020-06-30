@@ -1091,7 +1091,7 @@ Tagify.prototype = {
 
                 // check if the new value is in the whiteilst, if not check if there
                 // is any pre-invalidation data, and lastly resort to fresh emptty Object
-                newTagData = this.getWhitelistItemsByValue(value) || newTagData.__preInvalidData || {}
+                newTagData = this.getWhitelistItemsByValue(value)[0] || newTagData.__preInvalidData || {}
                 newTagData = Object.assign({}, newTagData, {value}) // clone it, not to mess with the whitelist
                 //transform it again
                 this.settings.transformTag.call(this, newTagData)
@@ -1634,7 +1634,7 @@ Tagify.prototype = {
         if( whitelistWithProps ){
             tagsItems.forEach(item => {
                 // the "value" prop should preferably be unique
-                var matchObj = this.getWhitelistItemsByValue(item.value)
+                var matchObj = this.getWhitelistItemsByValue(item.value)[0]
 
                 if( matchObj && matchObj instanceof Object ){
                     temp.push( matchObj ); // set the Array (with the found Object) as the new value
@@ -1651,7 +1651,11 @@ Tagify.prototype = {
     },
 
     getWhitelistItemsByValue(value){
-        return this.settings.whitelist.filter(item => sameStr(item.value || item, value))[0]
+        function isMatchingValue(item){
+            return "value" in item ? sameStr(item.value || item, value) : false;
+        }
+
+        return this.settings.whitelist.filter(isMatchingValue)
     },
 
     /**
