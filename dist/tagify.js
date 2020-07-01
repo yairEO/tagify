@@ -45,7 +45,7 @@ var removeCollectionProp = function removeCollectionProp(collection, unwantedPro
     var props = {};
 
     for (var p in v) {
-      if (!unwantedProps.includes(p)) props[p] = v[p];
+      if (unwantedProps.indexOf(p) < 0) props[p] = v[p];
     }
 
     return props;
