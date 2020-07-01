@@ -10,7 +10,7 @@ const sameStr = (s1, s2) => s1.toLowerCase() == s2.toLowerCase()
 const removeCollectionProp = (collection, unwantedProps) => collection.map(v => {
     var props = {}
     for( var p in v )
-        if( !unwantedProps.includes(p) )
+        if( unwantedProps.indexOf(p) < 0 )
             props[p] = v[p]
     return props
 })
