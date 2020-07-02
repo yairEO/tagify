@@ -462,9 +462,39 @@ required          | <pre lang=html>`<input required>`</pre> | Adds a `required` 
 readonly          | <pre lang=html>`<input readonly>`</pre> | Adds a `readonly` attribute to the Tagify wrapper element.
 
 
-## FAQ
 
+
+## FAQ
 List of questions & scenarios which might come up during development with Tagify:
+
+### tags/whitelist data strcture
+
+Tagify does not accept just *any* kind of data structure.
+
+**Incorrect**
+
+```javascript
+[{"id":1, "name":"foo bar"}]
+```
+
+**Correct**
+
+```javascript
+[{"id":1, "name":"foo bar", "value": 1}]
+```
+
+```javascript
+[{"value":1, "name":"foo bar"}]
+```
+
+```javascript
+[{"value":"foo bar"}]
+```
+
+```javascript
+["foo bar"]
+```
+
 
 ### Save changes (Ex. to a *server*)
 

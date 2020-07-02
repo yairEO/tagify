@@ -985,7 +985,7 @@ var mockAjax = (function mockAjax(){
     return function(duration){
         clearTimeout(timeout); // abort last request
         return new Promise(function(resolve, reject){
-            timeout = setTimeout(resolve, duration || 1000, whitelist)
+            timeout = setTimeout(resolve, duration || 700, whitelist)
         })
     }
 })()
@@ -1263,7 +1263,7 @@ var input = document.querySelector('input[name=tags3]'),
         backspace           : "edit",
         placeholder         : "type something",
         dropdown : {
-            enabled: 3,
+            enabled: 0,
         }
     })
 
@@ -1289,12 +1289,109 @@ function transformTag( tagData ){
 
 tagify.on('add', function(e){
     console.log(e.detail)
-});
+})
 
 tagify.on('invalid', function(e){
     console.log(e, e.detail);
-});
+})
 
+})()
+</script>
+
+<script data-name="users-list">
+// https://www.mockaroo.com/
+(function(){
+
+var inputElm = document.querySelector('input[name=input]'),
+
+// initialize Tagify on the above input node reference
+var tagify = new Tagify(inputElm, {
+    enforceWhitelist: true,
+    whitelist: [{
+      "id": 1,
+      "name": "Justinian Hattersley",
+      "avatar": "https://robohash.org/quidemlaborumsaepe.jpg",
+      "email": "jhattersley0@ucsd.edu"
+    },
+    {
+      "id": 2,
+      "name": "Antons Esson",
+      "avatar": "https://robohash.org/aliaseanemo.jpg",
+      "email": "aesson1@ning.com"
+    },
+    {
+      "id": 3,
+      "name": "Ardeen Batisse",
+      "avatar": "https://robohash.org/sapientefacereperspiciatis.jpg",
+      "email": "abatisse2@nih.gov"
+    },
+    {
+      "id": 4,
+      "name": "Graeme Yellowley",
+      "avatar": "https://robohash.org/autcommodiodit.jpg",
+      "email": "gyellowley3@behance.net"
+    },
+    {
+      "id": 5,
+      "name": "Dido Wilford",
+      "avatar": "https://robohash.org/dictanamarchitecto.jpg",
+      "email": "dwilford4@jugem.jp"
+    },
+    {
+      "id": 6,
+      "name": "Celesta Orwin",
+      "avatar": "https://robohash.org/reiciendisnondolore.jpg",
+      "email": "corwin5@meetup.com"
+    },
+    {
+      "id": 7,
+      "name": "Sally Main",
+      "avatar": "https://robohash.org/eteoshic.jpg",
+      "email": "smain6@techcrunch.com"
+    },
+    {
+      "id": 8,
+      "name": "Grethel Haysman",
+      "avatar": "https://robohash.org/doloreveniamea.jpg",
+      "email": "ghaysman7@mashable.com"
+    },
+    {
+      "id": 9,
+      "name": "Marvin Mandrake",
+      "avatar": "https://robohash.org/enimsaepereiciendis.jpg",
+      "email": "mmandrake8@sourceforge.net"
+    },
+    {
+      "id": 10,
+      "name": "Corrie Tidey",
+      "avatar": "https://robohash.org/nonmolestiaecumque.jpg",
+      "email": "ctidey9@youtube.com"
+    }]
+})
+
+tagify.on('dropdown:show', onDropdownShow)
+
+function onDropdownShow(e){
+    var dropdownContentElm = e.detail.tagify.DOM.dropdown.content;
+
+    if( tagify.suggestedListItems.length > 1 )
+        // insert "addAllSuggestionsElm" as the first element in the suggestions list
+        dropdownContentElm.insertBefore(addAllSuggestionsElm, dropdownContentElm.firstChild)
+}
+
+function onAddAllClick(){
+    tagify.dropdown.selectAll.call(tagify);
+}
+
+// create a "add all" custom suggestion element
+var addAllSuggestionsElm = tagify.parseHTML(
+    // suggestions items should be based on "dropdownItem" template
+    tagify.templates.dropdownItem.call(tagify, ({ value: "Add all" }))
+)
+
+// "click" event listener would not work because clicking the item causes blur event on the tagify input,
+// which then detaches the suggestion dropdown from the DOM, thus making the "click" event invalid.
+addAllSuggestionsElm.addEventListener('mousedown', onAddAllClick)
 })()
 </script>
 

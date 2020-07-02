@@ -1351,7 +1351,7 @@ Tagify.prototype = {
                 this.DOM.input.innerHTML = s;
 
             if( !s && hideDropdown )
-                setTimeout(this.dropdown.hide.bind(this), 20)  // setTimeout duration must be HIGER than the dropdown's item "onClick" method's "focus()" event, because the "hide" method re-binds the main events and it will catch the "blur" event and will cause
+                this.dropdown.hide.bind(this)
 
             this.input.autocomplete.suggest.call(this);
             this.input.validate.call(this);
@@ -2401,9 +2401,7 @@ Tagify.prototype = {
                 parentsPositions = getParentsPositions();
                 rect   = ddTarget.getBoundingClientRect()
 
-
-
-                top    = rect.top - parentsPositions.top
+                top    = rect.top + 2 - parentsPositions.top
                 bottom = rect.bottom - 1 - parentsPositions.top
                 left   = rect.left - parentsPositions.left
                 width  = rect.width + "px"
