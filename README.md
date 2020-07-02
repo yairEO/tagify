@@ -625,8 +625,8 @@ dropdown:scroll    | Tells the percentage scrolled. (`event.detail.percentage`)
 
 **Promise**-based hooks for *async* program flow scenarios.
 
-Allows to "hook" (intervene) at certain points of the program, which were selected as a suitable place to pause and wait for
-further instructions on how to procceed.
+Allows to "hook" (intervene) at certain points of the program, which were selected as a suitable place to
+**pause** the program flow and wait for further instructions on how/if to procceed.
 
 <details>
   <summary>For example, if a developer wishes to add a (native) confirmation popup before a tag is removed (by a user action):

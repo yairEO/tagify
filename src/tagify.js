@@ -272,47 +272,47 @@ Tagify.prototype = {
     applySettings( input, settings ){
         this.DEFAULTS.templates = this.templates;
 
-        this.settings = extend({}, this.DEFAULTS, settings);
-        this.settings.readonly = input.hasAttribute('readonly') // if "readonly" do not include an "input" element inside the Tags component
-        this.settings.placeholder = input.getAttribute('placeholder') || this.settings.placeholder || ""
-        this.settings.required = input.hasAttribute('required')
+        var _s = this.settings = extend({}, this.DEFAULTS, settings);
+        _s.readonly = input.hasAttribute('readonly') // if "readonly" do not include an "input" element inside the Tags component
+        _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || ""
+        _s.required = input.hasAttribute('required')
 
         if( this.isIE )
-            this.settings.autoComplete = false; // IE goes crazy if this isn't false
+            _s.autoComplete = false; // IE goes crazy if this isn't false
 
         ["whitelist", "blacklist"].forEach(name => {
             var attrVal = input.getAttribute('data-' + name)
             if( attrVal ){
-                attrVal = attrVal.split(this.settings.delimiters)
+                attrVal = attrVal.split(_s.delimiters)
                 if( attrVal instanceof Array )
-                    this.settings[name] = attrVal
+                    _s[name] = attrVal
             }
         })
 
         // backward-compatibility for old version of "autoComplete" setting:
         if( "autoComplete" in settings && !isObject(settings.autoComplete) ){
-            this.settings.autoComplete = this.DEFAULTS.autoComplete
-            this.settings.autoComplete.enabled = settings.autoComplete
+            _s.autoComplete = this.DEFAULTS.autoComplete
+            _s.autoComplete.enabled = settings.autoComplete
         }
 
         if( input.pattern )
-            try { this.settings.pattern = new RegExp(input.pattern)  }
+            try { _s.pattern = new RegExp(input.pattern)  }
             catch(e){}
 
         // Convert the "delimiters" setting into a REGEX object
         if( this.settings.delimiters ){
-            try { this.settings.delimiters = new RegExp(this.settings.delimiters, "g") }
+            try { _s.delimiters = new RegExp(this.settings.delimiters, "g") }
             catch(e){}
         }
 
         // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
-        if( this.settings.mode == 'select' )
-            this.settings.dropdown.enabled = 0
+        if( _s.mode == 'select' )
+            _s.dropdown.enabled = 0
 
-        if( this.settings.mode == 'mix' )
-            this.settings.autoComplete.rightKey = true
+        if( _s.mode == 'mix' )
+            _s.autoComplete.rightKey = true
 
-        this.settings.dropdown.appendTarget = settings.dropdown.appendTarget
+        _s.dropdown.appendTarget = settings.dropdown && settings.dropdown.appendTarget
             ? settings.dropdown.appendTarget
             : document.body
     },
@@ -2020,7 +2020,7 @@ Tagify.prototype = {
         if( !tagsToRemove.length )
             return;
 
-        this.settings.hooks.beforeRemoveTag(tagsToRemove)
+        this.settings.hooks.beforeRemoveTag(tagsToRemove, {tagify:this})
             .then(() => {
                 function removeNode( tag ){
                     if( !tag.node.parentNode ) return
@@ -2539,7 +2539,7 @@ Tagify.prototype = {
                     this.state.actions.selectOption = true;
                     setTimeout(()=> this.state.actions.selectOption = false, 50)
 
-                    this.settings.hooks.suggestionClick(e)
+                    this.settings.hooks.suggestionClick(e, {tagify:this})
                         .then(() => {
                             if( listItemElm )
                                 this.dropdown.selectOption.call(this, listItemElm)
@@ -2723,7 +2723,7 @@ Tagify.prototype = {
                         }
 
                         return v.toLowerCase().indexOf(niddle) == 0
-                    }
+                    })
                 }
 
                 isDuplicate = !_s.duplicates && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
