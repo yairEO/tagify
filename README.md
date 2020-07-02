@@ -656,7 +656,7 @@ var tagify = new Tagify(input,{
 Name                   | Parameters                                  | Info
 ---------------------- | ------------------------------------------- | --------------------------------------------------------------------------
 beforeRemoveTag        | Array <sub>(of Objects)</sub>               | [Example](https://jsbin.com/xoseyux/edit?html,js,output)
-suggestionClick      | Object <sub>(click event data)</sub>        | [Example](https://jsbin.com/tuwihuf/edit?html,js,output)
+suggestionClick        | Object <sub>(click event data)</sub>        | [Example](https://jsbin.com/tuwihuf/edit?html,js,output)
 
 ## Settings
 
@@ -694,3 +694,4 @@ dropdown.highlightFirst | <sub>Boolean</sub>           | false                  
 dropdown.closeOnSelect  | <sub>Boolean</sub>           | true                                        | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
 dropdown.mapValueTo     | <sub>Function/String</sub>   |                                             | if whitelist is an Array of Objects:<br>Ex. `[{value:'foo', email:'foo@a.com'},...]`)<br> this setting controlls which data <em>key</em> will be printed in the dropdown.<br> Ex. `mapValueTo: data => "To:" + data.email`<br>Ex. `mapValueTo: "email"`
 dropdown.searchKeys     | <sub>Array</sub>             | <sub>`["value", "searchBy"]`</sub>          | When a user types something and trying to match the whitelist items for suggestions, this setting allows matching other keys of a whitelist objects
+dropdown.appendTarget   | <sub>HTMLNode</sub>          | `document.body`                             | Target-Node which the *suggestions dropdown* is appended to (*only when rendered*)

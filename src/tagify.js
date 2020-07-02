@@ -202,7 +202,8 @@ Tagify.prototype = {
             accentedSearch: true,
             highlightFirst: false,  // highlights first-matched item in the list
             closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
-            position      : 'all'   // 'manual' / 'text' / 'all'
+            position      : 'all',  // 'manual' / 'text' / 'all'
+            appendTarget  : null    // defaults to document.body one DOM has been loaded
         },
 
         hooks : {
@@ -211,6 +212,7 @@ Tagify.prototype = {
         }
     },
 
+    // expose this handy utility function
     parseHTML,
 
     // Using ARIA & role attributes
@@ -309,6 +311,10 @@ Tagify.prototype = {
 
         if( this.settings.mode == 'mix' )
             this.settings.autoComplete.rightKey = true
+
+        this.settings.dropdown.appendTarget = settings.dropdown.appendTarget
+            ? settings.dropdown.appendTarget
+            : document.body
     },
 
     /**
@@ -2280,7 +2286,7 @@ Tagify.prototype = {
 
                     this.DOM.dropdown.classList.add('tagify__dropdown--initial')
                     this.dropdown.position.call(this, ddHeight)
-                    document.body.appendChild(this.DOM.dropdown)
+                    this.settings.dropdown.appendTarget.appendChild(this.DOM.dropdown)
 
                     setTimeout(() =>
                         this.DOM.dropdown.classList.remove('tagify__dropdown--initial')
@@ -2358,9 +2364,28 @@ Tagify.prototype = {
         },
 
         position(ddHeight){
-            var isBelowViewport, rect, top, bottom, left, width,
+            var that = this,
+                placeAbove, rect, top, bottom, left, width,
                 ddElm = this.DOM.dropdown,
-                ddTarget = this.DOM[this.settings.dropdown.position == 'input' ? 'input' : 'scope']
+                parentsPositions,
+                viewportHeight = document.documentElement.clientHeight,
+                ddTarget = this.DOM[this.settings.dropdown.position == 'input' ? 'input' : 'scope'];
+
+            ddHeight = ddHeight || ddElm.clientHeight
+
+            function getParentsPositions(){
+                var p = that.settings.dropdown.appendTarget,
+                    left = 0,
+                    top = 0;
+
+                while(p){
+                    left += p.offsetLeft || 0;
+                    top += p.offsetTop || 0;
+                    p = p.parentNode
+                }
+
+                return {left, top};
+            }
 
             if( !this.state.dropdown.visible ) return
 
@@ -2373,23 +2398,29 @@ Tagify.prototype = {
             }
 
             else{
+                parentsPositions = getParentsPositions();
                 rect   = ddTarget.getBoundingClientRect()
-                top    = rect.top
-                bottom = rect.bottom - 1
-                left   = rect.left
+
+
+
+                top    = rect.top - parentsPositions.top
+                bottom = rect.bottom - 1 - parentsPositions.top
+                left   = rect.left - parentsPositions.left
                 width  = rect.width + "px"
             }
 
+
             top = Math.floor(top)
             bottom = Math.ceil(bottom)
-            isBelowViewport = document.documentElement.clientHeight - bottom < (ddHeight || ddElm.clientHeight);
+
+            placeAbove = viewportHeight - rect.bottom < ddHeight
 
             // flip vertically if there is no space for the dropdown below the input
-            ddElm.style.cssText = "left:"  + (left + window.pageXOffset) + "px; width:" + width + ";" + (isBelowViewport
-                ? "bottom:" + (document.documentElement.clientHeight - top - window.pageYOffset - 2) + "px;"
+            ddElm.style.cssText = "left:"  + (left + window.pageXOffset) + "px; width:" + width + ";" + (placeAbove
+                ? "top: "   + (top + window.pageYOffset) + "px"
                 : "top: "   + (bottom + window.pageYOffset) + "px");
 
-            ddElm.setAttribute('placement', isBelowViewport ? "top" : "bottom")
+            ddElm.setAttribute('placement', placeAbove ? "top" : "bottom")
         },
 
         events : {

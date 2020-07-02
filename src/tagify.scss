@@ -558,7 +558,7 @@
 
         &[placement="top"]{
             margin-top: 0;
-            transform: translateY(-2px);
+            transform: translateY(-100%);
             #{$dropdown}__wrapper{
                 border-top-width: 1px;
                 border-bottom-width: 0;
