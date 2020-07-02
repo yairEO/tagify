@@ -10,7 +10,7 @@ const sameStr = (s1, s2) => s1.toLowerCase() == s2.toLowerCase()
 const removeCollectionProp = (collection, unwantedProps) => collection.map(v => {
     var props = {}
     for( var p in v )
-        if( !unwantedProps.includes(p) )
+        if( unwantedProps.indexOf(p) < 0 )
             props[p] = v[p]
     return props
 })
@@ -1408,7 +1408,7 @@ Tagify.prototype = {
                 if( typeof data == 'string' )
                     data = {value:data}
 
-                var suggestedText = data.value || '',
+                var suggestedText = ""+data.value || '',
                     suggestionStart = suggestedText.substr(0, this.input.value.length).toLowerCase(),
                     suggestionTrimmed = suggestedText.substring(this.input.value.length);
 
@@ -2688,6 +2688,7 @@ Tagify.prototype = {
                 whitelistItemValueIndex,
                 searchBy,
                 isDuplicate,
+                niddle,
                 i = 0;
 
             if( !value ){
@@ -2697,17 +2698,33 @@ Tagify.prototype = {
                 ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
             }
 
+            niddle = value.toLowerCase()
+
             for( ; i < whitelist.length; i++ ){
                 whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
-                searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
 
-                whitelistItemValueIndex = _s.dropdown.accentedSearch
-                    ? unaccent(searchBy).indexOf(unaccent(value.toLowerCase()))
-                    : searchBy.indexOf(value.toLowerCase())
+                if( _s.dropdown.fuzzySearch ){
+                    searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
 
-                valueIsInWhitelist = _s.dropdown.fuzzySearch
-                    ? whitelistItemValueIndex >= 0
-                    : whitelistItemValueIndex == 0;
+                    whitelistItemValueIndex = _s.dropdown.accentedSearch
+                        ? unaccent(searchBy).indexOf(unaccent(niddle))
+                        : searchBy.indexOf(niddle)
+
+                    valueIsInWhitelist = whitelistItemValueIndex >= 0
+                }
+
+                else {
+                    valueIsInWhitelist = searchKeys.some(k => {
+                        var v = (""+whitelistItem[k]||"")
+
+                        if( _s.dropdown.accentedSearch ){
+                            v = unaccent(v)
+                            niddle = unaccent(niddle)
+                        }
+
+                        return v.toLowerCase().indexOf(niddle) == 0
+                    }
+                }
 
                 isDuplicate = !_s.duplicates && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
 
