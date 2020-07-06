@@ -148,7 +148,7 @@ TagifyWrapper.propTypes = {
     showFilteredDropdown: oneOfType(string, bool)
 }
 
-const TagsInput = React.memo(TagifyWrapper)
-TagsInput.displayName = "TagsInput"
+const Tags = React.memo(TagifyWrapper)
+Tags.displayName = "Tags"
 
-export default TagsInput
+export default Tags
