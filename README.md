@@ -343,6 +343,7 @@ import Tags from "@yaireo/tagify/dist/react.tagify" // React-wrapper file
 const App = () => {
   return (
     <Tags
+      tagifyRef={tagifyRef} // optional Ref object for the Tagify instance itself, to get access to  inner-methods
       settings={settings}  // tagify settings object
       value="a,b,c"
       {...tagifyProps}   // dynamic props such as "loading", "showDropdown:'abc'", "value"
