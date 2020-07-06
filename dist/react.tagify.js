@@ -50,7 +50,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function templatesToString(templates) {
   if (templates) {
     for (var templateName in templates) {
-      var isReactComp = String(settings.templates[templateName]).includes(".createElement");
+      var isReactComp = String(templates[templateName]).includes(".createElement");
 
       if (isReactComp) {
         (function () {
@@ -110,7 +110,7 @@ var TagifyWrapper = function TagifyWrapper(_ref) {
       placeholder: placeholder,
       defaultValue: defaultValue
     };
-  }, [autoFocus, className, defaultValue, name, onChange, placeholder, readOnly, value]);
+  }, [defaultValue, placeholder, autoFocus, className, onChange, readOnly, value, name]);
   (0, _react.useEffect)(function () {
     templatesToString(settings.templates);
     tagify.current = new _tagifyMin["default"](inputElmRef.current, settings); // Bridge Tagify instance with parent component
@@ -159,6 +159,8 @@ var TagifyWrapper = function TagifyWrapper(_ref) {
   }, []);
   return (
     /*#__PURE__*/
+    // a wrapper must be used because Tagify will appened inside it it's component,
+    // keeping the virtual-DOM out of the way
     _react["default"].createElement("div", {
       className: "tags-input"
     },
