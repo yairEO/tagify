@@ -706,6 +706,61 @@
             </section>
 
 
+            <section id="users-list">
+                <aside class='leftSide'>
+                    <h2><a href='#users-list'>#</a>Users list</h2>
+                    <p>
+                        This example shows how to customize <em>Tagify</em> further. It also includes an <ode>Add all</code> option as the first
+                        item in the suggestions dropdown list.
+                    </p>
+                    <details>
+                      <summary></summary>
+                    <h3>HTML</h3>
+<pre class="language-markup"><code>&lt;input name='users-list-tags'></code></pre>
+                    <h3>JAVASCRIPT</h3>
+                    <script>renderPRE(document.currentScript, "users-list")</script>
+                    <h3>CSS</h3>
+<style contenteditable>.tagify__dropdown.users-list .tagify__dropdown__item{
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 10px;
+    grid-template-areas: "avatar name"
+                         "avatar email";
+}
+
+.tagify__dropdown.users-list .tagify__dropdown__item__avatar-wrap{
+  grid-area: avatar;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #EEE;
+}
+
+.tagify__dropdown.users-list img{
+    width: 100%;
+    vertical-align: top;
+}
+
+.tagify__dropdown.users-list strong{
+    grid-area: name;
+    width: 100%;
+    vertical-align: top;
+}
+
+.tagify__dropdown.users-list span{
+    grid-area: email;
+    width: 100%;
+    vertical-align: top;
+}
+</style>
+                    </details>
+                </aside>
+                <aside class='rightSide'>
+                    <input name='users-list-tags'>
+                </aside>
+            </section>
+
+
             <section id="section-advance-options">
                 <aside class='leftSide'>
                     <h2><a href='#section-advance-options'>#</a>Advance options</h2>
@@ -1302,67 +1357,109 @@ tagify.on('invalid', function(e){
 // https://www.mockaroo.com/
 (function(){
 
-var inputElm = document.querySelector('input[name=input]'),
+var inputElm = document.querySelector('input[name=users-list-tags]');
+
+function tagTemplate(value, tagData){
+    return `
+        <tag title="${(tagData.email || value)}"
+                contenteditable='false'
+                spellcheck='false'
+                tabIndex="-1"
+                class="tagify__tag ${tagData.class ? tagData.class : ""}"
+                ${this.getAttributes(tagData)}>
+            <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
+            <div>
+                <div class='tagify__tag__avatar-wrap'>
+                    <img src="${tagData.avatar}">
+                </div>
+                <span class='tagify__tag-text'>${tagData.name}</span>
+            </div>
+        </tag>
+    `
+}
+
+function suggestionItemTemplate(tagData){
+    return `
+        <div ${this.getAttributes(tagData)}
+            class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'
+            tabindex="0"
+            role="option">
+            <div class='tagify__dropdown__item__avatar-wrap'>
+                <img src="${tagData.avatar}">
+            </div>
+            <strong>${tagData.name}</strong>
+            <span>${tagData.email}</span>
+        </div>
+    `
+}
 
 // initialize Tagify on the above input node reference
 var tagify = new Tagify(inputElm, {
     enforceWhitelist: true,
+    dropdown: {
+        enabled: 0,
+        classname: 'users-list'
+    },
+    templates: {
+        tag: tagTemplate,
+        dropdownItem: suggestionItemTemplate
+    },
     whitelist: [{
-      "id": 1,
+      "value": 1,
       "name": "Justinian Hattersley",
       "avatar": "https://robohash.org/quidemlaborumsaepe.jpg",
       "email": "jhattersley0@ucsd.edu"
     },
     {
-      "id": 2,
+      "value": 2,
       "name": "Antons Esson",
       "avatar": "https://robohash.org/aliaseanemo.jpg",
       "email": "aesson1@ning.com"
     },
     {
-      "id": 3,
+      "value": 3,
       "name": "Ardeen Batisse",
       "avatar": "https://robohash.org/sapientefacereperspiciatis.jpg",
       "email": "abatisse2@nih.gov"
     },
     {
-      "id": 4,
+      "value": 4,
       "name": "Graeme Yellowley",
       "avatar": "https://robohash.org/autcommodiodit.jpg",
       "email": "gyellowley3@behance.net"
     },
     {
-      "id": 5,
+      "value": 5,
       "name": "Dido Wilford",
       "avatar": "https://robohash.org/dictanamarchitecto.jpg",
       "email": "dwilford4@jugem.jp"
     },
     {
-      "id": 6,
+      "value": 6,
       "name": "Celesta Orwin",
       "avatar": "https://robohash.org/reiciendisnondolore.jpg",
       "email": "corwin5@meetup.com"
     },
     {
-      "id": 7,
+      "value": 7,
       "name": "Sally Main",
       "avatar": "https://robohash.org/eteoshic.jpg",
       "email": "smain6@techcrunch.com"
     },
     {
-      "id": 8,
+      "value": 8,
       "name": "Grethel Haysman",
       "avatar": "https://robohash.org/doloreveniamea.jpg",
       "email": "ghaysman7@mashable.com"
     },
     {
-      "id": 9,
+      "value": 9,
       "name": "Marvin Mandrake",
       "avatar": "https://robohash.org/enimsaepereiciendis.jpg",
       "email": "mmandrake8@sourceforge.net"
     },
     {
-      "id": 10,
+      "value": 10,
       "name": "Corrie Tidey",
       "avatar": "https://robohash.org/nonmolestiaecumque.jpg",
       "email": "ctidey9@youtube.com"
@@ -1386,7 +1483,11 @@ function onAddAllClick(){
 // create a "add all" custom suggestion element
 var addAllSuggestionsElm = tagify.parseHTML(
     // suggestions items should be based on "dropdownItem" template
-    tagify.templates.dropdownItem.call(tagify, ({ value: "Add all" }))
+    tagify.templates.dropdownItem.call(tagify, ({
+      value: "Add all " + tagify.whitelist.reduce(function(acc, item){
+        acc = tagify.isTagDuplicate(item) ? acc : acc + 1
+      }, 0)
+    }))
 )
 
 // "click" event listener would not work because clicking the item causes blur event on the tagify input,
@@ -1756,7 +1857,7 @@ function onSelectFocus(e){
 var $input = $('input[name=tags-jquery]')
     .tagify({
             whitelist : [
-                {"id":1,"value":"some string"}
+                {"id":1, "value":"some string"}
             ]
         })
         .on('add', function(e, tagName){

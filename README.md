@@ -434,8 +434,8 @@ script (non-jqueryfied) and all the jQuery's wrapper does is allowing to chain t
 ```javascript
 $('[name=tags]')
     .tagify()
-    .on('add', function(e, tagName){
-        console.log('added', tagName)
+    .on('add', function(e, tagData){
+        console.log('added', ...tagData)  // data, index, and DOM node
     });
 ```
 
@@ -469,29 +469,32 @@ List of questions & scenarios which might come up during development with Tagify
 
 ### tags/whitelist data strcture
 
-Tagify does not accept just *any* kind of data structure.
+Tagify does not accept just *any* kind of data structure.<br>
+If a tag data is represented as an `Object`, it **must** contain a **unique** property `value`
+which Tagify uses to check if a tag already exists, among other things, so make sure it is present.
 
 **Incorrect**
 
 ```javascript
-[{"id":1, "name":"foo bar"}]
+[{ "id":1, "name":"foo bar" }]
 ```
 
 **Correct**
 
 ```javascript
-[{"id":1, "name":"foo bar", "value": 1}]
+[{ "id":1, "value": 1, "name":"foo bar" }]
 ```
 
 ```javascript
-[{"value":1, "name":"foo bar"}]
+[{ "value":1, "name":"foo bar" }]
 ```
 
 ```javascript
-[{"value":"foo bar"}]
+[{ "value":"foo bar" }]
 ```
 
 ```javascript
+// ad a simple array of Strings
 ["foo bar"]
 ```
 

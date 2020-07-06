@@ -236,8 +236,8 @@ Tagify.prototype = {
             </tags>`
         },
 
-        tag(value, tagData){
-            return `<tag title="${(tagData.title || value)}"
+        tag(tagData){
+            return `<tag title="${(tagData.title || tagData.value)}"
                         contenteditable='false'
                         spellcheck='false'
                         tabIndex="-1"
@@ -245,7 +245,7 @@ Tagify.prototype = {
                         ${this.getAttributes(tagData)}>
                 <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
                 <div>
-                    <span class='tagify__tag-text'>${value}</span>
+                    <span class='tagify__tag-text'>${tagData.value}</span>
                 </div>
             </tag>`
         },
@@ -1613,7 +1613,7 @@ Tagify.prototype = {
             // checks if this is a "collection", meanning an Array of Objects
             isArray = tagsItems instanceof Array,
             temp = [],
-            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:v.trim() }))
+            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:escapeHTML(v.trim()) }))
 
         if( typeof tagsItems == 'number' )
             tagsItems = tagsItems.toString();
@@ -1929,8 +1929,7 @@ Tagify.prototype = {
      */
     createTagElem( tagData ){
         var tagElm,
-            v = escapeHTML(tagData.value),
-            template = this.settings.templates.tag.call(this, v, tagData);
+            template = this.settings.templates.tag.call(this, tagData);
 
         if( this.settings.readonly )
             tagData.readonly = true

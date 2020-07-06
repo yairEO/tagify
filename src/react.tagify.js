@@ -1,90 +1,155 @@
-import React from "react"
+import React, {useMemo, useEffect, useRef} from "react"
+import {renderToStaticMarkup} from "react-dom/server"
+import {string, array, func, bool, object, oneOfType} from "prop-types"
 import Tagify from "./tagify.min.js"
 import "./tagify.css"
 
-class Tags extends React.Component {
-  constructor(props) {
-    super(props)
-    this._handleRef = this._handleRef.bind(this)
-  }
+// if a template is a React component, it should be outputed as a String (and not as a React component)
+function templatesToString(templates) {
+  if (templates) {
+    for (let templateName in templates) {
+      let isReactComp = String(settings.templates[templateName]).includes(
+        ".createElement"
+      )
 
-  componentDidMount() {
-    this.tagify = new Tagify(this.component, this.props.settings || {})
-
-    // allows accessing Tagify methods from outside
-    if (this.props.tagifyRef) this.props.tagifyRef.current = this.tagify
-  }
-
-  componentWillUnmount() {
-    const tagify = this.tagify
-
-    tagify.dropdown.hide.call(tagify)
-    clearTimeout(tagify.dropdownHide__bindEventsTimeout)
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    const nextSettings = nextProps.settings || {}
-    const tagify = this.tagify,
-          currentValue = this.props.value instanceof Array
-            ? this.props.value
-            : [this.props.value]
-
-    // check if value has changed
-    if (
-      nextProps.value &&
-      nextProps.value instanceof Array &&
-      nextProps.value.join() !== currentValue.join()
-    ) {
-      tagify.loadOriginalValues(nextProps.value.join())
-      // this.tagify.addTags(nextProps.value, true, true)
+      if (isReactComp) {
+        let Template = templates[templateName]
+        templates[templateName] = data =>
+          renderToStaticMarkup(<Template {...data} />)
+      }
     }
-
-    if( nextSettings.whitelist && nextSettings.whitelist.length )
-      tagify.settings.whitelist = nextSettings.whitelist
-
-    if ("loading" in nextProps) {
-      tagify.loading(nextProps.loading)
-    }
-
-    if (nextProps.showDropdown) {
-      tagify.dropdown.show.call(tagify, nextProps.showDropdown)
-      tagify.toggleFocusClass(true)
-    } else if ("showDropdown" in nextProps && !nextProps.showDropdown) {
-      tagify.dropdown.hide.call(tagify)
-    }
-
-    // do not allow react to re-render since the component is modifying its own HTML
-    return false
-  }
-
-  _handleRef(component) {
-    this.component = component
-  }
-
-  render() {
-    const attrs = {
-      ref: this._handleRef,
-      name: this.props.name,
-      className: this.props.className,
-      placeholder: this.props.placeholder,
-      autoFocus: this.props.autofocus,
-      value: this.props.children || this.props.value,
-      readOnly: this.props.readonly,
-      onChange: this.props.onChange || function() {},
-      defaultValue: this.props.initialValue
-    }
-
-    return React.createElement(
-      "div",
-      null,
-      React.createElement(this.props.mode, attrs)
-    )
   }
 }
 
-Tags.defaultProps = {
-  value: [],
-  mode: "input"
+const TagifyWrapper = ({
+  name,
+  value = "",
+  loading = false,
+  onChange = _ => _,
+  readOnly,
+  settings = {},
+  InputMode = "input",
+  autoFocus,
+  className,
+  whitelist,
+  tagifyRef,
+  placeholder = "",
+  defaultValue,
+  showFilteredDropdown
+}) => {
+  const mountedRef = useRef()
+  const inputElmRef = useRef()
+  const tagify = useRef()
+
+  const handleRef = elm => {
+    inputElmRef.current = elm
+  }
+
+  const inputAttrs = useMemo(
+    () => ({
+      ref: handleRef,
+      name,
+      value: typeof value === "string" ? value : JSON.stringify(value),
+      className,
+      readOnly,
+      onChange,
+      autoFocus,
+      placeholder,
+      defaultValue
+    }),
+    [
+      autoFocus,
+      className,
+      defaultValue,
+      name,
+      onChange,
+      placeholder,
+      readOnly,
+      value
+    ]
+  )
+
+  useEffect(() => {
+    templatesToString(settings.templates)
+
+    tagify.current = new Tagify(inputElmRef.current, settings)
+
+    // Bridge Tagify instance with parent component
+    if (tagifyRef) {
+      tagifyRef.current = tagify.current
+    }
+
+    // cleanup
+    return () => {
+      tagify.current.destroy()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (mountedRef.current) {
+      tagify.current.loadOriginalValues(value)
+    }
+  }, [value])
+
+  useEffect(() => {
+    if (mountedRef.current) {
+      // replace whitelist array items
+      tagify.current.settings.whitelist.splice(
+        0,
+        tagify.current.settings.whitelist.length,
+        ...(whitelist || [])
+      )
+    }
+  }, [whitelist])
+
+  useEffect(() => {
+    if (mountedRef.current) {
+      tagify.current.loading(loading)
+    }
+  }, [loading])
+
+  useEffect(() => {
+    const t = tagify.current
+
+    if (mountedRef.current) {
+      if (showFilteredDropdown) {
+        t.dropdown.show.call(t, showFilteredDropdown)
+        t.toggleFocusClass(true)
+      } else {
+        t.dropdown.hide.call(t)
+      }
+    }
+  }, [showFilteredDropdown])
+
+  useEffect(() => {
+    mountedRef.current = true
+  }, [])
+
+  return (
+    <div className="tags-input">
+      <InputMode {...inputAttrs} />
+    </div>
+  )
 }
 
-export default Tags
+TagifyWrapper.propTypes = {
+  name: string,
+  value: oneOfType(string, array),
+  loading: bool,
+  onChange: func,
+  readOnly: bool,
+  settings: object,
+  InputMode: string,
+  autoFocus: bool,
+  className: string,
+  tagifyRef: object,
+  whitelist: array,
+  placeholder: string,
+  defaultValue: oneOfType(string, array),
+  showFilteredDropdown: oneOfType(string, bool)
+}
+
+const TagsInput = React.memo(TagifyWrapper)
+TagsInput.displayName = "TagsInput"
+
+export default TagsInput
