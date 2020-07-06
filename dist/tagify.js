@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.13.1)- tags input component
+ * Tagify (v 3.14.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -272,8 +272,8 @@ Tagify.prototype = {
     wrapper: function wrapper(input, settings) {
       return "<tags class=\"tagify ".concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                        ").concat(settings.readonly ? 'readonly' : '', "\n                        ").concat(settings.required ? "required" : "", "\n                        tabIndex=\"-1\">\n                <span ").concat(!settings.readonly || settings.mode != 'mix' ? 'contenteditable' : '', " data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                    class=\"tagify__input\"\n                    role=\"textbox\"\n                    aria-autocomplete=\"both\"\n                    aria-multiline=\"").concat(settings.mode == 'mix' ? true : false, "\"></span>\n            </tags>");
     },
-    tag: function tag(value, tagData) {
-      return "<tag title=\"".concat(tagData.title || value, "\"\n                        contenteditable='false'\n                        spellcheck='false'\n                        tabIndex=\"-1\"\n                        class=\"tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "\"\n                        ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(value, "</span>\n                </div>\n            </tag>");
+    tag: function tag(tagData) {
+      return "<tag title=\"".concat(tagData.title || tagData.value, "\"\n                        contenteditable='false'\n                        spellcheck='false'\n                        tabIndex=\"-1\"\n                        class=\"tagify__tag ").concat(tagData["class"] ? tagData["class"] : "", "\"\n                        ").concat(this.getAttributes(tagData), ">\n                <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class='tagify__tag-text'>").concat(tagData.value, "</span>\n                </div>\n            </tag>");
     },
     dropdown: function dropdown(settings) {
       var _s = settings.dropdown,
@@ -1873,11 +1873,10 @@ Tagify.prototype = {
    * @return {Object} [DOM element]
    */
   createTagElem: function createTagElem(tagData) {
+    tagData.value = escapeHTML(tagData.value);
     var tagElm,
-        v = escapeHTML(tagData.value),
-        template = this.settings.templates.tag.call(this, v, tagData);
-    if (this.settings.readonly) tagData.readonly = true; // tagData.__uid = tagData.__uid || getUID()
-
+        template = this.settings.templates.tag.call(this, tagData);
+    if (this.settings.readonly) tagData.readonly = true;
     template = minify(template);
     tagElm = parseHTML(template);
     this.tagData(tagElm, tagData);

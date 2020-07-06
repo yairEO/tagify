@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.13.1)- tags input component
+ * Tagify (v 3.14.0)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -15,12 +15,18 @@
 }(this, function() {
 "use strict";
 
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
+
+var _server = require("react-dom/server");
+
+var _propTypes = require("prop-types");
 
 var _tagifyMin = _interopRequireDefault(require("./tagify.min.js"));
 
@@ -28,143 +34,160 @@ require("./tagify.css");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
+// if a template is a React component, it should be outputed as a String (and not as a React component)
+function templatesToString(templates) {
+  if (templates) {
+    for (var templateName in templates) {
+      var isReactComp = String(settings.templates[templateName]).includes(".createElement");
 
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
+      if (isReactComp) {
+        (function () {
+          var Template = templates[templateName];
+
+          templates[templateName] = function (data) {
+            return (0, _server.renderToStaticMarkup)(
+            /*#__PURE__*/
+            _react["default"].createElement(Template, data));
+          };
+        })();
+      }
     }
   }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
 }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+var TagifyWrapper = function TagifyWrapper(_ref) {
+  var name = _ref.name,
+      _ref$value = _ref.value,
+      value = _ref$value === void 0 ? "" : _ref$value,
+      _ref$loading = _ref.loading,
+      loading = _ref$loading === void 0 ? false : _ref$loading,
+      _ref$onChange = _ref.onChange,
+      onChange = _ref$onChange === void 0 ? function (_) {
+    return _;
+  } : _ref$onChange,
+      readOnly = _ref.readOnly,
+      _ref$settings = _ref.settings,
+      settings = _ref$settings === void 0 ? {} : _ref$settings,
+      _ref$InputMode = _ref.InputMode,
+      InputMode = _ref$InputMode === void 0 ? "input" : _ref$InputMode,
+      autoFocus = _ref.autoFocus,
+      className = _ref.className,
+      whitelist = _ref.whitelist,
+      tagifyRef = _ref.tagifyRef,
+      _ref$placeholder = _ref.placeholder,
+      placeholder = _ref$placeholder === void 0 ? "" : _ref$placeholder,
+      defaultValue = _ref.defaultValue,
+      showFilteredDropdown = _ref.showFilteredDropdown;
+  var mountedRef = (0, _react.useRef)();
+  var inputElmRef = (0, _react.useRef)();
+  var tagify = (0, _react.useRef)();
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+  var handleRef = function handleRef(elm) {
+    inputElmRef.current = elm;
+  };
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+  var inputAttrs = (0, _react.useMemo)(function () {
+    return {
+      ref: handleRef,
+      name: name,
+      value: typeof value === "string" ? value : JSON.stringify(value),
+      className: className,
+      readOnly: readOnly,
+      onChange: onChange,
+      autoFocus: autoFocus,
+      placeholder: placeholder,
+      defaultValue: defaultValue
+    };
+  }, [autoFocus, className, defaultValue, name, onChange, placeholder, readOnly, value]);
+  (0, _react.useEffect)(function () {
+    templatesToString(settings.templates);
+    tagify.current = new _tagifyMin["default"](inputElmRef.current, settings); // Bridge Tagify instance with parent component
 
-var Tags =
-/*#__PURE__*/
-function (_React$Component) {
-  _inherits(Tags, _React$Component);
+    if (tagifyRef) {
+      tagifyRef.current = tagify.current;
+    } // cleanup
 
-  var _super = _createSuper(Tags);
 
-  function Tags(props) {
-    var _this;
-
-    _classCallCheck(this, Tags);
-
-    _this = _super.call(this, props);
-    _this._handleRef = _this._handleRef.bind(_assertThisInitialized(_this));
-    return _this;
-  }
-
-  _createClass(Tags, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.tagify = new _tagifyMin["default"](this.component, this.props.settings || {}); // allows accessing Tagify methods from outside
-
-      if (this.props.tagifyRef) this.props.tagifyRef.current = this.tagify;
+    return function () {
+      tagify.current.destroy();
+    };
+  }, []);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      tagify.current.loadOriginalValues(value);
     }
-  }, {
-    key: "componentWillUnmount",
-    value: function componentWillUnmount() {
-      var tagify = this.tagify;
-      tagify.dropdown.hide.call(tagify);
-      clearTimeout(tagify.dropdownHide__bindEventsTimeout);
-    }
-  }, {
-    key: "shouldComponentUpdate",
-    value: function shouldComponentUpdate(nextProps, nextState) {
-      var nextSettings = nextProps.settings || {};
-      var tagify = this.tagify,
-          currentValue = this.props.value instanceof Array ? this.props.value : [this.props.value]; // check if value has changed
+  }, [value]);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      var _tagify$current$setti;
 
-      if (nextProps.value && nextProps.value instanceof Array && nextProps.value.join() !== currentValue.join()) {
-        tagify.loadOriginalValues(nextProps.value.join()); // this.tagify.addTags(nextProps.value, true, true)
+      // replace whitelist array items
+      (_tagify$current$setti = tagify.current.settings.whitelist).splice.apply(_tagify$current$setti, [0, tagify.current.settings.whitelist.length].concat(_toConsumableArray(whitelist || [])));
+    }
+  }, [whitelist]);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      tagify.current.loading(loading);
+    }
+  }, [loading]);
+  (0, _react.useEffect)(function () {
+    var t = tagify.current;
+
+    if (mountedRef.current) {
+      if (showFilteredDropdown) {
+        t.dropdown.show.call(t, showFilteredDropdown);
+        t.toggleFocusClass(true);
+      } else {
+        t.dropdown.hide.call(t);
       }
-
-      if (nextSettings.whitelist && nextSettings.whitelist.length) tagify.settings.whitelist = nextSettings.whitelist;
-
-      if ("loading" in nextProps) {
-        tagify.loading(nextProps.loading);
-      }
-
-      if (nextProps.showDropdown) {
-        tagify.dropdown.show.call(tagify, nextProps.showDropdown);
-        tagify.toggleFocusClass(true);
-      } else if ("showDropdown" in nextProps && !nextProps.showDropdown) {
-        tagify.dropdown.hide.call(tagify);
-      } // do not allow react to re-render since the component is modifying its own HTML
-
-
-      return false;
     }
-  }, {
-    key: "_handleRef",
-    value: function _handleRef(component) {
-      this.component = component;
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var attrs = {
-        ref: this._handleRef,
-        name: this.props.name,
-        className: this.props.className,
-        placeholder: this.props.placeholder,
-        autoFocus: this.props.autofocus,
-        value: this.props.children || this.props.value,
-        readOnly: this.props.readonly,
-        onChange: this.props.onChange || function () {},
-        defaultValue: this.props.initialValue
-      };
-      return _react["default"].createElement("div", null, _react["default"].createElement(this.props.mode, attrs));
-    }
-  }]);
-
-  return Tags;
-}(_react["default"].Component);
-
-Tags.defaultProps = {
-  value: [],
-  mode: "input"
+  }, [showFilteredDropdown]);
+  (0, _react.useEffect)(function () {
+    mountedRef.current = true;
+  }, []);
+  return (
+    /*#__PURE__*/
+    _react["default"].createElement("div", {
+      className: "tags-input"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement(InputMode, inputAttrs))
+  );
 };
-var _default = Tags;
+
+TagifyWrapper.propTypes = {
+  name: _propTypes.string,
+  value: (0, _propTypes.oneOfType)(_propTypes.string, _propTypes.array),
+  loading: _propTypes.bool,
+  onChange: _propTypes.func,
+  readOnly: _propTypes.bool,
+  settings: _propTypes.object,
+  InputMode: _propTypes.string,
+  autoFocus: _propTypes.bool,
+  className: _propTypes.string,
+  tagifyRef: _propTypes.object,
+  whitelist: _propTypes.array,
+  placeholder: _propTypes.string,
+  defaultValue: (0, _propTypes.oneOfType)(_propTypes.string, _propTypes.array),
+  showFilteredDropdown: (0, _propTypes.oneOfType)(_propTypes.string, _propTypes.bool)
+};
+
+var TagsInput = _react["default"].memo(TagifyWrapper);
+
+TagsInput.displayName = "TagsInput";
+var _default = TagsInput;
 exports["default"] = _default;
 return Tags;
 }));

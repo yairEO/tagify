@@ -1613,7 +1613,7 @@ Tagify.prototype = {
             // checks if this is a "collection", meanning an Array of Objects
             isArray = tagsItems instanceof Array,
             temp = [],
-            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:escapeHTML(v.trim()) }))
+            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:v.trim() }))
 
         if( typeof tagsItems == 'number' )
             tagsItems = tagsItems.toString();
@@ -1928,13 +1928,13 @@ Tagify.prototype = {
      * @return {Object} [DOM element]
      */
     createTagElem( tagData ){
+        tagData.value = escapeHTML(tagData.value);
+
         var tagElm,
             template = this.settings.templates.tag.call(this, tagData);
 
         if( this.settings.readonly )
             tagData.readonly = true
-
-        // tagData.__uid = tagData.__uid || getUID()
 
         template = minify(template)
         tagElm = parseHTML(template)
