@@ -8,7 +8,7 @@ import "./tagify.css"
 function templatesToString(templates) {
     if (templates) {
         for (let templateName in templates) {
-            let isReactComp = String(settings.templates[templateName]).includes(".createElement")
+            let isReactComp = String(templates[templateName]).includes(".createElement")
 
             if (isReactComp) {
                 let Template = templates[templateName]
