@@ -710,7 +710,7 @@
                 <aside class='leftSide'>
                     <h2><a href='#users-list'>#</a>Users list</h2>
                     <p>
-                        This example shows how to customize <em>Tagify</em> further. It also includes an <ode>Add all</code> option as the first
+                        This example shows how to customize <em>Tagify</em> further. It also includes an <code>Add All</code> option as the first
                         item in the suggestions dropdown list.
                     </p>
                     <details>
@@ -720,20 +720,22 @@
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "users-list")</script>
                     <h3>CSS</h3>
-<style contenteditable>.tagify__dropdown.users-list .tagify__dropdown__item{
+<style contenteditable>/* Suggestions items */
+.tagify__dropdown.users-list .tagify__dropdown__item{
+    padding: .5em .7em;
     display: grid;
     grid-template-columns: auto 1fr;
-    column-gap: 10px;
+    gap: 0 1em;
     grid-template-areas: "avatar name"
                          "avatar email";
 }
 
 .tagify__dropdown.users-list .tagify__dropdown__item__avatar-wrap{
-  grid-area: avatar;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #EEE;
+    grid-area: avatar;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #EEE;
 }
 
 .tagify__dropdown.users-list img{
@@ -744,11 +746,35 @@
 .tagify__dropdown.users-list strong{
     grid-area: name;
     width: 100%;
-    vertical-align: top;
+    align-self: center;
 }
 
 .tagify__dropdown.users-list span{
     grid-area: email;
+    width: 100%;
+    font-size: .9em;
+    opacity: .6;
+}
+
+.tagify__dropdown.users-list .addAll{
+    border-bottom: 1px solid #DDD;
+    gap: 0;
+}
+
+
+/* Tags items */
+#users-list .tagify__tag{
+    white-space: nowrap;
+}
+
+#users-list .tagify__tag .tagify__tag__avatar-wrap{
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+#users-list .tagify__tag img{
     width: 100%;
     vertical-align: top;
 }
@@ -1359,9 +1385,9 @@ tagify.on('invalid', function(e){
 
 var inputElm = document.querySelector('input[name=users-list-tags]');
 
-function tagTemplate(value, tagData){
+function tagTemplate(tagData){
     return `
-        <tag title="${(tagData.email || value)}"
+        <tag title="${tagData.email}"
                 contenteditable='false'
                 spellcheck='false'
                 tabIndex="-1"
@@ -1384,9 +1410,11 @@ function suggestionItemTemplate(tagData){
             class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'
             tabindex="0"
             role="option">
+            ${ tagData.avatar ? `
             <div class='tagify__dropdown__item__avatar-wrap'>
                 <img src="${tagData.avatar}">
-            </div>
+            </div>` : ''
+            }
             <strong>${tagData.name}</strong>
             <span>${tagData.email}</span>
         </div>
@@ -1396,103 +1424,116 @@ function suggestionItemTemplate(tagData){
 // initialize Tagify on the above input node reference
 var tagify = new Tagify(inputElm, {
     enforceWhitelist: true,
+    skipInvalid: true, // do not remporarily add invalid tags
     dropdown: {
+        closeOnSelect: false,
         enabled: 0,
-        classname: 'users-list'
+        classname: 'users-list',
+        searchKeys: ['name', 'email']  // very important to set by which keys to search for suggesttions when typing
     },
     templates: {
         tag: tagTemplate,
         dropdownItem: suggestionItemTemplate
     },
-    whitelist: [{
-      "value": 1,
-      "name": "Justinian Hattersley",
-      "avatar": "https://robohash.org/quidemlaborumsaepe.jpg",
-      "email": "jhattersley0@ucsd.edu"
-    },
-    {
-      "value": 2,
-      "name": "Antons Esson",
-      "avatar": "https://robohash.org/aliaseanemo.jpg",
-      "email": "aesson1@ning.com"
-    },
-    {
-      "value": 3,
-      "name": "Ardeen Batisse",
-      "avatar": "https://robohash.org/sapientefacereperspiciatis.jpg",
-      "email": "abatisse2@nih.gov"
-    },
-    {
-      "value": 4,
-      "name": "Graeme Yellowley",
-      "avatar": "https://robohash.org/autcommodiodit.jpg",
-      "email": "gyellowley3@behance.net"
-    },
-    {
-      "value": 5,
-      "name": "Dido Wilford",
-      "avatar": "https://robohash.org/dictanamarchitecto.jpg",
-      "email": "dwilford4@jugem.jp"
-    },
-    {
-      "value": 6,
-      "name": "Celesta Orwin",
-      "avatar": "https://robohash.org/reiciendisnondolore.jpg",
-      "email": "corwin5@meetup.com"
-    },
-    {
-      "value": 7,
-      "name": "Sally Main",
-      "avatar": "https://robohash.org/eteoshic.jpg",
-      "email": "smain6@techcrunch.com"
-    },
-    {
-      "value": 8,
-      "name": "Grethel Haysman",
-      "avatar": "https://robohash.org/doloreveniamea.jpg",
-      "email": "ghaysman7@mashable.com"
-    },
-    {
-      "value": 9,
-      "name": "Marvin Mandrake",
-      "avatar": "https://robohash.org/enimsaepereiciendis.jpg",
-      "email": "mmandrake8@sourceforge.net"
-    },
-    {
-      "value": 10,
-      "name": "Corrie Tidey",
-      "avatar": "https://robohash.org/nonmolestiaecumque.jpg",
-      "email": "ctidey9@youtube.com"
-    }]
+    whitelist: [
+        {
+            "value": 1,
+            "name": "Justinian Hattersley",
+            "avatar": "https://robohash.org/quidemlaborumsaepe.jpg",
+            "email": "jhattersley0@ucsd.edu"
+        },
+        {
+            "value": 2,
+            "name": "Antons Esson",
+            "avatar": "https://robohash.org/aliaseanemo.jpg",
+            "email": "aesson1@ning.com"
+        },
+        {
+            "value": 3,
+            "name": "Ardeen Batisse",
+            "avatar": "https://robohash.org/sapientefacereperspiciatis.jpg",
+            "email": "abatisse2@nih.gov"
+        },
+        {
+            "value": 4,
+            "name": "Graeme Yellowley",
+            "avatar": "https://robohash.org/autcommodiodit.jpg",
+            "email": "gyellowley3@behance.net"
+        },
+        {
+            "value": 5,
+            "name": "Dido Wilford",
+            "avatar": "https://robohash.org/dictanamarchitecto.jpg",
+            "email": "dwilford4@jugem.jp"
+        },
+        {
+            "value": 6,
+            "name": "Celesta Orwin",
+            "avatar": "https://robohash.org/reiciendisnondolore.jpg",
+            "email": "corwin5@meetup.com"
+        },
+        {
+            "value": 7,
+            "name": "Sally Main",
+            "avatar": "https://robohash.org/eteoshic.jpg",
+            "email": "smain6@techcrunch.com"
+        },
+        {
+            "value": 8,
+            "name": "Grethel Haysman",
+            "avatar": "https://robohash.org/doloreveniamea.jpg",
+            "email": "ghaysman7@mashable.com"
+        },
+        {
+            "value": 9,
+            "name": "Marvin Mandrake",
+            "avatar": "https://robohash.org/enimsaepereiciendis.jpg",
+            "email": "mmandrake8@sourceforge.net"
+        },
+        {
+            "value": 10,
+            "name": "Corrie Tidey",
+            "avatar": "https://robohash.org/nonmolestiaecumque.jpg",
+            "email": "ctidey9@youtube.com"
+        }
+    ]
 })
 
-tagify.on('dropdown:show', onDropdownShow)
+tagify.on('dropdown:show dropdown:updated', onDropdownShow)
 
 function onDropdownShow(e){
-    var dropdownContentElm = e.detail.tagify.DOM.dropdown.content;
+    var dropdownContentElm = e.detail.tagify.DOM.dropdown.content,
+        addAllSuggestionsElm;
 
-    if( tagify.suggestedListItems.length > 1 )
+    if( tagify.suggestedListItems.length > 1 ){
+        addAllSuggestionsElm = getAddAllSuggestionsElm();
+
+        // "click" event listener would not work because clicking the item causes blur event on the tagify input,
+        // which then detaches the suggestion dropdown from the DOM, thus making the "click" event invalid.
+        addAllSuggestionsElm.addEventListener('mousedown', onAddAllClick)
+
         // insert "addAllSuggestionsElm" as the first element in the suggestions list
         dropdownContentElm.insertBefore(addAllSuggestionsElm, dropdownContentElm.firstChild)
+    }
 }
 
 function onAddAllClick(){
     tagify.dropdown.selectAll.call(tagify);
 }
 
-// create a "add all" custom suggestion element
-var addAllSuggestionsElm = tagify.parseHTML(
-    // suggestions items should be based on "dropdownItem" template
-    tagify.templates.dropdownItem.call(tagify, ({
-      value: "Add all " + tagify.whitelist.reduce(function(acc, item){
-        acc = tagify.isTagDuplicate(item) ? acc : acc + 1
-      }, 0)
-    }))
-)
-
-// "click" event listener would not work because clicking the item causes blur event on the tagify input,
-// which then detaches the suggestion dropdown from the DOM, thus making the "click" event invalid.
-addAllSuggestionsElm.addEventListener('mousedown', onAddAllClick)
+// create a "add all" custom suggestion element every time the dropdown changes
+function getAddAllSuggestionsElm(){
+    return tagify.parseHTML(
+        // suggestions items should be based on "dropdownItem" template
+        tagify.settings.templates.dropdownItem.call(tagify, ({
+            class: "addAll",
+            name: "Add all",
+            email: tagify.settings.whitelist.reduce(function(remainingSuggestions, item){
+                return tagify.isTagDuplicate(item.value) ? remainingSuggestions : remainingSuggestions + 1
+            }, 0) + " Members"
+        }))
+    )
+}
 })()
 </script>
 
@@ -1503,16 +1544,16 @@ addAllSuggestionsElm.addEventListener('mousedown', onAddAllClick)
 var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
     delimiters : null,
     templates : {
-        tag : function(v, tagData){
+        tag : function(tagData){
             try{
             // _ESCAPE_START_
-                return `<tag title='${v}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
+                return `<tag title='${tagData.value}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
                         <x title='remove tag' class='tagify__tag__removeBtn'></x>
                         <div>
                             ${tagData.code ?
                             `<img onerror="this.style.visibility = 'hidden'" src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>` : ''
                             }
-                            <span class='tagify__tag-text'>${v}</span>
+                            <span class='tagify__tag-text'>${tagData.value}</span>
                         </div>
                     </tag>`
             // _ESCAPE_END_
@@ -1876,8 +1917,8 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
 </script>
 
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism.min.css">
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/themes/prism.min.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/prism.min.js'></script>
     <script>
         setTimeout(function(){
             Prism.highlightAll();
