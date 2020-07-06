@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.14.0)- tags input component
+ * Tagify (v 3.14.1)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -186,10 +186,10 @@ TagifyWrapper.propTypes = {
   showFilteredDropdown: (0, _propTypes.oneOfType)(_propTypes.string, _propTypes.bool)
 };
 
-var TagsInput = _react["default"].memo(TagifyWrapper);
+var Tags = _react["default"].memo(TagifyWrapper);
 
-TagsInput.displayName = "TagsInput";
-var _default = TagsInput;
+Tags.displayName = "Tags";
+var _default = Tags;
 exports["default"] = _default;
 return Tags;
 }));
