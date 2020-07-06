@@ -5,7 +5,7 @@
 
 const isFirefox = typeof InstallTrigger !== 'undefined'
 // const isEdge = /Edge/.test(navigator.userAgent)
-const sameStr = (s1, s2) => s1.toLowerCase() == s2.toLowerCase()
+const sameStr = (s1, s2) => (""+s1).toLowerCase() == (""+s2).toLowerCase()
 // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
 const removeCollectionProp = (collection, unwantedProps) => collection.map(v => {
     var props = {}
@@ -267,7 +267,7 @@ Tagify.prototype = {
         }
     },
 
-    customEventsList : ['add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select'],
+    customEventsList : ['add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated'],
 
     applySettings( input, settings ){
         this.DEFAULTS.templates = this.templates;
@@ -1554,8 +1554,8 @@ Tagify.prototype = {
     isTagWhitelisted( v ){
         return this.settings.whitelist.some(item =>
             typeof v == 'string'
-                ? v.trim().toLowerCase() === (item.value || item).toLowerCase()
-                : JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase()
+                ? sameStr(v.trim(), (item.value || item))
+                : sameStr(JSON.stringify(item), JSON.stringify(v))
         )
     },
 
@@ -1812,10 +1812,10 @@ Tagify.prototype = {
         tagsItems.forEach(tagData => {
             var tagElm,
                 tagElmParams = {},
-                originalData = Object.assign({}, tagData);
+                originalData = Object.assign({}, tagData, {value:tagData.value+""});
 
             // shallow-clone tagData so later modifications will not apply to the source
-            tagData = Object.assign({}, tagData)
+            tagData = Object.assign({}, originalData)
 
             _s.transformTag.call(this, tagData);
 
@@ -2348,8 +2348,6 @@ Tagify.prototype = {
          * (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
          */
         refilter( value ){
-            var HTMLstr;
-
             value = value || this.state.dropdown.query || ''
             this.suggestedListItems = this.dropdown.filterListItems.call(this, value)
 

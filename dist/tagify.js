@@ -36,7 +36,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 var isFirefox = typeof InstallTrigger !== 'undefined'; // const isEdge = /Edge/.test(navigator.userAgent)
 
 var sameStr = function sameStr(s1, s2) {
-  return s1.toLowerCase() == s2.toLowerCase();
+  return ("" + s1).toLowerCase() == ("" + s2).toLowerCase();
 }; // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
 
 
@@ -284,7 +284,7 @@ Tagify.prototype = {
       return "<div ".concat(this.getAttributes(item), "\n                        class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                        tabindex=\"0\"\n                        role=\"option\">").concat(item.value, "</div>");
     }
   },
-  customEventsList: ['add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select'],
+  customEventsList: ['add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated'],
   applySettings: function applySettings(input, settings) {
     this.DEFAULTS.templates = this.templates;
 
@@ -1511,7 +1511,7 @@ Tagify.prototype = {
    */
   isTagWhitelisted: function isTagWhitelisted(v) {
     return this.settings.whitelist.some(function (item) {
-      return typeof v == 'string' ? v.trim().toLowerCase() === (item.value || item).toLowerCase() : JSON.stringify(item).toLowerCase() === JSON.stringify(v).toLowerCase();
+      return typeof v == 'string' ? sameStr(v.trim(), item.value || item) : sameStr(JSON.stringify(item), JSON.stringify(v));
     });
   },
 
@@ -1755,9 +1755,11 @@ Tagify.prototype = {
     tagsItems.forEach(function (tagData) {
       var tagElm,
           tagElmParams = {},
-          originalData = Object.assign({}, tagData); // shallow-clone tagData so later modifications will not apply to the source
+          originalData = Object.assign({}, tagData, {
+        value: tagData.value + ""
+      }); // shallow-clone tagData so later modifications will not apply to the source
 
-      tagData = Object.assign({}, tagData);
+      tagData = Object.assign({}, originalData);
 
       _s.transformTag.call(_this9, tagData); ///////////////// ( validation )//////////////////////
 
@@ -2229,7 +2231,6 @@ Tagify.prototype = {
      * (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
      */
     refilter: function refilter(value) {
-      var HTMLstr;
       value = value || this.state.dropdown.query || '';
       this.suggestedListItems = this.dropdown.filterListItems.call(this, value);
 
