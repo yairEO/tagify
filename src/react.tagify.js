@@ -133,7 +133,7 @@ const TagifyWrapper = ({
 
 TagifyWrapper.propTypes = {
     name: string,
-    value: oneOfType(string, array),
+    value: oneOfType([string, array]),
     loading: bool,
     onChange: func,
     readOnly: bool,
@@ -144,8 +144,8 @@ TagifyWrapper.propTypes = {
     tagifyRef: object,
     whitelist: array,
     placeholder: string,
-    defaultValue: oneOfType(string, array),
-    showFilteredDropdown: oneOfType(string, bool)
+    defaultValue: oneOfType([string, array]),
+    showFilteredDropdown: oneOfType([string, bool])
 }
 
 const Tags = React.memo(TagifyWrapper)
