@@ -3,7 +3,7 @@
 //         console.log(  JSON.stringify(arguments[arg], null, 4)  )
 // }
 
-const isFirefox = typeof InstallTrigger !== 'undefined'
+
 // const isEdge = /Edge/.test(navigator.userAgent)
 const sameStr = (s1, s2) => (""+s1).toLowerCase() == (""+s2).toLowerCase()
 // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
@@ -133,6 +133,10 @@ function Tagify( input, settings ){
         return this
     }
 
+    this.isFirefox = typeof InstallTrigger !== 'undefined'
+    this.isIE = window.document.documentMode; // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
+
+
     this.applySettings(input, settings||{})
 
     this.state = {
@@ -160,8 +164,6 @@ function Tagify( input, settings ){
 }
 
 Tagify.prototype = {
-    isIE : window.document.documentMode, // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
-
     TEXTS : {
         empty      : "empty",
         exceed     : "number of tags exceeded",
@@ -485,7 +487,7 @@ Tagify.prototype = {
             }
             else{
                 try {
-                    var eventData =  extend({}, data)
+                    var eventData =  extend({}, (typeof data === 'Object' ? data : {value:data}))
                     eventData.tagify = this
                     e = new CustomEvent(eventName, {"detail":eventData})
                 }
@@ -1141,7 +1143,7 @@ Tagify.prototype = {
     fixFirefoxLastTagNoCaret(){
         var inputElm = this.DOM.input
 
-        if( isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1 ){
+        if( this.isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1 ){
             inputElm.appendChild(document.createTextNode("\u200b"))
             this.setRangeAtStartEnd(true)
             return true
@@ -1362,12 +1364,9 @@ Tagify.prototype = {
          * Marks the tagify's input as "invalid" if the value did not pass "validateTag()"
          */
         validate(){
-            var isValid = !this.input.value || this.validateTag({value:this.input.value}) === true
+            var isValid = !this.input.value || this.validateTag({value:this.input.value}) === true;
 
-            if( this.settings.mode == 'select' )
-                this.toggleInvalidClass(!isValid)
-            else
-                this.DOM.input.classList.toggle('tagify__input--invalid', !isValid)
+            this.DOM.input.classList.toggle('tagify__input--invalid', !isValid)
 
             return isValid
         },

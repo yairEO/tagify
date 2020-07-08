@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.14.1)- tags input component
+ * Tagify (v 3.14.3)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -33,8 +33,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //     for(var arg=0; arg < arguments.length; ++arg)
 //         console.log(  JSON.stringify(arguments[arg], null, 4)  )
 // }
-var isFirefox = typeof InstallTrigger !== 'undefined'; // const isEdge = /Edge/.test(navigator.userAgent)
-
+// const isEdge = /Edge/.test(navigator.userAgent)
 var sameStr = function sameStr(s1, s2) {
   return ("" + s1).toLowerCase() == ("" + s2).toLowerCase();
 }; // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
@@ -159,6 +158,9 @@ function Tagify(input, settings) {
     return this;
   }
 
+  this.isFirefox = typeof InstallTrigger !== 'undefined';
+  this.isIE = window.document.documentMode; // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
+
   this.applySettings(input, settings || {});
   this.state = {
     editing: false,
@@ -185,8 +187,6 @@ function Tagify(input, settings) {
 }
 
 Tagify.prototype = {
-  isIE: window.document.documentMode,
-  // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
   TEXTS: {
     empty: "empty",
     exceed: "number of tags exceeded",
@@ -509,7 +509,9 @@ Tagify.prototype = {
         jQuery(instance.DOM.originalInput).triggerHandler(eventName, [data]);
       } else {
         try {
-          var eventData = extend({}, data);
+          var eventData = extend({}, typeof data === 'Object' ? data : {
+            value: data
+          });
           eventData.tagify = this;
           e = new CustomEvent(eventName, {
             "detail": eventData
@@ -1131,7 +1133,7 @@ Tagify.prototype = {
   fixFirefoxLastTagNoCaret: function fixFirefoxLastTagNoCaret() {
     var inputElm = this.DOM.input;
 
-    if (isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1) {
+    if (this.isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1) {
       inputElm.appendChild(document.createTextNode("\u200B"));
       this.setRangeAtStartEnd(true);
       return true;
@@ -1335,7 +1337,7 @@ Tagify.prototype = {
       var isValid = !this.input.value || this.validateTag({
         value: this.input.value
       }) === true;
-      if (this.settings.mode == 'select') this.toggleInvalidClass(!isValid);else this.DOM.input.classList.toggle('tagify__input--invalid', !isValid);
+      this.DOM.input.classList.toggle('tagify__input--invalid', !isValid);
       return isValid;
     },
     // remove any child DOM elements that aren't of type TEXT (like <br>)
