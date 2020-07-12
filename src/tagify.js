@@ -195,6 +195,31 @@ Tagify.prototype = {
             rightKey: false,                  // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
         },
 
+        classNames: {
+            scope              : 'tagify',
+            input              : 'tagify__input',
+            focus              : 'tagify--focus',
+            tag                : 'tagify__tag',
+            tagNoAnimation     : 'tagify--noAnim',
+            tagInvalid         : 'tagify--invalid',
+            tagNotAllowed      : 'tagify--notAllowed',
+            inputInvalid       : 'tagify__input--invalid',
+            tagX               : 'tagify__tag__removeBtn',
+            tagText            : 'tagify__tag-text',
+            dropdown           : 'tagify__dropdown',
+            dropdownItem       : 'tagify__dropdown__item',
+            dropdownItemAction : 'tagify__dropdown__item--active',
+            dropdownInital     : 'tagify__dropdown--initial',
+            scopeLoading       : 'tagify--loading',
+            tagLoading         : 'tagify__tag--loading',
+            tagEditing         : 'tagify__tag--editable',
+            tagFlash           : 'tagify__tag--flash',
+            tagHide            : 'tagify__tag--hide',
+            hasMaxTags         : 'tagify--hasMaxTags',
+            hasNoTags          : 'tagify--noTags',
+            empty              : 'tagify--empty',
+        },
+
         dropdown            : {
             classname     : '',
             enabled       : 2,      // minimum input characters needs to be typed for the suggestions dropdown to show
@@ -1469,7 +1494,7 @@ Tagify.prototype = {
     },
 
     getLastTag(){
-        var lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
+        var lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify__tag--hide):not([readonly])');
         return lastTag[lastTag.length - 1];
     },
 
@@ -1521,22 +1546,14 @@ Tagify.prototype = {
     },
 
     /**
-     * Mark a tag element by its value
-     * @param  {String|Number} value  [text value to search for]
-     * @param  {Object}        tagElm [a specific "tag" element to compare to the other tag elements siblings]
-     * @return {boolean}              [found / not found]
+     * Temporarily marks a tag element (by value or Node argument)
+     * @param  {Object} tagElm [a specific "tag" element to compare to the other tag elements siblings]
      */
-    markTagByValue( value, tagElm ){
-        tagElm = tagElm || this.getTagElmByValue(value);
-
-        // check AGAIN if "tagElm" is defined
+    flashTag( tagElm ){
         if( tagElm ){
-            tagElm.classList.add('tagify--mark')
-            setTimeout(() => { tagElm.classList.remove('tagify--mark') }, 100)
-            return tagElm
+            tagElm.classList.add('tagify__tag--flash')
+            setTimeout(() => { tagElm.classList.remove('tagify__tag--flash') }, 100)
         }
-
-        return false
     },
 
     /**
@@ -1829,7 +1846,7 @@ Tagify.prototype = {
 
                 // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
                 if( tagData.__isValid == this.TEXTS.duplicate )
-                    this.markTagByValue(tagData.value)
+                    this.flashTag( this.getTagElmByValue(tagData.value) )
             }
             /////////////////////////////////////////////////////
 
@@ -2048,7 +2065,7 @@ Tagify.prototype = {
                 function animation( tag ){
                     tag.node.style.width = parseFloat(window.getComputedStyle(tag.node).width) + 'px'
                     document.body.clientTop // force repaint for the width to take affect before the "hide" class below
-                    tag.node.classList.add('tagify--hide')
+                    tag.node.classList.add('tagify__tag--hide')
 
                     // manual timeout (hack, since transitionend cannot be used because of hover)
                     setTimeout(removeNode.bind(this), tranDuration, tag)

@@ -250,28 +250,28 @@
             }
         }
 
+        &--flash{
+            div::before{ animation:none; }
+        }
+
+        &--hide{
+            width          : 0 !important;
+            padding-left   : 0;
+            padding-right  : 0;
+            margin-left    : 0;
+            margin-right   : 0;
+            opacity        : 0;
+            transform      : scale(0);
+            transition     : .3s;
+            transition     : var(--tag-hide-transition);
+            pointer-events : none;
+        }
+
         &#{ $self }{
             &--noAnim{
               > div::before{
                 animation:none;
               }
-            }
-
-            &--hide{
-                width          : 0 !important;
-                padding-left   : 0;
-                padding-right  : 0;
-                margin-left    : 0;
-                margin-right   : 0;
-                opacity        : 0;
-                transform      : scale(0);
-                transition     : .3s;
-                transition     : var(--tag-hide-transition);
-                pointer-events : none;
-            }
-
-            &--mark{
-                div::before{ animation:none; }
             }
 
             &--notAllowed:not(.tagify__tag--editable){

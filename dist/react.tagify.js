@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.14.3)- tags input component
+ * Tagify (v 3.14.4)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -171,7 +171,7 @@ var TagifyWrapper = function TagifyWrapper(_ref) {
 
 TagifyWrapper.propTypes = {
   name: _propTypes.string,
-  value: (0, _propTypes.oneOfType)(_propTypes.string, _propTypes.array),
+  value: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.array]),
   loading: _propTypes.bool,
   onChange: _propTypes.func,
   readOnly: _propTypes.bool,
@@ -182,8 +182,8 @@ TagifyWrapper.propTypes = {
   tagifyRef: _propTypes.object,
   whitelist: _propTypes.array,
   placeholder: _propTypes.string,
-  defaultValue: (0, _propTypes.oneOfType)(_propTypes.string, _propTypes.array),
-  showFilteredDropdown: (0, _propTypes.oneOfType)(_propTypes.string, _propTypes.bool)
+  defaultValue: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.array]),
+  showFilteredDropdown: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.bool])
 };
 
 var Tags = _react["default"].memo(TagifyWrapper);

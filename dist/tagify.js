@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.14.3)- tags input component
+ * Tagify (v 3.14.4)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -232,6 +232,30 @@ Tagify.prototype = {
       // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
       rightKey: false // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
 
+    },
+    classNames: {
+      scope: 'tagify',
+      input: 'tagify__input',
+      focus: 'tagify--focus',
+      tag: 'tagify__tag',
+      tagNoAnimation: 'tagify--noAnim',
+      tagInvalid: 'tagify--invalid',
+      tagNotAllowed: 'tagify--notAllowed',
+      inputInvalid: 'tagify__input--invalid',
+      tagX: 'tagify__tag__removeBtn',
+      tagText: 'tagify__tag-text',
+      dropdown: 'tagify__dropdown',
+      dropdownItem: 'tagify__dropdown__item',
+      dropdownItemAction: 'tagify__dropdown__item--active',
+      dropdownInital: 'tagify__dropdown--initial',
+      scopeLoading: 'tagify--loading',
+      tagLoading: 'tagify__tag--loading',
+      tagEditing: 'tagify__tag--editable',
+      tagFlash: 'tagify__tag--flash',
+      tagHide: 'tagify__tag--hide',
+      hasMaxTags: 'tagify--hasMaxTags',
+      hasNoTags: 'tagify--noTags',
+      empty: 'tagify--empty'
     },
     dropdown: {
       classname: '',
@@ -1433,7 +1457,7 @@ Tagify.prototype = {
     return this.DOM.scope.querySelectorAll(classname);
   },
   getLastTag: function getLastTag() {
-    var lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify--hide):not([readonly])');
+    var lastTag = this.DOM.scope.querySelectorAll('tag:not(.tagify__tag--hide):not([readonly])');
     return lastTag[lastTag.length - 1];
   },
 
@@ -1479,23 +1503,16 @@ Tagify.prototype = {
   },
 
   /**
-   * Mark a tag element by its value
-   * @param  {String|Number} value  [text value to search for]
-   * @param  {Object}        tagElm [a specific "tag" element to compare to the other tag elements siblings]
-   * @return {boolean}              [found / not found]
+   * Temporarily marks a tag element (by value or Node argument)
+   * @param  {Object} tagElm [a specific "tag" element to compare to the other tag elements siblings]
    */
-  markTagByValue: function markTagByValue(value, tagElm) {
-    tagElm = tagElm || this.getTagElmByValue(value); // check AGAIN if "tagElm" is defined
-
+  flashTag: function flashTag(tagElm) {
     if (tagElm) {
-      tagElm.classList.add('tagify--mark');
+      tagElm.classList.add('tagify__tag--flash');
       setTimeout(function () {
-        tagElm.classList.remove('tagify--mark');
+        tagElm.classList.remove('tagify__tag--flash');
       }, 100);
-      return tagElm;
     }
-
-    return false;
   },
 
   /**
@@ -1774,7 +1791,7 @@ Tagify.prototype = {
           __preInvalidData: originalData
         }); // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
 
-        if (tagData.__isValid == _this9.TEXTS.duplicate) _this9.markTagByValue(tagData.value);
+        if (tagData.__isValid == _this9.TEXTS.duplicate) _this9.flashTag(_this9.getTagElmByValue(tagData.value));
       } /////////////////////////////////////////////////////
 
 
@@ -1989,7 +2006,7 @@ Tagify.prototype = {
         tag.node.style.width = parseFloat(window.getComputedStyle(tag.node).width) + 'px';
         document.body.clientTop; // force repaint for the width to take affect before the "hide" class below
 
-        tag.node.classList.add('tagify--hide'); // manual timeout (hack, since transitionend cannot be used because of hover)
+        tag.node.classList.add('tagify__tag--hide'); // manual timeout (hack, since transitionend cannot be used because of hover)
 
         setTimeout(removeNode.bind(this), tranDuration, tag);
       }
