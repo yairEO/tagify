@@ -61,7 +61,8 @@ function minify( s ){
  * https://stackoverflow.com/a/6234804/104380
  */
 function escapeHTML( s ){
-    return s.replace(/&/g, "&amp;")
+    return s
+        .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
@@ -1947,10 +1948,8 @@ Tagify.prototype = {
      * @return {Object} [DOM element]
      */
     createTagElem( tagData ){
-        tagData.value = escapeHTML(tagData.value);
-
         var tagElm,
-            template = this.settings.templates.tag.call(this, tagData);
+            template = this.settings.templates.tag.call(this, extend({}, tagData, { value:escapeHTML(tagData.value) }));
 
         if( this.settings.readonly )
             tagData.readonly = true

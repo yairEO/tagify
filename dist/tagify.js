@@ -1896,9 +1896,10 @@ Tagify.prototype = {
    * @return {Object} [DOM element]
    */
   createTagElem: function createTagElem(tagData) {
-    tagData.value = escapeHTML(tagData.value);
     var tagElm,
-        template = this.settings.templates.tag.call(this, tagData);
+        template = this.settings.templates.tag.call(this, extend({}, tagData, {
+      value: escapeHTML(tagData.value)
+    }));
     if (this.settings.readonly) tagData.readonly = true;
     template = minify(template);
     tagElm = parseHTML(template);
