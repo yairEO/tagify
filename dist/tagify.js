@@ -308,7 +308,7 @@ Tagify.prototype = {
       return "<div ".concat(this.getAttributes(item), "\n                        class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                        tabindex=\"0\"\n                        role=\"option\">").concat(item.value, "</div>");
     }
   },
-  customEventsList: ['add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated'],
+  customEventsList: ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated'],
   applySettings: function applySettings(input, settings) {
     this.DEFAULTS.templates = this.templates;
 
@@ -586,7 +586,9 @@ Tagify.prototype = {
 
     event.simulated = true;
     if (inputElm._valueTracker) inputElm._valueTracker.setValue(Math.random());
-    inputElm.dispatchEvent(event); // React, for some reason, clears the input's value after "dispatchEvent" is fired
+    inputElm.dispatchEvent(event); // also trigger a Tagify event
+
+    this.trigger("change", this.state.lastOriginalValueReported); // React, for some reason, clears the input's value after "dispatchEvent" is fired
 
     inputElm.value = this.state.lastOriginalValueReported;
   },

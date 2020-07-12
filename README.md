@@ -622,20 +622,34 @@ All triggered events return the instance's scope (tagify).<br>
 See `e.detail` for custom event additional data.
 
 <details>
-  <summary>See Examples</summary>
+  <summary>Example 1</summary>
 
 ```javascript
 var tagify = new Tagify(...)
 
-// events are chainable and multiple events may be binded for the same callback
+// events can be chainable, and multiple events may be binded for the same callback
 tagify
   .on('input', e => console.log(e.detail))
   .on('edit:input edit:updated edit:start edit:keydown', e => console.log(e.type, e.detail))
 ```
 </details>
 
+<details>
+  <summary>Example 2</summary>
+
+```javascript
+var tagify = new Tagify(inputNode, {
+  callbacks: {
+    "change": (e) => console.log(e.detail))
+    "dropdown:show": (e) => console.log(e.detail))
+  }
+})
+```
+</details>
+
 Name               | Info
 ------------------ | --------------------------------------------------------------------------
+change             | Any change to the value has occured. `e.details.value` callback listener argument is a *String*
 add                | A tag has been added
 remove             | A tag has been removed ([use `removeTag`](https://github.com/yairEO/tagify/issues/222) intead with *jQuery*)
 invalid            | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)

@@ -294,7 +294,7 @@ Tagify.prototype = {
         }
     },
 
-    customEventsList : ['add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated'],
+    customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated'],
 
     applySettings( input, settings ){
         this.DEFAULTS.templates = this.templates;
@@ -565,6 +565,9 @@ Tagify.prototype = {
             inputElm._valueTracker.setValue(Math.random())
 
         inputElm.dispatchEvent(event)
+
+        // also trigger a Tagify event
+        this.trigger("change", this.state.lastOriginalValueReported)
 
         // React, for some reason, clears the input's value after "dispatchEvent" is fired
         inputElm.value = this.state.lastOriginalValueReported
