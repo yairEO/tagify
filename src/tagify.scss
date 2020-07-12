@@ -22,8 +22,10 @@
     $tag-invalid-color       : $tag-remove !default;
     $tag-invalid-bg          : rgba($tag-remove, .5) !default;
     $tag-inset-shadow-size   : 1.1em !default;
-    $placeholder-color       : $tag-text-color !default;
+    $placeholder-color       : rgba($tag-text-color, .3) !default;
     $input-color             : inherit !default;
+    $tagify-dd-bg-color      : white !default;
+    $tagify-dd-color-primary : rgb(53,149,246) !default;
 
     // CSS variables
     --tags-border-color        : #{$tags-border-color};
@@ -56,13 +58,16 @@
         }
     }
 
-    @mixin placeholder( $show:true, $opacity:.5 ){
-        transition:.2s ease-out;
+    @mixin placeholder( $show:true ){
+        transition: .2s ease-out;
+
         @if $show == true {
-            opacity:$opacity; transform:none;
+            opacity: 1;
+            transform: none;
         }
         @else {
-            opacity:0; transform:translatex(6px);
+            opacity: 0;
+            transform: translatex(6px);
         }
     }
 
@@ -327,7 +332,7 @@
             justify-content: center;
             border-radius  : 50px;
             cursor         : pointer;
-            font           : #{$size} Serif;
+            font           : #{$size}/1 monospace;
             background     : $tag-remove-btn-bg;
             background     : var(--tag-remove-btn-bg);
             color          : $tag-remove-btn-color;
@@ -419,7 +424,7 @@
             }
             &:empty{
                 &::before{
-                    @include placeholder(true, .3);
+                    @include placeholder(true3);
                     @include firefox {
                         // remove ":after" pseudo element: https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
                         content: unset;
@@ -579,7 +584,7 @@
         &__wrapper{
             max-height: 300px;
             overflow: hidden;
-            background: white;
+            background: $tagify-dd-bg-color;
             background: var(--tagify-dd-bg-color);
             border: 1px solid $tags-focus-border-color;
             border-color: var(--tagify-dd-color-primary);
@@ -617,7 +622,7 @@
             outline: none;
 
             &--active{
-                background: $tags-focus-border-color;
+                background: $tagify-dd-color-primary;
                 background: var(--tagify-dd-color-primary);
                 color: white;
             }
@@ -625,21 +630,5 @@
                 filter: brightness(105%);
             }
         }
-        /* CURRENTLY NOT USED
-        &__addNewBtn{
-          width: 1.22em;
-          height: 1.22em;
-          line-height: 1;
-          font-size: 1.2em;
-          border-radius: 50%;
-          text-align: center;
-          background: $tags-focus-border-color;
-          background: var(--tagify-dd-color-primary);
-          color: white;
-          color: var(--tagify-dd-bg-color);
-          border: none;
-          cursor: pointer;
-        }
-        */
     }
 }
