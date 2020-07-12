@@ -579,8 +579,9 @@ Name                            | Info
 --tag-invalid-color             | For border color of edited tags with invalid value being typed into them
 --tag-invalid-bg                | Background color for invalid Tags.
 --tag-remove-bg                 | Tag background color when hovering the `×` button.
---tag-remove-btn-bg             | The remove (`×`) button background color
---tag-remove-btn-bg--hover      | The remove (`×`) button background color on hover
+--tag-remove-btn-color          | Remove (`×`) button text color
+--tag-remove-btn-bg             | Remove (`×`) button background color
+--tag-remove-btn-bg--hover      | Remove (`×`) button hover background color
 --loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
 --tag-hide-transition           | Controls the transition property when a tag is removed. default is '.3s'
 --placeholder-color             | Placeholder text color

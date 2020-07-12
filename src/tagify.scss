@@ -16,6 +16,7 @@
     $tag-bg                  : #E5E5E5 !default;
     $tag-hover               : #D3E2E2 !default;
     $tag-remove              : #D39494 !default;
+    $tag-remove-btn-color    : $tag-text-color !default;
     $tag-remove-btn-bg       : none !default;
     $tag-remove-btn-bg--hover: darken($tag-remove, 8) !default;
     $tag-invalid-color       : $tag-remove !default;
@@ -37,6 +38,7 @@
     --tag-invalid-color        : #{$tag-invalid-color};
     --tag-invalid-bg           : #{$tag-invalid-bg};
     --tag-remove-bg            : #{rgba($tag-remove, .3)};
+    --tag-remove-btn-color     : #{$tag-remove-btn-color};
     --tag-remove-btn-bg        : #{$tag-remove-btn-bg};
     --tag-remove-btn-bg--hover : #{$tag-remove-btn-bg--hover};
     --input-color              : #{$input-color};
@@ -328,8 +330,8 @@
             font           : #{$size} Serif;
             background     : $tag-remove-btn-bg;
             background     : var(--tag-remove-btn-bg);
-            color          : $tag-text-color;
-            color          : var(--tag-text-color);
+            color          : $tag-remove-btn-color;
+            color          : var(--tag-remove-btn-color);
 
             width          : $size;
             height         : $size;
