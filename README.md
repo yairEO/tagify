@@ -604,7 +604,7 @@ Name                       | Parameters                                         
 `loadOriginalValues`       | String/Array                                                              | Converts the input's value into tags. This method gets called automatically when instansiating Tagify. Also works for mixed-tags
 `getWhitelistItemsByValue` | Object                                                                    | `{value}` - return an Array of found matching items (case-insensetive)
 `getTagIndexByValue`       | String                                                                    | Returns the index of a specific tag, by value
-`getTagElmByValue`         | String                                                                    | Returns a tag node, if found, which matches the value
+`getTagElmByValue`         | String                                                                    | Returns the first matched tag node, if found
 `isTagDuplicate`           | String                                                                    | Returns how many tags already exists with that value
 `parseMixTags`             | String                                                                    | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
 `getTagElms`               |                                                                           | Returns a DOM nodes list of all the tags
