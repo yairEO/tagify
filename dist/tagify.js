@@ -2155,7 +2155,9 @@ Tagify.prototype = {
 
       if (value && !this.suggestedListItems.length) {
         this.trigger('dropdown:noMatch', value);
-        if (_s.templates.dropdownItemNoMatch) noMatchListItem = _s.templates.dropdownItemNoMatch.call(this, value);
+        if (_s.templates.dropdownItemNoMatch) noMatchListItem = _s.templates.dropdownItemNoMatch.call(this, {
+          value: value
+        });
       } // if "dropdownItemNoMatch" was no defined, procceed regular flow.
       //
 

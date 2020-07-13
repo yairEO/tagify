@@ -2252,7 +2252,7 @@ Tagify.prototype = {
                 this.trigger('dropdown:noMatch', value)
 
                 if( _s.templates.dropdownItemNoMatch )
-                    noMatchListItem = _s.templates.dropdownItemNoMatch.call(this, value)
+                    noMatchListItem = _s.templates.dropdownItemNoMatch.call(this, {value})
             }
 
             // if "dropdownItemNoMatch" was no defined, procceed regular flow.

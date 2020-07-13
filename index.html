@@ -1363,9 +1363,9 @@ var input = document.querySelector('input[name=tags3]'),
             caseSensitive: true,   // allow adding duplicate items if their case is different
         },
         templates: {
-            dropdownItemNoMatch: function(value) {
+            dropdownItemNoMatch: function(data) {
                 return `<div class='${this.settings.classNames.dropdownItem}' tabindex="0" role="option">
-                    No suggestion found for: <strong>${value}</strong>
+                    No suggestion found for: <strong>${data.value}</strong>
                 </div>`
             }
         }
