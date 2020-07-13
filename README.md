@@ -586,6 +586,7 @@ Name                            | Info
 --loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
 --tag-hide-transition           | Controls the transition property when a tag is removed. default is '.3s'
 --placeholder-color             | Placeholder text color
+--placeholder-color-focus       | Placeholder text color when Tagify has focus and no input was typed
 --input-color                   | Input text color
 
 ### For [SCSS variables, see here](https://github.com/yairEO/tagify/blob/master/src/tagify.scss#L9-L24)

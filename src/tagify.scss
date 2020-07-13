@@ -22,7 +22,8 @@
     $tag-invalid-color       : $tag-remove !default;
     $tag-invalid-bg          : rgba($tag-remove, .5) !default;
     $tag-inset-shadow-size   : 1.1em !default;
-    $placeholder-color       : rgba($tag-text-color, .3) !default;
+    $placeholder-color       : rgba($tag-text-color, .4) !default;
+    $placeholder-color-focus : rgba($tag-text-color, .25) !default;
     $input-color             : inherit !default;
     $tagify-dd-bg-color      : white !default;
     $tagify-dd-color-primary : rgb(53,149,246) !default;
@@ -48,6 +49,7 @@
     --tag--max-width           : auto;
     --tag-hide-transition      : .3s;
     --placeholder-color        : #{$placeholder-color};
+    --placeholder-color-focus  : #{$placeholder-color-focus};
     --loader-size              : .8em;
 
     @mixin firefox {
@@ -424,12 +426,15 @@
             }
             &:empty{
                 &::before{
-                    @include placeholder(true3);
+                    @include placeholder(true);
                     @include firefox {
                         // remove ":after" pseudo element: https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
                         content: unset;
                         // display:inline-block;
                     }
+
+                    color: $placeholder-color-focus;
+                    color: var(--placeholder-color-focus);
                 }
 
                  &::after{
