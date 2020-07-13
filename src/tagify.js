@@ -5,7 +5,10 @@
 
 
 // const isEdge = /Edge/.test(navigator.userAgent)
-const sameStr = (s1, s2) => (""+s1).toLowerCase() == (""+s2).toLowerCase()
+const sameStr = (s1, s2, caseSensitive) => caseSensitive
+    ? s1 == s2
+    : (""+s1).toLowerCase() == (""+s2).toLowerCase()
+
 // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
 const removeCollectionProp = (collection, unwantedProps) => collection.map(v => {
     var props = {}
@@ -227,6 +230,7 @@ Tagify.prototype = {
             maxItems      : 10,
             searchKeys    : [],
             fuzzySearch   : true,
+            caseSensitive : false,
             accentedSearch: true,
             highlightFirst: false,  // highlights first-matched item in the list
             closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
@@ -289,13 +293,15 @@ Tagify.prototype = {
 
         dropdownItem( item ){
             return `<div ${this.getAttributes(item)}
-                        class='tagify__dropdown__item ${item.class ? item.class : ""}'
+                        class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
                         tabindex="0"
                         role="option">${item.value}</div>`
-        }
+        },
+
+        dropdownItemNoMatch: null
     },
 
-    customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated'],
+    customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch'],
 
     applySettings( input, settings ){
         this.DEFAULTS.templates = this.templates;
@@ -1677,11 +1683,12 @@ Tagify.prototype = {
     },
 
     getWhitelistItemsByValue(value){
+
         function isMatchingValue(item){
-            return "value" in item ? sameStr(item.value || item, value) : false;
+            return "value" in item ? sameStr(item.value || item, value, this.settings.dropdown.caseSensitive) : false;
         }
 
-        return this.settings.whitelist.filter(isMatchingValue)
+        return this.settings.whitelist.filter.call(this, isMatchingValue)
     },
 
     /**
@@ -2213,14 +2220,13 @@ Tagify.prototype = {
         },
 
         show( value ){
-            var HTMLContent,
-                _s = this.settings,
+            var _s = this.settings,
                 firstListItem,
                 firstListItemValue,
-                ddHeight,
                 selection = window.getSelection(),
                 allowNewTags = _s.mode == 'mix' && !_s.enforceWhitelist,
                 noWhitelist =  !_s.whitelist || !_s.whitelist.length,
+                noMatchListItem,
                 isManual = _s.dropdown.position == 'manual';
 
             // ⚠️ Do not render suggestions list  if:
@@ -2236,43 +2242,52 @@ Tagify.prototype = {
             // TODO: add a Setting to control items' sort order for "listItems"
             this.suggestedListItems = this.dropdown.filterListItems.call(this, value)
 
-            // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
-            // then add a custom suggestion item to the dropdown
-            if( this.suggestedListItems.length ){
-                if( value   &&   allowNewTags   &&   !this.state.editing.scope  &&  !sameStr(this.suggestedListItems[0].value, value) )
-                    this.suggestedListItems.unshift({value})
+            // trigger at this exact point to let the developer the chance to manually set "this.suggestedListItems"
+            if( !this.suggestedListItems.length ){
+                this.trigger('dropdown:noMatch', value)
+
+                if( _s.templates.dropdownItemNoMatch )
+                    noMatchListItem = _s.templates.dropdownItemNoMatch.call(this, value)
             }
-            else{
-                if( value   &&   allowNewTags  &&  !this.state.editing.scope ){
-                    this.suggestedListItems = [{value}]
+
+            // if "dropdownItemNoMatch" was no defined, procceed regular flow.
+            //
+            if( !noMatchListItem ){
+                // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
+                // then add a custom suggestion item to the dropdown
+                if( this.suggestedListItems.length ){
+                    if( value   &&   allowNewTags   &&   !this.state.editing.scope  &&  !sameStr(this.suggestedListItems[0].value, value) )
+                        this.suggestedListItems.unshift({value})
                 }
-                // hide suggestions list if no suggestions were matched & cleanup
                 else{
-                    this.input.autocomplete.suggest.call(this);
-                    this.dropdown.hide.call(this)
+                    if( value   &&   allowNewTags  &&  !this.state.editing.scope ){
+                        this.suggestedListItems = [{value}]
+                    }
+                    // hide suggestions list if no suggestion matched
+                    else{
+                        this.input.autocomplete.suggest.call(this);
+                        this.dropdown.hide.call(this)
+                        return;
+                    }
+                }
 
-                    return;
+                firstListItem =  this.suggestedListItems[0]
+                firstListItemValue = ""+(isObject(firstListItem) ? firstListItem.value : firstListItem)
+
+                if( _s.autoComplete && firstListItemValue ){
+                    // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
+                    if( firstListItemValue.indexOf(value) == 0 )
+                        this.input.autocomplete.suggest.call(this, firstListItem)
                 }
             }
 
-            firstListItem =  this.suggestedListItems[0]
-            firstListItemValue = ""+(isObject(firstListItem) ? firstListItem.value : firstListItem)
-
-            if( _s.autoComplete && firstListItemValue ){
-                // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
-                if( firstListItemValue.indexOf(value) == 0 )
-                    this.input.autocomplete.suggest.call(this, firstListItem)
-            }
-
-            this.dropdown.fill.call(this)
+            this.dropdown.fill.call(this, noMatchListItem)
 
             if( _s.dropdown.highlightFirst )
                 this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0])
 
-            this.DOM.scope.setAttribute("aria-expanded", true)
-
             // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
-            // called multiple times, regardless if the dropdown is currently visisble, but the events-binding
+            // called multiple times, regardless if the dropdown is currently visible, but the events-binding
             // should only be called if the dropdown wasn't previously visible.
             if( !this.state.dropdown.visible )
                 // timeout is needed for when pressing arrow down to show the dropdown,
@@ -2290,26 +2305,11 @@ Tagify.prototype = {
             }
 
             // try to positioning the dropdown (it might not yet be on the page, doesn't matter, next code handles this)
-            if( !isManual )
+            if( !isManual ){
                 this.dropdown.position.call(this)
-
-            // if the dropdown has yet to be appended to the document,
-            // append the dropdown to the body element & handle events
-            if( !document.body.contains(this.DOM.dropdown) ){
-                if( !isManual ){
-                    // let the element render in the DOM first to accurately measure it
-                    // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
-                    ddHeight = this.getNodeHeight(this.DOM.dropdown)
-
-                    this.DOM.dropdown.classList.add('tagify__dropdown--initial')
-                    this.dropdown.position.call(this, ddHeight)
-                    this.settings.dropdown.appendTarget.appendChild(this.DOM.dropdown)
-
-                    setTimeout(() =>
-                        this.DOM.dropdown.classList.remove('tagify__dropdown--initial')
-                    )
-                }
+                this.dropdown.render.call(this)
             }
+
 
             this.trigger("dropdown:show", this.DOM.dropdown)
         },
@@ -2356,8 +2356,37 @@ Tagify.prototype = {
             return this
         },
 
-        fill(){
-            var HTMLContent = this.dropdown.createListHTML.call(this, this.suggestedListItems)
+        render(){
+            // let the element render in the DOM first, to accurately measure it.
+            // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
+            var ddHeight = this.getNodeHeight(this.DOM.dropdown)
+
+            this.DOM.scope.setAttribute("aria-expanded", true)
+
+            // if the dropdown has yet to be appended to the DOM,
+            // append the dropdown to the body element & handle events
+            if( !document.body.contains(this.DOM.dropdown) ){
+                this.DOM.dropdown.classList.add('tagify__dropdown--initial')
+                this.dropdown.position.call(this, ddHeight)
+                this.settings.dropdown.appendTarget.appendChild(this.DOM.dropdown)
+
+                setTimeout(() =>
+                    this.DOM.dropdown.classList.remove('tagify__dropdown--initial')
+                )
+            }
+
+            return this
+        },
+
+        /**
+         *
+         * @param {String/Array} HTMLContent - optional
+         */
+        fill( HTMLContent ){
+            HTMLContent = typeof HTMLContent == 'string'
+                ? HTMLContent
+                : this.dropdown.createListHTML.call(this, HTMLContent || this.suggestedListItems)
+
             this.DOM.dropdown.content.innerHTML = minify(HTMLContent)
         },
 
@@ -2558,9 +2587,6 @@ Tagify.prototype = {
                                 this.dropdown.selectOption.call(this, listItemElm)
                         })
                         .catch(err => err)
-
-                    // if( addNewBtn )
-                    //     this.dropdown.events.callbacks.onClickAddNewBtn.call(this)
                 },
 
                 onScroll(e){
@@ -2569,22 +2595,6 @@ Tagify.prototype = {
 
                     this.trigger("dropdown:scroll", {percentage:Math.round(pos)})
                 },
-                /*
-                onClickAddNewBtn(e){
-                    this.state.actions.addNew = true
-                    setTimeout(()=> this.state.actions.addNew = false, 150)
-
-                    if( this.state.tag.value )
-                        this.addTags([this.state.tag], true)
-
-                    this.dropdown.hide.call(this)
-
-                    setTimeout(() => {
-                        this.DOM.input.focus()
-                        this.toggleFocusClass(true)
-                    })
-                }
-                */
             }
         },
 
@@ -2637,16 +2647,20 @@ Tagify.prototype = {
          * @param {Object} elm  DOM node to select
          */
         selectOption( elm ){
-            if( !elm ) return;
+            var hideDropdown = this.settings.dropdown.closeOnSelect;
+
+            if( !elm ) {
+                this.addTags(this.input.value, true)
+                hideDropdown && this.dropdown.hide.call(this)
+                return;
+            }
 
             // if in edit-mode, do not continue but instead replace the tag's text.
             // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
-            var hideDropdown = this.settings.dropdown.closeOnSelect,
-                tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
+            var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
                 selectedOption = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '',
                 value = selectedOption.value || selectedOption || this.input.value;
-
 
             this.trigger("dropdown:select", value)
 

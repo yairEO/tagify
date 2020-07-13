@@ -224,7 +224,8 @@ To do the same but for specific tag(s), set those tags' data with `editable` pro
 It's possible to control the templates for some of the HTML elements tagify is using by
 modying the `settings.templates` Object with your own custom functions which **must return** an *HTML string*.
 
-Available templates are: `wrapper`, `tag`, `dropdown`. & `dropdownItem`.
+Available templates are: `wrapper`, `tag`, `dropdown`, `dropdownItem` and the optional `dropdownItemNoMatch`
+which is a special template for rendering a suggestion item (in the dropdown list) only if there were no matches found for the typed input.
 
 [View templates](https://github.com/yairEO/tagify/blob/master/src/tagify.js#L216-L264)
 
@@ -668,6 +669,7 @@ dropdown:show      | Suggestions dropdown is to be rendered. The dropdown DOM no
 dropdown:hide      | Suggestions dropdown has been removed from the DOM
 dropdown:select    | Suggestions dropdown item selected (by mouse/keyboard/touch)
 dropdown:scroll    | Tells the percentage scrolled. (`event.detail.percentage`)
+dropdown:noMatch   | No whitelist suggestion item matched for the the typed input. At this point it is possible to manually set `tagify.suggestedListItems` to any possible custom value, for example: `[{ value:"default" }]`
 
 
 ## Hooks

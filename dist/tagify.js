@@ -34,8 +34,8 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //         console.log(  JSON.stringify(arguments[arg], null, 4)  )
 // }
 // const isEdge = /Edge/.test(navigator.userAgent)
-var sameStr = function sameStr(s1, s2) {
-  return ("" + s1).toLowerCase() == ("" + s2).toLowerCase();
+var sameStr = function sameStr(s1, s2, caseSensitive) {
+  return caseSensitive ? s1 == s2 : ("" + s1).toLowerCase() == ("" + s2).toLowerCase();
 }; // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
 
 
@@ -264,6 +264,7 @@ Tagify.prototype = {
       maxItems: 10,
       searchKeys: [],
       fuzzySearch: true,
+      caseSensitive: false,
       accentedSearch: true,
       highlightFirst: false,
       // highlights first-matched item in the list
@@ -305,10 +306,11 @@ Tagify.prototype = {
       return "<div class=\"".concat(className, "\" role=\"listbox\" aria-labelledby=\"dropdown\">\n                        <div class=\"tagify__dropdown__wrapper\"></div>\n                    </div>");
     },
     dropdownItem: function dropdownItem(item) {
-      return "<div ".concat(this.getAttributes(item), "\n                        class='tagify__dropdown__item ").concat(item["class"] ? item["class"] : "", "'\n                        tabindex=\"0\"\n                        role=\"option\">").concat(item.value, "</div>");
-    }
+      return "<div ".concat(this.getAttributes(item), "\n                        class='").concat(this.settings.classNames.dropdownItem, " ").concat(item["class"] ? item["class"] : "", "'\n                        tabindex=\"0\"\n                        role=\"option\">").concat(item.value, "</div>");
+    },
+    dropdownItemNoMatch: null
   },
-  customEventsList: ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated'],
+  customEventsList: ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch'],
   applySettings: function applySettings(input, settings) {
     this.DEFAULTS.templates = this.templates;
 
@@ -1625,10 +1627,10 @@ Tagify.prototype = {
   },
   getWhitelistItemsByValue: function getWhitelistItemsByValue(value) {
     function isMatchingValue(item) {
-      return "value" in item ? sameStr(item.value || item, value) : false;
+      return "value" in item ? sameStr(item.value || item, value, this.settings.dropdown.caseSensitive) : false;
     }
 
-    return this.settings.whitelist.filter(isMatchingValue);
+    return this.settings.whitelist.filter.call(this, isMatchingValue);
   },
 
   /**
@@ -2124,16 +2126,13 @@ Tagify.prototype = {
       this.DOM.dropdown.content = this.DOM.dropdown.querySelector('.tagify__dropdown__wrapper');
     },
     show: function show(value) {
-      var _this12 = this;
-
-      var HTMLContent,
-          _s = this.settings,
+      var _s = this.settings,
           firstListItem,
           firstListItemValue,
-          ddHeight,
           selection = window.getSelection(),
           allowNewTags = _s.mode == 'mix' && !_s.enforceWhitelist,
           noWhitelist = !_s.whitelist || !_s.whitelist.length,
+          noMatchListItem,
           isManual = _s.dropdown.position == 'manual'; // ⚠️ Do not render suggestions list  if:
       // 1. there's no whitelist (can happen while async loading) AND new tags arn't allowed
       // 2. dropdown is disabled
@@ -2144,38 +2143,47 @@ Tagify.prototype = {
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
 
-      this.suggestedListItems = this.dropdown.filterListItems.call(this, value); // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
-      // then add a custom suggestion item to the dropdown
+      this.suggestedListItems = this.dropdown.filterListItems.call(this, value); // trigger at this exact point to let the developer the chance to manually set "this.suggestedListItems"
 
-      if (this.suggestedListItems.length) {
-        if (value && allowNewTags && !this.state.editing.scope && !sameStr(this.suggestedListItems[0].value, value)) this.suggestedListItems.unshift({
-          value: value
-        });
-      } else {
-        if (value && allowNewTags && !this.state.editing.scope) {
-          this.suggestedListItems = [{
+      if (!this.suggestedListItems.length) {
+        this.trigger('dropdown:noMatch', value);
+        if (_s.templates.dropdownItemNoMatch) noMatchListItem = _s.templates.dropdownItemNoMatch.call(this, value);
+      } // if "dropdownItemNoMatch" was no defined, procceed regular flow.
+      //
+
+
+      if (!noMatchListItem) {
+        // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
+        // then add a custom suggestion item to the dropdown
+        if (this.suggestedListItems.length) {
+          if (value && allowNewTags && !this.state.editing.scope && !sameStr(this.suggestedListItems[0].value, value)) this.suggestedListItems.unshift({
             value: value
-          }];
-        } // hide suggestions list if no suggestions were matched & cleanup
-        else {
-            this.input.autocomplete.suggest.call(this);
-            this.dropdown.hide.call(this);
-            return;
-          }
+          });
+        } else {
+          if (value && allowNewTags && !this.state.editing.scope) {
+            this.suggestedListItems = [{
+              value: value
+            }];
+          } // hide suggestions list if no suggestion matched
+          else {
+              this.input.autocomplete.suggest.call(this);
+              this.dropdown.hide.call(this);
+              return;
+            }
+        }
+
+        firstListItem = this.suggestedListItems[0];
+        firstListItemValue = "" + (isObject(firstListItem) ? firstListItem.value : firstListItem);
+
+        if (_s.autoComplete && firstListItemValue) {
+          // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
+          if (firstListItemValue.indexOf(value) == 0) this.input.autocomplete.suggest.call(this, firstListItem);
+        }
       }
 
-      firstListItem = this.suggestedListItems[0];
-      firstListItemValue = "" + (isObject(firstListItem) ? firstListItem.value : firstListItem);
-
-      if (_s.autoComplete && firstListItemValue) {
-        // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
-        if (firstListItemValue.indexOf(value) == 0) this.input.autocomplete.suggest.call(this, firstListItem);
-      }
-
-      this.dropdown.fill.call(this);
-      if (_s.dropdown.highlightFirst) this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0]);
-      this.DOM.scope.setAttribute("aria-expanded", true); // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
-      // called multiple times, regardless if the dropdown is currently visisble, but the events-binding
+      this.dropdown.fill.call(this, noMatchListItem);
+      if (_s.dropdown.highlightFirst) this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0]); // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
+      // called multiple times, regardless if the dropdown is currently visible, but the events-binding
       // should only be called if the dropdown wasn't previously visible.
 
       if (!this.state.dropdown.visible) // timeout is needed for when pressing arrow down to show the dropdown,
@@ -2190,27 +2198,15 @@ Tagify.prototype = {
         anchorNode: selection.anchorNode
       }; // try to positioning the dropdown (it might not yet be on the page, doesn't matter, next code handles this)
 
-      if (!isManual) this.dropdown.position.call(this); // if the dropdown has yet to be appended to the document,
-      // append the dropdown to the body element & handle events
-
-      if (!document.body.contains(this.DOM.dropdown)) {
-        if (!isManual) {
-          // let the element render in the DOM first to accurately measure it
-          // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
-          ddHeight = this.getNodeHeight(this.DOM.dropdown);
-          this.DOM.dropdown.classList.add('tagify__dropdown--initial');
-          this.dropdown.position.call(this, ddHeight);
-          this.settings.dropdown.appendTarget.appendChild(this.DOM.dropdown);
-          setTimeout(function () {
-            return _this12.DOM.dropdown.classList.remove('tagify__dropdown--initial');
-          });
-        }
+      if (!isManual) {
+        this.dropdown.position.call(this);
+        this.dropdown.render.call(this);
       }
 
       this.trigger("dropdown:show", this.DOM.dropdown);
     },
     hide: function hide(force) {
-      var _this13 = this;
+      var _this12 = this;
 
       var _this$DOM = this.DOM,
           scope = _this$DOM.scope,
@@ -2231,7 +2227,7 @@ Tagify.prototype = {
       // which casues another onFocus event, which checked "this.state.dropdown.visible" and see it as "false" and re-open the dropdown
 
       setTimeout(function () {
-        _this13.state.dropdown.visible = false;
+        _this12.state.dropdown.visible = false;
       }, 100);
       this.state.dropdown.query = this.state.ddItemData = this.state.ddItemElm = this.state.selection = null; // if the user closed the dropdown (in mix-mode) while a potential tag was detected, flag the current tag
       // so the dropdown won't be shown on following user input for that "tag"
@@ -2243,8 +2239,33 @@ Tagify.prototype = {
       this.trigger("dropdown:hide", dropdown);
       return this;
     },
-    fill: function fill() {
-      var HTMLContent = this.dropdown.createListHTML.call(this, this.suggestedListItems);
+    render: function render() {
+      var _this13 = this;
+
+      // let the element render in the DOM first, to accurately measure it.
+      // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
+      var ddHeight = this.getNodeHeight(this.DOM.dropdown);
+      this.DOM.scope.setAttribute("aria-expanded", true); // if the dropdown has yet to be appended to the DOM,
+      // append the dropdown to the body element & handle events
+
+      if (!document.body.contains(this.DOM.dropdown)) {
+        this.DOM.dropdown.classList.add('tagify__dropdown--initial');
+        this.dropdown.position.call(this, ddHeight);
+        this.settings.dropdown.appendTarget.appendChild(this.DOM.dropdown);
+        setTimeout(function () {
+          return _this13.DOM.dropdown.classList.remove('tagify__dropdown--initial');
+        });
+      }
+
+      return this;
+    },
+
+    /**
+     *
+     * @param {String/Array} HTMLContent - optional
+     */
+    fill: function fill(HTMLContent) {
+      HTMLContent = typeof HTMLContent == 'string' ? HTMLContent : this.dropdown.createListHTML.call(this, HTMLContent || this.suggestedListItems);
       this.DOM.dropdown.content.innerHTML = minify(HTMLContent);
     },
 
@@ -2443,8 +2464,7 @@ Tagify.prototype = {
             if (listItemElm) _this14.dropdown.selectOption.call(_this14, listItemElm);
           })["catch"](function (err) {
             return err;
-          }); // if( addNewBtn )
-          //     this.dropdown.events.callbacks.onClickAddNewBtn.call(this)
+          });
         },
         onScroll: function onScroll(e) {
           var elm = e.target,
@@ -2453,20 +2473,6 @@ Tagify.prototype = {
             percentage: Math.round(pos)
           });
         }
-        /*
-        onClickAddNewBtn(e){
-            this.state.actions.addNew = true
-            setTimeout(()=> this.state.actions.addNew = false, 150)
-              if( this.state.tag.value )
-                this.addTags([this.state.tag], true)
-              this.dropdown.hide.call(this)
-              setTimeout(() => {
-                this.DOM.input.focus()
-                this.toggleFocusClass(true)
-            })
-        }
-        */
-
       }
     },
 
@@ -2514,11 +2520,17 @@ Tagify.prototype = {
     selectOption: function selectOption(elm) {
       var _this15 = this;
 
-      if (!elm) return; // if in edit-mode, do not continue but instead replace the tag's text.
+      var hideDropdown = this.settings.dropdown.closeOnSelect;
+
+      if (!elm) {
+        this.addTags(this.input.value, true);
+        hideDropdown && this.dropdown.hide.call(this);
+        return;
+      } // if in edit-mode, do not continue but instead replace the tag's text.
       // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
-      var hideDropdown = this.settings.dropdown.closeOnSelect,
-          tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
+
+      var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
           selectedOption = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '',
           value = selectedOption.value || selectedOption || this.input.value;
       this.trigger("dropdown:select", value);
