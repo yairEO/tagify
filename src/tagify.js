@@ -1531,23 +1531,27 @@ Tagify.prototype = {
      * @return {Boolean}
      */
     isTagDuplicate( value ){
-        var duplications;
+        var duplications,
+            _s = this.settings;
+
         // duplications are irrelevant for this scenario
-        if( this.settings.mode == 'select' )
+        if( _s.mode == 'select' )
             return false
 
-        duplications = this.value.reduce((acc, item) => (""+value).trim().toLowerCase() === item.value.toLowerCase() ? acc+1 : acc, 0)
+        duplications = this.value.reduce((acc, item) =>
+            sameStr( value.trim(), item.value, _s.dropdown.caseSensitive )
+                ? acc+1
+                : acc
+        , 0)
+
         return duplications
-        // this.value.some(item => value.trim().toLowerCase() === item.value.toLowerCase())
     },
 
     getTagIndexByValue( value ){
-        var result = [];
-        this.getTagElms().forEach((tagElm, i) => {
-            if( tagElm.textContent.trim().toLowerCase() == value.toLowerCase() )
-                result.push(i)
-        })
-        return result;
+        return this.getTagElms().reduce((acc, tagElm, i) => {
+            if(  sameStr( tagElm.textContent.trim(), value, _s.dropdown.caseSensitive )  )
+                acc.push(i)
+        }, [])
     },
 
     getTagElmByValue( value ){
@@ -2243,7 +2247,7 @@ Tagify.prototype = {
             this.suggestedListItems = this.dropdown.filterListItems.call(this, value)
 
             // trigger at this exact point to let the developer the chance to manually set "this.suggestedListItems"
-            if( !this.suggestedListItems.length ){
+            if( value && !this.suggestedListItems.length ){
                 this.trigger('dropdown:noMatch', value)
 
                 if( _s.templates.dropdownItemNoMatch )
