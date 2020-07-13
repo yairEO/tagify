@@ -817,6 +817,9 @@
                     <p>
                         The <code>keepInvalidTags</code> <em>setting</em> flag is switched <em>on</em> to <code>true</code> so invaild tags are not removed but are only marked.
                     </p>
+                    <p>
+                        If there is no match for the typed text, a special dropdown item will be renderd using the optional <em>settings</em>: <code>templates.dropdownItemNoMatch</code>
+                    </p>
                     <details>
                       <summary></summary>
                     <h3>HTML</h3>
@@ -1357,6 +1360,14 @@ var input = document.querySelector('input[name=tags3]'),
         placeholder         : "type something",
         dropdown : {
             enabled: 0,
+            caseSensitive: true,   // allow adding duplicate items if their case is different
+        },
+        templates: {
+            dropdownItemNoMatch: function(value) {
+                return `<div class='${this.settings.classNames.dropdownItem}' tabindex="0" role="option">
+                    No suggestion found for: <strong>${value}</strong>
+                </div>`
+            }
         }
     })
 
