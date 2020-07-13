@@ -296,7 +296,7 @@ Tagify.prototype = {
      * @param {Object}     settings  Tagify instance settings Object
      */
     wrapper: function wrapper(input, settings) {
-      return "<tags class=\"".concat(settings.classNames.namespace, " ").concat(settings.mode ? "tagify--" + settings.mode : "", " ").concat(input.className, "\"\n                        ").concat(settings.readonly ? 'readonly' : '', "\n                        ").concat(settings.required ? "required" : "", "\n                        tabIndex=\"-1\">\n                <span ").concat(!settings.readonly || settings.mode != 'mix' ? 'contenteditable' : '', " data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                    class=\"").concat(settings.classNames.input, "\"\n                    role=\"textbox\"\n                    aria-autocomplete=\"both\"\n                    aria-multiline=\"").concat(settings.mode == 'mix' ? true : false, "\"></span>\n            </tags>");
+      return "<tags class=\"".concat(settings.classNames.namespace, " ").concat(settings.mode ? "".concat(settings.classNames.namespace, "--").concat(settings.mode) : "", " ").concat(input.className, "\"\n                        ").concat(settings.readonly ? 'readonly' : '', "\n                        ").concat(settings.required ? 'required' : '', "\n                        tabIndex=\"-1\">\n                <span ").concat(!settings.readonly || settings.mode != 'mix' ? 'contenteditable' : '', " data-placeholder=\"").concat(settings.placeholder || '&#8203;', "\" aria-placeholder=\"").concat(settings.placeholder || '', "\"\n                    class=\"").concat(settings.classNames.input, "\"\n                    role=\"textbox\"\n                    aria-autocomplete=\"both\"\n                    aria-multiline=\"").concat(settings.mode == 'mix' ? true : false, "\"></span>\n            </tags>");
     },
     tag: function tag(tagData) {
       return "<tag title=\"".concat(tagData.title || tagData.value, "\"\n                        contenteditable='false'\n                        spellcheck='false'\n                        tabIndex=\"-1\"\n                        class=\"").concat(this.settings.classNames.tag, " ").concat(tagData["class"] ? tagData["class"] : "", "\"\n                        ").concat(this.getAttributes(tagData), ">\n                <x title='' class=\"").concat(this.settings.classNames.tagX, "\" role='button' aria-label='remove tag'></x>\n                <div>\n                    <span class=\"").concat(this.settings.classNames.tagText, "\">").concat(tagData.value, "</span>\n                </div>\n            </tag>");
@@ -475,6 +475,8 @@ Tagify.prototype = {
    * if the original input had any values, add them as tags
    */
   loadOriginalValues: function loadOriginalValues(value) {
+    var _this2 = this;
+
     value = value || this.DOM.originalInput.value;
 
     if (value) {
@@ -485,7 +487,7 @@ Tagify.prototype = {
         } catch (err) {}
 
         this.addTags(value).forEach(function (tag) {
-          return tag && tag.classList.add('tagify--noAnim');
+          return tag && tag.classList.add(_this2.settings.classNames.tagNoAnimation);
         });
       }
     } else this.postUpdate();
@@ -603,10 +605,10 @@ Tagify.prototype = {
   events: {
     // bind custom events which were passed in the settings
     customBinding: function customBinding() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.customEventsList.forEach(function (name) {
-        _this2.on(name, _this2.settings.callbacks[name]);
+        _this3.on(name, _this3.settings.callbacks[name]);
       });
     },
     binding: function binding() {
@@ -659,7 +661,7 @@ Tagify.prototype = {
             eventData = {
           relatedTarget: e.relatedTarget
         },
-            isTargetTag = e.relatedTarget && e.relatedTarget.classList.contains('tagify__tag') && this.DOM.scope.contains(e.relatedTarget),
+            isTargetTag = e.relatedTarget && e.relatedTarget.classList.contains(this.settings.classNames.tag) && this.DOM.scope.contains(e.relatedTarget),
             isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
             isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
             selection = window.getSelection(),
@@ -722,7 +724,7 @@ Tagify.prototype = {
         this.dropdown.hide.call(this);
       },
       onKeydown: function onKeydown(e) {
-        var _this3 = this;
+        var _this4 = this;
 
         var s = e.target.textContent.trim();
         this.trigger("keydown", {
@@ -767,30 +769,30 @@ Tagify.prototype = {
 
 
                 setTimeout(function () {
-                  var currentValue = decode(_this3.DOM.input.innerHTML),
+                  var currentValue = decode(_this4.DOM.input.innerHTML),
                       // when there's a tag and a character after it, and user hits Backspace, the text will get deleted instanctly,
                   // and because of the timeout, the code must understand a text was removed and a tag should NOT be removed, because
                   // the caret was on textNode and not just after a tag element
-                  shoudlDeleteOnlyTag = selection.anchorNode == _this3.DOM.input && currentValue.length == lastInputValue.length; // fixes #384, where the first and only tag will not get removed with backspace
+                  shoudlDeleteOnlyTag = selection.anchorNode == _this4.DOM.input && currentValue.length == lastInputValue.length; // fixes #384, where the first and only tag will not get removed with backspace
 
                   if (shoudlDeleteOnlyTag || !selection.anchorOffset && currentValue.length >= lastInputValue.length) {
-                    _this3.removeTags(selection.anchorNode.previousElementSibling);
+                    _this4.removeTags(selection.anchorNode.previousElementSibling);
 
-                    _this3.fixFirefoxLastTagNoCaret(); // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
+                    _this4.fixFirefoxLastTagNoCaret(); // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
 
 
-                    if (_this3.DOM.input.children.length == 2 && _this3.DOM.input.children[1].tagName == "BR") {
-                      _this3.DOM.input.innerHTML = "";
-                      _this3.value.length = 0;
+                    if (_this4.DOM.input.children.length == 2 && _this4.DOM.input.children[1].tagName == "BR") {
+                      _this4.DOM.input.innerHTML = "";
+                      _this4.value.length = 0;
                       return true;
                     }
                   } // find out which tag(s) were deleted and trigger "remove" event
                   // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
 
 
-                  _this3.value = [].map.call(lastTagElems, function (node, nodeIdx) {
+                  _this4.value = [].map.call(lastTagElems, function (node, nodeIdx) {
                     var tagData = node.__tagifyTagData;
-                    if (node.parentNode) return tagData;else _this3.trigger('remove', {
+                    if (node.parentNode) return tagData;else _this4.trigger('remove', {
                       tag: node,
                       index: nodeIdx,
                       data: tagData
@@ -859,9 +861,9 @@ Tagify.prototype = {
             // the dropdown events should handle adding the tag
 
             setTimeout(function () {
-              if (_this3.state.actions.selectOption) return;
+              if (_this4.state.actions.selectOption) return;
 
-              _this3.addTags(s, true);
+              _this4.addTags(s, true);
             });
         }
       },
@@ -894,7 +896,7 @@ Tagify.prototype = {
         }
       },
       onMixTagsInput: function onMixTagsInput(e) {
-        var _this4 = this;
+        var _this5 = this;
 
         var range,
             rangeText,
@@ -975,15 +977,15 @@ Tagify.prototype = {
 
 
         setTimeout(function () {
-          _this4.update({
+          _this5.update({
             withoutChangeEvent: true
           });
 
-          _this4.trigger("input", extend({}, _this4.state.tag, {
-            textContent: _this4.DOM.input.textContent
+          _this5.trigger("input", extend({}, _this5.state.tag, {
+            textContent: _this5.DOM.input.textContent
           }));
 
-          if (_this4.state.tag) _this4.dropdown[showSuggestions ? "show" : "hide"].call(_this4, _this4.state.tag.value);
+          if (_this5.state.tag) _this5.dropdown[showSuggestions ? "show" : "hide"].call(_this5, _this5.state.tag.value);
         }, 10);
       },
       onInputIE: function onInputIE(e) {
@@ -1081,7 +1083,7 @@ Tagify.prototype = {
         // the "onEditTagDone" is called directly, already replacing the tag, so the argument "editableElm" node isn't in the DOM
 
         if (!this.DOM.scope.contains(editableElm)) return;
-        var tagElm = editableElm.closest('.tagify__tag'),
+        var tagElm = editableElm.closest('.' + this.settings.classNames.tag),
             currentValue = this.input.normalize.call(this, editableElm),
             value = currentValue,
             newTagData = extend({}, this.tagData(tagElm), {
@@ -1193,7 +1195,7 @@ Tagify.prototype = {
    * @param {Node} tagElm the tag element to edit. if nothing specified, use last last
    */
   editTag: function editTag(tagElm, opts) {
-    var _this5 = this;
+    var _this6 = this;
 
     tagElm = tagElm || this.getLastTag();
     opts = opts || {};
@@ -1222,7 +1224,7 @@ Tagify.prototype = {
     editableElm.addEventListener('blur', delayed_onEditTagBlur);
     editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
     editableElm.addEventListener('keydown', function (e) {
-      return _CB.onEditTagkeydown.call(_this5, e, tagElm);
+      return _CB.onEditTagkeydown.call(_this6, e, tagElm);
     });
     editableElm.focus();
     this.setRangeAtStartEnd(false, editableElm);
@@ -1290,13 +1292,13 @@ Tagify.prototype = {
    * update "value" (Array of Objects) by traversing all valid tags
    */
   updateValueByDOMTags: function updateValueByDOMTags() {
-    var _this6 = this;
+    var _this7 = this;
 
     this.value.length = 0;
     [].forEach.call(this.getTagElms(), function (node) {
-      if (node.classList.contains(_this6.settings.classNames.tagNotAllowed)) return;
+      if (node.classList.contains(_this7.settings.classNames.tagNotAllowed)) return;
 
-      _this6.value.push(_this6.tagData(node));
+      _this7.value.push(_this7.tagData(node));
     });
     this.update();
   },
@@ -1498,11 +1500,11 @@ Tagify.prototype = {
     return duplications;
   },
   getTagIndexByValue: function getTagIndexByValue(value) {
-    var _this7 = this;
+    var _this8 = this;
 
     var indices = [];
     this.getTagElms().forEach(function (tagElm, i) {
-      if (sameStr(tagElm.textContent.trim(), value, _this7.settings.dropdown.caseSensitive)) indices.push(i);
+      if (sameStr(tagElm.textContent.trim(), value, _this8.settings.dropdown.caseSensitive)) indices.push(i);
     });
     return indices;
   },
@@ -1516,12 +1518,12 @@ Tagify.prototype = {
    * @param  {Object} tagElm [a specific "tag" element to compare to the other tag elements siblings]
    */
   flashTag: function flashTag(tagElm) {
-    var _this8 = this;
+    var _this9 = this;
 
     if (tagElm) {
       tagElm.classList.add(this.settings.classNames.tagFlash);
       setTimeout(function () {
-        tagElm.classList.remove(_this8.settings.classNames.tagFlash);
+        tagElm.classList.remove(_this9.settings.classNames.tagFlash);
       }, 100);
     }
   },
@@ -1579,7 +1581,7 @@ Tagify.prototype = {
    * @return {Array} [Array of Objects]
    */
   normalizeTags: function normalizeTags(tagsItems) {
-    var _this9 = this;
+    var _this10 = this;
 
     var _this$settings = this.settings,
         whitelist = _this$settings.whitelist,
@@ -1621,7 +1623,7 @@ Tagify.prototype = {
     if (whitelistWithProps) {
       tagsItems.forEach(function (item) {
         // the "value" prop should preferably be unique
-        var matchObj = _this9.getWhitelistItemsByValue(item.value)[0];
+        var matchObj = _this10.getWhitelistItemsByValue(item.value)[0];
 
         if (matchObj && matchObj instanceof Object) {
           temp.push(matchObj); // set the Array (with the found Object) as the new value
@@ -1646,7 +1648,7 @@ Tagify.prototype = {
    * @param {String} s
    */
   parseMixTags: function parseMixTags(s) {
-    var _this10 = this;
+    var _this11 = this;
 
     var _this$settings2 = this.settings,
         mixTagsInterpolator = _this$settings2.mixTagsInterpolator,
@@ -1663,17 +1665,17 @@ Tagify.prototype = {
       try {
         tagData = JSON.parse(preInterpolated);
       } catch (err) {
-        tagData = _this10.normalizeTags(preInterpolated)[0]; //{value:preInterpolated}
+        tagData = _this11.normalizeTags(preInterpolated)[0]; //{value:preInterpolated}
       }
 
-      if (s2.length > 1 && (!enforceWhitelist || _this10.isTagWhitelisted(tagData.value)) && !(!duplicates && _this10.isTagDuplicate(tagData.value))) {
-        transformTag.call(_this10, tagData);
-        tagElm = _this10.createTagElem(tagData);
+      if (s2.length > 1 && (!enforceWhitelist || _this11.isTagWhitelisted(tagData.value)) && !(!duplicates && _this11.isTagDuplicate(tagData.value))) {
+        transformTag.call(_this11, tagData);
+        tagElm = _this11.createTagElem(tagData);
         tagsDataSet.push(tagData);
-        tagElm.classList.add(_this10.settings.classNames.tagNoAnimation);
+        tagElm.classList.add(_this11.settings.classNames.tagNoAnimation);
         s2[0] = tagElm.outerHTML; //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
 
-        _this10.value.push(tagData);
+        _this11.value.push(tagData);
       } else if (s1) return i ? mixTagsInterpolator[0] + s1 : s1;
 
       return s2.join('');
@@ -1682,7 +1684,7 @@ Tagify.prototype = {
     this.DOM.input.appendChild(document.createTextNode(''));
     this.DOM.input.normalize();
     this.getTagElms().forEach(function (elm, idx) {
-      return _this10.tagData(elm, tagsDataSet[idx]);
+      return _this11.tagData(elm, tagsDataSet[idx]);
     });
     this.update({
       withoutChangeEvent: true
@@ -1760,7 +1762,7 @@ Tagify.prototype = {
    * @return {Array} Array of DOM elements (tags)
    */
   addTags: function addTags(tagsItems, clearInput) {
-    var _this11 = this;
+    var _this12 = this;
 
     var skipInvalid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.settings.skipInvalid;
     var tagElems = [],
@@ -1791,59 +1793,59 @@ Tagify.prototype = {
 
       tagData = Object.assign({}, originalData);
 
-      _s.transformTag.call(_this11, tagData); ///////////////// ( validation )//////////////////////
+      _s.transformTag.call(_this12, tagData); ///////////////// ( validation )//////////////////////
 
 
-      tagData.__isValid = _this11.hasMaxTags() || _this11.validateTag(tagData);
+      tagData.__isValid = _this12.hasMaxTags() || _this12.validateTag(tagData);
 
       if (tagData.__isValid !== true) {
         if (skipInvalid) return;
-        extend(tagElmParams, _this11.getInvaildTagParams(tagData, tagData.__isValid), {
+        extend(tagElmParams, _this12.getInvaildTagParams(tagData, tagData.__isValid), {
           __preInvalidData: originalData
         }); // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
 
-        if (tagData.__isValid == _this11.TEXTS.duplicate) _this11.flashTag(_this11.getTagElmByValue(tagData.value));
+        if (tagData.__isValid == _this12.TEXTS.duplicate) _this12.flashTag(_this12.getTagElmByValue(tagData.value));
       } /////////////////////////////////////////////////////
 
 
       if (tagData.readonly) tagElmParams["aria-readonly"] = true; // Create tag HTML element
 
-      tagElm = _this11.createTagElem(extend({}, tagData, tagElmParams));
+      tagElm = _this12.createTagElem(extend({}, tagData, tagElmParams));
       tagElems.push(tagElm); // mode-select overrides
 
       if (_s.mode == 'select') {
-        return _this11.selectTag(tagElm, tagData);
+        return _this12.selectTag(tagElm, tagData);
       } // add the tag to the component's DOM
 
 
-      _this11.appendTag(tagElm);
+      _this12.appendTag(tagElm);
 
       if (tagData.__isValid && tagData.__isValid === true) {
         // update state
-        _this11.value.push(tagData);
+        _this12.value.push(tagData);
 
-        _this11.update();
+        _this12.update();
 
-        _this11.trigger('add', {
+        _this12.trigger('add', {
           tag: tagElm,
-          index: _this11.value.length - 1,
+          index: _this12.value.length - 1,
           data: tagData
         });
       } else {
-        _this11.trigger("invalid", {
+        _this12.trigger("invalid", {
           data: tagData,
-          index: _this11.value.length,
+          index: _this12.value.length,
           tag: tagElm,
           message: tagData.__isValid
         });
 
         if (!_s.keepInvalidTags) // remove invalid tags (if "keepInvalidTags" is set to "false")
           setTimeout(function () {
-            return _this11.removeTags(tagElm, true);
+            return _this12.removeTags(tagElm, true);
           }, 1000);
       }
 
-      _this11.dropdown.position.call(_this11); // reposition the dropdown because the just-added tag might cause a new-line
+      _this12.dropdown.position.call(_this12); // reposition the dropdown because the just-added tag might cause a new-line
 
     });
 
@@ -1860,7 +1862,7 @@ Tagify.prototype = {
    * @param {String/Array} tagsItems   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
    */
   addMixTags: function addMixTags(tagsItems) {
-    var _this12 = this;
+    var _this13 = this;
 
     var _s = this.settings,
         tagElm;
@@ -1877,7 +1879,7 @@ Tagify.prototype = {
     }
 
     setTimeout(function () {
-      return tagElm.classList.add(_this12.settings.classNames.tagNoAnimation);
+      return tagElm.classList.add(_this13.settings.classNames.tagNoAnimation);
     }, 300);
     this.value.push(tagsItems[0]);
     this.update();
@@ -1922,15 +1924,15 @@ Tagify.prototype = {
    * find all invalid tags and re-check them
    */
   reCheckInvalidTags: function reCheckInvalidTags() {
-    var _this13 = this;
+    var _this14 = this;
 
     var _s = this.settings,
         selector = ".".concat(_s.classNames.tag, ".").concat(_s.classNames.tagNotAllowed),
         tagElms = this.DOM.scope.querySelectorAll(selector);
     [].forEach.call(tagElms, function (node) {
-      var tagData = _this13.tagData(node),
-          wasNodeDuplicate = node.getAttribute('title') == _this13.TEXTS.duplicate,
-          isNodeValid = _this13.validateTag(tagData) === true; // if this tag node was marked as a dulpicate, unmark it (it might have been marked as "notAllowed" for other reasons)
+      var tagData = _this14.tagData(node),
+          wasNodeDuplicate = node.getAttribute('title') == _this14.TEXTS.duplicate,
+          isNodeValid = _this14.validateTag(tagData) === true; // if this tag node was marked as a dulpicate, unmark it (it might have been marked as "notAllowed" for other reasons)
 
 
       if (wasNodeDuplicate && isNodeValid) {
@@ -1939,7 +1941,7 @@ Tagify.prototype = {
             value: tagData.value
           };
 
-        _this13.replaceTag(node, tagData);
+        _this14.replaceTag(node, tagData);
       }
     });
   },
@@ -1952,7 +1954,7 @@ Tagify.prototype = {
    * TODO: Allow multiple tags to be removed at-once
    */
   removeTags: function removeTags(tagElms, silent, tranDuration) {
-    var _this14 = this;
+    var _this15 = this;
 
     var tagsToRemove;
     tagElms = tagElms && tagElms instanceof HTMLElement ? [tagElms] : tagElms instanceof Array ? tagElms : tagElms ? [tagElms] : [this.getLastTag()]; // normalize tagElms array values:
@@ -1962,12 +1964,12 @@ Tagify.prototype = {
     // 4. return a collection of Objects
 
     tagsToRemove = tagElms.reduce(function (elms, tagElm) {
-      if (tagElm && typeof tagElm == 'string') tagElm = _this14.getTagElmByValue(tagElm);
+      if (tagElm && typeof tagElm == 'string') tagElm = _this15.getTagElmByValue(tagElm);
       if (tagElm) // because the DOM node might be removed by async animation, the state will be updated while
         // the node might still be in the DOM, so the "update" method should know which nodes to ignore
         elms.push({
           node: tagElm,
-          data: _this14.tagData(tagElm, {
+          data: _this15.tagData(tagElm, {
             '__removed': true
           })
         });
@@ -2027,7 +2029,7 @@ Tagify.prototype = {
         setTimeout(removeNode.bind(this), tranDuration, tag);
       }
 
-      if (tranDuration && tranDuration > 10 && tagsToRemove.length == 1) animation.call(_this14, tagsToRemove[0]);else tagsToRemove.forEach(removeNode.bind(_this14)); // update state regardless of animation
+      if (tranDuration && tranDuration > 10 && tagsToRemove.length == 1) animation.call(_this15, tagsToRemove[0]);else tagsToRemove.forEach(removeNode.bind(_this15)); // update state regardless of animation
 
       if (!silent) {
         tagsToRemove.forEach(function (tag) {
@@ -2036,12 +2038,12 @@ Tagify.prototype = {
 
           delete tagData.__removed;
 
-          var tagIdx = _this14.getTagIdx(tagData);
+          var tagIdx = _this15.getTagIdx(tagData);
 
-          if (tagIdx > -1) _this14.value.splice(tagIdx, 1);
+          if (tagIdx > -1) _this15.value.splice(tagIdx, 1);
         }); // that.removeValueById(tagData.__uid)
 
-        _this14.update(); // update the original input with the current value
+        _this15.update(); // update the original input with the current value
 
       }
     })["catch"](function (reason) {});
@@ -2055,14 +2057,6 @@ Tagify.prototype = {
     if (this.settings.mode == 'select') this.input.set.call(this);
     this.update();
   },
-
-  /**
-   * Removes an item in "this.value" by its UID
-   * @param {String} uid
-    removeValueById( uid ){
-      //  this.value = this.value.filter(item => item.__tagifyTagData.__uid != uid)
-  },
-  */
   postUpdate: function postUpdate() {
     var classNames = this.settings.classNames,
         hasValue = this.settings.mode == 'mix' ? this.DOM.originalInput.value : this.value.length;
@@ -2092,9 +2086,11 @@ Tagify.prototype = {
         _interpolator = this.settings.mixTagsInterpolator;
 
     function iterateChildren(rootNode) {
+      var _this16 = this;
+
       rootNode.childNodes.forEach(function (node) {
         if (node.nodeType == 1) {
-          if (node.classList.contains("tagify__tag") && that.tagData(node)) {
+          if (node.classList.contains(_this16.settings.classNames.tag) && that.tagData(node)) {
             if (that.tagData(node).__removed) return;else result += _interpolator[0] + JSON.stringify(node.__tagifyTagData) + _interpolator[1];
             return;
           }
@@ -2218,7 +2214,7 @@ Tagify.prototype = {
       this.trigger("dropdown:show", this.DOM.dropdown);
     },
     hide: function hide(force) {
-      var _this15 = this;
+      var _this17 = this;
 
       var _this$DOM = this.DOM,
           scope = _this$DOM.scope,
@@ -2239,7 +2235,7 @@ Tagify.prototype = {
       // which casues another onFocus event, which checked "this.state.dropdown.visible" and see it as "false" and re-open the dropdown
 
       setTimeout(function () {
-        _this15.state.dropdown.visible = false;
+        _this17.state.dropdown.visible = false;
       }, 100);
       this.state.dropdown.query = this.state.ddItemData = this.state.ddItemElm = this.state.selection = null; // if the user closed the dropdown (in mix-mode) while a potential tag was detected, flag the current tag
       // so the dropdown won't be shown on following user input for that "tag"
@@ -2252,7 +2248,7 @@ Tagify.prototype = {
       return this;
     },
     render: function render() {
-      var _this16 = this;
+      var _this18 = this;
 
       // let the element render in the DOM first, to accurately measure it.
       // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
@@ -2268,7 +2264,7 @@ Tagify.prototype = {
         _s.dropdown.appendTarget.appendChild(this.DOM.dropdown);
 
         setTimeout(function () {
-          return _this16.DOM.dropdown.classList.remove(_s.classNames.dropdownInital);
+          return _this18.DOM.dropdown.classList.remove(_s.classNames.dropdownInital);
         });
       }
 
@@ -2463,7 +2459,7 @@ Tagify.prototype = {
           this.dropdown.highlightOption.call(this);
         },
         onClick: function onClick(e) {
-          var _this17 = this;
+          var _this19 = this;
 
           if (e.button != 0 || e.target == this.DOM.dropdown) return; // allow only mouse left-clicks
 
@@ -2471,12 +2467,12 @@ Tagify.prototype = {
 
           this.state.actions.selectOption = true;
           setTimeout(function () {
-            return _this17.state.actions.selectOption = false;
+            return _this19.state.actions.selectOption = false;
           }, 50);
           this.settings.hooks.suggestionClick(e, {
             tagify: this
           }).then(function () {
-            if (listItemElm) _this17.dropdown.selectOption.call(_this17, listItemElm);
+            if (listItemElm) _this19.dropdown.selectOption.call(_this19, listItemElm);
           })["catch"](function (err) {
             return err;
           });
@@ -2533,7 +2529,7 @@ Tagify.prototype = {
      * @param {Object} elm  DOM node to select
      */
     selectOption: function selectOption(elm) {
-      var _this18 = this;
+      var _this20 = this;
 
       var hideDropdown = this.settings.dropdown.closeOnSelect;
 
@@ -2558,9 +2554,9 @@ Tagify.prototype = {
         } // todo: consider not doing this on mix-mode
 
       setTimeout(function () {
-        _this18.DOM.input.focus();
+        _this20.DOM.input.focus();
 
-        _this18.toggleFocusClass(true);
+        _this20.toggleFocusClass(true);
       });
 
       if (hideDropdown) {
@@ -2586,7 +2582,7 @@ Tagify.prototype = {
      * @return {Array} list of filtered whitelist items according to the settings provided and current value
      */
     filterListItems: function filterListItems(value) {
-      var _this19 = this;
+      var _this21 = this;
 
       var _s = this.settings,
           list = [],
@@ -2603,7 +2599,7 @@ Tagify.prototype = {
 
       if (!value) {
         return (_s.duplicates ? whitelist : whitelist.filter(function (item) {
-          return !_this19.isTagDuplicate(isObject(item) ? item.value : item);
+          return !_this21.isTagDuplicate(isObject(item) ? item.value : item);
         }) // don't include tags which have already been added.
         ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
       }
@@ -2649,20 +2645,20 @@ Tagify.prototype = {
      * @return {String}
      */
     createListHTML: function createListHTML(optionsArr) {
-      var _this20 = this;
+      var _this22 = this;
 
       return optionsArr.map(function (suggestion, idx) {
         if (typeof suggestion == 'string' || typeof suggestion == 'number') suggestion = {
           value: suggestion
         };
-        var mapValueTo = _this20.settings.dropdown.mapValueTo,
+        var mapValueTo = _this22.settings.dropdown.mapValueTo,
             value = mapValueTo ? typeof mapValueTo == 'function' ? mapValueTo(suggestion) : suggestion[mapValueTo] : suggestion.value,
             escapedValue = value && typeof value == 'string' ? escapeHTML(value) : value,
             data = extend({}, suggestion, {
           value: escapedValue,
           tagifySuggestionIdx: idx
         });
-        return _this20.settings.templates.dropdownItem.call(_this20, data);
+        return _this22.settings.templates.dropdownItem.call(_this22, data);
       }).join("");
     }
   }

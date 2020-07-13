@@ -257,9 +257,9 @@ Tagify.prototype = {
          * @param {Object}     settings  Tagify instance settings Object
          */
         wrapper(input, settings){
-            return `<tags class="${settings.classNames.namespace} ${settings.mode ? "tagify--" + settings.mode : ""} ${input.className}"
+            return `<tags class="${settings.classNames.namespace} ${settings.mode ? `${settings.classNames.namespace}--${settings.mode}` : ""} ${input.className}"
                         ${settings.readonly ? 'readonly' : ''}
-                        ${settings.required ? "required" : ""}
+                        ${settings.required ? 'required' : ''}
                         tabIndex="-1">
                 <span ${!settings.readonly || settings.mode != 'mix' ? 'contenteditable' : ''} data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
                     class="${settings.classNames.input}"
@@ -469,7 +469,7 @@ Tagify.prototype = {
                         value = JSON.parse(value)
                 }
                 catch(err){}
-                this.addTags(value).forEach(tag => tag && tag.classList.add('tagify--noAnim'))
+                this.addTags(value).forEach(tag => tag && tag.classList.add(this.settings.classNames.tagNoAnimation))
             }
         }
 
@@ -643,7 +643,7 @@ Tagify.prototype = {
                     type = e.type,
                     ddEnabled = _s.dropdown.enabled >= 0,
                     eventData = {relatedTarget:e.relatedTarget},
-                    isTargetTag = e.relatedTarget && e.relatedTarget.classList.contains('tagify__tag') && this.DOM.scope.contains(e.relatedTarget),
+                    isTargetTag = e.relatedTarget && e.relatedTarget.classList.contains(this.settings.classNames.tag) && this.DOM.scope.contains(e.relatedTarget),
                     isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
                     isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
                     selection = window.getSelection(),
@@ -1103,7 +1103,7 @@ Tagify.prototype = {
                 // the "onEditTagDone" is called directly, already replacing the tag, so the argument "editableElm" node isn't in the DOM
                 if( !this.DOM.scope.contains(editableElm) ) return;
 
-                var tagElm       = editableElm.closest('.tagify__tag'),
+                var tagElm       = editableElm.closest('.' + this.settings.classNames.tag),
                     currentValue = this.input.normalize.call(this, editableElm),
                     value        = currentValue,
                     newTagData   = extend({}, this.tagData(tagElm), {value}),
@@ -2131,15 +2131,6 @@ Tagify.prototype = {
         this.update()
     },
 
-    /**
-     * Removes an item in "this.value" by its UID
-     * @param {String} uid
-
-    removeValueById( uid ){
-        //  this.value = this.value.filter(item => item.__tagifyTagData.__uid != uid)
-    },
-    */
-
     postUpdate(){
         var classNames = this.settings.classNames,
             hasValue = this.settings.mode == 'mix' ? this.DOM.originalInput.value : this.value.length;
@@ -2182,7 +2173,7 @@ Tagify.prototype = {
         function iterateChildren(rootNode){
             rootNode.childNodes.forEach((node) => {
                 if( node.nodeType == 1 ){
-                    if( node.classList.contains("tagify__tag") && that.tagData(node) ){
+                    if( node.classList.contains(this.settings.classNames.tag) && that.tagData(node) ){
                         if( that.tagData(node).__removed )
                             return;
                         else
