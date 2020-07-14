@@ -75,15 +75,19 @@ gulp.task('react_wrapper', () => {
     }
 
     return gulp.src('src/react.tagify.js')
+        .pipe($.sourcemaps.init())
         .pipe( $.babel(babelConf))
         .pipe( $.umd(umdConf) )
         .pipe( $.insert.prepend(banner) )
+        .pipe(opts.dev ? $.tap(()=>{}) : $.uglify())
+        .pipe($.sourcemaps.write('.'))
         .pipe( gulp.dest('./dist/') )
 })
 
 
 gulp.task('build_js', () => {
     return gulp.src('src/tagify.js')
+        .pipe($.sourcemaps.init())
         .pipe( $.babel(babelConfig))
         .pipe( $.umd() )
         .pipe( $.insert.prepend(banner) )
@@ -92,6 +96,7 @@ gulp.task('build_js', () => {
         .pipe($.rename('tagify.min.js'))
         .pipe(opts.dev ? $.tap(()=>{}) : $.uglify())
         .pipe( $.insert.prepend(banner) )
+        .pipe($.sourcemaps.write('.'))
         .pipe( gulp.dest('./dist/') )
 })
 
