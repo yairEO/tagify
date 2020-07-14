@@ -1523,25 +1523,24 @@ var tagify = new Tagify(inputElm, {
 })
 
 tagify.on('dropdown:show dropdown:updated', onDropdownShow)
+tagify.on('dropdown:select', onSelectSuggestion)
+
+var addAllSuggestionsElm;
 
 function onDropdownShow(e){
-    var dropdownContentElm = e.detail.tagify.DOM.dropdown.content,
-        addAllSuggestionsElm;
+    var dropdownContentElm = e.detail.tagify.DOM.dropdown.content;
 
     if( tagify.suggestedListItems.length > 1 ){
         addAllSuggestionsElm = getAddAllSuggestionsElm();
-
-        // "click" event listener would not work because clicking the item causes blur event on the tagify input,
-        // which then detaches the suggestion dropdown from the DOM, thus making the "click" event invalid.
-        addAllSuggestionsElm.addEventListener('mousedown', onAddAllClick)
 
         // insert "addAllSuggestionsElm" as the first element in the suggestions list
         dropdownContentElm.insertBefore(addAllSuggestionsElm, dropdownContentElm.firstChild)
     }
 }
 
-function onAddAllClick(){
-    tagify.dropdown.selectAll.call(tagify);
+function onSelectSuggestion(e){
+    if( e.detail.elm == addAllSuggestionsElm )
+        tagify.dropdown.selectAll.call(tagify);
 }
 
 // create a "add all" custom suggestion element every time the dropdown changes
