@@ -619,6 +619,7 @@ Name                       | Parameters                                         
 `injectAtCaret`            | HTMLElement <sub>(`injectedNode`)</sub>, Object <sub>(`selection`)</sub>  | Injects text or HTML node at last caret position. The `selection` parameter is *optional*
 `toggleInvalidClass`       | Boolean                                                                   | Toggles `tagify--invalid` class to the Tagify wrapper element
 `dropdown.selectAll`       |                                                                           | Add **all** whitelist items as tags and close the suggestion dropdown
+`parseTemplate`            | String/Function <sub>(template name or function)</sub>, Array <sub>(data)</sub>  | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node
 
 ## Events
 
