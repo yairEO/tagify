@@ -2,7 +2,7 @@ import React, {useMemo, useEffect, useRef} from "react"
 import {renderToStaticMarkup} from "react-dom/server"
 import {string, array, func, bool, object, oneOfType} from "prop-types"
 import Tagify from "./tagify.min.js"
-import "./tagify.css"
+import "./tagify.css" // TODO: REMOVE!!!!
 
 // if a template is a React component, it should be outputed as a String (and not as a React component)
 function templatesToString(templates) {

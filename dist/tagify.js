@@ -1,5 +1,5 @@
 /**
- * Tagify (v 3.15.1)- tags input component
+ * Tagify (v 3.15.2)- tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -1312,7 +1312,7 @@ Tagify.prototype = {
     node = node.lastChild || node;
     var sel = document.getSelection();
 
-    if (sel.rangeCount) {
+    if (sel.rangeCount >= 1) {
       ['Start', 'End'].forEach(function (pos) {
         return sel.getRangeAt(0)["set" + pos](node, start ? 0 : node.length);
       });
@@ -1776,7 +1776,7 @@ Tagify.prototype = {
     } // converts Array/String/Object to an Array of Objects
 
 
-    tagsItems = this.normalizeTags(tagsItems);
+    tagsItems = this.XXXnormalizeTags(tagsItems);
 
     if (_s.mode == 'mix') {
       return this.addMixTags(tagsItems);
