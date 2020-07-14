@@ -2752,7 +2752,9 @@ Tagify.prototype = {
                 ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
             }
 
-            niddle = value.toLowerCase()
+            niddle = _s.dropdown.caseSensitive
+                ? ""+value
+                : (""+value).toLowerCase()
 
             for( ; i < whitelist.length; i++ ){
                 whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
@@ -2776,7 +2778,10 @@ Tagify.prototype = {
                             niddle = unaccent(niddle)
                         }
 
-                        return v.toLowerCase().indexOf(niddle) == 0
+                        if( !_s.dropdown.caseSensitive )
+                            v = v.toLowerCase()
+
+                        return v.indexOf(niddle) == 0
                     })
                 }
 
