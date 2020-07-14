@@ -1415,7 +1415,7 @@ Tagify.prototype = {
         if (typeof data == 'string') data = {
           value: data
         };
-        var suggestedText = "" + data.value || '',
+        var suggestedText = data.value ? '' + data.value : '',
             suggestionStart = suggestedText.substr(0, this.input.value.length).toLowerCase(),
             suggestionTrimmed = suggestedText.substring(this.input.value.length);
 
