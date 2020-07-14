@@ -1546,16 +1546,15 @@ function onAddAllClick(){
 
 // create a "add all" custom suggestion element every time the dropdown changes
 function getAddAllSuggestionsElm(){
-    return tagify.parseHTML(
-        // suggestions items should be based on "dropdownItem" template
-        tagify.settings.templates.dropdownItem.call(tagify, ({
+    // suggestions items should be based on "dropdownItem" template
+    return tagify.parseTemplate('dropdownItem', [{
             class: "addAll",
             name: "Add all",
             email: tagify.settings.whitelist.reduce(function(remainingSuggestions, item){
                 return tagify.isTagDuplicate(item.value) ? remainingSuggestions : remainingSuggestions + 1
             }, 0) + " Members"
-        }))
-    )
+        }]
+      )
 }
 })()
 </script>

@@ -245,6 +245,8 @@ Tagify.prototype = {
         }
     },
 
+    customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch'],
+
     // expose this handy utility function
     parseHTML,
 
@@ -303,7 +305,14 @@ Tagify.prototype = {
         dropdownItemNoMatch: null
     },
 
-    customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch'],
+    parseTemplate(template, data){
+        template = this.settings.templates[template] || template;
+        return this.parseHTML(
+            minify(
+                template.apply(this, data)
+            )
+        )
+    },
 
     applySettings( input, settings ){
         this.DEFAULTS.templates = this.templates;
@@ -429,11 +438,10 @@ Tagify.prototype = {
      * @param  {Object} input [DOM element which would be "transformed" into "Tags"]
      */
     build( input ){
-        var DOM  = this.DOM,
-            template = this.settings.templates.wrapper(input, this.settings)
+        var DOM  = this.DOM;
 
         DOM.originalInput = input
-        DOM.scope = parseHTML(template)
+        DOM.scope = this.parseTemplate('wrapper', [input, this.settings])
         DOM.input = DOM.scope.querySelector('.' + this.settings.classNames.input)
         input.parentNode.insertBefore(DOM.scope, input)
 
@@ -521,8 +529,15 @@ Tagify.prototype = {
             }
             else{
                 try {
-                    var eventData =  extend({}, (typeof data === 'Object' ? data : {value:data}))
+                    var eventData =  extend({}, (typeof data === 'object' ? data : {value:data}))
                     eventData.tagify = this
+
+                    // TODO: move the below ot the "extend" function
+                    if( data instanceof Object )
+                        for( var prop in data )
+                            if(data[prop] instanceof HTMLElement)
+                                eventData[prop] = data[prop]
+
                     e = new CustomEvent(eventName, {"detail":eventData})
                 }
                 catch(err){ console.warn(err) }
@@ -1541,7 +1556,7 @@ Tagify.prototype = {
             return false
 
         duplications = this.value.reduce((acc, item) =>
-            sameStr( value.trim(), item.value, _s.dropdown.caseSensitive )
+            sameStr( (""+value).trim(), item.value, _s.dropdown.caseSensitive )
                 ? acc+1
                 : acc
         , 0)
@@ -1835,7 +1850,7 @@ Tagify.prototype = {
         }
 
         // converts Array/String/Object to an Array of Objects
-        tagsItems = this.XXXnormalizeTags(tagsItems)
+        tagsItems = this.normalizeTags(tagsItems)
 
         if( _s.mode == 'mix' ){
             return this.addMixTags(tagsItems)
@@ -1966,13 +1981,12 @@ Tagify.prototype = {
      */
     createTagElem( tagData ){
         var tagElm,
-            template = this.settings.templates.tag.call(this, extend({}, tagData, { value:escapeHTML(tagData.value) }));
+            templateData = extend({}, tagData, { value:escapeHTML(tagData.value) });
 
         if( this.settings.readonly )
             tagData.readonly = true
 
-        template = minify(template)
-        tagElm = parseHTML(template)
+        tagElm = this.parseTemplate('tag', [templateData])
 
         this.tagData(tagElm, tagData)
 
@@ -2173,7 +2187,7 @@ Tagify.prototype = {
         function iterateChildren(rootNode){
             rootNode.childNodes.forEach((node) => {
                 if( node.nodeType == 1 ){
-                    if( node.classList.contains(this.settings.classNames.tag) && that.tagData(node) ){
+                    if( node.classList.contains(that.settings.classNames.tag) && that.tagData(node) ){
                         if( that.tagData(node).__removed )
                             return;
                         else
@@ -2220,7 +2234,7 @@ Tagify.prototype = {
      */
     dropdown : {
         init(){
-            this.DOM.dropdown = parseHTML( this.settings.templates.dropdown.call(this, this.settings) )
+            this.DOM.dropdown = this.parseTemplate('dropdown', [this.settings])
             this.DOM.dropdown.content = this.DOM.dropdown.querySelector('.' + this.settings.classNames.dropdownWrapper)
         },
 
@@ -2587,7 +2601,7 @@ Tagify.prototype = {
                     this.state.actions.selectOption = true;
                     setTimeout(()=> this.state.actions.selectOption = false, 50)
 
-                    this.settings.hooks.suggestionClick(e, {tagify:this})
+                    this.settings.hooks.suggestionClick(e, {tagify:this, suggestionElm:listItemElm})
                         .then(() => {
                             if( listItemElm )
                                 this.dropdown.selectOption.call(this, listItemElm)
@@ -2666,16 +2680,23 @@ Tagify.prototype = {
 
             var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
                 selectedOption = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '',
-                value = selectedOption.value || selectedOption || this.input.value;
+                tagData = selectedOption || this.input.value;
 
-            this.trigger("dropdown:select", value)
+            this.trigger("dropdown:select", {data:tagData, elm})
 
-            if( this.state.editing )
-                this.onEditTagDone(this.state.editing.scope, {...this.state.editing.scope.__tagifyTagData, value, __isValid:true})
+            if( this.state.editing ){
+
+                this.onEditTagDone(this.state.editing.scope, {
+                    ...this.state.editing.scope.__tagifyTagData,
+                    value: tagData.value,
+                    ...(tagData instanceof Object ? tagData : {}),  // if "tagData" is an Object, include all its properties
+                    __isValid: true
+                })
+            }
 
             // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
             else{
-                this.addTags([value], true)
+                this.addTags([tagData], true)
             }
 
             // todo: consider not doing this on mix-mode
