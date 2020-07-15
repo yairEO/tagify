@@ -20,7 +20,7 @@ function templatesToString(templates) {
 
 const TagifyWrapper = ({
     name,
-    value = "",
+    value,
     loading = false,
     onChange = _ => _,
     readOnly,
@@ -42,17 +42,28 @@ const TagifyWrapper = ({
         inputElmRef.current = elm
     }
 
+    let initialValue = defaultValue === undefined ? '' : undefined
+    let initialDefaultValue
+
+    if (value !== undefined) {
+        initialValue = typeof value === "string" ? value : JSON.stringify(value)
+    }
+
+    if (defaultValue !== undefined) {
+        initialDefaultValue = typeof defaultValue === "string" ? defaultValue : JSON.stringify(defaultValue)
+    }
+
     const inputAttrs = useMemo(
         () => ({
             ref: handleRef,
             name,
-            value: typeof value === "string" ? value : JSON.stringify(value),
+            value: initialValue,
             className,
             readOnly,
             onChange,
             autoFocus,
             placeholder,
-            defaultValue
+            defaultValue: initialDefaultValue
         }),
         [
             defaultValue,
