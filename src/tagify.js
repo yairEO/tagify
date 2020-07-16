@@ -532,7 +532,7 @@ Tagify.prototype = {
                     var eventData =  extend({}, (typeof data === 'object' ? data : {value:data}))
                     eventData.tagify = this
 
-                    // TODO: move the below ot the "extend" function
+                    // TODO: move the below to the "extend" function
                     if( data instanceof Object )
                         for( var prop in data )
                             if(data[prop] instanceof HTMLElement)
