@@ -1,6 +1,6 @@
 import React, {useMemo, useEffect, useRef} from "react"
 import {renderToStaticMarkup} from "react-dom/server"
-import {string, array, func, bool, object, oneOfType} from "prop-types"
+import {string, array, func, bool, object, element, oneOfType} from "prop-types"
 import Tagify from "./tagify.min.js"
 import "./tagify.css" // TODO: REMOVE!!!!
 
@@ -23,6 +23,7 @@ const TagifyWrapper = ({
     value = "",
     loading = false,
     onChange = _ => _,
+    children,
     readOnly,
     settings = {},
     InputMode = "input",
@@ -42,28 +43,21 @@ const TagifyWrapper = ({
         inputElmRef.current = elm
     }
 
-    const inputAttrs = useMemo(
-        () => ({
+    const inputAttrs = useMemo(() => ({
             ref: handleRef,
             name,
-            value: typeof value === "string" ? value : JSON.stringify(value),
+            value: children
+                ? children
+                : typeof value === "string"
+                    ? value
+                    : JSON.stringify(value),
             className,
             readOnly,
             onChange,
             autoFocus,
             placeholder,
             defaultValue
-        }),
-        [
-            defaultValue,
-            placeholder,
-            autoFocus,
-            className,
-            onChange,
-            readOnly,
-            value,
-            name
-        ]
+        }), [ defaultValue, placeholder, autoFocus, className, onChange, readOnly, value, name ]
     )
 
     useEffect(() => {
@@ -135,6 +129,7 @@ TagifyWrapper.propTypes = {
     name: string,
     value: oneOfType([string, array]),
     loading: bool,
+    children: element,
     onChange: func,
     readOnly: bool,
     settings: object,
