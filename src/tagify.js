@@ -2252,7 +2252,7 @@ Tagify.prototype = {
             // 1. there's no whitelist (can happen while async loading) AND new tags arn't allowed
             // 2. dropdown is disabled
             // 3. loader is showing (controlled outside of this code)
-            if( (noWhitelist && !allowNewTags) || _s.dropdown.enable === false || this.state.isLoading ) return;
+            if( (noWhitelist && !allowNewTags && !_s.templates.dropdownItemNoMatch) || _s.dropdown.enable === false || this.state.isLoading ) return;
 
             clearTimeout(this.dropdownHide__bindEventsTimeout)
 
