@@ -340,6 +340,7 @@ A Tagify React component is exported from [`react.tagify.js`](https://github.com
 
 ```javascript
 import Tags from "@yaireo/tagify/dist/react.tagify" // React-wrapper file
+import "@yaireo/tagify/dist/tagify.css" // Tagify CSS
 
 const App = () => {
   return (
