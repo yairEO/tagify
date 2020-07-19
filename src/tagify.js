@@ -377,7 +377,7 @@ Tagify.prototype = {
         for( i=keys.length; i--; ){
             propName = keys[i];
             if( propName != 'class' && data.hasOwnProperty(propName) && data[propName] !== undefined )
-                s += " " + propName + (data[propName] !== undefined ? `="${data[propName]}"` : "");
+                s += " " + propName + (data[propName] !== undefined ? `="${escapeHTML(String(data[propName]))}"` : "");
         }
         return s;
     },
