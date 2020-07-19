@@ -616,7 +616,7 @@ Name                       | Parameters                                         
 `loading`                  | Boolean                                                                   | Toogle loading state on/off (Ex. AJAX whitelist pulling)
 `tagLoading`               | HTMLElement, Boolean                                                      | same as above but for a specific tag element
 `createTagElem`            | Object <sub>(`tagData`)</sub>                                             | Returns a tag element from the supplied tag data
-`injectAtCaret`            | HTMLElement <sub>(`injectedNode`)</sub>, Object <sub>(`selection`)</sub>  | Injects text or HTML node at last caret position. The `selection` parameter is *optional*
+`injectAtCaret`            | HTMLElement <sub>(`injectedNode`)</sub>, Object <sub>(`range`)</sub>      | Injects text or HTML node at last caret position. `range` parameter is *optional*
 `toggleInvalidClass`       | Boolean                                                                   | Toggles `tagify--invalid` class to the Tagify wrapper element
 `dropdown.selectAll`       |                                                                           | Add **all** whitelist items as tags and close the suggestion dropdown
 `parseTemplate`            | String/Function <sub>(template name or function)</sub>, Array <sub>(data)</sub>  | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node

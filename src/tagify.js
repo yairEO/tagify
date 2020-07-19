@@ -702,6 +702,10 @@ Tagify.prototype = {
                             anchorOffset : selection.anchorOffset,
                             anchorNode: selection.anchorNode
                         }
+
+                        if (selection.getRangeAt && selection.rangeCount)
+                            this.state.selection.range = selection.getRangeAt(0)
+
                     }
 
                     return
@@ -1366,21 +1370,16 @@ Tagify.prototype = {
      * @param {Node} injectedNode [the node to inject at the caret position]
      * @param {Object} selection [optional selection Object. must have "anchorNode" & "anchorOffset"]
      */
-    injectAtCaret( injectedNode, selection ){
-        var selection = selection || this.state.selection || {},
-            sel = window.getSelection(),
-            range;
+    injectAtCaret( injectedNode, range ){
+        range = range || this.state.selection.range
 
-        if( !selection.anchorNode || selection.anchorOffset === undefined) return;
+        if( !range ) return;
 
         if( typeof injectedNode == 'string' )
             injectedNode = document.createTextNode(injectedNode);
 
-        if (sel.getRangeAt && sel.rangeCount){
-            range = sel.getRangeAt(0)
-            range.deleteContents()
-            range.insertNode(injectedNode)
-        }
+        range.deleteContents()
+        range.insertNode(injectedNode)
 
         this.DOM.input.focus()
         this.setRangeAtStartEnd(true, injectedNode.nextSibling)
