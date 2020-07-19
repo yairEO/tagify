@@ -288,7 +288,7 @@ Tagify.prototype = {
         dropdown(settings){
             var _sd = settings.dropdown,
                 isManual = _sd.position == 'manual',
-                className = `${settings.classNames.dropdown} ${settings.classNames.dropdown}--${_sd.position}`;
+                className = `${settings.classNames.dropdown}`;
 
             return `<div class="${isManual ? "" : className} ${_sd.classname}" role="listbox" aria-labelledby="dropdown">
                         <div class="${settings.classNames.dropdownWrapper}"></div>
@@ -2324,12 +2324,19 @@ Tagify.prototype = {
 
             // try to positioning the dropdown (it might not yet be on the page, doesn't matter, next code handles this)
             if( !isManual ){
-                this.dropdown.position.call(this)
-                this.dropdown.render.call(this)
+                // a slight delay is needed if the dropdown "position" setting is "text", and nothing was typed in the input,
+                // so sadly the "getCaretGlobalPosition" method doesn't recognize the caret position without this delay
+                setTimeout(() => {
+                    this.dropdown.position.call(this)
+                    this.dropdown.render.call(this)
+                })
             }
 
-
-            this.trigger("dropdown:show", this.DOM.dropdown)
+            // a delay is needed because of the previous delay reason.
+            // this event must be fired after the dropdown was rendered & positioned
+            setTimeout(() => {
+                this.trigger("dropdown:show", this.DOM.dropdown)
+            })
         },
 
         hide( force ){
@@ -2426,19 +2433,18 @@ Tagify.prototype = {
             this.trigger("dropdown:updated", this.DOM.dropdown)
         },
 
-        position(ddHeight){
-            var that = this,
-                placeAbove, rect, top, bottom, left, width,
+        position( ddHeight ){
+            var placeAbove, rect, top, bottom, left, width, parentsPositions,
                 ddElm = this.DOM.dropdown,
-                parentsPositions,
                 viewportHeight = document.documentElement.clientHeight,
-                ddTarget = this.DOM[this.settings.dropdown.position == 'input' ? 'input' : 'scope'];
+                viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0),
+                positionTo = viewportWidth > 480 ? this.settings.dropdown.position : 'all',
+                ddTarget = this.DOM[positionTo == 'input' ? 'input' : 'scope'];
 
             ddHeight = ddHeight || ddElm.clientHeight
 
-            function getParentsPositions(){
-                var p = that.settings.dropdown.appendTarget,
-                    left = 0,
+            function getParentsPositions(p){
+                var left = 0,
                     top = 0;
 
                 while(p){
@@ -2452,7 +2458,7 @@ Tagify.prototype = {
 
             if( !this.state.dropdown.visible ) return
 
-            if( this.settings.dropdown.position == 'text' ){
+            if( positionTo == 'text' ){
                 rect   = this.getCaretGlobalPosition()
                 bottom = rect.bottom
                 top    = rect.top
@@ -2461,15 +2467,14 @@ Tagify.prototype = {
             }
 
             else{
-                parentsPositions = getParentsPositions();
+                parentsPositions = getParentsPositions(this.settings.dropdown.appendTarget)
                 rect   = ddTarget.getBoundingClientRect()
 
                 top    = rect.top + 2 - parentsPositions.top
                 bottom = rect.bottom - 1 - parentsPositions.top
                 left   = rect.left - parentsPositions.left
-                width  = rect.width + "px"
+                width  = rect.width + 'px'
             }
-
 
             top = Math.floor(top)
             bottom = Math.ceil(bottom)
@@ -2478,10 +2483,11 @@ Tagify.prototype = {
 
             // flip vertically if there is no space for the dropdown below the input
             ddElm.style.cssText = "left:"  + (left + window.pageXOffset) + "px; width:" + width + ";" + (placeAbove
-                ? "top: "   + (top + window.pageYOffset) + "px"
+                ? "top: "   + (top + window.pageYOffset)    + "px"
                 : "top: "   + (bottom + window.pageYOffset) + "px");
 
             ddElm.setAttribute('placement', placeAbove ? "top" : "bottom")
+            ddElm.setAttribute('position', positionTo)
         },
 
         events : {
@@ -2553,8 +2559,11 @@ Tagify.prototype = {
                             // in mix-mode, treat arrowRight like Enter key, so a tag will be created
                             if( this.settings.mode != 'mix' && !this.settings.autoComplete.rightKey ){
                                 try{
-                                    let value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
-                                    this.input.autocomplete.set.call(this, value)
+                                    // only allows "real" sugegstions to be auto-filled
+                                    if( selectedElm.getAttribute('tagifySuggestionIdx') ){
+                                        let value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
+                                        this.input.autocomplete.set.call(this, value)
+                                    }
                                 }
                                 catch(err){}
                                 return false;
