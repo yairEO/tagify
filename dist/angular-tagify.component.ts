@@ -14,16 +14,17 @@ export interface SettingsModel {
       enabled?: boolean;
       rightKey?: boolean;
   };
-  whitelist?: string[];
-  blacklist?: string[];
+  whitelist?: string[] | Object[];
+  blacklist?: string[] | Object[];
   addTagOnBlur?: boolean;
-  callbacks?: any;
+  callbacks?: Object;
   maxTags?: number;
   editTags?: number;
   templates?: {
       wrapper?: Function;
       tag?: Function;
       dropdownItem?: Function;
+      dropdownItemNoMatch?: Function;
   };
   transformTag?: Function;
   keepInvalidTags?: boolean;
@@ -31,7 +32,7 @@ export interface SettingsModel {
   backspace?: any;
   originalInputValueFormat?: Function;
   dropdown: {
-      enabled?: number;
+      enabled?: number | false;
       caseSensitive?: boolean;
       maxItems?: number;
       classname?: string;
