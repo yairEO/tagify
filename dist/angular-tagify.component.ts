@@ -31,7 +31,7 @@ export interface SettingsModel {
   skipInvalid?: boolean;
   backspace?: any;
   originalInputValueFormat?: Function;
-  dropdown: {
+  dropdown?: {
       enabled?: number | false;
       caseSensitive?: boolean;
       maxItems?: number;
