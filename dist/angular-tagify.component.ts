@@ -7,7 +7,7 @@ export interface SettingsModel {
   pattern?: string | RegExp;
   mode?: string;
   mixTagsInterpolator?: string[];
-  mixTagsAllowedAfter: RegExp;
+  mixTagsAllowedAfter?: RegExp;
   duplicates?: boolean;
   enforceWhitelist?: boolean;
   autoComplete?: {
