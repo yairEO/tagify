@@ -13,7 +13,7 @@ export interface SettingsModel {
   autoComplete?: {
       enabled?: boolean;
       rightKey?: boolean;
-  }
+  };
   whitelist?: string[];
   blacklist?: string[];
   addTagOnBlur?: boolean;
@@ -24,7 +24,7 @@ export interface SettingsModel {
       wrapper?: Function;
       tag?: Function;
       dropdownItem?: Function;
-  },
+  };
   transformTag?: Function;
   keepInvalidTags?: boolean;
   skipInvalid?: boolean;
