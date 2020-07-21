@@ -1,24 +1,49 @@
 import {AfterViewInit, Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
-import {TagifyService} from './angular-tagify.service';
+import * as Tagify from '@yaireo/tagify';
 
 export interface SettingsModel {
+  placeholder?: string;
   delimiters?: string;
-  pattern?: string;
+  pattern?: string | RegExp;
   mode?: string;
+  mixTagsInterpolator?: string[];
+  mixTagsAllowedAfter: RegExp;
   duplicates?: boolean;
   enforceWhitelist?: boolean;
-  autocomplete?: boolean;
+  autoComplete?: {
+      enabled?: boolean;
+      rightKey?: boolean;
+  }
   whitelist?: string[];
   blacklist?: string[];
   addTagOnBlur?: boolean;
-  callbacks?: Object;
+  callbacks?: any;
   maxTags?: number;
+  editTags?: number;
+  templates?: {
+      wrapper?: Function;
+      tag?: Function;
+      dropdownItem?: Function;
+  },
   transformTag?: Function;
-  tagTemplate?: Function;
-  'dropdown.enabled'?: number;
-  'dropdown.maxItems'?: string;
-  'dropdown.classname'?: string;
-  'dropdown.itemTemplate'?; Function;
+  keepInvalidTags?: boolean;
+  skipInvalid?: boolean;
+  backspace?: any;
+  originalInputValueFormat?: Function;
+  dropdown: {
+      enabled?: number;
+      caseSensitive?: boolean;
+      maxItems?: number;
+      classname?: string;
+      fuzzySearch?: boolean;
+      accentedSearch?: boolean;
+      position?: string;
+      highlightFirst?: boolean;
+      closeOnSelect?: boolean;
+      mapValueTo?: string | Function;
+      searchKeys?: string[];
+      appendTarget?: any;
+  };
 }
 
 @Component({
@@ -30,14 +55,14 @@ export class TagifyComponent implements AfterViewInit {
   @Output() remove = new EventEmitter(); // returns the updated tags list
   @Input() settings: SettingsModel; // get possible tagify settings
 
-  constructor(private tagifyService: TagifyService) { }
-
   @ViewChild('tagifyInputRef') tagifyInputRef: any;
 
   private tagify;
 
-  ngAfterViewInit() {
-    if (!this.settings) return;
+  ngAfterViewInit() {console.log(this.settings);
+    if (!this.settings) {
+      return;
+    }
     this.settings.callbacks = {
       add: () => this.add.emit({
         tags: this.tagify.value,
@@ -45,6 +70,27 @@ export class TagifyComponent implements AfterViewInit {
       }),
       remove: () => this.remove.emit(this.tagify.value)
     };
-    this.tagify = this.tagifyService.getTagifyRef(this.tagifyInputRef.nativeElement, this.settings);
+    this.tagify = new Tagify(this.tagifyInputRef.nativeElement, this.settings);
+  }
+
+  /**
+   * @description removes all tags
+   */
+  removeAll() {
+    this.tagify.removeAllTags();
+  }
+
+  /**
+   * @description add multiple tags
+   */
+  addTags(tags) {
+    this.tagify.addTags(tags);
+  }
+
+  /**
+   * @description destroy dom and everything
+   */
+  destroy() {
+    this.tagify.destroy();
   }
 }
