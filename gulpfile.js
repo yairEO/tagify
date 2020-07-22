@@ -71,13 +71,13 @@ function react(){
     return gulp.src('src/react.tagify.js')
         .pipe( $.babel({ ...babelConfig, presets:[...babelConfig.presets, '@babel/preset-react'] }))
         .pipe( $.umd(umdConf) )
-        .pipe( $.insert.prepend(banner) )
         .pipe(opts.dev ? $.tap(()=>{}) : $.uglify())
+        .pipe($.headerComment(banner))
         .pipe( gulp.dest('./dist/') )
 }
 
 
-function build_js(done){
+function js(done){
     return rollup({
         entry: 'src/tagify.js',
         outputName: 'tagify.min.js'
@@ -87,7 +87,7 @@ function build_js(done){
 
 
 
-function build_jquery_version(){
+function jquery(){
     // do not proccess jQuery version while developeing
     if( opts.dev )
         return Promise.resolve('"dev" does not compile jQuery')
@@ -96,7 +96,7 @@ function build_jquery_version(){
         .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
         .pipe($.rename('jQuery.tagify.min.js'))
         // .pipe($.uglify())
-        .pipe($.insert.prepend(banner))
+        .pipe($.headerComment(banner))
         .pipe(gulp.dest('./dist/'))
 }
 
@@ -176,16 +176,18 @@ function inc(importance) {
 
 function watch(){
     gulp.watch('./src/*.scss', scss)
-    gulp.watch('./src/tagify.js', gulp.series([build_js, build_jquery_version]))
+    gulp.watch('./src/tagify.js', gulp.series([js, jquery]))
     gulp.watch('./src/react.tagify.js', react)
 }
 
 
 // const build = gulp.series(gulp.parallel(build_js, scss, polyfills), build_jquery_version, react)
-const build = gulp.series(gulp.parallel(build_js, scss, polyfills), build_jquery_version, react)
+const build = gulp.series(gulp.parallel(js, scss, polyfills), jquery, react)
 
 exports.default = gulp.parallel(build, watch)
-exports.build_js = build_js
+exports.js = js
+exports.react = react
+exports.jquery = jquery
 exports.patch = () => inc('patch')
 exports.feature = () => inc('minor')
 exports.release = () => inc('major')

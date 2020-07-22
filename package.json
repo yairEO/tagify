@@ -49,6 +49,7 @@
         "gulp-eslint": "^6.0.0",
         "gulp-filter": "^6.0.0",
         "gulp-git": "^2.10.1",
+        "gulp-header-comment": "^0.8.0",
         "gulp-insert": "^0.5.0",
         "gulp-load-plugins": "^2.0.1",
         "gulp-rename": "^1.4.0",
