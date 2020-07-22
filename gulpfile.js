@@ -1,5 +1,9 @@
 var gulp = require('gulp'),
     $ = require( "gulp-load-plugins" )({ pattern:['*', 'gulp-'] }),
+    terser = require("rollup-plugin-terser").terser,
+    rollupBanner = require("rollup-plugin-banner").default,
+    babel = require("@rollup/plugin-babel").babel,
+    rollupStream = require("@rollup/stream"),
     pkg = require('./package.json'),
     opts = process.argv.reduce((result, item) => {
         if( item.indexOf('--') == 0 )
@@ -8,13 +12,12 @@ var gulp = require('gulp'),
     }, {});
 
 
-var banner = `/**
- * Tagify (v ${pkg.version})- tags input component
- * By ${pkg.author.name}
- * Don't sell this code. (c)
- * ${pkg.homepage}
- */
-`;
+var rollupCache = {};
+
+var banner = `Tagify (v ${pkg.version})- tags input component
+By ${pkg.author.name}
+Don't sell this code. (c)
+${pkg.homepage}`;
 
 var jQueryPluginWrap = [`;(function($){
     // just a jQuery wrapper for the vanilla version of this component
@@ -32,11 +35,7 @@ var jQueryPluginWrap = [`;(function($){
         });
     }
 
-`
-,
-`
-})(jQuery);
-`];
+` , ` })(jQuery); `];
 
 const babelConfig = {
     presets: ['@babel/env'],
@@ -47,7 +46,7 @@ const babelConfig = {
 ////////////////////////////////////////////////////
 // Compile main app SCSS to CSS
 
-gulp.task('scss', () => {
+function scss(){
     return gulp.src('src/*.scss')
         .pipe($.cssGlobbing({
             extensions: '.scss'
@@ -59,127 +58,88 @@ gulp.task('scss', () => {
         .pipe($.autoprefixer({ overrideBrowserslist:['> 5%'] }) )
         .pipe($.cleanCss())
         .pipe(gulp.dest('./dist'))
-})
+}
 
 // https://medium.com/recraftrelic/building-a-react-component-as-a-npm-module-18308d4ccde9
-gulp.task('react_wrapper', () => {
-    const babelConf = {
-        presets: ['@babel/env', '@babel/preset-react'],
-        plugins: ['@babel/proposal-object-rest-spread', '@babel/plugin-transform-destructuring']
-    }
-
+function react(){
     const umdConf = {
         exports: function(file) {
-          return 'Tags';
+            return 'Tags';
         }
     }
 
     return gulp.src('src/react.tagify.js')
-        .pipe( $.babel(babelConf))
+        .pipe( $.babel({ ...babelConfig, presets:[...babelConfig.presets, '@babel/preset-react'] }))
         .pipe( $.umd(umdConf) )
         .pipe( $.insert.prepend(banner) )
         .pipe(opts.dev ? $.tap(()=>{}) : $.uglify())
         .pipe( gulp.dest('./dist/') )
-})
-
-
-gulp.task('build_js', () => {
-    return gulp.src('src/tagify.js')
-        .pipe( $.babel(babelConfig))
-        .pipe( $.umd() )
-        .pipe( $.insert.prepend(banner) )
-        .pipe( gulp.dest('./dist/') )
-
-        .pipe($.rename('tagify.min.js'))
-        .pipe(opts.dev ? $.tap(()=>{}) : $.uglify())
-        .pipe( $.insert.prepend(banner) )
-        .pipe( gulp.dest('./dist/') )
-})
-
-
-
-gulp.task('build_jquery_version', () => {
-    // do not proccess jQuery version while developeing
-    if( opts.dev )
-        return true;
-
-    return gulp.src('src/tagify.js')
-        .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
-        .pipe( $.babel(babelConfig))
-        .pipe($.rename('jQuery.tagify.min.js'))
-        .pipe($.uglify())
-        .pipe($.insert.prepend(banner))
-        .pipe(gulp.dest('./dist/'))
-})
-
-
-gulp.task('minify', () => {
-    // gulp.src('dist/tagify.js')
-    //     .pipe($.uglify())
-    //     .on('error', handleError)
-    //     .pipe($.rename('tagify.min.js'))
-    //     .pipe(gulp.dest('./dist/'))
-
-    // gulp.src('dist/jQuery.tagify.js')
-    //     .pipe($.uglify())
-    //     .on('error', handleError)
-    //     .pipe($.rename('jQuery.tagify.min.js'))
-    //     .pipe(gulp.dest('./dist/'))
-
-    // gulp.src('src/tagify.polyfills.js')
-    //     .pipe($.uglify())
-    //     .on('error', handleError)
-    //     .pipe($.rename('tagify.polyfills.min.js'))
-    //     .pipe(gulp.dest('./dist/'))
-});
-
-function handleError(err) {
-  $.util.log( err.toString() );
-  this.emit('end');
 }
 
-/**
- * lints the javscript source code using "eslint"
- */
-gulp.task('lint_js', () => {
-    return gulp.src('src/tagify.js')
-        // eslint() attaches the lint output to the eslint property
-        // of the file object so it can be used by other modules.
-        .pipe($.cached('linting'))
-        .pipe($.eslint())
-        // $.eslint.format() outputs the lint results to the console.
-        // Alternatively use eslint.formatEach() (see Docs).
-        .pipe($.eslint.format())
-        // To have the process exit with an error code (1) on
-        // lint error, return the stream and pipe to failAfterError last.
-        .pipe($.eslint.failAfterError())
-        .on('error', $.beepbeep)
-})
 
-
-gulp.task('polyfills', () => {
-  var stream = rollup({
-    entry: 'src/tagify.polyfills.js',
-    outputName: 'tagify.polyfills.min.js'
-  })
-
-  return stream
-})
-
-
-function rollup({entry, outputName, dest}){
-  return $.rollupStream({
-      input:entry,
-      format: 'iife',
-      plugins: []
+function build_js(done){
+    return rollup({
+        entry: 'src/tagify.js',
+        outputName: 'tagify.min.js'
     })
-    // give the file the name you want to output with
-    .pipe( $.vinylSourceStream(outputName))
-    .pipe( $.streamify( $.uglify() ) )
-    .on('error', handleError)
+    .on('end', done)
+}
 
-    // and output to ./dist/app.js as normal.
-    .pipe(gulp.dest('./dist'));
+
+
+function build_jquery_version(){
+    // do not proccess jQuery version while developeing
+    if( opts.dev )
+        return Promise.resolve('"dev" does not compile jQuery')
+
+    return gulp.src('dist/tagify.min.js')
+        .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
+        .pipe($.rename('jQuery.tagify.min.js'))
+        // .pipe($.uglify())
+        .pipe($.insert.prepend(banner))
+        .pipe(gulp.dest('./dist/'))
+}
+
+
+function handleError(err) {
+    $.util.log( err.toString() );
+    this.emit('end');
+}
+
+
+function polyfills(done){
+    return rollup({
+        entry: 'src/tagify.polyfills.js',
+        outputName: 'tagify.polyfills.min.js'
+    })
+    .on('end', done)
+}
+
+function rollup({ entry, outputName, dest, plugins = [] }){
+    plugins = [babel({...babelConfig, babelHelpers: 'bundled'}), rollupBanner(banner), ...plugins]
+
+    if( !opts.dev )
+        plugins.push(terser())
+
+    return rollupStream({
+        input: entry,
+        plugins,
+        // sourcemap: true,
+        cache: rollupCache[entry],
+        output: {
+            name: 'Tagify',
+            format: 'iife',
+        }
+    })
+
+        .on('bundle', function(bundle) {
+            rollupCache[entry] = bundle;
+        })
+
+        // give the file the name you want to output with
+        .pipe( $.vinylSourceStream(outputName))
+        // .on('error', handleError)
+        .pipe(gulp.dest('./dist'));
 }
 
 
@@ -214,18 +174,18 @@ function inc(importance) {
 }
 
 
-gulp.task('watch', () => {
-    //gulp.watch('./images/sprite/**/*.png', ['sprite']);
-    gulp.watch('./src/*.scss', ['scss']);
-    gulp.watch('./src/tagify.js').on('change', ()=>{ $.runSequence('build_js', 'build_jquery_version') });
-});
+function watch(){
+    gulp.watch('./src/*.scss', scss)
+    gulp.watch('./src/tagify.js', gulp.series([build_js, build_jquery_version]))
+    gulp.watch('./src/react.tagify.js', react)
+}
 
 
-gulp.task('default', ( done ) => {
-    $.runSequence(['build_js', 'scss'], 'build_jquery_version', 'react_wrapper', 'polyfills', 'watch', done);
-});
+// const build = gulp.series(gulp.parallel(build_js, scss, polyfills), build_jquery_version, react)
+const build = gulp.series(gulp.parallel(build_js, scss, polyfills), build_jquery_version, react)
 
-
-gulp.task('patch', () => inc('patch'))
-gulp.task('feature', () => inc('minor'))
-gulp.task('release', () => inc('major'))
+exports.default = gulp.parallel(build, watch)
+exports.build_js = build_js
+exports.patch = () => inc('patch')
+exports.feature = () => inc('minor')
+exports.release = () => inc('major')
