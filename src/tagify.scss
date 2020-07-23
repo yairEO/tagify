@@ -334,7 +334,7 @@
             justify-content: center;
             border-radius  : 50px;
             cursor         : pointer;
-            font           : #{$size}/1 monospace;
+            font           : #{$size}/1 Arial;
             background     : $tag-remove-btn-bg;
             background     : var(--tag-remove-btn-bg);
             color          : $tag-remove-btn-color;
@@ -416,9 +416,6 @@
 
             &::before{
                 @include placeholder(false);
-                @include firefox {
-                    display:none;
-                }
 
                 /* ALL MS BROWSERS: hide placeholder (on focus) otherwise the caret is places after it, which is weird */
                 /* IE10+ CSS styles go here */
@@ -434,11 +431,13 @@
             &:empty{
                 &::before{
                     @include placeholder(true);
-                    @include firefox {
-                        // remove ":after" pseudo element: https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
-                        content: unset;
-                        // display:inline-block;
-                    }
+
+                    // Seems to be fixed! no need for the below hack
+                    // @include firefox {
+                    //     // remove ":after" pseudo element: https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
+                    //     content: unset;
+                    //     // display:inline-block;
+                    // }
 
                     color: $placeholder-color-focus;
                     color: var(--placeholder-color-focus);
@@ -463,6 +462,7 @@
             white-space: nowrap;
             pointer-events: none;
             opacity: 0;
+            position: absolute;
 
             #{$self}--mix &{
                 display: none;
