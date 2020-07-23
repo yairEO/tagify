@@ -742,12 +742,18 @@
                          "avatar email";
 }
 
+.tagify__dropdown.users-list .tagify__dropdown__item:hover .tagify__dropdown__item__avatar-wrap{
+    transform: scale(1.2);
+}
+
 .tagify__dropdown.users-list .tagify__dropdown__item__avatar-wrap{
     grid-area: avatar;
     width: 36px;
     height: 36px;
     border-radius: 50%;
+    overflow: hidden;
     background: #EEE;
+    transition: .1s ease-out;
 }
 
 .tagify__dropdown.users-list img{
@@ -779,11 +785,16 @@
     white-space: nowrap;
 }
 
+#users-list .tagify__tag:hover .tagify__tag__avatar-wrap{
+    transform: scale(1.6) translateX(-10%);
+}
+
 #users-list .tagify__tag .tagify__tag__avatar-wrap{
     width: 16px;
     height: 16px;
     border-radius: 50%;
     margin-right: 5px;
+    transition: .12s ease-out;
 }
 
 #users-list .tagify__tag img{
@@ -846,11 +857,6 @@
                         The propeties shown in the example below, declared in the <code>allowedTags</code> Array, will be transformed into
                         HTML attributes for each tag element rendered from the allowed <code>whitelist</code> settings, so naturally
                         some attributes are in the specs and the made-up ones should technically be prefixed with <code>data-</code>.
-                    </p>
-                    <p>
-                        With this level of control a lot can be done via css. <br>
-                        For the example below, the first two tags have a <code>readonly</code>
-                        property and that will enable the CSS to target that and hide the <code>&times;</code> button and disable the hover state.
                     </p>
                     <details>
                       <summary></summary>
@@ -1464,61 +1470,61 @@ var tagify = new Tagify(inputElm, {
         {
             "value": 1,
             "name": "Justinian Hattersley",
-            "avatar": "https://robohash.org/quidemlaborumsaepe.jpg",
+            "avatar": "https://i.pravatar.cc/80?img=1",
             "email": "jhattersley0@ucsd.edu"
         },
         {
             "value": 2,
             "name": "Antons Esson",
-            "avatar": "https://robohash.org/aliaseanemo.jpg",
+            "avatar": "https://i.pravatar.cc/80?img=2",
             "email": "aesson1@ning.com"
         },
         {
             "value": 3,
             "name": "Ardeen Batisse",
-            "avatar": "https://robohash.org/sapientefacereperspiciatis.jpg",
+            "avatar": "https://i.pravatar.cc/80?img=3",
             "email": "abatisse2@nih.gov"
         },
         {
             "value": 4,
             "name": "Graeme Yellowley",
-            "avatar": "https://robohash.org/autcommodiodit.jpg",
+            "avatar": "https://i.pravatar.cc/80?img=4",
             "email": "gyellowley3@behance.net"
         },
         {
             "value": 5,
             "name": "Dido Wilford",
-            "avatar": "https://robohash.org/dictanamarchitecto.jpg",
+            "avatar": "https://i.pravatar.cc/80?img=5",
             "email": "dwilford4@jugem.jp"
         },
         {
             "value": 6,
             "name": "Celesta Orwin",
-            "avatar": "https://robohash.org/reiciendisnondolore.jpg",
+            "avatar": "https://i.pravatar.cc/80?img=6",
             "email": "corwin5@meetup.com"
         },
         {
             "value": 7,
             "name": "Sally Main",
-            "avatar": "https://robohash.org/eteoshic.jpg",
+            "avatar": "https://i.pravatar.cc/80?img=7",
             "email": "smain6@techcrunch.com"
         },
         {
             "value": 8,
             "name": "Grethel Haysman",
-            "avatar": "https://robohash.org/doloreveniamea.jpg",
+            "avatar": "https://i.pravatar.cc/80?img=8",
             "email": "ghaysman7@mashable.com"
         },
         {
             "value": 9,
             "name": "Marvin Mandrake",
-            "avatar": "https://robohash.org/enimsaepereiciendis.jpg",
+            "avatar": "https://i.pravatar.cc/80?img=9",
             "email": "mmandrake8@sourceforge.net"
         },
         {
             "value": 10,
             "name": "Corrie Tidey",
-            "avatar": "https://robohash.org/nonmolestiaecumque.jpg",
+            "avatar": "https://i.pravatar.cc/80?img=10",
             "email": "ctidey9@youtube.com"
         }
     ]
@@ -1587,7 +1593,7 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
         dropdownItem : function(tagData){
             try{
             // _ESCAPE_START_
-                return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'>
+                return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}' tagifySuggestionIdx="${tagData.tagifySuggestionIdx}">
                             <img onerror="this.style.visibility = 'hidden'"
                                  src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
                             <span>${tagData.value}</span>
@@ -1863,8 +1869,9 @@ tagify.on('add', function(e){
     console.log( "event detail:", e.detail);
 });
 
-// add the first 2 tags from the "allowedTags" Aray automatically
-tagify.addTags(tagify.settings.whitelist.slice(0,2));
+// add the first 2 tags and makes them readonly
+var tagsToAdd = tagify.settings.whitelist.slice(0, 2)
+tagify.addTags(tagsToAdd)
 
 })()
 </script>
