@@ -74,9 +74,13 @@ Tagify.prototype = {
         editTags            : 2,              // 1 or 2 clicks to edit a tag. false/null for not allowing editing
         transformTag        : ()=>{},         // Takes a tag input string as argument and returns a transformed value
 
-        autoComplete        : {
-            enabled : true,                   // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
+        autoComplete: {
+            enabled: true,                   // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
             rightKey: false,                  // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
+        },
+
+        mixMode: {
+            insertAfterTag: '\u00A0'
         },
 
         classNames: {
@@ -105,7 +109,7 @@ Tagify.prototype = {
             empty              : 'tagify--empty',
         },
 
-        dropdown            : {
+        dropdown: {
             classname     : '',
             enabled       : 2,      // minimum input characters needs to be typed for the suggestions dropdown to show
             maxItems      : 10,
@@ -119,7 +123,7 @@ Tagify.prototype = {
             appendTarget  : null    // defaults to document.body one DOM has been loaded
         },
 
-        hooks : {
+        hooks: {
             beforeRemoveTag: () => Promise.resolve(),
             suggestionClick: () => Promise.resolve()
         }
@@ -657,21 +661,16 @@ Tagify.prototype = {
                                 return
                             }
 
-
                             // if( isFirefox && selection && selection.anchorOffset == 0 )
                             //     this.removeTags(selection.anchorNode.previousSibling)
 
                             // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
                             // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
-                            setTimeout(()=>{
-                                var currentValue = decode(this.DOM.input.innerHTML),
-                                    // when there's a tag and a character after it, and user hits Backspace, the text will get deleted instanctly,
-                                    // and because of the timeout, the code must understand a text was removed and a tag should NOT be removed, because
-                                    // the caret was on textNode and not just after a tag element
-                                    shoudlDeleteOnlyTag = selection.anchorNode == this.DOM.input && currentValue.length == lastInputValue.length;
+                            setTimeout(() => {
+                                var currentValue = decode(this.DOM.input.innerHTML);
 
                                 // fixes #384, where the first and only tag will not get removed with backspace
-                                if( ( shoudlDeleteOnlyTag || !selection.anchorOffset && currentValue.length >= lastInputValue.length) ){
+                                if( currentValue.length >= lastInputValue.length ){
                                     this.removeTags(selection.anchorNode.previousElementSibling)
                                     this.fixFirefoxLastTagNoCaret()
 
@@ -758,12 +757,12 @@ Tagify.prototype = {
             },
 
             onInput(e){
+                if( this.settings.mode == 'mix' )
+                    return this.events.callbacks.onMixTagsInput.call(this, e);
+
                 var value = this.input.normalize.call(this),
                     showSuggestions = value.length >= this.settings.dropdown.enabled,
                     eventData = {value, inputElm:this.DOM.input};
-
-                if( this.settings.mode == 'mix' )
-                    return this.events.callbacks.onMixTagsInput.call(this, e);
 
                 eventData.isValid = this.validateTag({value});
                 this.trigger('input', eventData) // "input" event must be triggered at this point, before the dropdown is shown
@@ -1087,22 +1086,27 @@ Tagify.prototype = {
     },
 
     placeCaretAfterTag( tagElm ){
-        var nextSibling = tagElm.nextSibling;
-        var sel = window.getSelection(),
+        var nextSibling = tagElm.nextSibling,
+            sel = window.getSelection(),
             range = sel.getRangeAt(0);
 
-        if( !nextSibling ){
-            nextSibling = document.createTextNode("")
-            tagElm.appendChild(nextSibling)
-            tagElm.parentNode.insertBefore(nextSibling, tagElm.nextSibling);
-        }
-
         if (sel.rangeCount) {
-            range.setStartAfter(tagElm);
-            range.setEndAfter(tagElm);
+            range.setStartAfter(nextSibling || tagElm);
+            range.setEndAfter(nextSibling || tagElm);
             sel.removeAllRanges();
             sel.addRange(range);
         }
+    },
+
+    insertAfterTag( tagElm, newNode ){
+        if( !tagElm || !newNode ) return
+
+        newNode = typeof newNode == 'string'
+            ? document.createTextNode(newNode)
+            : newNode
+
+        tagElm.appendChild(newNode)
+        tagElm.parentNode.insertBefore(newNode, tagElm.nextSibling)
     },
 
     /**
@@ -1666,6 +1670,10 @@ Tagify.prototype = {
         replacedNode.nodeValue = replacedNode.nodeValue.replace(strToReplace, '');
         nodeAtCaret.parentNode.insertBefore(wrapperElm, replacedNode);
 
+        // must NOT normalize contenteditable or it will cause unwanetd issues:
+        // https://monosnap.com/file/ZDVmRvq5upYkidiFedvrwzSswegWk7
+        // nodeAtCaret.parentNode.normalize()
+
         return replacedNode;
     },
 
@@ -1835,8 +1843,10 @@ Tagify.prototype = {
         this.trigger('add', extend({}, {tag:tagElm}, {data:tagsItems[0]}))
 
         // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
-        this.fixFirefoxLastTagNoCaret()
-        setTimeout(this.placeCaretAfterTag.bind(this), 100, tagElm)
+        setTimeout(() => {
+            this.insertAfterTag(tagElm, _s.mixMode.insertAfterTag)
+            this.placeCaretAfterTag(tagElm)
+        }, 100)
 
         return tagElm
     },
