@@ -555,7 +555,7 @@ Tagify.prototype = {
         value : '',
         set( s = '', updateDOM = true ){
             var hideDropdown = this.settings.dropdown.closeOnSelect
-            this.input.value = s;
+            this.input.value = s
 
             if( updateDOM )
                 this.DOM.input.innerHTML = s;
@@ -565,7 +565,6 @@ Tagify.prototype = {
 
             this.input.autocomplete.suggest.call(this);
             this.input.validate.call(this);
-            this.setRangeAtStartEnd()
         },
 
         /**

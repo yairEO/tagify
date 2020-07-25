@@ -487,7 +487,6 @@ export default {
                 this.injectAtCaret(pastedData, window.getSelection().getRangeAt(0))
             else
                 this.addTags(pastedData)
-                // this.input.set.call(this, pastedData)
         },
 
         onEditTagInput( editableElm, e ){
