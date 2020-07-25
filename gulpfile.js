@@ -128,7 +128,7 @@ function rollup({ entry, outputName, dest, plugins = [] }){
         cache: rollupCache[entry],
         output: {
             name: 'Tagify',
-            format: 'iife',
+            format: 'umd',
         }
     })
 
