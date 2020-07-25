@@ -176,7 +176,7 @@ function inc(importance) {
 
 function watch(){
     gulp.watch('./src/*.scss', scss)
-    gulp.watch('./src/tagify.js', gulp.series([js, jquery]))
+    gulp.watch(['./src/tagify.js', './src/parts/*.js'], gulp.series([js, jquery]))
     gulp.watch('./src/react.tagify.js', react)
 }
 
