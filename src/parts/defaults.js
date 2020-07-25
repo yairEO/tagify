@@ -16,14 +16,15 @@ export default {
     editTags            : 2,              // 1 or 2 clicks to edit a tag. false/null for not allowing editing
     transformTag        : ()=>{},         // Takes a tag input string as argument and returns a transformed value
 
+    mixMode: {
+        insertAfterTag  : '\u00A0',       // String/Node to inject after a tag has been added
+    },
+
     autoComplete: {
         enabled: true,                   // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
         rightKey: false,                  // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
     },
 
-    mixMode: {
-        insertAfterTag: '\u00A0'
-    },
 
     classNames: {
         namespace          : 'tagify',
@@ -55,7 +56,7 @@ export default {
         classname     : '',
         enabled       : 2,      // minimum input characters needs to be typed for the suggestions dropdown to show
         maxItems      : 10,
-        searchKeys    : [],
+        searchKeys    : ["value", "searchBy"],
         fuzzySearch   : true,
         caseSensitive : false,
         accentedSearch: true,

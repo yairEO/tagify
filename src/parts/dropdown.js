@@ -510,10 +510,11 @@ export default {
      */
     filterListItems( value ){
         var _s = this.settings,
+            _sd = _s.dropdown,
             list = [],
             whitelist = _s.whitelist,
-            suggestionsCount = _s.dropdown.maxItems || Infinity,
-            searchKeys = _s.dropdown.searchKeys.concat(["searchBy", "value"]),
+            suggestionsCount = _sd.maxItems || Infinity,
+            searchKeys = _sd.searchKeys,
             whitelistItem,
             valueIsInWhitelist,
             whitelistItemValueIndex,
@@ -529,17 +530,17 @@ export default {
             ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
         }
 
-        niddle = _s.dropdown.caseSensitive
+        niddle = _sd.caseSensitive
             ? ""+value
             : (""+value).toLowerCase()
 
         for( ; i < whitelist.length; i++ ){
             whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
 
-            if( _s.dropdown.fuzzySearch ){
+            if( _sd.fuzzySearch ){
                 searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
 
-                whitelistItemValueIndex = _s.dropdown.accentedSearch
+                whitelistItemValueIndex = _sd.accentedSearch
                     ? unaccent(searchBy).indexOf(unaccent(niddle))
                     : searchBy.indexOf(niddle)
 
@@ -550,12 +551,12 @@ export default {
                 valueIsInWhitelist = searchKeys.some(k => {
                     var v = (""+whitelistItem[k]||"")
 
-                    if( _s.dropdown.accentedSearch ){
+                    if( _sd.accentedSearch ){
                         v = unaccent(v)
                         niddle = unaccent(niddle)
                     }
 
-                    if( !_s.dropdown.caseSensitive )
+                    if( !_sd.caseSensitive )
                         v = v.toLowerCase()
 
                     return v.indexOf(niddle) == 0

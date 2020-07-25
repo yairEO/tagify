@@ -306,7 +306,7 @@ expanding the search of any typed terms to more than the `value` property of the
 ```javascript
 {
   dropdown: {
-    searchKeys: ["nickname", "email"] // "value" & "searchBy" key are searched in, regardless
+    searchKeys: ["nickname", "email"] //  try matching suggestions only for those keys (from whitelist Array)
   }
 }
 ```
