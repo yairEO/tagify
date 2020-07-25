@@ -171,7 +171,8 @@ Tagify.prototype = {
                 return {left:rect.right, top:rect.top, bottom:rect.bottom}
             }
 
-            return node.getBoundingClientRect()
+            if( node.getBoundingClientRect )
+                return node.getBoundingClientRect()
         }
 
         return {left:-9999, top:-9999}
@@ -389,6 +390,8 @@ Tagify.prototype = {
     editTag( tagElm, opts ){
         tagElm = tagElm || this.getLastTag()
         opts = opts || {}
+
+        this.dropdown.hide.call(this)
 
         var editableElm = tagElm.querySelector('.' + this.settings.classNames.tagText),
             tagIdx = this.getNodeIndex(tagElm),
