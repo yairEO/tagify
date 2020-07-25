@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, isObject, decode, parseHTML, minify, escapeHTML, extend, unaccent } from './parts/helpers'
+import { sameStr, removeCollectionProp, isObject, parseHTML, minify, escapeHTML, extend, unaccent } from './parts/helpers'
 import dropdownMethods from './parts/dropdown'
 import DEFAULTS from './parts/defaults'
 import templates from './parts/templates'
@@ -370,6 +370,8 @@ Tagify.prototype = {
     },
 
     insertAfterTag( tagElm, newNode ){
+        newNode = newNode || this.settings.insertAfterTag;
+
         if( !tagElm || !newNode ) return
 
         newNode = typeof newNode == 'string'
@@ -1059,6 +1061,7 @@ Tagify.prototype = {
 
             // add the tag to the component's DOM
             this.appendTag(tagElm)
+            this.insertAfterTag(tagElm)
 
             if( tagData.__isValid && tagData.__isValid === true ){
                 // update state
@@ -1115,7 +1118,7 @@ Tagify.prototype = {
 
         // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
         setTimeout(() => {
-            this.insertAfterTag(tagElm, _s.mixMode.insertAfterTag)
+            this.insertAfterTag(tagElm)
             this.placeCaretAfterTag(tagElm)
         }, 100)
 
