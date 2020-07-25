@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, isObject, parseHTML, minify, escapeHTML, extend, unaccent } from './parts/helpers'
+import { sameStr, removeCollectionProp, isObject, parseHTML, minify, escapeHTML, extend } from './parts/helpers'
 import dropdownMethods from './parts/dropdown'
 import DEFAULTS from './parts/defaults'
 import templates from './parts/templates'
@@ -1002,7 +1002,7 @@ Tagify.prototype = {
      * @return {Array} Array of DOM elements (tags)
      */
     addTags( tagsItems, clearInput, skipInvalid = this.settings.skipInvalid ){
-        var tagElems = [], tagElm, _s = this.settings;
+        var tagElems = [], _s = this.settings;
 
         if( !tagsItems || tagsItems.length == 0 ){
             // is mode is "select" clean all tags
