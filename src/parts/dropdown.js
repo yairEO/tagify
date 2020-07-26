@@ -1,4 +1,4 @@
-import { sameStr, isObject, minify, escapeHTML, extend, unaccent } from './helpers'
+import { sameStr, isObject, minify, escapeHTML, extend, unaccent, getNodeHeight } from './helpers'
 
 export default {
     init(){
@@ -153,7 +153,7 @@ export default {
     render(){
         // let the element render in the DOM first, to accurately measure it.
         // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
-        var ddHeight = this.getNodeHeight(this.DOM.dropdown),
+        var ddHeight = getNodeHeight(this.DOM.dropdown),
             _s = this.settings;
 
         this.DOM.scope.setAttribute("aria-expanded", true)

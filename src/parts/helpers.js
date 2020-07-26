@@ -116,3 +116,17 @@ export function unaccent( s ){
         return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
 
 }
+
+/**
+ * Meassures an element's height, which might yet have been added DOM
+ * https://stackoverflow.com/q/5944038/104380
+ * @param {DOM} node
+ */
+export function getNodeHeight( node ){
+    var height, clone = node.cloneNode(true)
+    clone.style.cssText = "position:fixed; top:-9999px; opacity:0"
+    document.body.appendChild(clone)
+    height = clone.clientHeight
+    clone.parentNode.removeChild(clone)
+    return height
+}
