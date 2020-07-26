@@ -1214,7 +1214,11 @@ Tagify.prototype = {
             if( tagElm )
                 // because the DOM node might be removed by async animation, the state will be updated while
                 // the node might still be in the DOM, so the "update" method should know which nodes to ignore
-                elms.push({node:tagElm, data:this.tagData(tagElm, {'__removed':true})})
+                elms.push({
+                    node: tagElm,
+                    idx: this.getTagIdx(this.tagData(tagElm)), // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
+                    data: this.tagData(tagElm, {'__removed':true})
+                })
 
             return elms
         }, [])
@@ -1239,17 +1243,12 @@ Tagify.prototype = {
             .then(() => {
                 function removeNode( tag ){
                     if( !tag.node.parentNode ) return
-                    // tag index MUST be derived from "this.value" index, because when called repeatedly, the tag nodes still exists
-                    // for example if called twice, the first idx would be "0" and the other "1", but when the tags are actually removed, they
-                    // are removed in a synchronized way, so after the first tag was removed (only 1 left now), the other one cannot be removed becuase
-                    // its index now does not exists
-                    var tagIdx = this.getTagIdx(tag.data) // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
 
                     tag.node.parentNode.removeChild(tag.node)
 
                     if( !silent ){
                         // this.removeValueById(tagData.__uid)
-                        this.trigger('remove', { tag:tag.node, index:tagIdx, data:tag.data })
+                        this.trigger('remove', { tag:tag.node, index:tag.idx, data:tag.data })
                         this.dropdown.refilter.call(this)
                         this.dropdown.position.call(this)
                         this.DOM.input.normalize() // best-practice when in mix-mode (safe to do always anyways)
@@ -1259,7 +1258,7 @@ Tagify.prototype = {
                             this.reCheckInvalidTags()
                     }
                     else if( this.settings.keepInvalidTags )
-                        this.trigger('remove', { tag:tag.node, index:tagIdx })
+                        this.trigger('remove', { tag:tag.node, index:tag.idx })
                 }
 
                 function animation( tag ){
@@ -1271,8 +1270,10 @@ Tagify.prototype = {
                     setTimeout(removeNode.bind(this), tranDuration, tag)
                 }
 
-                if( tranDuration && tranDuration > 10 && tagsToRemove.length == 1 ) animation.call(this, tagsToRemove[0])
-                else tagsToRemove.forEach(removeNode.bind(this))
+                if( tranDuration && tranDuration > 10 && tagsToRemove.length == 1 )
+                    animation.call(this, tagsToRemove[0])
+                else
+                    tagsToRemove.forEach(removeNode.bind(this))
 
                 // update state regardless of animation
                 if( !silent ){
