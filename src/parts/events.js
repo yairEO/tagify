@@ -82,15 +82,10 @@ export default {
                 type = e.type,
                 ddEnabled = _s.dropdown.enabled >= 0,
                 eventData = {relatedTarget:e.relatedTarget},
-                isTargetTag = e.relatedTarget && e.relatedTarget.classList.contains(this.settings.classNames.tag) && this.DOM.scope.contains(e.relatedTarget),
                 isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
                 isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
                 selection = window.getSelection(),
                 shouldAddTags;
-
-            // goes into this scenario only on input "blur" and a tag was clicked
-            if( isTargetTag )
-                return
 
             if( type == 'blur' ){
                 if( e.relatedTarget === this.DOM.scope ){
