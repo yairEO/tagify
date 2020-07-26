@@ -8,8 +8,3 @@
 - use DOM mutation to detect changes and update "this.value" automatically
 - add examples of added tag CSS effects
 - allow templates to return DOM nodes and not just Strings
-- create multiple versions of tagify:
-  1. full version
-  2. only tags (without editing tags)
-  3. only mix mode (without editing tags)
-  4. only select
