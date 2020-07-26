@@ -342,9 +342,6 @@ Tagify.prototype = {
 
     triggerChangeEvent,
 
-    /**
-     * DOM events listeners binding
-     */
     events,
 
     fixFirefoxLastTagNoCaret(){
