@@ -371,7 +371,7 @@ Tagify.prototype = {
     },
 
     insertAfterTag( tagElm, newNode ){
-        newNode = newNode || this.settings.insertAfterTag;
+        newNode = newNode || this.settings.mixMode.insertAfterTag;
 
         if( !tagElm || !newNode ) return
 
