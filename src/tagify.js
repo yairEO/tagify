@@ -1060,7 +1060,6 @@ Tagify.prototype = {
 
             // add the tag to the component's DOM
             this.appendTag(tagElm)
-            this.insertAfterTag(tagElm)
 
             if( tagData.__isValid && tagData.__isValid === true ){
                 // update state
