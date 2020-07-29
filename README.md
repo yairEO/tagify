@@ -88,7 +88,7 @@ var tagify = new Tagify(...)
 * Can paste in multiple values: `tag 1, tag 2, tag 3` or even newline-separated tags
 * Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
 * Validate tags by Regex pattern
-* Tags may be [editable](#edit-tags) (duoble-click)
+* Tags may be [editable](#edit-tags) (double-click)
 * <del>ARIA accessibility support</del>(Component too generic for any meaningful ARIA)
 * Supports read-only mode to the whole componenet or per-tag
 * Each tag can have any properties desired (class, data-whatever, readonly...)
