@@ -77,8 +77,8 @@ export default {
      */
     callbacks : {
         onFocusBlur(e){
-            var text = e.target ? e.target.textContent.trim() : '', // a string
-                _s = this.settings,
+            var _s = this.settings,
+                text = e.target ? (_s.preserveWhiteSpace ? e.target.textContent : e.target.textContent.trim()) : '', // a string
                 type = e.type,
                 ddEnabled = _s.dropdown.enabled >= 0,
                 eventData = {relatedTarget:e.relatedTarget},
@@ -158,7 +158,7 @@ export default {
         },
 
         onKeydown(e){
-            var s = e.target.textContent.trim();
+            var s = this.settings.preserveWhiteSpace ? e.target.textContent : e.target.textContent.trim();
 
             this.trigger("keydown", {originalEvent:this.cloneEvent(e)})
 

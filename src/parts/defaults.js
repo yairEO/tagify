@@ -14,6 +14,7 @@ export default {
     backspace           : true,           // false / true / "edit"
     skipInvalid         : false,          // If `true`, do not add invalid, temporary, tags before automatically removing them
     editTags            : 2,              // 1 or 2 clicks to edit a tag. false/null for not allowing editing
+    preserveWhitespace  : false,          // whether or not the value provided should be trimmed before being added as a tag
     transformTag        : ()=>{},         // Takes a tag input string as argument and returns a transformed value
 
     mixMode: {
@@ -47,6 +48,7 @@ export default {
         tagEditing         : 'tagify__tag--editable',
         tagFlash           : 'tagify__tag--flash',
         tagHide            : 'tagify__tag--hide',
+        tagWhitespace      : 'tagify__tag--whitespace',
         hasMaxTags         : 'tagify--hasMaxTags',
         hasNoTags          : 'tagify--noTags',
         empty              : 'tagify--empty',

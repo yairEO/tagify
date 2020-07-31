@@ -236,7 +236,7 @@ Tagify.prototype = {
             this.removeAllTags()
 
             if( this.settings.mode == 'mix' )
-                this.parseMixTags(value.trim())
+                this.parseMixTags(this.settings.preserveWhiteSpace ? value : value.trim())
 
             else{
                 try{
@@ -483,7 +483,7 @@ Tagify.prototype = {
 
         // if tag is invalid, make the according changes in the newly created element
         if( tagData.__isValid && tagData.__isValid != true )
-            extend( tagData, this.getInvaildTagParams(tagData, tagData.__isValid) )
+            extend( tagData, this.getInvalidTagParams(tagData, tagData.__isValid) )
 
         var newTag = this.createTagElem(tagData)
 
@@ -711,7 +711,7 @@ Tagify.prototype = {
             return false
 
         duplications = this.value.reduce((acc, item) =>
-            sameStr( (""+value).trim(), item.value, _s.dropdown.caseSensitive )
+            sameStr( (""+this.settings.preserveWhiteSpace?value:value).trim(), item.value, _s.dropdown.caseSensitive )
                 ? acc+1
                 : acc
         , 0)
@@ -723,7 +723,7 @@ Tagify.prototype = {
         var indices = [];
 
         this.getTagElms().forEach((tagElm, i) => {
-            if(  sameStr( tagElm.textContent.trim(), value, this.settings.dropdown.caseSensitive )  )
+            if(  sameStr( this.settings.preserveWhiteSpace ? tagElm.textContent : tagElm.textContent.trim(), value, this.settings.dropdown.caseSensitive )  )
                 indices.push(i)
         })
 
@@ -755,12 +755,13 @@ Tagify.prototype = {
     },
 
     /**
-     * make sure the tag, or words in it, is not in the blacklist
+     * make sure the tag, or words in it, is in the whitelist
      */
     isTagWhitelisted( v ){
+        var preserveWhiteSpace = !!this.settings.preserveWhiteSpace;
         return this.settings.whitelist.some(item =>
             typeof v == 'string'
-                ? sameStr(v.trim(), (item.value || item))
+                ? sameStr(preserveWhiteSpace ? v : v.trim(), (item.value || item))
                 : sameStr(JSON.stringify(item), JSON.stringify(v))
         )
     },
@@ -772,12 +773,12 @@ Tagify.prototype = {
      * @return {Boolean/String}  ["true" if validation has passed, String for a fail]
      */
     validateTag( tagData ){
-        var value = tagData.value.trim(),
-            _s = this.settings,
+        var _s = this.settings,
+            value = _s.preserveWhiteSpace ? tagData.value : tagData.value.trim(),
             result = true;
 
         // check for empty value
-        if( !value )
+        if(_s.preserveWhiteSpace && !value || !_s.preserveWhiteSpace && !value.trim() )
             result = this.TEXTS.empty;
 
         // check if pattern should be used and if so, use it to test the value
@@ -794,7 +795,7 @@ Tagify.prototype = {
         return result;
     },
 
-    getInvaildTagParams(tagData, validation){
+    getInvalidTagParams(tagData, validation){
         return {
             "aria-invalid" : true,
             "class": `${tagData.class || ''} ${this.settings.classNames.tagNotAllowed}`.trim(),
@@ -814,12 +815,12 @@ Tagify.prototype = {
      * @return {Array} [Array of Objects]
      */
     normalizeTags( tagsItems ){
-        var {whitelist, delimiters, mode} = this.settings,
+        var {whitelist, delimiters, mode, preserveWhiteSpace} = this.settings,
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
             isArray = tagsItems instanceof Array,
             temp = [],
-            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:v.trim() }))
+            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:preserveWhiteSpace ? v : v.trim() }))
 
         if( typeof tagsItems == 'number' )
             tagsItems = tagsItems.toString();
@@ -1037,7 +1038,7 @@ Tagify.prototype = {
                 if( skipInvalid )
                     return
 
-                extend(tagElmParams, this.getInvaildTagParams(tagData, tagData.__isValid), {__preInvalidData:originalData})
+                extend(tagElmParams, this.getInvalidTagParams(tagData, tagData.__isValid), {__preInvalidData:originalData})
 
                 // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
                 if( tagData.__isValid == this.TEXTS.duplicate )

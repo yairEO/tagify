@@ -178,6 +178,10 @@
         cursor     : default;
         transition : .13s ease-out;
 
+        &--whitespace > div > span {
+            white-space: pre;
+        }
+
         > div{  // :not([contenteditable])
             vertical-align : top;
             box-sizing     : border-box;

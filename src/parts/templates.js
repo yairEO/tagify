@@ -22,7 +22,7 @@ export default {
                     contenteditable='false'
                     spellcheck='false'
                     tabIndex="-1"
-                    class="${this.settings.classNames.tag} ${tagData.class ? tagData.class : ""}"
+                    class="${this.settings.classNames.tag} ${tagData.class ? tagData.class : ""} ${this.settings.preserveWhiteSpace ? this.settings.classNames.tagWhitespace : ""}"
                     ${this.getAttributes(tagData)}>
             <x title='' class="${this.settings.classNames.tagX}" role='button' aria-label='remove tag'></x>
             <div>
