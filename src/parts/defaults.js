@@ -63,6 +63,7 @@ export default {
         accentedSearch: true,
         highlightFirst: false,  // highlights first-matched item in the list
         closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
+        clearOnSelect : true,  // after selecting a suggetion, should the typed text input remain or be cleared
         position      : 'all',  // 'manual' / 'text' / 'all'
         appendTarget  : null    // defaults to document.body one DOM has been loaded
     },

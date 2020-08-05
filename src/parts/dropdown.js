@@ -444,11 +444,11 @@ export default {
      * @param {Object} elm  DOM node to select
      */
     selectOption( elm ){
-        var hideDropdown = this.settings.dropdown.closeOnSelect;
+        var {clearOnSelect, closeOnSelect} = this.settings.dropdown
 
         if( !elm ) {
             this.addTags(this.input.value, true)
-            hideDropdown && this.dropdown.hide.call(this)
+            closeOnSelect && this.dropdown.hide.call(this)
             return;
         }
 
@@ -462,7 +462,6 @@ export default {
         this.trigger("dropdown:select", {data:tagData, elm})
 
         if( this.state.editing ){
-
             this.onEditTagDone(this.state.editing.scope, {
                 ...this.state.editing.scope.__tagifyTagData,
                 value: tagData.value,
@@ -473,8 +472,9 @@ export default {
 
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
         else{
-            this.addTags([tagData], true)
+            this.addTags([tagData], clearOnSelect)
         }
+
 
         // todo: consider not doing this on mix-mode
         setTimeout(() => {
@@ -482,7 +482,7 @@ export default {
             this.toggleFocusClass(true)
         })
 
-        if( hideDropdown ){
+        if( closeOnSelect ){
             return this.dropdown.hide.call(this)
         }
 
