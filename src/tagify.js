@@ -77,11 +77,7 @@ Tagify.prototype = {
 
     parseTemplate(template, data){
         template = this.settings.templates[template] || template;
-        return this.parseHTML(
-            minify(
-                template.apply(this, data)
-            )
-        )
+        return this.parseHTML( template.apply(this, data) )
     },
 
     applySettings( input, settings ){
@@ -598,9 +594,10 @@ Tagify.prototype = {
             }
             catch(err){}
 
-
             v = v.replace(/\s/g, ' ')  // replace NBSPs with spaces characters
-                .replace(/^\s+/, "") // trimLeft
+
+            if( this.settings.trim )
+                v = v.replace(/^\s+/, '') // trimLeft
 
             return v
         },

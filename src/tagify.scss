@@ -192,7 +192,7 @@
             transition     : .13s ease-out;
 
             > *{
-                white-space    : nowrap;
+                white-space    : pre-wrap;
                 overflow       : hidden;
                 text-overflow  : ellipsis;
                 display        : inline-block;

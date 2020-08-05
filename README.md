@@ -725,8 +725,9 @@ delimiters              | <sub>String</sub>            | `,`                    
 pattern                 | <sub>String/RegEx</sub>      | null                                        | Validate input by RegEx pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
 mode                    | <sub>String</sub>            | null                                        | Use `select` for single-value dropdown-like select box. See `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
 mixTagsInterpolator     | <sub>Array</sub>             | <sub>`['[[', ']]']`</sub>                   | Interpolation for mix mode. Everything between these will become a tag
-mixTagsAllowedAfter     | <sub>RegEx</sub>             | <sub>`/,\|\.\|\:\|\s/`</sub>                   | Define conditions in which typed mix-tags content is allowing a tag to be created after.
+mixTagsAllowedAfter     | <sub>RegEx</sub>             | <sub>`/,\|\.\|\:\|\s/`</sub>                | Define conditions in which typed mix-tags content is allowing a tag to be created after.
 duplicates              | <sub>Boolean</sub>           | false                                       | Should duplicate tags be allowed or not
+trim                    | <sub>Boolean</sub>           | true                                        | If `true` trim the tag's value (remove before/after whitespaces)
 enforceWhitelist        | <sub>Boolean</sub>           | false                                       | Should ONLY use tags allowed in whitelist.<br>In `mix-mode`, setting it  to `false` will not allow creating new tags.
 autoComplete.enabled    | <sub>Boolean</sub>           | true                                        | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
 autoComplete.rightKey   | <sub>Boolean</sub>           | false                                       | If `true`, when `→` is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
