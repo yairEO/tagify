@@ -3,6 +3,8 @@ import {renderToStaticMarkup} from "react-dom/server"
 import {string, array, func, bool, object, element, oneOfType} from "prop-types"
 import Tagify from "./tagify.min.js"
 
+const noop = _ => _
+
 // if a template is a React component, it should be outputed as a String (and not as a React component)
 function templatesToString(templates) {
     if (templates) {
@@ -21,9 +23,18 @@ const TagifyWrapper = ({
     name,
     value = "",
     loading = false,
-    onChange = _ => _,
-    children,
+    onInput = noop,
+    onAdd = noop,
+    onRemove = noop,
+    onEdit = noop,
+    onInvalid = noop,
+    onClick = noop,
+    onKeydown = noop,
+    onFocus = noop,
+    onBlur = noop,
+    onChange = noop,
     readOnly,
+    children,
     settings = {},
     InputMode = "input",
     autoFocus,
@@ -32,7 +43,7 @@ const TagifyWrapper = ({
     tagifyRef,
     placeholder = "",
     defaultValue,
-    showFilteredDropdown
+    showDropdown
 }) => {
     const mountedRef = useRef()
     const inputElmRef = useRef()
@@ -62,16 +73,28 @@ const TagifyWrapper = ({
     useEffect(() => {
         templatesToString(settings.templates)
 
-        tagify.current = new Tagify(inputElmRef.current, settings)
+        if (InputMode == "textarea") settings.mode = "mix"
 
-        // Bridge Tagify instance with parent component
+        var tagify = (tagify.current = new Tagify(inputElmRef.current, settings))
+
+        onInput && tagify.on("input", onInput)
+        onAdd && tagify.on("add", onAdd)
+        onRemove && tagify.on("remove", onRemove)
+        onEdit && tagify.on("edit", onEdit)
+        onInvalid && tagify.on("invalid", onInvalid)
+        onKeydown && tagify.on("keydown", onKeydown)
+        onFocus && tagify.on("focus", onFocus)
+        onBlur && tagify.on("blur", onBlur)
+        onClick && tagify.on("click", onClick)
+
+                // Bridge Tagify instance with parent component
         if (tagifyRef) {
-            tagifyRef.current = tagify.current
+            tagifyRef.current = tagify
         }
 
         // cleanup
         return () => {
-            tagify.current.destroy()
+            tagify.destroy()
         }
     }, [])
 
@@ -102,14 +125,14 @@ const TagifyWrapper = ({
         const t = tagify.current
 
         if (mountedRef.current) {
-            if (showFilteredDropdown) {
-                t.dropdown.show.call(t, showFilteredDropdown)
+            if (showDropdown) {
+                t.dropdown.show.call(t, showDropdown)
                 t.toggleFocusClass(true)
             } else {
                 t.dropdown.hide.call(t)
             }
         }
-    }, [showFilteredDropdown])
+    }, [showDropdown])
 
     useEffect(() => {
         mountedRef.current = true
