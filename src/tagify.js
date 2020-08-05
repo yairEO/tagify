@@ -240,7 +240,7 @@ Tagify.prototype = {
 
             else{
                 try{
-                    if( typeof JSON.parse(value) === 'array' )
+                    if( JSON.parse(value) instanceof Array )
                         value = JSON.parse(value)
                 }
                 catch(err){}
