@@ -389,7 +389,7 @@
         padding: var(--tag-pad, $tag-pad);
         line-height: inherit;
         position: relative;
-        white-space: pre-line; // #160 Line break (\n) as delimeter
+        white-space: pre-wrap; // #160 Line break (\n) as delimeter
         color: $input-color;
         color: var(--input-color);
 
