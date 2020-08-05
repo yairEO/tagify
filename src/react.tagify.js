@@ -67,7 +67,7 @@ const TagifyWrapper = ({
             autoFocus,
             placeholder,
             defaultValue
-        }), [ defaultValue, placeholder, autoFocus, className, onChange, readOnly, value, name ]
+        }), [defaultValue, placeholder, autoFocus, className, children, onChange, readOnly, value, name ]
     )
 
     useEffect(() => {
@@ -75,26 +75,27 @@ const TagifyWrapper = ({
 
         if (InputMode == "textarea") settings.mode = "mix"
 
-        var tagify = (tagify.current = new Tagify(inputElmRef.current, settings))
+        const t = new Tagify(inputElmRef.current, settings)
 
-        onInput && tagify.on("input", onInput)
-        onAdd && tagify.on("add", onAdd)
-        onRemove && tagify.on("remove", onRemove)
-        onEdit && tagify.on("edit", onEdit)
-        onInvalid && tagify.on("invalid", onInvalid)
-        onKeydown && tagify.on("keydown", onKeydown)
-        onFocus && tagify.on("focus", onFocus)
-        onBlur && tagify.on("blur", onBlur)
-        onClick && tagify.on("click", onClick)
-
+        onInput   && t.on("input", onInput)
+        onAdd     && t.on("add", onAdd)
+        onRemove  && t.on("remove", onRemove)
+        onEdit    && t.on("edit", onEdit)
+        onInvalid && t.on("invalid", onInvalid)
+        onKeydown && t.on("keydown", onKeydown)
+        onFocus   && t.on("focus", onFocus)
+        onBlur    && t.on("blur", onBlur)
+        onClick   && t.on("click", onClick)
                 // Bridge Tagify instance with parent component
         if (tagifyRef) {
-            tagifyRef.current = tagify
+            tagifyRef.current = t
         }
+
+        tagify.current = t
 
         // cleanup
         return () => {
-            tagify.destroy()
+            t.destroy()
         }
     }, [])
 
@@ -162,7 +163,7 @@ TagifyWrapper.propTypes = {
     whitelist: array,
     placeholder: string,
     defaultValue: oneOfType([string, array]),
-    showFilteredDropdown: oneOfType([string, bool])
+    showDropdown: oneOfType([string, bool])
 }
 
 const Tags = React.memo(TagifyWrapper)
