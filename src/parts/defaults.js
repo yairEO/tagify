@@ -15,6 +15,7 @@ export default {
     skipInvalid         : false,          // If `true`, do not add invalid, temporary, tags before automatically removing them
     editTags            : 2,              // 1 or 2 clicks to edit a tag. false/null for not allowing editing
     transformTag        : ()=>{},         // Takes a tag input string as argument and returns a transformed value
+    trim                : true,           // whether or not the value provided should be trimmed, before being added as a tag
 
     mixMode: {
         insertAfterTag  : '\u00A0',       // String/Node to inject after a tag has been added

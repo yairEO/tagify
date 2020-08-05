@@ -66,6 +66,10 @@ Tagify.prototype = {
 
     customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch'],
 
+    trim(text){
+        return this.settings.trim ? text.trim() : text
+    },
+
     // expose this handy utility function
     parseHTML,
 
@@ -723,7 +727,7 @@ Tagify.prototype = {
         var indices = [];
 
         this.getTagElms().forEach((tagElm, i) => {
-            if(  sameStr( tagElm.textContent.trim(), value, this.settings.dropdown.caseSensitive )  )
+            if(  sameStr( this.trim(tagElm.textContent), value, this.settings.dropdown.caseSensitive )  )
                 indices.push(i)
         })
 
@@ -747,20 +751,20 @@ Tagify.prototype = {
     },
 
     /**
-     * make sure the tag, or words in it, is not in the blacklist
+     * checks if text is in the blacklist
      */
     isTagBlacklisted( v ){
-        v = v.toLowerCase().trim();
-        return this.settings.blacklist.filter(x =>v == x.toLowerCase()).length;
+        v = this.trim(v.toLowerCase());
+        return this.settings.blacklist.filter(x => v == x.toLowerCase()).length;
     },
 
     /**
-     * make sure the tag, or words in it, is not in the blacklist
+     * checks if text is in the whitelist
      */
     isTagWhitelisted( v ){
         return this.settings.whitelist.some(item =>
             typeof v == 'string'
-                ? sameStr(v.trim(), (item.value || item))
+                ? sameStr(this.trim(v), (item.value || item))
                 : sameStr(JSON.stringify(item), JSON.stringify(v))
         )
     },
@@ -772,26 +776,25 @@ Tagify.prototype = {
      * @return {Boolean/String}  ["true" if validation has passed, String for a fail]
      */
     validateTag( tagData ){
-        var value = tagData.value.trim(),
-            _s = this.settings,
-            result = true;
+        var value = this.trim(tagData.value),
+            _s = this.settings;
 
         // check for empty value
-        if( !value )
-            result = this.TEXTS.empty;
+        if( !tagData.value.trim() )
+            return this.TEXTS.empty;
 
         // check if pattern should be used and if so, use it to test the value
-        else if( _s.pattern && _s.pattern instanceof RegExp && !(_s.pattern.test(value)) )
-            result = this.TEXTS.pattern;
+        if( _s.pattern && _s.pattern instanceof RegExp && !(_s.pattern.test(value)) )
+            return this.TEXTS.pattern;
 
         // if duplicates are not allowed and there is a duplicate
-        else if( !_s.duplicates && this.isTagDuplicate(value) )
-            result = this.TEXTS.duplicate;
+        if( !_s.duplicates && this.isTagDuplicate(value) )
+            return this.TEXTS.duplicate;
 
-        else if( this.isTagBlacklisted(value) || (_s.enforceWhitelist && !this.isTagWhitelisted(value)) )
-            result = this.TEXTS.notAllowed;
+        if( this.isTagBlacklisted(value) || (_s.enforceWhitelist && !this.isTagWhitelisted(value)) )
+            return this.TEXTS.notAllowed;
 
-        return result;
+        return true
     },
 
     getInvalidTagParams(tagData, validation){
@@ -819,7 +822,7 @@ Tagify.prototype = {
             // checks if this is a "collection", meanning an Array of Objects
             isArray = tagsItems instanceof Array,
             temp = [],
-            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:v.trim() }))
+            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:this.trim(v) }))
 
         if( typeof tagsItems == 'number' )
             tagsItems = tagsItems.toString();
