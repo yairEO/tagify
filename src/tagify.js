@@ -483,7 +483,7 @@ Tagify.prototype = {
 
         // if tag is invalid, make the according changes in the newly created element
         if( tagData.__isValid && tagData.__isValid != true )
-            extend( tagData, this.getInvaildTagParams(tagData, tagData.__isValid) )
+            extend( tagData, this.getInvalidTagParams(tagData, tagData.__isValid) )
 
         var newTag = this.createTagElem(tagData)
 
@@ -794,7 +794,7 @@ Tagify.prototype = {
         return result;
     },
 
-    getInvaildTagParams(tagData, validation){
+    getInvalidTagParams(tagData, validation){
         return {
             "aria-invalid" : true,
             "class": `${tagData.class || ''} ${this.settings.classNames.tagNotAllowed}`.trim(),
@@ -1037,7 +1037,7 @@ Tagify.prototype = {
                 if( skipInvalid )
                     return
 
-                extend(tagElmParams, this.getInvaildTagParams(tagData, tagData.__isValid), {__preInvalidData:originalData})
+                extend(tagElmParams, this.getInvalidTagParams(tagData, tagData.__isValid), {__preInvalidData:originalData})
 
                 // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
                 if( tagData.__isValid == this.TEXTS.duplicate )
