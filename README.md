@@ -227,7 +227,7 @@ modying the `settings.templates` Object with your own custom functions which **m
 Available templates are: `wrapper`, `tag`, `dropdown`, `dropdownItem` and the optional `dropdownItemNoMatch`
 which is a special template for rendering a suggestion item (in the dropdown list) only if there were no matches found for the typed input.
 
-[View templates](https://github.com/yairEO/tagify/blob/master/src/tagify.js#L255-L306)
+[View templates](https://github.com/yairEO/tagify/blob/master/src/parts/templates.js)
 
 ## Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
