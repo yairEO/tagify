@@ -1027,11 +1027,9 @@ Tagify.prototype = {
 
             // shallow-clone tagData so later modifications will not apply to the source
             tagData = Object.assign({}, originalData)
+            tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData);
 
             _s.transformTag.call(this, tagData);
-
-            ///////////////// ( validation )//////////////////////
-            tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData);
 
             if( tagData.__isValid !== true ){
                 if( skipInvalid )
