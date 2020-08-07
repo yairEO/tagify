@@ -106,6 +106,11 @@ Tagify.prototype = {
             _s.autoComplete.enabled = settings.autoComplete
         }
 
+        if( _s.mode == 'mix' ){
+            _s.autoComplete.rightKey = true
+            _s.delimiters = settings.delimiters || null // default dlimiters in mix-mode must be NULL
+        }
+
         if( input.pattern )
             try { _s.pattern = new RegExp(input.pattern)  }
             catch(e){}
@@ -119,9 +124,6 @@ Tagify.prototype = {
         // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
         if( _s.mode == 'select' )
             _s.dropdown.enabled = 0
-
-        if( _s.mode == 'mix' )
-            _s.autoComplete.rightKey = true
 
         _s.dropdown.appendTarget = settings.dropdown && settings.dropdown.appendTarget
             ? settings.dropdown.appendTarget
@@ -354,14 +356,14 @@ Tagify.prototype = {
         }
     },
 
-    placeCaretAfterTag( tagElm ){
-        var nextSibling = tagElm.nextSibling,
+    placeCaretAfterTag( node ){
+        var nextSibling = node.nextSibling,
             sel = window.getSelection(),
             range = sel.getRangeAt(0);
 
         if (sel.rangeCount) {
-            range.setStartAfter(nextSibling || tagElm);
-            range.setEndAfter(nextSibling || tagElm);
+            range.setStartAfter(nextSibling || node);
+            range.setEndAfter(nextSibling || node);
             sel.removeAllRanges();
             sel.addRange(range);
         }
@@ -511,14 +513,19 @@ Tagify.prototype = {
      * @param {Object}  node  DOM node to place the caret at
      */
     setRangeAtStartEnd( start, node ){
+        start = typeof start == 'number' ? start : !!start
         node = node || this.DOM.input;
         node = node.lastChild || node;
         const sel = document.getSelection()
 
-        if( sel.rangeCount >= 1 ){
-            ['Start', 'End'].forEach(pos =>
-                sel.getRangeAt(0)["set" + pos](node, start ? 0 : node.length)
-            )
+        try{
+            if( sel.rangeCount >= 1 ){
+                ['Start', 'End'].forEach(pos =>
+                    sel.getRangeAt(0)["set" + pos](node, start ? start : node.length)
+                )
+        }
+        } catch(err){
+            console.warn("Tagify: ", err)
         }
     },
 
@@ -536,7 +543,9 @@ Tagify.prototype = {
             injectedNode = document.createTextNode(injectedNode);
 
         range.deleteContents()
+
         range.insertNode(injectedNode)
+        this.insertAfterTag(injectedNode)
 
         this.DOM.input.focus()
         this.setRangeAtStartEnd(true, injectedNode.nextSibling)
@@ -920,33 +929,39 @@ Tagify.prototype = {
      * For mixed-mode: replaces a text starting with a prefix with a wrapper element (tag or something)
      * First there *has* to be a "this.state.tag" which is a string that was just typed and is staring with a prefix
      */
-    replaceTextWithNode( wrapperElm, strToReplace ){
+    replaceTextWithNode( newWrapperNode, strToReplace ){
         if( !this.state.tag && !strToReplace ) return;
 
         strToReplace = strToReplace || this.state.tag.prefix + this.state.tag.value;
-        var idx, replacedNode,
-            selection = this.state.selection || window.getSelection(),
-            nodeAtCaret = selection.anchorNode;
+        var idx, nodeToReplace,
+            selection = window.getSelection(),
+            nodeAtCaret = selection.anchorNode,
+            firstSplitOffset = this.state.tag.delimiters ? this.state.tag.delimiters.length : 0;
 
-        // ex. replace #ba with the tag "bart" where "|" is where the caret is:
-        // start with: "#ba #ba| #ba"
+        // STEP 1: ex. replace #ba with the tag "bart" where "|" is where the caret is:
+        // CURRENT STATE: "foo #ba #ba| #ba"
+
         // split the text node at the index of the caret
-        nodeAtCaret.splitText(selection.anchorOffset)
-        // "#ba #ba"
-        // get index of last occurence of "#ba"
+        nodeAtCaret.splitText(selection.anchorOffset - firstSplitOffset)
+
+        // node 0: "foo #ba #ba|"
+        // node 1: " #ba"
+
+        // get index of LAST occurence of "#ba"
         idx = nodeAtCaret.nodeValue.lastIndexOf(strToReplace)
 
-        replacedNode = nodeAtCaret.splitText(idx)
+        nodeToReplace = nodeAtCaret.splitText(idx)
 
-        // clean up the tag's string and put tag element instead
-        replacedNode.nodeValue = replacedNode.nodeValue.replace(strToReplace, '');
-        nodeAtCaret.parentNode.insertBefore(wrapperElm, replacedNode);
+        // node 0: "foo #ba "
+        // node 1: "#ba"    <- nodeToReplace
+
+        newWrapperNode && nodeAtCaret.parentNode.replaceChild(newWrapperNode, nodeToReplace)
 
         // must NOT normalize contenteditable or it will cause unwanetd issues:
         // https://monosnap.com/file/ZDVmRvq5upYkidiFedvrwzSswegWk7
         // nodeAtCaret.parentNode.normalize()
 
-        return replacedNode;
+        return true;
     },
 
     /**
@@ -1089,7 +1104,8 @@ Tagify.prototype = {
      */
     addMixTags( tagsItems ){
         var _s = this.settings,
-            tagElm;
+            tagElm,
+            createdFromDelimiters = this.state.tag.delimiters
 
         _s.transformTag.call(this, tagsItems[0])
 
@@ -1097,6 +1113,7 @@ Tagify.prototype = {
 
         // TODO: should check if the tag is valid
         tagElm = this.createTagElem(tagsItems[0])
+
         // tries to replace a taged textNode with a tagElm, and if not able,
         // insert the new tag to the END if "addTags" was called from outside
         if( !this.replaceTextWithNode(tagElm) ){
@@ -1105,18 +1122,17 @@ Tagify.prototype = {
 
         setTimeout(()=> tagElm.classList.add(this.settings.classNames.tagNoAnimation), 300)
 
-
         this.value.push(tagsItems[0])
         this.update()
 
-        this.state.tag = null
-        this.trigger('add', extend({}, {tag:tagElm}, {data:tagsItems[0]}))
-
         // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
-        setTimeout(() => {
+        !createdFromDelimiters && setTimeout(() => {
             this.insertAfterTag(tagElm)
             this.placeCaretAfterTag(tagElm)
-        }, 100)
+        }, this.isFirefox ? 100 : 0)
+
+        this.state.tag = null
+        this.trigger('add', extend({}, {tag:tagElm}, {data:tagsItems[0]}))
 
         return tagElm
     },

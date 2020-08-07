@@ -326,6 +326,7 @@ export default {
                 _s = this.settings,
                 lastTagsCount = this.value.length,
                 matchFlaggedTag,
+                matchDelimiters,
                 tagsCount = this.getTagElms().length;
 
             // check if ANY tags were magically added through browser redo/undo
@@ -361,9 +362,19 @@ export default {
                         this.state.actions.ArrowLeft = false // start fresh, assuming the user did not (yet) used any arrow to move the caret
                         this.state.tag = {
                             prefix : tag.match(_s.pattern)[0],
-                            value  : tag.replace(_s.pattern, ''), // ret rid of the prefix
+                            value  : tag.replace(_s.pattern, ''), // get rid of the prefix
                         }
                         this.state.tag.baseOffset = selection.baseOffset - this.state.tag.value.length
+
+                        matchDelimiters = this.state.tag.value.match(_s.delimiters)
+                        // if a delimeter exists, add the value as tag (exluding the delimiter)
+                        if( matchDelimiters ){
+                            this.state.tag.value = this.state.tag.value.replace(_s.delimiters, '')
+                            this.state.tag.delimiters = matchDelimiters[0]
+                            this.addTags(this.state.tag.value, _s.dropdown.clearOnSelect)
+                            this.dropdown.hide.call(this)
+                            return
+                        }
 
                         showSuggestions = this.state.tag.value.length >= _s.dropdown.enabled
 
@@ -378,8 +389,7 @@ export default {
                         try{
                             matchFlaggedTag = this.state.flaggedTags[this.state.tag.baseOffset]
                             matchFlaggedTag = matchFlaggedTag.prefix   == this.state.tag.prefix &&
-                                                matchFlaggedTag.value[0] == this.state.tag.value[0]
-
+                                              matchFlaggedTag.value[0] == this.state.tag.value[0]
 
                             // reset
                             if( this.state.flaggedTags[this.state.tag.baseOffset] && !this.state.tag.value )
