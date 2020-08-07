@@ -108,11 +108,7 @@ const TagifyWrapper = ({
     useEffect(() => {
         if (mountedRef.current) {
             // replace whitelist array items
-            tagify.current.settings.whitelist.splice(
-                0,
-                tagify.current.settings.whitelist.length,
-                ...(whitelist || [])
-            )
+            tagify.current.settings.whitelist.splice(0, tagify.current.settings.whitelist.length, ...(whitelist || []))
         }
     }, [whitelist])
 
