@@ -7,14 +7,11 @@
         <meta name="author" content="Yair Even-Or">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="stylesheet" href="dist/tagify.css">
+        <link rel="stylesheet" href="../dist/tagify.css">
         <style>
           html, body{ min-height:100%; scroll-behavior: smooth; }
           body{
                 font:14px Arial; margin:0;
-                background-image  : linear-gradient(to left, #F5FAFF 100%, transparent 0%);
-                background-repeat : no-repeat;
-                background-size   : 50% 100%;
                 overflow-x:hidden;
           } /* display:flex; flex-flow: column nowrap; align-items:center; justify-content:center; */
 
@@ -24,7 +21,11 @@
 
           section{ display:flex; }
           aside{ padding:4rem; box-sizing:border-box; width:50%; }
-          section > .leftSide{   }
+          section > .leftSide{
+            max-width: 700px;
+            border-right: 1px solid #CDE6FF;
+            background:#F5FAFF;
+          }
           section > .rightSide{  }
 
           .leftSide style {
@@ -117,9 +118,9 @@
                 }
             }(document)
         </script>
-        <script src="dist/tagify.min.js"></script>
+        <script src="../dist/tagify.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script src="dist/jQuery.tagify.min.js"></script>
+        <script src="../dist/jQuery.tagify.min.js"></script>
 
         <script>
             var isIE = !document.currentScript;

@@ -43,7 +43,7 @@
 * [Edit tags](#edit-tags)
 * [DOM Templates](#dom-templates)
 * [Suggestions selectbox](#suggestions-selectbox)
-* [Tags mixed with free-text](#mixed-content)
+* [Tags mixed with text](#mixed-content)
 * [Single-Value Only](#single-value)
 * [React wrapper](#react)
 * [Angular wrapper](#angular)
@@ -332,7 +332,7 @@ If a tag does not exists in the *whitelist*, it may be created by the user and a
 
 ## Single-Value
 
-Similar to native `<Select>` element, but allows typing free text as value.
+Similar to native `<Select>` element, but allows typing text as value.
 
 ## React
 

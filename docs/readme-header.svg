@@ -1,0 +1,48 @@
+<svg viewBox="0 0 1320 300">
+	<style>
+		@import url('https://fonts.googleapis.com/css?family=Rubik');
+
+		svg text {
+			--stroke-color: salmon;
+			--fill: salmon;
+			font-family: 'Rubik', sans-serif;
+			fill: var(--fill);
+			text-transform: uppercase;
+			animation: stroke 5s infinite alternate ease-out;
+			stroke-width: 2;
+			stroke: salmon;
+			font-size: 140px;
+		}
+
+		@keyframes stroke {
+			0%{
+				fill: transparent;
+				stroke: var(--stroke-color);
+				stroke-dashoffset: 25%;
+				stroke-dasharray: 0 50%;
+				stroke-width: 2;
+			}
+			50%{
+				fill: transparent;
+				stroke: var(--stroke-color);;
+			}
+			60%{
+				fill: transparent;
+				stroke: var(--stroke-color);
+				stroke-opacity: 1;
+				stroke-width: 3;
+			}
+			70%{
+				fill: var(--fill);
+				stroke: var(--stroke-color);
+				stroke-opacity: 1;
+				stroke-dashoffset: -25%;
+				stroke-dasharray: 50% 0;
+				stroke-width: 3;
+			}
+		}
+	</style>
+	<text x="50%" y="50%" dy=".35em" text-anchor="middle">
+		Tagify
+	</text>
+</svg>
