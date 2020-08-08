@@ -721,7 +721,7 @@ Tagify.prototype = {
             return false
 
         duplications = this.value.reduce((acc, item) =>
-            sameStr( (""+value).trim(), item.value, _s.dropdown.caseSensitive )
+            sameStr( this.trim(""+value), item.value, _s.dropdown.caseSensitive )
                 ? acc+1
                 : acc
         , 0)
