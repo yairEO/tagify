@@ -506,9 +506,8 @@ export default {
             if( !hasChanged && editableElm.originalIsValid === true )
                 isValid = true
 
-            tagElm.classList.toggle(this.settings.classNames.invalid, isValid !== true)
+            tagElm.classList.toggle(this.settings.classNames.tagInvalid, isValid !== true)
             tagData.__isValid = isValid
-
 
             tagElm.title = isValid === true
                 ? tagData.title || tagData.value
