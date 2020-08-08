@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="/docs/logo.svg?sanitize=true" width="40%" />
+  <img src="/docs/readme-header.svg" width="100%" height="160">
   <br><br>
   <a href='https://yaireo.github.io/tagify'>Tagify</a> - <em>tags</em> input component
 </h1>
