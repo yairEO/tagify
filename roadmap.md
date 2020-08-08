@@ -8,7 +8,3 @@
 - use DOM mutation to detect changes and update "this.value" automatically
 - add examples of added tag CSS effects
 - allow templates to return DOM nodes and not just Strings
-
-<div align="center">
-		<img src="/docs/readme-header.svg" width="800" height="300">
-</div>
