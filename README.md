@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="/logo.svg?sanitize=true" width="40%" />
+  <img src="/docs/logo.svg?sanitize=true" width="40%" />
   <br><br>
   <a href='https://yaireo.github.io/tagify'>Tagify</a> - <em>tags</em> input component
 </h1>
@@ -27,8 +27,8 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/yairEO/tagify/master/mix3.gif" />
-  <img src="https://raw.githubusercontent.com/yairEO/tagify/master/demo.gif" />
+  <img src="/docs/mix3.gif?sanitize=true" />
+  <img src="/docs/demo.gif?sanitize=true" />
 </p>
 
 ## Table of Contents
