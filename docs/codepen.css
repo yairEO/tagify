@@ -1,0 +1,13 @@
+body{
+    display:grid;
+    place-items:center;
+    height:100vh;
+}
+
+.tagify{
+    max-width: 700px;
+    width: 100%;
+}
+
+.pen-intro{
+}
