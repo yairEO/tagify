@@ -675,7 +675,7 @@
                     <details>
                       <summary></summary>
                     <h3>HTML</h3>
- <pre class="language-markup"><code>&gt;input name='tags-outside' class='tagify--outside' placeholder='write some tags'></code></pre>
+ <pre class="language-markup"><code>&lt;input name='tags-outside' class='tagify--outside' placeholder='write some tags'></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "outside-of-the-box")</script>
                     <h3>CSS</h3>
@@ -876,7 +876,7 @@
                     <details>
                       <summary></summary>
                     <h3>HTML</h3>
-                    <xmp><input name='tags3-1' placeholder="Try to add tags from the list"></xmp>
+                    <xmp><input name='tags3-1' class='countries' placeholder="Try to add tags from the list"></xmp>
                     <h3>Javascript</h3>
                     <script>
                         renderPRE(document.currentScript, "extra-properties")
@@ -947,7 +947,26 @@
                     <details>
                       <summary></summary>
                     <h3>HTML</h3>
-                    <xmp><input name='tags-readonly-mix' class='readonlyMix' placeholder="Type something" /></xmp>
+                    <pre class="language-markup"><code>&lt;input
+    name='tags-readonly-mix'
+    class='readonlyMix'
+    placeholder="Type something"
+    value='[
+        {
+            "value"    : "foo",
+            "readonly" : true,
+            "title"    : "read-only tag"
+        },
+        {
+            "value"    : "bar"
+        },
+        {
+            "value"    : "Locked tag",
+            "readonly" : true,
+            "title"    : "Another readonly tag"
+        }
+    ]'/>
+</code></pre>
                     <h3>Javascript</h3>
                     <script>
                         renderPRE(document.currentScript, "readonly-mixed")
