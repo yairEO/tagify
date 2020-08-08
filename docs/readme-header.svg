@@ -1,11 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 300">
+<defs>
 	<style>
-		@import url('https://fonts.googleapis.com/css?family=Rubik');
+		@import url('https://fonts.googleapis.com/css?family=Roboto:700&text=Tagify');
 
 		svg text {
 			--stroke-color: salmon;
 			--fill: salmon;
-			font-family: 'Rubik', sans-serif;
+			font-family: 'Roboto', sans-serif;
 			fill: var(--fill);
 			text-transform: uppercase;
 			animation: stroke 5s infinite alternate ease-out;
@@ -42,6 +43,7 @@
 			}
 		}
 	</style>
+	</defs>
 	<text x="50%" y="50%" dy=".35em" text-anchor="middle">
 		Tagify
 	</text>
