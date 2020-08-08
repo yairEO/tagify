@@ -1,8 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 230">
 	<defs>
 	<style>
-		@import url('https://fonts.googleapis.com/css?family=Pacifico&text=Tagify');
-
 		svg text {
 			--stroke-color: salmon;
 			--fill: salmon;
@@ -27,7 +25,7 @@
 				fill: transparent; 
 				stroke-opacity: 1;
 				stroke-width: 2; 
-				stroke: var(--stroke-color);; 
+				stroke: var(--stroke-color);
 			}
 			40%{
 				fill: transparent; 
