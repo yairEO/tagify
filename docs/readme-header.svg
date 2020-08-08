@@ -1,14 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 300">
-<defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 230">
 	<style>
-		@import url('https://fonts.googleapis.com/css?family=Roboto:700&text=Tagify');
+		@import url('https://fonts.googleapis.com/css?family=Pacifico&text=Tagify');
 
 		svg text {
 			--stroke-color: salmon;
 			--fill: salmon;
-			font-family: 'Roboto', sans-serif;
+			font-family: 'Pacifico', sans-serif;
 			fill: var(--fill);
-			text-transform: uppercase;
 			animation: stroke 5s infinite alternate ease-out;
 			stroke-width: 2;
 			stroke: salmon;
@@ -17,34 +15,39 @@
 
 		@keyframes stroke {
 			0%{
-				fill: transparent;
+				fill: transparent; 
 				stroke: var(--stroke-color);
-				stroke-dashoffset: 25%;
-				stroke-dasharray: 0 50%;
-				stroke-width: 2;
+				stroke-dashoffset: 25%; 
+				stroke-dasharray: 0 50%; 
+				stroke-width: 1;
+				stroke-opacity: 0;
+			}
+			30%{ 
+				fill: transparent; 
+				stroke-opacity: 1;
+				stroke-width: 2; 
+				stroke: var(--stroke-color);; 
+			}
+			40%{
+				fill: transparent; 
+				stroke: var(--stroke-color); 
+				stroke-opacity: 1;
+				stroke-width: 3; 
 			}
 			50%{
-				fill: transparent;
-				stroke: var(--stroke-color);;
-			}
-			60%{
-				fill: transparent;
-				stroke: var(--stroke-color);
+				fill: transparent; 
+				stroke: var(--stroke-color); 
 				stroke-opacity: 1;
+				stroke-dashoffset: -25%; 
+				stroke-dasharray: 50% 0; 
 				stroke-width: 3;
 			}
 			70%{
-				fill: var(--fill);
-				stroke: var(--stroke-color);
-				stroke-opacity: 1;
-				stroke-dashoffset: -25%;
-				stroke-dasharray: 50% 0;
-				stroke-width: 3;
+				fill: var(--fill); 
 			}
 		}
 	</style>
-	</defs>
 	<text x="50%" y="50%" dy=".35em" text-anchor="middle">
-		Tagify
+	    Tagify
 	</text>
-</svg>
+</svg>	
