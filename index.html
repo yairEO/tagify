@@ -11,11 +11,11 @@
         <style>
           html, body{ min-height:100%; scroll-behavior: smooth; }
           body{
-              font:14px Arial; margin:0;
-              background-image  : linear-gradient(to left, #F3F3F3 100%, transparent 0%);
-              background-repeat : no-repeat;
-              background-size   : 50% 1000%;
-              overflow-x:hidden;
+                font:14px Arial; margin:0;
+                background-image  : linear-gradient(to left, #F5FAFF 100%, transparent 0%);
+                background-repeat : no-repeat;
+                background-size   : 50% 100%;
+                overflow-x:hidden;
           } /* display:flex; flex-flow: column nowrap; align-items:center; justify-content:center; */
 
           .forkLink{ position:fixed; z-index:100; border:0; top:0; width:70px; right:0; opacity:.8; transition:.15s ease-out; }
@@ -47,13 +47,24 @@
           }
 
           .leftSide{ padding-top:0; }
-          .leftSide h2{ padding-top:4rem; background:#F3F3F3; color:#DB2C6F; text-transform:capitalize; font-size:2em; margin-top:0; line-height:.9; margin-bottom:0; }
-          .leftSide h2 > a{ position:absolute; transform:translateX(-150%); text-decoration:none; color:#AAA; font-weight:normal; }
 
-          h3{ color:#2CB2DB; font-size:1.2em; margin:2rem 0 .5em; text-transform:capitalize; }
+          .leftSide h2{ padding-top:4rem; color:#DB2C6F; text-transform:capitalize; font-size:2em; margin-top:0; line-height:.9; margin-bottom:0; }
+          .leftSide h2 > a{
+             color:inherit;
+             text-decoration: none;
+          }
+          .leftSide h2 > a::before{
+              content: '#';
+              position:absolute; color:inherit; opacity:0; font-weight:normal;
+              transform: translatex(-75%);
+              transition: .1s ease-out;
+          }
+          .leftSide h2 > a:hover::before{ opacity:.6; transform:translateX(-150%); }
+
+          h3{ color:#388ffe; font-size:1.2em; margin:2rem 0 .5em; text-transform:capitalize; }
           h3:first-child{ margin-top:4.3rem; }
-          xmp, pre{ white-space:normal; padding:8px; background:white; color:navy; border-radius:4px; }
-          pre{ white-space:pre; overflow:auto; }
+          xmp, pre{ white-space:normal; padding:8px; background:white; color:navy; border-radius:8px; }
+          pre{ white-space:pre; overflow:auto; border:1px solid #eef5fa; box-shadow:0 8px 15px #388ffe25; }
 
 
           p{ line-height:1.4; }
@@ -361,7 +372,7 @@
         <form>
             <section id='section-basic'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-basic'>#</a>Basic example</h2>
+                    <h2><a href='#section-basic'>Basic example</a></h2>
                     <p>
                       Passing the input element as a parameter to <em>Tagify</em> will transform it into a tags-component. Without any settings, the user will be allowed to create any tags they want, without a count limit.
                     </p>
@@ -388,7 +399,7 @@
 
             <section id='section-input'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-input'>#</a>text input</h2>
+                    <h2><a href='#section-input'>text input</a></h2>
                     <h3>In this example:</h3>
                     <ul>
                         <li>Tagify instance with initial <em>settings</em> Object</li>
@@ -479,7 +490,7 @@
 
             <section id='section-textarea'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-textarea'>#</a>textarea</h2>
+                    <h2><a href='#section-textarea'>textarea</a></h2>
                     <p>
                         In this example, the field is pre-ocupied with 3 tags, and last tag is <strong>not included</strong> in the whitelist,
                         and will be <em>removed</em> because the <code>enforceWhitelist</code> <em>setting flag</em> is set to <code>true</code>
@@ -513,7 +524,7 @@
 
             <section id='customLook'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-different-look'>#</a>Easy to customize</h2>
+                    <h2><a href='#section-different-look'>Easy to customize</a></h2>
                     <p>
                         No placeholder, and no way of adding tags from within the component, but only
                         by clicking the (+) button, which is not related to Tagify in anyway, but in this example
@@ -606,7 +617,7 @@
 
             <section id='section-mix'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-mix'>#</a>Mix text &amp; tags</h2>
+                    <h2><a href='#section-mix'>Mix text &amp; tags</a></h2>
                     <p>
                         It is possible to configure Tagify to supoprt mixed content.
                         A common example would be <em>tagging</em> people while writing a comment on a social website.
@@ -651,7 +662,7 @@
 
             <section id='outside-of-the-box'>
                 <aside class='leftSide'>
-                    <h2><a href='#outside-of-the-box'>#</a>outside-of-the-box</h2>
+                    <h2><a href='#outside-of-the-box'>outside-of-the-box</a></h2>
                     <p>
   Some designs might require showing the tags outside of the input box, so to set this up
   some manual CSS changes has to be made, and also the <code>dropdown.position</code> <em>setting</em>
@@ -691,7 +702,7 @@
 
             <section id='section-manual-suggestions'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-manual-suggestions'>#</a>Render suggestions list manually</h2>
+                    <h2><a href='#section-manual-suggestions'>Render suggestions list manually</a></h2>
                     <p>
                         Renders the suggestions list manually, useful for situations where you wish to shown the suggestions list
                         inside a modal or your own popup implementaion, or even always show it. In this example the list is always shown.
@@ -720,7 +731,7 @@
 
             <section id="users-list">
                 <aside class='leftSide'>
-                    <h2><a href='#users-list'>#</a>Users list</h2>
+                    <h2><a href='#users-list'>Users list</a></h2>
                     <p>
                         This example shows how to customize <em>Tagify</em> further. It also includes an <code>Add All</code> option as the first
                         item in the suggestions dropdown list.
@@ -812,7 +823,7 @@
 
             <section id="section-advance-options">
                 <aside class='leftSide'>
-                    <h2><a href='#section-advance-options'>#</a>Advance options</h2>
+                    <h2><a href='#section-advance-options'>Advance options</a></h2>
                     <p>
                         In this example, the <code>dropdown.enabled</code> <em>setting</em> is set (minimum charactes typed to show the dropdown) to <code>3</code>.
                         <br>
@@ -846,7 +857,7 @@
 
             <section id="section-extra-properties">
                 <aside class='leftSide'>
-                    <h2><a href='#section-extra-properties'>#</a>Tags with properties</h2>
+                    <h2><a href='#section-extra-properties'>Tags with properties</a></h2>
                     <p>
                         Some cases requires more control per-tag, for exmaple, sending a different value to the server than the textual value
                         the user sees/entered. Another example, would be different colors for different tags or tags' groups.
@@ -901,7 +912,7 @@
 
             <section id='section-readonly'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-readonly'>#</a>Readonly mode</h2>
+                    <h2><a href='#section-readonly'>Readonly mode</a></h2>
                     <p>
                         If the original input field has a <code>readonly</code> attribute, then, via CSS, there will be no way of manually adding tags because the inline contenteditable element will be hidden.
                     </p>
@@ -922,7 +933,7 @@
 
             <section id='section-readonly-mixed'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-readonly'>#</a>Readonly mix</h2>
+                    <h2><a href='#section-readonly'>Readonly mix</a></h2>
                     <p>
                         Tags that are read-only mixed with removable tags
                     </p>
@@ -961,7 +972,7 @@
 
             <section id='section-mode-select'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-mode-select'>#</a>single-value select</h2>
+                    <h2><a href='#section-mode-select'>single-value select</a></h2>
                     <p>
                         Similar to native <code>&lt;Select&gt;</code> element, but allows free text as value.
                     </p>
@@ -981,7 +992,7 @@
 
             <section id='section-jquery'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-jquery'>#</a>jQuery plugin version</h2>
+                    <h2><a href='#section-jquery'>jQuery plugin version</a></h2>
                     <p>
                         Tagify can also be used as a jQuery plugin
                     </p>
