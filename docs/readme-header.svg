@@ -1,6 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 230">
 	<defs>
 	<style>
+        @font-face {
+            font-family: 'Pacifico';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Pacifico Regular'), local('Pacifico-Regular'), url(https://fonts.gstatic.com/l/font?kit=FwZY7-Qmy14u9lezJ96F-sr_xCXZndY&skey=a336e4011ec32111&v=v16) format('woff2');
+        }
+
 		svg text {
 			--stroke-color: salmon;
 			--fill: salmon;
