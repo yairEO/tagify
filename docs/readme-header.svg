@@ -26,7 +26,7 @@
 				fill: transparent;
 				stroke-opacity: 1;
 				stroke-width: 2;
-				stroke: var(--stroke-color);;
+				stroke: var(--stroke-color);
 			}
 			40%{
 				fill: transparent;
