@@ -807,6 +807,7 @@
 #users-list .tagify__tag .tagify__tag__avatar-wrap{
     width: 16px;
     height: 16px;
+    white-space: normal;
     border-radius: 50%;
     margin-right: 5px;
     transition: .12s ease-out;
@@ -917,6 +918,9 @@
             <section id='section-readonly'>
                 <aside class='leftSide'>
                     <h2><a href='#section-readonly'>Readonly mode</a></h2>
+                    <p>
+                        <em>(Currently only works for "normal" tags and <strong>not</strong> mixed with text)</em>
+                    </p>
                     <p>
                         If the original input field has a <code>readonly</code> attribute, then, via CSS, there will be no way of manually adding tags because the inline contenteditable element will be hidden.
                     </p>
