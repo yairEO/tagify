@@ -52,6 +52,7 @@ Temporary Items
 /.github
 /package-lock.json
 /react
+/docs
 /react-demo.html
 .idea
 /.vscode
