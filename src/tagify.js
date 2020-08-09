@@ -855,7 +855,7 @@ Tagify.prototype = {
         if( whitelistWithProps ){
             tagsItems.forEach(item => {
                 // the "value" prop should preferably be unique
-                var matchObj = this.getWhitelistItemsByValue(item.value)[0]
+                var matchObj = this.getWhitelistItemByValue(item.value)
 
                 if( matchObj && matchObj instanceof Object ){
                     temp.push( matchObj ); // set the Array (with the found Object) as the new value
@@ -871,13 +871,12 @@ Tagify.prototype = {
         return tagsItems;
     },
 
-    getWhitelistItemsByValue(value){
-
-        function isMatchingValue(item){
-            return "value" in item ? sameStr(item.value || item, value, this.settings.dropdown.caseSensitive) : false;
-        }
-
-        return this.settings.whitelist.filter.call(this, isMatchingValue)
+    /**
+     * Value must be unique
+     */
+    getWhitelistItemByValue(value){
+        return this.settings.whitelist.find(item =>
+            "value" in item ? sameStr(item.value || item, value, this.settings.dropdown.caseSensitive) : false)
     },
 
     /**

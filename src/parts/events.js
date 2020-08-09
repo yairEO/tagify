@@ -577,7 +577,7 @@ export default {
 
             // check if the new value is in the whiteilst, if not check if there
             // is any pre-invalidation data, and lastly resort to fresh emptty Object
-            newTagData = this.getWhitelistItemsByValue(value)[0] || newTagData.__preInvalidData || {}
+            newTagData = this.getWhitelistItemByValue(value) || newTagData.__preInvalidData || {}
             newTagData = Object.assign({}, newTagData, {value}) // clone it, not to mess with the whitelist
             //transform it again
             this.settings.transformTag.call(this, newTagData)
