@@ -55,12 +55,13 @@ export class TagifyComponent implements AfterViewInit {
   @Output() add = new EventEmitter(); // returns the added tag + updated tags list
   @Output() remove = new EventEmitter(); // returns the updated tags list
   @Input() settings: SettingsModel; // get possible tagify settings
+  @Input() value: string | Array<string>
 
   @ViewChild('tagifyInputRef') tagifyInputRef: any;
 
   private tagify;
 
-  ngAfterViewInit() {console.log(this.settings);
+  ngAfterViewInit() {
     if (!this.settings) {
       return;
     }
@@ -72,6 +73,13 @@ export class TagifyComponent implements AfterViewInit {
       remove: () => this.remove.emit(this.tagify.value)
     };
     this.tagify = new Tagify(this.tagifyInputRef.nativeElement, this.settings);
+  }
+
+  ngOnChanges({ value }) {
+    if(!this.tagify) return
+    if (!value.previousValue) {
+      this.tagify.loadOriginalValues(value.currentValue)
+    }
   }
 
   /**
