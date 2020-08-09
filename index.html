@@ -51,8 +51,12 @@
           }
 
           .leftSide{ padding-top:0; }
-
-          .leftSide h2{ padding-top:4rem; color:#DB2C6F; text-transform:capitalize; font-size:2em; margin-top:0; line-height:.9; margin-bottom:0; }
+          .leftSide > header{ padding-top:4rem; position:relative; }
+          .leftSide .demoLink{ float:right; width:38px; transform:translateX(calc(4rem + 50%)) translateY(-1px); position:relative; z-index:5; }
+          .leftSide .demoLink svg{ box-shadow: 0 0 0 3px black inset; border-radius:50%; transition:.12s ease-out; }
+          .leftSide .demoLink:hover svg{ box-shadow: 0 0 0 0 black inset; transform:scale(1.2); }
+          .leftSide > header > h3{ margin-top:.5rem; }
+          .leftSide h2{ color:#DB2C6F; text-transform:capitalize; font-size:2em; margin-top:0; line-height:.9; margin-bottom:0; }
           .leftSide h2 > a{
              color:inherit;
              text-decoration: none;
@@ -64,6 +68,16 @@
               transition: .1s ease-out;
           }
           .leftSide h2 > a:hover::before{ opacity:.6; transform:translateX(-150%); }
+
+          .rightSide > .demoLink{
+            position: absolute;
+            left: 0;
+            width: 38px;
+            transform: translateX(-50%);
+          }
+
+          .rightSide .demoLink svg{ box-shadow: 0 0 0 3px black inset; border-radius:50%; transition:.12s ease-out; }
+          .rightSide .demoLink:hover svg{ box-shadow: 0 0 0 0 black inset; transform:scale(1.2); }
 
           h3{ color:#388ffe; font-size:1.2em; margin:2rem 0 .5em; text-transform:capitalize; }
           h3:first-child{ margin-top:4.3rem; }
@@ -373,10 +387,21 @@
             </div>
         </header>
 
+        <!-- SVG codeopen logo template -->
+        <svg style='display:none' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+            <g id='codepen-logo' viewBox="0 0 120 120">
+                <path class="inner-box" d="M97 48v-1a3 3 0 00-1-1L62 23h-4L24 46a3 3 0 00-1 1v26a4 4 0 001 0v1l34 23a3 3 0 004 0l34-23a3 3 0 001-1v-1-23-1zM63 32l25 17-11 7-14-9V32zm-6 0v15l-14 9-11-7 25-17zM29 55l8 5-8 5V55zm28 33L32 71l11-7 14 9v15zm3-20l-11-8 11-8 11 8-11 8zm3 20V73l14-9 11 7-25 17zm28-23l-8-5 8-5v10z"/>
+            </g>
+        </svg>
+        <!-- template end -->
+
         <form>
             <section id='section-basic'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-basic'>Basic example</a></h2>
+                    <header>
+
+                        <h2><a href='#section-basic'>Basic example</a></h2>
+                    </header>
                     <p>
                       Passing the input element as a parameter to <em>Tagify</em> will transform it into a tags-component. Without any settings, the user will be allowed to create any tags they want, without a count limit.
                     </p>
@@ -395,6 +420,11 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/PoNqYVY'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input name='basic' value='tag1, tag2' autofocus>
                 </aside>
             </section>
@@ -403,7 +433,9 @@
 
             <section id='section-input'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-input'>text input</a></h2>
+                    <header>
+                        <h2><a href='#section-input'>text input</a></h2>
+                    </header>
                     <h3>In this example:</h3>
                     <ul>
                         <li>Tagify instance with initial <em>settings</em> Object</li>
@@ -441,6 +473,11 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/OJNVyQR'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input name='input' class='some_class_name' placeholder='write some tags' value='css, html, javascript, css' data-blacklist='.NET,PHP'>
                     <button class='tags--removeAllBtn' type='button'>Remove all these tags ⬆</button>
                 </aside>
@@ -450,7 +487,9 @@
 
             <section id='section-dropdown-tags'>
               <aside class='leftSide'>
-                  <h3>Same using custom suggestions:</h3>
+                  <header>
+                        <h3>Same using custom suggestions:</h3>
+                  </header>
                   <p>The dropdown will appear immediately when Tagify has focus.</p>
                   <p>The suggestions are styled as tags this time. Clicking on a suggested it, it will be added to <em>Tagify</em></p>
                   <details>
@@ -486,6 +525,11 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/bGpdVMW'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input name='input-custom-dropdown' class='tagify--custom-dropdown' placeholder='write some tags' value='css, html, javascript'>
                 </aside>
             </section>
@@ -494,7 +538,9 @@
 
             <section id='section-textarea'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-textarea'>textarea</a></h2>
+                    <header>
+                        <h2><a href='#section-textarea'>textarea</a></h2>
+                    </header>
                     <p>
                         In this example, the field is pre-ocupied with 3 tags, and last tag is <strong>not included</strong> in the whitelist,
                         and will be <em>removed</em> because the <code>enforceWhitelist</code> <em>setting flag</em> is set to <code>true</code>
@@ -520,6 +566,11 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/dyMoYKb'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <textarea name='tags2' placeholder='Movie names'> [{"value":"The Good, the Bad and the Ugly"}, {"value":"The Matrix"}]</textarea>
                 </aside>
             </section>
@@ -528,7 +579,9 @@
 
             <section id='customLook'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-different-look'>Easy to customize</a></h2>
+                    <header>
+                        <h2><a href='#section-different-look'>Easy to customize</a></h2>
+                    </header>
                     <p>
                         No placeholder, and no way of adding tags from within the component, but only
                         by clicking the (+) button, which is not related to Tagify in anyway, but in this example
@@ -614,13 +667,20 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/wvGaKxd'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input class='customLook' value='some.name@website.com'><button type="button">+</button>
                 </aside>
             </section>
 
             <section id='section-mix'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-mix'>Mix text &amp; tags</a></h2>
+                    <header>
+                        <h2><a href='#section-mix'>Mix text &amp; tags</a></h2>
+                    </header>
                     <p>
                         It is possible to configure Tagify to supoprt mixed content.
                         A common example would be <em>tagging</em> people while writing a comment on a social website.
@@ -659,13 +719,20 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/KKzpdxQ'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <textarea name='mix'>[[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea>
                 </aside>
             </section>
 
             <section id='outside-of-the-box'>
                 <aside class='leftSide'>
-                    <h2><a href='#outside-of-the-box'>outside-of-the-box</a></h2>
+                    <header>
+                        <h2><a href='#outside-of-the-box'>outside-of-the-box</a></h2>
+                    </header>
                     <p>
   Some designs might require showing the tags outside of the input box, so to set this up
   some manual CSS changes has to be made, and also the <code>dropdown.position</code> <em>setting</em>
@@ -699,13 +766,20 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/oNxXjav'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input name='tags-outside' class='tagify--outside' value='tag1, tag2, tag3' placeholder='write some tags'>
                 </aside>
             </section>
 
             <section id='section-manual-suggestions'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-manual-suggestions'>Render suggestions list manually</a></h2>
+                    <header>
+                        <h2><a href='#section-manual-suggestions'>Render suggestions list manually</a></h2>
+                    </header>
                     <p>
                         Renders the suggestions list manually, useful for situations where you wish to shown the suggestions list
                         inside a modal or your own popup implementaion, or even always show it. In this example the list is always shown.
@@ -726,6 +800,11 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/QWNbjZO'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input name='tags-manual-suggestions' placeholder='write some tags'>
                     <h3>☝ Add items from below list:</h3>
                 </aside>
@@ -734,7 +813,9 @@
 
             <section id="users-list">
                 <aside class='leftSide'>
-                    <h2><a href='#users-list'>Users list</a></h2>
+                    <header>
+                        <h2><a href='#users-list'>Users list</a></h2>
+                    </header>
                     <p>
                         This example shows how to customize <em>Tagify</em> further. It also includes an <code>Add All</code> option as the first
                         item in the suggestions dropdown list.
@@ -820,14 +901,21 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
-                    <input name='users-list-tags'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/qBZdOJe'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
+                    <input name='users-list-tags' value='3'>
                 </aside>
             </section>
 
 
             <section id="section-advance-options">
                 <aside class='leftSide'>
-                    <h2><a href='#section-advance-options'>Advance options</a></h2>
+                    <header>
+                        <h2><a href='#section-advance-options'>Advance options</a></h2>
+                    </header>
                     <p>
                         In this example, the <code>dropdown.enabled</code> <em>setting</em> is set (minimum charactes typed to show the dropdown) to <code>3</code>.
                         <br>
@@ -855,13 +943,20 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/bGpdVOr'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input name='tags3' value='[{"value":"point"}, {"value":"soft"}]' pattern='^[A-Za-z_✲ ]{1,15}$'>
                 </aside>
             </section>
 
             <section id="section-extra-properties">
                 <aside class='leftSide'>
-                    <h2><a href='#section-extra-properties'>Tags with properties</a></h2>
+                    <header>
+                        <h2><a href='#section-extra-properties'>Tags with properties</a></h2>
+                    </header>
                     <p>
                         Some cases requires more control per-tag, for exmaple, sending a different value to the server than the textual value
                         the user sees/entered. Another example, would be different colors for different tags or tags' groups.
@@ -910,13 +1005,22 @@
 </style>
                     </details>
                 </aside>
-                <aside class='rightSide'><input class='countries' name='tags3-1' placeholder="Try to add tags from the list"></aside>
+                <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/ExKjVJJ'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
+                    <input class='countries' name='tags3-1' placeholder="Try to add tags from the list">
+                </aside>
             </section>
 
 
             <section id='section-readonly'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-readonly'>Readonly mode</a></h2>
+                    <header>
+                        <h2><a href='#section-readonly'>Readonly mode</a></h2>
+                    </header>
                     <p>
                         <em>(Currently only works for "normal" tags and <strong>not</strong> mixed with text)</em>
                     </p>
@@ -934,13 +1038,20 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/RwaPWmR'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input name='tags4' readonly value='tag1, tag 2, another tag'>
                 </aside>
             </section>
 
             <section id='section-readonly-mixed'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-readonly'>Readonly mix</a></h2>
+                    <header>
+                        <h2><a href='#section-readonly'>Readonly mix</a></h2>
+                    </header>
                     <p>
                         Tags that are read-only mixed with removable tags
                     </p>
@@ -974,6 +1085,11 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/KKzpdLR'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input
                         name='tags-readonly-mix'
                         class='readonlyMix'
@@ -998,7 +1114,9 @@
 
             <section id='section-mode-select'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-mode-select'>single-value select</a></h2>
+                    <header>
+                        <h2><a href='#section-mode-select'>single-value select</a></h2>
+                    </header>
                     <p>
                         Similar to native <code>&lt;Select&gt;</code> element, but allows free text as value.
                     </p>
@@ -1011,6 +1129,11 @@
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/yLONYdx'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input name='tags-select-mode' class='selectMode' placeholder="Please select" />
                 </aside>
             </section>
@@ -1018,22 +1141,27 @@
 
             <section id='section-jquery'>
                 <aside class='leftSide'>
-                    <h2><a href='#section-jquery'>jQuery plugin version</a></h2>
+                    <header>
+                        <h2><a href='#section-jquery'>jQuery plugin version</a></h2>
+                    </header>
                     <p>
                         Tagify can also be used as a jQuery plugin
                     </p>
                     <details>
                       <summary></summary>
                     <h3>HTML</h3>
-                    <xmp>
-                        <input name='tags-jquery' value='try, adding, a tag'>
-                        <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
-                    </xmp>
+                    <pre class="language-markup"><code>&lt;input name='tags-jquery' value='try, adding, a tag'>
+&lt;button class='tags-jquery--removeAllBtn' type='button'>Remove all tags&lt;/button></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "jQuery")</script>
                     </details>
                 </aside>
                 <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/abNOmWz'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
                     <input name='tags-jquery' value='try, adding, a tag'>
                     <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
                 </aside>
