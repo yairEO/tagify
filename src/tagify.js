@@ -875,8 +875,12 @@ Tagify.prototype = {
      * Value must be unique
      */
     getWhitelistItemByValue(value){
-        return this.settings.whitelist.find(item =>
-            "value" in item ? sameStr(item.value || item, value, this.settings.dropdown.caseSensitive) : false)
+        var result = this.settings.whitelist.find(item =>
+            sameStr(typeof item == 'string' ? item : item.value, value, this.settings.dropdown.caseSensitive)
+        )
+
+        // normalize response
+        return typeof result == 'string' ? {value:result} : result
     },
 
     /**

@@ -326,7 +326,7 @@ export default {
                             return
                     case 'Tab' : {
                         // in mix-mode, treat arrowRight like Enter key, so a tag will be created
-                        if( this.settings.mode != 'mix' && !this.settings.autoComplete.rightKey ){
+                        if( this.settings.mode != 'mix' && !this.settings.autoComplete.rightKey && !this.state.editing ){
                             try{
                                 let value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
                                 this.input.autocomplete.set.call(this, value)
