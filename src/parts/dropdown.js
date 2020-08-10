@@ -328,11 +328,8 @@ export default {
                         // in mix-mode, treat arrowRight like Enter key, so a tag will be created
                         if( this.settings.mode != 'mix' && !this.settings.autoComplete.rightKey ){
                             try{
-                                // only allows "real" sugegstions to be auto-filled
-                                if( selectedElm.getAttribute('tagifySuggestionIdx') ){
-                                    let value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
-                                    this.input.autocomplete.set.call(this, value)
-                                }
+                                let value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
+                                this.input.autocomplete.set.call(this, value)
                             }
                             catch(err){}
                             return false;

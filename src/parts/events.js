@@ -273,7 +273,7 @@ export default {
                     break
                 }
                 case 'Tab' : {
-                    e.preventDefault()
+                    s && e.preventDefault()
                     if( !s || this.settings.mode == 'select' ) return true;
                 }
 
