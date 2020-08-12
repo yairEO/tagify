@@ -535,8 +535,6 @@ export default {
         },
 
         onEditTagBlur( editableElm ){
-            this.state.editing = false;
-
             if( !this.state.hasFocus )
                 this.toggleFocusClass()
 

@@ -453,6 +453,7 @@ Tagify.prototype = {
     },
 
     onEditTagDone(tagElm, tagData){
+        this.state.editing = false;
         tagData = tagData || {}
 
         var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData };
@@ -712,7 +713,7 @@ Tagify.prototype = {
      * @param  {String/Object} v [text value / tag data object]
      * @return {Boolean}
      */
-    isTagDuplicate( value ){
+    isTagDuplicate( value, caseSensitive ){
         var duplications,
             _s = this.settings;
 
@@ -721,7 +722,7 @@ Tagify.prototype = {
             return false
 
         duplications = this.value.reduce((acc, item) =>
-            sameStr( this.trim(""+value), item.value, _s.dropdown.caseSensitive )
+            sameStr( this.trim(""+value), item.value, caseSensitive || _s.dropdown.caseSensitive )
                 ? acc+1
                 : acc
         , 0)
@@ -794,7 +795,7 @@ Tagify.prototype = {
             return this.TEXTS.pattern;
 
         // if duplicates are not allowed and there is a duplicate
-        if( !_s.duplicates && this.isTagDuplicate(value) )
+        if( !_s.duplicates && this.isTagDuplicate(value, this.state.editing) )
             return this.TEXTS.duplicate;
 
         if( this.isTagBlacklisted(value) || (_s.enforceWhitelist && !this.isTagWhitelisted(value)) )
