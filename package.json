@@ -9,7 +9,7 @@
         "email": "vsync.design@gmail.com"
     },
     "scripts": {
-        "start": "npx gulp@3.9.1",
+        "start": "npx gulp@4.0.2",
         "test": "jest",
         "serve": "npx http-server -o index.html -c-1"
     },
