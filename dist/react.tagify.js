@@ -5,4 +5,223 @@
  * https://github.com/yairEO/tagify
  */
 
-!function(e,t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?module.exports=t():e.React.tagify=t()}(this,function(){"use strict";function u(e){return(u="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var e,G=function(e){if(e&&e.__esModule)return e;if(null===e||"object"!==u(e)&&"function"!=typeof e)return{default:e};var t=a();if(t&&t.has(e))return t.get(e);var n={},r=Object.defineProperty&&Object.getOwnPropertyDescriptor;for(var o in e)if(Object.prototype.hasOwnProperty.call(e,o)){var i=r?Object.getOwnPropertyDescriptor(e,o):null;i&&(i.get||i.set)?Object.defineProperty(n,o,i):n[o]=e[o]}n.default=e,t&&t.set(e,n);return n}(require("react")),H=require("react-dom/server"),t=require("prop-types"),L=(e=require("./tagify.min.js"))&&e.__esModule?e:{default:e};function a(){if("function"!=typeof WeakMap)return null;var e=new WeakMap;return a=function(){return e},e}function Q(e){return function(e){if(Array.isArray(e)){for(var t=0,n=new Array(e.length);t<e.length;t++)n[t]=e[t];return n}}(e)||function(e){if(Symbol.iterator in Object(e)||"[object Arguments]"===Object.prototype.toString.call(e))return Array.from(e)}(e)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance")}()}function U(e){return e}function n(e){function t(e){J.current=e}var n=e.name,r=e.value,o=void 0===r?"":r,i=e.loading,u=void 0!==i&&i,a=e.onInput,c=void 0===a?U:a,f=e.onAdd,l=void 0===f?U:f,s=e.onRemove,d=void 0===s?U:s,p=e.onEdit,y=void 0===p?U:p,v=e.onInvalid,g=void 0===v?U:v,m=e.onClick,b=void 0===m?U:m,h=e.onKeydown,w=void 0===h?U:h,O=e.onFocus,j=void 0===O?U:O,E=e.onBlur,S=void 0===E?U:E,M=e.onChange,x=void 0===M?U:M,R=e.readOnly,T=e.children,k=e.settings,A=void 0===k?{}:k,N=e.InputMode,P=void 0===N?"input":N,_=e.autoFocus,C=e.className,F=e.whitelist,I=e.tagifyRef,q=e.placeholder,D=void 0===q?"":q,V=e.defaultValue,W=e.showDropdown,B=(0,G.useRef)(),J=(0,G.useRef)(),K=(0,G.useRef)(),z=(0,G.useMemo)(function(){return{ref:t,name:n,value:T||("string"==typeof o?o:JSON.stringify(o)),className:C,readOnly:R,onChange:x,autoFocus:_,placeholder:D,defaultValue:V}},[V,D,_,C,T,x,R,o,n]);return(0,G.useEffect)(function(){!function(e){if(e)for(var n in e){String(e[n]).includes(".createElement")&&function(){var t=e[n];e[n]=function(e){return(0,H.renderToStaticMarkup)(G.default.createElement(t,e))}}()}}(A.templates),"textarea"==P&&(A.mode="mix");var e=new L.default(J.current,A);return c&&e.on("input",c),l&&e.on("add",l),d&&e.on("remove",d),y&&e.on("edit",y),g&&e.on("invalid",g),w&&e.on("keydown",w),j&&e.on("focus",j),S&&e.on("blur",S),b&&e.on("click",b),I&&(I.current=e),K.current=e,function(){e.destroy()}},[]),(0,G.useEffect)(function(){B.current&&K.current.loadOriginalValues(o)},[o]),(0,G.useEffect)(function(){var e;B.current&&(e=K.current.settings.whitelist).splice.apply(e,[0,K.current.settings.whitelist.length].concat(Q(F||[])))},[F]),(0,G.useEffect)(function(){B.current&&K.current.loading(u)},[u]),(0,G.useEffect)(function(){var e=K.current;B.current&&(W?(e.dropdown.show.call(e,W),e.toggleFocusClass(!0)):e.dropdown.hide.call(e))},[W]),(0,G.useEffect)(function(){B.current=!0},[]),G.default.createElement("div",{className:"tags-input"},G.default.createElement(P,z))}n.propTypes={name:t.string,value:(0,t.oneOfType)([t.string,t.array]),loading:t.bool,children:t.element,onChange:t.func,readOnly:t.bool,settings:t.object,InputMode:t.string,autoFocus:t.bool,className:t.string,tagifyRef:t.object,whitelist:t.array,placeholder:t.string,defaultValue:(0,t.oneOfType)([t.string,t.array]),showDropdown:(0,t.oneOfType)([t.string,t.bool])};var r=G.default.memo(n);r.displayName="Tags";var o=r;return exports.default=o,r});
+;(function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define([], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory();
+  } else {
+    root.React.tagify = factory();
+  }
+}(this, function() {
+"use strict";
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _server = require("react-dom/server");
+
+var _propTypes = require("prop-types");
+
+var _tagifyMin = _interopRequireDefault(require("./tagify.min.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+var noop = function noop(_) {
+  return _;
+}; // if a template is a React component, it should be outputed as a String (and not as a React component)
+
+
+function templatesToString(templates) {
+  if (templates) {
+    for (var templateName in templates) {
+      var isReactComp = String(templates[templateName]).includes(".createElement");
+
+      if (isReactComp) {
+        (function () {
+          var Template = templates[templateName];
+
+          templates[templateName] = function (data) {
+            return (0, _server.renderToStaticMarkup)(
+            /*#__PURE__*/
+            _react["default"].createElement(Template, data));
+          };
+        })();
+      }
+    }
+  }
+}
+
+var TagifyWrapper = function TagifyWrapper(_ref) {
+  var name = _ref.name,
+      _ref$value = _ref.value,
+      value = _ref$value === void 0 ? "" : _ref$value,
+      _ref$loading = _ref.loading,
+      loading = _ref$loading === void 0 ? false : _ref$loading,
+      _ref$onInput = _ref.onInput,
+      onInput = _ref$onInput === void 0 ? noop : _ref$onInput,
+      _ref$onAdd = _ref.onAdd,
+      onAdd = _ref$onAdd === void 0 ? noop : _ref$onAdd,
+      _ref$onRemove = _ref.onRemove,
+      onRemove = _ref$onRemove === void 0 ? noop : _ref$onRemove,
+      _ref$onEdit = _ref.onEdit,
+      onEdit = _ref$onEdit === void 0 ? noop : _ref$onEdit,
+      _ref$onInvalid = _ref.onInvalid,
+      onInvalid = _ref$onInvalid === void 0 ? noop : _ref$onInvalid,
+      _ref$onClick = _ref.onClick,
+      onClick = _ref$onClick === void 0 ? noop : _ref$onClick,
+      _ref$onKeydown = _ref.onKeydown,
+      onKeydown = _ref$onKeydown === void 0 ? noop : _ref$onKeydown,
+      _ref$onFocus = _ref.onFocus,
+      onFocus = _ref$onFocus === void 0 ? noop : _ref$onFocus,
+      _ref$onBlur = _ref.onBlur,
+      onBlur = _ref$onBlur === void 0 ? noop : _ref$onBlur,
+      _ref$onChange = _ref.onChange,
+      onChange = _ref$onChange === void 0 ? noop : _ref$onChange,
+      readOnly = _ref.readOnly,
+      children = _ref.children,
+      _ref$settings = _ref.settings,
+      settings = _ref$settings === void 0 ? {} : _ref$settings,
+      _ref$InputMode = _ref.InputMode,
+      InputMode = _ref$InputMode === void 0 ? "input" : _ref$InputMode,
+      autoFocus = _ref.autoFocus,
+      className = _ref.className,
+      whitelist = _ref.whitelist,
+      tagifyRef = _ref.tagifyRef,
+      _ref$placeholder = _ref.placeholder,
+      placeholder = _ref$placeholder === void 0 ? "" : _ref$placeholder,
+      defaultValue = _ref.defaultValue,
+      showDropdown = _ref.showDropdown;
+  var mountedRef = (0, _react.useRef)();
+  var inputElmRef = (0, _react.useRef)();
+  var tagify = (0, _react.useRef)();
+
+  var handleRef = function handleRef(elm) {
+    inputElmRef.current = elm;
+  };
+
+  var inputAttrs = (0, _react.useMemo)(function () {
+    return {
+      ref: handleRef,
+      name: name,
+      value: children ? children : typeof value === "string" ? value : JSON.stringify(value),
+      className: className,
+      readOnly: readOnly,
+      onChange: onChange,
+      autoFocus: autoFocus,
+      placeholder: placeholder,
+      defaultValue: defaultValue
+    };
+  }, [defaultValue, placeholder, autoFocus, className, children, onChange, readOnly, value, name]);
+  (0, _react.useEffect)(function () {
+    templatesToString(settings.templates);
+    if (InputMode == "textarea") settings.mode = "mix";
+    var t = new _tagifyMin["default"](inputElmRef.current, settings);
+    onInput && t.on("input", onInput);
+    onAdd && t.on("add", onAdd);
+    onRemove && t.on("remove", onRemove);
+    onEdit && t.on("edit", onEdit);
+    onInvalid && t.on("invalid", onInvalid);
+    onKeydown && t.on("keydown", onKeydown);
+    onFocus && t.on("focus", onFocus);
+    onBlur && t.on("blur", onBlur);
+    onClick && t.on("click", onClick); // Bridge Tagify instance with parent component
+
+    if (tagifyRef) {
+      tagifyRef.current = t;
+    }
+
+    tagify.current = t; // cleanup
+
+    return function () {
+      t.destroy();
+    };
+  }, []);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      tagify.current.loadOriginalValues(value);
+    }
+  }, [value]);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      var _tagify$current$setti;
+
+      // replace whitelist array items
+      (_tagify$current$setti = tagify.current.settings.whitelist).splice.apply(_tagify$current$setti, [0, tagify.current.settings.whitelist.length].concat(_toConsumableArray(whitelist || [])));
+    }
+  }, [whitelist]);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      tagify.current.loading(loading);
+    }
+  }, [loading]);
+  (0, _react.useEffect)(function () {
+    var t = tagify.current;
+
+    if (mountedRef.current) {
+      if (showDropdown) {
+        t.dropdown.show.call(t, showDropdown);
+        t.toggleFocusClass(true);
+      } else {
+        t.dropdown.hide.call(t);
+      }
+    }
+  }, [showDropdown]);
+  (0, _react.useEffect)(function () {
+    mountedRef.current = true;
+  }, []);
+  return (
+    /*#__PURE__*/
+    // a wrapper must be used because Tagify will appened inside it it's component,
+    // keeping the virtual-DOM out of the way
+    _react["default"].createElement("div", {
+      className: "tags-input"
+    },
+    /*#__PURE__*/
+    _react["default"].createElement(InputMode, inputAttrs))
+  );
+};
+
+TagifyWrapper.propTypes = {
+  name: _propTypes.string,
+  value: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.array]),
+  loading: _propTypes.bool,
+  children: _propTypes.element,
+  onChange: _propTypes.func,
+  readOnly: _propTypes.bool,
+  settings: _propTypes.object,
+  InputMode: _propTypes.string,
+  autoFocus: _propTypes.bool,
+  className: _propTypes.string,
+  tagifyRef: _propTypes.object,
+  whitelist: _propTypes.array,
+  placeholder: _propTypes.string,
+  defaultValue: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.array]),
+  showDropdown: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.bool])
+};
+
+var Tags = _react["default"].memo(TagifyWrapper);
+
+Tags.displayName = "Tags";
+var _default = Tags;
+exports["default"] = _default;
+return Tags;
+}));

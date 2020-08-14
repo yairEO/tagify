@@ -900,6 +900,9 @@ Tagify.prototype = {
                 tagElm;
 
             try{
+                // skip numbers and go straight to the "catch" statement
+                if( preInterpolated == +preInterpolated )
+                    throw Error
                 tagData = JSON.parse(preInterpolated)
             } catch(err){
                 tagData = this.normalizeTags(preInterpolated)[0]  //{value:preInterpolated}
