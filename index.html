@@ -120,6 +120,8 @@
             right: 100px;
           }
 
+          header.isSticky .repoLink svg{ filter: none; }
+
          .repoLink{
             height: 70px;
             position: absolute;
@@ -128,7 +130,12 @@
             transform: translateX(50%);
             transition: .55s cubic-bezier(.5,0,.5,1.075);
          }
-         .repoLink svg{ stroke: white; stroke-width: 10px; paint-order: stroke; }
+         .repoLink svg{
+            filter: drop-shadow(0px 4px 0px white)
+                    drop-shadow(-4px 0px 0px white)
+                    drop-shadow(4px 0px 0px white)
+                    drop-shadow(0px 3px 1px rgba(0,0,0,.15));
+          }
           body > header .liveLink{ color:#333; text-decoration:none; font-size:1.4em; position:relative; line-height:1; }
           body > header .liveLink::before{ content:'✎'; text-decoration:none; transform:translateX(-150%); position:absolute; top:1px; left:0; }
           body > header .liveLink:hover{ text-decoration: underline; }
