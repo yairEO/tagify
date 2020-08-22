@@ -222,7 +222,7 @@ To do the same but for specific tag(s), set those tags' data with `editable` pro
 
 ## DOM Templates
 It's possible to control the templates for some of the HTML elements tagify is using by
-modying the `settings.templates` Object with your own custom functions which **must return** an *HTML string*.
+modifying the `settings.templates` Object with your own custom functions which **must return** an *HTML string*.
 
 Available templates are: `wrapper`, `tag`, `dropdown`, `dropdownItem` and the optional `dropdownItemNoMatch`
 which is a special template for rendering a suggestion item (in the dropdown list) only if there were no matches found for the typed input.
@@ -231,7 +231,7 @@ which is a special template for rendering a suggestion item (in the dropdown lis
 
 ## Suggestions selectbox
 The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
-Suggestions list will only be rendered if there are at least two matching sugegstions (case-insensetive).
+Suggestions list will only be rendered if there are at least two matching suggestions (case-insensitive).
 
 The selectbox dropdown will be appended to the document's `<body>` element and will be rendered by default in a position below (bottom of) the Tagify element.
 Using the keyboard arrows up/down will highlight an option from the list, and hitting the Enter key to select.
@@ -605,7 +605,7 @@ Name                       | Parameters                                         
 `addTags`                  | `tagsItems`, `clearInput`, `skipInvalid`                                  | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
 `removeTags`               | `Array`/`HTMLElement`/`String`, `silent`, `tranDuration`                  | (#502) Remove single/multiple Tags. When nothing passed, removes last tag. <ul><li>`silent` - A flag, which when turned on, does not remove any value and does not update the original input value but simply removes the tag from tagify</li><li>`tranDuration` - delay for animation, after which the tag will be removed from the DOM</li></ul>
 `loadOriginalValues`       | `String`/`Array`                                                          | Converts the input's value into tags. This method gets called automatically when instansiating Tagify. Also works for mixed-tags
-`getWhitelistItemsByValue` | `Object`                                                                  | `{value}` - return an Array of found matching items (case-insensetive)
+`getWhitelistItemsByValue` | `Object`                                                                  | `{value}` - return an Array of found matching items (case-insensitive)
 `getTagIndexByValue`       | `String`                                                                  | Returns the index of a specific tag, by value
 `getTagElmByValue`         | `String`                                                                  | Returns the first matched tag node, if found
 `isTagDuplicate`           | `String`                                                                  | Returns how many tags already exists with that value
@@ -659,7 +659,7 @@ Name               | Info
 ------------------ | --------------------------------------------------------------------------
 change             | Any change to the value has occured. `e.details.value` callback listener argument is a *String*
 add                | A tag has been added
-remove             | A tag has been removed ([use `removeTag`](https://github.com/yairEO/tagify/issues/222) intead with *jQuery*)
+remove             | A tag has been removed ([use `removeTag`](https://github.com/yairEO/tagify/issues/222) instead with *jQuery*)
 invalid            | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
 input              | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes `value`, `inputElm` & `isValid`
 click              | Clicking a tag. Exposes the tag element, its index & data
