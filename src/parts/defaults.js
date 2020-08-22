@@ -26,7 +26,6 @@ export default {
         rightKey: false,                  // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
     },
 
-
     classNames: {
         namespace          : 'tagify',
         input              : 'tagify__input',
