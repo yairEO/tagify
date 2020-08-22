@@ -34,6 +34,7 @@ const TagifyWrapper = ({
     onBlur = noop,
     onChange = noop,
     readOnly,
+    readonly,
     children,
     settings = {},
     InputMode = "input",
@@ -62,7 +63,7 @@ const TagifyWrapper = ({
                     ? value
                     : JSON.stringify(value),
             className,
-            readOnly,
+            readOnly: readonly || readOnly,
             onChange,
             autoFocus,
             placeholder,

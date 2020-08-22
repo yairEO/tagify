@@ -463,7 +463,6 @@ Attribute         | Example                                               | Info
 readOnly          | <pre lang=html>`<input readOnly>`</pre> | No user-interaction (add/remove/edit) allowed.
 autofocus         | <pre lang=html>`<input autofocus>`</pre> | Automatically focus the the Tagify component when the component is loaded
 required          | <pre lang=html>`<input required>`</pre> | Adds a `required` attribute to the Tagify wrapper element. Does nothing more.
-readonly          | <pre lang=html>`<input readonly>`</pre> | Adds a `readonly` attribute to the Tagify wrapper element.
 
 
 
