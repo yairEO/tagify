@@ -762,7 +762,7 @@ Tagify.prototype = {
      */
     isTagBlacklisted( v ){
         v = this.trim(v.toLowerCase());
-        return this.settings.blacklist.filter(x => v == x.toLowerCase()).length;
+        return this.settings.blacklist.filter(x => (""+x).toLowerCase() == v).length;
     },
 
     /**
@@ -1345,7 +1345,6 @@ Tagify.prototype = {
         var inputElm = this.DOM.originalInput,
             { withoutChangeEvent } = args || {},
             value = removeCollectionProp(this.value, ['__isValid', '__removed']);
-
 
         inputElm.value = this.settings.mode == 'mix'
             ? this.getMixedTagsAsString(value)
