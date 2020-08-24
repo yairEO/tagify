@@ -393,6 +393,7 @@
         white-space: pre-wrap; // #160 Line break (\n) as delimeter
         color: $input-color;
         color: var(--input-color);
+        text-align: start;
 
         &:empty{
             @include firefox {
