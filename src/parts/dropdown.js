@@ -546,7 +546,7 @@ export default {
 
             else {
                 valueIsInWhitelist = searchKeys.some(k => {
-                    var v = '' + (whitelistItem[k] || '')
+                    var v = '' + (whitelistItem[k] || '') // if key exists, cast to type String
 
                     if( _sd.accentedSearch ){
                         v = unaccent(v)
