@@ -1,4 +1,5 @@
-- [ ] add SCSS variable for input color (not tag color)
+- [x] add SCSS variable for input color (not tag color)
+- [ ] Make demo page *mobile-friendly* using *media-queries*
 - [ ] dragable sortable tags
 - [ ] when "addTagOnBlur" is set to false and there is a text in the input and Tagify gets focus, the caret is not placed at the end of the input.
   (need to check if the "focus" event was fired programatically and if it, place the caret at the end)
