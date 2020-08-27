@@ -153,7 +153,7 @@ Another example for complex tags state might be disabled tags, or ones with cust
 *(tags can be clicked, so delevopers can choose to use this to disable/enable tags)*<br>
 `'[{"value":"cat", "disabled":true}, {"value":"dog"}, {"value":"bird", "class":"color-green"}]'`
 
-To chnage the format, assuming your tags have no commas and are fairly simple:
+To change the format, assuming your tags have no commas and are fairly simple:
 
 ```js
 var tagify = new Tagify(inputElm, {
