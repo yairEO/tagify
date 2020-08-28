@@ -22,7 +22,7 @@ export default {
     },
 
     autoComplete: {
-        enabled: true,                   // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
+        enabled: true,                    // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
         rightKey: false,                  // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
     },
 

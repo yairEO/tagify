@@ -326,14 +326,15 @@ export default {
                             return
                     case 'Tab' : {
                         // in mix-mode, treat arrowRight like Enter key, so a tag will be created
-                        if( this.settings.mode != 'mix' && !this.settings.autoComplete.rightKey && !this.state.editing ){
-                            try{
-                                let value = selectedElm ? selectedElm.textContent : this.suggestedListItems[0].value;
-                                this.input.autocomplete.set.call(this, value)
-                            }
-                            catch(err){}
-                            return false;
+                        if( this.settings.mode != 'mix' && selectedElm && !this.settings.autoComplete.rightKey && !this.state.editing ){
+                            e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
+                            var tagifySuggestionIdx = selectedElm.getAttribute('tagifySuggestionIdx'),
+                                data = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '';
+
+                            this.input.autocomplete.set.call(this, data.value || data)
+                            return false
                         }
+                        return true
                     }
                     case 'Enter' : {
                         e.preventDefault();
