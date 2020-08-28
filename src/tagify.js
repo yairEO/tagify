@@ -873,15 +873,20 @@ Tagify.prototype = {
     },
 
     /**
-     * Value must be unique
+     * Returns the first whitelist item matched, by value (if match found)
+     * @param {String} value
      */
-    getWhitelistItemByValue(value){
-        var item, _s = this.settings;
+    getWhitelistItemByValue( value ){
+        var result, _s = this.settings;
 
-        for( item of _s.whitelist )
-            if( sameStr(typeof item == 'string' ? item : item.value, value, _s.dropdown.caseSensitive) )
-                // normalize response
-                return typeof item == 'string' ? {value:item} : item
+        _s.whitelist.some(wi => {
+            if( sameStr(typeof wi == 'string' ? wi : wi.value, value, _s.dropdown.caseSensitive) ){
+                result = typeof wi == 'string' ? {value:wi} : wi
+                return true
+            }
+        })
+
+        return result
     },
 
     /**
