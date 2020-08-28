@@ -302,6 +302,36 @@
                 flex: 1;
                 margin-right:1em;
             }
+
+            @media only screen and (max-device-width: 600px){
+                body > header {
+                    position: relative;
+                    top: 0;
+                }
+
+                section{
+                    flex-flow: column-reverse;
+                }
+
+                section > .leftSide{
+                    width: auto;
+                }
+
+                section > .rightSide{
+                    width: auto;
+                    padding-top: 2rem;
+                    padding-bottom: 2rem;
+                    background: white;
+                    border-bottom: 1px solid #CDE6FF;
+                }
+
+                .rightSide > .demoLink {
+                    left: 12px;
+
+                    transform: none;
+                }
+
+            }
         </style>
     </head>
 
