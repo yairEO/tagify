@@ -517,7 +517,7 @@ Tagify.prototype = {
         start = typeof start == 'number' ? start : !!start
         node = node || this.DOM.input;
         node = node.lastChild || node;
-        const sel = document.getSelection()
+        var sel = document.getSelection()
 
         try{
             if( sel.rangeCount >= 1 ){
@@ -546,10 +546,8 @@ Tagify.prototype = {
         range.deleteContents()
 
         range.insertNode(injectedNode)
-        this.insertAfterTag(injectedNode)
 
-        this.DOM.input.focus()
-        this.setRangeAtStartEnd(true, injectedNode.nextSibling)
+        this.setRangeAtStartEnd(false, injectedNode)
 
         this.updateValueByDOMTags()
         this.update()
@@ -1168,7 +1166,7 @@ Tagify.prototype = {
      */
     createTagElem( tagData ){
         var tagElm,
-            templateData = extend({}, tagData, { value:escapeHTML(tagData.value) });
+            templateData = extend({}, tagData, { value:escapeHTML(tagData.value+"") });
 
         if( this.settings.readonly )
             tagData.readonly = true

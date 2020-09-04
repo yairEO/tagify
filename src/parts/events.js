@@ -199,7 +199,7 @@ export default {
                         // if( isFirefox && selection && selection.anchorOffset == 0 )
                         //     this.removeTags(selection.anchorNode.previousSibling)
 
-                        // a minimum delay is needed before the node actually gets ditached from the document (don't know why),
+                        // a minimum delay is needed before the node actually gets detached from the document (don't know why),
                         // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
                         setTimeout(() => {
                             var currentValue = decode(this.DOM.input.innerHTML);
