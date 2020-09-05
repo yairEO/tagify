@@ -270,11 +270,13 @@ var input = document.querySelector('input'),
 </div>
 ```
 
-By default searching the suggestions is using fuzzy-search (see [settings](#settings)).
+By default searching the suggestions is using [fuzzy-search](https://en.wikipedia.org/wiki/Approximate_string_matching) (see [settings](#settings)).
 
-If you wish to assign *alias* to items (in your suggestion list), add the `searchBy` property to whitelist items you wish
-to have an *alias* for. In the below example, when typing a part of string which is included in the `searchBy` property, the suggested item will
-match "Israel" will be rendered in the suggestion list selectbox.
+If you wish to assign *alias* to items (in your suggestion list), add the `searchBy` property to *whitelist* items you wish
+to have an *alias* for.
+
+In the below example, typing a part of a string which is included in the `searchBy` property, for example *`land midd"`* -
+the suggested item which match the value "Israel" will be rendered in the suggestions (dropdown) list.
 
 ### [Example](https://yaireo.github.io/tagify/#section-extra-properties) for a suggestion item alias
 
@@ -294,11 +296,16 @@ expanding the search of any typed terms to more than the `value` property of the
 ```javascript
 [
   {
-    value    : "foo",
-    nickname : "bar",
-    email    : "baz@mail.com"
+    value    : 123456,
+    nickname : "foo",
+    email    : "foo@mail.com"
   },
-  ...
+  {
+    value    : 987654,
+    nickname : "bar",
+    email    : "bar@mail.com"
+  },
+  ...more..
 ]
 ```
 
@@ -306,7 +313,7 @@ expanding the search of any typed terms to more than the `value` property of the
 ```javascript
 {
   dropdown: {
-    searchKeys: ["nickname", "email"] //  try matching suggestions only for those keys (from whitelist Array)
+    searchKeys: ["nickname", "email"] //  fuzzy-search matching for those whitelist items' properties
   }
 }
 ```
