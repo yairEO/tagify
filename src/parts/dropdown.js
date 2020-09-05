@@ -515,10 +515,10 @@ export default {
             searchKeys = _sd.searchKeys,
             whitelistItem,
             valueIsInWhitelist,
-            whitelistItemValueIndex,
             searchBy,
             isDuplicate,
             niddle,
+            fuzzyRegexPattern,
             i = 0;
 
         if( !value || !searchKeys.length ){
@@ -532,17 +532,17 @@ export default {
             ? ""+value
             : (""+value).toLowerCase()
 
+        fuzzyRegexPattern = new RegExp(niddle.replace(/ +/g, ".*"))
+
         for( ; i < whitelist.length; i++ ){
             whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
 
             if( _sd.fuzzySearch ){
                 searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
 
-                whitelistItemValueIndex = _sd.accentedSearch
-                    ? unaccent(searchBy).indexOf(unaccent(niddle))
-                    : searchBy.indexOf(niddle)
-
-                valueIsInWhitelist = whitelistItemValueIndex >= 0
+                valueIsInWhitelist = _sd.accentedSearch
+                    ? unaccent(searchBy).match(fuzzyRegexPattern)
+                    : searchBy.match(fuzzyRegexPattern)
             }
 
             else {
