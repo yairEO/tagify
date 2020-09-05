@@ -41,7 +41,7 @@
 * [Output value](#output-value)
 * [Ajax whitelist](#ajax-whitelist)
 * [Edit tags](#edit-tags)
-* [Drag & Sort](#drag-&-sort)
+* [Drag & Sort](#drag--sort)
 * [DOM Templates](#dom-templates)
 * [Suggestions selectbox](#suggestions-selectbox)
 * [Tags mixed with text](#mixed-content)
