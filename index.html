@@ -8,6 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="stylesheet" href="dist/tagify.css">
+        <link rel="stylesheet" href="https://unpkg.com/@yaireo/dragsort/dist/dragsort.css" media="print" onload="this.media='all'">
         <style>
           html, body{ min-height:100%; scroll-behavior: smooth; }
           body{
@@ -157,6 +158,7 @@
         </script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="dist/jQuery.tagify.min.js"></script>
+        <script src="https://unpkg.com/@yaireo/dragsort"></script>
 
         <script>
             var isIE = !document.currentScript;
@@ -1171,6 +1173,37 @@
                 </aside>
             </section>
 
+            <section id='section-drag-sort'>
+                <aside class='leftSide'>
+                    <header>
+                        <h2><a href='#section-mode-select'>Drag & Sort</a></h2>
+                    </header>
+                    <p>
+                        To be able to sort tags by draging, a 3rd-party script is needed. In this example I will be using my own -
+                        lightweight & simple native HTML5 <a href='https://www.npmjs.com/package/@yaireo/dragsort' target='_blank'><em>dragsort</em></a> script.
+                    </p>
+                    <p>
+                        Any <em>drag & drop</em> script would do that is able to also sort the elements. The only requirement is that when
+                        the sorting it done, <code>tagify.updateValueByDOMTags()</code> must be called to sync Tagify with the change.
+                    </p>
+                    <details>
+                      <summary></summary>
+                    <h3>HTML</h3>
+<pre class="language-markup"><code>&lt;input name='drag-sort' value='tag 1, tag 2, tag 3, tag 4, tag 5, tag 6' /&gt;</code></pre>
+                    <h3>Javascript</h3>
+                    <script>renderPRE(document.currentScript, "drag-sort")</script>
+                    </details>
+                </aside>
+                <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/jOqYOVJ'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
+                    <input name='drag-sort' value='tag 1, tag 2, tag 3, tag 4, tag 5, tag 6'/>
+                </aside>
+            </section>
+
             <section id='section-mode-select'>
                 <aside class='leftSide'>
                     <header>
@@ -2136,6 +2169,29 @@ var input = document.querySelector('input[name=tags-readonly-mix]'),
 </script>
 
 
+<script data-name='drag-sort'>
+(function(){
+var input = document.querySelector('input[name=drag-sort]'),
+    tagify = new Tagify(input);
+
+// using 3-party script "dragsort"
+// https://github.com/yairEO/dragsort
+var dragsort = new DragSort(tagify.DOM.scope, {
+    selector:'.'+tagify.settings.classNames.tag,
+    callbacks: {
+        dragEnd: onDragEnd
+    }
+})
+
+function onDragEnd(elm){
+    tagify.updateValueByDOMTags()
+}
+})()
+</script>
+
+
+
+
 <script data-name='mode-select'>
 (function(){
 var input = document.querySelector('input[name=tags-select-mode]'),
@@ -2188,7 +2244,6 @@ var jqTagify = $input.data('tagify');
 $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
 })()
 </script>
-
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/themes/prism.min.css">
     <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/prism.min.js'></script>

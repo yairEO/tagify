@@ -41,6 +41,7 @@
 * [Output value](#output-value)
 * [Ajax whitelist](#ajax-whitelist)
 * [Edit tags](#edit-tags)
+* [Drag & Sort](#drag-&-sort)
 * [DOM Templates](#dom-templates)
 * [Suggestions selectbox](#suggestions-selectbox)
 * [Tags mixed with text](#mixed-content)
@@ -219,6 +220,35 @@ To do the same but for specific tag(s), set those tags' data with `editable` pro
 ```html
 <input value='[{"value":"foo", "editable":false}, {"value":"bar"}]'>
 ```
+
+## Drag & Sort
+
+To be able to sort tags by draging, a 3rd-party script is needed.
+
+I have made a very simple *drag & drop* (~`11kb` *unminified*) script which uses [HTML5 native API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) and
+it is available to download via [NPM](https://www.npmjs.com/package/@yaireo/dragsort) or [Github](https://github.com/yairEO/dragsort)
+but any other *drag & drop* script may possibly work. I could not find in the whole internet a decent lightweight script.
+
+### [Integration example](https://codepen.io/vsync/pen/jOqYOVJ):
+
+```js
+var tagify = new Tagify(inputElement)
+
+// bind "DragSort" to Tagify's main element and tell
+// it that all the items with the below "selector" are "draggable"
+var dragsort = new DragSort(tagify.DOM.scope, {
+    selector: '.'+tagify.settings.classNames.tag,
+    callbacks: {
+        dragEnd: onDragEnd
+    }
+})
+
+// must update Tagify's value according to the re-ordered nodes in the DOM
+function onDragEnd(elm){
+    tagify.updateValueByDOMTags()
+}
+```
+
 
 ## DOM Templates
 It's possible to control the templates for some of the HTML elements tagify is using by
