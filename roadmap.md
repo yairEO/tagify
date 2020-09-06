@@ -1,6 +1,6 @@
 - [x] add SCSS variable for input color (not tag color)
-- [ ] Make demo page *mobile-friendly* using *media-queries*
-- [ ] dragable sortable tags
+- [x] Make demo page *mobile-friendly* using *media-queries*
+- [x] dragable sortable tags
 - [ ] when "addTagOnBlur" is set to false and there is a text in the input and Tagify gets focus, the caret is not placed at the end of the input.
   (need to check if the "focus" event was fired programatically and if it, place the caret at the end)
 - [ ] mix-mode: maybe convert "settings.pattern" to always be a regex. Currently it may be a String (this fails "validateTag" method)
