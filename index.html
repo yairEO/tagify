@@ -305,9 +305,14 @@
             }
 
             @media only screen and (max-device-width: 600px){
+                body{
+                    font-size: 12px;
+                }
+
                 body > header {
                     position: relative;
                     top: 0;
+                    margin-bottom: 3em;
                 }
 
                 section{
@@ -315,21 +320,28 @@
                 }
 
                 section > .leftSide{
+                    padding: 1.5rem;
                     width: auto;
                 }
 
+                .leftSide > header{
+                    padding-top: 0;
+                }
+
                 section > .rightSide{
-                    width: auto;
-                    padding-top: 2rem;
-                    padding-bottom: 2rem;
+                    width: 100%;
+                    padding: 1.5em;
                     background: white;
                     border-bottom: 1px solid #CDE6FF;
                 }
 
-                .rightSide > .demoLink {
-                    left: 12px;
+                .tagify{
+                    min-width: auto;
+                    width: 100%;
+                }
 
-                    transform: none;
+                .rightSide > .demoLink {
+                    display: none;
                 }
 
             }
