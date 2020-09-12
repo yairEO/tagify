@@ -531,6 +531,8 @@ export default {
         niddle = _sd.caseSensitive
             ? ""+value
             : (""+value).toLowerCase()
+        
+        niddle = niddle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape for regex
 
         fuzzyRegexPattern = new RegExp(niddle.replace(/ +/g, ".*"))
 
