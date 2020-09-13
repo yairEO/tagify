@@ -628,7 +628,7 @@ Name                            | Info
 --placeholder-color-focus       | Placeholder text color when Tagify has focus and no input was typed
 --input-color                   | Input text color
 
-### For [SCSS variables, see here](https://github.com/yairEO/tagify/blob/master/src/tagify.scss#L9-L24)
+### Full list of Tagify's [SCSS variables](https://github.com/yairEO/tagify/blob/master/src/tagify.scss#L9-L24)
 
 
 ## Methods
