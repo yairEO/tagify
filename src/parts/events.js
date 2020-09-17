@@ -79,10 +79,6 @@ export default {
                 // for some reason a weird empty textNode is being added (delete all content in mix mode & add a tag)
                 if( lastChild && lastChild.nodeType == 3 && !lastChild.wholeText )
                     lastChild.parentNode.removeChild(lastChild)
-
-                if( lastChild && lastChild.nodeType == 1 && lastChild.classList.contains(that.settings.classNames.tag) ){
-                    that.DOM.input.insertAdjacentHTML('beforeend', '<br>')
-                }
             })
     },
 

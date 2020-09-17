@@ -232,13 +232,20 @@ Tagify.prototype = {
      * if the original input had any values, add them as tags
      */
     loadOriginalValues( value ){
+        var lastChild;
         value = value || this.DOM.originalInput.value
 
         if( value ){
             this.removeAllTags()
 
-            if( this.settings.mode == 'mix' )
+            if( this.settings.mode == 'mix' ){
                 this.parseMixTags(value.trim())
+
+                lastChild = this.DOM.input.lastChild;
+
+                if( !lastChild || lastChild.tagName != 'BR' )
+                    this.DOM.input.insertAdjacentHTML('beforeend', '<br>')
+            }
 
             else{
                 try{
