@@ -117,6 +117,7 @@
     cursor        : text;
     outline       : none;
     position      : relative;
+    box-sizing    : border-box;
     transition    : .1s;
 
     &:hover{
@@ -393,6 +394,7 @@
         white-space: pre-wrap; // #160 Line break (\n) as delimeter
         color: $input-color;
         color: var(--input-color);
+        box-sizing: inherit;
 
         &:empty{
             @include firefox {

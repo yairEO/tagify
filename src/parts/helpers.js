@@ -130,3 +130,25 @@ export function getNodeHeight( node ){
     clone.parentNode.removeChild(clone)
     return height
 }
+
+export var observeDOM = (function(){
+    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+    return function( obj, callback ){
+        if( !obj || obj.nodeType !== 1 ) return; // validation
+
+        if( MutationObserver ){
+            // define a new observer
+            var obs = new MutationObserver(function(mutations, observer){
+                callback(mutations);
+            })
+            // have the observer observe for changes in children
+            obs.observe(obj, { childList:true, subtree:true, characterData:true })
+        }
+
+        else if( window.addEventListener ){
+            obj.addEventListener('DOMNodeInserted', callback, false);
+            obj.addEventListener('DOMNodeRemoved', callback, false);
+        }
+    }
+})();

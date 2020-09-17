@@ -1,4 +1,4 @@
-import { decode, extend } from './helpers'
+import { decode, extend, observeDOM } from './helpers'
 
 export function triggerChangeEvent(){
     var inputElm = this.DOM.originalInput,
@@ -35,6 +35,7 @@ export default {
     binding( bindUnbind = true ){
         var _CB = this.events.callbacks,
             _CBR,
+            that = this,
             action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
         // do not allow the main events to be bound more than once
@@ -70,6 +71,19 @@ export default {
 
             this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
         }
+
+        if( this.settings.mode == 'mix' )
+            observeDOM( this.DOM.input, function(m){
+                var lastChild = that.DOM.input.lastChild;
+
+                // for some reason a weird empty textNode is being added (delete all content in mix mode & add a tag)
+                if( lastChild && lastChild.nodeType == 3 && !lastChild.wholeText )
+                    lastChild.parentNode.removeChild(lastChild)
+
+                if( lastChild && lastChild.nodeType == 1 && lastChild.classList.contains(that.settings.classNames.tag) ){
+                    that.DOM.input.insertAdjacentHTML('beforeend', '<br>')
+                }
+            })
     },
 
     /**
@@ -177,6 +191,7 @@ export default {
 
                     case 'Delete':
                     case 'Backspace' : {
+                        return
                         if( this.state.editing ) return
 
                         var selection = document.getSelection(),
@@ -227,7 +242,7 @@ export default {
                                 else
                                     this.trigger('remove', { tag:node, index:nodeIdx, data:tagData })
                             })
-                            .filter(n=>n)  // remove empty items in the mapped array
+                                .filter(n=>n)  // remove empty items in the mapped array
                         }, 50) // Firefox needs this higher duration for some reason or things get buggy when deleting text from the end
                         break;
                     }

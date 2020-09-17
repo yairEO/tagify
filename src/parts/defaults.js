@@ -18,7 +18,7 @@ export default {
     trim                : true,           // whether or not the value provided should be trimmed, before being added as a tag
 
     mixMode: {
-        insertAfterTag  : '\u00A0',       // String/Node to inject after a tag has been added
+        insertAfterTag  : '\u00A0',       // String/Node to inject after a tag has been added (see #588)
     },
 
     autoComplete: {

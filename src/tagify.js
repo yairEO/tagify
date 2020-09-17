@@ -524,7 +524,7 @@ Tagify.prototype = {
                 ['Start', 'End'].forEach(pos =>
                     sel.getRangeAt(0)["set" + pos](node, start ? start : node.length)
                 )
-        }
+            }
         } catch(err){
             console.warn("Tagify: ", err)
         }
@@ -592,7 +592,7 @@ Tagify.prototype = {
                 v = [];
 
             // when a text was pasted in FF, the "this.DOM.input" element will have <br> but no newline symbols (\n), and this will
-            // result in tags no being properly created if one wishes to create a separate tag per newline.
+            // result in tags not being properly created if one wishes to create a separate tag per newline.
             clone.childNodes.forEach(n => n.nodeType==3 && v.push(n.nodeValue))
             v = v.join("\n")
 
@@ -1311,8 +1311,8 @@ Tagify.prototype = {
                     this.update() // update the original input with the current value
                 }
             }
-        )
-        .catch(reason => {})
+            )
+            .catch(reason => {})
     },
 
     removeAllTags(){
