@@ -203,6 +203,8 @@ export default {
     },
 
     position( ddHeight ){
+        if( this.settings.dropdown.position == 'manual' ) return
+
         var placeAbove, rect, top, bottom, left, width, parentsPositions,
             ddElm = this.DOM.dropdown,
             viewportHeight = document.documentElement.clientHeight,
@@ -432,8 +434,7 @@ export default {
         // Try to autocomplete the typed value with the currently highlighted dropdown item
         if( this.settings.autoComplete ){
             this.input.autocomplete.suggest.call(this, itemData)
-            if( this.settings.dropdown.position != 'manual' )
-                this.dropdown.position.call(this) // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
+            this.dropdown.position.call(this) // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
         }
     },
 
