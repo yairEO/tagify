@@ -758,6 +758,7 @@ suggestionClick        | Object <sub>(click event data)</sub>        | [Example]
 
 Name                    | Type                         | Default                                     | Info
 ----------------------- | ---------------------------- | ------------------------------------------- | --------------------------------------------------------------------------
+tagTextProp             | <sub>String</sub>            | `value`                                     | Tag data Object property which will be displayed as the tag's text. Remember to keep "value" property <em>unique</em>.
 placeholder             | <sub>String</sub>            |                                             | Placeholder text. If this attribute is set on an input/textarea element it will override this setting
 delimiters              | <sub>String</sub>            | `,`                                         | [RegEx **string**] split tags by any of these delimiters. Example: `",|.| "`
 pattern                 | <sub>String/RegEx</sub>      | null                                        | Validate input by RegEx pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`

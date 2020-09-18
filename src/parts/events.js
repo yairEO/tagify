@@ -1,4 +1,4 @@
-import { decode, extend, observeDOM } from './helpers'
+import { decode, extend } from './helpers'
 
 export function triggerChangeEvent(){
     var inputElm = this.DOM.originalInput,
@@ -35,7 +35,6 @@ export default {
     binding( bindUnbind = true ){
         var _CB = this.events.callbacks,
             _CBR,
-            that = this,
             action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
         // do not allow the main events to be bound more than once
@@ -71,15 +70,6 @@ export default {
 
             this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
         }
-
-        if( this.settings.mode == 'mix' )
-            observeDOM( this.DOM.input, function(m){
-                var lastChild = that.DOM.input.lastChild;
-
-                // for some reason a weird empty textNode is being added (delete all content in mix mode & add a tag)
-                if( lastChild && lastChild.nodeType == 3 && !lastChild.wholeText )
-                    lastChild.parentNode.removeChild(lastChild)
-            })
     },
 
     /**
@@ -131,11 +121,10 @@ export default {
                         anchorOffset : selection.anchorOffset,
                         anchorNode: selection.anchorNode
                     }
-
-                    if (selection.getRangeAt && selection.rangeCount)
-                        this.state.selection.range = selection.getRangeAt(0)
-
                 }
+
+                if (selection.getRangeAt && selection.rangeCount)
+                    this.state.selection.range = selection.getRangeAt(0)
 
                 return
             }
@@ -338,12 +327,20 @@ export default {
                 lastTagsCount = this.value.length,
                 matchFlaggedTag,
                 matchDelimiters,
-                tagsCount = this.getTagElms().length;
+                tagsElems = this.getTagElms(),
+                remainingTagsValues = [].map.call(tagsElems, node => this.tagData(node).value);
 
-            // check if ANY tags were magically added through browser redo/undo
-            if( tagsCount > lastTagsCount ){
+            // re-add "readonly" tags which might have been removed
+            this.value.slice().forEach(item => {
+                console.log(item, item.readonly, remainingTagsValues)
+                if( item.readonly && !remainingTagsValues.includes(item.value) )
+                    this.injectAtCaret( this.createTagElem(item), window.getSelection().getRangeAt(0) )
+            })
+
+            // check if tags were magically added/removed (browser redo/undo or CTRL-A -> delete)
+            if( tagsElems.length != lastTagsCount ){
                 this.value = [].map.call(this.getTagElms(), node => node.__tagifyTagData)
-                this.update({withoutChangeEvent:true})
+                this.update({ withoutChangeEvent:true })
                 return
             }
 

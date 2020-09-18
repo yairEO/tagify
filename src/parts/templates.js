@@ -26,7 +26,7 @@ export default {
                     ${this.getAttributes(tagData)}>
             <x title='' class="${this.settings.classNames.tagX}" role='button' aria-label='remove tag'></x>
             <div>
-                <span class="${this.settings.classNames.tagText}">${tagData.value}</span>
+                <span class="${this.settings.classNames.tagText}">${tagData[this.settings.tagTextProp] || tagData.value}</span>
             </div>
         </tag>`
     },

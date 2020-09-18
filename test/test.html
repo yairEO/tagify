@@ -111,7 +111,8 @@
             <section id='section-mix'>
                 <textarea name='simple-mix' placeholder="type something">and[[   [[alice]] text [[bob]] [[foo]], [[alice]], [[foo]]</textarea>
                 <textarea name='mix' placeholder="type something">
-                  [[{"id":101, "value":"cartman", "title":"Eric Cartman", "prefix":"@"}]] and [[{"id":500, "value":"cartman", "title":"xxx", "prefix":"@"}]] [[kyle]] do not know [[homer simpson]] because he's a
+                  [[{"value":101, "text":"cartman", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":500, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
+[[{"value": "readonly", "readonly":true}]]
                 </textarea>
             </section>
 
@@ -150,7 +151,7 @@
 
   window.tagified = {
     "mix"               : 1,
-    "basic"             : 1,
+    "basic"             : 0,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
@@ -419,12 +420,13 @@
 
   var settings = {
     mode: 'mix',
+  //  maxTags: 3,
     pattern: '#',
     dropdown: {
       enabled: 1
     },
     enforceWhitelist : true,
-    whitelist:['alice','bob','foo','bar'],
+    whitelist: ['alice','bob','foo','bar'],
     duplicates: true,
   }
 
@@ -436,6 +438,7 @@
   var input = document.querySelector('[name=mix]'),
       // init Tagify script on the above inputs
       tagify = new Tagify(input, {
+          tagTextProp      : 'text',
           mode             : 'mix',  // <--  Enable mixed-content
           pattern          : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
           duplicates       : true,

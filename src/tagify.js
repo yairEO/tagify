@@ -900,12 +900,13 @@ Tagify.prototype = {
      * @param {String} s
      */
     parseMixTags( s ){
-        var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist} = this.settings,
+        var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist, maxTags} = this.settings,
             tagsDataSet = [];
 
         s = s.split(mixTagsInterpolator[0]).map((s1, i) => {
             var s2 = s1.split(mixTagsInterpolator[1]),
                 preInterpolated = s2[0],
+                maxTagsReached = tagsDataSet.length == maxTags,
                 tagData,
                 tagElm;
 
@@ -918,7 +919,10 @@ Tagify.prototype = {
                 tagData = this.normalizeTags(preInterpolated)[0]  //{value:preInterpolated}
             }
 
-            if( s2.length > 1   &&   (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&   !(!duplicates  && this.isTagDuplicate(tagData.value)) ){
+            if( !maxTagsReached   &&
+                s2.length > 1   &&
+                (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&
+                !(!duplicates && this.isTagDuplicate(tagData.value)) ){
                 transformTag.call(this, tagData)
 
                 tagElm = this.createTagElem(tagData)

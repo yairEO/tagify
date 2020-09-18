@@ -1,6 +1,7 @@
 export default {
     delimiters          : ",",            // [RegEx] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
     pattern             : null,           // RegEx pattern to validate input by. Ex: /[1-9]/
+    tagTextProp         : 'value',        // tag data Object property which will be displayed as the tag's text
     maxTags             : Infinity,       // Maximum number of tags
     callbacks           : {},             // Exposed callbacks object to be triggered on certain events
     addTagOnBlur        : true,           // Flag - automatically adds the text which was inputed as a tag when blur event happens
