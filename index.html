@@ -117,8 +117,8 @@
           }
 
           header.isSticky .repoLink{
-            height: 45px;
-            right: 100px;
+            height: 40px;
+            top: auto;
           }
 
           header.isSticky .repoLink svg{ filter: none; }
@@ -1307,10 +1307,11 @@
                     else if( units )
                         value += units
 
-                    rules = [...document.styleSheets[2].cssRules].find(x => x.selectorText == '.tagify');
+                    rules = [...document.styleSheets[3].cssRules].find(x => x.selectorText == '.tagify');
                     rules.style.setProperty("--" + name, value)
                 }
                 catch(err){
+                    console.log(err)
                 }
             }
 
