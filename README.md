@@ -656,6 +656,7 @@ Name                       | Parameters                                         
 `tagLoading`               | `HTMLElement`, Boolean                                                    | same as above but for a specific tag element
 `createTagElem`            | `Object` <sub>(`tagData`)</sub>                                           | Returns a tag element from the supplied tag data
 `injectAtCaret`            | `HTMLElement` <sub>(`injectedNode`)</sub>, `Object` <sub>(`range`)</sub>  | Injects text or HTML node at last caret position. `range` parameter is *optional*
+`placeCaretAfterNode`      | `HTMLElement`                                                             | Places the caret after a given node
 `insertAfterTag`           | `HTMLElement` <sub>(tag element)</sub>, `HTMLElement`/`String` <sub>(whatever to insert after)</sub>
 `toggleInvalidClass`       | `Boolean`                                                                 | Toggles `tagify--invalid` class to the Tagify wrapper element
 `dropdown.selectAll`       |                                                                           | Add **all** whitelist items as tags and close the suggestion dropdown

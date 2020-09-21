@@ -24,7 +24,6 @@ function Tagify( input, settings ){
     this.isFirefox = typeof InstallTrigger !== 'undefined'
     this.isIE = window.document.documentMode; // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
 
-
     this.applySettings(input, settings||{})
 
     this.state = {
@@ -209,14 +208,21 @@ Tagify.prototype = {
     build( input ){
         var DOM  = this.DOM;
 
-        DOM.originalInput = input
-        DOM.scope = this.parseTemplate('wrapper', [input, this.settings])
-        DOM.input = DOM.scope.querySelector('.' + this.settings.classNames.input)
-        input.parentNode.insertBefore(DOM.scope, input)
-
-        if( this.settings.dropdown.enabled >= 0 ){
-            this.dropdown.init.call(this)
+        if( this.settings.mixMode.integrated ){
+            DOM.originalInput = null;
+            DOM.scope = input;
+            DOM.input = input;
         }
+
+        else {
+            DOM.originalInput = input
+            DOM.scope = this.parseTemplate('wrapper', [input, this.settings])
+            DOM.input = DOM.scope.querySelector('.' + this.settings.classNames.input)
+            input.parentNode.insertBefore(DOM.scope, input)
+        }
+
+        if( this.settings.dropdown.enabled >= 0 )
+            this.dropdown.init.call(this)
     },
 
     /**
@@ -232,13 +238,17 @@ Tagify.prototype = {
      * if the original input had any values, add them as tags
      */
     loadOriginalValues( value ){
-        var lastChild;
-        value = value || this.DOM.originalInput.value
+        var lastChild,
+            _s = this.settings;
+
+        value = value || _s.mixMode.integrated
+            ? this.DOM.input.textContent
+            : this.DOM.originalInput.value
 
         if( value ){
             this.removeAllTags()
 
-            if( this.settings.mode == 'mix' ){
+            if( _s.mode == 'mix' ){
                 this.parseMixTags(value.trim())
 
                 lastChild = this.DOM.input.lastChild;
@@ -253,14 +263,14 @@ Tagify.prototype = {
                         value = JSON.parse(value)
                 }
                 catch(err){}
-                this.addTags(value).forEach(tag => tag && tag.classList.add(this.settings.classNames.tagNoAnimation))
+                this.addTags(value).forEach(tag => tag && tag.classList.add(_s.classNames.tagNoAnimation))
             }
         }
 
         else
             this.postUpdate()
 
-        this.state.lastOriginalValueReported = this.DOM.originalInput.value
+        this.state.lastOriginalValueReported = _s.mixMode.integrated ? '' : this.DOM.originalInput.value
         this.state.loadedOriginalValues = true
     },
 
@@ -363,14 +373,14 @@ Tagify.prototype = {
         }
     },
 
-    placeCaretAfterTag( node ){
+    placeCaretAfterNode( node ){
         var nextSibling = node.nextSibling,
             sel = window.getSelection(),
             range = sel.getRangeAt(0);
 
         if (sel.rangeCount) {
-            range.setStartAfter(nextSibling || node);
-            range.setEndAfter(nextSibling || node);
+            range.setStartBefore(nextSibling || node);
+            range.setEndBefore(nextSibling || node);
             sel.removeAllRanges();
             sel.addRange(range);
         }
@@ -387,6 +397,7 @@ Tagify.prototype = {
 
         tagElm.appendChild(newNode)
         tagElm.parentNode.insertBefore(newNode, tagElm.nextSibling)
+        return newNode
     },
 
     /**
@@ -1148,8 +1159,8 @@ Tagify.prototype = {
 
         // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
         !createdFromDelimiters && setTimeout(() => {
-            this.insertAfterTag(tagElm)
-            this.placeCaretAfterTag(tagElm)
+            var elm = this.insertAfterTag(tagElm) || tagElm;
+            this.placeCaretAfterNode(elm)
         }, this.isFirefox ? 100 : 0)
 
         this.state.tag = null
@@ -1344,7 +1355,11 @@ Tagify.prototype = {
 
     postUpdate(){
         var classNames = this.settings.classNames,
-            hasValue = this.settings.mode == 'mix' ? this.DOM.originalInput.value : this.value.length;
+            hasValue = this.settings.mode == 'mix'
+                ? this.settings.mixMode.integrated
+                    ? this.DOM.input.textContent
+                    : this.DOM.originalInput.value
+                : this.value.length;
 
         this.DOM.scope.classList.toggle(classNames.hasMaxTags,  this.value.length >= this.settings.maxTags)
         this.DOM.scope.classList.toggle(classNames.hasNoTags,  !this.value.length)
@@ -1360,13 +1375,15 @@ Tagify.prototype = {
             { withoutChangeEvent } = args || {},
             value = removeCollectionProp(this.value, ['__isValid', '__removed']);
 
-        inputElm.value = this.settings.mode == 'mix'
-            ? this.getMixedTagsAsString(value)
-            : value.length
-                ? this.settings.originalInputValueFormat
-                    ? this.settings.originalInputValueFormat(value)
-                    : JSON.stringify(value)
-                : ""
+        if( !this.settings.mixMode.integrated ){
+            inputElm.value = this.settings.mode == 'mix'
+                ? this.getMixedTagsAsString(value)
+                : value.length
+                    ? this.settings.originalInputValueFormat
+                        ? this.settings.originalInputValueFormat(value)
+                        : JSON.stringify(value)
+                    : ""
+        }
 
         this.postUpdate()
 

@@ -11,6 +11,8 @@
     $tags-focus-border-color : #3595f6 !default;
     $tagMargin               : 5px !default;
     $tag-pad                 : .3em .5em !default;
+    $tag-min-width           : 1ch !default;
+    $tag-max-width           : auto !default;
     $tag-text-color          : black !default;
     $tag-text-color--edit    : black !default;
     $tag-bg                  : #E5E5E5 !default;
@@ -22,6 +24,7 @@
     $tag-invalid-color       : $tag-remove !default;
     $tag-invalid-bg          : rgba($tag-remove, .5) !default;
     $tag-inset-shadow-size   : 1.1em !default;
+    $tag-hide-transition     : .3s !default;
     $placeholder-color       : rgba($tag-text-color, .4) !default;
     $placeholder-color-focus : rgba($tag-text-color, .25) !default;
     $input-color             : inherit !default;
@@ -45,9 +48,9 @@
     --tag-remove-btn-bg        : #{$tag-remove-btn-bg};
     --tag-remove-btn-bg--hover : #{$tag-remove-btn-bg--hover};
     --input-color              : #{$input-color};
-    --tag--min-width           : 1ch;
-    --tag--max-width           : auto;
-    --tag-hide-transition      : .3s;
+    --tag--min-width           : #{$tag-min-width};
+    --tag--max-width           : #{$tag-max-width};
+    --tag-hide-transition      : #{$tag-hide-transition};
     --placeholder-color        : #{$placeholder-color};
     --placeholder-color-focus  : #{$placeholder-color-focus};
     --loader-size              : .8em;
@@ -184,9 +187,9 @@
             box-sizing     : border-box;
             max-width      : 100%;
             padding        : $tag-pad;
-            padding        : var(--tag-pad);
+            padding        : var(--tag-pad, $tag-pad);
             color          : $tag-text-color;
-            color          : var(--tag-text-color);
+            color          : var(--tag-text-color, $tag-text-color);
             line-height    : inherit;
             border-radius  : 3px;
             user-select    : none;
@@ -199,8 +202,10 @@
                 text-overflow  : ellipsis;
                 display        : inline-block;
                 vertical-align : top;
-                min-width      : var(--tag--min-width);
-                max-width      : var(--tag--max-width);
+                min-width      : $tag-min-width;
+                max-width      : $tag-max-width;
+                min-width      : var(--tag--min-width, $tag-min-width);
+                max-width      : var(--tag--max-width, $tag-max-width);
                 transition     : .8s ease, .1s color;
 
 
@@ -226,7 +231,7 @@
                 animation : tags--bump .3s ease-out 1;
 
                 box-shadow: 0 0 0 $tag-inset-shadow-size $tag-bg inset;
-                box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-bg) inset;
+                box-shadow: 0 0 0 var(--tag-inset-shadow-size, $tag-inset-shadow-size) var(--tag-bg, $tag-bg) inset;
             }
         }
 
@@ -237,7 +242,7 @@
                     $size: -2px;
                     top:$size; right:$size; bottom:$size; left:$size;
                     box-shadow: 0 0 0 $tag-inset-shadow-size $tag-hover inset;
-                    box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-hover) inset;
+                    box-shadow: 0 0 0 var(--tag-inset-shadow-size, $tag-inset-shadow-size) var(--tag-hover, $tag-hover) inset;
                   //  box-shadow: 0 0 0 0 $tag-remove inset
                 }
                 // background:nth($tagColor,2);
@@ -273,8 +278,8 @@
             margin-right   : 0;
             opacity        : 0;
             transform      : scale(0);
-            transition     : .3s;
-            transition     : var(--tag-hide-transition);
+            transition     : $tag-hide-transition;
+            transition     : var(--tag-hide-transition, $tag-hide-transition);
             pointer-events : none;
         }
 
@@ -290,7 +295,7 @@
                     > span{ opacity:.5; } // filter:blur(.2px);
                     &::before{
                         box-shadow: 0 0 0 $tag-inset-shadow-size $tag-invalid-bg inset !important;
-                        box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-invalid-bg) inset !important;
+                        box-shadow: 0 0 0 var(--tag-inset-shadow-size, $tag-inset-shadow-size) var(--tag-invalid-bg, $tag-invalid-bg) inset !important;
                         transition: .2s;
                     }
                 }
@@ -309,11 +314,11 @@
         &--editable{
             > div{
                 color : $tag-text-color--edit;
-                color : var(--tag-text-color--edit);
+                color : var(--tag-text-color--edit, $tag-text-color--edit);
 
                 &::before{
                     box-shadow: 0 0 0 2px $tag-hover inset !important;
-                    box-shadow: 0 0 0 2px var(--tag-hover) inset !important;
+                    box-shadow: 0 0 0 2px var(--tag-hover, $tag-hover) inset !important;
                 }
             }
 
@@ -321,7 +326,7 @@
                 > div{
                     &::before{
                         box-shadow: 0 0 0 2px $tag-invalid-color inset !important;
-                        box-shadow: 0 0 0 2px var(--tag-invalid-color) inset !important;
+                        box-shadow: 0 0 0 2px var(--tag-invalid-color, $tag-invalid-color) inset !important;
                     }
                 }
             }
@@ -338,9 +343,9 @@
             cursor         : pointer;
             font           : #{$size}/1 Arial;
             background     : $tag-remove-btn-bg;
-            background     : var(--tag-remove-btn-bg);
+            background     : var(--tag-remove-btn-bg, $tag-remove-btn-bg);
             color          : $tag-remove-btn-color;
-            color          : var(--tag-remove-btn-color);
+            color          : var(--tag-remove-btn-color, $tag-remove-btn-color);
 
             width          : $size;
             height         : $size;
@@ -354,16 +359,16 @@
             }
 
             &:hover{
-                color:white;
-                background:$tag-remove-btn-bg--hover;
-                background:var(--tag-remove-btn-bg--hover);
+                color: white;
+                background: $tag-remove-btn-bg--hover;
+                background: var(--tag-remove-btn-bg--hover, $tag-remove-btn-bg--hover);
                 // + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
                 + div{
                     > span{ opacity:.5; } // filter:blur(.2px);
                     &::before{
                         box-shadow: 0 0 0 $tag-inset-shadow-size rgba($tag-remove, .3) inset !important;
-                        box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-remove-bg) inset !important;
-                        transition:.2s;
+                        box-shadow: 0 0 0 var(--tag-inset-shadow-size, $tag-inset-shadow-size) var(--tag-remove-bg, rgba($tag-remove, .3)) inset !important;
+                        transition: .2s;
                     }
                 }
             }
@@ -393,7 +398,7 @@
         position: relative;
         white-space: pre-wrap; // #160 Line break (\n) as delimeter
         color: $input-color;
-        color: var(--input-color);
+        color: var(--input-color, $input-color);
         box-sizing: inherit;
 
         &:empty{

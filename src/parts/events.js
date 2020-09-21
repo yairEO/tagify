@@ -1,6 +1,8 @@
 import { decode, extend } from './helpers'
 
 export function triggerChangeEvent(){
+    if( this.settings.mixMode.integrated ) return;
+
     var inputElm = this.DOM.originalInput,
         changed = this.state.lastOriginalValueReported !== inputElm.value,
         event = new CustomEvent("change", {bubbles: true}); // must use "CustomEvent" and not "Event" to support IE
@@ -121,10 +123,10 @@ export default {
                         anchorOffset : selection.anchorOffset,
                         anchorNode: selection.anchorNode
                     }
-                }
 
-                if (selection.getRangeAt && selection.rangeCount)
-                    this.state.selection.range = selection.getRangeAt(0)
+                    if (selection.getRangeAt && selection.rangeCount)
+                        this.state.selection.range = selection.getRangeAt(0)
+                }
 
                 return
             }
@@ -150,7 +152,6 @@ export default {
                 // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
                 shouldAddTags && this.addTags(text, true)
             }
-
 
             this.DOM.input.removeAttribute('style')
             this.dropdown.hide.call(this)
@@ -332,7 +333,6 @@ export default {
 
             // re-add "readonly" tags which might have been removed
             this.value.slice().forEach(item => {
-                console.log(item, item.readonly, remainingTagsValues)
                 if( item.readonly && !remainingTagsValues.includes(item.value) )
                     this.injectAtCaret( this.createTagElem(item), window.getSelection().getRangeAt(0) )
             })

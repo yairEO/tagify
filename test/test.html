@@ -7,7 +7,6 @@
         <meta name="author" content="Yair Even-Or">
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="../dist/tagify.css">
-
         <script src="../dist/tagify.min.js"></script>
 
         <style>
@@ -16,18 +15,20 @@
                 max-width:600px;
             }
 
+            form > section{ margin-bottom: 2em; }
+
             .tagify+input, .tagify+textarea {
                 display: initial!important;
                 width: 100%;
-                margin-top: -1.5em;
+                margin-top: .2em;
                 min-height: 11ch;
                 background: powderblue;
                 font-family: "Fira Code";
             }
 
             .tagify{
-                min-width:400px;
-                margin: 1.5em 0;
+                margin: .2em;
+                min-width: 400px;
             }
 
             /* for disabling the script */
@@ -110,10 +111,19 @@
 
             <section id='section-mix'>
                 <textarea name='simple-mix' placeholder="type something">and[[   [[alice]] text [[bob]] [[foo]], [[alice]], [[foo]]</textarea>
-                <textarea name='mix' placeholder="type something">
+
+                <textarea name='mix' class='tagify-editor' placeholder="type something">
                   [[{"value":101, "text":"cartman", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":500, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
 [[{"value": "readonly", "readonly":true}]]
                 </textarea>
+            </section>
+
+            <section id='section-markdown'>
+                <section class='toolbar'>
+                    <button type='button' value='bold'>Bold</button>
+                    <button type='button' value='italic'>Italic</button>
+                </section>
+                <textarea name='markdown' placeholder="type something">and this is so cool [   [[alice]] text [[bob]] [[foo]], [[alice]], [[foo]]</textarea>
             </section>
 
             <section id='section-outside-of-the-box'>
@@ -145,12 +155,12 @@
               <input name='tags-select-mode' class='selectMode' placeholder="Please select" />
             </section>
         </form>
-
 <script>
   document.forms[0].reset()
 
   window.tagified = {
-    "mix"               : 1,
+    "mix"               : 0,
+    "markdown"          : 1,
     "basic"             : 0,
     "textarea"          : 0,
     "manual-suggestions": 0,
@@ -545,6 +555,99 @@
   })()
 </script>
 
+<script data-name='markdown'>
+(function(){
+    var settings = {
+        mode: 'mix',
+        pattern: '#',
+        enforceWhitelist : true,
+        whitelist: ['alice','bob','foo','bar'],
+        duplicates: true,
+        dropdown: {
+            enabled: 1,
+            position: 'text'
+        },
+        mixMode: {
+            // integrated: true
+        }
+    }
+
+    var tagify = new Tagify(document.querySelector('[name="markdown"]'), settings)
+
+    var toolbarElm = document.querySelector('#section-markdown > .toolbar')
+    toolbarElm.addEventListener('click', onToolbarClick)
+
+    function onToolbarClick(e){
+        var btnElm = e.target;
+        if( btnElm.tagName != 'BUTTON' ) return
+
+        var action = btnElm.value
+        doAction(action)
+    }
+
+    function doAction(action){
+        var wrapperElm,
+            actionToTagsMap = {"bold":"strong", "italic":"em"},
+            sel = window.getSelection(),
+            range = sel.rangeCount && sel.getRangeAt(0),
+            selectionInsideTagify = tagify.DOM.input.contains( sel.anchorNode ),
+            tagifyRange = tagify.state.selection && selectionInsideTagify ? tagify.state.selection.range : null,
+            clonedContents = tagifyRange.cloneContents(),
+            isValidSelection, parrentIsTag;
+
+        if( !action || !actionToTagsMap[action] || !range || !clonedContents.textContent ) return
+
+        // do not wrap with the same element if already one of the parents has same tagName
+        isValidSelection = range.startContainer != tagify.DOM.input   &&   tagify.DOM.input.contains(range.startContainer)
+        if( !isValidSelection ) return
+
+        parrentIsTag = closestByTagName(range.startContainer, actionToTagsMap[action], tagify.DOM.input);
+
+        if( parrentIsTag ){
+            return undoTag(range, actionToTagsMap[action])
+        }
+
+        wrapperElm = document.createElement(actionToTagsMap[action])
+        range.surroundContents(wrapperElm)
+
+        tagify.placeCaretAfterNode(wrapperElm)
+        //var previousContent = range.extractContents()
+        //range.insertNode( tagify.parseHTML(`<${wrapper}>${previousContent}</${wrapper}>`) )
+    }
+
+    // take the selected text "outside", rebuild needed tags around it, and re-place it in the DOM
+    // TBD - https://jsbin.com/balagih/edit?html,js,output
+    function undoTag(range, tagName){
+        var {endContainer:{length}, startOffset, endOffset} = range;
+    }
+
+    function getSelectedTextWrapperTags(range){
+        var p = range.startContainer,
+            endNode = tagify.DOM.input,
+            extracted = range.extractContents(),
+            wrappers;
+
+        while(p){
+            p = p.parentNode == endNode ? null : p.parentNode
+            wrappers.push(p.tagName)
+        }
+
+        return wrappers
+    }
+
+    function closestByTagName(startNode, tagName, endNode){
+        var p = startNode
+
+        while(p){
+            p = p.parentNode == endNode ? null : p.parentNode
+            if( p && p.tagName.toLowerCase() == tagName )
+                return p
+        }
+
+        return false
+    }
+})()
+</script>
 
 <script data-name="outside-of-the-box">
   tagified["outside-of-the-box"] && (function(){
@@ -977,6 +1080,5 @@ tagified["mode-select"] && (function(){
     }
 })()
 </script>
-
-    </body>
+</body>
 </html>
