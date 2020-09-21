@@ -635,33 +635,34 @@ Name                            | Info
 
 `Tagify` is [prototype](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Object_prototypes) based and There are many methods, but I've chosen to list the most relevant ones:
 
-Name                       | Parameters                                                                | Info
--------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------
-`destroy`                  |                                                                           | Reverts the input element back as it was before Tagify was applied
-`removeAllTags`            |                                                                           | Removes all tags and resets the original input tag's value property
-`addTags`                  | `tagsItems`, `clearInput`, `skipInvalid`                                  | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
-`removeTags`               | `Array`/`HTMLElement`/`String`, `silent`, `tranDuration`                  | (#502) Remove single/multiple Tags. When nothing passed, removes last tag. <ul><li>`silent` - A flag, which when turned on, does not remove any value and does not update the original input value but simply removes the tag from tagify</li><li>`tranDuration` - delay for animation, after which the tag will be removed from the DOM</li></ul>
-`loadOriginalValues`       | `String`/`Array`                                                          | Converts the input's value into tags. This method gets called automatically when instansiating Tagify. Also works for mixed-tags
-`getWhitelistItemsByValue` | `Object`                                                                  | `{value}` - return an Array of found matching items (case-insensitive)
-`getTagIndexByValue`       | `String`                                                                  | Returns the index of a specific tag, by value
-`getTagElmByValue`         | `String`                                                                  | Returns the first matched tag node, if found
-`isTagDuplicate`           | `String`                                                                  | Returns how many tags already exists with that value
-`parseMixTags`             | `String`                                                                  | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
-`getTagElms`               |                                                                           | Returns a DOM nodes list of all the tags
-`getTagElmByValue`         | `String`                                                                  | Returns a specific tag DOM node by value
-`tagData`                  | `HTMLElement`, `Object`                                                   | set/get tag data on a tag element (has`.tagify__tag` class by default)
-`editTag`                  | `HTMLElement`                                                             | Goes to edit-mode in a specific tag
-`replaceTag`               | `tagElm`, `Object` <sub>(`tagData`)</sub>                                 | Exit a tag's edit-mode. if "tagData" exists, replace the tag element with new data and update Tagify value
-`loading`                  | `Boolean`                                                                 | Toogle loading state on/off (Ex. AJAX whitelist pulling)
-`tagLoading`               | `HTMLElement`, Boolean                                                    | same as above but for a specific tag element
-`createTagElem`            | `Object` <sub>(`tagData`)</sub>                                           | Returns a tag element from the supplied tag data
-`injectAtCaret`            | `HTMLElement` <sub>(`injectedNode`)</sub>, `Object` <sub>(`range`)</sub>  | Injects text or HTML node at last caret position. `range` parameter is *optional*
+Name                       | Parameters                                                                              | Info
+-------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------
+`destroy`                  |                                                                                         | Reverts the input element back as it was before Tagify was applied
+`removeAllTags`            |                                                                                         | Removes all tags and resets the original input tag's value property
+`addTags`                  | <ol><li>`Array`/`String`/`Object` tag(s) to add</li><li>`Boolean` clear input after adding</li><li>`Boolean` - skip adding invalids</li><ol>  | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
+`removeTags`               | <ol><li>`Array`/`HTMLElement`/`String` tag(s) to remove</li><li>`silent` does not update the component's value</li><li>`tranDuration` Transition duration (in `ms`)</li></ul> | (#502) Remove single/multiple Tags. When nothing passed, removes last tag. <ul><li>`silent` - A flag, which when turned on, does not remove any value and does not update the original input value but simply removes the tag from tagify</li><li>`tranDuration` - delay for animation, after which the tag will be removed from the DOM</li></ul>
+`loadOriginalValues`       | `String`/`Array`                                                                        | Converts the input's value into tags. This method gets called automatically when instansiating Tagify. Also works for mixed-tags
+`getWhitelistItemsByValue` | `Object`                                                                                | `{value}` - return an Array of found matching items (case-insensitive)
+`getTagIndexByValue`       | `String`                                                                                | Returns the index of a specific tag, by value
+`getTagElmByValue`         | `String`                                                                                | Returns the first matched tag node, if found
+`isTagDuplicate`           | `String`                                                                                | Returns how many tags already exists with that value
+`parseMixTags`             | `String`                                                                                | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
+`getTagElms`               |                                                                                         | Returns a DOM nodes list of all the tags
+`getTagElmByValue`         | `String`                                                                                | Returns a specific tag DOM node by value
+`tagData`                  | `HTMLElement`, `Object`                                                                 | set/get tag data on a tag element (has`.tagify__tag` class by default)
+`editTag`                  | `HTMLElement`                                                                           | Goes to edit-mode in a specific tag
+`replaceTag`               | `tagElm`, `Object` <sub>(`tagData`)</sub>                                               | Exit a tag's edit-mode. if "tagData" exists, replace the tag element with new data and update Tagify value
+`loading`                  | `Boolean`                                                                               | Toogle loading state on/off (Ex. AJAX whitelist pulling)
+`tagLoading`               | `HTMLElement`, Boolean                                                                  | same as above but for a specific tag element
+`createTagElem`            | `Object` <sub>(`tagData`)</sub>                                                         | Returns a tag element from the supplied tag data
+`injectAtCaret`            | `HTMLElement` <sub>(`injectedNode`)</sub>, `Object` <sub>(`range`)</sub>                | Injects text or HTML node at last caret position. `range` parameter is *optional*
 `placeCaretAfterNode`      | `HTMLElement`                                                             | Places the caret after a given node
-`insertAfterTag`           | `HTMLElement` <sub>(tag element)</sub>, `HTMLElement`/`String` <sub>(whatever to insert after)</sub>
-`toggleInvalidClass`       | `Boolean`                                                                 | Toggles `tagify--invalid` class to the Tagify wrapper element
-`dropdown.selectAll`       |                                                                           | Add **all** whitelist items as tags and close the suggestion dropdown
-`updateValueByDOMTags`     |                                                                           | Iterate tag DOM nodes and re-build  the `tagify.value` array (call this if tags get sorted manually)
-`parseTemplate`            | `String`/`Function` <sub>(template name or function)</sub>, `Array` <sub>(data)</sub>  | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node
+`insertAfterTag`           | `HTMLElement` <sub>(tag element)</sub>, `HTMLElement`/`String` <sub>(whatever to insert after)</sub> |
+`toggleInvalidClass`       | `Boolean`                                                                               | Toggles `tagify--invalid` class to the Tagify wrapper element
+`dropdown.selectAll`       |                                                                                         | Add **all** whitelist items as tags and close the suggestion dropdown
+`updateValueByDOMTags`     |                                                                                         | Iterate tag DOM nodes and re-build  the `tagify.value` array (call this if tags get sorted manually)
+`parseTemplate`            | `String`/`Function` <sub>(template name or function)</sub>, `Array` <sub>(data)</sub>   | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node
+
 
 ## Events
 
