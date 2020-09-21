@@ -118,7 +118,8 @@
 
           header.isSticky .repoLink{
             height: 40px;
-            top: auto;
+            top: 2px;
+            transition: .55s cubic-bezier(.5,0,.5,1.075);
           }
 
           header.isSticky .repoLink svg{ filter: none; }
@@ -129,7 +130,7 @@
             top: -2px;
             right: 50%;
             transform: translateX(50%);
-            transition: .55s cubic-bezier(.5,0,.5,1.075);
+            transition: .2s ease-out;
          }
          .repoLink svg{
             filter: drop-shadow(0px 4px 0px white)
@@ -478,10 +479,10 @@
                       Passing the input element as a parameter to <em>Tagify</em> will transform it into a tags-component. Without any settings, the user will be allowed to create any tags they want, without a count limit.
                     </p>
                     <p>
-                      The input has a pre-defined value which Tagify creates two from tags.
+                      If the input element has a pre-defined <code>value</code> attribute, tags will be created from it.
                     </p>
                     <p>
-                      (<strong><em>Double-click</em> on a tag to edit it</strong>)
+                      (<strong>Try <em>Double-clicking</em> a tag to edit it</strong>)
                     </p>
                     <details>
                       <summary></summary>

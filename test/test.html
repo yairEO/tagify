@@ -160,8 +160,8 @@
 
   window.tagified = {
     "mix"               : 0,
-    "markdown"          : 1,
-    "basic"             : 0,
+    "markdown"          : 0,
+    "basic"             : 1,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
@@ -251,7 +251,7 @@
 
     // init Tagify script on the above inputs
     var tagify = new Tagify(input, {
-        pattern: /^[A-Za-z_✲ "]+$/,
+        pattern: /^[0-9A-Za-z_✲ "]+$/,
         editTags : 1,
         duplicates: false,
         keepInvalidTags: true
