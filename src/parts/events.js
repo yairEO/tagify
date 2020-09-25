@@ -177,7 +177,6 @@ export default {
 
                     case 'Delete':
                     case 'Backspace' : {
-                        return
                         if( this.state.editing ) return
 
                         var selection = document.getSelection(),
