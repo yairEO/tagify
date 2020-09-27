@@ -234,16 +234,20 @@
 
 
     var tagify3 = new Tagify(sectionElm.querySelector('input[name=value_JSON]'), {
-      delimiters: ",|[\\n\\r]",
-      addTagOnBlur: false
+    //  delimiters: ",|[\\n\\r]",
+      addTagOnBlur: false,
+      dropdown: {
+        enabled: 0
+      },
+      whitelist: [{value:"x,y,z", id:123}]
     })
 
     // should allow adding multiple tags as 1 string with new lines
-    tagify3.addTags(
-      `a,b
-      c
-      d`
-    )
+    // tagify3.addTags(
+    //   `a,b
+    //   c
+    //   d`
+    // )
 
 
     var input = sectionElm.querySelector('input[name=tags]');

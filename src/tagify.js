@@ -862,7 +862,7 @@ Tagify.prototype = {
         else if( isArray ){
             // flatten the 2D array
             tagsItems = [].concat(...tagsItems.map(item => item.value
-                ? mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
+                ? item // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
                 : mapStringToCollection(item)
             ));
         }
