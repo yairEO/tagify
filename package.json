@@ -18,7 +18,9 @@
     "scripts": {
         "start": "npx gulp@4.0.2",
         "test": "jest",
-        "serve": "npx http-server -o index.html -c-1"
+        "serve": "npx http-server -o index.html -c-1",
+        "push": "git push origin",
+        "push:tags": "git push origin --tags"
     },
     "jest": {
         "preset": "jest-puppeteer"
