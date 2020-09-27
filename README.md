@@ -772,7 +772,7 @@ trim                    | <sub>Boolean</sub>           | true                   
 enforceWhitelist        | <sub>Boolean</sub>           | false                                       | Should ONLY use tags allowed in whitelist.<br>In `mix-mode`, setting it  to `false` will not allow creating new tags.
 autoComplete.enabled    | <sub>Boolean</sub>           | true                                        | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
 autoComplete.rightKey   | <sub>Boolean</sub>           | false                                       | If `true`, when `→` is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
-whitelist               | <sub>Array</sub>             | []                                          | An array of tags which only they are allowed
+whitelist               | <sub>Array</sub>             | []                                          | An array of tags which are allowed. When `enforceWhitelist` is `true`, only these tags are allowed, otherwise used for auto completing when `autoCompletion.enabled` is `true`
 blacklist               | <sub>Array</sub>             | []                                          | An array of tags which aren't allowed
 addTagOnBlur            | <sub>Boolean</sub>           | true                                        | Automatically adds the text which was inputed as a tag when blur event happens
 callbacks               | <sub>Object</sub>            | {}                                          | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
