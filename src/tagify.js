@@ -1001,7 +1001,7 @@ Tagify.prototype = {
      * @param {Object} tagElm   Tag DOM node
      * @param {Object} tagData  Tag data
      */
-    selectTag(tagElm, tagData){
+    selectTag( tagElm, tagData ){
         if( this.settings.enforceWhitelist && !this.isTagWhitelisted(tagData.value) )
             return
 
@@ -1026,8 +1026,8 @@ Tagify.prototype = {
     /**
      * add an empty "tag" element in an editable state
      */
-    addEmptyTag(){
-        var tagData = {value:""},
+    addEmptyTag( initialData ){
+        var tagData = extend({ value:"" }, initialData || {}),
             tagElm = this.createTagElem(tagData)
 
         // must be assigned ASAP, before "validateTag" method below

@@ -37,6 +37,7 @@
             color: white;
             font: 13px/1.8 Monaco, monospace;
             padding: 1.1em;
+            margin-right: -2rem;
             white-space: pre;
             position:relative;
             border-radius: 5px;
@@ -89,7 +90,7 @@
           code{ padding:2px 5px; background:lightyellow; border-radius:8px; }
           pre code{ background:none; padding:0; }
 
-          body :not(pre)>code[class*=language-], body pre[class*=language-]{ background:white; }
+          body :not(pre)>code[class*=language-], body pre[class*=language-]{ background:white; font-size:12px; margin-right:-2rem; }
 
           p{ line-height:1.4; }
           code{ padding:2px 3px; background:lightyellow; }
@@ -650,7 +651,7 @@
 
 
 
-            <section id='customLook'>
+            <section id='section-different-look'>
                 <aside class='leftSide'>
                     <header>
                         <h2><a href='#section-different-look'>Easy to customize</a></h2>
@@ -666,7 +667,8 @@
                     <details>
                       <summary></summary>
                       <h3>HTML</h3>
-<pre class="language-markup"><code>&lt;input class='customLook' value='some.name@website.com'>&lt;button type="button">+&lt;/button>
+<pre class="language-markup"><code>&lt;input class='customLook' value='some.name@website.com'>
+&lt;button type="button">+&lt;/button>
 </code></pre>
                       <h3>JAVASCRIPT</h3>
                       <script>renderPRE(document.currentScript, "customLook")</script>

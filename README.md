@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="/docs/readme-header.svg" width="320" height="160">
+  <a href='https://yaireo.github.io/tagify'><img src="/docs/readme-header.svg" width="320" height="160"><a/>
   <br><br>
   <a href='https://yaireo.github.io/tagify'>Tagify</a> - <em>tags</em> input component
 </h1>
@@ -641,6 +641,7 @@ Name                       | Parameters                                         
 `removeAllTags`            |                                                                                         | Removes all tags and resets the original input tag's value property
 `addTags`                  | <ol><li>`Array`/`String`/`Object` tag(s) to add</li><li>`Boolean` clear input after adding</li><li>`Boolean` - skip adding invalids</li><ol>  | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings
 `removeTags`               | <ol><li>`Array`/`HTMLElement`/`String` tag(s) to remove</li><li>`silent` does not update the component's value</li><li>`tranDuration` Transition duration (in `ms`)</li></ul> | (#502) Remove single/multiple Tags. When nothing passed, removes last tag. <ul><li>`silent` - A flag, which when turned on, does not remove any value and does not update the original input value but simply removes the tag from tagify</li><li>`tranDuration` - delay for animation, after which the tag will be removed from the DOM</li></ul>
+`addEmptyTag`              | `Object` <sub>(`tagData`)</sub>                                                         | Create an empty tag (optionally with pre-defined data) and enters "edit" mode directly. [See demo](https://yaireo.github.io/tagify#section-different-look)
 `loadOriginalValues`       | `String`/`Array`                                                                        | Converts the input's value into tags. This method gets called automatically when instansiating Tagify. Also works for mixed-tags
 `getWhitelistItemsByValue` | `Object`                                                                                | `{value}` - return an Array of found matching items (case-insensitive)
 `getTagIndexByValue`       | `String`                                                                                | Returns the index of a specific tag, by value
@@ -779,7 +780,7 @@ callbacks               | <sub>Object</sub>            | {}                     
 maxTags                 | <sub>Number</sub>            | Infinity                                    | Maximum number of allowed tags. when reached, adds a class "tagify--hasMaxTags" to `<Tags>`
 editTags                | <sub>Number</sub>            | 2                                           | Number of clicks on a tag to enter "edit" mode. Only `1` or `2` work. `false` or `null` will disallow editing
 templates               | <sub>Object</sub>            | <sub>`wrapper`, `tag`, `dropdownItem`</sub> | Object consisting of functions which return template strings
-transformTag            | <sub>Function</sub>          | undefined                                   | Takes a tag input as argument and returns a transformed value
+transformTag            | <sub>Function</sub>          | undefined                                   | Takes a tag data as argument and allows mutating it before a tag is created.<br>Should not `return` anything, only **mutate**.
 keepInvalidTags         | <sub>Boolean</sub>           | false                                       | If `true`, do not remove tags which did not pass validation
 skipInvalid             | <sub>Boolean</sub>           | false                                       | If `true`, do not add invalid, temporary, tags before automatically removing them
 backspace               | <sub>*</sub>                 | true                                        | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
