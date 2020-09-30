@@ -14,7 +14,7 @@ var gulp = require('gulp'),
 
 var rollupCache = {};
 
-var banner = `Tagify (v ${pkg.version})- tags input component
+var banner = `Tagify (v ${process.env.npm_package_version}) - tags input component
 By ${pkg.author.name}
 Don't sell this code. (c)
 ${pkg.homepage}`;
@@ -72,7 +72,7 @@ function react(){
         .pipe( $.babel({ ...babelConfig, presets:[...babelConfig.presets, '@babel/preset-react'] }))
         .pipe( $.umd(umdConf) )
         .pipe(opts.dev ? $.tap(()=>{}) : $.uglify())
-        .pipe($.headerComment(banner))
+        // .pipe($.headerComment(banner))
         .pipe( gulp.dest('./dist/') )
 }
 
@@ -82,7 +82,7 @@ function js(done){
         entry: 'src/tagify.js',
         outputName: 'tagify.min.js'
     })
-    .on('end', done)
+        .on('end', done)
 }
 
 
@@ -96,7 +96,7 @@ function jquery(){
         .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
         .pipe($.rename('jQuery.tagify.min.js'))
         // .pipe($.uglify())
-        .pipe($.headerComment(banner))
+        // .pipe($.headerComment(banner))
         .pipe(gulp.dest('./dist/'))
 }
 
@@ -112,11 +112,15 @@ function polyfills(done){
         entry: 'src/tagify.polyfills.js',
         outputName: 'tagify.polyfills.min.js'
     })
-    .on('end', done)
+        .on('end', done)
 }
 
 function rollup({ entry, outputName, dest, plugins = [] }){
-    plugins = [babel({...babelConfig, babelHelpers: 'bundled'}), rollupBanner(banner), ...plugins]
+    plugins = [
+        babel({...babelConfig, babelHelpers: 'bundled'}),
+        // rollupBanner(banner),
+        ...plugins
+    ]
 
     if( !opts.dev )
         plugins.push(terser())
@@ -164,13 +168,19 @@ function inc(importance) {
         .pipe($.bump({type: importance}))
         // save it back to filesystem
         .pipe(gulp.dest('./'))
-        // commit the changed version number
-        //.pipe($.git.commit('bumps package version'))
+}
 
-        // read only one file to get the version number
-        .pipe($.filter('package.json'))
-        // **tag it in the repository**
+function gitTag(){
+    return gulp.src('./package.json')
+        // commit the changed version number
+        .pipe($.git.commit('bumps package version'))
         .pipe($.tagVersion());
+}
+
+function addBanner(){
+    return gulp.src('dist/*.js')
+        .pipe($.headerComment(banner))
+        .pipe(gulp.dest('./dist/'))
 }
 
 
@@ -188,6 +198,6 @@ exports.default = gulp.parallel(build, watch)
 exports.js = js
 exports.react = react
 exports.jquery = jquery
-exports.patch = () => inc('patch')
-exports.feature = () => inc('minor')
-exports.release = () => inc('major')
+exports.patch = gulp.series(inc('patch'), addBanner(), gitTag()) // () => inc('patch')
+exports.feature = gulp.series(inc('minor'), addBanner(), gitTag())  // () => inc('minor')
+exports.release = gulp.series(inc('major'), addBanner(), gitTag())  // () => inc('major')
