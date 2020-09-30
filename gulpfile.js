@@ -3,6 +3,7 @@ var gulp = require('gulp'),
     terser = require("rollup-plugin-terser").terser,
     rollupBanner = require("rollup-plugin-banner").default,
     babel = require("@rollup/plugin-babel").babel,
+    fs = require('fs'),
     rollupStream = require("@rollup/stream"),
     pkg = require('./package.json'),
     opts = process.argv.reduce((result, item) => {
@@ -161,14 +162,14 @@ function rollup({ entry, outputName, dest, plugins = [] }){
  * introduced a feature or made a backwards-incompatible release.
  */
 
-function inc(importance) {
+const inc = importance => () =>
     // get all the files to bump version in
-    return gulp.src('./package.json')
+    gulp.src('./package.json')
         // bump the version number in those files
         .pipe($.bump({type: importance}))
         // save it back to filesystem
         .pipe(gulp.dest('./'))
-}
+
 
 function gitTag(){
     return gulp.src('./package.json')
@@ -178,6 +179,12 @@ function gitTag(){
 }
 
 function addBanner(){
+    var packageJson = JSON.parse(fs.readFileSync('./package.json'))
+    var banner = `Tagify (v${packageJson.version}) - tags input component
+By ${pkg.author.name}
+Don't sell this code. (c)
+${pkg.homepage}`;
+
     return gulp.src('dist/*.js')
         .pipe($.headerComment(banner))
         .pipe(gulp.dest('./dist/'))
@@ -198,6 +205,6 @@ exports.default = gulp.parallel(build, watch)
 exports.js = js
 exports.react = react
 exports.jquery = jquery
-exports.patch = gulp.series(inc('patch'), addBanner(), gitTag()) // () => inc('patch')
-exports.feature = gulp.series(inc('minor'), addBanner(), gitTag())  // () => inc('minor')
-exports.release = gulp.series(inc('major'), addBanner(), gitTag())  // () => inc('major')
+exports.patch = gulp.series(inc('patch'), addBanner, gitTag)    // () => inc('patch')
+exports.feature = gulp.series(inc('minor'), addBanner, gitTag)  // () => inc('minor')
+exports.release = gulp.series(inc('major'), addBanner, gitTag)  // () => inc('major')
