@@ -1401,7 +1401,7 @@ function onRemoveTag(e){
 function onInput(e){
     console.log("onInput: ", e.detail);
     tagify.settings.whitelist.length = 0; // reset current whitelist
-    tagify.loading(true).dropdown.hide.call(tagify) // show the loader animation
+    tagify.loading(true) // show the loader animation
 
     // get new whitelist from a delayed mocked request (Promise)
     mockAjax()
@@ -1410,9 +1410,12 @@ function onInput(e){
             // and add back the ones already choses as Tags
             tagify.settings.whitelist.push(...result, ...tagify.value)
 
-            // render the suggestions dropdown.
-            tagify.loading(false).dropdown.show.call(tagify, e.detail.value);
+            tagify
+              .loading(false)
+              // render the suggestions dropdown.
+              .dropdown.show.call(tagify, e.detail.value);
         })
+        .catch(err => tagify.dropdown.hide.call(tagify))
 }
 
 function onTagEdit(e){
