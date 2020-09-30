@@ -174,7 +174,6 @@ export default {
                         this.state.actions.ArrowLeft = true
                         break
                     }
-
                     case 'Delete':
                     case 'Backspace' : {
                         if( this.state.editing ) return
@@ -582,7 +581,7 @@ export default {
 
             // check if the new value is in the whiteilst, if not check if there
             // is any pre-invalidation data, and lastly resort to fresh emptty Object
-            newTagData = this.getWhitelistItemByValue(value) || newTagData.__preInvalidData || {}
+            newTagData = this.getWhitelistItemByValue(value) || newTagData.__preInvalidData || newTagData
             newTagData = Object.assign({}, newTagData, {value}) // clone it, not to mess with the whitelist
             //transform it again
             this.settings.transformTag.call(this, newTagData)
