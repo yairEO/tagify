@@ -6,6 +6,10 @@ export default {
         this.DOM.dropdown.content = this.DOM.dropdown.querySelector('.' + this.settings.classNames.dropdownWrapper)
     },
 
+    /**
+     * shows the suggestions select box
+     * @param {String} value [optional, filter the whitelist by this value]
+     */
     show( value ){
         var _s = this.settings,
             firstListItem,

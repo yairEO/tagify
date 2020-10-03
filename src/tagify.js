@@ -241,9 +241,9 @@ Tagify.prototype = {
         var lastChild,
             _s = this.settings;
 
-        value = value || _s.mixMode.integrated
+        value = value || (_s.mixMode.integrated
             ? this.DOM.input.textContent
-            : this.DOM.originalInput.value
+            : this.DOM.originalInput.value)
 
         if( value ){
             this.removeAllTags()

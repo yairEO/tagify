@@ -1,8 +1,221 @@
-/**
- * Tagify (v3.19.4) - tags input component
- * By Yair Even-Or
- * Don't sell this code. (c)
- * https://github.com/yairEO/tagify
- */
+;(function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define([], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory();
+  } else {
+    root.React.tagify = factory();
+  }
+}(this, function() {
+"use strict";
 
-!function(e,t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?module.exports=t():e.React.tagify=t()}(this,function(){"use strict";function u(e){return(u="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var e,z=function(e){if(e&&e.__esModule)return e;if(null===e||"object"!==u(e)&&"function"!=typeof e)return{default:e};var t=a();if(t&&t.has(e))return t.get(e);var n,r={},o=Object.defineProperty&&Object.getOwnPropertyDescriptor;for(n in e){var i;Object.prototype.hasOwnProperty.call(e,n)&&((i=o?Object.getOwnPropertyDescriptor(e,n):null)&&(i.get||i.set)?Object.defineProperty(r,n,i):r[n]=e[n])}r.default=e,t&&t.set(e,r);return r}(require("react")),G=require("react-dom/server"),t=require("prop-types"),H=(e=require("./tagify.min.js"))&&e.__esModule?e:{default:e};function a(){if("function"!=typeof WeakMap)return null;var e=new WeakMap;return a=function(){return e},e}function L(e){return function(e){if(Array.isArray(e))return r(e)}(e)||function(e){if("undefined"!=typeof Symbol&&Symbol.iterator in Object(e))return Array.from(e)}(e)||function(e,t){if(!e)return;if("string"==typeof e)return r(e,t);var n=Object.prototype.toString.call(e).slice(8,-1);"Object"===n&&e.constructor&&(n=e.constructor.name);if("Map"===n||"Set"===n)return Array.from(e);if("Arguments"===n||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))return r(e,t)}(e)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}()}function r(e,t){(null==t||t>e.length)&&(t=e.length);for(var n=0,r=new Array(t);n<t;n++)r[n]=e[n];return r}function Q(e){return e}function n(e){function t(e){K.current=e}var n=e.name,r=e.value,o=void 0===r?"":r,i=e.loading,u=void 0!==i&&i,a=e.onInput,c=void 0===a?Q:a,f=e.onAdd,l=void 0===f?Q:f,s=e.onRemove,d=void 0===s?Q:s,p=e.onEdit,y=void 0===p?Q:p,m=e.onInvalid,v=void 0===m?Q:m,g=e.onClick,b=void 0===g?Q:g,h=e.onKeydown,w=void 0===h?Q:h,O=e.onFocus,j=void 0===O?Q:O,S=e.onBlur,E=void 0===S?Q:S,M=e.onChange,A=void 0===M?Q:M,x=e.readOnly,I=e.readonly,R=e.children,T=e.settings,k=void 0===T?{}:T,C=e.InputMode,N=void 0===C?"input":C,P=e.autoFocus,_=e.className,F=e.whitelist,q=e.tagifyRef,D=e.placeholder,V=void 0===D?"":D,W=e.defaultValue,B=e.showDropdown,J=(0,z.useRef)(),K=(0,z.useRef)(),U=(0,z.useRef)(),$=(0,z.useMemo)(function(){return{ref:t,name:n,value:R||("string"==typeof o?o:JSON.stringify(o)),className:_,readOnly:I||x,onChange:A,autoFocus:P,placeholder:V,defaultValue:W}},[W,V,P,_,R,A,x,o,n]);return(0,z.useEffect)(function(){!function(e){if(e)for(var n in e){String(e[n]).includes(".createElement")&&function(){var t=e[n];e[n]=function(e){return(0,G.renderToStaticMarkup)(z.default.createElement(t,e))}}()}}(k.templates),"textarea"==N&&(k.mode="mix");var e=new H.default(K.current,k);return c&&e.on("input",c),l&&e.on("add",l),d&&e.on("remove",d),y&&e.on("edit",y),v&&e.on("invalid",v),w&&e.on("keydown",w),j&&e.on("focus",j),E&&e.on("blur",E),b&&e.on("click",b),q&&(q.current=e),U.current=e,function(){e.destroy()}},[]),(0,z.useEffect)(function(){J.current&&U.current.loadOriginalValues(o)},[o]),(0,z.useEffect)(function(){var e;J.current&&(e=U.current.settings.whitelist).splice.apply(e,[0,U.current.settings.whitelist.length].concat(L(F||[])))},[F]),(0,z.useEffect)(function(){J.current&&U.current.loading(u)},[u]),(0,z.useEffect)(function(){var e=U.current;J.current&&(B?(e.dropdown.show.call(e,B),e.toggleFocusClass(!0)):e.dropdown.hide.call(e))},[B]),(0,z.useEffect)(function(){J.current=!0},[]),z.default.createElement("div",{className:"tags-input"},z.default.createElement(N,$))}n.propTypes={name:t.string,value:(0,t.oneOfType)([t.string,t.array]),loading:t.bool,children:t.element,onChange:t.func,readOnly:t.bool,settings:t.object,InputMode:t.string,autoFocus:t.bool,className:t.string,tagifyRef:t.object,whitelist:t.array,placeholder:t.string,defaultValue:(0,t.oneOfType)([t.string,t.array]),showDropdown:(0,t.oneOfType)([t.string,t.bool])};var o=z.default.memo(n);return o.displayName="Tags",exports.default=o});
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _server = require("react-dom/server");
+
+var _propTypes = require("prop-types");
+
+var _tagifyMin = _interopRequireDefault(require("./tagify.min.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+var noop = function noop(_) {
+  return _;
+}; // if a template is a React component, it should be outputed as a String (and not as a React component)
+
+
+function templatesToString(templates) {
+  if (templates) {
+    for (var templateName in templates) {
+      var isReactComp = String(templates[templateName]).includes(".createElement");
+
+      if (isReactComp) {
+        (function () {
+          var Template = templates[templateName];
+
+          templates[templateName] = function (data) {
+            return (0, _server.renderToStaticMarkup)( /*#__PURE__*/_react["default"].createElement(Template, data));
+          };
+        })();
+      }
+    }
+  }
+}
+
+var TagifyWrapper = function TagifyWrapper(_ref) {
+  var name = _ref.name,
+      _ref$value = _ref.value,
+      value = _ref$value === void 0 ? "" : _ref$value,
+      _ref$loading = _ref.loading,
+      loading = _ref$loading === void 0 ? false : _ref$loading,
+      _ref$onInput = _ref.onInput,
+      onInput = _ref$onInput === void 0 ? noop : _ref$onInput,
+      _ref$onAdd = _ref.onAdd,
+      onAdd = _ref$onAdd === void 0 ? noop : _ref$onAdd,
+      _ref$onRemove = _ref.onRemove,
+      onRemove = _ref$onRemove === void 0 ? noop : _ref$onRemove,
+      _ref$onEdit = _ref.onEdit,
+      onEdit = _ref$onEdit === void 0 ? noop : _ref$onEdit,
+      _ref$onInvalid = _ref.onInvalid,
+      onInvalid = _ref$onInvalid === void 0 ? noop : _ref$onInvalid,
+      _ref$onClick = _ref.onClick,
+      onClick = _ref$onClick === void 0 ? noop : _ref$onClick,
+      _ref$onKeydown = _ref.onKeydown,
+      onKeydown = _ref$onKeydown === void 0 ? noop : _ref$onKeydown,
+      _ref$onFocus = _ref.onFocus,
+      onFocus = _ref$onFocus === void 0 ? noop : _ref$onFocus,
+      _ref$onBlur = _ref.onBlur,
+      onBlur = _ref$onBlur === void 0 ? noop : _ref$onBlur,
+      _ref$onChange = _ref.onChange,
+      onChange = _ref$onChange === void 0 ? noop : _ref$onChange,
+      readOnly = _ref.readOnly,
+      readonly = _ref.readonly,
+      children = _ref.children,
+      _ref$settings = _ref.settings,
+      settings = _ref$settings === void 0 ? {} : _ref$settings,
+      _ref$InputMode = _ref.InputMode,
+      InputMode = _ref$InputMode === void 0 ? "input" : _ref$InputMode,
+      autoFocus = _ref.autoFocus,
+      className = _ref.className,
+      whitelist = _ref.whitelist,
+      tagifyRef = _ref.tagifyRef,
+      _ref$placeholder = _ref.placeholder,
+      placeholder = _ref$placeholder === void 0 ? "" : _ref$placeholder,
+      defaultValue = _ref.defaultValue,
+      showDropdown = _ref.showDropdown;
+  var mountedRef = (0, _react.useRef)();
+  var inputElmRef = (0, _react.useRef)();
+  var tagify = (0, _react.useRef)();
+
+  var handleRef = function handleRef(elm) {
+    inputElmRef.current = elm;
+  };
+
+  var inputAttrs = (0, _react.useMemo)(function () {
+    return {
+      ref: handleRef,
+      name: name,
+      value: children ? children : typeof value === "string" ? value : JSON.stringify(value),
+      className: className,
+      readOnly: readonly || readOnly,
+      onChange: onChange,
+      autoFocus: autoFocus,
+      placeholder: placeholder,
+      defaultValue: defaultValue
+    };
+  }, [defaultValue, placeholder, autoFocus, className, children, onChange, readOnly, value, name]);
+  (0, _react.useEffect)(function () {
+    templatesToString(settings.templates);
+    if (InputMode == "textarea") settings.mode = "mix";
+    var t = new _tagifyMin["default"](inputElmRef.current, settings);
+    onInput && t.on("input", onInput);
+    onAdd && t.on("add", onAdd);
+    onRemove && t.on("remove", onRemove);
+    onEdit && t.on("edit", onEdit);
+    onInvalid && t.on("invalid", onInvalid);
+    onKeydown && t.on("keydown", onKeydown);
+    onFocus && t.on("focus", onFocus);
+    onBlur && t.on("blur", onBlur);
+    onClick && t.on("click", onClick); // Bridge Tagify instance with parent component
+
+    if (tagifyRef) {
+      tagifyRef.current = t;
+    }
+
+    tagify.current = t; // cleanup
+
+    return function () {
+      t.destroy();
+    };
+  }, []);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      tagify.current.loadOriginalValues(value);
+    }
+  }, [value]);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      var _tagify$current$setti;
+
+      // replace whitelist array items
+      (_tagify$current$setti = tagify.current.settings.whitelist).splice.apply(_tagify$current$setti, [0, tagify.current.settings.whitelist.length].concat(_toConsumableArray(whitelist || [])));
+    }
+  }, [whitelist]);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      tagify.current.loading(loading);
+    }
+  }, [loading]);
+  (0, _react.useEffect)(function () {
+    var t = tagify.current;
+
+    if (mountedRef.current) {
+      if (showDropdown) {
+        t.dropdown.show.call(t, showDropdown);
+        t.toggleFocusClass(true);
+      } else {
+        t.dropdown.hide.call(t);
+      }
+    }
+  }, [showDropdown]);
+  (0, _react.useEffect)(function () {
+    mountedRef.current = true;
+  }, []);
+  return (
+    /*#__PURE__*/
+    // a wrapper must be used because Tagify will appened inside it it's component,
+    // keeping the virtual-DOM out of the way
+    _react["default"].createElement("div", {
+      className: "tags-input"
+    }, /*#__PURE__*/_react["default"].createElement(InputMode, inputAttrs))
+  );
+};
+
+TagifyWrapper.propTypes = {
+  name: _propTypes.string,
+  value: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.array]),
+  loading: _propTypes.bool,
+  children: _propTypes.element,
+  onChange: _propTypes.func,
+  readOnly: _propTypes.bool,
+  settings: _propTypes.object,
+  InputMode: _propTypes.string,
+  autoFocus: _propTypes.bool,
+  className: _propTypes.string,
+  tagifyRef: _propTypes.object,
+  whitelist: _propTypes.array,
+  placeholder: _propTypes.string,
+  defaultValue: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.array]),
+  showDropdown: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.bool])
+};
+
+var Tags = /*#__PURE__*/_react["default"].memo(TagifyWrapper);
+
+Tags.displayName = "Tags";
+var _default = Tags;
+exports["default"] = _default;
+return Tags;
+}));
