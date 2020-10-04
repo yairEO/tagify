@@ -14,7 +14,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = void 0;
+exports["default"] = exports.MixedTags = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -29,6 +29,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
@@ -92,7 +98,6 @@ var TagifyWrapper = function TagifyWrapper(_ref) {
       _ref$onChange = _ref.onChange,
       onChange = _ref$onChange === void 0 ? noop : _ref$onChange,
       readOnly = _ref.readOnly,
-      readonly = _ref.readonly,
       children = _ref.children,
       _ref$settings = _ref.settings,
       settings = _ref$settings === void 0 ? {} : _ref$settings,
@@ -120,13 +125,13 @@ var TagifyWrapper = function TagifyWrapper(_ref) {
       name: name,
       value: children ? children : typeof value === "string" ? value : JSON.stringify(value),
       className: className,
-      readOnly: readonly || readOnly,
+      readOnly: readOnly,
       onChange: onChange,
       autoFocus: autoFocus,
       placeholder: placeholder,
       defaultValue: defaultValue
     };
-  }, [defaultValue, placeholder, autoFocus, className, children, onChange, readOnly, value, name]);
+  }, []);
   (0, _react.useEffect)(function () {
     templatesToString(settings.templates);
     if (InputMode == "textarea") settings.mode = "mix";
@@ -160,8 +165,9 @@ var TagifyWrapper = function TagifyWrapper(_ref) {
     if (mountedRef.current) {
       var _tagify$current$setti;
 
-      // replace whitelist array items
-      (_tagify$current$setti = tagify.current.settings.whitelist).splice.apply(_tagify$current$setti, [0, tagify.current.settings.whitelist.length].concat(_toConsumableArray(whitelist || [])));
+      tagify.current.settings.whitelist.length = 0; // replace whitelist array items
+
+      whitelist && whitelist.length && (_tagify$current$setti = tagify.current.settings.whitelist).push.apply(_tagify$current$setti, _toConsumableArray(whitelist));
     }
   }, [whitelist]);
   (0, _react.useEffect)(function () {
@@ -169,6 +175,11 @@ var TagifyWrapper = function TagifyWrapper(_ref) {
       tagify.current.loading(loading);
     }
   }, [loading]);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      tagify.current.setMixModeReadonly(readOnly);
+    }
+  }, [readOnly]);
   (0, _react.useEffect)(function () {
     var t = tagify.current;
 
@@ -215,6 +226,17 @@ TagifyWrapper.propTypes = {
 var Tags = /*#__PURE__*/_react["default"].memo(TagifyWrapper);
 
 Tags.displayName = "Tags";
+
+var MixedTags = function MixedTags(_ref2) {
+  var children = _ref2.children,
+      rest = _objectWithoutProperties(_ref2, ["children"]);
+
+  return /*#__PURE__*/_react["default"].createElement(Tags, _extends({
+    InputMode: "textarea"
+  }, rest), children);
+};
+
+exports.MixedTags = MixedTags;
 var _default = Tags;
 exports["default"] = _default;
 return Tags;

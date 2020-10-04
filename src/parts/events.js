@@ -485,10 +485,13 @@ export default {
                 !this.state.dropdown.visible && this.dropdown.show.call(this);
         },
 
+        // special proccess is needed for pasted content in order to "clean" it
         onPaste(e){
             var clipboardData, pastedData;
 
             e.preventDefault()
+
+            if( this.settings.readonly ) return;
 
             // Get pasted data via clipboard API
             clipboardData = e.clipboardData || window.clipboardData

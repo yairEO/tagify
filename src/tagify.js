@@ -834,6 +834,10 @@ Tagify.prototype = {
         return false;
     },
 
+    setMixModeReadonly( isReadonly ){
+        this.DOM.input.contentEditable = !isReadonly
+    },
+
     /**
      * pre-proccess the tagsItems, which can be a complex tagsItems like an Array of Objects or a string comprised of multiple words
      * so each item should be iterated on and a tag created for.

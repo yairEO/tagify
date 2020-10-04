@@ -393,9 +393,61 @@ const App = () => {
 })
 ```
 
-To gain full acess to Tagify's inner methods, A custom `ref` can be used:
+To gain full access to Tagify's (instance) inner methods, A custom `ref` can be used:
 
-    <Tags tagifyRef={tagifyRef} ... />
+```jsx
+<Tags tagifyRef={tagifyRef} ... />
+
+// or mix-mode
+<MixedTags
+  settings={settings}
+  className="myTags"
+  readOnly={isReadonly}
+  onChange={onChange}
+  value={`
+This is a textarea which mixes text with [[{"value":"tags"}]].
+      `}
+    />
+```
+
+`<MixedTags>` component is a shorthand for `<Tags InputMode="textarea">`
+
+#### Updating the component's state
+
+The `settings` prop is **only used once** in the initialization process, please do not update it afterwards.
+
+
+<details>
+  <summary>**List of (React) props for the `<Tags/>` component**</summary>
+** (hidden node) Input props **
+
+Prop                    | Type                      | Updatable | Info
+----------------------- | ------------------------- |:---------:| -----------------------------------------------------------
+settings                | <sub>Object</sub>         |           | See [*settings* section](#settings)
+name                    | <sub>String</sub>         | ✔         | `<input>`'s element `name` attribute
+value                   | <sub>String/Array</sub>   | ✔         | Initial value.
+defaultValue            | <sub>String/Array</sub>   |           | Only affects the hidden `<input>` element
+placeholder             | <sub>String</sub>         | ✔         | placeholder text for the component
+readOnly                | <sub>Boolean</sub>        | ✔         | Toggles `readonly` state. With capital `O`.
+tagifyRef               | <sub>Object</sub>         |           | `useRef` hook refference for the component inner instance of vailla *Tagify* (for methods access)
+showFilteredDropdown    | <sub>Boolean/String</sub> | ✔         | if `true` shows the suggestions dropdown. if assigned a String, show the dropdown pre-filtered.
+loading                 | <sub>Boolean</sub>        | ✔         | Toggles `loading` state for the whole component
+whitelist               | <sub>Array</sub>          | ✔         | Sets the `whitelist` which is the basis for the suggestions dropdown & autocomplete
+className               | <sub>String</sub>         |           | Component's optional class name to be added
+InputMode               | <sub>String</sub>         |           | `"textarea"` will create a `<textarea>` (hidden) element instead of the default `<input>` and automatically make Tagify act as [*"mix mode"*](#mixed-content)
+autoFocus               | <sub>Boolean</sub>        |           | Should the component have focus on mount. Must be unique, per-page.
+children                | <sub>String/Nodes</sub>   |           | `value` prop is prefered of this
+onChange                | <sub>Function</sub>       |           | See [*events* section](#events)
+onInput                 | <sub>Function</sub>       |           | See [*events* section](#events)
+onAdd                   | <sub>Function</sub>       |           | See [*events* section](#events)
+onRemove                | <sub>Function</sub>       |           | See [*events* section](#events)
+onEdit                  | <sub>Function</sub>       |           | See [*events* section](#events)
+onInvalid               | <sub>Function</sub>       |           | See [*events* section](#events)
+onClick                 | <sub>Function</sub>       |           | See [*events* section](#events)
+onKeydown               | <sub>Function</sub>       |           | See [*events* section](#events)
+onFocus                 | <sub>Function</sub>       |           | See [*events* section](#events)
+onBlur                  | <sub>Function</sub>       |           | See [*events* section](#events)
+</details>
 
 
 ### See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.

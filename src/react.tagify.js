@@ -34,7 +34,6 @@ const TagifyWrapper = ({
     onBlur = noop,
     onChange = noop,
     readOnly,
-    readonly,
     children,
     settings = {},
     InputMode = "input",
@@ -55,21 +54,20 @@ const TagifyWrapper = ({
     }
 
     const inputAttrs = useMemo(() => ({
-            ref: handleRef,
-            name,
-            value: children
-                ? children
-                : typeof value === "string"
-                    ? value
-                    : JSON.stringify(value),
-            className,
-            readOnly: readonly || readOnly,
-            onChange,
-            autoFocus,
-            placeholder,
-            defaultValue
-        }), [defaultValue, placeholder, autoFocus, className, children, onChange, readOnly, value, name ]
-    )
+        ref: handleRef,
+        name,
+        value: children
+            ? children
+            : typeof value === "string"
+                ? value
+                : JSON.stringify(value),
+        className,
+        readOnly: readOnly,
+        onChange,
+        autoFocus,
+        placeholder,
+        defaultValue
+    }), [])
 
     useEffect(() => {
         templatesToString(settings.templates)
@@ -78,16 +76,17 @@ const TagifyWrapper = ({
 
         const t = new Tagify(inputElmRef.current, settings)
 
-        onInput   && t.on("input", onInput)
-        onAdd     && t.on("add", onAdd)
-        onRemove  && t.on("remove", onRemove)
-        onEdit    && t.on("edit", onEdit)
+        onInput   && t.on("input"  , onInput)
+        onAdd     && t.on("add"    , onAdd)
+        onRemove  && t.on("remove" , onRemove)
+        onEdit    && t.on("edit"   , onEdit)
         onInvalid && t.on("invalid", onInvalid)
         onKeydown && t.on("keydown", onKeydown)
-        onFocus   && t.on("focus", onFocus)
-        onBlur    && t.on("blur", onBlur)
-        onClick   && t.on("click", onClick)
-                // Bridge Tagify instance with parent component
+        onFocus   && t.on("focus"  , onFocus)
+        onBlur    && t.on("blur"   , onBlur)
+        onClick   && t.on("click"  , onClick)
+
+        // Bridge Tagify instance with parent component
         if (tagifyRef) {
             tagifyRef.current = t
         }
@@ -108,8 +107,10 @@ const TagifyWrapper = ({
 
     useEffect(() => {
         if (mountedRef.current) {
+            tagify.current.settings.whitelist.length = 0
+
             // replace whitelist array items
-            tagify.current.settings.whitelist.splice(0, tagify.current.settings.whitelist.length, ...(whitelist || []))
+            whitelist && whitelist.length && tagify.current.settings.whitelist.push(...whitelist)
         }
     }, [whitelist])
 
@@ -118,6 +119,12 @@ const TagifyWrapper = ({
             tagify.current.loading(loading)
         }
     }, [loading])
+
+    useEffect(() => {
+        if (mountedRef.current) {
+            tagify.current.setMixModeReadonly(readOnly)
+        }
+    }, [readOnly])
 
     useEffect(() => {
         const t = tagify.current
@@ -165,5 +172,8 @@ TagifyWrapper.propTypes = {
 
 const Tags = React.memo(TagifyWrapper)
 Tags.displayName = "Tags"
+
+export const MixedTags = ({ children, ...rest }) =>
+  <Tags InputMode="textarea" {...rest}>{children}</Tags>
 
 export default Tags
