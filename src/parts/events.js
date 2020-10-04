@@ -497,10 +497,10 @@ export default {
             clipboardData = e.clipboardData || window.clipboardData
             pastedData = clipboardData.getData('Text')
 
-            if( this.settings.mode == 'mix' )
-                this.injectAtCaret(pastedData, window.getSelection().getRangeAt(0))
-            else
-                this.addTags(pastedData)
+            this.injectAtCaret(pastedData, window.getSelection().getRangeAt(0))
+
+            if( this.settings.mode != 'mix' )
+                this.addTags(this.DOM.input.textContent, true)
         },
 
         onEditTagInput( editableElm, e ){

@@ -10,14 +10,13 @@ import events, { triggerChangeEvent } from './parts/events'
  * @param {Object} settings settings object
  */
 function Tagify( input, settings ){
-    if( input.previousElementSibling && input.previousElementSibling.classList.contains('tagify') ){
-        console.warn('Tagify: ', 'input element is already Tagified', input)
+    if( !input ){
+        console.warn('Tagify: ', 'input element not found', input)
         return this
     }
 
-    // protection
-    if( !input ){
-        console.warn('Tagify: ', 'invalid input element ', input)
+    if( input.previousElementSibling && input.previousElementSibling.classList.contains('tagify') ){
+        console.warn('Tagify: ', 'input element is already Tagified', input)
         return this
     }
 
