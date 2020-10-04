@@ -400,14 +400,10 @@ To gain full access to Tagify's (instance) inner methods, A custom `ref` can be 
 
 // or mix-mode
 <MixedTags
-  settings={settings}
-  className="myTags"
-  readOnly={isReadonly}
-  onChange={onChange}
-  value={`
-This is a textarea which mixes text with [[{"value":"tags"}]].
-      `}
-    />
+  settings={...}
+  onChange={...}
+  value={`This is a textarea which mixes text with [[{"value":"tags"}]].`}
+/>
 ```
 
 `<MixedTags>` component is a shorthand for `<Tags InputMode="textarea">`
@@ -416,10 +412,10 @@ This is a textarea which mixes text with [[{"value":"tags"}]].
 
 The `settings` prop is **only used once** in the initialization process, please do not update it afterwards.
 
-
+---
 <details>
-  <summary>**List of (React) props for the `<Tags/>` component**</summary>
-** (hidden node) Input props **
+  <summary>📖 List of (React) props for the `&lt;Tags/&gt;` component</summary>
+
 
 Prop                    | Type                      | Updatable | Info
 ----------------------- | ------------------------- |:---------:| -----------------------------------------------------------
@@ -449,6 +445,7 @@ onFocus                 | <sub>Function</sub>       |           | See [*events* 
 onBlur                  | <sub>Function</sub>       |           | See [*events* section](#events)
 </details>
 
+---
 
 ### See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
 
