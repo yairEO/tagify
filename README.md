@@ -414,7 +414,7 @@ The `settings` prop is **only used once** in the initialization process, please 
 
 ---
 <details>
-  <summary>📖 List of (React) props for the `&lt;Tags/&gt;` component</summary>
+  <summary>📖 List of (React) props for the <code>&lt;Tags/&gt;</code> component</summary>
 
 
 Prop                    | Type                      | Updatable | Info
