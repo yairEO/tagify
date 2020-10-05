@@ -133,10 +133,9 @@ function rollup({ entry, outputName, dest, plugins = [] }){
         cache: rollupCache[entry],
         output: {
             name: 'Tagify',
-            format: 'umd',
+            format: 'es',
         }
     })
-
         .on('bundle', function(bundle) {
             rollupCache[entry] = bundle;
         })
