@@ -18,6 +18,8 @@ assignees: ''
 <!--- If possible, clone & modify the below template to reproduce your issue -->
 https://jsbin.com/jekuqap/edit?html,js,output
 
+***React*** issue template:
+https://codesandbox.io/s/tagify-react-issue-template-4ub1r?file=/src/index.js
 
 ### Explanation
 
