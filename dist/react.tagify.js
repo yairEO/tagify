@@ -134,7 +134,9 @@ var TagifyWrapper = function TagifyWrapper(_ref) {
   }, []);
   (0, _react.useEffect)(function () {
     templatesToString(settings.templates);
-    if (InputMode == "textarea") settings.mode = "mix";
+    if (InputMode == "textarea") settings.mode = "mix"; // "whitelist" prop takes precedence
+
+    if (whitelist && whitelist.length) settings.whitelist = whitelist;
     var t = new _tagifyMin["default"](inputElmRef.current, settings);
     onInput && t.on("input", onInput);
     onAdd && t.on("add", onAdd);
@@ -158,11 +160,6 @@ var TagifyWrapper = function TagifyWrapper(_ref) {
   }, []);
   (0, _react.useEffect)(function () {
     if (mountedRef.current) {
-      tagify.current.loadOriginalValues(value);
-    }
-  }, [value]);
-  (0, _react.useEffect)(function () {
-    if (mountedRef.current) {
       var _tagify$current$setti;
 
       tagify.current.settings.whitelist.length = 0; // replace whitelist array items
@@ -170,6 +167,11 @@ var TagifyWrapper = function TagifyWrapper(_ref) {
       whitelist && whitelist.length && (_tagify$current$setti = tagify.current.settings.whitelist).push.apply(_tagify$current$setti, _toConsumableArray(whitelist));
     }
   }, [whitelist]);
+  (0, _react.useEffect)(function () {
+    if (mountedRef.current) {
+      tagify.current.loadOriginalValues(value);
+    }
+  }, [value]);
   (0, _react.useEffect)(function () {
     if (mountedRef.current) {
       tagify.current.loading(loading);

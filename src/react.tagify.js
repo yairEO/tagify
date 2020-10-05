@@ -72,7 +72,12 @@ const TagifyWrapper = ({
     useEffect(() => {
         templatesToString(settings.templates)
 
-        if (InputMode == "textarea") settings.mode = "mix"
+        if (InputMode == "textarea")
+            settings.mode = "mix"
+
+        // "whitelist" prop takes precedence
+        if( whitelist && whitelist.length )
+            settings.whitelist = whitelist
 
         const t = new Tagify(inputElmRef.current, settings)
 
@@ -101,18 +106,18 @@ const TagifyWrapper = ({
 
     useEffect(() => {
         if (mountedRef.current) {
-            tagify.current.loadOriginalValues(value)
-        }
-    }, [value])
-
-    useEffect(() => {
-        if (mountedRef.current) {
             tagify.current.settings.whitelist.length = 0
 
             // replace whitelist array items
             whitelist && whitelist.length && tagify.current.settings.whitelist.push(...whitelist)
         }
     }, [whitelist])
+
+    useEffect(() => {
+        if (mountedRef.current) {
+            tagify.current.loadOriginalValues(value)
+        }
+    }, [value])
 
     useEffect(() => {
         if (mountedRef.current) {
