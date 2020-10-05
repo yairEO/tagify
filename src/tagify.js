@@ -785,7 +785,6 @@ Tagify.prototype = {
      * checks if text is in the whitelist
      */
     isTagWhitelisted( v ){
-        debugger
         return this.settings.whitelist.some(item =>
             typeof v == 'string'
                 ? sameStr(this.trim(v), (item.value || item))
