@@ -322,6 +322,8 @@
                 }
             }
 
+            > #{$self}__tag__removeBtn{ visibility: hidden; }
+
             &.tagify--invalid{
                 > div{
                     &::before{

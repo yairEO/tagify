@@ -409,30 +409,36 @@ Tagify.prototype = {
 
         this.dropdown.hide.call(this)
 
-        var editableElm = tagElm.querySelector('.' + this.settings.classNames.tagText),
+        var _s = this.settings;
+
+        function getEditableElm(){
+            return tagElm.querySelector('.' + _s.classNames.tagText)
+        }
+
+        var editableElm = getEditableElm(),
             tagIdx = this.getNodeIndex(tagElm),
             tagData = tagElm.__tagifyTagData,
             _CB = this.events.callbacks,
             that = this,
             isValid = true,
             delayed_onEditTagBlur = function(){
-                setTimeout(_CB.onEditTagBlur.bind(that), 0, editableElm)
+                setTimeout(() => _CB.onEditTagBlur.call(that, getEditableElm()))
             }
 
         if( !editableElm ){
-            console.warn('Cannot find element in Tag template: .', this.settings.classNames.tagText);
+            console.warn('Cannot find element in Tag template: .', _s.classNames.tagText);
             return;
         }
 
         if( tagData instanceof Object && "editable" in tagData && !tagData.editable )
             return
 
+        editableElm.setAttribute('contenteditable', true)
+        tagElm.classList.add( _s.classNames.tagEditing )
+
         // cache the original data, on the DOM node, before any modification ocurs, for possible revert
         tagElm.__tagifyTagData.__originalData = extend({}, tagData)
-
-        tagElm.classList.add( this.settings.classNames.tagEditing )
-
-        editableElm.setAttribute('contenteditable', true)
+        tagElm.__tagifyTagData.__originalHTML = tagElm.innerHTML
 
         editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm))
         editableElm.addEventListener('blur', delayed_onEditTagBlur)
@@ -449,7 +455,7 @@ Tagify.prototype = {
 
         this.trigger("edit:start", { tag:tagElm, index:tagIdx, data:tagData, isValid })
 
-        return this;
+        return this
     },
 
     editTagToggleValidity( tagElm, value ){

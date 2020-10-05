@@ -1,4 +1,4 @@
-import { decode, extend } from './helpers'
+import { decode, extend, minify } from './helpers'
 
 export function triggerChangeEvent(){
     if( this.settings.mixMode.integrated ) return;
@@ -508,7 +508,7 @@ export default {
                 tagElmIdx = this.getNodeIndex(tagElm),
                 tagData = this.tagData(tagElm),
                 value = this.input.normalize.call(this, editableElm),
-                hasChanged = value != tagData.__originalData.value,
+                hasChanged = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
                 isValid = this.validateTag({value}); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
 
             // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
@@ -555,9 +555,8 @@ export default {
                 currentValue = this.input.normalize.call(this, editableElm),
                 value        = currentValue,
                 newTagData   = extend({}, this.tagData(tagElm), {value}),
-                hasChanged   = value != newTagData.__originalData.value,
+                hasChanged   = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
                 isValid      = this.validateTag(newTagData);
-
             //  this.DOM.input.focus()
 
             if( !currentValue ){
@@ -594,10 +593,11 @@ export default {
 
         onEditTagkeydown(e, tagElm){
             this.trigger("edit:keydown", {originalEvent:this.cloneEvent(e)})
+
             switch( e.key ){
                 case 'Esc' :
                 case 'Escape' :
-                    e.target.textContent = tagElm.__tagifyTagData.__originalData.value
+                    tagElm.innerHTML = tagElm.__tagifyTagData.__originalHTML
                 case 'Enter' :
                 case 'Tab' :
                     e.preventDefault()
