@@ -471,6 +471,7 @@ Tagify.prototype = {
 
     onEditTagDone(tagElm, tagData){
         this.state.editing = false;
+        tagElm = tagElm || this.state.editing.scope
         tagData = tagData || {}
 
         var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData };
@@ -833,8 +834,16 @@ Tagify.prototype = {
         return false;
     },
 
-    setMixModeReadonly( isReadonly ){
-        this.DOM.input.contentEditable = !isReadonly
+    setReadonly( isReadonly ){
+        var _s = this.settings;
+
+        document.activeElement.blur() // exists possible edit-mode
+        _s.readonly = isReadonly
+        this.DOM.scope[(isReadonly?'set':'remove') + 'Attribute']('readonly', true)
+
+        if( _s.mode == 'mix' ){
+            this.DOM.input.contentEditable = !isReadonly
+        }
     },
 
     /**

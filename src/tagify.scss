@@ -192,7 +192,7 @@
             color          : var(--tag-text-color, $tag-text-color);
             line-height    : inherit;
             border-radius  : 3px;
-            user-select    : none;
+         // user-select    : none;  // should allow selecting text if the user wishes to copy something
             white-space    : nowrap;
             transition     : .13s ease-out;
 

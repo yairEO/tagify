@@ -62,7 +62,7 @@ function scss(){
 }
 
 // https://medium.com/recraftrelic/building-a-react-component-as-a-npm-module-18308d4ccde9
-function react(){
+function react(done){
     const umdConf = {
         exports: function(file) {
             return 'Tags';
@@ -77,7 +77,6 @@ function react(){
         .pipe( gulp.dest('./dist/') )
 }
 
-
 function js(done){
     return rollup({
         entry: 'src/tagify.js',
@@ -85,8 +84,6 @@ function js(done){
     })
         .on('end', done)
 }
-
-
 
 function jquery(){
     // do not proccess jQuery version while developeing
@@ -101,12 +98,10 @@ function jquery(){
         .pipe(gulp.dest('./dist/'))
 }
 
-
 function handleError(err) {
     $.util.log( err.toString() );
     this.emit('end');
 }
-
 
 function polyfills(done){
     return rollup({
@@ -116,9 +111,9 @@ function polyfills(done){
         .on('end', done)
 }
 
-function rollup({ entry, outputName, dest, plugins = [] }){
+function rollup({ entry, outputName, dest, plugins=[], babelConf={} }){
     plugins = [
-        babel({...babelConfig, babelHelpers: 'bundled'}),
+        babel({...babelConfig, babelHelpers: 'bundled', ...babelConf}),
         // rollupBanner(banner),
         ...plugins
     ]
@@ -133,7 +128,7 @@ function rollup({ entry, outputName, dest, plugins = [] }){
         cache: rollupCache[entry],
         output: {
             name: 'Tagify',
-            format: 'es',
+            format: 'umd',
         }
     })
         .on('bundle', function(bundle) {
