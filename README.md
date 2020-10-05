@@ -639,7 +639,7 @@ flex-wrap: nowrap;
 * [propagate `change` event](https://github.com/yairEO/tagify/issues/413)
 * [Manually update tag data after it was added](https://github.com/yairEO/tagify/issues/433)
 * [Ajax Whitelist with "enforceWhitelist" setting enabled](https://github.com/yairEO/tagify/issues/465)
-* [Custom (mutiple) tag valitation & AJAX](https://github.com/yairEO/tagify/issues/474)
+* [Custom (multiple) tag valitation & AJAX](https://github.com/yairEO/tagify/issues/474)
 * [Make tags from pasted multi-line text](https://github.com/yairEO/tagify/issues/160)
 
 ## CSS Variables
