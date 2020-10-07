@@ -14,7 +14,10 @@ export default {
     mixTagsInterpolator : ['[[', ']]'],   // Interpolation for mix mode. Everything between this will becmoe a tag
     backspace           : true,           // false / true / "edit"
     skipInvalid         : false,          // If `true`, do not add invalid, temporary, tags before automatically removing them
-    editTags            : 2,              // 1 or 2 clicks to edit a tag. false/null for not allowing editing
+    editTags            : {
+        clicks      : 2,                  // clicks to enter "edit-mode": 1 for single click. any other value is considered as double-click
+        keepInvalid : true                // keeps invalid edits as-is until `esc` is pressed while in focus
+    },              // 1 or 2 clicks to edit a tag. false/null for not allowing editing
     transformTag        : ()=>{},         // Takes a tag input string as argument and returns a transformed value
     trim                : true,           // whether or not the value provided should be trimmed, before being added as a tag
 

@@ -440,8 +440,8 @@ export default {
         },
 
         onClickScope(e){
-            var tagElm = e.target.closest('.' + this.settings.classNames.tag),
-                _s = this.settings,
+            var _s = this.settings,
+                tagElm = e.target.closest('.' + _s.classNames.tag),
                 timeDiffFocus = +new Date() - this.state.hasFocus;
 
             if( e.target == this.DOM.scope ){
@@ -450,7 +450,7 @@ export default {
                 return
             }
 
-            else if( e.target.classList.contains(this.settings.classNames.tagX) ){
+            else if( e.target.classList.contains(_s.classNames.tagX) ){
                 this.removeTags( e.target.parentNode );
                 return
             }
@@ -458,7 +458,7 @@ export default {
             else if( tagElm ){
                 this.trigger("click", { tag:tagElm, index:this.getNodeIndex(tagElm), data:this.tagData(tagElm), originalEvent:this.cloneEvent(e) })
 
-                if( this.settings.editTags == 1 )
+                if( _s.editTags === 1 || _s.editTags.clicks === 1 )
                     this.events.callbacks.onDoubleClickScope.call(this, e)
 
                 return
@@ -551,42 +551,44 @@ export default {
             // the "onEditTagDone" is called directly, already replacing the tag, so the argument "editableElm" node isn't in the DOM
             if( !this.DOM.scope.contains(editableElm) ) return;
 
-            var tagElm       = editableElm.closest('.' + this.settings.classNames.tag),
-                currentValue = this.input.normalize.call(this, editableElm),
-                value        = currentValue,
-                newTagData   = extend({}, this.tagData(tagElm), {value}),
+            var _s           = this.settings,
+                tagElm       = editableElm.closest('.' + _s.classNames.tag),
+                textValue    = this.input.normalize.call(this, editableElm),
+                originalData = this.tagData(tagElm).__originalData,
+                newTagData   = extend({}, originalData, {[_s.tagTextProp]:textValue}),
                 hasChanged   = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
                 isValid      = this.validateTag(newTagData);
             //  this.DOM.input.focus()
 
-            if( !currentValue ){
+            if( !textValue ){
                 this.removeTags(tagElm)
                 this.onEditTagDone(null, newTagData)
                 return
             }
 
             if( hasChanged ){
-                this.settings.transformTag.call(this, newTagData)
+                _s.transformTag.call(this, newTagData)
                 // MUST re-validate after tag transformation
                 isValid = this.validateTag(newTagData)
             }
             else{
                 // if nothing changed revert back to how it was before editing
-                this.onEditTagDone(tagElm, newTagData.__originalData)
+                this.onEditTagDone(tagElm, originalData)
                 return
             }
 
             if( isValid !== true ){
                 this.trigger("invalid", {data:newTagData, tag:tagElm, message:isValid})
-                return;
-            }
 
-            // check if the new value is in the whiteilst, if not check if there
-            // is any pre-invalidation data, and lastly resort to fresh emptty Object
-            newTagData = this.getWhitelistItemByValue(value) || newTagData.__preInvalidData || newTagData
-            newTagData = Object.assign({}, newTagData, {value}) // clone it, not to mess with the whitelist
-            //transform it again
-            this.settings.transformTag.call(this, newTagData)
+                // do nothing if invalid, stay in edit-mode until corrected or reverted by presssing esc
+                if( _s.editTags.keepInvalid ) return
+
+                newTagData = originalData
+            }
+            else
+                // check if the new value is in the whiteilst, if not check if there
+                // is any pre-invalidation data, and lastly resort to fresh emptty Object
+                newTagData = this.getWhitelistItemByValue(textValue) || newTagData.__preInvalidData || newTagData
 
             this.onEditTagDone(tagElm, newTagData)
         },

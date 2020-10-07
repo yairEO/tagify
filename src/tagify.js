@@ -417,7 +417,7 @@ Tagify.prototype = {
 
         var editableElm = getEditableElm(),
             tagIdx = this.getNodeIndex(tagElm),
-            tagData = tagElm.__tagifyTagData,
+            tagData = this.tagData(tagElm),
             _CB = this.events.callbacks,
             that = this,
             isValid = true,
@@ -437,8 +437,10 @@ Tagify.prototype = {
         tagElm.classList.add( _s.classNames.tagEditing )
 
         // cache the original data, on the DOM node, before any modification ocurs, for possible revert
-        tagElm.__tagifyTagData.__originalData = extend({}, tagData)
-        tagElm.__tagifyTagData.__originalHTML = tagElm.innerHTML
+        this.tagData(tagElm, {
+            __originalData: extend({}, tagData),
+            __originalHTML: tagElm.innerHTML
+        })
 
         editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm))
         editableElm.addEventListener('blur', delayed_onEditTagBlur)
@@ -484,7 +486,8 @@ Tagify.prototype = {
 
         this.trigger("edit:beforeUpdate", eventData)
 
-        delete tagData.__originalData;
+        delete tagData.__originalData
+        delete tagData.__originalHTML
 
         if( tagElm ){
             this.editTagToggleValidity(tagElm)
@@ -510,7 +513,7 @@ Tagify.prototype = {
 
         // if tag is invalid, make the according changes in the newly created element
         if( tagData.__isValid && tagData.__isValid != true )
-            extend( tagData, this.getInvalidTagParams(tagData, tagData.__isValid) )
+            extend( tagData, this.getInvalidTagAttrs(tagData, tagData.__isValid) )
 
         var newTag = this.createTagElem(tagData)
 
@@ -826,7 +829,7 @@ Tagify.prototype = {
         return true
     },
 
-    getInvalidTagParams(tagData, validation){
+    getInvalidTagAttrs(tagData, validation){
         return {
             "aria-invalid" : true,
             "class": `${tagData.class || ''} ${this.settings.classNames.tagNotAllowed}`.trim(),
@@ -858,7 +861,7 @@ Tagify.prototype = {
      * @return {Array} [Array of Objects]
      */
     normalizeTags( tagsItems ){
-        var {whitelist, delimiters, mode} = this.settings,
+        var {whitelist, delimiters, mode, tagTextProp} = this.settings,
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
             isArray = tagsItems instanceof Array,
@@ -868,7 +871,7 @@ Tagify.prototype = {
         if( typeof tagsItems == 'number' )
             tagsItems = tagsItems.toString();
 
-        // if the value is a "simple" String, ex: "aaa, bbb, ccc"
+        // if the argument is a "simple" String, ex: "aaa, bbb, ccc"
         if( typeof tagsItems == 'string' ){
             if( !tagsItems.trim() ) return [];
 
@@ -1092,18 +1095,20 @@ Tagify.prototype = {
 
             // shallow-clone tagData so later modifications will not apply to the source
             tagData = Object.assign({}, originalData)
-            tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData);
+            tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData)
 
-            _s.transformTag.call(this, tagData);
+            _s.transformTag.call(this, tagData)
 
             if( tagData.__isValid !== true ){
                 if( skipInvalid )
                     return
 
-                extend(tagElmParams, this.getInvalidTagParams(tagData, tagData.__isValid), {__preInvalidData:originalData})
+                // originalData is kept because it might be that this tag is invalid because it is a duplicate of another,
+                // and if that other tags is edited/deleted, this one should be re-validated and if is no more a duplicate - restored
+                extend(tagElmParams, this.getInvalidTagAttrs(tagData, tagData.__isValid), {__preInvalidData:originalData})
 
-                // mark, for a brief moment, the tag THIS CURRENT tag is a duplcate of
                 if( tagData.__isValid == this.TEXTS.duplicate )
+                    // mark, for a brief moment, the tag (this this one) which THIS CURRENT tag is a duplcate of
                     this.flashTag( this.getTagElmByValue(tagData.value) )
             }
             /////////////////////////////////////////////////////

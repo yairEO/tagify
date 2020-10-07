@@ -827,7 +827,9 @@ blacklist               | <sub>Array</sub>             | []                     
 addTagOnBlur            | <sub>Boolean</sub>           | true                                        | Automatically adds the text which was inputed as a tag when blur event happens
 callbacks               | <sub>Object</sub>            | {}                                          | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
 maxTags                 | <sub>Number</sub>            | Infinity                                    | Maximum number of allowed tags. when reached, adds a class "tagify--hasMaxTags" to `<Tags>`
-editTags                | <sub>Number</sub>            | 2                                           | Number of clicks on a tag to enter "edit" mode. Only `1` or `2` work. `false` or `null` will disallow editing
+editTags                | <sub>Object/Number</sub>     | {}                                          | `false` or `null` will disallow editing
+editTags.clicks         | <sub>Number</sub>            | 2                                           | Number of clicks to enter "edit-mode": 1 for single click. Any other value is considered as double-click
+editTags.keepInvalid    | <sub>Boolean</sub>           | true                                        | keeps invalid edits as-is until `esc` is pressed while in focus
 templates               | <sub>Object</sub>            | <sub>`wrapper`, `tag`, `dropdownItem`</sub> | Object consisting of functions which return template strings
 transformTag            | <sub>Function</sub>          | undefined                                   | Takes a tag data as argument and allows mutating it before a tag is created.<br>Should not `return` anything, only **mutate**.
 keepInvalidTags         | <sub>Boolean</sub>           | false                                       | If `true`, do not remove tags which did not pass validation
