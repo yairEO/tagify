@@ -895,6 +895,11 @@
                         This example shows how to customize <em>Tagify</em> further. It also includes an <code>Add All</code> option as the first
                         item in the suggestions dropdown list.
                     </p>
+                    <p>
+                        <code>tagTextProp</code> is very interesting in this example as it allows inputing both a <code>value</code>
+                        or a <code>name</code> and have them both match against the whitelist items. First the "value" is looked for,
+                        and if failed, then <em>prop</em> which was defined by the <code>tagTextProp</code> setting.
+                    </p>
                     <details>
                       <summary></summary>
                     <h3>HTML</h3>
@@ -1750,6 +1755,7 @@ function suggestionItemTemplate(tagData){
 
 // initialize Tagify on the above input node reference
 var tagify = new Tagify(inputElm, {
+    tagTextProp: 'name',   // this allows typing a "value" or a "name" to match input with whitelist
     enforceWhitelist: true,
     skipInvalid: true, // do not remporarily add invalid tags
     dropdown: {
@@ -1822,7 +1828,19 @@ var tagify = new Tagify(inputElm, {
             "name": "Corrie Tidey",
             "avatar": "https://i.pravatar.cc/80?img=10",
             "email": "ctidey9@youtube.com"
-        }
+        },
+        {
+            "value": 11,
+            "name": "foo",
+            "avatar": "https://i.pravatar.cc/80?img=11",
+            "email": "foo@bar.com"
+        },
+        {
+            "value": 12,
+            "name": "foo",
+            "avatar": "https://i.pravatar.cc/80?img=12",
+            "email": "foo.aaa@foo.com"
+        },
     ]
 })
 

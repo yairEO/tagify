@@ -802,6 +802,36 @@ Tagify.prototype = {
     },
 
     /**
+     * Returns the first whitelist item matched, by value (if match found)
+     * @param {String} value [text to match by]
+     */
+    getWhitelistItem( value, prop){
+        var result,
+            prop = prop || 'value',
+            _s = this.settings,
+            _cs = _s.dropdown.caseSensitive;
+
+        _s.whitelist.some(_wi => {
+            var _wiv = typeof _wi == 'string' ? _wi : _wi[prop],
+                isSameStr = sameStr(_wiv, value, _cs)
+
+            if( isSameStr ){
+                result = typeof _wi == 'string' ? {value:_wi} : _wi
+                return true
+            }
+        })
+
+        // first iterate the whitelist, try find maches by "value" and if that fails
+        // and a "tagTextProp" is set to be other than "value", try that also
+        if( !result && prop == 'value' && _s.tagTextProp != 'value' ){
+            // if found, adds the first which matches
+            result = this.getWhitelistItem(value, _s.tagTextProp)
+        }
+
+        return result
+    },
+
+    /**
      * validate a tag object BEFORE the actual tag will be created & appeneded
      * @param  {String} s
      * @param  {String} uid      [unique ID, to not inclue own tag when cheking for duplicates]
@@ -866,26 +896,26 @@ Tagify.prototype = {
             // checks if this is a "collection", meanning an Array of Objects
             isArray = tagsItems instanceof Array,
             temp = [],
-            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ value:this.trim(v) }))
+            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ [tagTextProp]:this.trim(v) }))
 
         if( typeof tagsItems == 'number' )
-            tagsItems = tagsItems.toString();
+            tagsItems = tagsItems.toString()
 
         // if the argument is a "simple" String, ex: "aaa, bbb, ccc"
         if( typeof tagsItems == 'string' ){
             if( !tagsItems.trim() ) return [];
 
             // go over each tag and add it (if there were multiple ones)
-            tagsItems = mapStringToCollection(tagsItems);
+            tagsItems = mapStringToCollection(tagsItems)
         }
 
-        // assuming Array of Strings
+        // is is an Array of Strings, convert to an Array of Objects
         else if( isArray ){
             // flatten the 2D array
             tagsItems = [].concat(...tagsItems.map(item => item.value
                 ? item // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
                 : mapStringToCollection(item)
-            ));
+            ))
         }
 
         // search if the tag exists in the whitelist as an Object (has props),
@@ -893,7 +923,7 @@ Tagify.prototype = {
         if( whitelistWithProps ){
             tagsItems.forEach(item => {
                 // the "value" prop should preferably be unique
-                var matchObj = this.getWhitelistItemByValue(item.value)
+                var matchObj = this.getWhitelistItem(item[tagTextProp])
 
                 if( matchObj && matchObj instanceof Object ){
                     temp.push( matchObj ); // set the Array (with the found Object) as the new value
@@ -903,27 +933,10 @@ Tagify.prototype = {
             })
 
             if( temp.length )
-                tagsItems = temp;
+                tagsItems = temp
         }
 
         return tagsItems;
-    },
-
-    /**
-     * Returns the first whitelist item matched, by value (if match found)
-     * @param {String} value
-     */
-    getWhitelistItemByValue( value ){
-        var result, _s = this.settings;
-
-        _s.whitelist.some(wi => {
-            if( sameStr(typeof wi == 'string' ? wi : wi.value, value, _s.dropdown.caseSensitive) ){
-                result = typeof wi == 'string' ? {value:wi} : wi
-                return true
-            }
-        })
-
-        return result
     },
 
     /**
