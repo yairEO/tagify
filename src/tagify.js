@@ -927,19 +927,26 @@ Tagify.prototype = {
         // to be able to use its properties
         if( whitelistWithProps ){
             tagsItems.forEach(item => {
-                // the "value" prop should preferably be unique
-                var matchObj = this.getWhitelistItem(item[tagTextProp])
+                // is suggestions are show, they are already filtered, so it's better to you use them
+                // because the whitelist might include also items which have already been added
+                var matchObj = this.suggestedListItems && this.suggestedListItems.length
+                    ? this.suggestedListItems[0]
+                    : this.getWhitelistItem(item[tagTextProp])
 
                 if( matchObj && matchObj instanceof Object ){
                     temp.push( matchObj ); // set the Array (with the found Object) as the new value
                 }
-                else if( mode != 'mix' )
+                else if( mode != 'mix' ){
+                    if( item.value == undefined )
+                        item.value = item[tagTextProp]
                     temp.push(item)
+                }
             })
 
             if( temp.length )
                 tagsItems = temp
         }
+
 
         return tagsItems;
     },
