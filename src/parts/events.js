@@ -509,7 +509,7 @@ export default {
                 tagData = this.tagData(tagElm),
                 value = this.input.normalize.call(this, editableElm),
                 hasChanged = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
-                isValid = this.validateTag({value}); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
+                isValid = this.validateTag({[this.settings.tagTextProp]:value}); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
 
             // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
             if( !hasChanged && editableElm.originalIsValid === true )
@@ -557,7 +557,8 @@ export default {
                 originalData = this.tagData(tagElm).__originalData,
                 newTagData   = extend({}, originalData, {[_s.tagTextProp]:textValue}),
                 hasChanged   = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
-                isValid      = this.validateTag(newTagData);
+                isValid      = this.validateTag({[_s.tagTextProp]:textValue});
+
             //  this.DOM.input.focus()
 
             if( !textValue ){
@@ -569,7 +570,8 @@ export default {
             if( hasChanged ){
                 _s.transformTag.call(this, newTagData)
                 // MUST re-validate after tag transformation
-                isValid = this.validateTag(newTagData)
+                // only validate the "tagTextProp" because is the only thing that metters for validation
+                isValid = this.validateTag({[_s.tagTextProp]:newTagData[_s.tagTextProp]})
             }
             else{
                 // if nothing changed revert back to how it was before editing
@@ -578,17 +580,33 @@ export default {
             }
 
             if( isValid !== true ){
-                this.trigger("invalid", {data:newTagData, tag:tagElm, message:isValid})
+                this.trigger("invalid", { data:newTagData, tag:tagElm, message:isValid })
 
                 // do nothing if invalid, stay in edit-mode until corrected or reverted by presssing esc
                 if( _s.editTags.keepInvalid ) return
 
                 newTagData = originalData
             }
-            else
+            else{
                 // check if the new value is in the whiteilst, if not check if there
                 // is any pre-invalidation data, and lastly resort to fresh emptty Object
-                newTagData = this.getWhitelistItemByValue(textValue) || newTagData.__preInvalidData || newTagData
+                newTagData = this.getWhitelistItem(textValue) || newTagData.__preInvalidData || newTagData;
+
+                // again, check if the tag is not a duplicate, because at this point it might be if
+                // "tagTextProp" setting is set to other than "value" and there was already another tag
+                // with the same "value" as in "newTagData"
+                isValid = this.validateTag(newTagData)
+
+                if( isValid !== true ){
+                    this.trigger("invalid", { data:newTagData, tag:tagElm, message:isValid })
+                    tagElm.classList.toggle(_s.classNames.tagInvalid, true)
+
+                    // do nothing if invalid, stay in edit-mode until corrected or reverted by presssing esc
+                    if( _s.editTags.keepInvalid ) return
+
+                    newTagData = originalData
+                }
+            }
 
             this.onEditTagDone(tagElm, newTagData)
         },

@@ -794,11 +794,14 @@ Tagify.prototype = {
      * checks if text is in the whitelist
      */
     isTagWhitelisted( v ){
+        return !!this.getWhitelistItem(v)
+        /*
         return this.settings.whitelist.some(item =>
             typeof v == 'string'
                 ? sameStr(this.trim(v), (item.value || item))
                 : sameStr(JSON.stringify(item), JSON.stringify(v))
         )
+        */
     },
 
     /**
@@ -838,22 +841,24 @@ Tagify.prototype = {
      * @return {Boolean/String}  ["true" if validation has passed, String for a fail]
      */
     validateTag( tagData ){
-        var value = this.trim(tagData.value),
-            _s = this.settings;
+        var _s = this.settings,
+            // when validating a tag in edit-mode, need to take "tagTextProp" into consideration
+            prop = "value" in tagData ? "value" : _s.tagTextProp,
+            v = this.trim(tagData[prop] + "");
 
-        // check for empty value
-        if( !tagData.value.trim() )
+        // check for definitive empty value
+        if( !(tagData[prop]+"").trim() )
             return this.TEXTS.empty;
 
         // check if pattern should be used and if so, use it to test the value
-        if( _s.pattern && _s.pattern instanceof RegExp && !(_s.pattern.test(value)) )
+        if( _s.pattern && _s.pattern instanceof RegExp && !(_s.pattern.test(v)) )
             return this.TEXTS.pattern;
 
         // if duplicates are not allowed and there is a duplicate
-        if( !_s.duplicates && this.isTagDuplicate(value, this.state.editing) )
+        if( !_s.duplicates && this.isTagDuplicate(v, this.state.editing) )
             return this.TEXTS.duplicate;
 
-        if( this.isTagBlacklisted(value) || (_s.enforceWhitelist && !this.isTagWhitelisted(value)) )
+        if( this.isTagBlacklisted(v) || (_s.enforceWhitelist && !this.isTagWhitelisted(v)) )
             return this.TEXTS.notAllowed;
 
         return true
