@@ -281,6 +281,10 @@
             transition     : $tag-hide-transition;
             transition     : var(--tag-hide-transition, $tag-hide-transition);
             pointer-events : none;
+
+            > div > *{
+                white-space: nowrap;
+            }
         }
 
         &#{ $self }{

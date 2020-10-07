@@ -808,13 +808,14 @@ Tagify.prototype = {
      * Returns the first whitelist item matched, by value (if match found)
      * @param {String} value [text to match by]
      */
-    getWhitelistItem( value, prop){
+    getWhitelistItem( value, prop, whitelist ){
         var result,
             prop = prop || 'value',
             _s = this.settings,
+            whitelist = whitelist || _s.whitelist,
             _cs = _s.dropdown.caseSensitive;
 
-        _s.whitelist.some(_wi => {
+        whitelist.some(_wi => {
             var _wiv = typeof _wi == 'string' ? _wi : _wi[prop],
                 isSameStr = sameStr(_wiv, value, _cs)
 
@@ -828,7 +829,7 @@ Tagify.prototype = {
         // and a "tagTextProp" is set to be other than "value", try that also
         if( !result && prop == 'value' && _s.tagTextProp != 'value' ){
             // if found, adds the first which matches
-            result = this.getWhitelistItem(value, _s.tagTextProp)
+            result = this.getWhitelistItem(value, _s.tagTextProp, whitelist)
         }
 
         return result
@@ -897,10 +898,10 @@ Tagify.prototype = {
      */
     normalizeTags( tagsItems ){
         var {whitelist, delimiters, mode, tagTextProp} = this.settings,
+            whitelistMatches = [],
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
             isArray = tagsItems instanceof Array,
-            temp = [],
             mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ [tagTextProp]:this.trim(v) }))
 
         if( typeof tagsItems == 'number' )
@@ -927,24 +928,28 @@ Tagify.prototype = {
         // to be able to use its properties
         if( whitelistWithProps ){
             tagsItems.forEach(item => {
+                var whitelistMatchesValues = whitelistMatches.map(a=>a.value)
+
                 // is suggestions are show, they are already filtered, so it's better to you use them
                 // because the whitelist might include also items which have already been added
-                var matchObj = this.suggestedListItems && this.suggestedListItems.length
-                    ? this.suggestedListItems[0]
-                    : this.getWhitelistItem(item[tagTextProp])
+                var filteredList = this.dropdown.filterListItems.call(this, '')
+                    // also filter out items which have already been matches in previous iterations
+                    .filter(filteredItem => !whitelistMatchesValues.includes(filteredItem.value))
+
+                var matchObj = this.getWhitelistItem(item[tagTextProp], null, filteredList)
 
                 if( matchObj && matchObj instanceof Object ){
-                    temp.push( matchObj ); // set the Array (with the found Object) as the new value
+                    whitelistMatches.push( matchObj ) // set the Array (with the found Object) as the new value
                 }
                 else if( mode != 'mix' ){
                     if( item.value == undefined )
                         item.value = item[tagTextProp]
-                    temp.push(item)
+                    whitelistMatches.push(item)
                 }
             })
 
-            if( temp.length )
-                tagsItems = temp
+            if( whitelistMatches.length )
+                tagsItems = whitelistMatches
         }
 
 

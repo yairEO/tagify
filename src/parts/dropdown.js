@@ -493,16 +493,14 @@ export default {
     },
 
     selectAll(){
-        // some whitelist items might have already been added as tags so when addings all of them,
-        // skip shoing already-added ones
-        var skipInvalid = this.settings.skipInvalid;
-        this.settings.skipInvalid = true;
-
-        this.addTags(this.settings.whitelist, true)
-
-        this.settings.skipInvalid = skipInvalid;
-
+        // having suggestedListItems with items messes with "normalizeTags" when wanting
+        // to add all tags
+        this.suggestedListItems.length = 0;
         this.dropdown.hide.call(this)
+
+        // some whitelist items might have already been added as tags so when addings all of them,
+        // skip adding already-added ones, so best to use "filterListItems" method over "settings.whitelist"
+        this.addTags(this.dropdown.filterListItems.call(this, ''), true)
         return this
     },
 
