@@ -326,7 +326,14 @@
                 }
             }
 
-            > #{$self}__tag__removeBtn{ visibility: hidden; }
+            > #{$self}__tag__removeBtn{
+                pointer-events: none;
+
+                &::after{
+                    opacity: 0;
+                    transform: translateX(100%) translateX(5px);
+                }
+            }
 
             &.tagify--invalid{
                 > div{
@@ -358,10 +365,12 @@
             margin-right   : $size/3;
             margin-left    : -$size/3;
 
+            overflow       : hidden;
             transition     : .2s ease-out;
 
             &::after{
                 content: "\00D7";
+                transition: .3s, color 0s;
             }
 
             &:hover{
@@ -374,7 +383,7 @@
                     &::before{
                         box-shadow: 0 0 0 $tag-inset-shadow-size rgba($tag-remove, .3) inset !important;
                         box-shadow: 0 0 0 var(--tag-inset-shadow-size, $tag-inset-shadow-size) var(--tag-remove-bg, rgba($tag-remove, .3)) inset !important;
-                        transition: .2s;
+                        transition: box-shadow .2s;
                     }
                 }
             }
