@@ -66,6 +66,8 @@ npm i @yaireo/tagify --save
 
 ### Usage (in your bundle):
 
+[live demo using Parcel as bundler](https://codesandbox.io/s/simple-tagify-setup-6pfi2)
+
 ```js
 import Tagify from '@yaireo/tagify'
 
