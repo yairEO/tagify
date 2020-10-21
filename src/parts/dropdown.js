@@ -543,7 +543,13 @@ export default {
 
             if( _sd.fuzzySearch ){
                 searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
-                valueIsInWhitelist = stringHasAll(_sd.accentedSearch ? unaccent(searchBy) : searchBy, _sd.accentedSearch ? unaccent(niddle) : niddle)
+
+                if( _sd.accentedSearch ){
+                    searchBy = unaccent(searchBy)
+                    niddle = unaccent(niddle)
+                }
+
+                valueIsInWhitelist = stringHasAll(searchBy, niddle)
             }
 
             else {
