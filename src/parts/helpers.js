@@ -59,6 +59,23 @@ export function minify( s ){
         : ""
 }
 
+export function removeTextChildNodes( elm ){
+    var iter = document.createNodeIterator(elm, NodeFilter.SHOW_TEXT),
+        textnode;
+
+    // print all text nodes
+    while (textnode = iter.nextNode())
+        if( !textnode.textContent.trim() )
+            textnode.parentNode.removeChild(textnode)
+}
+
+export function getfirstTextNode( elm, action ){
+    action = action || 'previous';
+    while ( elm = elm[action + 'Sibling'] )
+        if( elm.nodeType == 3 )
+            return elm
+}
+
 /**
  * utility method
  * https://stackoverflow.com/a/6234804/104380

@@ -113,8 +113,8 @@
                 <textarea name='simple-mix' placeholder="type something">and[[   [[alice]] text [[bob]] [[foo]], [[alice]], [[foo]]</textarea>
 
                 <textarea name='mix' class='tagify-editor' placeholder="type something">
-                  [[{"value":101, "text":"cartman", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":500, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
-[[{"value": "readonly", "readonly":true}]]
+                  [[{"value":101, "text":"  cartman  ", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":500, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
+and [[{"value": "readonly", "readonly":true}]]
                 </textarea>
             </section>
 
@@ -159,9 +159,9 @@
   document.forms[0].reset()
 
   window.tagified = {
-    "mix"               : 0,
+    "mix"               : 1,
     "markdown"          : 0,
-    "basic"             : 1,
+    "basic"             : 0,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
@@ -578,8 +578,8 @@
 
     var tagify = new Tagify(document.querySelector('[name="markdown"]'), settings)
 
-    var toolbarElm = document.querySelector('#section-markdown > .toolbar')
-    toolbarElm.addEventListener('click', onToolbarClick)
+    //var toolbarElm = document.querySelector('#section-markdown > .toolbar')
+    //toolbarElm.addEventListener('click', onToolbarClick)
 
     function onToolbarClick(e){
         var btnElm = e.target;

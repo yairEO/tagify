@@ -1,4 +1,4 @@
-import { decode, extend, minify } from './helpers'
+import { decode, extend, getfirstTextNode } from './helpers'
 
 export function triggerChangeEvent(){
     if( this.settings.mixMode.integrated ) return;
@@ -131,7 +131,6 @@ export default {
                 return
             }
 
-
             if( type == "focus" ){
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
@@ -178,34 +177,70 @@ export default {
                     case 'Backspace' : {
                         if( this.state.editing ) return
 
-                        var selection = document.getSelection(),
-                            deleteKeyTagDetected = e.key == 'Delete' && selection.anchorOffset == selection.anchorNode.length,
-                            backspaceKeyTagDetected =  selection.anchorNode.nodeType == 1 || !selection.anchorOffset && selection.anchorNode.previousElementSibling,
+                        var sel = document.getSelection(),
+                            deleteKeyTagDetected = e.key == 'Delete' && sel.anchorOffset == (sel.anchorNode.length || 0),
+                            isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && sel.anchorNode.previousElementSibling,
                             lastInputValue = decode(this.DOM.input.innerHTML),
-                            lastTagElems = this.getTagElms();
+                            lastTagElems = this.getTagElms(),
+                            //  isCaretInsideTag = sel.anchorNode.parentNode('.' + this.settings.classNames.tag),
+                            tagElmToBeDeleted;
 
-                        if( selection.anchorNode.nodeType == 3 &&   // node at caret location is a Text node
-                            !selection.anchorNode.nodeValue    &&   // has some text
-                            selection.anchorNode.previousElementSibling )  // text node has a Tag node before it
+                        if( sel.anchorNode.nodeName == 'BR')
+                            return
+
+                        if( (deleteKeyTagDetected || isCaretAfterTag) && sel.anchorNode.nodeType == 1 )
+                            if( sel.anchorOffset == 0 ) // caret is at the very begining, before a tag
+                                tagElmToBeDeleted = deleteKeyTagDetected // delete key pressed
+                                    ? lastTagElems[0]
+                                    : null;
+                            else
+                                tagElmToBeDeleted = lastTagElems[sel.anchorOffset - 1]
+
+                        // find out if a tag *might* be a candidate for deletion, and if so, which
+                        else if( deleteKeyTagDetected )
+                            tagElmToBeDeleted = sel.anchorNode.nextElementSibling;
+
+                        else if( isCaretAfterTag )
+                            tagElmToBeDeleted = isCaretAfterTag;
+
+                        // tagElm.hasAttribute('readonly')
+                        if( sel.anchorNode.nodeType == 3 &&   // node at caret location is a Text node
+                            !sel.anchorNode.nodeValue    &&   // has some text
+                            sel.anchorNode.previousElementSibling )  // text node has a Tag node before it
                             e.preventDefault()
 
+                        // if backspace not allowed, do nothing
                         // TODO: a better way to detect if nodes were deleted is simply check the "this.value" before & after
-                        if( (backspaceKeyTagDetected || deleteKeyTagDetected) && !this.settings.backspace ){
+                        if( (isCaretAfterTag || deleteKeyTagDetected) && !this.settings.backspace ){
                             e.preventDefault()
                             return
                         }
 
-                        // if( isFirefox && selection && selection.anchorOffset == 0 )
-                        //     this.removeTags(selection.anchorNode.previousSibling)
+                        if( sel.type != 'Range' && tagElmToBeDeleted && tagElmToBeDeleted.hasAttribute('readonly') ){
+                            // allows the continuation of deletion by placing the caret on the first previous textNode.
+                            // since a few readonly-tags might be one after the other, iteration is needed:
+                            this.placeCaretAfterNode( getfirstTextNode(tagElmToBeDeleted) )
+                            return
+                        }
+
+                        // nodeType is "1" only when the caret is at the end after last tag (no text after), or before first first (no text before)
+                        if( this.isFirefox && sel.anchorNode.nodeType == 1 && sel.anchorOffset != 0 ){
+                            this.removeTags() // removes last tag by default if no parameter supplied
+                            // place caret inside last textNode, if exist. it's an annoying bug only in FF,
+                            // if the last tag is removed, and there is a textNode before it, the caret is not placed at its end
+                            this.placeCaretAfterNode( this.setRangeAtStartEnd() )
+                        }
 
                         // a minimum delay is needed before the node actually gets detached from the document (don't know why),
                         // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
                         setTimeout(() => {
-                            var currentValue = decode(this.DOM.input.innerHTML);
+                            var sel = document.getSelection(),
+                                currentValue = decode(this.DOM.input.innerHTML),
+                                prevElm = sel.anchorNode.previousElementSibling;
 
                             // fixes #384, where the first and only tag will not get removed with backspace
-                            if( currentValue.length >= lastInputValue.length ){
-                                this.removeTags(selection.anchorNode.previousElementSibling)
+                            if( currentValue.length >= lastInputValue.length && prevElm && !prevElm.hasAttribute('readonly') ){
+                                this.removeTags(prevElm)
                                 this.fixFirefoxLastTagNoCaret()
 
                                 // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
@@ -219,9 +254,10 @@ export default {
                             // find out which tag(s) were deleted and trigger "remove" event
                             // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
                             this.value = [].map.call(lastTagElems, (node, nodeIdx) => {
-                                var tagData = node.__tagifyTagData
+                                var tagData = this.tagData(node)
 
-                                if( node.parentNode )
+                                // since readonly cannot be removed (it's technically resurrected if removed somehow)
+                                if( node.parentNode || tagData.readonly )
                                     return tagData
                                 else
                                     this.trigger('remove', { tag:node, index:nodeIdx, data:tagData })
@@ -327,17 +363,24 @@ export default {
                 matchFlaggedTag,
                 matchDelimiters,
                 tagsElems = this.getTagElms(),
+                fragment = document.createDocumentFragment(),
+                range = window.getSelection().getRangeAt(0),
                 remainingTagsValues = [].map.call(tagsElems, node => this.tagData(node).value);
 
             // re-add "readonly" tags which might have been removed
             this.value.slice().forEach(item => {
                 if( item.readonly && !remainingTagsValues.includes(item.value) )
-                    this.injectAtCaret( this.createTagElem(item), window.getSelection().getRangeAt(0) )
+                    fragment.appendChild( this.createTagElem(item) )
             })
 
-            // check if tags were magically added/removed (browser redo/undo or CTRL-A -> delete)
+            if( fragment.childNodes.length ){
+                range.insertNode(fragment)
+                this.setRangeAtStartEnd(false, fragment.lastChild)
+            }
+
+            // check if tags were "magically" added/removed (browser redo/undo or CTRL-A -> delete)
             if( tagsElems.length != lastTagsCount ){
-                this.value = [].map.call(this.getTagElms(), node => node.__tagifyTagData)
+                this.value = [].map.call(this.getTagElms(), node => this.tagData(node))
                 this.update({ withoutChangeEvent:true })
                 return
             }

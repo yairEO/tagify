@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, isObject, parseHTML, minify, escapeHTML, extend } from './parts/helpers'
+import { sameStr, removeCollectionProp, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend } from './parts/helpers'
 import dropdownMethods from './parts/dropdown'
 import DEFAULTS from './parts/defaults'
 import templates from './parts/templates'
@@ -363,6 +363,7 @@ Tagify.prototype = {
     events,
 
     fixFirefoxLastTagNoCaret(){
+        return // seems to be fixed in newer version of FF, so retiring below code (for now)
         var inputElm = this.DOM.input
 
         if( this.isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1 ){
@@ -373,6 +374,8 @@ Tagify.prototype = {
     },
 
     placeCaretAfterNode( node ){
+        if( !node ) return
+
         var nextSibling = node.nextSibling,
             sel = window.getSelection(),
             range = sel.getRangeAt(0);
@@ -576,8 +579,8 @@ Tagify.prototype = {
 
         this.setRangeAtStartEnd(false, injectedNode)
 
-        this.updateValueByDOMTags()
-        this.update()
+        this.updateValueByDOMTags() // updates internal "this.value"
+        this.update() // updates original input/textarea
 
         return this
     },
@@ -708,9 +711,12 @@ Tagify.prototype = {
 
     getTagElms( ...classess ){
         var classname = ['.' + this.settings.classNames.tag, ...classess].join('.')
-        return this.DOM.scope.querySelectorAll(classname)
+        return [].slice.call(this.DOM.scope.querySelectorAll(classname)) // convert nodeList to Array - https://stackoverflow.com/a/3199627/104380
     },
 
+    /**
+     * gets the last non-readonly, not-in-the-proccess-of-removal tag
+     */
     getLastTag(){
         var lastTag = this.DOM.scope.querySelectorAll(`.${this.settings.classNames.tag}:not(.${this.settings.classNames.tagHide}):not([readonly])`);
         return lastTag[lastTag.length - 1];
@@ -952,7 +958,6 @@ Tagify.prototype = {
                 tagsItems = whitelistMatches
         }
 
-
         return tagsItems;
     },
 
@@ -962,13 +967,14 @@ Tagify.prototype = {
      * @param {String} s
      */
     parseMixTags( s ){
-        var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist, maxTags} = this.settings,
+        var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist, maxTags, tagTextProp} = this.settings,
             tagsDataSet = [];
 
         s = s.split(mixTagsInterpolator[0]).map((s1, i) => {
             var s2 = s1.split(mixTagsInterpolator[1]),
                 preInterpolated = s2[0],
                 maxTagsReached = tagsDataSet.length == maxTags,
+                textProp,
                 tagData,
                 tagElm;
 
@@ -986,6 +992,10 @@ Tagify.prototype = {
                 (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&
                 !(!duplicates && this.isTagDuplicate(tagData.value)) ){
                 transformTag.call(this, tagData)
+
+                // in case "tagTextProp" setting is set to other than "value" and this tag does not have this prop
+                textProp = tagData[tagTextProp] ? tagTextProp : 'value'
+                tagData[textProp] = this.trim(tagData[textProp])
 
                 tagElm = this.createTagElem(tagData)
                 tagsDataSet.push( tagData )
@@ -1247,6 +1257,13 @@ Tagify.prototype = {
             tagData.readonly = true
 
         tagElm = this.parseTemplate('tag', [templateData])
+
+        // crucial for proper caret placement when deleting content. if textNodes are allowed as children of
+        // a tag element, a browser bug casues the caret to misplaced inside the tag element (especcially affects "readonly" tags)
+        removeTextChildNodes(tagElm)
+
+        // while( tagElm.lastChild.nodeType == 3 )
+        //     tagElm.lastChild.parentNode.removeChild(tagElm.lastChild)
 
         this.tagData(tagElm, tagData)
 
