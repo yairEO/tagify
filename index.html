@@ -769,7 +769,8 @@
                         and when starting with <code>#</code>, a <i>Simpsons</i> suggestion list
                     </p>
                     <p>
-                        Note that tags can only be created if the value matches any of the whitelisted item's value.
+                        Note that "homer simpson" tag is set to <code>readonly</code> in this example. If tried to select all text and delete
+                        everything, <em>readonly</em> tags will remain.
                     </p>
                     <p>
                         When a <code>textarea</code> already has mixed-content and it wasn't pre-configured using a whitelist, the tags will ignored, so keep
@@ -786,7 +787,7 @@
                       <summary></summary>
                     <h3>HTML</h3>
 <pre class="language-markup"><code>&lt;textarea name='mix'>
-    [[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[homer simpson]] because he's a relic.
+    [[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[{"value":"homer simpson", "readonly":true}]] because he's a relic.
 &lt;/textarea>
 </code></pre>
                     <h3>JAVASCRIPT</h3>
@@ -799,7 +800,7 @@
                             <use class="logo-use" xlink:href="#codepen-logo"/>
                         </svg>
                     </a>
-                    <textarea name='mix'>[[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[homer simpson]] because he's a relic.</textarea>
+                    <textarea name='mix'>[[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[{"value":"homer simpson", "readonly":true}]] because he's a relic.</textarea>
                 </aside>
             </section>
 
