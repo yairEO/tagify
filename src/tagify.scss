@@ -135,21 +135,26 @@
     }
 
     // Global "read-only" mode (no input button)
-    &[readonly]:not(.tagify--mix){
-        cursor: default;
-        > #{ $self }__input{
-            visibility: hidden;
-            width: 0;
-            margin: $tagMargin 0;
-        }
-        #{ $self }__tag__removeBtn{ display:none; }
-        #{ $self }__tag > div{
-            padding: $tag-pad;
-            padding: var(--tag-pad);
-            &::before{
-                @include tagReadonlyBG;
+    &[readonly]{
+        &:not(.tagify--mix){
+            cursor: default;
+            > #{ $self }__input{
+                visibility: hidden;
+                width: 0;
+                margin: $tagMargin 0;
+            }
+
+            #{ $self }__tag > div{
+                padding: $tag-pad;
+                padding: var(--tag-pad);
+                &::before{
+                    @include tagReadonlyBG;
+                }
             }
         }
+
+        #{ $self }__tag__removeBtn{ display:none; }
+
     }
 
     &--loading{
