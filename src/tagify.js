@@ -2,6 +2,7 @@ import { sameStr, removeCollectionProp, isObject, parseHTML, removeTextChildNode
 import dropdownMethods from './parts/dropdown'
 import DEFAULTS from './parts/defaults'
 import templates from './parts/templates'
+import EventDispatcher from './parts/EventDispatcher'
 import events, { triggerChangeEvent } from './parts/events'
 
 /**
@@ -20,6 +21,7 @@ function Tagify( input, settings ){
         return this
     }
 
+    extend(this, EventDispatcher(this))
     this.isFirefox = typeof InstallTrigger !== 'undefined'
     this.isIE = window.document.documentMode; // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
 
@@ -39,7 +41,7 @@ function Tagify( input, settings ){
     this.listeners = {}
 
     this.DOM = {} // Store all relevant DOM elements in an Object
-    extend(this, new this.EventDispatcher(this))
+
     this.build(input)
     this.getCSSVars()
     this.loadOriginalValues()
@@ -278,57 +280,6 @@ Tagify.prototype = {
         for( var v in e )
             clonedEvent[v] = e[v]
         return clonedEvent
-    },
-
-    /**
-     * A constructor for exposing events to the outside
-     */
-    EventDispatcher( instance ){
-        // Create a DOM EventTarget object
-        var target = document.createTextNode('')
-
-        function addRemove(op, events, cb){
-            if( cb )
-                events.split(/\s+/g).forEach(name => target[op + 'EventListener'].call(target, name, cb))
-        }
-
-        // Pass EventTarget interface calls to DOM EventTarget object
-        this.off = function(events, cb){
-            addRemove('remove', events, cb)
-            return this
-        };
-
-        this.on = function(events, cb){
-            if(cb && typeof cb == 'function')
-                addRemove('add', events, cb)
-            return this
-        };
-
-        this.trigger = function(eventName, data){
-            var e;
-            if( !eventName ) return;
-
-            if( instance.settings.isJQueryPlugin ){
-                if( eventName == 'remove' ) eventName = 'removeTag' // issue #222
-                jQuery(instance.DOM.originalInput).triggerHandler(eventName, [data])
-            }
-            else{
-                try {
-                    var eventData =  extend({}, (typeof data === 'object' ? data : {value:data}))
-                    eventData.tagify = this
-
-                    // TODO: move the below to the "extend" function
-                    if( data instanceof Object )
-                        for( var prop in data )
-                            if(data[prop] instanceof HTMLElement)
-                                eventData[prop] = data[prop]
-
-                    e = new CustomEvent(eventName, {"detail":eventData})
-                }
-                catch(err){ console.warn(err) }
-                target.dispatchEvent(e);
-            }
-        }
     },
 
     /**

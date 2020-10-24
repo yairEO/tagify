@@ -445,6 +445,7 @@ and [[{"value": "readonly", "readonly":true}]]
   }
 
   var simpleMixTagify = new Tagify(simpleMixInput, settings);
+  simpleMixTagify.on('keydown', e => console.log(e.detail))
 
 
   //////////////////////////////
@@ -519,7 +520,7 @@ and [[{"value": "readonly", "readonly":true}]]
 
   var whitelist_2 = ['Homer simpson', 'Marge simpson', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
 
-  // A good place to pull server suggestion list accoring to the prefix/value
+  // A good place to pull server suggestion list according to the prefix/value
   tagify.on('input', async function(e){
     var prefix = e.detail.prefix,
         newWhitelist;
