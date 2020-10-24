@@ -20,6 +20,9 @@ export default {
             noMatchListItem,
             isManual = _s.dropdown.position == 'manual';
 
+        // if text still exists in the input, and `show` method has no argument, then the input's text should be used
+        value = value === undefined ? this.state.inputText : value
+
         // ⚠️ Do not render suggestions list  if:
         // 1. there's no whitelist (can happen while async loading) AND new tags arn't allowed
         // 2. dropdown is disabled
@@ -350,7 +353,7 @@ export default {
                     case 'Backspace' : {
                         if( this.settings.mode == 'mix' || this.state.editing.scope ) return;
 
-                        let value = this.input.value.trim()
+                        let value = this.state.inputText.trim()
 
                         if( value == "" || value.charCodeAt(0) == 8203 ){
                             if( this.settings.backspace === true )
@@ -450,7 +453,7 @@ export default {
         var {clearOnSelect, closeOnSelect} = this.settings.dropdown
 
         if( !elm ) {
-            this.addTags(this.input.value, true)
+            this.addTags(this.state.inputText, true)
             closeOnSelect && this.dropdown.hide.call(this)
             return;
         }
@@ -460,7 +463,7 @@ export default {
 
         var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
             selectedOption = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '',
-            tagData = selectedOption || this.input.value;
+            tagData = selectedOption || this.state.inputText;
 
         this.trigger("dropdown:select", {data:tagData, elm})
 

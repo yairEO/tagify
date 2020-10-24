@@ -339,7 +339,7 @@ export default {
 
             // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
             // and so many keys do not change the input, and for those do not continue.
-            if( this.input.value == value ) return;
+            if( this.state.inputText == value ) return;
 
             // save the value on the input's State object
             this.input.set.call(this, value, false); // update the input with the normalized value and run validations

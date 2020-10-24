@@ -541,10 +541,9 @@ Tagify.prototype = {
      * @type {Object}
      */
     input : {
-        value : '',
         set( s = '', updateDOM = true ){
             var hideDropdown = this.settings.dropdown.closeOnSelect
-            this.input.value = s
+            this.state.inputText = s
 
             if( updateDOM )
                 this.DOM.input.innerHTML = s;
@@ -560,7 +559,7 @@ Tagify.prototype = {
          * Marks the tagify's input as "invalid" if the value did not pass "validateTag()"
          */
         validate(){
-            var isValid = !this.input.value || this.validateTag({value:this.input.value}) === true;
+            var isValid = !this.state.inputText || this.validateTag({value:this.state.inputText}) === true;
 
             this.DOM.input.classList.toggle(this.settings.classNames.inputInvalid, !isValid)
 
@@ -605,10 +604,10 @@ Tagify.prototype = {
                     data = {value:data}
 
                 var suggestedText = data.value ? ''+data.value : '',
-                    suggestionStart = suggestedText.substr(0, this.input.value.length).toLowerCase(),
-                    suggestionTrimmed = suggestedText.substring(this.input.value.length);
+                    suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(),
+                    suggestionTrimmed = suggestedText.substring(this.state.inputText.length);
 
-                if( !suggestedText || !this.input.value || suggestionStart != this.input.value.toLowerCase() ){
+                if( !suggestedText || !this.state.inputText || suggestionStart != this.state.inputText.toLowerCase() ){
                     this.DOM.input.removeAttribute("data-suggest");
                     delete this.state.inputSuggestion
                 }
@@ -624,7 +623,7 @@ Tagify.prototype = {
              */
             set( s ){
                 var dataSuggest = this.DOM.input.getAttribute('data-suggest'),
-                    suggestion = s || (dataSuggest ? this.input.value + dataSuggest : null);
+                    suggestion = s || (dataSuggest ? this.state.inputText + dataSuggest : null);
 
                 if( suggestion ){
                     if( this.settings.mode == 'mix' ){
