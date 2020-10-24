@@ -887,12 +887,13 @@ Tagify.prototype = {
             tagsItems.forEach(item => {
                 var whitelistMatchesValues = whitelistMatches.map(a=>a.value)
 
-                // is suggestions are show, they are already filtered, so it's better to you use them
-                // because the whitelist might include also items which have already been added
-                var filteredList = this.dropdown.filterListItems.call(this, '')
+                // if suggestions are shown, they are already filtered, so it's easier to use them,
+                // because the whitelist might also include items which have already been added
+                var filteredList = this.dropdown.filterListItems.call(this, item[tagTextProp])
                     // also filter out items which have already been matches in previous iterations
                     .filter(filteredItem => !whitelistMatchesValues.includes(filteredItem.value))
 
+                // get the best match out of list of possible matches
                 var matchObj = this.getWhitelistItem(item[tagTextProp], null, filteredList)
 
                 if( matchObj && matchObj instanceof Object ){

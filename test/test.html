@@ -159,9 +159,9 @@ and [[{"value": "readonly", "readonly":true}]]
   document.forms[0].reset()
 
   window.tagified = {
-    "mix"               : 1,
+    "mix"               : 0,
     "markdown"          : 0,
-    "basic"             : 0,
+    "basic"             : 1,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
@@ -221,14 +221,6 @@ and [[{"value": "readonly", "readonly":true}]]
                 email: '11aaa@gmail.com',
             },
         ]
-    })
-
-    emptyJSONTagify.on('input', function(e){
-      console.log(11111, "input")
-    })
-
-    emptyJSONTagify.on('keydown', function(e){
-      console.log(2222, "keydown")
     })
 
 
