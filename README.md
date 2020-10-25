@@ -48,6 +48,7 @@
 * [Single-Value Only](#single-value)
 * [React wrapper](#react)
 * [Angular wrapper](#angular)
+* [StimulusJs Example](#stimulusjs)
 * [Vue Example](https://codesandbox.io/s/tagify-tags-component-vue-example-l8ok4)
 * [jQuery version](#jquery-version)
 * [FAQ](#FAQ)
@@ -514,6 +515,67 @@ export class AppComponent implements OnDestroy {
 ```
 </details>
 
+
+## StimulusJs
+
+Loading remote server data using StimulusJs. Below is a basic example using the `fetch` API 
+
+<details>
+  <summary>Example:</summary>
+
+```typescript
+  import { Controller } from 'stimulus';
+  import Tagify from '@yaireo/tagify';
+
+  export default class extends Controller {
+    
+    connect() {
+      this.countries();
+    }
+
+    countries() {
+      var that = this;
+      const url = 'https://get_suggestions.com/countries.json';
+
+      const countryInput = document.querySelector('input');
+      const tagify = new Tagify(countryInput, {
+        whitelist: [],
+        maxTags: 10,
+        dropdown: {
+          maxItems: 20, // <- mixumum allowed rendered suggestions
+          classname: 'tags-look', // <- custom classname for this dropdown, so it could be targeted
+          enabled: 0, // <- show suggestions on focus
+          closeOnSelect: false, // <- do not hide the suggestions dropdown once an item has been selected
+        },
+      });
+
+      tagify.on('focus', function(e) {
+        that.loadWhiteList(e, tagify, url)
+      })
+    }
+
+    loadWhiteList(e, tagify, url) {
+      let controller;
+      const value = e.detail.value;
+      tagify.settings.whitelist.length = 0; // reset the whitelist
+
+      controller && controller.abort();
+      controller = new AbortController();
+
+      tagify.loading(true).dropdown.hide.call(tagify)
+
+      fetch(`${url}?value=${value}`, {signal:controller.signal})
+        .then(RES => RES.json())
+        .then(function(whitelist){
+          tagify.settings.whitelist.splice(0, whitelist.length, ...whitelist)
+          tagify.loading(false).dropdown.show.call(tagify, value);
+        })
+    }
+
+  }
+
+```
+</details>
 
 
 ## jQuery version
