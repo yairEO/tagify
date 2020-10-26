@@ -15,6 +15,13 @@
         "name": "vsync",
         "email": "vsync.design@gmail.com"
     },
+    "browserslist": [
+        ">1%",
+        "not dead",
+        "not ie < 11",
+        "not IE_Mob 11",
+        "not op_mini all"
+    ],
     "scripts": {
         "start": "npx gulp@4.0.2",
         "test": "jest",

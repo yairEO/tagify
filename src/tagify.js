@@ -28,6 +28,7 @@ function Tagify( input, settings ){
     this.applySettings(input, settings||{})
 
     this.state = {
+        inputText: '',
         editing : false,
         actions : {},   // UI actions for state-locking
         mixMode : {},
