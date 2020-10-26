@@ -159,9 +159,9 @@ and [[{"value": "readonly", "readonly":true}]]
   document.forms[0].reset()
 
   window.tagified = {
-    "mix"               : 1,
+    "mix"               : 0,
     "markdown"          : 0,
-    "basic"             : 0,
+    "basic"             : 1,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
@@ -250,9 +250,12 @@ and [[{"value": "readonly", "readonly":true}]]
         pattern: /^[0-9A-Za-z_✲ "]+$/,
         editTags : 1,
         duplicates: false,
-        keepInvalidTags: true
+        keepInvalidTags: true,
+        // dropdown: {
+        //     enabled: 0
+        // },
         // after 2 characters typed, all matching values from this list will be suggested in a dropdown
-        // whitelist: [].concat(whitelist)
+        whitelist: [].concat(whitelist)
     })
 
     tagify.addTags( `a,a` )
@@ -262,6 +265,7 @@ and [[{"value": "readonly", "readonly":true}]]
   tagify.on('add', onAddTag)
         .on('remove', onRemoveTag)
         .on('input', onInput)
+        //.on('keydown', onKeyDown)
         .on('edit:beforeUpdate', onPreUpdate)
         .on('edit:start edit:keydown click', saveCaretPos)
         .on('edit:input edit:updated edit:start', e => console.log(e.type, e))

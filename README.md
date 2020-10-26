@@ -554,11 +554,11 @@ required          | <pre lang=html>`<input required>`</pre> | Adds a `required` 
 
 
 
-
 ## FAQ
 List of questions & scenarios which might come up during development with Tagify:
 
-### tags/whitelist data strcture
+<details>
+  <summary><strong>tags/whitelist data strcture</strong></summary>
 
 Tagify does not accept just *any* kind of data structure.<br>
 If a tag data is represented as an `Object`, it **must** contain a **unique** property `value`
@@ -588,9 +588,12 @@ which Tagify uses to check if a tag already exists, among other things, so make 
 // ad a simple array of Strings
 ["foo bar"]
 ```
+</details>
 
+---
 
-### Save changes (Ex. to a *server*)
+<details>
+  <summary><strong>Save changes (Ex. to a server)</strong></summary>
 
 In framework-less projects, the developer should save the state of the Tagify component (somewhere), and
 the question is:<br/>
@@ -614,17 +617,47 @@ async function onTagsChange(e){
 
 If you are using *React/Vue/Angular* or any "modern" framework, then you already know how to
 attach "onChange" event listeners to your `<input>`/`<textarea>` elements, so the above is irrelevant.
+</details>
 
 ----
 
+<details>
+  <summary><strong>Render tags in one single line</strong></summary>
 
-### Render tags in one single line
-
-Stopping tags from wrapping to new lines, add this to your `.tagify` *CSS Rule*:
+Stopping tags from wrapping to new lines, add this to your `.tagify` *selector CSS Rule*:
 
 ```css
 flex-wrap: nowrap;
 ````
+</details>
+
+----
+
+<details>
+  <summary><strong>Submit on `Enter` key</strong></summary>
+
+Tagify internally has `state` property, per `Tagify` instance
+and this may be useful for a variety of things when implementing a specific scenario.
+
+```js
+var tagify = new Tagify(...)
+var formElm = document.forms[0]; // just an example
+
+tagify.on('keydown', onTagifyKeyDown)
+
+function onTagifyKeyDown(e){
+  if( e.key == 'Enter' &&         // "enter" key pressed
+      !tagify.state.inputText &&  // assuming user is not in the middle oy adding a tag
+      !tagify.state.editing       // user not editing a tag
+    ){
+    setTimeout(() => formElm.submit())  // put some buffer to make sure tagify has done with whatever, to be on the safe-side
+  }
+
+}
+```
+</details>
+
+---
 
 * [Double-click tag fires both "edit" & "click" custom events](https://github.com/yairEO/tagify/issues/247)
 * [Manualy open the suggestions dropdown](https://github.com/yairEO/tagify/issues/254)
