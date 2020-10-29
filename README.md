@@ -522,6 +522,7 @@ Loading remote server data using StimulusJs. Below is a basic example using the 
 
 See live [Demo](https://codesandbox.io/s/quizzical-mirzakhani-ss8k2)
 
+
 <details>
   <summary>Example:</summary>
 
