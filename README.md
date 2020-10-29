@@ -520,6 +520,8 @@ export class AppComponent implements OnDestroy {
 
 Loading remote server data using StimulusJs. Below is a basic example using the `fetch` API 
 
+See live [Demo](https://codesandbox.io/s/quizzical-mirzakhani-ss8k2)
+
 <details>
   <summary>Example:</summary>
 
