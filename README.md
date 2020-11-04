@@ -375,6 +375,8 @@ Similar to native `<Select>` element, but allows typing text as value.
 
 ## React
 
+See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
+
 A Tagify React component is exported from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
 
 > Note: You will need to inport Tagify's CSS also, either by javasceript or by SCSS `@import` (which is preferable)
@@ -449,7 +451,6 @@ onBlur                  | <sub>Function</sub>       |           | See [*events* 
 
 ---
 
-### See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
 
 
 ## Angular
