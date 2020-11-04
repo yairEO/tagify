@@ -121,6 +121,12 @@ const TagifyWrapper = ({
 
     useEffect(() => {
         if (mountedRef.current) {
+            tagify.current.toggleClass(className)
+        }
+    }, [className])
+
+    useEffect(() => {
+        if (mountedRef.current) {
             tagify.current.loading(loading)
         }
     }, [loading])

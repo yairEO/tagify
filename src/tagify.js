@@ -306,8 +306,12 @@ Tagify.prototype = {
         return this
     },
 
-    toggleFocusClass( force ){
+    toggleClass( className, force ){
         this.DOM.scope.classList.toggle(this.settings.classNames.focus, !!force)
+    },
+
+    toggleFocusClass( force ){
+        this.toggleClass(this.settings.classNames.focus, !!force)
     },
 
     triggerChangeEvent,
@@ -1383,9 +1387,9 @@ Tagify.prototype = {
                     : this.DOM.originalInput.value
                 : this.value.length;
 
-        this.DOM.scope.classList.toggle(classNames.hasMaxTags,  this.value.length >= this.settings.maxTags)
-        this.DOM.scope.classList.toggle(classNames.hasNoTags,  !this.value.length)
-        this.DOM.scope.classList.toggle(classNames.empty, !hasValue)
+        this.toggleClass(classNames.hasMaxTags,  this.value.length >= this.settings.maxTags)
+        this.toggleClass(classNames.hasNoTags,  !this.value.length)
+        this.toggleClass(classNames.empty, !hasValue)
     },
 
     /**
