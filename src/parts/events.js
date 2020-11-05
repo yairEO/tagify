@@ -617,7 +617,7 @@ export default {
 
             newTagData = this.getWhitelistItem(textValue) || {[_s.tagTextProp]:textValue, value:textValue}
 
-            _s.transformTag.call(this, newTagData)
+            _s.transformTag.call(this, newTagData, originalData)
 
             // MUST re-validate after tag transformation
             // only validate the "tagTextProp" because is the only thing that metters for validation
