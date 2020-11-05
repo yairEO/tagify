@@ -509,12 +509,14 @@ export default {
 
     /**
      * returns an HTML string of the suggestions' list items
-     * @param {string} value string to filter the whitelist by
+     * @param {String} value string to filter the whitelist by
+     * @param {Object} options "exact" - for exact complete match
      * @return {Array} list of filtered whitelist items according to the settings provided and current value
      */
-    filterListItems( value ){
+    filterListItems( value, options ){
         var _s = this.settings,
             _sd = _s.dropdown,
+            options = options || {},
             list = [],
             whitelist = _s.whitelist,
             suggestionsCount = _sd.maxItems || Infinity,
@@ -544,7 +546,7 @@ export default {
         for( ; i < whitelist.length; i++ ){
             whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
 
-            if( _sd.fuzzySearch ){
+            if( _sd.fuzzySearch && !options.exact ){
                 searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
 
                 if( _sd.accentedSearch ){
@@ -567,7 +569,9 @@ export default {
                     if( !_sd.caseSensitive )
                         v = v.toLowerCase()
 
-                    return v.indexOf(niddle) == 0
+                    return options.exact
+                        ? v == niddle
+                        : v.indexOf(niddle) == 0
                 })
             }
 

@@ -1759,7 +1759,7 @@ function suggestionItemTemplate(tagData){
 
 // initialize Tagify on the above input node reference
 var tagify = new Tagify(inputElm, {
-    tagTextProp: 'name',   // this allows typing a "value" or a "name" to match input with whitelist
+    tagTextProp: 'name', // very important since a custom template is used with this property as text
     enforceWhitelist: true,
     skipInvalid: true, // do not remporarily add invalid tags
     dropdown: {

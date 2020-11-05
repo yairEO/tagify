@@ -874,7 +874,7 @@ Tagify.prototype = {
      * @return {Array} [Array of Objects]
      */
     normalizeTags( tagsItems ){
-        var {whitelist, delimiters, mode, tagTextProp} = this.settings,
+        var {whitelist, delimiters, mode, tagTextProp, enforceWhitelist} = this.settings,
             whitelistMatches = [],
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
@@ -909,25 +909,28 @@ Tagify.prototype = {
 
                 // if suggestions are shown, they are already filtered, so it's easier to use them,
                 // because the whitelist might also include items which have already been added
-                var filteredList = this.dropdown.filterListItems.call(this, item[tagTextProp])
+                var filteredList = this.dropdown.filterListItems.call(this, item[tagTextProp], { exact:true })
                     // also filter out items which have already been matches in previous iterations
                     .filter(filteredItem => !whitelistMatchesValues.includes(filteredItem.value))
 
-                // get the best match out of list of possible matches
-                var matchObj = this.getWhitelistItem(item[tagTextProp], null, filteredList)
+                // get the best match out of list of possible matches.
+                // if there was a single item in the filtered list, use that one
+                var matchObj = filteredList.length > 1
+                    ? this.getWhitelistItem(item[tagTextProp], tagTextProp, filteredList)
+                    : filteredList[0]
 
                 if( matchObj && matchObj instanceof Object ){
                     whitelistMatches.push( matchObj ) // set the Array (with the found Object) as the new value
                 }
-                else if( mode != 'mix' ){
+                else if( mode != 'mix' && !enforceWhitelist ){
                     if( item.value == undefined )
                         item.value = item[tagTextProp]
                     whitelistMatches.push(item)
                 }
             })
 
-            if( whitelistMatches.length )
-                tagsItems = whitelistMatches
+            // if( whitelistMatches.length )
+            tagsItems = whitelistMatches
         }
 
         return tagsItems;
