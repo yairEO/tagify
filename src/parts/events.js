@@ -605,8 +605,7 @@ export default {
             //  this.DOM.input.focus()
 
             if( !textValue ){
-                this.removeTags(tagElm)
-                this.onEditTagDone(null, newTagData)
+                this.onEditTagDone(tagElm, newTagData)
                 return
             }
 

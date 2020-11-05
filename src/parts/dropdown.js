@@ -468,7 +468,7 @@ export default {
         this.trigger("dropdown:select", {data:tagData, elm})
 
         if( this.state.editing ){
-            this.onEditTagDone(this.state.editing.scope, {
+            this.onEditTagDone(null, {
                 ...this.state.editing.scope.__tagifyTagData,
                 value: tagData.value,
                 ...(tagData instanceof Object ? tagData : {}),  // if "tagData" is an Object, include all its properties

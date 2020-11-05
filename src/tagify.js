@@ -443,7 +443,6 @@ Tagify.prototype = {
     },
 
     onEditTagDone(tagElm, tagData){
-        this.state.editing = false;
         tagElm = tagElm || this.state.editing.scope
         tagData = tagData || {}
 
@@ -451,13 +450,17 @@ Tagify.prototype = {
 
         this.trigger("edit:beforeUpdate", eventData)
 
+        this.state.editing = false;
         delete tagData.__originalData
         delete tagData.__originalHTML
 
-        if( tagElm ){
+        if( tagElm && tagData[this.settings.tagTextProp] ){
             this.editTagToggleValidity(tagElm)
             this.replaceTag(tagElm, tagData)
         }
+
+        else if(tagElm)
+            this.removeTags(tagElm)
 
         this.trigger("edit:updated", eventData)
         this.dropdown.hide.call(this)
@@ -656,8 +659,13 @@ Tagify.prototype = {
         }
     },
 
+    /**
+     * returns the index of the the tagData within the "this.value" array collection.
+     * since values should be unique, it is suffice to only search by "value" property
+     * @param {Object} tagData
+     */
     getTagIdx( tagData ){
-        return this.value.findIndex(item => JSON.stringify(item) == JSON.stringify(tagData) )
+        return this.value.findIndex(item => item.value == tagData.value )
     },
 
     getNodeIndex( node ){
@@ -688,14 +696,16 @@ Tagify.prototype = {
      * @param {Node}   tagElm
      * @param {Object} data
      */
-    tagData(tagElm, data){
+    tagData(tagElm, data, override){
         if( !tagElm ){
             console.warn("tag elment doesn't exist",tagElm, data)
             return data
         }
 
         if( data )
-            tagElm.__tagifyTagData = extend({}, tagElm.__tagifyTagData || {}, data)
+            tagElm.__tagifyTagData = override
+                ? data
+                : extend({}, tagElm.__tagifyTagData || {}, data)
 
         return tagElm.__tagifyTagData
     },
