@@ -306,8 +306,14 @@ Tagify.prototype = {
         return this
     },
 
+    /**
+     * Toggles class on the main tagify container ("scope")
+     * @param {String} className
+     * @param {Boolean} force
+     */
     toggleClass( className, force ){
-        this.DOM.scope.classList.toggle(this.settings.classNames.focus, !!force)
+        // force = force === undefined ?
+        this.DOM.scope.classList.toggle(className, force)
     },
 
     toggleFocusClass( force ){
@@ -1387,8 +1393,8 @@ Tagify.prototype = {
                     : this.DOM.originalInput.value
                 : this.value.length;
 
-        this.toggleClass(classNames.hasMaxTags,  this.value.length >= this.settings.maxTags)
-        this.toggleClass(classNames.hasNoTags,  !this.value.length)
+        this.toggleClass(classNames.hasMaxTags, this.value.length >= this.settings.maxTags)
+        this.toggleClass(classNames.hasNoTags, !this.value.length)
         this.toggleClass(classNames.empty, !hasValue)
     },
 

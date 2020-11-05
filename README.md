@@ -744,7 +744,7 @@ Name                       | Parameters                                         
 `injectAtCaret`            | `HTMLElement` <sub>(`injectedNode`)</sub>, `Object` <sub>(`range`)</sub>                | Injects text or HTML node at last caret position. `range` parameter is *optional*
 `placeCaretAfterNode`      | `HTMLElement`                                                             | Places the caret after a given node
 `insertAfterTag`           | `HTMLElement` <sub>(tag element)</sub>, `HTMLElement`/`String` <sub>(whatever to insert after)</sub> |
-`toggleInvalidClass`       | `Boolean`                                                                               | Toggles `tagify--invalid` class to the Tagify wrapper element
+`toggleClass`              | `Boolean`                                                                               | Toggles `class` on the main *tagify* container (`scope`)
 `dropdown.selectAll`       |                                                                                         | Add **all** whitelist items as tags and close the suggestion dropdown
 `updateValueByDOMTags`     |                                                                                         | Iterate tag DOM nodes and re-build  the `tagify.value` array (call this if tags get sorted manually)
 `parseTemplate`            | `String`/`Function` <sub>(template name or function)</sub>, `Array` <sub>(data)</sub>   | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node
