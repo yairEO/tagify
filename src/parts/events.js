@@ -591,35 +591,37 @@ export default {
                 this.toggleFocusClass()
 
             // one scenario is when selecting a suggestion from the dropdown, when editing, and by selecting it
-            // the "onEditTagDone" is called directly, already replacing the tag, so the argument "editableElm" node isn't in the DOM
+            // the "onEditTagDone" is called directly, already replacing the tag, so the argument "editableElm"
+            // node isn't in the DOM anynmore because it has been replaced.
             if( !this.DOM.scope.contains(editableElm) ) return;
 
             var _s           = this.settings,
                 tagElm       = editableElm.closest('.' + _s.classNames.tag),
                 textValue    = this.input.normalize.call(this, editableElm),
-                originalData = this.tagData(tagElm).__originalData,
-                newTagData   = extend({}, originalData, {[_s.tagTextProp]:textValue}),
+                originalData = this.tagData(tagElm).__originalData, // pre-edit data
                 hasChanged   = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
-                isValid      = this.validateTag({[_s.tagTextProp]:textValue});
+                isValid      = this.validateTag({[_s.tagTextProp]:textValue}),
+                newTagData;
 
             //  this.DOM.input.focus()
-
             if( !textValue ){
-                this.onEditTagDone(tagElm, newTagData)
+                this.onEditTagDone(tagElm)
                 return
             }
 
-            if( hasChanged ){
-                _s.transformTag.call(this, newTagData)
-                // MUST re-validate after tag transformation
-                // only validate the "tagTextProp" because is the only thing that metters for validation
-                isValid = this.validateTag({[_s.tagTextProp]:newTagData[_s.tagTextProp]})
-            }
-            else{
-                // if nothing changed revert back to how it was before editing
+            // if nothing changed revert back to how it was before editing
+            if( !hasChanged ){
                 this.onEditTagDone(tagElm, originalData)
                 return
             }
+
+            newTagData = this.getWhitelistItem(textValue) || {[_s.tagTextProp]:textValue, value:textValue}
+
+            _s.transformTag.call(this, newTagData)
+
+            // MUST re-validate after tag transformation
+            // only validate the "tagTextProp" because is the only thing that metters for validation
+            isValid = this.validateTag({[_s.tagTextProp]:newTagData[_s.tagTextProp]})
 
             if( isValid !== true ){
                 this.trigger("invalid", { data:newTagData, tag:tagElm, message:isValid })
@@ -627,28 +629,14 @@ export default {
                 // do nothing if invalid, stay in edit-mode until corrected or reverted by presssing esc
                 if( _s.editTags.keepInvalid ) return
 
-                newTagData = originalData
-            }
-            else{
-                // check if the new value is in the whiteilst, if not check if there
-                // is any pre-invalidation data, and lastly resort to fresh emptty Object
-                newTagData = this.getWhitelistItem(textValue) || newTagData.__preInvalidData || newTagData;
-
-                // again, check if the tag is not a duplicate, because at this point it might be if
-                // "tagTextProp" setting is set to other than "value" and there was already another tag
-                // with the same "value" as in "newTagData"
-                isValid = this.validateTag(newTagData)
-
-                if( isValid !== true ){
-                    this.trigger("invalid", { data:newTagData, tag:tagElm, message:isValid })
-                    tagElm.classList.toggle(_s.classNames.tagInvalid, true)
-
-                    // do nothing if invalid, stay in edit-mode until corrected or reverted by presssing esc
-                    if( _s.editTags.keepInvalid ) return
-
+                if( _s.keepInvalidTags )
+                    newTagData.__isValid = isValid
+                else
+                    // revert back if not specified to keep
                     newTagData = originalData
-                }
             }
+
+            // tagElm.classList.toggle(_s.classNames.tagInvalid, true)
 
             this.onEditTagDone(tagElm, newTagData)
         },

@@ -426,7 +426,7 @@ Tagify.prototype = {
     },
 
     editTagToggleValidity( tagElm, value ){
-        var tagData = tagElm.__tagifyTagData,
+        var tagData = this.tagData(tagElm),
             toggleState;
 
         if( !tagData ){
@@ -446,7 +446,7 @@ Tagify.prototype = {
         tagElm = tagElm || this.state.editing.scope
         tagData = tagData || {}
 
-        var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData };
+        var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), previousData:this.tagData(tagElm), data:tagData };
 
         this.trigger("edit:beforeUpdate", eventData)
 
@@ -1066,7 +1066,6 @@ Tagify.prototype = {
         var tagData = extend({ value:"" }, initialData || {}),
             tagElm = this.createTagElem(tagData)
 
-        // must be assigned ASAP, before "validateTag" method below
         this.tagData(tagElm, tagData)
 
         // add the tag to the component's DOM
@@ -1258,7 +1257,7 @@ Tagify.prototype = {
                 wasNodeDuplicate = node.getAttribute('title') == this.TEXTS.duplicate,
                 isNodeValid = this.validateTag(tagData) === true;
 
-            // if this tag node was marked as a dulpicate, unmark it (it might have been marked as "notAllowed" for other reasons)
+            // if this tag node was marked as a dulpicate, unmark. (might have been marked as "notAllowed" for other reasons)
             if( wasNodeDuplicate && isNodeValid ){
                 if( tagData.__preInvalidData )
                     tagData = tagData.__preInvalidData

@@ -462,25 +462,22 @@ export default {
         // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
         var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
-            selectedOption = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '',
-            tagData = selectedOption || this.state.inputText;
+            tagData = this.suggestedListItems[+tagifySuggestionIdx];
+
+        if( !tagifySuggestionIdx || !tagData ){
+            return
+        }
 
         this.trigger("dropdown:select", {data:tagData, elm})
 
         if( this.state.editing ){
-            this.onEditTagDone(null, {
-                ...this.state.editing.scope.__tagifyTagData,
-                value: tagData.value,
-                ...(tagData instanceof Object ? tagData : {}),  // if "tagData" is an Object, include all its properties
-                __isValid: true
-            })
+            this.onEditTagDone(null, extend({__isValid: true}, tagData))
         }
 
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
         else{
             this.addTags([tagData], clearOnSelect)
         }
-
 
         // todo: consider not doing this on mix-mode
         setTimeout(() => {
@@ -600,11 +597,18 @@ export default {
             var mapValueTo = this.settings.dropdown.mapValueTo,
                 value = (mapValueTo
                     ? typeof mapValueTo == 'function' ? mapValueTo(suggestion) : suggestion[mapValueTo]
-                    : suggestion.value),
-                escapedValue = value && typeof value == 'string' ? escapeHTML(value) : value,
-                data = extend({}, suggestion, { value:escapedValue, tagifySuggestionIdx:idx })
+                    : suggestion.value);
 
-            return this.settings.templates.dropdownItem.call(this, data)
+            suggestion.value = value && typeof value == 'string'
+                ? escapeHTML(value)
+                : value
+
+            var tagHTMLString = this.settings.templates.dropdownItem.call(this, suggestion)
+
+            // make sure the sugestion index is present as attribute, to match the data when one is selected
+            tagHTMLString = tagHTMLString.replace('>', ` tagifySuggestionIdx="${idx}">`)
+
+            return tagHTMLString
         }).join("")
     }
 }
