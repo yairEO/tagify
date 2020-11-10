@@ -959,8 +959,9 @@ Tagify.prototype = {
                     throw Error
                 tagData = JSON.parse(preInterpolated)
             } catch(err){
-                tagData = this.normalizeTags(preInterpolated)[0]  //{value:preInterpolated}
+                tagData = this.normalizeTags(preInterpolated)[0] || {}  //{value:preInterpolated}
             }
+
 
             if( !maxTagsReached   &&
                 s2.length > 1   &&
