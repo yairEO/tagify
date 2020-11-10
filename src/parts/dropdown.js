@@ -603,8 +603,12 @@ export default {
 
             var tagHTMLString = this.settings.templates.dropdownItem.call(this, suggestion)
 
+
             // make sure the sugestion index is present as attribute, to match the data when one is selected
-            tagHTMLString = tagHTMLString.replace('>', ` tagifySuggestionIdx="${idx}">`)
+            tagHTMLString = tagHTMLString
+                .replace(/\s*tagifySuggestionIdx=(["'])(.*?)\1/gmi, '') // remove the "tagifySuggestionIdx" attribute if for some reason was there
+                .replace('>', ` tagifySuggestionIdx="${idx}">`) // add "tagifySuggestionIdx"
+            console.log( tagHTMLString )
 
             return tagHTMLString
         }).join("")
