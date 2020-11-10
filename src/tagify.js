@@ -312,8 +312,8 @@ Tagify.prototype = {
      * @param {Boolean} force
      */
     toggleClass( className, force ){
-        // force = force === undefined ?
-        this.DOM.scope.classList.toggle(className, force)
+        if( typeof className == 'string' )
+            this.DOM.scope.classList.toggle(className, force)
     },
 
     toggleFocusClass( force ){

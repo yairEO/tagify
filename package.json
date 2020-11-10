@@ -44,6 +44,13 @@
     "bugs": {
         "url": "https://github.com/yaireo/tagify/issues"
     },
+    "files": [
+        "/dist",
+        "/src/tagify.scss"
+    ],
+    "peerDependencies": {
+        "prop-types": "^15.7.2"
+    },
     "devDependencies": {
         "@babel/core": "^7.5.5",
         "@babel/plugin-proposal-object-rest-spread": "^7.9.6",

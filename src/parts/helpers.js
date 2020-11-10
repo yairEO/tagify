@@ -19,14 +19,6 @@ export const removeCollectionProp = (collection, unwantedProps) => collection.ma
     return props
 })
 
-/**
- * Checks if an argument is a javascript Object
- */
-export function isObject(obj) {
-    var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
-    return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
-}
-
 export function decode( s ) {
     var el = document.createElement('div');
     return s.replace(/\&#?[0-9a-z]+;/gi, function(enc){
@@ -89,6 +81,18 @@ export function escapeHTML( s ){
         .replace(/`|'/g, "&#039;")
 }
 
+function isArray(a){
+    return a instanceof Array
+}
+
+/**
+ * Checks if an argument is a javascript Object
+ */
+export function isObject(obj) {
+    var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
+    return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
+}
+
 /**
  * merge objects into a single new one
  * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
@@ -106,16 +110,23 @@ export function extend( o, o1, o2) {
             if( b.hasOwnProperty(key) ){
                 if( isObject(b[key]) ){
                     if( !isObject(a[key]) )
-                        a[key] = Object.assign({}, b[key]);
+                        a[key] = Object.assign({}, b[key])
                     else
                         copy(a[key], b[key])
+
+                    continue;
                 }
-                else
-                    a[key] = b[key];
+
+                if( isArray(b[key]) ){
+                    a[key] = (isArray(a[key]) ? a[key] : []).concat(b[key])
+                    continue;
+                }
+
+                a[key] = b[key]
             }
     }
 
-    return o;
+    return o
 }
 
 /**
