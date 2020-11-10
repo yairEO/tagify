@@ -110,7 +110,7 @@
             </section>
 
             <section id='section-mix'>
-                <textarea name='simple-mix' placeholder="type something">and[[   [[alice]] text [[bob]] [[foo]], [[alice]], [[foo]]</textarea>
+                <textarea name='simple-mix' placeholder="type something">mixed-mode [[example]] with [[{"value":"tags"}]].</textarea>
 
                 <textarea name='mix' class='tagify-editor' placeholder="type something">
                   [[{"value":101, "text":"  cartman  ", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":500, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
@@ -159,9 +159,9 @@ and [[{"value": "readonly", "readonly":true}]]
   document.forms[0].reset()
 
   window.tagified = {
-    "mix"               : 0,
+    "mix"               : 1,
     "markdown"          : 0,
-    "basic"             : 1,
+    "basic"             : 0,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
@@ -429,15 +429,24 @@ and [[{"value": "readonly", "readonly":true}]]
   var simpleMixInput = document.querySelector('[name="simple-mix"]')
 
   var settings = {
-    mode: 'mix',
-  //  maxTags: 3,
-    pattern: '#',
+    mode: "mix",
+    pattern: /@/,
     dropdown: {
-      enabled: 1
+        enabled: 1,
+        position: "text"
     },
-    enforceWhitelist : true,
-    whitelist: ['alice','bob','foo','bar'],
-    duplicates: true,
+        whitelist: [
+        {id: 100, value: "kenny", title: "Kenny McCormick"},
+        {id: 101, value: "cartman", title: "Eric Cartman"},
+        {id: 102, value: "kyle", title: "Kyle Broflovski"},
+        {id: 103, value: "token", title: "Token Black"},
+        {id: 104, value: "jimmy", title: "Jimmy Valmer"},
+        {id: 105, value: "butters", title: "Butters Stotch"},
+        {id: 106, value: "stan", title: "Stan Marsh"},
+        {id: 107, value: "randy", title: "Randy Marsh"},
+        {id: 108, value: "Mr. Garrison", title: "POTUS"},
+        {id: 109, value: "Mr. Mackey", title: "M'Kay"}
+    ],
   }
 
   var simpleMixTagify = new Tagify(simpleMixInput, settings);

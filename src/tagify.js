@@ -68,7 +68,7 @@ Tagify.prototype = {
     customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch'],
 
     trim(text){
-        return this.settings.trim ? text.trim() : text
+        return this.settings.trim && text && typeof text == "string" ? text.trim() : text
     },
 
     // expose this handy utility function
@@ -959,9 +959,8 @@ Tagify.prototype = {
                     throw Error
                 tagData = JSON.parse(preInterpolated)
             } catch(err){
-                tagData = this.normalizeTags(preInterpolated)[0] || {}  //{value:preInterpolated}
+                tagData = this.normalizeTags(preInterpolated)[0] || {value:preInterpolated}
             }
-
 
             if( !maxTagsReached   &&
                 s2.length > 1   &&
