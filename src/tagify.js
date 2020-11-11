@@ -1101,7 +1101,6 @@ Tagify.prototype = {
             clearInput = false
 
         this.DOM.input.removeAttribute('style')
-
         tagsItems.forEach(tagData => {
             var tagElm,
                 tagElmParams = {},
@@ -1127,13 +1126,13 @@ Tagify.prototype = {
             }
             /////////////////////////////////////////////////////
 
-
             if( tagData.readonly )
                 tagElmParams["aria-readonly"] = true
 
             // Create tag HTML element
             tagElm = this.createTagElem( extend({}, tagData, tagElmParams) )
             tagElems.push(tagElm)
+
 
             // mode-select overrides
             if( _s.mode == 'select' ){
@@ -1235,13 +1234,11 @@ Tagify.prototype = {
         // crucial for proper caret placement when deleting content. if textNodes are allowed as children of
         // a tag element, a browser bug casues the caret to misplaced inside the tag element (especcially affects "readonly" tags)
         removeTextChildNodes(tagElm)
-
         // while( tagElm.lastChild.nodeType == 3 )
         //     tagElm.lastChild.parentNode.removeChild(tagElm.lastChild)
 
         this.tagData(tagElm, tagData)
-
-        return tagElm;
+        return tagElm
     },
 
     /**

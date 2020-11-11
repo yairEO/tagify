@@ -1,6 +1,7 @@
 import "./polyfills/String.trim"
 import "./polyfills/NodeList.forEach"
 import "./polyfills/Array.findIndex"
+import "./polyfills/Array.includes"
 import "./polyfills/Array.some"
 import "./polyfills/String.includes"
 import "./polyfills/Object.assign"

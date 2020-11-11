@@ -52,13 +52,14 @@ export function minify( s ){
 }
 
 export function removeTextChildNodes( elm ){
-    var iter = document.createNodeIterator(elm, NodeFilter.SHOW_TEXT),
+    var iter = document.createNodeIterator(elm, NodeFilter.SHOW_TEXT, null, false),
         textnode;
 
     // print all text nodes
-    while (textnode = iter.nextNode())
+    while (textnode = iter.nextNode()){
         if( !textnode.textContent.trim() )
             textnode.parentNode.removeChild(textnode)
+    }
 }
 
 export function getfirstTextNode( elm, action ){

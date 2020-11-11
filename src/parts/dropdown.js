@@ -608,7 +608,6 @@ export default {
             tagHTMLString = tagHTMLString
                 .replace(/\s*tagifySuggestionIdx=(["'])(.*?)\1/gmi, '') // remove the "tagifySuggestionIdx" attribute if for some reason was there
                 .replace('>', ` tagifySuggestionIdx="${idx}">`) // add "tagifySuggestionIdx"
-            console.log( tagHTMLString )
 
             return tagHTMLString
         }).join("")
