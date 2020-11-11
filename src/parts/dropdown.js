@@ -302,7 +302,7 @@ export default {
         callbacks : {
             onKeyDown(e){
                 // get the "active" element, and if there was none (yet) active, use first child
-                var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
+                var activeListElm = this.DOM.dropdown.querySelector("." + this.settings.classNames.dropdownItemActive),
                     selectedElm = activeListElm;
 
                 switch( e.key ){
@@ -431,7 +431,7 @@ export default {
         this.state.ddItemData = itemData
         this.state.ddItemElm = elm
 
-        // this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
+        // this.DOM.dropdown.querySelectorAll("." + this.settings.classNames.dropdownItemActive).forEach(activeElm => activeElm.classList.remove(className));
         elm.classList.add(className);
         elm.setAttribute("aria-selected", true)
 
