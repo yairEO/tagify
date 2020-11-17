@@ -595,13 +595,14 @@ export default {
             var mapValueTo = this.settings.dropdown.mapValueTo,
                 value = (mapValueTo
                     ? typeof mapValueTo == 'function' ? mapValueTo(suggestion) : suggestion[mapValueTo]
-                    : suggestion.value);
+                    : suggestion.value),
+                data = extend({}, suggestion, { value });
 
-            suggestion.value = value && typeof value == 'string'
+            data.value = value && typeof value == 'string'
                 ? escapeHTML(value)
                 : value
 
-            var tagHTMLString = this.settings.templates.dropdownItem.call(this, suggestion)
+            var tagHTMLString = this.settings.templates.dropdownItem.call(this, data)
 
 
             // make sure the sugestion index is present as attribute, to match the data when one is selected
