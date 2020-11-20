@@ -588,7 +588,7 @@ export default {
      * @return {String}
      */
     createListHTML( optionsArr ){
-        return optionsArr.map((suggestion, idx) => {
+        return extend([], optionsArr).map((suggestion, idx) => {
             if( typeof suggestion == 'string' || typeof suggestion == 'number' )
                 suggestion = {value:suggestion}
 
