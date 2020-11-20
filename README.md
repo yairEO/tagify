@@ -90,7 +90,7 @@ var tagify = new Tagify(...)
 * Auto-suggest input as-you-type with ability to auto-complete
 * Can paste in multiple values: `tag 1, tag 2, tag 3` or even newline-separated tags
 * Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
-* Validate tags by Regex pattern
+* Validate tags by Regex *pattern* or by function
 * Tags may be [editable](#edit-tags) (double-click)
 * <del>ARIA accessibility support</del>(Component too generic for any meaningful ARIA)
 * Supports read-only mode to the whole componenet or per-tag
@@ -867,7 +867,8 @@ editTags                | <sub>Object/Number</sub>     | {}                     
 editTags.clicks         | <sub>Number</sub>            | 2                                           | Number of clicks to enter "edit-mode": 1 for single click. Any other value is considered as double-click
 editTags.keepInvalid    | <sub>Boolean</sub>           | true                                        | keeps invalid edits as-is until `esc` is pressed while in focus
 templates               | <sub>Object</sub>            | <sub>`wrapper`, `tag`, `dropdownItem`</sub> | Object consisting of functions which return template strings
-transformTag            | <sub>Function</sub>          | undefined                                   | Takes a tag data as argument and allows mutating it before a tag is created or edited.<br>Should not `return` anything, only **mutate**.
+validate                | <sub>Function</sub>          |                                             | If the `pattern` setting does not meet your needs, use this function, which recieves *tag data object* as an argument and should return `true` if validaiton passed or `false`/`string` of not. A *string* may be returned as the reason of the validation failure.
+transformTag            | <sub>Function</sub>          |                                             | Takes a tag data as argument and allows mutating it before a tag is created or edited.<br>Should not `return` anything, only **mutate**.
 keepInvalidTags         | <sub>Boolean</sub>           | false                                       | If `true`, do not remove tags which did not pass validation
 skipInvalid             | <sub>Boolean</sub>           | false                                       | If `true`, do not add invalid, temporary, tags before automatically removing them
 backspace               | <sub>*</sub>                 | true                                        | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag

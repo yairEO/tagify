@@ -839,6 +839,9 @@ Tagify.prototype = {
         if( this.isTagBlacklisted(v) || (_s.enforceWhitelist && !this.isTagWhitelisted(v)) )
             return this.TEXTS.notAllowed;
 
+        if( _s.validate )
+            return _s.validate(tagData)
+
         return true
     },
 
