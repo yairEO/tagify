@@ -789,12 +789,11 @@ Tagify.prototype = {
         var result,
             prop = prop || 'value',
             _s = this.settings,
-            whitelist = whitelist || _s.whitelist,
-            _cs = _s.dropdown.caseSensitive;
+            whitelist = whitelist || _s.whitelist;
 
         whitelist.some(_wi => {
             var _wiv = typeof _wi == 'string' ? _wi : _wi[prop],
-                isSameStr = sameStr(_wiv, value, _cs)
+                isSameStr = sameStr(_wiv, value, _s.dropdown.caseSensitive, _s.trim)
 
             if( isSameStr ){
                 result = typeof _wi == 'string' ? {value:_wi} : _wi

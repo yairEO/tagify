@@ -5,9 +5,16 @@
 
 
 // const isEdge = /Edge/.test(navigator.userAgent)
-export const sameStr = (s1, s2, caseSensitive) => caseSensitive
-    ? s1 == s2
-    : (""+s1).toLowerCase() == (""+s2).toLowerCase()
+export const sameStr = (s1, s2, caseSensitive, trim) => {
+    if( trim ){
+        s1 = s1.trim()
+        s2 = s2.trim()
+    }
+
+    return caseSensitive
+        ? s1 == s2
+        : (""+s1).toLowerCase() == (""+s2).toLowerCase()
+}
 
 
 // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
