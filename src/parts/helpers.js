@@ -6,14 +6,18 @@
 
 // const isEdge = /Edge/.test(navigator.userAgent)
 export const sameStr = (s1, s2, caseSensitive, trim) => {
+    // cast to String
+    s1 = ""+s1;
+    s2 = ""+s2;
+
     if( trim ){
-        s1 = s1 ? s1.trim() : s1
-        s2 = s2 ? s2.trim() : s2
+        s1 = s1.trim()
+        s2 = s2.trim()
     }
 
     return caseSensitive
         ? s1 == s2
-        : (""+s1).toLowerCase() == (""+s2).toLowerCase()
+        : s1.toLowerCase() == s2.toLowerCase()
 }
 
 

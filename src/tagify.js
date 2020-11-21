@@ -110,6 +110,12 @@ Tagify.prototype = {
         if( _s.mode == 'mix' ){
             _s.autoComplete.rightKey = true
             _s.delimiters = settings.delimiters || null // default dlimiters in mix-mode must be NULL
+
+            // needed for "filterListItems". This assumes the user might have forgotten to manually
+            // define the same term in "dropdown.searchKeys" as defined in "tagTextProp" setting, so
+            // by automatically adding it, tagify is "helping" out, guessing the intesntions of the developer.
+            if( _s.tagTextProp && !_s.dropdown.searchKeys.includes(_s.tagTextProp) )
+                _s.dropdown.searchKeys.push(_s.tagTextProp)
         }
 
         if( input.pattern )

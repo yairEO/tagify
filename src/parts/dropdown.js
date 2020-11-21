@@ -474,8 +474,9 @@ export default {
             this.onEditTagDone(null, extend({__isValid: true}, tagData))
 
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
-        else
-            this.addTags([tagData], clearOnSelect)
+        else{
+            this[this.settings.mode == 'mix'?"addMixTags":"addTags"]([tagData], clearOnSelect)
+        }
 
         // todo: consider not doing this on mix-mode
         setTimeout(() => {
@@ -594,7 +595,7 @@ export default {
 
             var mapValueTo = this.settings.dropdown.mapValueTo,
                 value = (mapValueTo
-                    ? typeof mapValueTo == 'function' ? mapValueTo(suggestion) : suggestion[mapValueTo]
+                    ? typeof mapValueTo == 'function' ? mapValueTo(suggestion) : (suggestion[mapValueTo] || suggestion.value)
                     : suggestion.value);
 
             suggestion.value = value && typeof value == 'string'
