@@ -792,7 +792,7 @@ Tagify.prototype = {
             whitelist = whitelist || _s.whitelist;
 
         whitelist.some(_wi => {
-            var _wiv = typeof _wi == 'string' ? _wi : _wi[prop],
+            var _wiv = typeof _wi == 'string' ? _wi : (_wi[prop] || _wi.value),
                 isSameStr = sameStr(_wiv, value, _s.dropdown.caseSensitive, _s.trim)
 
             if( isSameStr ){
