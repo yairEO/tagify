@@ -165,3 +165,5 @@ export function getNodeHeight( node ){
     clone.parentNode.removeChild(clone)
     return height
 }
+
+export var isChromeAndroidBrowser = /(?=.*chrome)(?=.*android)/i.test(navigator.userAgent);

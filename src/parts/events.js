@@ -1,4 +1,4 @@
-import { decode, extend, getfirstTextNode } from './helpers'
+import { decode, extend, getfirstTextNode, isChromeAndroidBrowser } from './helpers'
 
 export function triggerChangeEvent(){
     if( this.settings.mixMode.integrated ) return;
@@ -183,7 +183,26 @@ export default {
                             lastInputValue = decode(this.DOM.input.innerHTML),
                             lastTagElems = this.getTagElms(),
                             //  isCaretInsideTag = sel.anchorNode.parentNode('.' + this.settings.classNames.tag),
-                            tagElmToBeDeleted;
+                            tagElmToBeDeleted,
+                            firstTextNodeBeforeTag;
+
+                        if( isChromeAndroidBrowser && isCaretAfterTag ){
+                            firstTextNodeBeforeTag = getfirstTextNode(isCaretAfterTag)
+
+                            if( !isCaretAfterTag.hasAttribute('readonly') )
+                                isCaretAfterTag.remove() // since this is Chrome, can safetly use this "new" DOM API
+
+                            // Android-Chrome wrongly hides the keyboard, and loses focus,
+                            // so this hack below is needed to regain focus at the correct place:
+                            this.DOM.input.focus()
+                            setTimeout(() => {
+                                this.placeCaretAfterNode(firstTextNodeBeforeTag)
+                                this.DOM.input.click()
+
+                            })
+
+                            return
+                        }
 
                         if( sel.anchorNode.nodeName == 'BR')
                             return
@@ -210,7 +229,7 @@ export default {
                             e.preventDefault()
 
                         // if backspace not allowed, do nothing
-                        // TODO: a better way to detect if nodes were deleted is simply check the "this.value" before & after
+                        // TODO: a better way to detect if nodes were deleted is to simply check the "this.value" before & after
                         if( (isCaretAfterTag || deleteKeyTagDetected) && !this.settings.backspace ){
                             e.preventDefault()
                             return
@@ -239,7 +258,7 @@ export default {
                                 prevElm = sel.anchorNode.previousElementSibling;
 
                             // fixes #384, where the first and only tag will not get removed with backspace
-                            if( currentValue.length >= lastInputValue.length && prevElm && !prevElm.hasAttribute('readonly') ){
+                            if( !isChromeAndroidBrowser && currentValue.length >= lastInputValue.length && prevElm && !prevElm.hasAttribute('readonly') ){
                                 this.removeTags(prevElm)
                                 this.fixFirefoxLastTagNoCaret()
 
@@ -366,6 +385,15 @@ export default {
                 fragment = document.createDocumentFragment(),
                 range = window.getSelection().getRangeAt(0),
                 remainingTagsValues = [].map.call(tagsElems, node => this.tagData(node).value);
+
+            // Android Chrome "keydown" event argument does not report the correct "key".
+            // this workaround is needed to manually call "onKeydown" method with a synthesized event object
+            if( e.inputType == "deleteContentBackward" && isChromeAndroidBrowser ){
+                this.events.callbacks.onKeydown.call(this, {
+                    target: e.target,
+                    key: "Backspace",
+                })
+            }
 
             // re-add "readonly" tags which might have been removed
             this.value.slice().forEach(item => {
