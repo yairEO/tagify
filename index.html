@@ -764,9 +764,15 @@
                         To allow mix content, simply pass the setting <code>mode : 'mix'</code>
                     </p>
                     <p>
-                        In this example, there are a few <em>Southpark</em> character names and a few Simpsons ones.
-                        when the <code>@</code> is typed, following 1 more character, suggestions dropdown will be shown for <i>Southpark</i> suggestion list
-                        and when starting with <code>#</code>, a <i>Simpsons</i> suggestion list
+                        In this example, there are a few <em>Southpark</em> character names and a few <em>Simpsons</em> ones.
+                        when <code>@</code> is typed, following 1 more character, suggestions dropdown will show <em>Southpark</em>-only items,
+                        and when starting with <code>#</code>, <i>Simpsons</i> items list.
+                    </p>
+                    <p>
+                        Note that the two whitelists are very different from eachother in teams of structure. The first is quite complex,
+                        as it uses numeric IDs as <code>value</code> ("value" prop is always unique), and the rendered text is placed in a custom
+                        property named "text". <br>
+                        The other whitelist, <em>Simpsons</em> is very basic, just a flat array of strings.
                     </p>
                     <p>
                         Note that "homer simpson" tag is set to <code>readonly</code> in this example. If tried to select all text and delete
@@ -787,7 +793,7 @@
                       <summary></summary>
                     <h3>HTML</h3>
 <pre class="language-markup"><code>&lt;textarea name='mix'>
-    [[{"id":101, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[{"value":"homer simpson", "readonly":true}]] because he's a relic.
+    [[{"id":200, "value":"cartman", "title":"Eric Cartman"}]] and [[kyle]] do not know [[{"value":"homer simpson", "readonly":true}]] because he's a relic.
 &lt;/textarea>
 </code></pre>
                     <h3>JAVASCRIPT</h3>
@@ -1566,21 +1572,25 @@ function onInvalidTag(e){
 
 <script data-name='mix'>
 (function(){
-// Define two types of whitelists, each used for the dropdown suggestions menu, depending on the pattern (see seetings below) prefix
-var whitelist_1 = [
-    { id:100, value:'kenny', title:'Kenny McCormick'},
-    { id:101, value:'cartman', title:'Eric Cartman' },
-    { id:102, value:'kyle', title:'Kyle Broflovski' },
-    { id:103, value:'token', title:'Token Black' },
-    { id:104, value:'jimmy', title:'Jimmy Valmer' },
-    { id:105, value:'butters', title:'Butters Stotch' },
-    { id:106, value:'stan', title:'Stan Marsh' },
-    { id:107, value:'randy', title:'Randy Marsh' },
-    { id:108, value:'Mr. Garrison', title:'POTUS' },
-    { id:109, value:'Mr. Mackey', title:"M'Kay" }
-]
+// Define two types of whitelists, each used for the dropdown suggestions menu,
+// depending on the prefix pattern typed (@/#). See settings below.
+  var whitelist_1 = [
+    { value: 100, text: 'kenny', title: 'Kenny McCormick' },
+    { value: 200, text: 'cartman', title: 'Eric Cartman' },
+    { value: 300, text: 'kyle', title: 'Kyle Broflovski' },
+    { value: 400, text: 'token', title: 'Token Black' },
+    { value: 500, text: 'jimmy', title: 'Jimmy Valmer' },
+    { value: 600, text: 'butters', title: 'Butters Stotch' },
+    { value: 700, text: 'stan', title: 'Stan Marsh' },
+    { value: 800, text: 'randy', title: 'Randy Marsh' },
+    { value: 900, text: 'Mr. Garrison', title: 'POTUS' },
+    { value: 1000, text: 'Mr. Mackey', title: "M'Kay" }
+  ]
 
+// Second whitelist, which is shown only when starting to type "#".
+// Thiw whitelist is the most simple one possible.
 var whitelist_2 = ['Homer simpson', 'Marge simpson', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
+
 
 // initialize Tagify
 var input = document.querySelector('[name=mix]'),
@@ -1589,13 +1599,14 @@ var input = document.querySelector('[name=mix]'),
     //  mixTagsInterpolator: ["{{", "}}"],
         mode: 'mix',  // <--  Enable mixed-content
         pattern: /@|#/,  // <--  Text starting with @ or # (if single, String can be used here)
-
+        tagTextProp: 'text',  // <-- the default property (from whitelist item) for the text to be rendered in a tag element.
         // Array for initial interpolation, which allows only these tags to be used
         whitelist: whitelist_1.concat(whitelist_2).map(function(item){ return typeof item == 'string' ? {value:item} : item}),
 
         dropdown : {
             enabled: 1,
-            position: "text",
+            position: 'text', // <-- render the suggestions list next to the typed text ("caret")
+            mapValueTo: 'text', // <-- similar to above "tagTextProp" setting, but for the dropdown items
             highlightFirst: true  // automatically highlights first sugegstion item in the dropdown
         },
         callbacks: {

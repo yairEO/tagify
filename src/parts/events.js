@@ -595,7 +595,10 @@ export default {
 
             // show dropdown if typed text is equal or more than the "enabled" dropdown setting
             if( value.length >= this.settings.dropdown.enabled ){
-                this.state.editing.value = value
+                // this check is needed apparently because doing browser "undo" will fire
+                //  "onEditTagInput" but "this.state.editing" will be "false"
+                if( this.state.editing )
+                    this.state.editing.value = value
                 this.dropdown.show.call(this, value)
             }
 
