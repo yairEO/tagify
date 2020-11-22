@@ -57,7 +57,7 @@
           .leftSide .demoLink svg{ box-shadow: 0 0 0 3px black inset; border-radius:50%; transition:.12s ease-out; }
           .leftSide .demoLink:hover svg{ box-shadow: 0 0 0 0 black inset; transform:scale(1.2); }
           .leftSide > header > h3{ margin-top:.5rem; }
-          .leftSide h2{ color:#DB2C6F; text-transform:capitalize; font-size:2em; margin-top:0; line-height:.9; margin-bottom:0; }
+          .leftSide h2{ color:salmon; text-transform:capitalize; font-size:2em; margin-top:0; line-height:.9; margin-bottom:0; }
           .leftSide h2 > a{
              color:inherit;
              text-decoration: none;
@@ -118,8 +118,8 @@
           }
 
           header.isSticky .repoLink{
-            height: 40px;
-            top: 2px;
+            height: 50px;
+            margin: -.7em 0 -1.6em 0;
             transition: .55s cubic-bezier(.5,0,.5,1.075);
           }
 
@@ -127,10 +127,8 @@
 
          .repoLink{
             height: 70px;
-            position: absolute;
-            top: -2px;
-            right: 50%;
-            transform: translateX(50%);
+            margin: -1em 0 -2em 0;
+            transform: translateX(calc(50vw - 50%));
             transition: .2s ease-out;
          }
          .repoLink svg{
@@ -365,100 +363,6 @@
             <a class='forkLink' title='Go To Repo' href='https://github.com/yairEO/tagify'>
                 <img src='https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png' alt='GitHub Repo'>
             </a>
-            <label title='Demo Settings' for='toggle__tagifyStyleSettings'>⚙️</label>
-            <input hidden type='checkbox' id='toggle__tagifyStyleSettings' />
-            <div class='tagifyStyleSettings'>
-                <label for='toggle__tagifyStyleSettings'>⚙️</label>
-                <label><input name='toggleTagify' type='checkbox'> Show Original Input</label>
-                <br><br>
-                <h3>CSS Variables:</h3>
-                <div>
-                    <span class='key'>tag-pad <small>(em)</small></span>
-                    <div style='display:flex; flex:1'>
-                        <input style='flex:1; width:50%;' type="range" name="tag-pad" id='tag-pad-v' min="0" max="1" step="0.01" value="0.3">
-                        <input style='flex:1; width:50%;' type="range" name="tag-pad" id='tag-pad-h' min="0" max="1.5" step="0.01" value="0.5">
-                    </div>
-                </div>
-                <div>
-                    <span class='key'>tag-inset-shadow-size <small>(em)</small></span>
-                    <input type="range" name="tag-inset-shadow-size" data-units='em' style='flex:1' min="0" max="2" step="0.1" value="1.1">
-                </div>
-
-                <div>
-                    <span class='key'>tag--min-width</span>
-                    <input type="range" name="tag--min-width" data-units='ch' style='flex:1' min="0" max="20" step="1" value="1">
-                </div>
-                <div>
-                    <span class='key'>tag--max-width</span>
-                    <input type="range" name="tag--max-width" data-units='ch' style='flex:1' min="1" max="20" step="1" value="auto">
-                </div>
-                <div>
-                    <span class='key'>loader-size</span>
-                    <input type="range" name="loader-size" data-units='em' style='flex:1' min="0.1" max="1.4" step="0.05" value="auto">
-                </div>
-
-
-                <div>
-                    <span class='key'>tag-bg</span>
-                    <input type='color' name='tag-bg' value="#E5E5E5" />
-                </div>
-                <div>
-                    <span class='key'>tag-hover</span>
-                    <input type='color' name='tag-hover' value="#D3E2E2" />
-                </div>
-                <div>
-                    <span class='key'>tags-border-color</span>
-                    <input type='color' name='tags-border-color' value="#E5E5E5" />
-                </div>
-                <div>
-                    <span class='key'>tags-hover-border-color</span>
-                    <input type='color' name='tags-hover-border-color' value="#CCC" />
-                </div>
-                <div>
-                    <span class='key'>tags-focus-border-color</span>
-                    <input type='color' name='tags-focus-border-color' value="#85C8EA" />
-                </div>
-                <div>
-                    <span class='key'>tag-text-color</span>
-                    <input type='color' name='tag-text-color' value="black" />
-                </div>
-                <div>
-                    <span class='key'>tag-text-color--edit</span>
-                    <input type='color' name='tag-text-color--edit' value="black" />
-                </div>
-                <div>
-                    <span class='key'>tag-remove-bg</span>
-                    <input type='color' name='tag-remove-bg' value="#D39494" />
-                </div>
-                <div>
-                    <span class='key'>tag-remove-btn-bg</span>
-                    <input type='color' name='tag-remove-btn-bg' value="none" />
-                </div>
-                <div>
-                    <span class='key'>tag-remove-btn-bg--hover</span>
-                    <input type='color' name='tag-remove-btn-bg--hover' value="#c77777" />
-                </div>
-                <div>
-                    <span class='key'>tag-invalid-color</span>
-                    <input type='color' name='tag-invalid-color' value="#D39494" />
-                </div>
-                <div>
-                    <span class='key'>tag-invalid-bg</span>
-                    <input type='color' name='tag-invalid-color' value="#D39494" />
-                </div>
-                <div>
-                    <span class='key'>placeholder-color</span>
-                    <input type='color' name='placeholder-color' value="rgba(0,0,0,.4)" />
-                </div>
-                <div>
-                    <span class='key'>placeholder-color-focus</span>
-                    <input type='color' name='placeholder-color-focus' value="rgba(0,0,0,.25)" />
-                </div>
-                <div>
-                    <span class='key'>input-color</span>
-                    <input type='color' name='input-color' value="#000" />
-                </div>
-            </div>
         </header>
 
         <!-- SVG codeopen logo template -->
@@ -1298,40 +1202,6 @@
         <!-- Initialize Tagify for both Input and Textaera -->
         <script>
             document.forms[0].reset();
-
-            var toggleTagifyElm = document.querySelector('input[name=toggleTagify]');
-            var tagifyStyleSettings = document.querySelector('.tagifyStyleSettings');
-            toggleTagifyElm.checked = false;
-
-            // toggle Tagify on/off
-            toggleTagifyElm.addEventListener('change', function(){
-                document.body.classList[this.checked ? 'add' : 'remove']('showOriginal');
-            })
-
-            tagifyStyleSettings.addEventListener('change', onTagifyStyleSettings)
-
-            function onTagifyStyleSettings(e){
-                var value = e.target.value,
-                    name = e.target.name,
-                    units = e.target.dataset.units,
-                    rules;
-
-                try{
-                    if( name == 'tag-pad' )
-                        value = `${document.querySelector('#tag-pad-v').value}em ${document.querySelector('#tag-pad-h').value}em`
-
-                    else if( units )
-                        value += units
-
-                    rules = [...document.styleSheets[3].cssRules].find(x => x.selectorText == '.tagify');
-                    rules.style.setProperty("--" + name, value)
-                }
-                catch(err){
-                    console.log(err)
-                }
-            }
-
-            //////////////////////
 
             // get the sticky element
             const stickyElm = document.querySelector('header')
@@ -2304,6 +2174,164 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
         setTimeout(function(){
             Prism.highlightAll();
         }, 500)
+    </script>
+
+    <script src='https://unpkg.com/@yaireo/knobs'></script>
+    <script>
+     (function(){
+        var settings = {
+            theme: {
+                flow: "compact"
+            },
+            live: false,
+            // 0 - starts as hidden, 1 - starts as visible, 2 - always visible
+            visible: 0,
+            CSSVarTarget: document.querySelectorAll('.tagify'),
+            knobs: [
+                {
+                    label: 'Show Original Input Element',
+                    type: 'checkbox',
+                    checked: false,
+                    onChange(e){
+                        document.body.classList[e.target.checked ? 'add' : 'remove']('showOriginal')
+                    }
+                },
+                "Sizes",
+                {
+                    cssVar: ['tag-pad', 'em'],
+                    label: 'tag-pad',
+                    type: 'range',
+                    value: .5, min: 0, max: 1.5, step: 0.01,
+                },
+                {
+                    cssVar: ['tag-inset-shadow-size', 'em'],
+                    label: 'tag-inset-shadow-size',
+                    type: 'range',
+                    min: 0, max: 2 , step:.1, value:1.1,
+                },
+                {
+                    cssVar: ['tag--min-width', 'ch'],
+                    label: 'tag--min-width',
+                    type: 'range',
+                    value: 1,
+                    min: 0,
+                    max: 20,
+                },
+                {
+                    cssVar: ['tag--max-width', 'ch'],
+                    label: 'tag--max-width',
+                    type: 'range',
+                    value: 'auto',
+                    min: 1,
+                    max: 20,
+                },
+                {
+                    cssVar: ['loader-size', 'em'],
+                    label: 'loader-size',
+                    type: 'range',
+                    value: 'auto',
+                    min:.1,
+                    max: 1.4,
+                    step: 0.05
+                },
+                "Colors",
+                {
+                    cssVar: ['tag-bg'],
+                    label: 'tag-bg',
+                    type: 'color',
+                    value: '#E5E5E5',
+                },
+                {
+                    cssVar: ['tag-hover'],
+                    label: 'tag-hover',
+                    type: 'color',
+                    value: '#D3E2E2',
+                },
+                {
+                    cssVar: ['tags-border-color'],
+                    label: 'tags-border-color',
+                    type: 'color',
+                    value: '#E5E5E5',
+                },
+                {
+                    cssVar: ['tags-hover-border-color'],
+                    label: 'tags-hover-border-color',
+                    type: 'color',
+                    value: '#CCCCCC',
+                },
+                {
+                    cssVar: ['tags-focus-border-color'],
+                    label: 'tags-focus-border-color',
+                    type: 'color',
+                    value: '#85C8EA',
+                },
+                {
+                    cssVar: ['tag-text-color'],
+                    label: 'tag-text-color',
+                    type: 'color',
+                    value: '#000000',
+                },
+                {
+                    cssVar: ['tag-text-color--edit'],
+                    label: 'tag-text-color--edit',
+                    type: 'color',
+                    value: '#000000',
+                },
+                {
+                    cssVar: ['tag-remove-bg'],
+                    label: 'tag-remove-bg',
+                    type: 'color',
+                    value: '#D39494',
+                },
+                {
+                    cssVar: ['tag-remove-btn-bg'],
+                    label: 'tag-remove-btn-bg',
+                    type: 'color',
+                    value: 'none',
+                },
+                {
+                    cssVar: ['tag-remove-btn-bg--hover'],
+                    label: 'tag-remove-btn-bg--hover',
+                    type: 'color',
+                    value: '#C77777',
+                },
+                {
+                    cssVar: ['tag-invalid-color'],
+                    label: 'tag-invalid-color',
+                    type: 'color',
+                    value: '#D39494',
+                },
+                {
+                    cssVar: ['tag-invalid-bg'],
+                    label: 'tag-invalid-bg',
+                    type: 'color',
+                    value: '#D39494',
+                },
+                {
+                    cssVar: ['placeholder-color'],
+                    label: 'placeholder-color',
+                    type: 'color',
+                    value: 'rgba(0,0,0,.4)',
+                },
+                {
+                    cssVar: ['placeholder-color-focus'],
+                    label: 'placeholder-color-focus',
+                    type: 'color',
+                    value: 'rgba(0,0,0,.25)',
+                },
+                {
+                    cssVar: ['input-color'],
+                    label: 'input-color',
+                    type: 'color',
+                    value: '#000000',
+                },
+            ]
+        }
+
+        var knobs = new Knobs(settings)
+
+        knobs.settings.live = true
+     })()
     </script>
     </body>
 </html>
