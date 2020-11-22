@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Not working as expected
+about: "⚠️ Please READ & make a demo if possible"
 title: ''
 labels: ''
 assignees: ''
