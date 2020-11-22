@@ -389,6 +389,8 @@ export default {
                     .then(() => {
                         if( listItemElm )
                             this.dropdown.selectOption.call(this, listItemElm)
+                        else
+                            this.dropdown.hide.call(this)
                     })
                     .catch(err => err)
             },
@@ -467,8 +469,10 @@ export default {
         this.trigger("dropdown:select", {data:tagData, elm})
 
         // above event must  be triggered, regardless of anything else which might go wrong
-        if( !tagifySuggestionIdx || !tagData )
+        if( !tagifySuggestionIdx || !tagData ){
+            this.dropdown.hide.call(this)
             return
+        }
 
         if( this.state.editing )
             this.onEditTagDone(null, extend({__isValid: true}, tagData))
