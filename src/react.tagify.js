@@ -62,7 +62,7 @@ const TagifyWrapper = ({
                 ? value
                 : JSON.stringify(value),
         className,
-        readOnly: readOnly,
+        readOnly,
         onChange,
         autoFocus,
         placeholder,
@@ -121,13 +121,19 @@ const TagifyWrapper = ({
 
     useEffect(() => {
         if (mountedRef.current) {
+            tagify.current.toggleClass(className)
+        }
+    }, [className])
+
+    useEffect(() => {
+        if (mountedRef.current) {
             tagify.current.loading(loading)
         }
     }, [loading])
 
     useEffect(() => {
         if (mountedRef.current) {
-            tagify.current.setMixModeReadonly(readOnly)
+            tagify.current.setReadonly(readOnly)
         }
     }, [readOnly])
 

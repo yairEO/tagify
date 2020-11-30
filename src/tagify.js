@@ -28,6 +28,7 @@ function Tagify( input, settings ){
     this.applySettings(input, settings||{})
 
     this.state = {
+        inputText: '',
         editing : false,
         actions : {},   // UI actions for state-locking
         mixMode : {},
@@ -67,7 +68,7 @@ Tagify.prototype = {
     customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch'],
 
     trim(text){
-        return this.settings.trim ? text.trim() : text
+        return this.settings.trim && text && typeof text == "string" ? text.trim() : text
     },
 
     // expose this handy utility function
@@ -109,6 +110,12 @@ Tagify.prototype = {
         if( _s.mode == 'mix' ){
             _s.autoComplete.rightKey = true
             _s.delimiters = settings.delimiters || null // default dlimiters in mix-mode must be NULL
+
+            // needed for "filterListItems". This assumes the user might have forgotten to manually
+            // define the same term in "dropdown.searchKeys" as defined in "tagTextProp" setting, so
+            // by automatically adding it, tagify is "helping" out, guessing the intesntions of the developer.
+            if( _s.tagTextProp && !_s.dropdown.searchKeys.includes(_s.tagTextProp) )
+                _s.dropdown.searchKeys.push(_s.tagTextProp)
         }
 
         if( input.pattern )
@@ -305,8 +312,18 @@ Tagify.prototype = {
         return this
     },
 
+    /**
+     * Toggles class on the main tagify container ("scope")
+     * @param {String} className
+     * @param {Boolean} force
+     */
+    toggleClass( className, force ){
+        if( typeof className == 'string' )
+            this.DOM.scope.classList.toggle(className, force)
+    },
+
     toggleFocusClass( force ){
-        this.DOM.scope.classList.toggle(this.settings.classNames.focus, !!force)
+        this.toggleClass(this.settings.classNames.focus, !!force)
     },
 
     triggerChangeEvent,
@@ -415,7 +432,7 @@ Tagify.prototype = {
     },
 
     editTagToggleValidity( tagElm, value ){
-        var tagData = tagElm.__tagifyTagData,
+        var tagData = this.tagData(tagElm),
             toggleState;
 
         if( !tagData ){
@@ -432,21 +449,24 @@ Tagify.prototype = {
     },
 
     onEditTagDone(tagElm, tagData){
-        this.state.editing = false;
         tagElm = tagElm || this.state.editing.scope
         tagData = tagData || {}
 
-        var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), data:tagData };
+        var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), previousData:this.tagData(tagElm), data:tagData };
 
         this.trigger("edit:beforeUpdate", eventData)
 
+        this.state.editing = false;
         delete tagData.__originalData
         delete tagData.__originalHTML
 
-        if( tagElm ){
+        if( tagElm && tagData[this.settings.tagTextProp] ){
             this.editTagToggleValidity(tagElm)
             this.replaceTag(tagElm, tagData)
         }
+
+        else if(tagElm)
+            this.removeTags(tagElm)
 
         this.trigger("edit:updated", eventData)
         this.dropdown.hide.call(this)
@@ -645,8 +665,13 @@ Tagify.prototype = {
         }
     },
 
+    /**
+     * returns the index of the the tagData within the "this.value" array collection.
+     * since values should be unique, it is suffice to only search by "value" property
+     * @param {Object} tagData
+     */
     getTagIdx( tagData ){
-        return this.value.findIndex(item => JSON.stringify(item) == JSON.stringify(tagData) )
+        return this.value.findIndex(item => item.value == tagData.value )
     },
 
     getNodeIndex( node ){
@@ -677,14 +702,16 @@ Tagify.prototype = {
      * @param {Node}   tagElm
      * @param {Object} data
      */
-    tagData(tagElm, data){
+    tagData(tagElm, data, override){
         if( !tagElm ){
             console.warn("tag elment doesn't exist",tagElm, data)
             return data
         }
 
         if( data )
-            tagElm.__tagifyTagData = extend({}, tagElm.__tagifyTagData || {}, data)
+            tagElm.__tagifyTagData = override
+                ? data
+                : extend({}, tagElm.__tagifyTagData || {}, data)
 
         return tagElm.__tagifyTagData
     },
@@ -768,12 +795,11 @@ Tagify.prototype = {
         var result,
             prop = prop || 'value',
             _s = this.settings,
-            whitelist = whitelist || _s.whitelist,
-            _cs = _s.dropdown.caseSensitive;
+            whitelist = whitelist || _s.whitelist;
 
         whitelist.some(_wi => {
-            var _wiv = typeof _wi == 'string' ? _wi : _wi[prop],
-                isSameStr = sameStr(_wiv, value, _cs)
+            var _wiv = typeof _wi == 'string' ? _wi : (_wi[prop] || _wi.value),
+                isSameStr = sameStr(_wiv, value, _s.dropdown.caseSensitive, _s.trim)
 
             if( isSameStr ){
                 result = typeof _wi == 'string' ? {value:_wi} : _wi
@@ -818,6 +844,9 @@ Tagify.prototype = {
         if( this.isTagBlacklisted(v) || (_s.enforceWhitelist && !this.isTagWhitelisted(v)) )
             return this.TEXTS.notAllowed;
 
+        if( _s.validate )
+            return _s.validate(tagData)
+
         return true
     },
 
@@ -853,7 +882,7 @@ Tagify.prototype = {
      * @return {Array} [Array of Objects]
      */
     normalizeTags( tagsItems ){
-        var {whitelist, delimiters, mode, tagTextProp} = this.settings,
+        var {whitelist, delimiters, mode, tagTextProp, enforceWhitelist} = this.settings,
             whitelistMatches = [],
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
@@ -888,25 +917,28 @@ Tagify.prototype = {
 
                 // if suggestions are shown, they are already filtered, so it's easier to use them,
                 // because the whitelist might also include items which have already been added
-                var filteredList = this.dropdown.filterListItems.call(this, item[tagTextProp])
+                var filteredList = this.dropdown.filterListItems.call(this, item[tagTextProp], { exact:true })
                     // also filter out items which have already been matches in previous iterations
                     .filter(filteredItem => !whitelistMatchesValues.includes(filteredItem.value))
 
-                // get the best match out of list of possible matches
-                var matchObj = this.getWhitelistItem(item[tagTextProp], null, filteredList)
+                // get the best match out of list of possible matches.
+                // if there was a single item in the filtered list, use that one
+                var matchObj = filteredList.length > 1
+                    ? this.getWhitelistItem(item[tagTextProp], tagTextProp, filteredList)
+                    : filteredList[0]
 
                 if( matchObj && matchObj instanceof Object ){
                     whitelistMatches.push( matchObj ) // set the Array (with the found Object) as the new value
                 }
-                else if( mode != 'mix' ){
+                else if( mode != 'mix' && !enforceWhitelist ){
                     if( item.value == undefined )
                         item.value = item[tagTextProp]
                     whitelistMatches.push(item)
                 }
             })
 
-            if( whitelistMatches.length )
-                tagsItems = whitelistMatches
+            // if( whitelistMatches.length )
+            tagsItems = whitelistMatches
         }
 
         return tagsItems;
@@ -935,7 +967,7 @@ Tagify.prototype = {
                     throw Error
                 tagData = JSON.parse(preInterpolated)
             } catch(err){
-                tagData = this.normalizeTags(preInterpolated)[0]  //{value:preInterpolated}
+                tagData = this.normalizeTags(preInterpolated)[0] || {value:preInterpolated}
             }
 
             if( !maxTagsReached   &&
@@ -1042,7 +1074,6 @@ Tagify.prototype = {
         var tagData = extend({ value:"" }, initialData || {}),
             tagElm = this.createTagElem(tagData)
 
-        // must be assigned ASAP, before "validateTag" method below
         this.tagData(tagElm, tagData)
 
         // add the tag to the component's DOM
@@ -1078,7 +1109,6 @@ Tagify.prototype = {
             clearInput = false
 
         this.DOM.input.removeAttribute('style')
-
         tagsItems.forEach(tagData => {
             var tagElm,
                 tagElmParams = {},
@@ -1104,13 +1134,13 @@ Tagify.prototype = {
             }
             /////////////////////////////////////////////////////
 
-
             if( tagData.readonly )
                 tagElmParams["aria-readonly"] = true
 
             // Create tag HTML element
             tagElm = this.createTagElem( extend({}, tagData, tagElmParams) )
             tagElems.push(tagElm)
+
 
             // mode-select overrides
             if( _s.mode == 'select' ){
@@ -1212,13 +1242,11 @@ Tagify.prototype = {
         // crucial for proper caret placement when deleting content. if textNodes are allowed as children of
         // a tag element, a browser bug casues the caret to misplaced inside the tag element (especcially affects "readonly" tags)
         removeTextChildNodes(tagElm)
-
         // while( tagElm.lastChild.nodeType == 3 )
         //     tagElm.lastChild.parentNode.removeChild(tagElm.lastChild)
 
         this.tagData(tagElm, tagData)
-
-        return tagElm;
+        return tagElm
     },
 
     /**
@@ -1234,7 +1262,7 @@ Tagify.prototype = {
                 wasNodeDuplicate = node.getAttribute('title') == this.TEXTS.duplicate,
                 isNodeValid = this.validateTag(tagData) === true;
 
-            // if this tag node was marked as a dulpicate, unmark it (it might have been marked as "notAllowed" for other reasons)
+            // if this tag node was marked as a dulpicate, unmark. (might have been marked as "notAllowed" for other reasons)
             if( wasNodeDuplicate && isNodeValid ){
                 if( tagData.__preInvalidData )
                     tagData = tagData.__preInvalidData
@@ -1382,9 +1410,9 @@ Tagify.prototype = {
                     : this.DOM.originalInput.value
                 : this.value.length;
 
-        this.DOM.scope.classList.toggle(classNames.hasMaxTags,  this.value.length >= this.settings.maxTags)
-        this.DOM.scope.classList.toggle(classNames.hasNoTags,  !this.value.length)
-        this.DOM.scope.classList.toggle(classNames.empty, !hasValue)
+        this.toggleClass(classNames.hasMaxTags, this.value.length >= this.settings.maxTags)
+        this.toggleClass(classNames.hasNoTags, !this.value.length)
+        this.toggleClass(classNames.empty, !hasValue)
     },
 
     /**

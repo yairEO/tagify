@@ -5,9 +5,20 @@
 
 
 // const isEdge = /Edge/.test(navigator.userAgent)
-export const sameStr = (s1, s2, caseSensitive) => caseSensitive
-    ? s1 == s2
-    : (""+s1).toLowerCase() == (""+s2).toLowerCase()
+export const sameStr = (s1, s2, caseSensitive, trim) => {
+    // cast to String
+    s1 = ""+s1;
+    s2 = ""+s2;
+
+    if( trim ){
+        s1 = s1.trim()
+        s2 = s2.trim()
+    }
+
+    return caseSensitive
+        ? s1 == s2
+        : s1.toLowerCase() == s2.toLowerCase()
+}
 
 
 // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
@@ -18,14 +29,6 @@ export const removeCollectionProp = (collection, unwantedProps) => collection.ma
             props[p] = v[p]
     return props
 })
-
-/**
- * Checks if an argument is a javascript Object
- */
-export function isObject(obj) {
-    var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
-    return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
-}
 
 export function decode( s ) {
     var el = document.createElement('div');
@@ -60,13 +63,14 @@ export function minify( s ){
 }
 
 export function removeTextChildNodes( elm ){
-    var iter = document.createNodeIterator(elm, NodeFilter.SHOW_TEXT),
+    var iter = document.createNodeIterator(elm, NodeFilter.SHOW_TEXT, null, false),
         textnode;
 
     // print all text nodes
-    while (textnode = iter.nextNode())
+    while (textnode = iter.nextNode()){
         if( !textnode.textContent.trim() )
             textnode.parentNode.removeChild(textnode)
+    }
 }
 
 export function getfirstTextNode( elm, action ){
@@ -89,6 +93,18 @@ export function escapeHTML( s ){
         .replace(/`|'/g, "&#039;")
 }
 
+function isArray(a){
+    return a instanceof Array
+}
+
+/**
+ * Checks if an argument is a javascript Object
+ */
+export function isObject(obj) {
+    var type = Object.prototype.toString.call(obj).split(' ')[1].slice(0, -1);
+    return obj === Object(obj) && type != 'Array' && type != 'Function' && type != 'RegExp' && type != 'HTMLUnknownElement';
+}
+
 /**
  * merge objects into a single new one
  * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
@@ -106,16 +122,23 @@ export function extend( o, o1, o2) {
             if( b.hasOwnProperty(key) ){
                 if( isObject(b[key]) ){
                     if( !isObject(a[key]) )
-                        a[key] = Object.assign({}, b[key]);
+                        a[key] = Object.assign({}, b[key])
                     else
                         copy(a[key], b[key])
+
+                    continue;
                 }
-                else
-                    a[key] = b[key];
+
+                if( isArray(b[key]) ){
+                    a[key] = (isArray(a[key]) ? a[key] : []).concat(b[key])
+                    continue;
+                }
+
+                a[key] = b[key]
             }
     }
 
-    return o;
+    return o
 }
 
 /**
@@ -146,3 +169,5 @@ export function getNodeHeight( node ){
     clone.parentNode.removeChild(clone)
     return height
 }
+
+export var isChromeAndroidBrowser = /(?=.*chrome)(?=.*android)/i.test(navigator.userAgent);

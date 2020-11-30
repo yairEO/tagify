@@ -110,10 +110,10 @@
             </section>
 
             <section id='section-mix'>
-                <textarea name='simple-mix' placeholder="type something">and[[   [[alice]] text [[bob]] [[foo]], [[alice]], [[foo]]</textarea>
+                <textarea name='simple-mix' placeholder="type something">mixed-mode [[example]] with [[{"value":"tags"}]].</textarea>
 
                 <textarea name='mix' class='tagify-editor' placeholder="type something">
-                  [[{"value":101, "text":"  cartman  ", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":500, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
+                  [[{"value":200, "text":"  cartman  ", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":1000, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
 and [[{"value": "readonly", "readonly":true}]]
                 </textarea>
             </section>
@@ -161,7 +161,7 @@ and [[{"value": "readonly", "readonly":true}]]
   window.tagified = {
     "mix"               : 1,
     "markdown"          : 0,
-    "basic"             : 0,
+    "basic"             : 1,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
@@ -250,9 +250,12 @@ and [[{"value": "readonly", "readonly":true}]]
         pattern: /^[0-9A-Za-z_✲ "]+$/,
         editTags : 1,
         duplicates: false,
-        keepInvalidTags: true
+        keepInvalidTags: true,
+        // dropdown: {
+        //     enabled: 0
+        // },
         // after 2 characters typed, all matching values from this list will be suggested in a dropdown
-        // whitelist: [].concat(whitelist)
+        whitelist: [].concat(whitelist)
     })
 
     tagify.addTags( `a,a` )
@@ -262,6 +265,7 @@ and [[{"value": "readonly", "readonly":true}]]
   tagify.on('add', onAddTag)
         .on('remove', onRemoveTag)
         .on('input', onInput)
+        //.on('keydown', onKeyDown)
         .on('edit:beforeUpdate', onPreUpdate)
         .on('edit:start edit:keydown click', saveCaretPos)
         .on('edit:input edit:updated edit:start', e => console.log(e.type, e))
@@ -425,15 +429,24 @@ and [[{"value": "readonly", "readonly":true}]]
   var simpleMixInput = document.querySelector('[name="simple-mix"]')
 
   var settings = {
-    mode: 'mix',
-  //  maxTags: 3,
-    pattern: '#',
+    mode: "mix",
+    pattern: /@/,
     dropdown: {
-      enabled: 1
+        enabled: 1,
+        position: "text"
     },
-    enforceWhitelist : true,
-    whitelist: ['alice','bob','foo','bar'],
-    duplicates: true,
+        whitelist: [
+        {id: 100, value: "kenny", title: "Kenny McCormick"},
+        {id: 101, value: "cartman", title: "Eric Cartman"},
+        {id: 102, value: "kyle", title: "Kyle Broflovski"},
+        {id: 103, value: "token", title: "Token Black"},
+        {id: 104, value: "jimmy", title: "Jimmy Valmer"},
+        {id: 105, value: "butters", title: "Butters Stotch"},
+        {id: 106, value: "stan", title: "Stan Marsh"},
+        {id: 107, value: "randy", title: "Randy Marsh"},
+        {id: 108, value: "Mr. Garrison", title: "POTUS"},
+        {id: 109, value: "Mr. Mackey", title: "M'Kay"}
+    ],
   }
 
   var simpleMixTagify = new Tagify(simpleMixInput, settings);
@@ -442,24 +455,80 @@ and [[{"value": "readonly", "readonly":true}]]
 
   //////////////////////////////
 
+    var whitelist_1 = [
+    {
+        value: 100,
+        text : 'kenny',
+        title : 'Kenny McCormick'
+    },
+    {
+        value: 200,
+        text : 'cartman',
+        title : 'Eric Cartman'
+    },
+    {
+        value: 300,
+        text : 'kyle',
+        title : 'Kyle Broflovski'
+    },
+    {
+        value: 400,
+        text : 'token',
+        title : 'Token Black'
+    },
+    {
+        value: 500,
+        text : 'jimmy',
+        title : 'Jimmy Valmer'
+    },
+    {
+        value: 600,
+        text : 'butters',
+        title : 'Butters Stotch'
+    },
+    {
+        value: 700,
+        text : 'stan',
+        title : 'Stan Marsh'
+    },
+    {
+        value: 800,
+        text : 'randy',
+        title : 'Randy Marsh'
+    },
+    {
+        value: 900,
+        text : 'Mr. Garrison',
+        title : 'POTUS'
+    },
+    {
+        value: 1000,
+        text : 'Mr. Mackey',
+        title : "M'Kay"
+    }
+  ]
+
+  var whitelist_2 = ['Homer simpson', 'Marge simpson', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
+
+
   var input = document.querySelector('[name=mix]'),
       // init Tagify script on the above inputs
       tagify = new Tagify(input, {
           tagTextProp      : 'text',
+          //enforceWhitelist : true, // <-- see below post-init change
           mode             : 'mix',  // <--  Enable mixed-content
           pattern          : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
-          duplicates       : true,
-          whitelist        : [       // <--  Set the initial whitelist, which will dynamically change as you type (see "input" event below)
-            { value:'cartman', title:'Eric Cartman', class:'borderd-blue', prefix:'@' },
-            { value:"cartman", id:500, title:"xxx", prefix:'@' },
-            { value:'kyle', title:'Kyle Broflovski', prefix:'@' },
-            { value:'Homer simpson', prefix:'#' }
+          duplicates       : false,
+          whitelist        : [       // <--  Set the initial whitelist, which will dynamically changed as you type (see "input" event below)
+            ...whitelist_1,
+            ...whitelist_2
           ],
           dropdown   : {
               enabled : 1,
               maxItems: 20,
-              position: "text",
-              highlightFirst: true
+              position: 'text',
+              highlightFirst: true,
+              mapValueTo: 'text'
           },
           callbacks        : {
             add    : e=>console.log("ADD: ", e.detail),  // callback when adding a tag
@@ -467,50 +536,8 @@ and [[{"value": "readonly", "readonly":true}]]
           }
       })
 
-  var whitelist_1 = [
-      {
-          value : 'kenny',
-          title : 'Kenny McCormick'
-      },
-      {
-          value : 'cartman',
-          title : 'Eric Cartman'
-      },
-      {
-          value : 'kyle',
-          title : 'Kyle Broflovski'
-      },
-      {
-          value : 'token',
-          title : 'Token Black'
-      },
-      {
-          value : 'jimmy',
-          title : 'Jimmy Valmer'
-      },
-      {
-          value : 'butters',
-          title : 'Butters Stotch'
-      },
-      {
-          value : 'stan',
-          title : 'Stan Marsh'
-      },
-      {
-          value : 'randy',
-          title : 'Randy Marsh'
-      },
-      {
-          value : 'Mr. Garrison',
-          title : 'POTUS'
-      },
-      {
-          value : 'Mr. Mackey',
-          title : "M'Kay"
-      }
-  ]
-
-  var whitelist_2 = ['Homer simpson', 'Marge simpson', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
+    // POST-INIT change:
+    tagify.settings.enforceWhitelist = true
 
   // A good place to pull server suggestion list according to the prefix/value
   tagify.on('input', async function(e){
@@ -527,7 +554,8 @@ and [[{"value": "readonly", "readonly":true}]]
           newWhitelist = whitelist_2
 
       if( newWhitelist ){
-        tagify.settings.whitelist.splice(0, newWhitelist.length, ...newWhitelist)
+        tagify.settings.whitelist.length = 0;
+        tagify.settings.whitelist.push(...newWhitelist)
       }
 
       if( e.detail.value.length >= tagify.settings.dropdown.enabled )

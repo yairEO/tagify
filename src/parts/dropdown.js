@@ -302,7 +302,7 @@ export default {
         callbacks : {
             onKeyDown(e){
                 // get the "active" element, and if there was none (yet) active, use first child
-                var activeListElm = this.DOM.dropdown.querySelector("[class$='--active']"),
+                var activeListElm = this.DOM.dropdown.querySelector("." + this.settings.classNames.dropdownItemActive),
                     selectedElm = activeListElm;
 
                 switch( e.key ){
@@ -389,6 +389,8 @@ export default {
                     .then(() => {
                         if( listItemElm )
                             this.dropdown.selectOption.call(this, listItemElm)
+                        else
+                            this.dropdown.hide.call(this)
                     })
                     .catch(err => err)
             },
@@ -431,7 +433,7 @@ export default {
         this.state.ddItemData = itemData
         this.state.ddItemElm = elm
 
-        // this.DOM.dropdown.querySelectorAll("[class$='--active']").forEach(activeElm => activeElm.classList.remove(className));
+        // this.DOM.dropdown.querySelectorAll("." + this.settings.classNames.dropdownItemActive).forEach(activeElm => activeElm.classList.remove(className));
         elm.classList.add(className);
         elm.setAttribute("aria-selected", true)
 
@@ -462,25 +464,23 @@ export default {
         // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
         var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
-            selectedOption = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '',
-            tagData = selectedOption || this.state.inputText;
+            tagData = this.suggestedListItems[+tagifySuggestionIdx];
 
         this.trigger("dropdown:select", {data:tagData, elm})
 
-        if( this.state.editing ){
-            this.onEditTagDone(this.state.editing.scope, {
-                ...this.state.editing.scope.__tagifyTagData,
-                value: tagData.value,
-                ...(tagData instanceof Object ? tagData : {}),  // if "tagData" is an Object, include all its properties
-                __isValid: true
-            })
+        // above event must  be triggered, regardless of anything else which might go wrong
+        if( !tagifySuggestionIdx || !tagData ){
+            this.dropdown.hide.call(this)
+            return
         }
+
+        if( this.state.editing )
+            this.onEditTagDone(null, extend({__isValid: true}, tagData))
 
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
         else{
-            this.addTags([tagData], clearOnSelect)
+            this[this.settings.mode == 'mix'?"addMixTags":"addTags"]([tagData], clearOnSelect)
         }
-
 
         // todo: consider not doing this on mix-mode
         setTimeout(() => {
@@ -509,12 +509,14 @@ export default {
 
     /**
      * returns an HTML string of the suggestions' list items
-     * @param {string} value string to filter the whitelist by
+     * @param {String} value string to filter the whitelist by
+     * @param {Object} options "exact" - for exact complete match
      * @return {Array} list of filtered whitelist items according to the settings provided and current value
      */
-    filterListItems( value ){
+    filterListItems( value, options ){
         var _s = this.settings,
             _sd = _s.dropdown,
+            options = options || {},
             list = [],
             whitelist = _s.whitelist,
             suggestionsCount = _sd.maxItems || Infinity,
@@ -544,7 +546,7 @@ export default {
         for( ; i < whitelist.length; i++ ){
             whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
 
-            if( _sd.fuzzySearch ){
+            if( _sd.fuzzySearch && !options.exact ){
                 searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
 
                 if( _sd.accentedSearch ){
@@ -567,7 +569,9 @@ export default {
                     if( !_sd.caseSensitive )
                         v = v.toLowerCase()
 
-                    return v.indexOf(niddle) == 0
+                    return options.exact
+                        ? v == niddle
+                        : v.indexOf(niddle) == 0
                 })
             }
 
@@ -589,18 +593,28 @@ export default {
      * @return {String}
      */
     createListHTML( optionsArr ){
-        return optionsArr.map((suggestion, idx) => {
+        return extend([], optionsArr).map((suggestion, idx) => {
             if( typeof suggestion == 'string' || typeof suggestion == 'number' )
                 suggestion = {value:suggestion}
 
             var mapValueTo = this.settings.dropdown.mapValueTo,
                 value = (mapValueTo
-                    ? typeof mapValueTo == 'function' ? mapValueTo(suggestion) : suggestion[mapValueTo]
-                    : suggestion.value),
-                escapedValue = value && typeof value == 'string' ? escapeHTML(value) : value,
-                data = extend({}, suggestion, { value:escapedValue, tagifySuggestionIdx:idx })
+                    ? typeof mapValueTo == 'function' ? mapValueTo(suggestion) : (suggestion[mapValueTo] || suggestion.value)
+                    : suggestion.value);
 
-            return this.settings.templates.dropdownItem.call(this, data)
+            suggestion.value = value && typeof value == 'string'
+                ? escapeHTML(value)
+                : value
+
+            var tagHTMLString = this.settings.templates.dropdownItem.call(this, suggestion)
+
+
+            // make sure the sugestion index is present as attribute, to match the data when one is selected
+            tagHTMLString = tagHTMLString
+                .replace(/\s*tagifySuggestionIdx=(["'])(.*?)\1/gmi, '') // remove the "tagifySuggestionIdx" attribute if for some reason was there
+                .replace('>', ` tagifySuggestionIdx="${idx}">`) // add "tagifySuggestionIdx"
+
+            return tagHTMLString
         }).join("")
     }
 }

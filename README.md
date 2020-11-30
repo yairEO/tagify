@@ -91,7 +91,7 @@ var tagify = new Tagify(...)
 * Auto-suggest input as-you-type with ability to auto-complete
 * Can paste in multiple values: `tag 1, tag 2, tag 3` or even newline-separated tags
 * Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
-* Validate tags by Regex pattern
+* Validate tags by Regex *pattern* or by function
 * Tags may be [editable](#edit-tags) (double-click)
 * <del>ARIA accessibility support</del>(Component too generic for any meaningful ARIA)
 * Supports read-only mode to the whole componenet or per-tag
@@ -376,6 +376,8 @@ Similar to native `<Select>` element, but allows typing text as value.
 
 ## React
 
+See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
+
 A Tagify React component is exported from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
 
 > Note: You will need to inport Tagify's CSS also, either by javasceript or by SCSS `@import` (which is preferable)
@@ -450,7 +452,6 @@ onBlur                  | <sub>Function</sub>       |           | See [*events* 
 
 ---
 
-### See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
 
 
 ## Angular
@@ -619,11 +620,11 @@ required          | <pre lang=html>`<input required>`</pre> | Adds a `required` 
 
 
 
-
 ## FAQ
 List of questions & scenarios which might come up during development with Tagify:
 
-### tags/whitelist data strcture
+<details>
+  <summary><strong>tags/whitelist data strcture</strong></summary>
 
 Tagify does not accept just *any* kind of data structure.<br>
 If a tag data is represented as an `Object`, it **must** contain a **unique** property `value`
@@ -653,9 +654,12 @@ which Tagify uses to check if a tag already exists, among other things, so make 
 // ad a simple array of Strings
 ["foo bar"]
 ```
+</details>
 
+---
 
-### Save changes (Ex. to a *server*)
+<details>
+  <summary><strong>Save changes (Ex. to a server)</strong></summary>
 
 In framework-less projects, the developer should save the state of the Tagify component (somewhere), and
 the question is:<br/>
@@ -679,17 +683,47 @@ async function onTagsChange(e){
 
 If you are using *React/Vue/Angular* or any "modern" framework, then you already know how to
 attach "onChange" event listeners to your `<input>`/`<textarea>` elements, so the above is irrelevant.
+</details>
 
 ----
 
+<details>
+  <summary><strong>Render tags in one single line</strong></summary>
 
-### Render tags in one single line
-
-Stopping tags from wrapping to new lines, add this to your `.tagify` *CSS Rule*:
+Stopping tags from wrapping to new lines, add this to your `.tagify` *selector CSS Rule*:
 
 ```css
 flex-wrap: nowrap;
 ````
+</details>
+
+----
+
+<details>
+  <summary><strong>Submit on `Enter` key</strong></summary>
+
+Tagify internally has `state` property, per `Tagify` instance
+and this may be useful for a variety of things when implementing a specific scenario.
+
+```js
+var tagify = new Tagify(...)
+var formElm = document.forms[0]; // just an example
+
+tagify.on('keydown', onTagifyKeyDown)
+
+function onTagifyKeyDown(e){
+  if( e.key == 'Enter' &&         // "enter" key pressed
+      !tagify.state.inputText &&  // assuming user is not in the middle oy adding a tag
+      !tagify.state.editing       // user not editing a tag
+    ){
+    setTimeout(() => formElm.submit())  // put some buffer to make sure tagify has done with whatever, to be on the safe-side
+  }
+
+}
+```
+</details>
+
+---
 
 * [Double-click tag fires both "edit" & "click" custom events](https://github.com/yairEO/tagify/issues/247)
 * [Manualy open the suggestions dropdown](https://github.com/yairEO/tagify/issues/254)
@@ -706,7 +740,7 @@ flex-wrap: nowrap;
 * [propagate `change` event](https://github.com/yairEO/tagify/issues/413)
 * [Manually update tag data after it was added](https://github.com/yairEO/tagify/issues/433)
 * [Ajax Whitelist with "enforceWhitelist" setting enabled](https://github.com/yairEO/tagify/issues/465)
-* [Custom (multiple) tag valitation & AJAX](https://github.com/yairEO/tagify/issues/474)
+* [Custom (multiple) tag validation & AJAX](https://github.com/yairEO/tagify/issues/474)
 * [Make tags from pasted multi-line text](https://github.com/yairEO/tagify/issues/160)
 
 ## CSS Variables
@@ -775,7 +809,7 @@ Name                       | Parameters                                         
 `injectAtCaret`            | `HTMLElement` <sub>(`injectedNode`)</sub>, `Object` <sub>(`range`)</sub>                | Injects text or HTML node at last caret position. `range` parameter is *optional*
 `placeCaretAfterNode`      | `HTMLElement`                                                             | Places the caret after a given node
 `insertAfterTag`           | `HTMLElement` <sub>(tag element)</sub>, `HTMLElement`/`String` <sub>(whatever to insert after)</sub> |
-`toggleInvalidClass`       | `Boolean`                                                                               | Toggles `tagify--invalid` class to the Tagify wrapper element
+`toggleClass`              | `Boolean`                                                                               | Toggles `class` on the main *tagify* container (`scope`)
 `dropdown.selectAll`       |                                                                                         | Add **all** whitelist items as tags and close the suggestion dropdown
 `updateValueByDOMTags`     |                                                                                         | Iterate tag DOM nodes and re-build  the `tagify.value` array (call this if tags get sorted manually)
 `parseTemplate`            | `String`/`Function` <sub>(template name or function)</sub>, `Array` <sub>(data)</sub>   | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node
@@ -875,45 +909,46 @@ suggestionClick        | Object <sub>(click event data)</sub>        | [Example]
 
 ## [Settings](https://github.com/yairEO/tagify/blob/master/src/parts/defaults.js#L1)
 
-Name                    | Type                         | Default                                     | Info
------------------------ | ---------------------------- | ------------------------------------------- | --------------------------------------------------------------------------
-tagTextProp             | <sub>String</sub>            | `value`                                     | Tag data Object property which will be displayed as the tag's text. Remember to keep "value" property <em>unique</em>.
-placeholder             | <sub>String</sub>            |                                             | Placeholder text. If this attribute is set on an input/textarea element it will override this setting
-delimiters              | <sub>String</sub>            | `,`                                         | [RegEx **string**] split tags by any of these delimiters. Example delimeters: ",&#124;.&#124; " (*comma*, *dot* or *whitespace*)
-pattern                 | <sub>String/RegEx</sub>      | null                                        | Validate input by RegEx pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
-mode                    | <sub>String</sub>            | null                                        | Use `select` for single-value dropdown-like select box. See `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
-mixTagsInterpolator     | <sub>Array</sub>             | <sub>`['[[', ']]']`</sub>                   | Interpolation for mix mode. Everything between these will become a tag
-mixTagsAllowedAfter     | <sub>RegEx</sub>             | <sub>`/,\|\.\|\:\|\s/`</sub>                | Define conditions in which typed mix-tags content is allowing a tag to be created after.
-duplicates              | <sub>Boolean</sub>           | false                                       | Should duplicate tags be allowed or not
-trim                    | <sub>Boolean</sub>           | true                                        | If `true` trim the tag's value (remove before/after whitespaces)
-enforceWhitelist        | <sub>Boolean</sub>           | false                                       | Should ONLY use tags allowed in whitelist.<br>In `mix-mode`, setting it  to `false` will not allow creating new tags.
-autoComplete.enabled    | <sub>Boolean</sub>           | true                                        | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
-autoComplete.rightKey   | <sub>Boolean</sub>           | false                                       | If `true`, when `→` is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
-whitelist               | <sub>Array</sub>             | []                                          | An array of allowed tags (*Strings* or *Objects*). Also used for auto-completion when `autoCompletion.enabled` is `true`
-blacklist               | <sub>Array</sub>             | []                                          | An array of tags which aren't allowed
-addTagOnBlur            | <sub>Boolean</sub>           | true                                        | Automatically adds the text which was inputed as a tag when blur event happens
-callbacks               | <sub>Object</sub>            | {}                                          | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
-maxTags                 | <sub>Number</sub>            | Infinity                                    | Maximum number of allowed tags. when reached, adds a class "tagify--hasMaxTags" to `<Tags>`
-editTags                | <sub>Object/Number</sub>     | {}                                          | `false` or `null` will disallow editing
-editTags.clicks         | <sub>Number</sub>            | 2                                           | Number of clicks to enter "edit-mode": 1 for single click. Any other value is considered as double-click
-editTags.keepInvalid    | <sub>Boolean</sub>           | true                                        | keeps invalid edits as-is until `esc` is pressed while in focus
-templates               | <sub>Object</sub>            | <sub>`wrapper`, `tag`, `dropdownItem`</sub> | Object consisting of functions which return template strings
-transformTag            | <sub>Function</sub>          | undefined                                   | Takes a tag data as argument and allows mutating it before a tag is created.<br>Should not `return` anything, only **mutate**.
-keepInvalidTags         | <sub>Boolean</sub>           | false                                       | If `true`, do not remove tags which did not pass validation
-skipInvalid             | <sub>Boolean</sub>           | false                                       | If `true`, do not add invalid, temporary, tags before automatically removing them
-backspace               | <sub>*</sub>                 | true                                        | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
-originalInputValueFormat| <sub>Function</sub>          |                                             | If you wish your original input/textarea `value` property format to other than the default (which I recommend keeping) you may use this and make sure it returns a *string*.
-mixMode.insertAfterTag  | <sub>Node/String</sub>       | `\u00A0`                                    | `node` or `string` to add after a tag added |
-dropdown.enabled        | <sub>Number</sub>            | 2                                           | Minimum characters input for showing a suggestions list. `false` will not render a suggestions list.
-dropdown.caseSensitive  | <sub>Boolean</sub>           | false                                       | if `true`, match **exact** item when a suggestion is selected (from the dropdown) and also more strict matching for dulpicate items. **Ensure** `fuzzySearch` is `false` for this to work.
-dropdown.maxItems       | <sub>Number</sub>            | 10                                          | Maximum items to show in the suggestions list
-dropdown.classname      | <sub>String</sub>            | `""`                                        | Custom *classname* for the dropdown suggestions selectbox
-dropdown.fuzzySearch    | <sub>Boolean</sub>           | true                                        | Enables filtering dropdown items values' by string *containing* and not only *beginning*
-dropdown.accentedSearch | <sub>Boolean</sub>           | true                                        | Enable searching for <em>accented</em> items in the whitelist without typing exact match (#491)
-dropdown.position       | <sub>String</sub>            | null                                        | <ul><li>`manual` - will not render the dropdown, and you would need to do it yourself. [See demo](https://yaireo.github.io/tagify/#section-manual-suggestions)</li><li>`text` - will place the dropdown next to the caret</li><li>`input` - will place the dropdown next to the input</li><li>`all` - normal, full-width design</li></ul>
-dropdown.highlightFirst | <sub>Boolean</sub>           | false                                       | When a suggestions list is shown, highlight the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
-dropdown.closeOnSelect  | <sub>Boolean</sub>           | true                                        | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
-dropdown.clearOnSelect  | <sub>Boolean</sub>           | true                                        | Keep typed text after selecting a suggestion
-dropdown.mapValueTo     | <sub>Function/String</sub>   |                                             | if whitelist is an Array of Objects:<br>Ex. `[{value:'foo', email:'foo@a.com'},...]`)<br> this setting controlls which data <em>key</em> will be printed in the dropdown.<br> Ex. `mapValueTo: data => "To:" + data.email`<br>Ex. `mapValueTo: "email"`
-dropdown.searchKeys     | <sub>Array</sub>             | <sub>`["value", "searchBy"]`</sub>          | When a user types something and trying to match the whitelist items for suggestions, this setting allows matching other keys of a whitelist objects
-dropdown.appendTarget   | <sub>HTMLNode</sub>          | `document.body`                             | Target-Node which the *suggestions dropdown* is appended to (*only when rendered*)
+Name                      | Type                         | Default                                     | Info
+------------------------- | ---------------------------- | ------------------------------------------- | --------------------------------------------------------------------------
+tagTextProp               | <sub>String</sub>            | `value`                                     | Tag data Object property which will be displayed as the tag's text. Remember to keep "value" property <em>unique</em>.
+placeholder               | <sub>String</sub>            |                                             | Placeholder text. If this attribute is set on an input/textarea element it will override this setting
+delimiters                | <sub>String</sub>            | `,`                                         | [RegEx **string**] split tags by any of these delimiters. Example delimeters: ",&#124;.&#124; " (*comma*, *dot* or *whitespace*)
+pattern                   | <sub>String/RegEx</sub>      | null                                        | Validate input by RegEx pattern (can also be applied on the input itself as an attribute) Ex: `/[1-9]/`
+mode                      | <sub>String</sub>            | null                                        | Use `select` for single-value dropdown-like select box. See `mix` as value to allow mixed-content. The 'pattern' setting must be set to some character.
+mixTagsInterpolator       | <sub>Array</sub>             | <sub>`['[[', ']]']`</sub>                   | Interpolation for mix mode. Everything between these will become a tag
+mixTagsAllowedAfter       | <sub>RegEx</sub>             | <sub>`/,\|\.\|\:\|\s/`</sub>                | Define conditions in which typed mix-tags content is allowing a tag to be created after.
+duplicates                | <sub>Boolean</sub>           | false                                       | Should duplicate tags be allowed or not
+trim                      | <sub>Boolean</sub>           | true                                        | If `true` trim the tag's value (remove before/after whitespaces)
+enforceWhitelist          | <sub>Boolean</sub>           | false                                       | Should ONLY use tags allowed in whitelist.<br>In `mix-mode`, setting it  to `false` will not allow creating new tags.
+autoComplete.enabled      | <sub>Boolean</sub>           | true                                        | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
+autoComplete.rightKey     | <sub>Boolean</sub>           | false                                       | If `true`, when `→` is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
+whitelist                 | <sub>Array</sub>             | []                                          | An array of allowed tags (*Strings* or *Objects*). Also used for auto-completion when `autoCompletion.enabled` is `true`
+blacklist                 | <sub>Array</sub>             | []                                          | An array of tags which aren't allowed
+addTagOnBlur              | <sub>Boolean</sub>           | true                                        | Automatically adds the text which was inputed as a tag when blur event happens
+callbacks                 | <sub>Object</sub>            | {}                                          | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
+maxTags                   | <sub>Number</sub>            | Infinity                                    | Maximum number of allowed tags. when reached, adds a class "tagify--hasMaxTags" to `<Tags>`
+editTags                  | <sub>Object/Number</sub>     | {}                                          | `false` or `null` will disallow editing
+editTags.clicks           | <sub>Number</sub>            | 2                                           | Number of clicks to enter "edit-mode": 1 for single click. Any other value is considered as double-click
+editTags.keepInvalid      | <sub>Boolean</sub>           | true                                        | keeps invalid edits as-is until `esc` is pressed while in focus
+templates                 | <sub>Object</sub>            | <sub>`wrapper`, `tag`, `dropdownItem`</sub> | Object consisting of functions which return template strings
+validate                  | <sub>Function</sub>          |                                             | If the `pattern` setting does not meet your needs, use this function, which recieves *tag data object* as an argument and should return `true` if validaiton passed or `false`/`string` of not. A *string* may be returned as the reason of the validation failure.
+transformTag              | <sub>Function</sub>          |                                             | Takes a tag data as argument and allows mutating it before a tag is created or edited.<br>Should not `return` anything, only **mutate**.
+keepInvalidTags           | <sub>Boolean</sub>           | false                                       | If `true`, do not remove tags which did not pass validation
+skipInvalid               | <sub>Boolean</sub>           | false                                       | If `true`, do not add invalid, temporary, tags before automatically removing them
+backspace                 | <sub>*</sub>                 | true                                        | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
+originalInputValueFormat  | <sub>Function</sub>          |                                             | If you wish your original input/textarea `value` property format to other than the default (which I recommend keeping) you may use this and make sure it returns a *string*.
+mixMode.insertAfterTag    | <sub>Node/String</sub>       | `\u00A0`                                    | `node` or `string` to add after a tag added |
+dropdown.*enabled*        | <sub>Number</sub>            | 2                                           | Minimum characters input for showing a suggestions list. `false` will not render a suggestions list.
+dropdown.*caseSensitive*  | <sub>Boolean</sub>           | false                                       | if `true`, match **exact** item when a suggestion is selected (from the dropdown) and also more strict matching for dulpicate items. **Ensure** `fuzzySearch` is `false` for this to work.
+dropdown.*maxItems*       | <sub>Number</sub>            | 10                                          | Maximum items to show in the suggestions list
+dropdown.*classname*      | <sub>String</sub>            | `""`                                        | Custom *classname* for the dropdown suggestions selectbox
+dropdown.*fuzzySearch*    | <sub>Boolean</sub>           | true                                        | Enables filtering dropdown items values' by string *containing* and not only *beginning*
+dropdown.*accentedSearch* | <sub>Boolean</sub>           | true                                        | Enable searching for <em>accented</em> items in the whitelist without typing exact match (#491)
+dropdown.*position*       | <sub>String</sub>            | null                                        | <ul><li>`manual` - will not render the dropdown, and you would need to do it yourself. [See demo](https://yaireo.github.io/tagify/#section-manual-suggestions)</li><li>`text` - will place the dropdown next to the caret</li><li>`input` - will place the dropdown next to the input</li><li>`all` - normal, full-width design</li></ul>
+dropdown.*highlightFirst* | <sub>Boolean</sub>           | false                                       | When a suggestions list is shown, highlight the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
+dropdown.*closeOnSelect*  | <sub>Boolean</sub>           | true                                        | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
+dropdown.*clearOnSelect*  | <sub>Boolean</sub>           | true                                        | Keep typed text after selecting a suggestion
+dropdown.*mapValueTo*     | <sub>Function/String</sub>   |                                             | if whitelist is an Array of Objects:<br>Ex. `[{value:'foo', email:'foo@a.com'},...]`)<br> this setting controlls which data <em>key</em> will be printed in the dropdown.<br> Ex.1: `mapValueTo: data => "To:" + data.email`<br>Ex.2: `mapValueTo: "email"`
+dropdown.*searchKeys*     | <sub>Array</sub>             | <sub>`["value", "searchBy"]`</sub>          | When a user types something and trying to match the whitelist items for suggestions, this setting allows matching other keys of a whitelist objects
+dropdown.*appendTarget*   | <sub>HTMLNode</sub>          | `document.body`                             | Target-Node which the *suggestions dropdown* is appended to (*only when rendered*)

@@ -1,6 +1,6 @@
 {
     "name": "@yaireo/tagify",
-    "version": "3.20.2",
+    "version": "3.21.5",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "lightweight, efficient Tags input component in Vanilla JS / React / Angular [super customizable, tiny size & top performance]",
     "keywords": [
@@ -15,6 +15,13 @@
         "name": "vsync",
         "email": "vsync.design@gmail.com"
     },
+    "browserslist": [
+        ">1%",
+        "not dead",
+        "not ie < 11",
+        "not IE_Mob 11",
+        "not op_mini all"
+    ],
     "scripts": {
         "start": "npx gulp@4.0.2",
         "test": "jest",
@@ -36,6 +43,13 @@
     },
     "bugs": {
         "url": "https://github.com/yaireo/tagify/issues"
+    },
+    "files": [
+        "/dist",
+        "/src/tagify.scss"
+    ],
+    "peerDependencies": {
+        "prop-types": "^15.7.2"
     },
     "devDependencies": {
         "@babel/core": "^7.5.5",
