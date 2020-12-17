@@ -346,6 +346,8 @@ export default {
                         return true
                     }
                     case 'Enter' : {
+                        // Chrome for Mac sends Enter key event with keyCode 229 during IME composition
+                        if( e.keyCode == 229 ) return;
                         e.preventDefault();
                         this.dropdown.selectOption.call(this, activeListElm)
                         break;

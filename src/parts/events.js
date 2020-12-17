@@ -681,6 +681,8 @@ export default {
                     tagElm.innerHTML = tagElm.__tagifyTagData.__originalHTML
                 case 'Enter' :
                 case 'Tab' :
+                    // Chrome for Mac sends Enter key event with keyCode 229 during IME composition
+                    if( e.keyCode == 229 ) return;
                     e.preventDefault()
                     e.target.blur()
             }
