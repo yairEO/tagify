@@ -30,6 +30,7 @@ function Tagify( input, settings ){
     this.state = {
         inputText: '',
         editing : false,
+        composing: false,
         actions : {},   // UI actions for state-locking
         mixMode : {},
         dropdown: {},
