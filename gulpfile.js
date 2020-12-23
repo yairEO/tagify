@@ -197,6 +197,7 @@ const build = gulp.series(gulp.parallel(js, scss, polyfills), jquery, react)
 
 exports.default = gulp.parallel(build, watch)
 exports.js = js
+exports.build = build
 exports.react = react
 exports.jquery = jquery
 exports.patch = gulp.series(inc('patch'), addBanner, gitTag)    // () => inc('patch')

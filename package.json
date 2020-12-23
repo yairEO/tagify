@@ -22,9 +22,15 @@
         "not IE_Mob 11",
         "not op_mini all"
     ],
+    "np": {
+        "yarn": false,
+        "contents": "dist",
+        "yolo": true
+    },
     "scripts": {
         "start": "npx gulp@4.0.2",
-        "test": "jest",
+        "prepublishOnly": "npm run gulp build && git add . && git commit -am '[BUILD]' && pkg-ok",
+        "test": "echo \"No test specified\"",
         "serve": "npx http-server -o index.html -c-1",
         "push": "git push origin",
         "push:tags": "git push origin --tags"
