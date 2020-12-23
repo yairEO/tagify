@@ -63,8 +63,6 @@ Tagify.prototype = {
         notAllowed : "not allowed"
     },
 
-    DEFAULTS,
-
     customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch'],
 
     trim(text){
@@ -82,9 +80,10 @@ Tagify.prototype = {
     },
 
     applySettings( input, settings ){
-        this.DEFAULTS.templates = this.templates;
+        DEFAULTS.templates = this.templates
 
-        var _s = this.settings = extend({}, this.DEFAULTS, settings);
+        var _s = this.settings = extend({}, DEFAULTS, settings)
+
         _s.readonly = input.hasAttribute('readonly') // if "readonly" do not include an "input" element inside the Tags component
         _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || ""
         _s.required = input.hasAttribute('required')
@@ -103,7 +102,7 @@ Tagify.prototype = {
 
         // backward-compatibility for old version of "autoComplete" setting:
         if( "autoComplete" in settings && !isObject(settings.autoComplete) ){
-            _s.autoComplete = this.DEFAULTS.autoComplete
+            _s.autoComplete = DEFAULTS.autoComplete
             _s.autoComplete.enabled = settings.autoComplete
         }
 

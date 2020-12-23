@@ -130,8 +130,8 @@ export function extend( o, o1, o2) {
                 }
 
                 if( isArray(b[key]) ){
-                    a[key] = (isArray(a[key]) ? a[key] : []).concat(b[key])
-                    continue;
+                    a[key] = Object.assign([], b[key])
+                    continue
                 }
 
                 a[key] = b[key]
