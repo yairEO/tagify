@@ -1233,8 +1233,8 @@ Tagify.prototype = {
         var tagElm,
             templateData = extend({}, tagData, { value:escapeHTML(tagData.value+"") });
 
-        if( this.settings.readonly )
-            tagData.readonly = true
+        // if( this.settings.readonly )
+        //     tagData.readonly = true
 
         tagElm = this.parseTemplate('tag', [templateData])
 
