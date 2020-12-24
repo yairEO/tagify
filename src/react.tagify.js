@@ -1,4 +1,4 @@
-import React, {useMemo, useEffect, useRef} from "react"
+import React, {useMemo, useEffect, useRef, useCallback} from "react"
 import {renderToStaticMarkup} from "react-dom/server"
 import {string, array, func, bool, object, element, oneOfType} from "prop-types"
 import Tagify from "./tagify.min.js"
@@ -69,6 +69,10 @@ const TagifyWrapper = ({
         defaultValue
     }), [])
 
+    const setFocus = useCallback(() => {
+        autoFocus && tagify.current && tagify.current.DOM.input.focus()
+    }, [tagify])
+
     useEffect(() => {
         templatesToString(settings.templates)
 
@@ -98,11 +102,17 @@ const TagifyWrapper = ({
 
         tagify.current = t
 
+        setFocus()
+
         // cleanup
         return () => {
             t.destroy()
         }
     }, [])
+
+    useEffect(() => {
+        setFocus()
+    }, [autoFocus])
 
     useEffect(() => {
         if (mountedRef.current) {
