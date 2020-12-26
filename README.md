@@ -353,6 +353,7 @@ expanding the search of any typed terms to more than the `value` property of the
 ## Mixed-Content
 
 > To use this feature it must be toggled - see [settings](#settings).
+> full [demo here](https://yaireo.github.io/tagify/#section-mix)
 
 When mixing text with tags, the original textarea (or input) element will have a value as follows:
 
@@ -666,7 +667,7 @@ function onTagifyKeyDown(e){
 * [Allow max length on mix mode](https://github.com/yairEO/tagify/issues/252)
 * [Always show dropdown](https://github.com/yairEO/tagify/issues/253)
 * [Limit the length of a tag value (minimum & maximum)](https://github.com/yairEO/tagify/issues/245)
-* [Mixed mode initial value](https://github.com/yairEO/tagify/issues/237)
+* [*Mixed mode* initial value](https://github.com/yairEO/tagify/issues/237)
 * [Random colors for each tag](https://github.com/yairEO/tagify/issues/223)
 * [Format input value for server side](https://github.com/yairEO/tagify/issues/220)
 * [Writing to tagify textarea](https://github.com/yairEO/tagify/issues/294)
@@ -677,6 +678,7 @@ function onTagifyKeyDown(e){
 * [Ajax Whitelist with "enforceWhitelist" setting enabled](https://github.com/yairEO/tagify/issues/465)
 * [Custom (multiple) tag validation & AJAX](https://github.com/yairEO/tagify/issues/474)
 * [Make tags from pasted multi-line text](https://github.com/yairEO/tagify/issues/160)
+* [Add a tag at *caret* position in *mixed mode*](https://github.com/yairEO/tagify/issues/524#issuecomment-699140465)
 
 ## CSS Variables
 
