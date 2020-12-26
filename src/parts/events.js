@@ -235,6 +235,11 @@ export default {
                             return
                         }
 
+                        if( sel.type != 'Range' && !sel.anchorOffset && sel.anchorNode == this.DOM.input && e.key != 'Delete' ){
+                            e.preventDefault()
+                            return
+                        }
+
                         if( sel.type != 'Range' && tagElmToBeDeleted && tagElmToBeDeleted.hasAttribute('readonly') ){
                             // allows the continuation of deletion by placing the caret on the first previous textNode.
                             // since a few readonly-tags might be one after the other, iteration is needed:
