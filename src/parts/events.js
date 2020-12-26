@@ -86,7 +86,6 @@ export default {
                 eventData = {relatedTarget:e.relatedTarget},
                 isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
                 isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
-                selection = window.getSelection(),
                 shouldAddTags;
 
             if( type == 'blur' ){
@@ -117,15 +116,7 @@ export default {
                     this.dropdown.hide.call(this)
                     // reset state which needs reseting
                     this.state.dropdown.visible = undefined
-
-                    // save last selection place to be able to inject anything from outside to that specific place
-                    this.state.selection = {
-                        anchorOffset : selection.anchorOffset,
-                        anchorNode: selection.anchorNode
-                    }
-
-                    if (selection.getRangeAt && selection.rangeCount)
-                        this.state.selection.range = selection.getRangeAt(0)
+                    this.setStateSelection()
                 }
 
                 return

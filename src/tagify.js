@@ -156,6 +156,20 @@ Tagify.prototype = {
         return s;
     },
 
+    setStateSelection(){
+        var selection = window.getSelection()
+
+        // save last selection place to be able to inject anything from outside to that specific place
+        var sel = {
+            anchorOffset: selection.anchorOffset,
+            anchorNode  : selection.anchorNode,
+            range       : selection.getRangeAt && selection.rangeCount && selection.getRangeAt(0)
+        }
+
+        this.state.selection = sel
+        return sel
+    },
+
     /**
      * Get the caret position relative to the viewport
      * https://stackoverflow.com/q/58985076/104380
@@ -364,7 +378,6 @@ Tagify.prototype = {
             ? document.createTextNode(newNode)
             : newNode
 
-        tagElm.appendChild(newNode)
         tagElm.parentNode.insertBefore(newNode, tagElm.nextSibling)
         return newNode
     },
@@ -533,7 +546,7 @@ Tagify.prototype = {
     /**
      * injects nodes/text at caret position, which is saved on the "state" when "blur" event gets triggered
      * @param {Node} injectedNode [the node to inject at the caret position]
-     * @param {Object} selection [optional selection Object. must have "anchorNode" & "anchorOffset"]
+     * @param {Object} selection [optional range Object. must have "anchorNode" & "anchorOffset"]
      */
     injectAtCaret( injectedNode, range ){
         range = range || this.state.selection.range
@@ -1175,19 +1188,60 @@ Tagify.prototype = {
 
     /**
      * Adds a mix-content tag
-     * @param {String/Array} tagsItems   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
+     * @param {String/Array} tagData    A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings
      */
-    addMixTags( tagsItems ){
+    addMixTags( tagsData ){
+        if( tagsData[0].prefix || this.state.tag ){
+            this.prefixedTextToTag(tagsData[0])
+            return
+        }
+
+        if( typeof tagsData == 'string' )
+            tagsData = [{ value:tagsData }]
+
+
+        var selection = !!this.state.selection, // must be cast, not to use the reference which is changing
+            frag = document.createDocumentFragment()
+
+        tagsData.forEach(tagData => {
+            var tagElm = this.createTagElem(tagData)
+            frag.appendChild(tagElm)
+            this.insertAfterTag(tagElm)
+        })
+
+        // if "selection" exists, assumes intention of inecting the new tag at the last
+        // saved location of the caret inside "this.DOM.input"
+        if( selection ){
+            this.injectAtCaret(frag)
+        }
+        // else, create a range and inject the new tag as the last child of "this.DOM.input"
+        else{
+            this.DOM.input.focus()
+            selection = this.setStateSelection()
+            selection.range.setStart(this.DOM.input, selection.range.endOffset)
+            selection.range.setEnd(this.DOM.input, selection.range.endOffset)
+            this.DOM.input.appendChild(frag)
+
+            this.updateValueByDOMTags() // updates internal "this.value"
+            this.update() // updates original input/textarea
+        }
+    },
+
+    /**
+     * Adds a tag which was activly typed by the user
+     * @param {String/Array} tagsItem   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
+     */
+    prefixedTextToTag( tagsItem ){
         var _s = this.settings,
             tagElm,
             createdFromDelimiters = this.state.tag.delimiters
 
-        _s.transformTag.call(this, tagsItems[0])
+        _s.transformTag.call(this, tagsItem)
 
-        tagsItems[0].prefix = tagsItems[0].prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0];
+        tagsItem.prefix = tagsItem.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0];
 
         // TODO: should check if the tag is valid
-        tagElm = this.createTagElem(tagsItems[0])
+        tagElm = this.createTagElem(tagsItem)
 
         // tries to replace a taged textNode with a tagElm, and if not able,
         // insert the new tag to the END if "addTags" was called from outside
@@ -1197,7 +1251,7 @@ Tagify.prototype = {
 
         setTimeout(()=> tagElm.classList.add(this.settings.classNames.tagNoAnimation), 300)
 
-        this.value.push(tagsItems[0])
+        this.value.push(tagsItem)
         this.update()
 
         // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
@@ -1207,7 +1261,7 @@ Tagify.prototype = {
         }, this.isFirefox ? 100 : 0)
 
         this.state.tag = null
-        this.trigger('add', extend({}, {tag:tagElm}, {data:tagsItems[0]}))
+        this.trigger('add', extend({}, {tag:tagElm}, {data:tagsItem}))
 
         return tagElm
     },
