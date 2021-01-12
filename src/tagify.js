@@ -899,7 +899,7 @@ Tagify.prototype = {
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
             isArray = tagsItems instanceof Array,
-            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ [tagTextProp]:this.trim(v) }))
+            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ [tagTextProp]:this.trim(v), value:this.trim(v) }))
 
         if( typeof tagsItems == 'number' )
             tagsItems = tagsItems.toString()
@@ -1104,7 +1104,7 @@ Tagify.prototype = {
         var tagElems = [], _s = this.settings;
 
         if( !tagsItems || tagsItems.length == 0 ){
-            // is mode is "select" clean all tags
+            // is mode is "select" clean all tagsargument of
             if( _s.mode == 'select' )
                 this.removeAllTags()
             return tagElems
