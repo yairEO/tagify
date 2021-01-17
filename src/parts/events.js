@@ -323,8 +323,9 @@ export default {
                     break
                 }
                 case 'Tab' : {
-                    s && e.preventDefault()
-                    if( !s || this.settings.mode == 'select' ) return true;
+                    let selectMode = this.settings.mode == 'select'
+                    if(s && !selectMode) e.preventDefault()
+                    else return true;
                 }
 
                 case 'Enter' :
