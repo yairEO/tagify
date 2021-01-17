@@ -355,7 +355,7 @@ Tagify.prototype = {
     },
 
     placeCaretAfterNode( node ){
-        if( !node ) return
+        if( !node || !node.parentNode ) return
 
         var nextSibling = node.nextSibling,
             sel = window.getSelection(),
@@ -372,7 +372,7 @@ Tagify.prototype = {
     insertAfterTag( tagElm, newNode ){
         newNode = newNode || this.settings.mixMode.insertAfterTag;
 
-        if( !tagElm || !newNode ) return
+        if( !tagElm || !tagElm.parentNode || !newNode ) return
 
         newNode = typeof newNode == 'string'
             ? document.createTextNode(newNode)
@@ -1199,7 +1199,6 @@ Tagify.prototype = {
         if( typeof tagsData == 'string' )
             tagsData = [{ value:tagsData }]
 
-
         var selection = !!this.state.selection, // must be cast, not to use the reference which is changing
             frag = document.createDocumentFragment()
 
@@ -1254,11 +1253,10 @@ Tagify.prototype = {
         this.value.push(tagsItem)
         this.update()
 
-        // fixes a firefox bug where if the last child of the input is a tag and not a text, the input cannot get focus (by Tab key)
-        !createdFromDelimiters && setTimeout(() => {
+        if( !createdFromDelimiters ) {
             var elm = this.insertAfterTag(tagElm) || tagElm;
             this.placeCaretAfterNode(elm)
-        }, this.isFirefox ? 100 : 0)
+        }
 
         this.state.tag = null
         this.trigger('add', extend({}, {tag:tagElm}, {data:tagsItem}))
