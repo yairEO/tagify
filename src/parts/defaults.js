@@ -32,6 +32,8 @@ export default {
 
     classNames: {
         namespace          : 'tagify',
+        mixMode            : 'tagify--mix',
+        selectMode         : 'tagify--select',
         input              : 'tagify__input',
         focus              : 'tagify--focus',
         tag                : 'tagify__tag',

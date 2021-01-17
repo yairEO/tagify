@@ -4,16 +4,16 @@ export default {
      * @param {DOM Object} input     Original input DOm element
      * @param {Object}     settings  Tagify instance settings Object
      */
-    wrapper(input, settings){
-        return `<tags class="${settings.classNames.namespace} ${settings.mode ? `${settings.classNames.namespace}--${settings.mode}` : ""} ${input.className}"
-                    ${settings.readonly ? 'readonly' : ''}
-                    ${settings.required ? 'required' : ''}
+    wrapper(input, _s){
+        return `<tags class="${_s.classNames.namespace} ${_s.mode ? `${_s.classNames[_s.mode + "Mode"]}` : ""} ${input.className}"
+                    ${_s.readonly ? 'readonly' : ''}
+                    ${_s.required ? 'required' : ''}
                     tabIndex="-1">
-            <span ${!settings.readonly || settings.mode != 'mix' ? 'contenteditable' : ''} data-placeholder="${settings.placeholder || '&#8203;'}" aria-placeholder="${settings.placeholder || ''}"
-                class="${settings.classNames.input}"
+            <span ${!_s.readonly || _s.mode != 'mix' ? 'contenteditable' : ''} data-placeholder="${_s.placeholder || '&#8203;'}" aria-placeholder="${_s.placeholder || ''}"
+                class="${_s.classNames.input}"
                 role="textbox"
                 aria-autocomplete="both"
-                aria-multiline="${settings.mode=='mix'?true:false}"></span>
+                aria-multiline="${_s.mode=='mix'?true:false}"></span>
         </tags>`
     },
 
