@@ -200,10 +200,9 @@ export default {
         value = value || this.state.dropdown.query || ''
         this.suggestedListItems = this.dropdown.filterListItems.call(this, value)
 
-        if( this.suggestedListItems.length ){
-            this.dropdown.fill.call(this)
-        }
-        else
+        this.dropdown.fill.call(this)
+
+        if( !this.suggestedListItems.length )
             this.dropdown.hide.call(this)
 
         this.trigger("dropdown:updated", this.DOM.dropdown)
