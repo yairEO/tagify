@@ -546,8 +546,11 @@ export default {
         for( ; i < whitelist.length; i++ ){
             whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
 
+            let itemWithoutSearchKeys = !Object.keys(whitelistItem).some(k => searchKeys.includes(k) ),
+                _searchKeys = itemWithoutSearchKeys ? ["value"] : searchKeys
+
             if( _sd.fuzzySearch && !options.exact ){
-                searchBy = searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
+                searchBy = _searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
 
                 if( _sd.accentedSearch ){
                     searchBy = unaccent(searchBy)
@@ -558,7 +561,7 @@ export default {
             }
 
             else {
-                valueIsInWhitelist = searchKeys.some(k => {
+                valueIsInWhitelist = _searchKeys.some(k => {
                     var v = '' + (whitelistItem[k] || '') // if key exists, cast to type String
 
                     if( _sd.accentedSearch ){
