@@ -377,7 +377,8 @@ export default {
             },
 
             onClick(e){
-                if( e.button != 0 || e.target == this.DOM.dropdown ) return; // allow only mouse left-clicks
+                if( e.button != 0 || e.target == this.DOM.dropdown) return; // allow only mouse left-clicks
+                if( e.target.classList.contains(this.settings.classNames.dropdownWrapper)) return; // if the suggestion list is long, you still want to click on the scroller
 
                 var listItemElm = e.target.closest('.' + this.settings.classNames.dropdownItem)
 
