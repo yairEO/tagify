@@ -88,6 +88,11 @@ Tagify.prototype = {
         _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || ""
         _s.required = input.hasAttribute('required')
 
+        for( let name in _s.classNames )
+            Object.defineProperty(_s.classNames, name + "Selector" , {
+                get(){ return "."+this[name].split(" ").join(".") }
+            })
+
         if( this.isIE )
             _s.autoComplete = false; // IE goes crazy if this isn't false
 
@@ -238,7 +243,7 @@ Tagify.prototype = {
         else {
             DOM.originalInput = input
             DOM.scope = this.parseTemplate('wrapper', [input, this.settings])
-            DOM.input = DOM.scope.querySelector('.' + this.settings.classNames.input)
+            DOM.input = DOM.scope.querySelector(this.settings.classNames.inputSelector)
             input.parentNode.insertBefore(DOM.scope, input)
         }
 
@@ -395,7 +400,7 @@ Tagify.prototype = {
         var _s = this.settings;
 
         function getEditableElm(){
-            return tagElm.querySelector('.' + _s.classNames.tagText)
+            return tagElm.querySelector(_s.classNames.tagTextSelector)
         }
 
         var editableElm = getEditableElm(),
@@ -409,7 +414,7 @@ Tagify.prototype = {
             }
 
         if( !editableElm ){
-            console.warn('Cannot find element in Tag template: .', _s.classNames.tagText);
+            console.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
             return;
         }
 
@@ -515,7 +520,7 @@ Tagify.prototype = {
         this.value.length = 0;
 
         [].forEach.call(this.getTagElms(), node => {
-            if( node.classList.contains(this.settings.classNames.tagNotAllowed) ) return
+            if( node.classList.contains(this.settings.classNames.tagNotAllowed.split(' ')[0]) ) return
             this.value.push( this.tagData(node) )
         })
 
@@ -697,7 +702,7 @@ Tagify.prototype = {
     },
 
     getTagElms( ...classess ){
-        var classname = ['.' + this.settings.classNames.tag, ...classess].join('.')
+        var classname = '.' + [...this.settings.classNames.tag.split(' '), ...classess].join('.')
         return [].slice.call(this.DOM.scope.querySelectorAll(classname)) // convert nodeList to Array - https://stackoverflow.com/a/3199627/104380
     },
 
@@ -705,7 +710,7 @@ Tagify.prototype = {
      * gets the last non-readonly, not-in-the-proccess-of-removal tag
      */
     getLastTag(){
-        var lastTag = this.DOM.scope.querySelectorAll(`.${this.settings.classNames.tag}:not(.${this.settings.classNames.tagHide}):not([readonly])`);
+        var lastTag = this.DOM.scope.querySelectorAll(`${this.settings.classNames.tagSelector}:not(.${this.settings.classNames.tagHide}):not([readonly])`);
         return lastTag[lastTag.length - 1];
     },
 
@@ -1305,7 +1310,7 @@ Tagify.prototype = {
      */
     reCheckInvalidTags(){
         var _s = this.settings,
-            selector = `.${_s.classNames.tag}.${_s.classNames.tagNotAllowed}`,
+            selector = `${_s.classNames.tagSelector}${_s.classNames.tagNotAllowedSelector}`,
             tagElms = this.DOM.scope.querySelectorAll(selector);
 
         [].forEach.call(tagElms, node => {

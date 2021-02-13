@@ -3,7 +3,7 @@ import { sameStr, isObject, minify, escapeHTML, extend, unaccent, getNodeHeight 
 export default {
     init(){
         this.DOM.dropdown = this.parseTemplate('dropdown', [this.settings])
-        this.DOM.dropdown.content = this.DOM.dropdown.querySelector('.' + this.settings.classNames.dropdownWrapper)
+        this.DOM.dropdown.content = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownWrapperSelector)
     },
 
     /**
@@ -301,7 +301,7 @@ export default {
         callbacks : {
             onKeyDown(e){
                 // get the "active" element, and if there was none (yet) active, use first child
-                var activeListElm = this.DOM.dropdown.querySelector("." + this.settings.classNames.dropdownItemActive),
+                var activeListElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
                     selectedElm = activeListElm;
 
                 switch( e.key ){
@@ -365,7 +365,7 @@ export default {
             },
 
             onMouseOver(e){
-                var ddItem = e.target.closest('.' + this.settings.classNames.dropdownItem)
+                var ddItem = e.target.closest(this.settings.classNames.dropdownItemSelector)
                 // event delegation check
                 ddItem && this.dropdown.highlightOption.call(this, ddItem)
             },
@@ -378,7 +378,7 @@ export default {
             onClick(e){
                 if( e.button != 0 || e.target == this.DOM.dropdown ) return; // allow only mouse left-clicks
 
-                var listItemElm = e.target.closest('.' + this.settings.classNames.dropdownItem)
+                var listItemElm = e.target.closest(this.settings.classNames.dropdownItemSelector)
 
                 // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
                 this.state.actions.selectOption = true;
