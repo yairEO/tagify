@@ -376,7 +376,7 @@ export default {
             },
 
             onClick(e){
-                if( e.button != 0 || e.target == this.DOM.dropdown ) return; // allow only mouse left-clicks
+                if( e.button != 0 || e.target == this.DOM.dropdown || e.target == this.DOM.dropdown.content ) return; // allow only mouse left-clicks
 
                 var listItemElm = e.target.closest(this.settings.classNames.dropdownItemSelector)
 
