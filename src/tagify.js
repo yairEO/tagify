@@ -583,7 +583,7 @@ Tagify.prototype = {
             this.state.inputText = s
 
             if( updateDOM )
-                this.DOM.input.innerHTML = escapeHTML(s);
+                this.DOM.input.innerHTML = escapeHTML(""+s);
 
             if( !s && hideDropdown )
                 this.dropdown.hide.bind(this)
