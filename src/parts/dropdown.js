@@ -337,9 +337,10 @@ export default {
                         if( this.settings.mode != 'mix' && selectedElm && !this.settings.autoComplete.rightKey && !this.state.editing ){
                             e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
                             var tagifySuggestionIdx = selectedElm.getAttribute('tagifySuggestionIdx'),
-                                data = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '';
+                                data = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '',
+                                value = this.dropdown.getMappedValue.call(this, data)
 
-                            this.input.autocomplete.set.call(this, data.value || data)
+                            this.input.autocomplete.set.call(this, value)
                             return false
                         }
                         return true
@@ -587,6 +588,20 @@ export default {
     },
 
     /**
+     * Returns the final value of a tag data (object) with regards to the "mapValueTo" dropdown setting
+     * @param {Object} tagData
+     * @returns
+     */
+    getMappedValue(tagData){
+        var mapValueTo = this.settings.dropdown.mapValueTo,
+            value = (mapValueTo
+                ? typeof mapValueTo == 'function' ? mapValueTo(tagData) : (tagData[mapValueTo] || tagData.value)
+                : tagData.value);
+
+        return value
+    },
+
+    /**
      * Creates the dropdown items' HTML
      * @param  {Array} list  [Array of Objects]
      * @return {String}
@@ -596,17 +611,13 @@ export default {
             if( typeof suggestion == 'string' || typeof suggestion == 'number' )
                 suggestion = {value:suggestion}
 
-            var mapValueTo = this.settings.dropdown.mapValueTo,
-                value = (mapValueTo
-                    ? typeof mapValueTo == 'function' ? mapValueTo(suggestion) : (suggestion[mapValueTo] || suggestion.value)
-                    : suggestion.value);
+            var value = this.dropdown.getMappedValue.call(this, suggestion)
 
             suggestion.value = value && typeof value == 'string'
                 ? escapeHTML(value)
                 : value
 
             var tagHTMLString = this.settings.templates.dropdownItem.call(this, suggestion)
-
 
             // make sure the sugestion index is present as attribute, to match the data when one is selected
             tagHTMLString = tagHTMLString
