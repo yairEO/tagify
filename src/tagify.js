@@ -267,7 +267,7 @@ Tagify.prototype = {
             : this.DOM.originalInput.value)
 
         if( value ){
-            this.removeAllTags()
+            this.removeAllTags({ withoutChangeEvent:true })
 
             if( _s.mode == 'mix' ){
                 this.parseMixTags(value.trim())
@@ -1437,7 +1437,7 @@ Tagify.prototype = {
             .catch(reason => {})
     },
 
-    removeAllTags(){
+    removeAllTags({ withoutChangeEvent }){
         this.value = []
 
         if( this.settings.mode == 'mix' )
@@ -1450,7 +1450,7 @@ Tagify.prototype = {
         if( this.settings.mode == 'select' )
             this.input.set.call(this)
 
-        this.update()
+        this.update({withoutChangeEvent})
     },
 
     postUpdate(){
