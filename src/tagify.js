@@ -1442,7 +1442,8 @@ Tagify.prototype = {
             .catch(reason => {})
     },
 
-    removeAllTags({ withoutChangeEvent }){
+    removeAllTags( opts ){
+        var withoutChangeEvent = opts || {}
         this.value = []
 
         if( this.settings.mode == 'mix' )
@@ -1455,7 +1456,7 @@ Tagify.prototype = {
         if( this.settings.mode == 'select' )
             this.input.set.call(this)
 
-        this.update({withoutChangeEvent})
+        this.update({ withoutChangeEvent })
     },
 
     postUpdate(){
