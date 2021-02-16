@@ -22,8 +22,12 @@ export default function EventDispatcher( instance ){
             return this
         },
 
-        trigger(eventName, data){
+        trigger(eventName, data, opts){
             var e;
+
+            opts = opts || {
+                cloneData:true
+            }
 
             if( !eventName ) return;
 
@@ -33,7 +37,11 @@ export default function EventDispatcher( instance ){
             }
             else{
                 try {
-                    var eventData = extend({}, (typeof data === 'object' ? data : {value:data}))
+                    var eventData = typeof data === 'object'
+                        ? data
+                        : {value:data};
+
+                    eventData = opts.cloneData ? extend({}, eventData) : eventData
                     eventData.tagify = this
 
                     // TODO: move the below to the "extend" function

@@ -469,9 +469,14 @@ Tagify.prototype = {
         tagElm = tagElm || this.state.editing.scope
         tagData = tagData || {}
 
-        var eventData = { tag:tagElm, index:this.getNodeIndex(tagElm), previousData:this.tagData(tagElm), data:tagData };
+        var eventData = {
+            tag         : tagElm,
+            index       : this.getNodeIndex(tagElm),
+            previousData: this.tagData(tagElm),
+            data        : tagData
+        }
 
-        this.trigger("edit:beforeUpdate", eventData)
+        this.trigger("edit:beforeUpdate", eventData, {cloneData:false})
 
         this.state.editing = false;
         delete tagData.__originalData
