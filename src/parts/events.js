@@ -643,7 +643,7 @@ export default {
                 return
             }
 
-            newTagData = this.getWhitelistItem(textValue) || {[_s.tagTextProp]:textValue, value:textValue}
+            newTagData = this.getWhitelistItem(textValue) || extend({}, originalData, {[_s.tagTextProp]:textValue, value:textValue})
 
             _s.transformTag.call(this, newTagData, originalData)
 
