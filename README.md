@@ -47,7 +47,7 @@
 * [Tags mixed with text](#mixed-content)
 * [Single-Value Only](#single-value)
 * [React wrapper](#react)
-* [Angular wrapper](#angular)
+* [Angular wrapper](https://github.com/Brakebein/ngx-tagify)
 * [Vue Example](https://codesandbox.io/s/tagify-tags-component-vue-example-l8ok4)
 * [jQuery version](#jquery-version)
 * [FAQ](#FAQ)
@@ -451,71 +451,6 @@ onBlur                  | <sub>Function</sub>       |           | See [*events* 
 </details>
 
 ---
-
-
-
-## Angular
-
-**TagifyComponent** which will be used by your template as `<tagify>`
-
-<details>
-  <summary>Example:</summary>
-
-```
-<div>
-  testing tagify wrapper
-  <tagify [settings]="settings"
-          (add)="onAdd($event)"
-          (remove)="onRemove($event)">
-  </tagify>
-  <button (click)="clearTags()">clear</button>
-  <button (click)="addTags()">add Tags</button>
-</div>
-```
-</details>
-
-**TagifyService**
-
-> (The tagifyService is a singletone injected by angular, do not create a new instance of it)
-Remember to add `TagifyService` to your module definition.
-
-<details>
-  <summary>Example:</summary>
-
-```typescript
-import {Component, OnDestroy} from '@angular/core';
-import {TagifyService} from '@yaireo/tagify';
-
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent implements OnDestroy {
-
-  constructor(private tagifyService: TagifyService) {}
-  public settings = { blacklist: ['fucking', 'shit']};
-
-  onAdd(tagify) {
-    console.log('added a tag', tagify);
-  }
-
-  onRemove(tags) {
-    console.log('removed a tag', tags);
-  }
-  clearTags() {
-    this.tagifyService.removeAll();
-  }
-  addTags() {
-    this.tagifyService.addTags(['this', 'is', 'cool']);
-  }
-  ngOnDestroy() {
-    this.tagifyService.destroy();
-  }
-}
-```
-</details>
-
 
 
 ## jQuery version
