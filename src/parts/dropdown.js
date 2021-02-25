@@ -209,13 +209,16 @@ export default {
     },
 
     position( ddHeight ){
-        if( this.settings.dropdown.position == 'manual' ) return
+        var _sd = this.settings.dropdown;
 
-        var placeAbove, rect, top, bottom, left, width, parentsPositions,
+        if( _sd.position == 'manual' ) return
+
+        var rect, top, bottom, left, width, parentsPositions,
             ddElm = this.DOM.dropdown,
+            placeAbove = _sd.placeAbove,
             viewportHeight = document.documentElement.clientHeight,
             viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0),
-            positionTo = viewportWidth > 480 ? this.settings.dropdown.position : 'all',
+            positionTo = viewportWidth > 480 ? _sd.position : 'all',
             ddTarget = this.DOM[positionTo == 'input' ? 'input' : 'scope'];
 
         ddHeight = ddHeight || ddElm.clientHeight
@@ -247,7 +250,7 @@ export default {
             parentsPositions = getParentsPositions(this.settings.dropdown.appendTarget)
             rect   = ddTarget.getBoundingClientRect()
 
-            top    = rect.top + 2 - parentsPositions.top
+            top    = rect.top - parentsPositions.top
             bottom = rect.bottom - 1 - parentsPositions.top
             left   = rect.left - parentsPositions.left
             width  = rect.width + 'px'
@@ -256,7 +259,9 @@ export default {
         top = Math.floor(top)
         bottom = Math.ceil(bottom)
 
-        placeAbove = viewportHeight - rect.bottom < ddHeight
+        placeAbove = placeAbove === undefined
+            ? viewportHeight - rect.bottom < ddHeight
+            : placeAbove
 
         // flip vertically if there is no space for the dropdown below the input
         ddElm.style.cssText = "left:"  + (left + window.pageXOffset) + "px; width:" + width + ";" + (placeAbove
