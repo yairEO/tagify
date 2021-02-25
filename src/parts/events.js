@@ -177,7 +177,7 @@ export default {
                             tagElmToBeDeleted,
                             firstTextNodeBeforeTag;
 
-                        if( isChromeAndroidBrowser && isCaretAfterTag ){
+                        if( isChromeAndroidBrowser() && isCaretAfterTag ){
                             firstTextNodeBeforeTag = getfirstTextNode(isCaretAfterTag)
 
                             if( !isCaretAfterTag.hasAttribute('readonly') )
@@ -254,7 +254,7 @@ export default {
                                 prevElm = sel.anchorNode.previousElementSibling;
 
                             // fixes #384, where the first and only tag will not get removed with backspace
-                            if( !isChromeAndroidBrowser && currentValue.length >= lastInputValue.length && prevElm && !prevElm.hasAttribute('readonly') ){
+                            if( !isChromeAndroidBrowser() && currentValue.length >= lastInputValue.length && prevElm && !prevElm.hasAttribute('readonly') ){
                                 this.removeTags(prevElm)
                                 this.fixFirefoxLastTagNoCaret()
 
@@ -385,7 +385,7 @@ export default {
 
             // Android Chrome "keydown" event argument does not report the correct "key".
             // this workaround is needed to manually call "onKeydown" method with a synthesized event object
-            if( e.inputType == "deleteContentBackward" && isChromeAndroidBrowser ){
+            if( e.inputType == "deleteContentBackward" && isChromeAndroidBrowser() ){
                 this.events.callbacks.onKeydown.call(this, {
                     target: e.target,
                     key: "Backspace",
