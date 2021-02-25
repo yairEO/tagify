@@ -952,7 +952,7 @@ Tagify.prototype = {
                 if( matchObj && matchObj instanceof Object ){
                     whitelistMatches.push( matchObj ) // set the Array (with the found Object) as the new value
                 }
-                else if( mode != 'mix' && !enforceWhitelist ){
+                else if( mode != 'mix' ){
                     if( item.value == undefined )
                         item.value = item[tagTextProp]
                     whitelistMatches.push(item)
