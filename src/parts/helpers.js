@@ -170,4 +170,4 @@ export function getNodeHeight( node ){
     return height
 }
 
-export var isChromeAndroidBrowser = /(?=.*chrome)(?=.*android)/i.test(navigator.userAgent);
+export var isChromeAndroidBrowser = () => /(?=.*chrome)(?=.*android)/i.test(navigator.userAgent)
