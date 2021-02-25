@@ -72,7 +72,7 @@ function react(done){
     return gulp.src('src/react.tagify.js')
         .pipe( $.babel({ ...babelConfig, presets:[...babelConfig.presets, '@babel/preset-react'] }))
         .pipe( $.umd(umdConf) )
-        .pipe(opts.dev ? $.tap(()=>{}) : $.uglify())
+        .pipe(opts.dev ? $.tap(()=>{}) : $.terser())
         // .pipe($.headerComment(banner))
         .pipe( gulp.dest('./dist/') )
 }
@@ -93,7 +93,7 @@ function jquery(){
     return gulp.src('dist/tagify.min.js')
         .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
         .pipe($.rename('jQuery.tagify.min.js'))
-        // .pipe($.uglify())
+        // .pipe($.terser())
         // .pipe($.headerComment(banner))
         .pipe(gulp.dest('./dist/'))
 }
