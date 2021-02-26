@@ -543,6 +543,7 @@
             width: 100%;
             height: 100%;
             line-height: 1.5;
+            display: block; // needed to resolve this bug: https://bugs.chromium.org/p/chromium/issues/detail?id=1182621
 
             &::before{ height:auto; }
 
