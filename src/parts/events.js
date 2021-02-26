@@ -238,12 +238,17 @@ export default {
                             return
                         }
 
+                        // update regarding https://github.com/yairEO/tagify/issues/762#issuecomment-786464317:
+                        // the bug described is more severe than the fixed below, therefore I disable the fix until a solution
+                        // is found which work well for both cases.
+                        // -------
                         // nodeType is "1" only when the caret is at the end after last tag (no text after), or before first first (no text before)
-                        if( this.isFirefox && sel.anchorNode.nodeType == 1 && sel.anchorOffset != 0 ){
+                        if( false && this.isFirefox && sel.anchorNode.nodeType == 1 && sel.anchorOffset != 0 ){
                             this.removeTags() // removes last tag by default if no parameter supplied
                             // place caret inside last textNode, if exist. it's an annoying bug only in FF,
                             // if the last tag is removed, and there is a textNode before it, the caret is not placed at its end
                             this.placeCaretAfterNode( this.setRangeAtStartEnd() )
+
                         }
 
                         // a minimum delay is needed before the node actually gets detached from the document (don't know why),

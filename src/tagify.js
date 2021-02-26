@@ -693,7 +693,7 @@ Tagify.prototype = {
      * @param {Object} tagData
      */
     getTagIdx( tagData ){
-        return this.value.findIndex(item => item.value == tagData.value )
+        return this.value.findIndex(item => item.value == (tagData||{}).value )
     },
 
     getNodeIndex( node ){
