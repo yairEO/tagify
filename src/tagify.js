@@ -1448,7 +1448,7 @@ Tagify.prototype = {
     },
 
     removeAllTags( opts ){
-        var withoutChangeEvent = opts || {}
+        opts = opts || {}
         this.value = []
 
         if( this.settings.mode == 'mix' )
@@ -1461,7 +1461,9 @@ Tagify.prototype = {
         if( this.settings.mode == 'select' )
             this.input.set.call(this)
 
-        this.update({ withoutChangeEvent })
+        // technically for now only "withoutChangeEvent" exists in the opts.
+        // if more properties will be added later, only pass what's needed to "update"
+        this.update(opts)
     },
 
     postUpdate(){
