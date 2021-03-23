@@ -533,7 +533,7 @@ export default {
             niddle,
             i = 0;
 
-        if( !value || !searchKeys.length ){
+        if( !value || !searchKeys.length || _s.mode == 'select' ){
             return (_s.duplicates
                 ? whitelist
                 : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
