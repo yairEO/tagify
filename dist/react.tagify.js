@@ -34,7 +34,9 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
-const noop = _ => _; // if a template is a React component, it should be outputed as a String (and not as a React component)
+const noop = _ => _;
+
+const isSameDeep = (a, b) => JSON.stringify(a) == JSON.stringify(b); // if a template is a React component, it should be outputed as a String (and not as a React component)
 
 
 function templatesToString(templates) {
@@ -137,7 +139,7 @@ const TagifyWrapper = ({
     }
   }, [whitelist]);
   (0, _react.useEffect)(() => {
-    if (mountedRef.current) {
+    if (mountedRef.current && !isSameDeep(value, tagify.current.value)) {
       tagify.current.loadOriginalValues(value);
     }
   }, [value]);

@@ -5,6 +5,8 @@ import Tagify from "./tagify.min.js"
 
 const noop = _ => _
 
+const isSameDeep = (a,b) => JSON.stringify(a) == JSON.stringify(b)
+
 // if a template is a React component, it should be outputed as a String (and not as a React component)
 function templatesToString(templates) {
     if (templates) {
@@ -124,7 +126,7 @@ const TagifyWrapper = ({
     }, [whitelist])
 
     useEffect(() => {
-        if (mountedRef.current) {
+        if (mountedRef.current && !isSameDeep(value, tagify.current.value) ) {
             tagify.current.loadOriginalValues(value)
         }
     }, [value])
