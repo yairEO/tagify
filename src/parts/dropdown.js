@@ -14,7 +14,6 @@ export default {
         var _s = this.settings,
             firstListItem,
             firstListItemValue,
-            selection = window.getSelection(),
             allowNewTags = _s.mode == 'mix' && !_s.enforceWhitelist,
             noWhitelist =  !_s.whitelist || !_s.whitelist.length,
             noMatchListItem,
@@ -93,10 +92,7 @@ export default {
         this.state.dropdown.visible = value || true
         this.state.dropdown.query = value
 
-        this.state.selection = {
-            anchorOffset : selection.anchorOffset,
-            anchorNode: selection.anchorNode
-        }
+        this.setStateSelection()
 
         // try to positioning the dropdown (it might not yet be on the page, doesn't matter, next code handles this)
         if( !isManual ){
@@ -306,8 +302,8 @@ export default {
         callbacks : {
             onKeyDown(e){
                 // get the "active" element, and if there was none (yet) active, use first child
-                var activeListElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
-                    selectedElm = activeListElm;
+                var selectedElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
+                    selectedElmData = this.dropdown.getSuggestionDataByNode.call(this, selectedElm)
 
                 switch( e.key ){
                     case 'ArrowDown' :
@@ -326,6 +322,8 @@ export default {
                             selectedElm = dropdownItems[e.key == 'ArrowUp' || e.key == 'Up' ? dropdownItems.length - 1 : 0];
                         }
 
+                        selectedElmData = this.dropdown.getSuggestionDataByNode.call(this, selectedElm)
+
                         this.dropdown.highlightOption.call(this, selectedElm, true);
                         break;
                     }
@@ -341,9 +339,7 @@ export default {
                         // in mix-mode, treat arrowRight like Enter key, so a tag will be created
                         if( this.settings.mode != 'mix' && selectedElm && !this.settings.autoComplete.rightKey && !this.state.editing ){
                             e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
-                            var tagifySuggestionIdx = selectedElm.getAttribute('tagifySuggestionIdx'),
-                                data = tagifySuggestionIdx ? this.suggestedListItems[+tagifySuggestionIdx] : '',
-                                value = this.dropdown.getMappedValue.call(this, data)
+                            var value = this.dropdown.getMappedValue.call(this, selectedElmData)
 
                             this.input.autocomplete.set.call(this, value)
                             return false
@@ -351,8 +347,17 @@ export default {
                         return true
                     }
                     case 'Enter' : {
-                        e.preventDefault();
-                        this.dropdown.selectOption.call(this, activeListElm)
+                        e.preventDefault()
+
+                        this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
+                            .then(() => {
+                                if( selectedElm )
+                                    this.dropdown.selectOption.call(this, selectedElm)
+                                else
+                                    this.dropdown.hide.call(this)
+                            })
+                            .catch(err => err)
+
                         break;
                     }
                     case 'Backspace' : {
@@ -384,16 +389,17 @@ export default {
             onClick(e){
                 if( e.button != 0 || e.target == this.DOM.dropdown || e.target == this.DOM.dropdown.content ) return; // allow only mouse left-clicks
 
-                var listItemElm = e.target.closest(this.settings.classNames.dropdownItemSelector)
+                var selectedElm = e.target.closest(this.settings.classNames.dropdownItemSelector),
+                    selectedElmData = this.dropdown.getSuggestionDataByNode.call(this, selectedElm)
 
                 // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
                 this.state.actions.selectOption = true;
                 setTimeout(()=> this.state.actions.selectOption = false, 50)
 
-                this.settings.hooks.suggestionClick(e, {tagify:this, suggestionElm:listItemElm})
+                this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                     .then(() => {
-                        if( listItemElm )
-                            this.dropdown.selectOption.call(this, listItemElm)
+                        if( selectedElm )
+                            this.dropdown.selectOption.call(this, selectedElm)
                         else
                             this.dropdown.hide.call(this)
                     })
@@ -407,6 +413,11 @@ export default {
                 this.trigger("dropdown:scroll", {percentage:Math.round(pos)})
             },
         }
+    },
+
+    getSuggestionDataByNode( tagElm ){
+        var idx = tagElm ? +tagElm.getAttribute('tagifySuggestionIdx') : -1;
+        return this.suggestedListItems[idx] || null
     },
 
     /**
