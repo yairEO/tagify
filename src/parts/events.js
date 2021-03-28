@@ -1,5 +1,7 @@
 import { decode, extend, getfirstTextNode, isChromeAndroidBrowser } from './helpers'
 
+var deleteBackspaceTimeout;
+
 export function triggerChangeEvent(){
     if( this.settings.mixMode.integrated ) return;
 
@@ -251,9 +253,11 @@ export default {
 
                         }
 
+                        clearTimeout(deleteBackspaceTimeout)
                         // a minimum delay is needed before the node actually gets detached from the document (don't know why),
                         // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
-                        setTimeout(() => {
+                        deleteBackspaceTimeout = setTimeout(() => {
+                            console.log(111)
                             var sel = document.getSelection(),
                                 currentValue = decode(this.DOM.input.innerHTML),
                                 prevElm = sel.anchorNode.previousElementSibling;
@@ -283,7 +287,7 @@ export default {
                                     this.trigger('remove', { tag:node, index:nodeIdx, data:tagData })
                             })
                                 .filter(n=>n)  // remove empty items in the mapped array
-                        }, 50) // Firefox needs this higher duration for some reason or things get buggy when deleting text from the end
+                        }, 20) // Firefox needs this higher duration for some reason or things get buggy when deleting text from the end
                         break;
                     }
                     // currently commented to allow new lines in mixed-mode
