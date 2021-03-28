@@ -25,6 +25,7 @@
     },
     "scripts": {
         "start": "gulp --dev",
+        "build": "gulp",
         "_prepublishOnly": "gulp build && git add . && git commit -am '[BUILD]' && pkg-ok",
         "test": "echo \"No test specified\"",
         "serve": "npx http-server -o index.html -c-1"
