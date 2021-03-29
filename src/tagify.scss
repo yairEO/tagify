@@ -175,7 +175,11 @@
     ///////////////////////////////////////////
     // Hides originals
     + input,
-    + textarea{ display:none !important; }
+    + textarea{
+        position: absolute !important;
+        left: -9999em !important;
+        transform: scale(0) !important;
+    }
 
     &__tag{
         display    : inline-flex;
