@@ -227,7 +227,15 @@
             .disabled tags div{ display:none !important; }
 
             .showOriginal tags + input,
-            .showOriginal tags + textarea{ display:block !important; width:100%; padding:6px; border:1px inset; }
+            .showOriginal tags + textarea{
+                position: initial !important;
+                left: 0 !important;
+                transform: none !important;
+                width:100%; padding:6px; border:2px solid #999;
+                margin-bottom: 1em;
+                border-radius: 5px;
+                background: #F1F1F1;
+            }
 
             /* .tagify.readonlyMix > tag:not([readonly]) div::before{ background:#d3e2e2; } */
 
