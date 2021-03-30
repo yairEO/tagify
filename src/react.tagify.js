@@ -65,7 +65,6 @@ const TagifyWrapper = ({
                 : JSON.stringify(value),
         className,
         readOnly,
-        onChange,
         autoFocus,
         placeholder,
         defaultValue
@@ -96,6 +95,7 @@ const TagifyWrapper = ({
         onFocus   && t.on("focus"  , onFocus)
         onBlur    && t.on("blur"   , onBlur)
         onClick   && t.on("click"  , onClick)
+        onChange  && t.on("change" , onChange)
 
         // Bridge Tagify instance with parent component
         if (tagifyRef) {
@@ -126,7 +126,9 @@ const TagifyWrapper = ({
     }, [whitelist])
 
     useEffect(() => {
-        if (mountedRef.current && !isSameDeep(value, tagify.current.value) ) {
+        const currentValue = tagify.current.getCleanValue()
+
+        if (mountedRef.current && !isSameDeep(value, currentValue)) {
             tagify.current.loadOriginalValues(value)
         }
     }, [value])

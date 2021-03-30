@@ -1480,13 +1480,20 @@ Tagify.prototype = {
     },
 
     /**
+     * removes properties from `this.value` which are only used internally
+     */
+    getCleanValue(){
+        return removeCollectionProp(this.value, ['__isValid', '__removed', '__originalData', '__originalHTML']);
+    },
+
+    /**
      * update the origianl (hidden) input field's value
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update( args ){
         var inputElm = this.DOM.originalInput,
             { withoutChangeEvent } = args || {},
-            value = removeCollectionProp(this.value, ['__isValid', '__removed']);
+            value = this.getCleanValue();
 
         if( !this.settings.mixMode.integrated ){
             inputElm.value = this.settings.mode == 'mix'

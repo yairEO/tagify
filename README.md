@@ -380,6 +380,11 @@ See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for Rea
 
 A Tagify React component is exported from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
 
+### Update regarding `onChange` prop:
+I have changed how the `onChange` works internally within the Wrapper of Tagify
+so as of *March 30, 2021* the `e` argument will include a `detail` parameter with the value as string.
+There is no more `e.target`, and to access the original DOM input element, do this: `e.detail.tagify.DOM.originalInput`.
+
 > Note: You will need to inport Tagify's CSS also, either by javasceript or by SCSS `@import` (which is preferable)
 ```javascript
 import Tags from "@yaireo/tagify/dist/react.tagify" // React-wrapper file
@@ -392,7 +397,7 @@ const App = () => {
       settings={settings}  // tagify settings object
       value="a,b,c"
       {...tagifyProps}   // dynamic props such as "loading", "showDropdown:'abc'", "value"
-      onChange={e => (e.persist(), console.log("CHANGED:", e.target.value))}
+      onChange={ e => console.log("CHANGED:", JSON.parse(e.detail.value)) }
     />
   )
 })
@@ -401,6 +406,9 @@ const App = () => {
 To gain full access to Tagify's (instance) inner methods, A custom `ref` can be used:
 
 ```jsx
+...
+const tagifyRef = useRef()
+...
 <Tags tagifyRef={tagifyRef} ... />
 
 // or mix-mode
