@@ -1071,7 +1071,7 @@ Tagify.prototype = {
         if( this.settings.enforceWhitelist && !this.isTagWhitelisted(tagData.value) )
             return
 
-        this.input.set.call(this, tagData.value, true)
+        this.input.set.call(this, tagData[this.settings.tagTextProp || 'value'], true)
 
         // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
         if( this.state.actions.selectOption )
@@ -1163,7 +1163,6 @@ Tagify.prototype = {
             tagElm = this.createTagElem( extend({}, tagData, tagElmParams) )
             tagElems.push(tagElm)
 
-
             // mode-select overrides
             if( _s.mode == 'select' ){
                 return this.selectTag(tagElm, tagData)
@@ -1189,7 +1188,7 @@ Tagify.prototype = {
         })
 
         if( tagsItems.length && clearInput ){
-            this.input.set.call(this);
+            this.input.set.call(this)
         }
 
         this.dropdown.refilter.call(this)
@@ -1278,12 +1277,13 @@ Tagify.prototype = {
      * appened (validated) tag to the component's DOM scope
      */
     appendTag(tagElm){
-        var insertBeforeNode = this.DOM.scope.lastElementChild;
+        var DOM = this.DOM,
+            insertBeforeNode = DOM.scope.lastElementChild;
 
-        if( insertBeforeNode === this.DOM.input )
-            this.DOM.scope.insertBefore(tagElm, insertBeforeNode);
+        if( insertBeforeNode === DOM.input )
+            DOM.scope.insertBefore(tagElm, insertBeforeNode)
         else
-            this.DOM.scope.appendChild(tagElm);
+            DOM.scope.appendChild(tagElm)
     },
 
     /**
@@ -1297,7 +1297,6 @@ Tagify.prototype = {
 
         // if( this.settings.readonly )
         //     tagData.readonly = true
-
         tagElm = this.parseTemplate('tag', [templateData])
 
         // crucial for proper caret placement when deleting content. if textNodes are allowed as children of
@@ -1447,6 +1446,10 @@ Tagify.prototype = {
             .catch(reason => {})
     },
 
+    removeTagsFromDOM(){
+        [].slice.call(this.getTagElms()).forEach(elm => elm.parentNode.removeChild(elm))
+    },
+
     removeAllTags( opts ){
         opts = opts || {}
         this.value = []
@@ -1454,7 +1457,7 @@ Tagify.prototype = {
         if( this.settings.mode == 'mix' )
             this.DOM.input.innerHTML = ''
         else
-            Array.prototype.slice.call(this.getTagElms()).forEach(elm => elm.parentNode.removeChild(elm))
+            this.removeTagsFromDOM()
 
         this.dropdown.position.call(this)
 
