@@ -372,7 +372,7 @@
             width          : $size;
             height         : $size;
             margin-right   : $size/3;
-            margin-left    : -$size/3;
+            margin-left    : auto;
 
             overflow       : hidden;
             transition     : .2s ease-out;
