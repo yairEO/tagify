@@ -1086,11 +1086,13 @@ tagified["mode-select"] && (function(){
     var input = document.querySelector('input[name=tags-select-mode]'),
         tagify = new Tagify(input, {
             mode : "select",
-            whitelist: ["first option", "second option", "third option"],
-            blacklist: ['foo', 'bar'],
-            keepInvalidTags: true,   // do not auto-remove invalid tags
+            tagTextProp : 'username',
+            whitelist: [{ "id":"1", "value": 1, "username":"First option" },{ "id":"2", "value": 2, "username":"Second option" }],
+            keepInvalidTags: false,
             dropdown: {
-                // closeOnSelect: false
+                mapValueTo: 'username',
+                searchKeys: ['username'],
+              //  closeOnSelect: false
             }
         })
 
