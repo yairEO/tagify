@@ -88,7 +88,7 @@ export default {
                 eventData = {relatedTarget:e.relatedTarget},
                 isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
                 isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
-
+                isRelatedTargetX = e.relatedTarget && e.relatedTarget.classList.contains(_s.classNames.tag) && this.DOM.scope.contains(e.relatedTarget),
                 shouldAddTags;
 
             if( type == 'blur' ){
@@ -97,11 +97,6 @@ export default {
                     this.DOM.input.focus()
                     return
                 }
-
-                // when clicking the X button of a selected tag, it is unwanted it will be added back
-                // again in a few more lines of code (shouldAddTags && addTags)
-                if( this.settings.mode == 'select' )
-                    text = ''
 
                 this.postUpdate()
                 this.triggerChangeEvent()
@@ -143,12 +138,20 @@ export default {
                 this.trigger("blur", eventData)
                 this.loading(false)
 
+                // when clicking the X button of a selected tag, it is unwanted it will be added back
+                // again in a few more lines of code (shouldAddTags && addTags)
+                if( this.settings.mode == 'select' && isRelatedTargetX )
+                    text = '';
+
                 shouldAddTags = this.settings.mode == 'select' && text
                     ? !this.value.length || this.value[0].value != text
                     : text && !this.state.actions.selectOption && _s.addTagOnBlur
 
                 // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
                 shouldAddTags && this.addTags(text, true)
+
+                if( this.settings.mode == 'select' && !text )
+                    this.removeTags()
             }
 
             this.DOM.input.removeAttribute('style')

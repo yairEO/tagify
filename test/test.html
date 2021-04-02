@@ -1087,8 +1087,10 @@ tagified["mode-select"] && (function(){
         tagify = new Tagify(input, {
             mode : "select",
             tagTextProp : 'username',
-            whitelist: [{ "id":"1", "value": 1, "username":"First option" },{ "id":"2", "value": 2, "username":"Second option" }],
-            keepInvalidTags: false,
+            whitelist: [
+                { "id":"1", "value": 1, "username":"First option" },
+                { "id":"2", "value": 2, "username":"Second option" }
+            ],
             dropdown: {
                 mapValueTo: 'username',
                 searchKeys: ['username'],

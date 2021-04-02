@@ -533,6 +533,9 @@ export default {
         var _s = this.settings,
             _sd = _s.dropdown,
             options = options || {},
+            value = (_s.mode == 'select' && this.value.length && this.value[0][_s.tagTextProp] == value
+                ? '' // do not filter if the tag, which is already selecetd in "select" mode, is the same as the typed text
+                : value),
             list = [],
             whitelist = _s.whitelist,
             suggestionsCount = _sd.maxItems || Infinity,
@@ -544,7 +547,7 @@ export default {
             niddle,
             i = 0;
 
-        if( !value || !searchKeys.length || _s.mode == 'select' ){
+        if( !value || !searchKeys.length ){
             return (_s.duplicates
                 ? whitelist
                 : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
