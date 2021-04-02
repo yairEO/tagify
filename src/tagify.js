@@ -1111,7 +1111,9 @@ Tagify.prototype = {
      * @return {Array} Array of DOM elements (tags)
      */
     addTags( tagsItems, clearInput, skipInvalid = this.settings.skipInvalid ){
-        var tagElems = [], _s = this.settings;
+        var tagElems = [],
+            _s = this.settings,
+            frag = document.createDocumentFragment()
 
         if( !tagsItems || tagsItems.length == 0 ){
             // is mode is "select" clean all tagsargument of
@@ -1169,7 +1171,8 @@ Tagify.prototype = {
             }
 
             // add the tag to the component's DOM
-            this.appendTag(tagElm)
+            // this.appendTag(tagElm)
+            frag.appendChild(tagElm)
 
             if( tagData.__isValid && tagData.__isValid === true ){
                 // update state
@@ -1186,6 +1189,8 @@ Tagify.prototype = {
 
             this.dropdown.position.call(this) // reposition the dropdown because the just-added tag might cause a new-line
         })
+
+        this.appendTag(frag)
 
         if( tagsItems.length && clearInput ){
             this.input.set.call(this)
