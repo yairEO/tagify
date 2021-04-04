@@ -65,7 +65,7 @@ function scss(){
 function react(done){
     const umdConf = {
         exports: function(file) {
-            return 'Tags';
+            return 'exports';
         }
     }
 
