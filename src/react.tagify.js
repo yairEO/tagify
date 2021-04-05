@@ -202,7 +202,7 @@ TagifyWrapper.propTypes = {
     name: string,
     value: oneOfType([string, array]),
     loading: bool,
-    children: element,
+    children: oneOfType([string, array]),
     onChange: func,
     readOnly: bool,
     settings: object,

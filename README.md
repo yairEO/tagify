@@ -445,7 +445,7 @@ whitelist               | <sub>Array</sub>          | ✔         | Sets the `wh
 className               | <sub>String</sub>         |           | Component's optional class name to be added
 InputMode               | <sub>String</sub>         |           | `"textarea"` will create a `<textarea>` (hidden) element instead of the default `<input>` and automatically make Tagify act as [*"mix mode"*](#mixed-content)
 autoFocus               | <sub>Boolean</sub>        |           | Should the component have focus on mount. Must be unique, per-page.
-children                | <sub>String/Nodes</sub>   |           | `value` prop is prefered of this
+children                | <sub>String/Array</sub>   |           | `value`/`defaultValue` props are prefered
 onChange                | <sub>Function</sub>       |           | See [*events* section](#events)
 onInput                 | <sub>Function</sub>       |           | See [*events* section](#events)
 onAdd                   | <sub>Function</sub>       |           | See [*events* section](#events)
