@@ -435,7 +435,7 @@ Prop                    | Type                      | Updatable | Info
 settings                | <sub>Object</sub>         |           | See [*settings* section](#settings)
 name                    | <sub>String</sub>         | ✔         | `<input>`'s element `name` attribute
 value                   | <sub>String/Array</sub>   | ✔         | Initial value.
-defaultValue            | <sub>String/Array</sub>   |           | Only affects the hidden `<input>` element
+defaultValue            | <sub>String/Array</sub>   |           | Same as `value prop
 placeholder             | <sub>String</sub>         | ✔         | placeholder text for the component
 readOnly                | <sub>Boolean</sub>        | ✔         | Toggles `readonly` state. With capital `O`.
 tagifyRef               | <sub>Object</sub>         |           | `useRef` hook refference for the component inner instance of vailla *Tagify* (for methods access)
@@ -450,12 +450,21 @@ onChange                | <sub>Function</sub>       |           | See [*events* 
 onInput                 | <sub>Function</sub>       |           | See [*events* section](#events)
 onAdd                   | <sub>Function</sub>       |           | See [*events* section](#events)
 onRemove                | <sub>Function</sub>       |           | See [*events* section](#events)
-onEdit                  | <sub>Function</sub>       |           | See [*events* section](#events)
 onInvalid               | <sub>Function</sub>       |           | See [*events* section](#events)
 onClick                 | <sub>Function</sub>       |           | See [*events* section](#events)
 onKeydown               | <sub>Function</sub>       |           | See [*events* section](#events)
 onFocus                 | <sub>Function</sub>       |           | See [*events* section](#events)
 onBlur                  | <sub>Function</sub>       |           | See [*events* section](#events)
+onEditInput             | <sub>Function</sub>       |           | See [*events* section](#events)
+onEditBeforeUpdate      | <sub>Function</sub>       |           | See [*events* section](#events)
+onEditUpdated           | <sub>Function</sub>       |           | See [*events* section](#events)
+onEditStart             | <sub>Function</sub>       |           | See [*events* section](#events)
+onEditKeydown           | <sub>Function</sub>       |           | See [*events* section](#events)
+onDropdownShow          | <sub>Function</sub>       |           | See [*events* section](#events)
+onDropdownHide          | <sub>Function</sub>       |           | See [*events* section](#events)
+onDropdownSelect        | <sub>Function</sub>       |           | See [*events* section](#events)
+onDropdownScroll        | <sub>Function</sub>       |           | See [*events* section](#events)
+onDropdownNoMatch       | <sub>Function</sub>       |           | See [*events* section](#events)
 </details>
 
 ---

@@ -28,13 +28,22 @@ const TagifyWrapper = ({
     onInput = noop,
     onAdd = noop,
     onRemove = noop,
-    onEdit = noop,
+    onEditInput = noop,
+    onEditBeforeUpdate = noop,
+    onEditUpdated = noop,
+    onEditStart = noop,
+    onEditKeydown = noop,
     onInvalid = noop,
     onClick = noop,
     onKeydown = noop,
     onFocus = noop,
     onBlur = noop,
     onChange = noop,
+    onDropdownShow = noop,
+    onDropdownHide = noop,
+    onDropdownSelect = noop,
+    onDropdownScroll = noop,
+    onDropdownNoMatch = noop,
     readOnly,
     children,
     settings = {},
@@ -55,10 +64,13 @@ const TagifyWrapper = ({
         inputElmRef.current = elm
     }
 
+    // if for some reason the developer chose to use "value" instead of "defaultValue", map it to "value"
+    value = value || defaultValue
+
     const inputAttrs = useMemo(() => ({
         ref: handleRef,
         name,
-        value: children
+        defaultValue: children
             ? children
             : typeof value === "string"
                 ? value
@@ -67,7 +79,6 @@ const TagifyWrapper = ({
         readOnly,
         autoFocus,
         placeholder,
-        defaultValue
     }), [])
 
     const setFocus = useCallback(() => {
@@ -86,16 +97,26 @@ const TagifyWrapper = ({
 
         const t = new Tagify(inputElmRef.current, settings)
 
-        onInput   && t.on("input"  , onInput)
-        onAdd     && t.on("add"    , onAdd)
-        onRemove  && t.on("remove" , onRemove)
-        onEdit    && t.on("edit"   , onEdit)
-        onInvalid && t.on("invalid", onInvalid)
-        onKeydown && t.on("keydown", onKeydown)
-        onFocus   && t.on("focus"  , onFocus)
-        onBlur    && t.on("blur"   , onBlur)
-        onClick   && t.on("click"  , onClick)
-        onChange  && t.on("change" , onChange)
+        t.on("input"  , onInput)
+        t.on("add"    , onAdd)
+        t.on("remove" , onRemove)
+        t.on("invalid", onInvalid)
+        t.on("keydown", onKeydown)
+        t.on("focus"  , onFocus)
+        t.on("blur"   , onBlur)
+        t.on("click"  , onClick)
+        t.on("change" , onChange)
+
+        t.on("edit:input"       , onEditInput)
+        t.on("edit:beforeUpdate", onEditBeforeUpdate)
+        t.on("edit:updated"     , onEditUpdated)
+        t.on("edit:start"       , onEditStart)
+        t.on("edit:keydown"     , onEditKeydown)
+
+        t.on("dropdown:hide"   , onDropdownHide)
+        t.on("dropdown:select" , onDropdownSelect)
+        t.on("dropdown:scroll" , onDropdownScroll)
+        t.on("dropdown:noMatch", onDropdownNoMatch)
 
         // Bridge Tagify instance with parent component
         if (tagifyRef) {
@@ -192,7 +213,25 @@ TagifyWrapper.propTypes = {
     whitelist: array,
     placeholder: string,
     defaultValue: oneOfType([string, array]),
-    showDropdown: oneOfType([string, bool])
+    showDropdown: oneOfType([string, bool]),
+    onInput: func,
+    onAdd: func,
+    onRemove: func,
+    onEditInput: func,
+    onEditBeforeUpdate: func,
+    onEditUpdated: func,
+    onEditStart: func,
+    onEditKeydown: func,
+    onInvalid: func,
+    onClick: func,
+    onKeydown: func,
+    onFocus: func,
+    onBlur: func,
+    onDropdownShow: func,
+    onDropdownHide: func,
+    onDropdownSelect: func,
+    onDropdownScroll: func,
+    onDropdownNoMatch: func,
 }
 
 const Tags = React.memo(TagifyWrapper)
