@@ -465,6 +465,7 @@ onDropdownHide          | <sub>Function</sub>       |           | See [*events* 
 onDropdownSelect        | <sub>Function</sub>       |           | See [*events* section](#events)
 onDropdownScroll        | <sub>Function</sub>       |           | See [*events* section](#events)
 onDropdownNoMatch       | <sub>Function</sub>       |           | See [*events* section](#events)
+onDropdownUpdated       | <sub>Function</sub>       |           | See [*events* section](#events)
 </details>
 
 ---
@@ -758,7 +759,7 @@ dropdown:hide      | Suggestions dropdown has been removed from the DOM
 dropdown:select    | Suggestions dropdown item selected (by mouse/keyboard/touch)
 dropdown:scroll    | Tells the percentage scrolled. (`event.detail.percentage`)
 dropdown:noMatch   | No whitelist suggestion item matched for the the typed input. At this point it is possible to manually set `tagify.suggestedListItems` to any possible custom value, for example: `[{ value:"default" }]`
-
+dropdown:updated   | Fired when the dropdown list is re-filtered while suggestions list is visible and a tag was removed so it was re-added as a suggestion
 
 ## Hooks
 

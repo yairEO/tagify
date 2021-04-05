@@ -44,6 +44,7 @@ const TagifyWrapper = ({
     onDropdownSelect = noop,
     onDropdownScroll = noop,
     onDropdownNoMatch = noop,
+    onDropdownUpdated = noop,
     readOnly,
     children,
     settings = {},
@@ -113,10 +114,12 @@ const TagifyWrapper = ({
         t.on("edit:start"       , onEditStart)
         t.on("edit:keydown"     , onEditKeydown)
 
+        t.on("dropdown:show"   , onDropdownShow)
         t.on("dropdown:hide"   , onDropdownHide)
         t.on("dropdown:select" , onDropdownSelect)
         t.on("dropdown:scroll" , onDropdownScroll)
         t.on("dropdown:noMatch", onDropdownNoMatch)
+        t.on("dropdown:updated", onDropdownUpdated)
 
         // Bridge Tagify instance with parent component
         if (tagifyRef) {
@@ -232,6 +235,7 @@ TagifyWrapper.propTypes = {
     onDropdownSelect: func,
     onDropdownScroll: func,
     onDropdownNoMatch: func,
+    onDropdownUpdated: func,
 }
 
 const Tags = React.memo(TagifyWrapper)
