@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend } from './parts/helpers'
+import { sameStr, removeCollectionProp, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, getUID } from './parts/helpers'
 import dropdownMethods from './parts/dropdown'
 import DEFAULTS from './parts/defaults'
 import templates from './parts/templates'
@@ -693,7 +693,7 @@ Tagify.prototype = {
      * @param {Object} tagData
      */
     getTagIdx( tagData ){
-        return this.value.findIndex(item => item.value == (tagData||{}).value )
+        return this.value.findIndex(item => item.__tagId == (tagData||{}).__tagId )
     },
 
     getNodeIndex( node ){
@@ -1162,7 +1162,7 @@ Tagify.prototype = {
                 tagElmParams["aria-readonly"] = true
 
             // Create tag HTML element
-            tagElm = this.createTagElem( extend({}, tagData, tagElmParams) )
+            tagElm = this.createTagElem(tagData, tagElmParams)
             tagElems.push(tagElm)
 
             // mode-select overrides
@@ -1294,11 +1294,14 @@ Tagify.prototype = {
     /**
      * creates a DOM tag element and injects it into the component (this.DOM.scope)
      * @param  {Object}  tagData [text value & properties for the created tag]
+     * @param  {Object}  extraData [properties which are for the HTML template only]
      * @return {Object} [DOM element]
      */
-    createTagElem( tagData ){
+    createTagElem( tagData, extraData ){
+        tagData.__tagId = getUID()
+
         var tagElm,
-            templateData = extend({}, tagData, { value:escapeHTML(tagData.value+"") });
+            templateData = extend({}, tagData, { value:escapeHTML(tagData.value+"") }, extraData || {});
 
         // if( this.settings.readonly )
         //     tagData.readonly = true
@@ -1491,7 +1494,7 @@ Tagify.prototype = {
      * removes properties from `this.value` which are only used internally
      */
     getCleanValue(){
-        return removeCollectionProp(this.value, ['__isValid', '__removed', '__originalData', '__originalHTML']);
+        return removeCollectionProp(this.value, ['__isValid', '__removed', '__originalData', '__originalHTML', '__tagId']);
     },
 
     /**
