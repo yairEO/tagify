@@ -505,10 +505,11 @@ export default {
         })
 
         if( closeOnSelect ){
-            return this.dropdown.hide.call(this)
+            setTimeout(this.dropdown.hide.bind(this))
         }
 
-        this.dropdown.refilter.call(this)
+        else
+            this.dropdown.refilter.call(this)
     },
 
     selectAll(){
