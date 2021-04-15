@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, getUID } from './parts/helpers'
+import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, getUID } from './parts/helpers'
 import dropdownMethods from './parts/dropdown'
 import DEFAULTS from './parts/defaults'
 import templates from './parts/templates'
@@ -64,6 +64,7 @@ Tagify.prototype = {
     },
 
     customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:beforeUpdate', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch'],
+    dataProps: ['__isValid', '__removed', '__originalData', '__originalHTML', '__tagId'], // internal-uasge props
 
     trim(text){
         return this.settings.trim && text && typeof text == "string" ? text.trim() : text
@@ -1493,8 +1494,8 @@ Tagify.prototype = {
     /**
      * removes properties from `this.value` which are only used internally
      */
-    getCleanValue(){
-        return removeCollectionProp(this.value, ['__isValid', '__removed', '__originalData', '__originalHTML', '__tagId']);
+    getCleanValue(v){
+        return removeCollectionProp(v || this.value, this.dataProps);
     },
 
     /**
@@ -1535,7 +1536,7 @@ Tagify.prototype = {
                         if( that.tagData(node).__removed )
                             return;
                         else
-                            result += _interpolator[0] + JSON.stringify( node.__tagifyTagData ) + _interpolator[1]
+                            result += _interpolator[0] + JSON.stringify( omit(that.tagData(node), that.dataProps) ) + _interpolator[1]
                         return
                     }
 

@@ -22,13 +22,15 @@ export const sameStr = (s1, s2, caseSensitive, trim) => {
 
 
 // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
-export const removeCollectionProp = (collection, unwantedProps) => collection.map(v => {
-    var props = {}
-    for( var p in v )
-        if( unwantedProps.indexOf(p) < 0 )
-            props[p] = v[p]
-    return props
-})
+export const removeCollectionProp = (collection, unwantedProps) => collection && isArray(collection) && collection.map(v => omit(v, unwantedProps))
+
+export function omit(obj, props){
+    var newObj = {}, p;
+    for( p in obj )
+        if( props.indexOf(p) < 0 )
+            newObj[p] = obj[p]
+    return newObj
+}
 
 export function decode( s ) {
     var el = document.createElement('div');
