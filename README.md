@@ -34,28 +34,34 @@
 ## Table of Contents
 
 <!--ts-->
-* [Installation](#installation)
-* [What can Tagify do](#features)
-* [Building the project](#building-the-project)
-* [Adding tags dynamically](#adding-tags-dynamically)
-* [Output value](#output-value)
-* [Ajax whitelist](#ajax-whitelist)
-* [Edit tags](#edit-tags)
-* [Drag & Sort](#drag--sort)
-* [DOM Templates](#dom-templates)
-* [Suggestions selectbox](#suggestions-selectbox)
-* [Tags mixed with text](#mixed-content)
-* [Single-Value Only](#single-value)
-* [React wrapper](#react)
-* [Angular wrapper](https://github.com/Brakebein/ngx-tagify)
-* [Vue Example](https://codesandbox.io/s/tagify-tags-component-vue-example-l8ok4)
-* [jQuery version](#jquery-version)
-* [FAQ](#FAQ)
-* [CSS Variables](#css-variables)
-* [Methods](#methods)
-* [Events](#events)
-* [Hooks](#hooks)
-* [Settings](#settings)
+- [Table of Contents](#table-of-contents)
+- [Installation](#installation)
+  - [Usage (in your bundle):](#usage-in-your-bundle)
+- [Features](#features)
+- [Building the project](#building-the-project)
+- [Adding tags dynamically](#adding-tags-dynamically)
+- [Output value](#output-value)
+  - [Modify original input value format](#modify-original-input-value-format)
+- [Ajax whitelist](#ajax-whitelist)
+- [Edit tags](#edit-tags)
+- [Drag & Sort](#drag--sort)
+  - [Integration example:](#integration-example)
+- [DOM Templates](#dom-templates)
+- [Suggestions selectbox](#suggestions-selectbox)
+  - [Example for a suggestion item alias](#example-for-a-suggestion-item-alias)
+  - [Example whitelist:](#example-whitelist)
+- [Mixed-Content](#mixed-content)
+- [Single-Value](#single-value)
+- [React](#react)
+  - [Update regarding `onChange` prop:](#update-regarding-onchange-prop)
+    - [Updating the component's state](#updating-the-components-state)
+- [jQuery version](#jquery-version)
+- [CSS Variables](#css-variables)
+  - [Full list of Tagify's SCSS variables](#full-list-of-tagifys-scss-variables)
+- [Methods](#methods)
+- [Events](#events)
+- [Hooks](#hooks)
+- [Settings](#settings)
 <!--te-->
 
 ## Installation
@@ -352,8 +358,17 @@ expanding the search of any typed terms to more than the `value` property of the
 
 ## Mixed-Content
 
-> To use this feature it must be toggled - see [settings](#settings).
-> full [demo here](https://yaireo.github.io/tagify/#section-mix)
+[See demo here](https://yaireo.github.io/tagify/#section-mix)
+
+This feature must be toggled using these [settings](#settings):
+
+```js
+{
+  //  mixTagsInterpolator: ["{{", "}}"],  // optional: interpolation before & after string
+  mode: 'mix',    // <--  Enable mixed-content
+  pattern: /@|#/  // <--  Text starting with @ or # (if single, String can be used here instead of Regex)
+}
+```
 
 When mixing text with tags, the original textarea (or input) element will have a value as follows:
 
@@ -365,7 +380,6 @@ sure when the Tagify instance is initialized, that it has tags with the correct 
 the same values that appear between `[[` & `]]`.
 
 Applying the setting `dropdown.position:"text"` is encouraged for mixed-content tags, because the suggestions list
-will be rendered right next to the caret location and not the the bottom of the Tagify componenet, which might look
 weird when there is already a lot of content at multiple lines.
 
 If a tag does not exists in the *whitelist*, it may be created by the user and all you should do is listen to the `add` event and update your local/remote state.
