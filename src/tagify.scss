@@ -159,9 +159,11 @@
 
     &--loading{
         #{ $self }__input{
+            > br:last-child{ display:none; }
             &::before{ content:none; }
             &::after{
                 @include loader;
+                content: '' !important;
                 margin: -2px 0 -2px .5em;
             }
             &:empty{
