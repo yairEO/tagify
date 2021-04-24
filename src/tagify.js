@@ -484,7 +484,10 @@ Tagify.prototype = {
 
         if( tagElm && tagData[this.settings.tagTextProp] ){
             this.editTagToggleValidity(tagElm)
-            this.replaceTag(tagElm, tagData)
+            tagElm = this.replaceTag(tagElm, tagData)
+
+            if( this.settings.a11y.focusableTags )
+                tagElm.focus()
         }
 
         else if(tagElm)
@@ -511,11 +514,12 @@ Tagify.prototype = {
         if( tagData.__isValid && tagData.__isValid != true )
             extend( tagData, this.getInvalidTagAttrs(tagData, tagData.__isValid) )
 
-        var newTag = this.createTagElem(tagData)
+        var newTagElm = this.createTagElem(tagData)
 
         // update DOM
-        tagElm.parentNode.replaceChild(newTag, tagElm)
+        tagElm.parentNode.replaceChild(newTagElm, tagElm)
         this.updateValueByDOMTags()
+        return newTagElm
     },
 
     /**

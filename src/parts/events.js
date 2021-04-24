@@ -174,12 +174,12 @@ export default {
                 case 'Backspace': {
                     this.removeTags(focusedElm);
                     (nextTag ? nextTag : this.DOM.input).focus()
-
                     break;
                 }
 
                 // edit tag if has focus
                 case 'Enter': {
+                    setTimeout(this.editTag.bind(this), 0, focusedElm);
                     break;
                 }
             }
@@ -219,7 +219,7 @@ export default {
 
                         if( this.settings.backspace == 'edit' && isCaretAfterTag ){
                             tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
-                            setTimeout(this.editTag.bind(this), 0, tagBeforeCaret);// timeout is needed to the last cahacrter in the edited tag won't get deleted
+                            setTimeout(this.editTag.bind(this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
                             e.preventDefault() // needed so the tag elm won't get deleted
                             return;
                         }
