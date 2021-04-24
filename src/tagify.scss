@@ -246,7 +246,8 @@
             }
         }
 
-        &:hover:not([readonly]){
+        &:hover:not([readonly]),
+        &:focus{
             div{  // :not([contenteditable])
                 &::before{
                     $size: -$tagMargin/2;

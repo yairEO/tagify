@@ -53,6 +53,7 @@ export default {
             // this event should never be unbinded:
             // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
             this.DOM.input.addEventListener(this.isIE ? "keydown" : "input", _CB[this.isIE ? "onInputIE" : "onInput"].bind(this));
+            window.addEventListener('keydown', _CB.onWindowKeyDown.bind(this));
 
             if( this.settings.isJQueryPlugin )
                 jQuery(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
@@ -158,6 +159,32 @@ export default {
             this.dropdown.hide.call(this)
         },
 
+        onWindowKeyDown(e){
+            var focusedElm = document.activeElement,
+                isTag = focusedElm.classList.contains(this.settings.classNames.tag),
+                isBelong = isTag && this.DOM.scope.contains(document.activeElement),
+                nextTag;
+
+            if( !isBelong ) return
+
+            nextTag = focusedElm.nextElementSibling
+
+            switch( e.key ){
+                // remove tag if has focus
+                case 'Backspace': {
+                    this.removeTags(focusedElm);
+                    (nextTag ? nextTag : this.DOM.input).focus()
+
+                    break;
+                }
+
+                // edit tag if has focus
+                case 'Enter': {
+                    break;
+                }
+            }
+        },
+
         onKeydown(e){
             var s = this.trim(e.target.textContent);
 
@@ -175,6 +202,7 @@ export default {
                         this.state.actions.ArrowLeft = true
                         break
                     }
+
                     case 'Delete':
                     case 'Backspace' : {
                         if( this.state.editing ) return
@@ -185,8 +213,16 @@ export default {
                             lastInputValue = decode(this.DOM.input.innerHTML),
                             lastTagElems = this.getTagElms(),
                             //  isCaretInsideTag = sel.anchorNode.parentNode('.' + this.settings.classNames.tag),
+                            tagBeforeCaret,
                             tagElmToBeDeleted,
                             firstTextNodeBeforeTag;
+
+                        if( this.settings.backspace == 'edit' && isCaretAfterTag ){
+                            tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
+                            setTimeout(this.editTag.bind(this), 0, tagBeforeCaret);// timeout is needed to the last cahacrter in the edited tag won't get deleted
+                            e.preventDefault() // needed so the tag elm won't get deleted
+                            return;
+                        }
 
                         if( isChromeAndroidBrowser() && isCaretAfterTag ){
                             firstTextNodeBeforeTag = getfirstTextNode(isCaretAfterTag)

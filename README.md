@@ -835,8 +835,8 @@ addTagOnBlur              | <sub>Boolean</sub>           | true                 
 callbacks                 | <sub>Object</sub>            | {}                                          | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
 maxTags                   | <sub>Number</sub>            | Infinity                                    | Maximum number of allowed tags. when reached, adds a class "tagify--hasMaxTags" to `<Tags>`
 editTags                  | <sub>Object/Number</sub>     | {}                                          | `false` or `null` will disallow editing
-editTags.clicks           | <sub>Number</sub>            | 2                                           | Number of clicks to enter "edit-mode": 1 for single click. Any other value is considered as double-click
-editTags.keepInvalid      | <sub>Boolean</sub>           | true                                        | keeps invalid edits as-is until `esc` is pressed while in focus
+editTags.*clicks*         | <sub>Number</sub>            | 2                                           | Number of clicks to enter "edit-mode": 1 for single click. Any other value is considered as double-click
+editTags.*keepInvalid*    | <sub>Boolean</sub>           | true                                        | keeps invalid edits as-is until `esc` is pressed while in focus
 templates                 | <sub>Object</sub>            | <sub>`wrapper`, `tag`, `dropdownItem`</sub> | Object consisting of functions which return template strings
 validate                  | <sub>Function</sub>          |                                             | If the `pattern` setting does not meet your needs, use this function, which recieves *tag data object* as an argument and should return `true` if validaiton passed or `false`/`string` of not. A *string* may be returned as the reason of the validation failure.
 transformTag              | <sub>Function</sub>          |                                             | Takes a tag data as argument and allows mutating it before a tag is created or edited.<br>Should not `return` anything, only **mutate**.
@@ -844,7 +844,8 @@ keepInvalidTags           | <sub>Boolean</sub>           | false                
 skipInvalid               | <sub>Boolean</sub>           | false                                       | If `true`, do not add invalid, temporary, tags before automatically removing them
 backspace                 | <sub>*</sub>                 | true                                        | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
 originalInputValueFormat  | <sub>Function</sub>          |                                             | If you wish your original input/textarea `value` property format to other than the default (which I recommend keeping) you may use this and make sure it returns a *string*.
-mixMode.insertAfterTag    | <sub>Node/String</sub>       | `\u00A0`                                    | `node` or `string` to add after a tag added |
+mixMode.*insertAfterTag*  | <sub>Node/String</sub>       | `\u00A0`                                    | `node` or `string` to add after a tag added |
+a11y.*focusableTags*      | <sub>Boolean</sub>           | false                                       | allows tags to get focus, and also to be deleted via <kbd>Backspace</kbd>
 dropdown.*enabled*        | <sub>Number</sub>            | 2                                           | Minimum characters input for showing a suggestions list. `false` will not render a suggestions list.
 dropdown.*caseSensitive*  | <sub>Boolean</sub>           | false                                       | if `true`, match **exact** item when a suggestion is selected (from the dropdown) and also more strict matching for dulpicate items. **Ensure** `fuzzySearch` is `false` for this to work.
 dropdown.*maxItems*       | <sub>Number</sub>            | 10                                          | Maximum items to show in the suggestions list

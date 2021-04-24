@@ -20,6 +20,9 @@ export default {
     },              // 1 or 2 clicks to edit a tag. false/null for not allowing editing
     transformTag        : ()=>{},         // Takes a tag input string as argument and returns a transformed value
     trim                : true,           // whether or not the value provided should be trimmed, before being added as a tag
+    a11y: {
+        focusableTags: false
+    },
 
     mixMode: {
         insertAfterTag  : '\u00A0',       // String/Node to inject after a tag has been added (see #588)
