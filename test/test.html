@@ -154,7 +154,7 @@ and [[{"value": "readonly", "readonly":true}]]
             </section>
 
             <section id='section-mode-select'>
-              <input name='tags-select-mode' class='selectMode' placeholder="Please select" />
+                <input name='tags-select-mode' class='selectMode' placeholder="Please select" />
             </section>
         </form>
 <script>
@@ -163,7 +163,7 @@ and [[{"value": "readonly", "readonly":true}]]
   window.tagified = {
     "mix"               : 1,
     "markdown"          : 0,
-    "basic"             : 0,
+    "basic"             : 1,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
@@ -230,6 +230,9 @@ and [[{"value": "readonly", "readonly":true}]]
     var tagify3 = new Tagify(sectionElm.querySelector('input[name=value_JSON]'), {
     //  delimiters: ",|[\\n\\r]",
       addTagOnBlur: false,
+      a11y: {
+        focusableTags: true
+      },
       dropdown: {
         enabled: 0
       },
@@ -538,7 +541,6 @@ and [[{"value": "readonly", "readonly":true}]]
           }
       })
 
-    tagify.loading(true)
     // POST-INIT change:
     tagify.settings.enforceWhitelist = true
 
