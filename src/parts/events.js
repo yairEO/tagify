@@ -572,20 +572,33 @@ export default {
 
         // special proccess is needed for pasted content in order to "clean" it
         onPaste(e){
-            var clipboardData, pastedData;
+            var clipboardData, pastedText;
 
             e.preventDefault()
 
-            if( this.settings.readonly ) return;
+            if( this.settings.readonly ) return
 
             // Get pasted data via clipboard API
             clipboardData = e.clipboardData || window.clipboardData
-            pastedData = clipboardData.getData('Text')
+            pastedText = clipboardData.getData('Text')
 
-            this.injectAtCaret(pastedData, window.getSelection().getRangeAt(0))
+            this.settings.hooks.beforePaste(e, {tagify:this, pastedText, clipboardData})
+                .then(result => {
+                    if( result === undefined )
+                        result = pastedText;
 
-            if( this.settings.mode != 'mix' )
-                this.addTags(this.DOM.input.textContent, true)
+                    if( result ){
+                        this.injectAtCaret(result, window.getSelection().getRangeAt(0))
+
+                        if( this.settings.mode == 'mix' ){
+                            this.events.callbacks.onMixTagsInput.call(this, e);
+                        }
+
+                        else
+                            this.addTags(this.DOM.input.textContent, true)
+                    }
+                })
+                .catch(err => err)
         },
 
         onEditTagInput( editableElm, e ){

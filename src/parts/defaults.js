@@ -75,6 +75,7 @@ export default {
 
     hooks: {
         beforeRemoveTag: () => Promise.resolve(),
+        beforePaste: () => Promise.resolve(),
         suggestionClick: () => Promise.resolve()
     }
 }

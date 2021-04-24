@@ -811,6 +811,7 @@ Name                   | Parameters                                  | Info
 ---------------------- | ------------------------------------------- | --------------------------------------------------------------------------
 beforeRemoveTag        | Array <sub>(of Objects)</sub>               | [Example](https://jsbin.com/xoseyux/edit?html,js,output)
 suggestionClick        | Object <sub>(click event data)</sub>        | [Example](https://jsbin.com/tuwihuf/edit?html,js,output)
+beforePaste            | `tagify`, `pastedText`, `clipboardData`     | Before pasted text was added to Tagify. *Resolve* with new paste value if needed
 
 ## [Settings](https://github.com/yairEO/tagify/blob/master/src/parts/defaults.js#L1)
 
