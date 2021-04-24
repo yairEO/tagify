@@ -66,7 +66,8 @@ const TagifyWrapper = ({
     }
 
     // if for some reason the developer chose to use "value" instead of "defaultValue", map it to "value"
-    value = value || defaultValue
+    if( value === undefined )
+        value = defaultValue
 
     const inputAttrs = useMemo(() => ({
         ref: handleRef,
@@ -150,7 +151,7 @@ const TagifyWrapper = ({
     }, [whitelist])
 
     useEffect(() => {
-        const currentValue = tagify.current.getCleanValue()
+        const currentValue = tagify.current.getInputValue()
 
         if (mountedRef.current && !isSameDeep(value, currentValue)) {
             tagify.current.loadOriginalValues(value)

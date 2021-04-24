@@ -268,13 +268,12 @@ Tagify.prototype = {
         var lastChild,
             _s = this.settings;
 
-        value = value || (_s.mixMode.integrated
-            ? this.DOM.input.textContent
-            : this.DOM.originalInput.value)
+        if( value === undefined )
+            value = _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value
+
+        this.removeAllTags({ withoutChangeEvent:true })
 
         if( value ){
-            this.removeAllTags({ withoutChangeEvent:true })
-
             if( _s.mode == 'mix' ){
                 this.parseMixTags(value.trim())
 
@@ -1492,35 +1491,39 @@ Tagify.prototype = {
     },
 
     /**
-     * removes properties from `this.value` which are only used internally
-     */
-    getCleanValue(v){
-        return removeCollectionProp(v || this.value, this.dataProps);
-    },
-
-    /**
      * update the origianl (hidden) input field's value
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update( args ){
         var inputElm = this.DOM.originalInput,
-            { withoutChangeEvent } = args || {},
-            value = this.getCleanValue();
+            { withoutChangeEvent } = args || {};
 
-        if( !this.settings.mixMode.integrated ){
-            inputElm.value = this.settings.mode == 'mix'
-                ? this.getMixedTagsAsString(value)
-                : value.length
-                    ? this.settings.originalInputValueFormat
-                        ? this.settings.originalInputValueFormat(value)
-                        : JSON.stringify(value)
-                    : ""
-        }
+        if( !this.settings.mixMode.integrated )
+            inputElm.value = this.getInputValue()
 
         this.postUpdate()
 
         if( !withoutChangeEvent && this.state.loadedOriginalValues )
             this.triggerChangeEvent()
+    },
+
+    getInputValue(){
+        var value = this.getCleanValue();
+
+        return this.settings.mode == 'mix'
+            ? this.getMixedTagsAsString(value)
+            : value.length
+                ? this.settings.originalInputValueFormat
+                    ? this.settings.originalInputValueFormat(value)
+                    : JSON.stringify(value)
+                : ""
+    },
+
+    /**
+     * removes properties from `this.value` which are only used internally
+     */
+    getCleanValue(v){
+        return removeCollectionProp(v || this.value, this.dataProps);
     },
 
     getMixedTagsAsString(){
