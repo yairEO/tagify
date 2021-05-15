@@ -156,7 +156,7 @@ Tagify.prototype = {
 
         for( i=keys.length; i--; ){
             propName = keys[i];
-            if( propName != 'class' && data.hasOwnProperty(propName) && data[propName] !== undefined )
+            if( propName.slice(0,2) != '__' && propName != 'class' && data.hasOwnProperty(propName) && data[propName] !== undefined )
                 s += " " + propName + (data[propName] !== undefined ? `="${data[propName]}"` : "");
         }
         return s;
@@ -1305,10 +1305,11 @@ Tagify.prototype = {
         tagData.__tagId = getUID()
 
         var tagElm,
-            templateData = extend({}, tagData, { value:escapeHTML(tagData.value+"") }, extraData || {});
+            templateData = extend({}, tagData, { value:escapeHTML(tagData.value+""), ...extraData });
 
         // if( this.settings.readonly )
         //     tagData.readonly = true
+
         tagElm = this.parseTemplate('tag', [templateData])
 
         // crucial for proper caret placement when deleting content. if textNodes are allowed as children of
