@@ -455,7 +455,8 @@ and [[{"value": "readonly", "readonly":true}]]
   }
 
   var simpleMixTagify = new Tagify(simpleMixInput, settings);
-  simpleMixTagify.on('keydown', e => console.log(e.detail))
+//   simpleMixTagify.on('keydown', e => console.log(e.detail))
+  simpleMixTagify.on('input', console.log )
 
 
   //////////////////////////////
