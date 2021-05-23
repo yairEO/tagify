@@ -161,13 +161,13 @@ and [[{"value": "readonly", "readonly":true}]]
   document.forms[0].reset()
 
   window.tagified = {
-    "mix"               : 0,
+    "mix"               : 1,
     "markdown"          : 0,
     "basic"             : 0,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
-    "advance-options"   : 1,
+    "advance-options"   : 0,
     "extra-properties"  : 0,
     "readonly"          : 0,
     "readonly-mixed"    : 0,
@@ -568,7 +568,7 @@ and [[{"value": "readonly", "readonly":true}]]
           tagify.dropdown.show.call(tagify, e.detail.value);
     }
 
-    console.log('mix-mode "input" event value: ', e.detail)
+    console.log('mix-mode "input" event value: ', e.detail, e.detail.tagify.value)
   })
 
   tagify.on('keydown', function(e){

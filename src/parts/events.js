@@ -404,7 +404,6 @@ export default {
                 eventData = {value, inputElm:this.DOM.input};
 
             eventData.isValid = this.validateTag({value});
-            this.trigger('input', eventData) // "input" event must be triggered at this point, before the dropdown is shown
 
             // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
             // and so many keys do not change the input, and for those do not continue.
@@ -423,6 +422,8 @@ export default {
             else if( this.settings.dropdown.enabled >= 0 ){
                 this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
             }
+
+            this.trigger('input', eventData) // "input" event must be triggered at this point, before the dropdown is shown
         },
 
         onMixTagsInput( e ){
