@@ -842,7 +842,7 @@ validate                  | <sub>Function</sub>          |                      
 transformTag              | <sub>Function</sub>          |                                             | Takes a tag data as argument and allows mutating it before a tag is created or edited.<br>Should not `return` anything, only **mutate**.
 keepInvalidTags           | <sub>Boolean</sub>           | false                                       | If `true`, do not remove tags which did not pass validation
 skipInvalid               | <sub>Boolean</sub>           | false                                       | If `true`, do not add invalid, temporary, tags before automatically removing them
-backspace                 | <sub>*</sub>                 | true                                        | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag
+backspace                 | <sub>*</sub>                 | true                                        | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag<br>`false` - do nothing (useful for outside style)
 originalInputValueFormat  | <sub>Function</sub>          |                                             | If you wish your original input/textarea `value` property format to other than the default (which I recommend keeping) you may use this and make sure it returns a *string*.
 mixMode.*insertAfterTag*  | <sub>Node/String</sub>       | `\u00A0`                                    | `node` or `string` to add after a tag added |
 a11y.*focusableTags*      | <sub>Boolean</sub>           | false                                       | allows tags to get focus, and also to be deleted via <kbd>Backspace</kbd>
