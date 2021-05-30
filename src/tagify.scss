@@ -631,7 +631,7 @@
 
         &__wrapper{
             max-height: 300px;
-            overflow: hidden;
+            overflow: auto;
             background: $tagify-dd-bg-color;
             background: var(--tagify-dd-bg-color);
             border: 1px solid $tags-focus-border-color;
@@ -641,10 +641,6 @@
             box-shadow: 0 2px 4px -2px rgba(black,.2);
            // box-sizing: border-box;
             transition: $trans;
-
-            &:hover{
-                overflow: auto;
-            }
         }
 
         // intial state, pre-rendered
