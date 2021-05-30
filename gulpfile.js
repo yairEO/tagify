@@ -73,7 +73,7 @@ function react(done){
         .pipe( $.babel({ ...babelConfig, presets:[...babelConfig.presets, '@babel/preset-react'] }))
         .pipe( $.umd(umdConf) )
         .pipe(opts.dev ? $.tap(()=>{}) : $.terser())
-        // .pipe($.headerComment(banner))
+        .pipe($.headerComment(banner))
         .pipe( gulp.dest('./dist/') )
 }
 
@@ -94,7 +94,7 @@ function jquery(){
         .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
         .pipe($.rename('jQuery.tagify.min.js'))
         // .pipe($.terser())
-        // .pipe($.headerComment(banner))
+        .pipe($.headerComment(banner))
         .pipe(gulp.dest('./dist/'))
 }
 
@@ -114,12 +114,13 @@ function polyfills(done){
 function rollup({ entry, outputName, dest, plugins=[], babelConf={} }){
     plugins = [
         babel({...babelConfig, babelHelpers: 'bundled', ...babelConf}),
-        // rollupBanner(banner),
         ...plugins
     ]
 
     if( !opts.dev )
-        plugins.push(terser())
+        plugins.push( terser() )
+
+    plugins.push( rollupBanner(banner) )
 
     return rollupStream({
         input: entry,
