@@ -161,9 +161,9 @@ and [[{"value": "readonly", "readonly":true}]]
   document.forms[0].reset()
 
   window.tagified = {
-    "mix"               : 1,
+    "mix"               : 0,
     "markdown"          : 0,
-    "basic"             : 0,
+    "basic"             : 1,
     "textarea"          : 0,
     "manual-suggestions": 0,
     "outside-of-the-box": 0,
@@ -254,6 +254,7 @@ and [[{"value": "readonly", "readonly":true}]]
     var tagify = new Tagify(input, {
         pattern: /^[0-9A-Za-z_✲ "]+$/,
         editTags : 1,
+        maxTags: 3,
         duplicates: false,
         keepInvalidTags: true,
         // dropdown: {

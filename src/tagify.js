@@ -885,9 +885,9 @@ Tagify.prototype = {
     },
 
     hasMaxTags(){
-        if( this.value.length >= this.settings.maxTags )
-            return this.TEXTS.exceed;
-        return false;
+        return this.value.length >= this.settings.maxTags
+            ? this.TEXTS.exceed
+            : false;
     },
 
     setReadonly( isReadonly ){
@@ -1326,24 +1326,18 @@ Tagify.prototype = {
      * find all invalid tags and re-check them
      */
     reCheckInvalidTags(){
-        var _s = this.settings,
-            selector = `${_s.classNames.tagSelector}${_s.classNames.tagNotAllowedSelector}`,
-            tagElms = this.DOM.scope.querySelectorAll(selector);
+        var _s = this.settings
 
-        [].forEach.call(tagElms, node => {
-            var tagData = this.tagData(node),
-                wasNodeDuplicate = node.getAttribute('title') == this.TEXTS.duplicate,
-                isNodeValid = this.validateTag(tagData) === true;
+        this.getTagElms(_s.classNames.tagNotAllowed).forEach((tagElm, i) => {
+            var tagData = this.tagData(tagElm),
+                isNodeValid = !this.hasMaxTags() && this.validateTag(tagData) === true;
 
-            // if this tag node was marked as a dulpicate, unmark. (might have been marked as "notAllowed" for other reasons)
-            if( wasNodeDuplicate && isNodeValid ){
-                if( tagData.__preInvalidData )
-                    tagData = tagData.__preInvalidData
-                else
-                    // start fresh
-                    tagData = {value:tagData.value}
+            if( isNodeValid ){
+                tagData = tagData.__preInvalidData
+                    ? tagData.__preInvalidData
+                    : { value:tagData.value }
 
-                this.replaceTag(node, tagData)
+                this.replaceTag(tagElm, tagData)
             }
         })
     },
@@ -1417,7 +1411,7 @@ Tagify.prototype = {
                         this.dropdown.position.call(this)
                         this.DOM.input.normalize() // best-practice when in mix-mode (safe to do always anyways)
 
-                        // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
+                        // check if any of the current tags which might have been marked as "duplicate" should be un-marked
                         if( this.settings.keepInvalidTags )
                             this.reCheckInvalidTags()
                     }
