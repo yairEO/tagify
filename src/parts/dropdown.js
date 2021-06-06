@@ -355,6 +355,9 @@ export default {
                                     this.dropdown.selectOption.call(this, selectedElm)
                                 else
                                     this.dropdown.hide.call(this)
+
+                                if( this.settings.mode != 'mix' )
+                                    this.addTags(this.state.inputText.trim(), true)
                             })
                             .catch(err => err)
 
