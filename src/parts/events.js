@@ -724,7 +724,7 @@ export default {
 
             // MUST re-validate after tag transformation
             // only validate the "tagTextProp" because is the only thing that metters for validation
-            isValid = this.validateTag({[_s.tagTextProp]:newTagData[_s.tagTextProp]})
+            isValid = !this.hasMaxTags() && this.validateTag({[_s.tagTextProp]:newTagData[_s.tagTextProp]})
 
             if( isValid !== true ){
                 this.trigger("invalid", { data:newTagData, tag:tagElm, message:isValid })

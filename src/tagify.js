@@ -439,7 +439,7 @@ Tagify.prototype = {
         this.setRangeAtStartEnd(false, editableElm)
 
         if( !opts.skipValidation )
-            isValid = this.editTagToggleValidity(tagElm, tagData.value)
+            isValid = this.editTagToggleValidity(tagElm)
 
         editableElm.originalIsValid = isValid
 
@@ -448,8 +448,14 @@ Tagify.prototype = {
         return this
     },
 
-    editTagToggleValidity( tagElm, value ){
-        var tagData = this.tagData(tagElm),
+    /**
+     * If a tag is invalid, for any reason, set its class to as "not allowed" (see defaults file)
+     * @param {Node} tagElm required
+     * @param {Object} tagData optional
+     * @returns true if valid, a string (reason) if not
+     */
+    editTagToggleValidity( tagElm, tagData ){
+        var tagData = tagData || this.tagData(tagElm),
             toggleState;
 
         if( !tagData ){
@@ -457,11 +463,11 @@ Tagify.prototype = {
             return;
         }
 
-        toggleState = !!(tagData.__isValid && tagData.__isValid != true);
+        toggleState = !!("__isValid" in tagData && tagData.__isValid != true);
 
         //this.validateTag(tagData);
 
-        tagElm.classList.toggle(this.settings.classNames.tagInvalid, toggleState)
+        tagElm.classList.toggle(this.settings.classNames.tagNotAllowed, toggleState)
         return tagData.__isValid
     },
 
@@ -483,8 +489,8 @@ Tagify.prototype = {
         delete tagData.__originalHTML
 
         if( tagElm && tagData[this.settings.tagTextProp] ){
-            this.editTagToggleValidity(tagElm)
             tagElm = this.replaceTag(tagElm, tagData)
+            this.editTagToggleValidity(tagElm, tagData)
 
             if( this.settings.a11y.focusableTags )
                 tagElm.focus()
@@ -1327,6 +1333,7 @@ Tagify.prototype = {
      */
     reCheckInvalidTags(){
         var _s = this.settings
+
 
         this.getTagElms(_s.classNames.tagNotAllowed).forEach((tagElm, i) => {
             var tagData = this.tagData(tagElm),
