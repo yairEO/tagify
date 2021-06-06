@@ -631,8 +631,11 @@ export default {
                             this.events.callbacks.onMixTagsInput.call(this, e);
                         }
 
+                        else if( this.settings.pasteAsTags )
+                            this.addTags(result, true)
+
                         else
-                            this.addTags(this.DOM.input.textContent, true)
+                            this.state.inputText = result
                     }
                 })
                 .catch(err => err)

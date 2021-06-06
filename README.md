@@ -832,6 +832,7 @@ autoComplete.rightKey     | <sub>Boolean</sub>           | false                
 whitelist                 | <sub>Array</sub>             | []                                          | An array of allowed tags (*Strings* or *Objects*). When using *Objects* in the *whitelist* array a `value` property is a must & should be unique. <br/>Also, the *whitelist used for auto-completion when `autoCompletion.enabled` is `true`
 blacklist                 | <sub>Array</sub>             | []                                          | An array of tags which aren't allowed
 addTagOnBlur              | <sub>Boolean</sub>           | true                                        | Automatically adds the text which was inputed as a tag when blur event happens
+pasteAsTags               | <sub>Boolean</sub>           | true                                        | Automatically converts pasted text into tags
 callbacks                 | <sub>Object</sub>            | {}                                          | Exposed callbacks object to be triggered on events: `'add'` / `'remove'` tags
 maxTags                   | <sub>Number</sub>            | Infinity                                    | Maximum number of allowed tags. when reached, adds a class "tagify--hasMaxTags" to `<Tags>`
 editTags                  | <sub>Object/Number</sub>     | {}                                          | `false` or `null` will disallow editing
