@@ -1,3 +1,5 @@
+@use "sass:math";
+
 :root {
     --tagify-dd-color-primary: rgb(53,149,246); // should be same as "$tags-focus-border-color"
     --tagify-dd-bg-color: white;
@@ -250,7 +252,7 @@
         &:focus{
             div{  // :not([contenteditable])
                 &::before{
-                    $size: -$tagMargin/2;
+                    $size: math.div(-$tagMargin, 2);
                     $size: -2px;
                     top:$size; right:$size; bottom:$size; left:$size;
                     box-shadow: 0 0 0 $tag-inset-shadow-size $tag-hover inset;
@@ -374,7 +376,7 @@
 
             width          : $size;
             height         : $size;
-            margin-right   : $size/3;
+            margin-right   : math.div($size,3);
             margin-left    : auto;
 
             overflow       : hidden;
@@ -569,8 +571,8 @@
             right: 0;
             bottom: 0;
             font: $size monospace;
-            line-height: $size/2;
-            height: $size/2;
+            line-height: math.div($size,2);
+            height: math.div($size,2);
             pointer-events: none;
             transform: translate(-150%, -50%) scaleX(1.2) rotate(90deg);
             transition: .2s ease-in-out;
