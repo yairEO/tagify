@@ -5,7 +5,10 @@ import Tagify from "./tagify.min.js"
 
 const noop = _ => _
 
-const isSameDeep = (a,b) => JSON.stringify(a) == JSON.stringify(b)
+const isSameDeep = (a,b) => {
+    const trans = x => typeof x == 'string' ? x : JSON.stringify(x)
+    return trans(a) == trans(b)
+}
 
 // if a template is a React component, it should be outputed as a String (and not as a React component)
 function templatesToString(templates) {
@@ -23,7 +26,7 @@ function templatesToString(templates) {
 
 const TagifyWrapper = ({
     name,
-    value = "",
+    value,
     loading = false,
     onInput = noop,
     onAdd = noop,
@@ -60,23 +63,12 @@ const TagifyWrapper = ({
     const mountedRef = useRef()
     const inputElmRef = useRef()
     const tagify = useRef()
-
-    const handleRef = elm => {
-        inputElmRef.current = elm
-    }
-
-    // if for some reason the developer chose to use "value" instead of "defaultValue", map it to "value"
-    if( value === undefined )
-        value = defaultValue
+    const _value = defaultValue || value
 
     const inputAttrs = useMemo(() => ({
-        ref: handleRef,
+        ref: inputElmRef,
         name,
-        defaultValue: children
-            ? children
-            : typeof value === "string"
-                ? value
-                : JSON.stringify(value),
+        defaultValue: children || typeof _value == 'string' ? _value : JSON.stringify(_value),
         className,
         readOnly,
         autoFocus,
@@ -100,27 +92,27 @@ const TagifyWrapper = ({
         const t = new Tagify(inputElmRef.current, settings)
 
         t.on("input"  , onInput)
-        t.on("add"    , onAdd)
-        t.on("remove" , onRemove)
-        t.on("invalid", onInvalid)
-        t.on("keydown", onKeydown)
-        t.on("focus"  , onFocus)
-        t.on("blur"   , onBlur)
-        t.on("click"  , onClick)
-        t.on("change" , onChange)
+         .on("add"    , onAdd)
+         .on("remove" , onRemove)
+         .on("invalid", onInvalid)
+         .on("keydown", onKeydown)
+         .on("focus"  , onFocus)
+         .on("blur"   , onBlur)
+         .on("click"  , onClick)
+         .on("change" , onChange)
 
-        t.on("edit:input"       , onEditInput)
-        t.on("edit:beforeUpdate", onEditBeforeUpdate)
-        t.on("edit:updated"     , onEditUpdated)
-        t.on("edit:start"       , onEditStart)
-        t.on("edit:keydown"     , onEditKeydown)
+         .on("edit:input"       , onEditInput)
+         .on("edit:beforeUpdate", onEditBeforeUpdate)
+         .on("edit:updated"     , onEditUpdated)
+         .on("edit:start"       , onEditStart)
+         .on("edit:keydown"     , onEditKeydown)
 
-        t.on("dropdown:show"   , onDropdownShow)
-        t.on("dropdown:hide"   , onDropdownHide)
-        t.on("dropdown:select" , onDropdownSelect)
-        t.on("dropdown:scroll" , onDropdownScroll)
-        t.on("dropdown:noMatch", onDropdownNoMatch)
-        t.on("dropdown:updated", onDropdownUpdated)
+         .on("dropdown:show"   , onDropdownShow)
+         .on("dropdown:hide"   , onDropdownHide)
+         .on("dropdown:select" , onDropdownSelect)
+         .on("dropdown:scroll" , onDropdownScroll)
+         .on("dropdown:noMatch", onDropdownNoMatch)
+         .on("dropdown:updated", onDropdownUpdated)
 
         // Bridge Tagify instance with parent component
         if (tagifyRef) {

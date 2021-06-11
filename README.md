@@ -54,6 +54,7 @@
 - [Single-Value](#single-value)
 - [React](#react)
   - [Update regarding `onChange` prop:](#update-regarding-onchange-prop)
+- [There is no more `e.target`, and to access the original DOM input element, do this: `e.detail.tagify.DOM.originalInput`.](#there-is-no-more-etarget-and-to-access-the-original-dom-input-element-do-this-edetailtagifydomoriginalinput)
     - [Updating the component's state](#updating-the-components-state)
 - [jQuery version](#jquery-version)
 - [CSS Variables](#css-variables)
@@ -391,27 +392,41 @@ Similar to native `<Select>` element, but allows typing text as value.
 ## React
 
 See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
+⚠️ Tagify is **not** a [controlled component](https://github.com/yairEO/tagify/issues/489#issuecomment-629316093).
 
 A Tagify React component is exported from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
 
+---
 ### Update regarding `onChange` prop:
 I have changed how the `onChange` works internally within the Wrapper of Tagify
 so as of *March 30, 2021* the `e` argument will include a `detail` parameter with the value as string.
 There is no more `e.target`, and to access the original DOM input element, do this: `e.detail.tagify.DOM.originalInput`.
+----
 
 > Note: You will need to inport Tagify's CSS also, either by javasceript or by SCSS `@import` (which is preferable)
+> Also note that you will need to use [*dart-sass*](https://www.npmjs.com/package/sass) and not *node-sass* in order to compile the file.
+
 ```javascript
 import Tags from "@yaireo/tagify/dist/react.tagify" // React-wrapper file
 import "@yaireo/tagify/dist/tagify.css" // Tagify CSS
+
+// on tag add/edit/remove
+const onChange = useCallback((e) => {
+  console.log("CHANGED:"
+    , e.detail.tagify.value // Array where each tag includes tagify's (needed) extra properties
+    , e.detail.tagify.getCleanValue()) // Same as above, without the extra properties
+    , e.detail.value // a string representing the tags
+  )
+}, [])
 
 const App = () => {
   return (
     <Tags
       tagifyRef={tagifyRef} // optional Ref object for the Tagify instance itself, to get access to  inner-methods
       settings={settings}  // tagify settings object
-      value="a,b,c"
+      defaultValue="a,b,c"
       {...tagifyProps}   // dynamic props such as "loading", "showDropdown:'abc'", "value"
-      onChange={ e => console.log("CHANGED:", JSON.parse(e.detail.value)) }
+      onChange={onChange}
     />
   )
 })
@@ -429,7 +444,7 @@ const tagifyRef = useRef()
 <MixedTags
   settings={...}
   onChange={...}
-  value={`This is a textarea which mixes text with [[{"value":"tags"}]].`}
+  defaultValue={`This is a textarea which mixes text with [[{"value":"tags"}]].`}
 />
 ```
 
