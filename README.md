@@ -195,22 +195,21 @@ var input = document.querySelector('input'),
 tagify.on('input', onInput)
 
 function onInput( e ){
-  var value = e.detail.value;
-  tagify.settings.whitelist.length = 0; // reset the whitelist
+  var value = e.detail.value
+  tagify.whitelist = null // reset the whitelist
 
   // https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort
-  controller && controller.abort();
-  controller = new AbortController();
+  controller && controller.abort()
+  controller = new AbortController()
 
   // show loading animation and hide the suggestions dropdown
   tagify.loading(true).dropdown.hide.call(tagify)
 
   fetch('http://get_suggestions.com?value=' + value, {signal:controller.signal})
     .then(RES => RES.json())
-    .then(function(whitelist){
-      // update inwhitelist Array in-place
-      tagify.settings.whitelist.splice(0, whitelist.length, ...whitelist)
-      tagify.loading(false).dropdown.show.call(tagify, value); // render the suggestions dropdown
+    .then(function(newWhitelist){
+      tagify.whitelist = newWhitelist // update inwhitelist Array in-place
+      tagify.loading(false).dropdown.show.call(tagify, value) // render the suggestions dropdown
     })
 }
 ```
@@ -269,10 +268,9 @@ which is a special template for rendering a suggestion item (in the dropdown lis
 [View templates](https://github.com/yairEO/tagify/blob/master/src/parts/templates.js)
 
 ## Suggestions selectbox
-The suggestions selectbox is shown is a whitelist Array of Strings or Objects was passed in the settings when the Tagify instance was created.
-Suggestions list will only be rendered if there are at least two matching suggestions (case-insensitive).
+The suggestions selectbox is a *whitelist Array* of *Strings* or *Objects* which was set in the [settings](#settings) Object when the Tagify instance was created, and can be set latet directly on the instance: `tagifyInstance.whitelist = ["tag1", "tag2", ...]`.
 
-The selectbox dropdown will be appended to the document's `<body>` element and will be rendered by default in a position below (bottom of) the Tagify element.
+The suggestions dropdown will be appended to the document's `<body>` element and will be rendered by default in a position below (bottom of) the Tagify element.
 Using the keyboard arrows up/down will highlight an option from the list, and hitting the Enter key to select.
 
 It is possible to tweak the selectbox dropdown via 2 settings:
@@ -542,19 +540,46 @@ required          | <pre lang=html>`<input required>`</pre> | Adds a `required` 
 List of questions & scenarios which might come up during development with Tagify:
 
 <details>
+  <summary><strong>Dynamic whitelist</strong></summary>
+The whitelist initial value is set like so:
+
+```javascript
+const tagify = new Tagify(tagNode, {
+  whitelist: ["a", "b", "c"]
+})
+```
+
+If chnages to the whitelist are needed, they should be done like so:
+
+**Incorrect:**
+
+```js
+tagify.settings.whitelist = ["foo", "bar"]
+```
+
+**Correct:**
+```js
+// set the whitelist directly on the instance and not on the "settings" property
+tagify.whitelist = ["foo", "bar"]
+```
+</details>
+
+---
+
+<details>
   <summary><strong>tags/whitelist data strcture</strong></summary>
 
 Tagify does not accept just *any* kind of data structure.<br>
 If a tag data is represented as an `Object`, it **must** contain a **unique** property `value`
 which Tagify uses to check if a tag already exists, among other things, so make sure it is present.
 
-**Incorrect**
+**Incorrect:**
 
 ```javascript
 [{ "id":1, "name":"foo bar" }]
 ```
 
-**Correct**
+**Correct:**
 
 ```javascript
 [{ "id":1, "value": 1, "name":"foo bar" }]

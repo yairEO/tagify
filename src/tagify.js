@@ -49,6 +49,7 @@ function Tagify( input, settings ){
 
     this.events.customBinding.call(this);
     this.events.binding.call(this)
+
     input.autofocus && this.DOM.input.focus()
 }
 
@@ -78,6 +79,14 @@ Tagify.prototype = {
     parseTemplate(template, data){
         template = this.settings.templates[template] || template;
         return this.parseHTML( template.apply(this, data) )
+    },
+
+    set whitelist( arr ){
+        this.settings.whitelist = arr && Array.isArray(arr) ? arr : []
+    },
+
+    get whitelist(){
+        return this.settings.whitelist
     },
 
     applySettings( input, settings ){

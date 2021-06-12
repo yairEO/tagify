@@ -267,9 +267,6 @@ and [[{"value": "readonly", "readonly":true}]]
 
     tagify.addTags( `a,a` )
 
-    window.xxx = tagify
-
-
   // Chainable event listeners
   tagify.on('add', onAddTag)
         .on('remove', onRemoveTag)
@@ -329,13 +326,13 @@ and [[{"value": "readonly", "readonly":true}]]
     console.log("onInput: ", e.detail)
 
     tagify.loading(true)
+    tagify.whitelist = null
+
     // get new whitelist from some async request (mocked)
     mockAjax()
         .then(function(result){
             tagify.loading(false)
-            tagify.settings.whitelist.length = result.length
-            /// https://stackoverflow.com/q/30640771/104380
-            tagify.settings.whitelist.splice(0, result.length, ...result)
+            tagify.whitelist = result
             // render the suggestions dropdown
             tagify.dropdown.show.call(tagify, e.detail.value)
         })

@@ -1291,15 +1291,13 @@ function onRemoveTag(e){
 // on character(s) added/removed (user is typing/deleting)
 function onInput(e){
     console.log("onInput: ", e.detail);
-    tagify.settings.whitelist.length = 0; // reset current whitelist
+    tagify.whitelist = null; // reset current whitelist
     tagify.loading(true) // show the loader animation
 
     // get new whitelist from a delayed mocked request (Promise)
     mockAjax()
         .then(function(result){
-            // replace tagify "whitelist" array values with new values
-            // and add back the ones already choses as Tags
-            tagify.settings.whitelist.push(...result, ...tagify.value)
+            tagify.settings.whitelist = result.concat(tagify.value) // add already-existing tags to the new whitelist array
 
             tagify
               .loading(false)
@@ -1480,8 +1478,9 @@ var input = document.querySelector('[name=mix]'),
         pattern: /@|#/,  // <--  Text starting with @ or # (if single, String can be used here)
         tagTextProp: 'text',  // <-- the default property (from whitelist item) for the text to be rendered in a tag element.
         // Array for initial interpolation, which allows only these tags to be used
-        whitelist: whitelist_1.concat(whitelist_2).map(function(item){ return typeof item == 'string' ? {value:item} : item}),
-
+        whitelist: whitelist_1.concat(whitelist_2).map(function(item){
+            return typeof item == 'string' ? {value:item} : item
+        }),
         dropdown : {
             enabled: 1,
             position: 'text', // <-- render the suggestions list next to the typed text ("caret")
@@ -1505,10 +1504,10 @@ tagify.on('input', function(e){
 
     if( prefix ){
         if( prefix == '@' )
-            tagify.settings.whitelist = whitelist_1;
+            tagify.whitelist = whitelist_1;
 
         if( prefix == '#' )
-            tagify.settings.whitelist = whitelist_2;
+            tagify.whitelist = whitelist_2;
 
         if( e.detail.value.length > 1 )
             tagify.dropdown.show.call(tagify, e.detail.value);
@@ -1765,7 +1764,7 @@ function getAddAllSuggestionsElm(){
     return tagify.parseTemplate('dropdownItem', [{
             class: "addAll",
             name: "Add all",
-            email: tagify.settings.whitelist.reduce(function(remainingSuggestions, item){
+            email: tagify.whitelist.reduce(function(remainingSuggestions, item){
                 return tagify.isTagDuplicate(item.value) ? remainingSuggestions : remainingSuggestions + 1
             }, 0) + " Members"
         }]
@@ -2078,7 +2077,7 @@ tagify.on('add', function(e){
 });
 
 // add the first 2 tags and makes them readonly
-var tagsToAdd = tagify.settings.whitelist.slice(0, 2)
+var tagsToAdd = tagify.whitelist.slice(0, 2)
 tagify.addTags(tagsToAdd)
 
 })()

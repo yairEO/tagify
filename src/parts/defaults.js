@@ -64,7 +64,7 @@ export default {
 
     dropdown: {
         classname     : '',
-        enabled       : 2,      // minimum input characters needs to be typed for the suggestions dropdown to show
+        enabled       : 2,      // minimum input characters to be typed for the suggestions dropdown to show
         maxItems      : 10,
         searchKeys    : ["value", "searchBy"],
         fuzzySearch   : true,
