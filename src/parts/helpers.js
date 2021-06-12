@@ -22,7 +22,7 @@ export const sameStr = (s1, s2, caseSensitive, trim) => {
 
 
 // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
-export const removeCollectionProp = (collection, unwantedProps) => collection && isArray(collection) && collection.map(v => omit(v, unwantedProps))
+export const removeCollectionProp = (collection, unwantedProps) => collection && Array.isArray(collection) && collection.map(v => omit(v, unwantedProps))
 
 export function omit(obj, props){
     var newObj = {}, p;
@@ -95,10 +95,6 @@ export function escapeHTML( s ){
         .replace(/`|'/g, "&#039;")
 }
 
-function isArray(a){
-    return a instanceof Array
-}
-
 /**
  * Checks if an argument is a javascript Object
  */
@@ -131,7 +127,7 @@ export function extend( o, o1, o2) {
                     continue;
                 }
 
-                if( isArray(b[key]) ){
+                if( Array.isArray(b[key]) ){
                     a[key] = Object.assign([], b[key])
                     continue
                 }

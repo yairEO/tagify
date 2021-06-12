@@ -699,6 +699,7 @@ export default {
                 originalData = this.tagData(tagElm).__originalData, // pre-edit data
                 hasChanged   = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
                 isValid      = this.validateTag({[_s.tagTextProp]:textValue}),
+                hasMaxTags,
                 newTagData;
 
             //  this.DOM.input.focus()
@@ -713,6 +714,8 @@ export default {
                 return
             }
 
+            hasMaxTags = this.hasMaxTags()
+
             newTagData = this.getWhitelistItem(textValue) || extend(
                 {},
                 originalData,
@@ -726,8 +729,11 @@ export default {
             _s.transformTag.call(this, newTagData, originalData)
 
             // MUST re-validate after tag transformation
-            // only validate the "tagTextProp" because is the only thing that metters for validation
-            isValid = !this.hasMaxTags() && this.validateTag({[_s.tagTextProp]:newTagData[_s.tagTextProp]})
+            // only validate the "tagTextProp" because is the only thing that metters for validating an edited tag.
+            // -- Scenarios: --
+            // 1. max 3 tags allowd. there are 4 tags, one has invalid input and is edited to a valid one, and now should be marked as "not allowed" because limit of tags has reached
+            // 2. max 3 tags allowed. there are 3 tags, one is edited, and so max-tags vaildation should be OK
+            isValid = !hasMaxTags && this.validateTag({[_s.tagTextProp]:newTagData[_s.tagTextProp]})
 
             if( isValid !== true ){
                 this.trigger("invalid", { data:newTagData, tag:tagElm, message:isValid })

@@ -161,7 +161,7 @@ and [[{"value": "readonly", "readonly":true}]]
   document.forms[0].reset()
 
   window.tagified = {
-    "mix"               : 0,
+    "mix"               : 1,
     "markdown"          : 0,
     "basic"             : 1,
     "textarea"          : 0,
@@ -267,6 +267,8 @@ and [[{"value": "readonly", "readonly":true}]]
 
     tagify.addTags( `a,a` )
 
+    window.xxx = tagify
+
 
   // Chainable event listeners
   tagify.on('add', onAddTag)
@@ -324,16 +326,18 @@ and [[{"value": "readonly", "readonly":true}]]
 
   // on character(s) added/removed (user is typing/deleting)
   function onInput(e){
-    console.log("onInput: ", e.detail);
+    console.log("onInput: ", e.detail)
 
+    tagify.loading(true)
     // get new whitelist from some async request (mocked)
     mockAjax()
         .then(function(result){
-          tagify.settings.whitelist.length = result.length;
+            tagify.loading(false)
+            tagify.settings.whitelist.length = result.length
             /// https://stackoverflow.com/q/30640771/104380
             tagify.settings.whitelist.splice(0, result.length, ...result)
             // render the suggestions dropdown
-            tagify.dropdown.show.call(tagify, e.detail.value);
+            tagify.dropdown.show.call(tagify, e.detail.value)
         })
     }
 

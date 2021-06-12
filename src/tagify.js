@@ -456,18 +456,21 @@ Tagify.prototype = {
      */
     editTagToggleValidity( tagElm, tagData ){
         var tagData = tagData || this.tagData(tagElm),
-            toggleState;
+            isValid;
 
         if( !tagData ){
             console.warn("tag has no data: ", tagElm, tagData)
             return;
         }
 
-        toggleState = !!("__isValid" in tagData && tagData.__isValid != true);
+        isValid = !("__isValid" in tagData) || tagData.__isValid === true
+
+        if( !isValid )
+            this.removeTagsFromValue(tagElm)
 
         //this.validateTag(tagData);
 
-        tagElm.classList.toggle(this.settings.classNames.tagNotAllowed, toggleState)
+        tagElm.classList.toggle(this.settings.classNames.tagNotAllowed, !isValid)
         return tagData.__isValid
     },
 
@@ -893,7 +896,7 @@ Tagify.prototype = {
     hasMaxTags(){
         return this.value.length >= this.settings.maxTags
             ? this.TEXTS.exceed
-            : false;
+            : false
     },
 
     setReadonly( isReadonly ){
@@ -1329,23 +1332,28 @@ Tagify.prototype = {
     },
 
     /**
-     * find all invalid tags and re-check them
+     * re-check all invalid tags.
+     * called after a tag was edited or removed
      */
     reCheckInvalidTags(){
         var _s = this.settings
 
-
         this.getTagElms(_s.classNames.tagNotAllowed).forEach((tagElm, i) => {
             var tagData = this.tagData(tagElm),
-                isNodeValid = !this.hasMaxTags() && this.validateTag(tagData) === true;
+                hasMaxTags = this.hasMaxTags(),
+                isNodeValid = this.validateTag(tagData) === true;
 
-            if( isNodeValid ){
+            // if the tag has become valid
+            if( isNodeValid && !hasMaxTags ){
                 tagData = tagData.__preInvalidData
                     ? tagData.__preInvalidData
                     : { value:tagData.value }
 
-                this.replaceTag(tagElm, tagData)
+                return this.replaceTag(tagElm, tagData)
             }
+
+            // if the tag is still invaild, set its title as such (reson of invalid might have changed)
+            tagElm.title = hasMaxTags || isNodeValid
         })
     },
 
@@ -1442,18 +1450,7 @@ Tagify.prototype = {
 
                 // update state regardless of animation
                 if( !silent ){
-                    tagsToRemove.forEach(tag => {
-                        // remove "__removed" so the comparison in "getTagIdx" could work
-                        var tagData = Object.assign({}, tag.data) // shallow clone
-                        delete tagData.__removed
-
-                        var tagIdx = this.getTagIdx(tagData)
-                        if( tagIdx > -1 )
-                            this.value.splice(tagIdx, 1)
-                    })
-
-                    // that.removeValueById(tagData.__uid)
-                    this.update() // update the original input with the current value
+                    this.removeTagsFromValue(tagsToRemove.map(tag => tag.node))
                 }
             }
             )
@@ -1462,6 +1459,26 @@ Tagify.prototype = {
 
     removeTagsFromDOM(){
         [].slice.call(this.getTagElms()).forEach(elm => elm.parentNode.removeChild(elm))
+    },
+
+    /**
+     * @param {Array/Node} tags to be removed from the this.value array
+     */
+    removeTagsFromValue( tags ){
+        tags = Array.isArray(tags) ? tags : [tags];
+
+        tags.forEach(tag => {
+            // remove "__removed" so the comparison in "getTagIdx" could work
+            var tagData = this.tagData(tag),
+                tagIdx = this.getTagIdx(tagData)
+
+            delete tagData.__removed
+
+            if( tagIdx > -1 )
+                this.value.splice(tagIdx, 1)
+        })
+
+        this.update() // update the original input with the current value
     },
 
     removeAllTags( opts ){
