@@ -1393,7 +1393,7 @@ Tagify.prototype = {
             if( tagElm && typeof tagElm == 'string')
                 tagElm = this.getTagElmByValue(tagElm)
 
-            if( tagElm )
+            if( tagElm && this.tagData(tagElm) ) // make sure it's a tag and not some other node
                 // because the DOM node might be removed by async animation, the state will be updated while
                 // the node might still be in the DOM, so the "update" method should know which nodes to ignore
                 elms.push({
