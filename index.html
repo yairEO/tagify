@@ -1300,11 +1300,11 @@ function onInput(e){
             tagify.settings.whitelist = result.concat(tagify.value) // add already-existing tags to the new whitelist array
 
             tagify
-              .loading(false)
-              // render the suggestions dropdown.
-              .dropdown.show.call(tagify, e.detail.value);
+                .loading(false)
+                // render the suggestions dropdown.
+                .dropdown.show(e.detail.value);
         })
-        .catch(err => tagify.dropdown.hide.call(tagify))
+        .catch(err => tagify.dropdown.hide())
 }
 
 function onTagEdit(e){
@@ -1388,7 +1388,7 @@ var input = document.querySelector('input[name=tags-manual-suggestions]'),
 
     // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement
     function renderSuggestionsList(){
-        tagify.dropdown.show.call(tagify) // load the list
+        tagify.dropdown.show() // load the list
         tagify.DOM.scope.parentNode.appendChild(tagify.DOM.dropdown)
     }
 })()
@@ -1510,7 +1510,7 @@ tagify.on('input', function(e){
             tagify.whitelist = whitelist_2;
 
         if( e.detail.value.length > 1 )
-            tagify.dropdown.show.call(tagify, e.detail.value);
+            tagify.dropdown.show(e.detail.value);
     }
 
     console.log( tagify.value )
@@ -1755,7 +1755,7 @@ function onDropdownShow(e){
 
 function onSelectSuggestion(e){
     if( e.detail.elm == addAllSuggestionsElm )
-        tagify.dropdown.selectAll.call(tagify);
+        tagify.dropdown.selectAll();
 }
 
 // create a "add all" custom suggestion element every time the dropdown changes

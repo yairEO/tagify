@@ -1,5 +1,5 @@
 import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, getUID } from './parts/helpers'
-import dropdownMethods from './parts/dropdown'
+import _dropdown, { initDropdown } from './parts/dropdown'
 import DEFAULTS from './parts/defaults'
 import templates from './parts/templates'
 import EventDispatcher from './parts/EventDispatcher'
@@ -44,8 +44,11 @@ function Tagify( input, settings ){
     this.DOM = {} // Store all relevant DOM elements in an Object
 
     this.build(input)
+    initDropdown.call(this)
+
     this.getCSSVars()
     this.loadOriginalValues()
+
 
     this.events.customBinding.call(this);
     this.events.binding.call(this)
@@ -54,7 +57,7 @@ function Tagify( input, settings ){
 }
 
 Tagify.prototype = {
-    dropdown: dropdownMethods,
+    _dropdown,
 
     TEXTS : {
         empty      : "empty",
@@ -256,9 +259,6 @@ Tagify.prototype = {
             DOM.input = DOM.scope.querySelector(this.settings.classNames.inputSelector)
             input.parentNode.insertBefore(DOM.scope, input)
         }
-
-        if( this.settings.dropdown.enabled >= 0 )
-            this.dropdown.init.call(this)
     },
 
     /**
@@ -266,7 +266,7 @@ Tagify.prototype = {
      */
     destroy(){
         this.DOM.scope.parentNode.removeChild(this.DOM.scope)
-        this.dropdown.hide.call(this, true)
+        this.dropdown.hide(true)
         clearTimeout(this.dropdownHide__bindEventsTimeout)
     },
 
@@ -404,7 +404,7 @@ Tagify.prototype = {
         tagElm = tagElm || this.getLastTag()
         opts = opts || {}
 
-        this.dropdown.hide.call(this)
+        this.dropdown.hide()
 
         var _s = this.settings;
 
@@ -512,7 +512,7 @@ Tagify.prototype = {
             this.removeTags(tagElm)
 
         this.trigger("edit:updated", eventData)
-        this.dropdown.hide.call(this)
+        this.dropdown.hide()
 
         // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
         if( this.settings.keepInvalidTags )
@@ -699,7 +699,7 @@ Tagify.prototype = {
                     }
 
                     this.input.autocomplete.suggest.call(this);
-                    this.dropdown.hide.call(this);
+                    this.dropdown.hide();
 
                     return true;
                 }
@@ -1209,7 +1209,7 @@ Tagify.prototype = {
                     setTimeout(() => this.removeTags(tagElm, true), 1000)
             }
 
-            this.dropdown.position.call(this) // reposition the dropdown because the just-added tag might cause a new-line
+            this.dropdown.position() // reposition the dropdown because the just-added tag might cause a new-line
         })
 
         this.appendTag(frag)
@@ -1218,7 +1218,7 @@ Tagify.prototype = {
             this.input.set.call(this)
         }
 
-        this.dropdown.refilter.call(this)
+        this.dropdown.refilter()
         return tagElems
     },
 
@@ -1431,8 +1431,8 @@ Tagify.prototype = {
                     if( !silent ){
                         // this.removeValueById(tagData.__uid)
                         this.trigger('remove', { tag:tag.node, index:tag.idx, data:tag.data })
-                        this.dropdown.refilter.call(this)
-                        this.dropdown.position.call(this)
+                        this.dropdown.refilter()
+                        this.dropdown.position()
                         this.DOM.input.normalize() // best-practice when in mix-mode (safe to do always anyways)
 
                         // check if any of the current tags which might have been marked as "duplicate" should be un-marked
@@ -1499,7 +1499,7 @@ Tagify.prototype = {
         else
             this.removeTagsFromDOM()
 
-        this.dropdown.position.call(this)
+        this.dropdown.position()
 
         if( this.settings.mode == 'select' )
             this.input.set.call(this)

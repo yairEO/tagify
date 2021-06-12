@@ -94,7 +94,7 @@ export default {
 
             if( type == 'blur' ){
                 if( e.relatedTarget === this.DOM.scope ){
-                    this.dropdown.hide.call(this)
+                    this.dropdown.hide()
                     this.DOM.input.focus()
                     return
                 }
@@ -117,7 +117,7 @@ export default {
                 else if( e.type == "blur" ){
                     this.trigger("blur", eventData)
                     this.loading(false)
-                    this.dropdown.hide.call(this)
+                    this.dropdown.hide()
                     // reset state which needs reseting
                     this.state.dropdown.visible = undefined
                     this.setStateSelection()
@@ -130,7 +130,7 @@ export default {
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
                 if( _s.dropdown.enabled === 0 ){  // && _s.mode != "select"
-                    this.dropdown.show.call(this)
+                    this.dropdown.show()
                 }
                 return
             }
@@ -156,7 +156,7 @@ export default {
             }
 
             this.DOM.input.removeAttribute('style')
-            this.dropdown.hide.call(this)
+            this.dropdown.hide()
         },
 
         onWindowKeyDown(e){
@@ -364,7 +364,7 @@ export default {
                 case 'ArrowDown' :
                     // if( this.settings.mode == 'select' ) // issue #333
                     if( !this.state.dropdown.visible )
-                        this.dropdown.show.call(this)
+                        this.dropdown.show()
                     break;
 
                 case 'ArrowRight' : {
@@ -420,7 +420,7 @@ export default {
                 }
             }
             else if( this.settings.dropdown.enabled >= 0 ){
-                this.dropdown[showSuggestions ? "show" : "hide"].call(this, value);
+                this.dropdown[showSuggestions ? "show" : "hide"](value);
             }
 
             this.trigger('input', eventData) // "input" event must be triggered at this point, before the dropdown is shown
@@ -500,7 +500,7 @@ export default {
                             this.state.tag.value = this.state.tag.value.replace(_s.delimiters, '')
                             this.state.tag.delimiters = matchDelimiters[0]
                             this.addTags(this.state.tag.value, _s.dropdown.clearOnSelect)
-                            this.dropdown.hide.call(this)
+                            this.dropdown.hide()
                             return
                         }
 
@@ -549,7 +549,7 @@ export default {
                 this.trigger("input", extend({}, this.state.tag, {textContent:this.DOM.input.textContent}))
 
                 if( this.state.tag )
-                    this.dropdown[showSuggestions ? "show" : "hide"].call(this, this.state.tag.value);
+                    this.dropdown[showSuggestions ? "show" : "hide"](this.state.tag.value);
             }, 10)
         },
 
@@ -596,15 +596,15 @@ export default {
 
                 if( timeDiffFocus > 500 ){
                     if( this.state.dropdown.visible )
-                        this.dropdown.hide.call(this)
+                        this.dropdown.hide()
                     else if( _s.dropdown.enabled === 0 && _s.mode != 'mix' )
-                        this.dropdown.show.call(this)
+                        this.dropdown.show()
                     return
                 }
             }
 
             if( _s.mode == 'select' )
-                !this.state.dropdown.visible && this.dropdown.show.call(this);
+                !this.state.dropdown.visible && this.dropdown.show();
         },
 
         // special proccess is needed for pasted content in order to "clean" it
@@ -666,7 +666,7 @@ export default {
                 //  "onEditTagInput" but "this.state.editing" will be "false"
                 if( this.state.editing )
                     this.state.editing.value = value
-                this.dropdown.show.call(this, value)
+                this.dropdown.show(value)
             }
 
             this.trigger("edit:input", {

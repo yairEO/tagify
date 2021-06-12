@@ -1,5 +1,17 @@
 import { sameStr, isObject, minify, escapeHTML, extend, unaccent, getNodeHeight } from './helpers'
 
+export function initDropdown(){
+    this.dropdown = {}
+
+    for( let p in this._dropdown )
+        this.dropdown[p] = typeof this._dropdown[p] === 'function'
+            ? this._dropdown[p].bind(this)
+            : this._dropdown[p]
+
+    if( this.settings.dropdown.enabled >= 0 )
+        this.dropdown.init()
+}
+
 export default {
     init(){
         this.DOM.dropdown = this.parseTemplate('dropdown', [this.settings])
@@ -33,7 +45,7 @@ export default {
         // if no value was supplied, show all the "whitelist" items in the dropdown
         // @type [Array] listItems
         // TODO: add a Setting to control items' sort order for "listItems"
-        this.suggestedListItems = this.dropdown.filterListItems.call(this, value)
+        this.suggestedListItems = this.dropdown.filterListItems(value)
 
         // trigger at this exact point to let the developer the chance to manually set "this.suggestedListItems"
         if( value && !this.suggestedListItems.length ){
@@ -59,7 +71,7 @@ export default {
                 // hide suggestions list if no suggestion matched
                 else{
                     this.input.autocomplete.suggest.call(this);
-                    this.dropdown.hide.call(this)
+                    this.dropdown.hide()
                     return;
                 }
             }
@@ -74,10 +86,10 @@ export default {
             }
         }
 
-        this.dropdown.fill.call(this, noMatchListItem)
+        this.dropdown.fill(noMatchListItem)
 
         if( _s.dropdown.highlightFirst )
-            this.dropdown.highlightOption.call(this, this.DOM.dropdown.content.children[0])
+            this.dropdown.highlightOption(this.DOM.dropdown.content.children[0])
 
         // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
         // called multiple times, regardless if the dropdown is currently visible, but the events-binding
@@ -99,8 +111,8 @@ export default {
             // a slight delay is needed if the dropdown "position" setting is "text", and nothing was typed in the input,
             // so sadly the "getCaretGlobalPosition" method doesn't recognize the caret position without this delay
             setTimeout(() => {
-                this.dropdown.position.call(this)
-                this.dropdown.render.call(this)
+                this.dropdown.position()
+                this.dropdown.render()
             })
         }
 
@@ -165,7 +177,7 @@ export default {
         // append the dropdown to the body element & handle events
         if( !document.body.contains(this.DOM.dropdown) ){
             this.DOM.dropdown.classList.add( _s.classNames.dropdownInital )
-            this.dropdown.position.call(this, ddHeight)
+            this.dropdown.position(ddHeight)
             _s.dropdown.appendTarget.appendChild(this.DOM.dropdown)
 
             setTimeout(() =>
@@ -183,7 +195,7 @@ export default {
     fill( HTMLContent ){
         HTMLContent = typeof HTMLContent == 'string'
             ? HTMLContent
-            : this.dropdown.createListHTML.call(this, HTMLContent || this.suggestedListItems)
+            : this.dropdown.createListHTML(HTMLContent || this.suggestedListItems)
 
         this.DOM.dropdown.content.innerHTML = minify(HTMLContent)
     },
@@ -194,12 +206,12 @@ export default {
      */
     refilter( value ){
         value = value || this.state.dropdown.query || ''
-        this.suggestedListItems = this.dropdown.filterListItems.call(this, value)
+        this.suggestedListItems = this.dropdown.filterListItems(value)
 
-        this.dropdown.fill.call(this)
+        this.dropdown.fill()
 
         if( !this.suggestedListItems.length )
-            this.dropdown.hide.call(this)
+            this.dropdown.hide()
 
         this.trigger("dropdown:updated", this.DOM.dropdown)
     },
@@ -303,7 +315,7 @@ export default {
             onKeyDown(e){
                 // get the "active" element, and if there was none (yet) active, use first child
                 var selectedElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
-                    selectedElmData = this.dropdown.getSuggestionDataByNode.call(this, selectedElm)
+                    selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
 
                 switch( e.key ){
                     case 'ArrowDown' :
@@ -322,14 +334,14 @@ export default {
                             selectedElm = dropdownItems[e.key == 'ArrowUp' || e.key == 'Up' ? dropdownItems.length - 1 : 0];
                         }
 
-                        selectedElmData = this.dropdown.getSuggestionDataByNode.call(this, selectedElm)
+                        selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
 
-                        this.dropdown.highlightOption.call(this, selectedElm, true);
+                        this.dropdown.highlightOption(selectedElm, true);
                         break;
                     }
                     case 'Escape' :
                     case 'Esc': // IE11
-                        this.dropdown.hide.call(this);
+                        this.dropdown.hide();
                         break;
 
                     case 'ArrowRight' :
@@ -339,7 +351,7 @@ export default {
                         // in mix-mode, treat arrowRight like Enter key, so a tag will be created
                         if( this.settings.mode != 'mix' && selectedElm && !this.settings.autoComplete.rightKey && !this.state.editing ){
                             e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
-                            var value = this.dropdown.getMappedValue.call(this, selectedElmData)
+                            var value = this.dropdown.getMappedValue(selectedElmData)
 
                             this.input.autocomplete.set.call(this, value)
                             return false
@@ -352,9 +364,9 @@ export default {
                         this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                             .then(() => {
                                 if( selectedElm )
-                                    this.dropdown.selectOption.call(this, selectedElm)
+                                    this.dropdown.selectOption(selectedElm)
                                 else
-                                    this.dropdown.hide.call(this)
+                                    this.dropdown.hide()
 
                                 if( this.settings.mode != 'mix' )
                                     this.addTags(this.state.inputText.trim(), true)
@@ -381,19 +393,19 @@ export default {
             onMouseOver(e){
                 var ddItem = e.target.closest(this.settings.classNames.dropdownItemSelector)
                 // event delegation check
-                ddItem && this.dropdown.highlightOption.call(this, ddItem)
+                ddItem && this.dropdown.highlightOption(ddItem)
             },
 
             onMouseLeave(e){
                 // de-highlight any previously highlighted option
-                this.dropdown.highlightOption.call(this)
+                this.dropdown.highlightOption()
             },
 
             onClick(e){
                 if( e.button != 0 || e.target == this.DOM.dropdown || e.target == this.DOM.dropdown.content ) return; // allow only mouse left-clicks
 
                 var selectedElm = e.target.closest(this.settings.classNames.dropdownItemSelector),
-                    selectedElmData = this.dropdown.getSuggestionDataByNode.call(this, selectedElm)
+                    selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
 
                 // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
                 this.state.actions.selectOption = true;
@@ -402,9 +414,9 @@ export default {
                 this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                     .then(() => {
                         if( selectedElm )
-                            this.dropdown.selectOption.call(this, selectedElm)
+                            this.dropdown.selectOption(selectedElm)
                         else
-                            this.dropdown.hide.call(this)
+                            this.dropdown.hide()
                     })
                     .catch(err => err)
             },
@@ -462,7 +474,7 @@ export default {
         // Try to autocomplete the typed value with the currently highlighted dropdown item
         if( this.settings.autoComplete ){
             this.input.autocomplete.suggest.call(this, itemData)
-            this.dropdown.position.call(this) // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
+            this.dropdown.position() // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
         }
     },
 
@@ -475,7 +487,7 @@ export default {
 
         if( !elm ) {
             this.addTags(this.state.inputText, true)
-            closeOnSelect && this.dropdown.hide.call(this)
+            closeOnSelect && this.dropdown.hide()
             return;
         }
 
@@ -489,7 +501,7 @@ export default {
 
         // above event must  be triggered, regardless of anything else which might go wrong
         if( !tagifySuggestionIdx || !tagData ){
-            this.dropdown.hide.call(this)
+            this.dropdown.hide()
             return
         }
 
@@ -512,18 +524,18 @@ export default {
         }
 
         else
-            this.dropdown.refilter.call(this)
+            this.dropdown.refilter()
     },
 
     selectAll(){
         // having suggestedListItems with items messes with "normalizeTags" when wanting
         // to add all tags
         this.suggestedListItems.length = 0;
-        this.dropdown.hide.call(this)
+        this.dropdown.hide()
 
         // some whitelist items might have already been added as tags so when addings all of them,
         // skip adding already-added ones, so best to use "filterListItems" method over "settings.whitelist"
-        this.addTags(this.dropdown.filterListItems.call(this, ''), true)
+        this.addTags(this.dropdown.filterListItems(''), true)
         return this
     },
 
@@ -637,7 +649,7 @@ export default {
             if( typeof suggestion == 'string' || typeof suggestion == 'number' )
                 suggestion = {value:suggestion}
 
-            var value = this.dropdown.getMappedValue.call(this, suggestion)
+            var value = this.dropdown.getMappedValue(suggestion)
 
             suggestion.value = value && typeof value == 'string'
                 ? escapeHTML(value)

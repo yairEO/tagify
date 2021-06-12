@@ -334,7 +334,7 @@ and [[{"value": "readonly", "readonly":true}]]
             tagify.loading(false)
             tagify.whitelist = result
             // render the suggestions dropdown
-            tagify.dropdown.show.call(tagify, e.detail.value)
+            tagify.dropdown.show(e.detail.value)
         })
     }
 
@@ -405,7 +405,7 @@ and [[{"value": "readonly", "readonly":true}]]
 
       // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement
       function renderSuggestionsList(tagify){
-          tagify.dropdown.show.call(tagify) // load the list
+          tagify.dropdown.show() // load the list
           tagify.DOM.scope.parentNode.appendChild(tagify.DOM.dropdown)
       }
   })()
@@ -568,7 +568,7 @@ and [[{"value": "readonly", "readonly":true}]]
       }
 
       if( e.detail.value.length >= tagify.settings.dropdown.enabled )
-          tagify.dropdown.show.call(tagify, e.detail.value);
+          tagify.dropdown.show(e.detail.value);
     }
 
     console.log('mix-mode "input" event value: ', e.detail, e.detail.tagify.value)

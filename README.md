@@ -47,7 +47,7 @@
 - [Drag & Sort](#drag--sort)
   - [Integration example:](#integration-example)
 - [DOM Templates](#dom-templates)
-- [Suggestions selectbox](#suggestions-selectbox)
+- [Suggestions list](#suggestions-list)
   - [Example for a suggestion item alias](#example-for-a-suggestion-item-alias)
   - [Example whitelist:](#example-whitelist)
 - [Mixed-Content](#mixed-content)
@@ -92,7 +92,7 @@ var tagify = new Tagify(...)
 * Supports [single-value](#single-value) mode (like `<select>`)
 * Supports whitelist/blacklist
 * Supports Templates for: <em>component wrapper</em>, <em>tag items</em>, <em>suggestion list</em> & <em>suggestion items</em>
-* Shows suggestions selectbox (flexiable settings & styling) at *full (component) width* or *next to* the typed texted (caret)
+* Shows suggestions list (flexiable settings & styling) at *full (component) width* or *next to* the typed texted (caret)
 * Allows setting suggestions' [aliases](#example-for-a-suggestion-item-alias) for easier fuzzy-searching
 * Auto-suggest input as-you-type with ability to auto-complete
 * Can paste in multiple values: `tag 1, tag 2, tag 3` or even newline-separated tags
@@ -203,13 +203,13 @@ function onInput( e ){
   controller = new AbortController()
 
   // show loading animation and hide the suggestions dropdown
-  tagify.loading(true).dropdown.hide.call(tagify)
+  tagify.loading(true).dropdown.hide()
 
   fetch('http://get_suggestions.com?value=' + value, {signal:controller.signal})
     .then(RES => RES.json())
     .then(function(newWhitelist){
       tagify.whitelist = newWhitelist // update inwhitelist Array in-place
-      tagify.loading(false).dropdown.show.call(tagify, value) // render the suggestions dropdown
+      tagify.loading(false).dropdown.show(value) // render the suggestions dropdown
     })
 }
 ```
@@ -267,16 +267,21 @@ which is a special template for rendering a suggestion item (in the dropdown lis
 
 [View templates](https://github.com/yairEO/tagify/blob/master/src/parts/templates.js)
 
-## Suggestions selectbox
-The suggestions selectbox is a *whitelist Array* of *Strings* or *Objects* which was set in the [settings](#settings) Object when the Tagify instance was created, and can be set latet directly on the instance: `tagifyInstance.whitelist = ["tag1", "tag2", ...]`.
+## Suggestions list
+
+<p align="center">
+  <img src="/docs/suggestions-list.apng" alt='suggestions list dropdown'/>
+</p>
+
+The suggestions list is a *whitelist Array* of *Strings* or *Objects* which was set in the [settings](#settings) Object when the Tagify instance was created, and can be set latet directly on the instance: `tagifyInstance.whitelist = ["tag1", "tag2", ...]`.
 
 The suggestions dropdown will be appended to the document's `<body>` element and will be rendered by default in a position below (bottom of) the Tagify element.
 Using the keyboard arrows up/down will highlight an option from the list, and hitting the Enter key to select.
 
-It is possible to tweak the selectbox dropdown via 2 settings:
+It is possible to tweak the list dropdown via 2 settings:
 
  - `enabled` - this is a numeral value which tells Tagify when to show the suggestions dropdown, when a minimum of N characters were typed.
- - `maxItems` - Limits the number of items the suggestions selectbox will render
+ - `maxItems` - Limits the number of items the suggestions list will render
 
 ```javascript
 var input = document.querySelector('input'),
@@ -890,7 +895,7 @@ a11y.*focusableTags*      | <sub>Boolean</sub>           | false                
 dropdown.*enabled*        | <sub>Number</sub>            | 2                                           | Minimum characters input for showing a suggestions list. `false` will not render a suggestions list.
 dropdown.*caseSensitive*  | <sub>Boolean</sub>           | false                                       | if `true`, match **exact** item when a suggestion is selected (from the dropdown) and also more strict matching for dulpicate items. **Ensure** `fuzzySearch` is `false` for this to work.
 dropdown.*maxItems*       | <sub>Number</sub>            | 10                                          | Maximum items to show in the suggestions list
-dropdown.*classname*      | <sub>String</sub>            | `""`                                        | Custom *classname* for the dropdown suggestions selectbox
+dropdown.*classname*      | <sub>String</sub>            | `""`                                        | Custom *classname* for the dropdown suggestions list
 dropdown.*fuzzySearch*    | <sub>Boolean</sub>           | true                                        | Enables filtering dropdown items values' by string *containing* and not only *beginning*
 dropdown.*accentedSearch* | <sub>Boolean</sub>           | true                                        | Enable searching for <em>accented</em> items in the whitelist without typing exact match (#491)
 dropdown.*position*       | <sub>String</sub>            | `"all"`                                     | <ul><li>`manual` - will not render the dropdown, and you would need to do it yourself. [See demo](https://yaireo.github.io/tagify/#section-manual-suggestions)</li><li>`text` - places the dropdown next to the caret</li><li>`input` - places the dropdown next to the input (useful in rare situations)</li><li>`all` - normal, full-width design</li></ul>
