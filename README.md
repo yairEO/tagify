@@ -554,7 +554,7 @@ const tagify = new Tagify(tagNode, {
 })
 ```
 
-If chnages to the whitelist are needed, they should be done like so:
+If changes to the whitelist are needed, they should be done like so:
 
 **Incorrect:**
 
