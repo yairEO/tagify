@@ -1350,10 +1350,10 @@ Tagify.prototype = {
         this.getTagElms(_s.classNames.tagNotAllowed).forEach((tagElm, i) => {
             var tagData = this.tagData(tagElm),
                 hasMaxTags = this.hasMaxTags(),
-                isNodeValid = this.validateTag(tagData) === true;
+                tagValidation = this.validateTag(tagData);
 
             // if the tag has become valid
-            if( isNodeValid && !hasMaxTags ){
+            if( tagValidation === true && !hasMaxTags ){
                 tagData = tagData.__preInvalidData
                     ? tagData.__preInvalidData
                     : { value:tagData.value }
@@ -1362,7 +1362,7 @@ Tagify.prototype = {
             }
 
             // if the tag is still invaild, set its title as such (reson of invalid might have changed)
-            tagElm.title = hasMaxTags || isNodeValid
+            tagElm.title = hasMaxTags || tagValidation
         })
     },
 
