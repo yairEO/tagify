@@ -728,7 +728,7 @@ Tagify.prototype = {
 
     getTagElms( ...classess ){
         var selector = ''
-        if (classess !== undefined && classess.length > 0)
+        if (classess.length > 0)
             selector = '.' + classess.join('.')
         selector += this.settings.tagSelector
         return [].slice.call(this.DOM.scope.querySelectorAll(selector)) // convert nodeList to Array - https://stackoverflow.com/a/3199627/104380
