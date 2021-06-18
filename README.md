@@ -245,7 +245,7 @@ var tagify = new Tagify(inputElement)
 // bind "DragSort" to Tagify's main element and tell
 // it that all the items with the below "selector" are "draggable"
 var dragsort = new DragSort(tagify.DOM.scope, {
-    selector: '.'+tagify.settings.classNames.tag,
+    selector: tagify.settings.tagSelector,
     callbacks: {
         dragEnd: onDragEnd
     }

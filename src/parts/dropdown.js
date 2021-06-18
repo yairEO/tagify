@@ -15,7 +15,7 @@ export function initDropdown(){
 export default {
     init(){
         this.DOM.dropdown = this.parseTemplate('dropdown', [this.settings])
-        this.DOM.dropdown.content = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownWrapperSelector)
+        this.DOM.dropdown.content = this.DOM.dropdown.querySelector(this.settings.dropdownWrapperSelector)
     },
 
     /**
@@ -391,7 +391,7 @@ export default {
             },
 
             onMouseOver(e){
-                var ddItem = e.target.closest(this.settings.classNames.dropdownItemSelector)
+                var ddItem = e.target.closest(this.settings.dropdownItemSelector)
                 // event delegation check
                 ddItem && this.dropdown.highlightOption(ddItem)
             },
@@ -404,7 +404,7 @@ export default {
             onClick(e){
                 if( e.button != 0 || e.target == this.DOM.dropdown || e.target == this.DOM.dropdown.content ) return; // allow only mouse left-clicks
 
-                var selectedElm = e.target.closest(this.settings.classNames.dropdownItemSelector),
+                var selectedElm = e.target.closest(this.settings.dropdownItemSelector),
                     selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
 
                 // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run

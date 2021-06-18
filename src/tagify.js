@@ -101,11 +101,6 @@ Tagify.prototype = {
         _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || ""
         _s.required = input.hasAttribute('required')
 
-        for( let name in _s.classNames )
-            Object.defineProperty(_s.classNames, name + "Selector" , {
-                get(){ return "."+this[name].split(" ").join(".") }
-            })
-
         if( this.isIE )
             _s.autoComplete = false; // IE goes crazy if this isn't false
 
@@ -256,7 +251,7 @@ Tagify.prototype = {
         else {
             DOM.originalInput = input
             DOM.scope = this.parseTemplate('wrapper', [input, this.settings])
-            DOM.input = DOM.scope.querySelector(this.settings.classNames.inputSelector)
+            DOM.input = DOM.scope.querySelector(this.settings.inputSelector)
             input.parentNode.insertBefore(DOM.scope, input)
         }
     },
@@ -409,7 +404,7 @@ Tagify.prototype = {
         var _s = this.settings;
 
         function getEditableElm(){
-            return tagElm.querySelector(_s.classNames.tagTextSelector)
+            return tagElm.querySelector(_s.tagTextSelector)
         }
 
         var editableElm = getEditableElm(),
@@ -423,7 +418,7 @@ Tagify.prototype = {
             }
 
         if( !editableElm ){
-            console.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
+            console.warn('Cannot find element in Tag template: .', _s.tagTextSelector);
             return;
         }
 
@@ -432,6 +427,7 @@ Tagify.prototype = {
 
         editableElm.setAttribute('contenteditable', true)
         tagElm.classList.add( _s.classNames.tagEditing )
+        tagElm.dataset.tagifyTagStatus = 'editing'
 
         // cache the original data, on the DOM node, before any modification ocurs, for possible revert
         this.tagData(tagElm, {
@@ -480,6 +476,8 @@ Tagify.prototype = {
         //this.validateTag(tagData);
 
         tagElm.classList.toggle(this.settings.classNames.tagNotAllowed, !isValid)
+        if(!isValid)
+            tagElm.dataset.tagifyTagStatus = 'notAllowed' 
         return tagData.__isValid
     },
 
@@ -547,7 +545,7 @@ Tagify.prototype = {
         this.value.length = 0;
 
         [].forEach.call(this.getTagElms(), node => {
-            if( node.classList.contains(this.settings.classNames.tagNotAllowed.split(' ')[0]) ) return
+            if( node.dataset.tagifyTagStatus === 'notAllowed' ) return
             this.value.push( this.tagData(node) )
         })
 
@@ -729,15 +727,18 @@ Tagify.prototype = {
     },
 
     getTagElms( ...classess ){
-        var classname = '.' + [...this.settings.classNames.tag.split(' '), ...classess].join('.')
-        return [].slice.call(this.DOM.scope.querySelectorAll(classname)) // convert nodeList to Array - https://stackoverflow.com/a/3199627/104380
+        var selector = ''
+        if (classess !== undefined && classess.length > 0)
+            selector = '.' + classess.join('.')
+        selector += this.settings.tagSelector
+        return [].slice.call(this.DOM.scope.querySelectorAll(selector)) // convert nodeList to Array - https://stackoverflow.com/a/3199627/104380
     },
 
     /**
-     * gets the last non-readonly, not-in-the-proccess-of-removal tag
+     * gets the last non-readonly, not-in-the-process-of-removal tag
      */
     getLastTag(){
-        var lastTag = this.DOM.scope.querySelectorAll(`${this.settings.classNames.tagSelector}:not(.${this.settings.classNames.tagHide}):not([readonly])`);
+        var lastTag = this.DOM.scope.querySelectorAll(`${this.settings.tagSelector}:not([data-tagify-tag-status='hide']):not([readonly])`);
         return lastTag[lastTag.length - 1];
     },
 
@@ -1414,7 +1415,7 @@ Tagify.prototype = {
 
         // if only a single tag is to be removed
         if( tagsToRemove.length == 1 ){
-            if( tagsToRemove[0].node.classList.contains(this.settings.classNames.tagNotAllowed) )
+            if( tagsToRemove[0].node.dataset.tagifyTagStatus === 'notAllowed' )
                 silent = true
         }
 
@@ -1447,6 +1448,7 @@ Tagify.prototype = {
                     tag.node.style.width = parseFloat(window.getComputedStyle(tag.node).width) + 'px'
                     document.body.clientTop // force repaint for the width to take affect before the "hide" class below
                     tag.node.classList.add(this.settings.classNames.tagHide)
+                    tag.node.dataset.tagifyTagStatus = 'hide'
 
                     // manual timeout (hack, since transitionend cannot be used because of hover)
                     setTimeout(removeNode.bind(this), tranDuration, tag)
@@ -1567,7 +1569,7 @@ Tagify.prototype = {
         function iterateChildren(rootNode){
             rootNode.childNodes.forEach((node) => {
                 if( node.nodeType == 1 ){
-                    if( node.classList.contains(that.settings.classNames.tag) && that.tagData(node) ){
+                    if( node.dataset.tagifyControl === 'tag' && that.tagData(node) ){
                         if( that.tagData(node).__removed )
                             return;
                         else

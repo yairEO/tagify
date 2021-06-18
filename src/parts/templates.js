@@ -11,6 +11,7 @@ export default {
                     tabIndex="-1">
             <span ${!_s.readonly || _s.mode != 'mix' ? 'contenteditable' : ''} data-placeholder="${_s.placeholder || '&#8203;'}" aria-placeholder="${_s.placeholder || ''}"
                 class="${_s.classNames.input}"
+                data-tagify-control='input'
                 role="textbox"
                 aria-autocomplete="both"
                 aria-multiline="${_s.mode=='mix'?true:false}"></span>
@@ -23,10 +24,11 @@ export default {
                     spellcheck='false'
                     tabIndex="${this.settings.a11y.focusableTags ? 0 : -1}"
                     class="${this.settings.classNames.tag} ${tagData.class ? tagData.class : ""}"
+                    data-tagify-control='tag'
                     ${this.getAttributes(tagData)}>
-            <x title='' class="${this.settings.classNames.tagX}" role='button' aria-label='remove tag'></x>
+            <x title='' class="${this.settings.classNames.tagX}" data-tagify-control='tagRemoveBtn' role='button' aria-label='remove tag'></x>
             <div>
-                <span class="${this.settings.classNames.tagText}">${tagData[this.settings.tagTextProp] || tagData.value}</span>
+                <span class="${this.settings.classNames.tagText}" data-tagify-control='tagText'>${tagData[this.settings.tagTextProp] || tagData.value}</span>
             </div>
         </tag>`
     },
@@ -37,13 +39,14 @@ export default {
             className = `${settings.classNames.dropdown}`;
 
         return `<div class="${isManual ? "" : className} ${_sd.classname}" role="listbox" aria-labelledby="dropdown">
-                    <div class="${settings.classNames.dropdownWrapper}"></div>
+                    <div class="${settings.classNames.dropdownWrapper}" data-tagify-control='dropdownWrapper'></div>
                 </div>`
     },
 
     dropdownItem( item ){
         return `<div ${this.getAttributes(item)}
                     class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
+                    data-tagify-control='dropdownItem'
                     tabindex="0"
                     role="option">${item.value}</div>`
     },

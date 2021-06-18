@@ -62,6 +62,13 @@ export default {
         empty              : 'tagify--empty',
     },
 
+    inputSelector: "[data-tagify-control='input']",
+    tagSelector: "[data-tagify-control='tag']",
+    tagTextSelector: "[data-tagify-control='tagText']",
+    tagRemoveBtn: "[data-tagify-control='tagRemoveBtn']",
+    dropdownWrapperSelector: "[data-tagify-control='dropdownWrapper']",
+    dropdownItemSelector: "[data-tagify-control='dropdownItem']",
+
     dropdown: {
         classname     : '',
         enabled       : 2,      // minimum input characters to be typed for the suggestions dropdown to show

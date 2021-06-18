@@ -1566,7 +1566,7 @@ var input = document.querySelector('input[name=tags3]'),
         },
         templates: {
             dropdownItemNoMatch: function(data) {
-                return `<div class='${this.settings.classNames.dropdownItem}' tabindex="0" role="option">
+                return `<div class='${this.settings.classNames.dropdownItem}' data-tagify-control='dropdownItem' tabindex="0" role="option">
                     No suggestion found for: <strong>${data.value}</strong>
                 </div>`
             }
@@ -2108,7 +2108,7 @@ var input = document.querySelector('input[name=drag-sort]'),
 // using 3-party script "dragsort"
 // https://github.com/yairEO/dragsort
 var dragsort = new DragSort(tagify.DOM.scope, {
-    selector:'.'+tagify.settings.classNames.tag,
+    selector: tagify.settings.tagSelector,
     callbacks: {
         dragEnd: onDragEnd
     }

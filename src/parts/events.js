@@ -89,7 +89,7 @@ export default {
                 eventData = {relatedTarget:e.relatedTarget},
                 isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
                 isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
-                isRelatedTargetX = e.relatedTarget && e.relatedTarget.classList.contains(_s.classNames.tag) && this.DOM.scope.contains(e.relatedTarget),
+                isRelatedTargetX = e.relatedTarget && e.relatedTarget.dataset.tagifyControl === 'tag' && this.DOM.scope.contains(e.relatedTarget),
                 shouldAddTags;
 
             if( type == 'blur' ){
@@ -161,7 +161,7 @@ export default {
 
         onWindowKeyDown(e){
             var focusedElm = document.activeElement,
-                isTag = focusedElm.classList.contains(this.settings.classNames.tag),
+                isTag = focusedElm.dataset.tagifyControl === 'tag',
                 isBelong = isTag && this.DOM.scope.contains(document.activeElement),
                 nextTag;
 
@@ -563,7 +563,7 @@ export default {
 
         onClickScope(e){
             var _s = this.settings,
-                tagElm = e.target.closest('.' + _s.classNames.tag),
+                tagElm = e.target.closest(_s.tagSelector),
                 timeDiffFocus = +new Date() - this.state.hasFocus;
 
             if( e.target == this.DOM.scope ){
@@ -572,7 +572,7 @@ export default {
                 return
             }
 
-            else if( e.target.classList.contains(_s.classNames.tagX) ){
+            else if( e.target.dataset.tagifyControl === 'tagRemoveBtn'){
                 this.removeTags( e.target.parentNode )
                 return
             }
@@ -642,7 +642,7 @@ export default {
         },
 
         onEditTagInput( editableElm, e ){
-            var tagElm = editableElm.closest('.' + this.settings.classNames.tag),
+            var tagElm = editableElm.closest(this.settings.tagSelector),
                 tagElmIdx = this.getNodeIndex(tagElm),
                 tagData = this.tagData(tagElm),
                 value = this.input.normalize.call(this, editableElm),
@@ -694,7 +694,7 @@ export default {
             if( !this.DOM.scope.contains(editableElm) ) return;
 
             var _s           = this.settings,
-                tagElm       = editableElm.closest('.' + _s.classNames.tag),
+                tagElm       = editableElm.closest(_s.tagSelector),
                 textValue    = this.input.normalize.call(this, editableElm),
                 originalData = this.tagData(tagElm).__originalData, // pre-edit data
                 hasChanged   = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
@@ -768,14 +768,14 @@ export default {
         },
 
         onDoubleClickScope(e){
-            var tagElm = e.target.closest('.' + this.settings.classNames.tag),
+            var tagElm = e.target.closest(this.settings.tagSelector),
                 _s = this.settings,
                 isEditingTag,
                 isReadyOnlyTag;
 
             if( !tagElm ) return
 
-            isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing)
+            isEditingTag = tagElm.dataset.tagifyTagStatus === 'editing'
             isReadyOnlyTag = tagElm.hasAttribute('readonly')
 
             if( _s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags )
