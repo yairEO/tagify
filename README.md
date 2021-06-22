@@ -67,11 +67,24 @@
 
 ## Installation
 
+### Option 1 - import from CDN:
+
+Place these lines before any other code which is (or will be) using *Tagify* ([Example here](https://jsbin.com/jekuqap/edit?html))
+```html
+<script src="https://unpkg.com/@yaireo/tagify"></script>
+<script src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+<link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+```
+
+`Tagify` will then be available globally. 
+To load specific version use `@` - for example: `unpkg.com/@yaireo/tagify@3.1.0`
+
+### option 2 - import as a *Node module*:
 ```sh
 npm i @yaireo/tagify --save
 ```
 
-### Usage (in your bundle):
+#### Usage (in your bundle):
 
 [live demo using Parcel as bundler](https://codesandbox.io/s/simple-tagify-setup-6pfi2)
 
