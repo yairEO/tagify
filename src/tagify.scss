@@ -92,14 +92,14 @@
         animation: rotateLoader .4s infinite linear;
     }
 
-    @mixin tagReadonlyBG{
+    @mixin tagReadonlyBG($size:5px){
         background: linear-gradient(45deg, var(--tag-bg)  25%,
                                            transparent    25%,
                                            transparent    50%,
                                            var(--tag-bg)  50%,
                                            var(--tag-bg)  75%,
                                            transparent    75%,
-                                           transparent)   0/5px 5px;
+                                           transparent)   0/#{$size} #{$size};
         box-shadow: none;
         filter: brightness(.95);
     }
@@ -138,15 +138,23 @@
 
     // Global "read-only" mode (no input button)
     &[readonly]{
-        &:not(.tagify--mix){
+        &#{$self}--select{
+            // @include tagReadonlyBG($size:8px);
+            background: var(--tag-bg);
+            filter: saturate(0);
+            opacity: .6;
+            pointer-events: none;
+        }
+
+        &:not(#{$self}--mix):not(#{$self}--select){
             cursor: default;
-            > #{ $self }__input{
+            > #{$self}__input{
                 visibility: hidden;
                 width: 0;
                 margin: $tagMargin 0;
             }
 
-            #{ $self }__tag > div{
+            #{$self}__tag > div{
                 padding: $tag-pad;
                 padding: var(--tag-pad);
                 &::before{

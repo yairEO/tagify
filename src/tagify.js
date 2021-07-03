@@ -1103,8 +1103,10 @@ Tagify.prototype = {
         if( this.state.actions.selectOption )
             setTimeout(this.setRangeAtStartEnd.bind(this))
 
-        if( this.getLastTag() )
-            this.replaceTag(this.getLastTag(), tagData)
+        var lastTagElm = this.getLastTag()
+
+        if( lastTagElm )
+            this.replaceTag(lastTagElm, tagData)
         else
             this.appendTag(tagElm)
 
@@ -1142,7 +1144,6 @@ Tagify.prototype = {
             frag = document.createDocumentFragment()
 
         if( !tagsItems || tagsItems.length == 0 ){
-            // is mode is "select" clean all tagsargument of
             if( _s.mode == 'select' )
                 this.removeAllTags()
             return tagElems
