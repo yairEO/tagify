@@ -166,9 +166,15 @@ const TagifyWrapper = ({
 
     useEffect(() => {
         if (mountedRef.current) {
-            tagify.current.setReadonly(readOnly || disabled)
+            tagify.current.setReadonly(readOnly)
         }
-    }, [readOnly, disabled])
+    }, [readOnly])
+
+    useEffect(() => {
+        if (mountedRef.current) {
+            tagify.current.setDisabled(disabled)
+        }
+    }, [disabled])
 
     useEffect(() => {
         const t = tagify.current

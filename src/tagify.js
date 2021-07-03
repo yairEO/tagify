@@ -97,7 +97,8 @@ Tagify.prototype = {
 
         var _s = this.settings = extend({}, DEFAULTS, settings)
 
-        _s.readonly = input.hasAttribute('readonly') || input.hasAttribute('disabled') // if "readonly" do not include an "input" element inside the Tags component
+        _s.disabled = input.hasAttribute('disabled')
+        _s.readonly = input.hasAttribute('readonly') // if "readonly" do not include an "input" element inside the Tags component
         _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || ""
         _s.required = input.hasAttribute('required')
 
@@ -912,16 +913,20 @@ Tagify.prototype = {
             : false
     },
 
-    setReadonly( isReadonly ){
-        var _s = this.settings;
+    setReadonly( toggle, attrribute ){
+        var _s = this.settings
 
         document.activeElement.blur() // exists possible edit-mode
-        _s.readonly = isReadonly
-        this.DOM.scope[(isReadonly?'set':'remove') + 'Attribute']('readonly', true)
+        _s[attrribute || 'readonly'] = toggle
+        this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true)
 
         if( _s.mode == 'mix' ){
-            this.DOM.input.contentEditable = !isReadonly
+            this.DOM.input.contentEditable = !toggle
         }
+    },
+
+    setDisabled( isDisabled ){
+        this.setReadonly(isDisabled, 'disabled')
     },
 
     /**

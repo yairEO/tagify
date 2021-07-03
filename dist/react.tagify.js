@@ -168,9 +168,14 @@ const TagifyWrapper = ({
   }, [loading]);
   (0, _react.useEffect)(() => {
     if (mountedRef.current) {
-      tagify.current.setReadonly(readOnly || disabled);
+      tagify.current.setReadonly(readOnly);
     }
-  }, [readOnly, disabled]);
+  }, [readOnly]);
+  (0, _react.useEffect)(() => {
+    if (mountedRef.current) {
+      tagify.current.setDisabled(disabled);
+    }
+  }, [disabled]);
   (0, _react.useEffect)(() => {
     const t = tagify.current;
 

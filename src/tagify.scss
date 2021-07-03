@@ -34,6 +34,7 @@
     $tagify-dd-color-primary : rgb(53,149,246) !default;
 
     // CSS variables
+    --tags-disabled-bg         : #F1F1F1;
     --tags-border-color        : #{$tags-border-color};
     --tags-hover-border-color  : #{$tags-hover-border-color};
     --tags-focus-border-color  : #{$tags-focus-border-color};
@@ -131,18 +132,21 @@
     }
 
     &.tagify--focus{
-      transition: 0s;
-      border-color: $tags-focus-border-color;
-      border-color: var(--tags-focus-border-color);
+        transition: 0s;
+        border-color: $tags-focus-border-color;
+        border-color: var(--tags-focus-border-color);
+    }
+
+    &[disabled]{
+        background: var(--tags-disabled-bg);
+        filter: saturate(0);
+        opacity: .5;
+        pointer-events: none;
     }
 
     // Global "read-only" mode (no input button)
     &[readonly]{
         &#{$self}--select{
-            // @include tagReadonlyBG($size:8px);
-            background: var(--tag-bg);
-            filter: saturate(0);
-            opacity: .6;
             pointer-events: none;
         }
 

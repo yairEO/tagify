@@ -36,7 +36,9 @@
 <!--ts-->
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
-  - [Usage (in your bundle):](#usage-in-your-bundle)
+  - [Option 1 - import from CDN:](#option-1---import-from-cdn)
+  - [option 2 - import as a *Node module*:](#option-2---import-as-a-node-module)
+    - [Usage (in your bundle):](#usage-in-your-bundle)
 - [Features](#features)
 - [Building the project](#building-the-project)
 - [Adding tags dynamically](#adding-tags-dynamically)
@@ -76,7 +78,7 @@ Place these lines before any other code which is (or will be) using *Tagify* ([E
 <link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 ```
 
-`Tagify` will then be available globally. 
+`Tagify` will then be available globally.
 To load specific version use `@` - for example: `unpkg.com/@yaireo/tagify@3.1.0`
 
 ### option 2 - import as a *Node module*:
@@ -777,6 +779,7 @@ Name                       | Parameters                                         
 `updateValueByDOMTags`     |                                                                                         | Iterate tag DOM nodes and re-build  the `tagify.value` array (call this if tags get sorted manually)
 `parseTemplate`            | `String`/`Function` <sub>(template name or function)</sub>, `Array` <sub>(data)</sub>   | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node
 `setReadonly`              | `Boolean`                                                                               | Toggles "readonly" mode on/off
+`setDisabled`              | `Boolean`                                                                               | Toggles "disabled" mode on/off
 
 ## Events
 
