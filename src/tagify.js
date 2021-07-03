@@ -1489,11 +1489,10 @@ Tagify.prototype = {
         tags = Array.isArray(tags) ? tags : [tags];
 
         tags.forEach(tag => {
-            // remove "__removed" so the comparison in "getTagIdx" could work
             var tagData = this.tagData(tag),
                 tagIdx = this.getTagIdx(tagData)
 
-            delete tagData.__removed
+            //  delete tagData.__removed
 
             if( tagIdx > -1 )
                 this.value.splice(tagIdx, 1)
@@ -1576,11 +1575,13 @@ Tagify.prototype = {
         function iterateChildren(rootNode){
             rootNode.childNodes.forEach((node) => {
                 if( node.nodeType == 1 ){
-                    if( node.classList.contains(that.settings.classNames.tag) && that.tagData(node) ){
-                        if( that.tagData(node).__removed )
+                    const tagData = that.tagData(node);
+
+                    if( node.classList.contains(that.settings.classNames.tag) && tagData ){
+                        if( tagData.__removed )
                             return;
                         else
-                            result += _interpolator[0] + JSON.stringify( omit(that.tagData(node), that.dataProps) ) + _interpolator[1]
+                            result += _interpolator[0] + JSON.stringify( omit(tagData, that.dataProps) ) + _interpolator[1]
                         return
                     }
 
