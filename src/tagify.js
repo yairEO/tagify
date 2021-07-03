@@ -97,7 +97,7 @@ Tagify.prototype = {
 
         var _s = this.settings = extend({}, DEFAULTS, settings)
 
-        _s.readonly = input.hasAttribute('readonly') // if "readonly" do not include an "input" element inside the Tags component
+        _s.readonly = input.hasAttribute('readonly') || input.hasAttribute('disabled') // if "readonly" do not include an "input" element inside the Tags component
         _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || ""
         _s.required = input.hasAttribute('required')
 

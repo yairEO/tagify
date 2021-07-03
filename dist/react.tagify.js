@@ -89,6 +89,7 @@ const TagifyWrapper = ({
   onDropdownNoMatch = noop,
   onDropdownUpdated = noop,
   readOnly,
+  disabled,
   children,
   settings = {},
   InputMode = "input",
@@ -112,6 +113,7 @@ const TagifyWrapper = ({
     defaultValue: children || typeof _value == 'string' ? _value : JSON.stringify(_value),
     className,
     readOnly,
+    disabled,
     autoFocus,
     placeholder
   }), []);
@@ -166,9 +168,9 @@ const TagifyWrapper = ({
   }, [loading]);
   (0, _react.useEffect)(() => {
     if (mountedRef.current) {
-      tagify.current.setReadonly(readOnly);
+      tagify.current.setReadonly(readOnly || disabled);
     }
-  }, [readOnly]);
+  }, [readOnly, disabled]);
   (0, _react.useEffect)(() => {
     const t = tagify.current;
 
