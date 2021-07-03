@@ -476,8 +476,9 @@ Tagify.prototype = {
 
         if( !isValid ){
             this.removeTagsFromValue(tagElm)
-            this.update() // update the original input with the current value
         }
+
+        this.update()
 
         //this.validateTag(tagData);
 
@@ -499,6 +500,7 @@ Tagify.prototype = {
         this.trigger("edit:beforeUpdate", eventData, {cloneData:false})
 
         this.state.editing = false;
+
         delete tagData.__originalData
         delete tagData.__originalHTML
 
