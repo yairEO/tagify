@@ -474,8 +474,10 @@ Tagify.prototype = {
 
         isValid = !("__isValid" in tagData) || tagData.__isValid === true
 
-        if( !isValid )
+        if( !isValid ){
             this.removeTagsFromValue(tagElm)
+            this.update() // update the original input with the current value
+        }
 
         //this.validateTag(tagData);
 
@@ -1155,6 +1157,7 @@ Tagify.prototype = {
             clearInput = false
 
         this.DOM.input.removeAttribute('style')
+
         tagsItems.forEach(tagData => {
             var tagElm,
                 tagElmParams = {},
@@ -1199,7 +1202,6 @@ Tagify.prototype = {
             if( tagData.__isValid && tagData.__isValid === true ){
                 // update state
                 this.value.push(tagData)
-                this.update()
                 this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
             }
             else{
@@ -1213,6 +1215,7 @@ Tagify.prototype = {
         })
 
         this.appendTag(frag)
+        this.update()
 
         if( tagsItems.length && clearInput ){
             this.input.set.call(this)
@@ -1460,6 +1463,7 @@ Tagify.prototype = {
                 // update state regardless of animation
                 if( !silent ){
                     this.removeTagsFromValue(tagsToRemove.map(tag => tag.node))
+                    this.update() // update the original input with the current value
                 }
             }
             )
@@ -1486,8 +1490,6 @@ Tagify.prototype = {
             if( tagIdx > -1 )
                 this.value.splice(tagIdx, 1)
         })
-
-        this.update() // update the original input with the current value
     },
 
     removeAllTags( opts ){
@@ -1527,15 +1529,14 @@ Tagify.prototype = {
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update( args ){
-        var inputElm = this.DOM.originalInput,
-            { withoutChangeEvent } = args || {};
+        var inputElm = this.DOM.originalInput;
 
         if( !this.settings.mixMode.integrated )
             inputElm.value = this.getInputValue()
 
         this.postUpdate()
 
-        if( !withoutChangeEvent && this.state.loadedOriginalValues )
+        if( !(args||{}).withoutChangeEvent && this.state.loadedOriginalValues )
             this.triggerChangeEvent()
     },
 
