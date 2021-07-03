@@ -1021,13 +1021,10 @@
             <section id='section-readonly'>
                 <aside class='leftSide'>
                     <header>
-                        <h2><a href='#section-readonly'>Readonly mode</a></h2>
+                        <h2><a href='#section-readonly'>readonly</a></h2>
                     </header>
                     <p>
-                        <em>(Currently only works for "normal" tags and <strong>not</strong> mixed with text)</em>
-                    </p>
-                    <p>
-                        If the original input field has a <code>readonly</code> attribute, then, via CSS, there will be no way of manually adding tags because the inline contenteditable element will be hidden.
+                        If the original input field has a <code>readonly</code> attribute, then, via CSS, Tagify blocks interactions with <code>pointer-events: none;</code>
                     </p>
                     <details>
                       <summary></summary>
@@ -1111,6 +1108,34 @@
                                 "title"    : "Another readonly tag"
                             }
                         ]' />
+                </aside>
+            </section>
+
+            <section id='section-disabled'>
+                <aside class='leftSide'>
+                    <header>
+                        <h2><a href='#section-disabled'>disabled</a></h2>
+                    </header>
+                    <p>
+                        If the original input field has a <code>disabled</code> attribute, then, via CSS, Tagify blocks interactions with <code>pointer-events: none;</code>
+                    </p>
+                    <details>
+                        <summary></summary>
+                    <h3>HTML</h3>
+                    <xmp><input name='disabledInput' disabled value='tag1, tag 2, another tag'></xmp>
+                    <h3>Javascript</h3>
+                    <script>
+                        renderPRE(document.currentScript, "disabled")
+                    </script>
+                    </details>
+                </aside>
+                <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/dyWYJbX'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
+                    <input name='disabledInput' disabled value='tag1, tag 2, another tag'>
                 </aside>
             </section>
 
@@ -2097,6 +2122,13 @@ var input = document.querySelector('input[name=tags4]'),
 var input = document.querySelector('input[name=tags-readonly-mix]'),
     tagify = new Tagify(input);
 })()
+</script>
+
+<script data-name='disabled'>
+    (function(){
+    var input = document.querySelector('input[name=disabledInput]'),
+        tagify = new Tagify(input);
+    })()
 </script>
 
 
