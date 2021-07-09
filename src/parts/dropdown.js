@@ -313,6 +313,9 @@ export default {
 
         callbacks : {
             onKeyDown(e){
+                // ignore keys during IME composition
+                if( this.state.composing ) return
+
                 // get the "active" element, and if there was none (yet) active, use first child
                 var selectedElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
                     selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
