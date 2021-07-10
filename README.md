@@ -441,9 +441,11 @@ A Tagify React component is exported from [`react.tagify.js`](https://github.com
 
 ---
 ### Update regarding `onChange` prop:
+  
 I have changed how the `onChange` works internally within the Wrapper of Tagify
 so as of *March 30, 2021* the `e` argument will include a `detail` parameter with the value as string.
 There is no more `e.target`, and to access the original DOM input element, do this: `e.detail.tagify.DOM.originalInput`.
+  
 ----
 
 > Note: You will need to inport Tagify's CSS also, either by javasceript or by SCSS `@import` (which is preferable)
