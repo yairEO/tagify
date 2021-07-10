@@ -16,9 +16,8 @@ function templatesToString(templates) {
         for (let templateName in templates) {
             let Template = templates[templateName]
             let isReactComp = String(Template).includes("jsxRuntime")
-            if (isReactComp) {
-                templates[templateName] = (...props) => renderToStaticMarkup(<Template {...props} />)
-            }
+            if (isReactComp)
+                templates[templateName] = (...props) => renderToStaticMarkup(<Template props={props} />)
         }
     }
 }
