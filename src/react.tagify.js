@@ -14,11 +14,10 @@ const isSameDeep = (a,b) => {
 function templatesToString(templates) {
     if (templates) {
         for (let templateName in templates) {
-            let isReactComp = String(templates[templateName]).includes(".createElement")
-
+            let Template = templates[templateName]
+            let isReactComp = String(Template).includes("jsxRuntime")
             if (isReactComp) {
-                let Template = templates[templateName]
-                templates[templateName] = data => renderToStaticMarkup(<Template {...data} />)
+                templates[templateName] = (...props) => renderToStaticMarkup(<Template {...props} />)
             }
         }
     }

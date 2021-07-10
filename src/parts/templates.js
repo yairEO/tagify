@@ -18,7 +18,7 @@ export default {
         </tags>`
     },
 
-    tag(tagData){
+    tag(tagData, tagify){
         return `<tag title="${(tagData.title || tagData.value)}"
                     contenteditable='false'
                     spellcheck='false'
@@ -42,7 +42,7 @@ export default {
                 </div>`
     },
 
-    dropdownItem( item ){
+    dropdownItem( item, tagify ){
         return `<div ${this.getAttributes(item)}
                     class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
                     tabindex="0"

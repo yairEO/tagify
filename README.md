@@ -49,6 +49,7 @@
 - [Drag & Sort](#drag--sort)
   - [Integration example:](#integration-example)
 - [DOM Templates](#dom-templates)
+  - [Example of overriding the `tag` template:](#example-of-overriding-the-tag-template)
 - [Suggestions list](#suggestions-list)
   - [Example for a suggestion item alias](#example-for-a-suggestion-item-alias)
   - [Example whitelist:](#example-whitelist)
@@ -281,6 +282,30 @@ Available templates are: `wrapper`, `tag`, `dropdown`, `dropdownItem` and the op
 which is a special template for rendering a suggestion item (in the dropdown list) only if there were no matches found for the typed input.
 
 [View templates](https://github.com/yairEO/tagify/blob/master/src/parts/templates.js)
+
+### Example of overriding the `tag` template:
+
+Each template function automaticaly gets binded with `this` pointing to the current *Tagify* instance.
+It is imperative to preserve the class names and also the `this.getAttributes(tagData)` for proper functionality.
+
+```js
+new Tagify(inputElem, {
+  templates: {
+    tag(tagData, tagify){
+      return `<tag title="${(tagData.title || tagData.value)}"
+              contenteditable='false'
+              spellcheck='false'
+              tabIndex="${this.settings.a11y.focusableTags ? 0 : -1}"
+              class="${this.settings.classNames.tag} ${tagData.class ? tagData.class : ""}"
+              ${this.getAttributes(tagData)}>
+      <x title='' class="${this.settings.classNames.tagX}" role='button' aria-label='remove tag'></x>
+      <div>
+          <span class="${this.settings.classNames.tagText}">${tagData[this.settings.tagTextProp] || tagData.value}</span>
+      </div>
+    </tag>`
+  }
+})
+```
 
 ## Suggestions list
 

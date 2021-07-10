@@ -160,19 +160,29 @@ Tagify.prototype = {
      * @param {Object} data [Tag data]
      */
     getAttributes( data ){
+        var attrs = this.getCustomAttributes(data), s = '', k;
+
+        for( k in attrs )
+            s += " " + k + (data[k] !== undefined ? `="${data[k]}"` : "");
+
+        return s;
+    },
+
+    /**
+     * Returns an object of attributes to be used for the templates
+     */
+    getCustomAttributes( data ){
         // only items which are objects have properties which can be used as attributes
-        if( Object.prototype.toString.call(data) != "[object Object]" )
+        if( !isObject(data) )
             return '';
 
-        var keys = Object.keys(data),
-            s = "", propName, i;
+        var output = {}, propName, k;
 
-        for( i=keys.length; i--; ){
-            propName = keys[i];
+        for( propName in data ){
             if( propName.slice(0,2) != '__' && propName != 'class' && data.hasOwnProperty(propName) && data[propName] !== undefined )
-                s += " " + propName + (data[propName] !== undefined ? `="${data[propName]}"` : "");
+                output[propName] = data[propName]
         }
-        return s;
+        return output
     },
 
     setStateSelection(){
