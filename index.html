@@ -2217,7 +2217,7 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
             },
             live: false,
             // 0 - starts as hidden, 1 - starts as visible, 2 - always visible
-            visible: 0,
+            visible: 1,
             CSSVarTarget: document.querySelectorAll('.tagify'),
             knobs: [
                 {
@@ -2363,6 +2363,8 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
         var knobs = new Knobs(settings)
 
         knobs.settings.live = true
+
+        setTimeout(knobs.toggle.bind(knobs), 2000)
      })()
     </script>
     </body>
