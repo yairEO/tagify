@@ -168,8 +168,8 @@
                 if( isIE ) return;
 
                 function removeLast(s, r){
-                  s = s.split(r)
-                  return s.slice(0,-1).join(r) + s.pop()
+                    s = s.split(r)
+                    return s.slice(0,-1).join(r) + s.pop()
                 }
 
                 setTimeout(function(){
@@ -177,19 +177,10 @@
 
                     // cleanup closure wraper
                     jsCode = jsCode.replace("(function(){", "").trim();
-                    jsCode = removeLast(jsCode, "})()")
+                    jsCode = removeLast(jsCode, "})()").replace(/</g, "&lt" )
+                                                        .replace(/>/g, "&gt" )
+                                                        .trim();
 
-                    // escape angled brackets between two _ESCAPE_START_ and _ESCAPE_END_ comments
-                    let textsToEscape = jsCode.match(new RegExp("// _ESCAPE_START_([^]*?)// _ESCAPE_END_", 'mg'));
-                    if (textsToEscape) {
-                        textsToEscape.forEach(function(textToEscape){
-                            jsCode = jsCode.replace(textToEscape, textToEscape.replace(/</g, "&lt" )
-                                                                              .replace(/>/g, "&gt" )
-                                                                              .replace("// _ESCAPE_START_", "")
-                                                                              .replace("// _ESCAPE_END_", "")
-                                                                              .trim());
-                        });
-                    }
                     currentScript.insertAdjacentHTML('afterend', "<pre class='language-js'><code>" + jsCode + "</code></pre>");
                 }, 500);
             }
@@ -1807,7 +1798,6 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
     templates : {
         tag : function(tagData){
             try{
-            // _ESCAPE_START_
                 return `<tag title='${tagData.value}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
                         <x title='remove tag' class='tagify__tag__removeBtn'></x>
                         <div>
@@ -1817,20 +1807,17 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
                             <span class='tagify__tag-text'>${tagData.value}</span>
                         </div>
                     </tag>`
-            // _ESCAPE_END_
             }
             catch(err){}
         },
 
         dropdownItem : function(tagData){
             try{
-            // _ESCAPE_START_
                 return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}' tagifySuggestionIdx="${tagData.tagifySuggestionIdx}">
                             <img onerror="this.style.visibility = 'hidden'"
-                                 src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
+                                src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
                             <span>${tagData.value}</span>
                         </div>`
-            // _ESCAPE_END_
             }
             catch(err){}
         }
@@ -2207,14 +2194,16 @@ var jqTagify = $input.data('tagify');
 $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
 })()
 </script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/themes/prism.min.css">
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/prism.min.js'></script>
     <script>
+        window.Prism = window.Prism || {};
+        window.Prism.manual = true;
         setTimeout(function(){
             Prism.highlightAll();
         }, 500)
     </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js'></script>
+
 
     <script src='https://unpkg.com/@yaireo/knobs'></script>
     <script>
