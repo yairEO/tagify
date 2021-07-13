@@ -57,7 +57,6 @@
 - [Single-Value](#single-value)
 - [React](#react)
   - [Update regarding `onChange` prop:](#update-regarding-onchange-prop)
-- [There is no more `e.target`, and to access the original DOM input element, do this: `e.detail.tagify.DOM.originalInput`.](#there-is-no-more-etarget-and-to-access-the-original-dom-input-element-do-this-edetailtagifydomoriginalinput)
     - [Updating the component's state](#updating-the-components-state)
 - [jQuery version](#jquery-version)
 - [CSS Variables](#css-variables)
@@ -441,11 +440,11 @@ A Tagify React component is exported from [`react.tagify.js`](https://github.com
 
 ---
 ### Update regarding `onChange` prop:
-  
+
 I have changed how the `onChange` works internally within the Wrapper of Tagify
 so as of *March 30, 2021* the `e` argument will include a `detail` parameter with the value as string.
 There is no more `e.target`, and to access the original DOM input element, do this: `e.detail.tagify.DOM.originalInput`.
-  
+
 ----
 
 > Note: You will need to inport Tagify's CSS also, either by javasceript or by SCSS `@import` (which is preferable)
@@ -614,7 +613,7 @@ tagify.whitelist = ["foo", "bar"]
 ---
 
 <details>
-  <summary><strong>tags/whitelist data strcture</strong></summary>
+  <summary><strong>tags/whitelist data structure</strong></summary>
 
 Tagify does not accept just *any* kind of data structure.<br>
 If a tag data is represented as an `Object`, it **must** contain a **unique** property `value`
