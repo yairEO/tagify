@@ -168,8 +168,8 @@
                 if( isIE ) return;
 
                 function removeLast(s, r){
-                  s = s.split(r)
-                  return s.slice(0,-1).join(r) + s.pop()
+                    s = s.split(r)
+                    return s.slice(0,-1).join(r) + s.pop()
                 }
 
                 setTimeout(function(){
@@ -177,19 +177,10 @@
 
                     // cleanup closure wraper
                     jsCode = jsCode.replace("(function(){", "").trim();
-                    jsCode = removeLast(jsCode, "})()")
+                    jsCode = removeLast(jsCode, "})()").replace(/</g, "&lt" )
+                                                        .replace(/>/g, "&gt" )
+                                                        .trim();
 
-                    // escape angled brackets between two _ESCAPE_START_ and _ESCAPE_END_ comments
-                    let textsToEscape = jsCode.match(new RegExp("// _ESCAPE_START_([^]*?)// _ESCAPE_END_", 'mg'));
-                    if (textsToEscape) {
-                        textsToEscape.forEach(function(textToEscape){
-                            jsCode = jsCode.replace(textToEscape, textToEscape.replace(/</g, "&lt" )
-                                                                              .replace(/>/g, "&gt" )
-                                                                              .replace("// _ESCAPE_START_", "")
-                                                                              .replace("// _ESCAPE_END_", "")
-                                                                              .trim());
-                        });
-                    }
                     currentScript.insertAdjacentHTML('afterend', "<pre class='language-js'><code>" + jsCode + "</code></pre>");
                 }, 500);
             }
@@ -570,12 +561,15 @@
                         <h2><a href='#section-different-look'>Easy to customize</a></h2>
                     </header>
                     <p>
+                        The easiest way to customize styles <em>(colors, borders, spacing, radii, etc.)</em> is by using <a href='https://github.com/yairEO/tagify#css-variables'>CSS variables</a>.
+                    </p>
+                    <p>
                         No placeholder, and no way of adding tags from within the component, but only
                         by clicking the (+) button, which is not related to Tagify in anyway, but in this example
                         it is shown how combining a few simple things make customization easy.
                     </p>
                     <p>
-                        This example also shows how to implement minimum-allowed tags
+                        (This example also shows how to implement minimum-allowed tags)
                     </p>
                     <details>
                       <summary></summary>
@@ -1021,13 +1015,10 @@
             <section id='section-readonly'>
                 <aside class='leftSide'>
                     <header>
-                        <h2><a href='#section-readonly'>Readonly mode</a></h2>
+                        <h2><a href='#section-readonly'>readonly</a></h2>
                     </header>
                     <p>
-                        <em>(Currently only works for "normal" tags and <strong>not</strong> mixed with text)</em>
-                    </p>
-                    <p>
-                        If the original input field has a <code>readonly</code> attribute, then, via CSS, there will be no way of manually adding tags because the inline contenteditable element will be hidden.
+                        If the original input field has a <code>readonly</code> attribute, then, via CSS, Tagify blocks interactions with <code>pointer-events: none;</code>
                     </p>
                     <details>
                       <summary></summary>
@@ -1111,6 +1102,34 @@
                                 "title"    : "Another readonly tag"
                             }
                         ]' />
+                </aside>
+            </section>
+
+            <section id='section-disabled'>
+                <aside class='leftSide'>
+                    <header>
+                        <h2><a href='#section-disabled'>disabled</a></h2>
+                    </header>
+                    <p>
+                        If the original input field has a <code>disabled</code> attribute, then, via CSS, Tagify blocks interactions with <code>pointer-events: none;</code>
+                    </p>
+                    <details>
+                        <summary></summary>
+                    <h3>HTML</h3>
+                    <xmp><input name='disabledInput' disabled value='tag1, tag 2, another tag'></xmp>
+                    <h3>Javascript</h3>
+                    <script>
+                        renderPRE(document.currentScript, "disabled")
+                    </script>
+                    </details>
+                </aside>
+                <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/dyWYJbX'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
+                    <input name='disabledInput' disabled value='tag1, tag 2, another tag'>
                 </aside>
             </section>
 
@@ -1782,7 +1801,6 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
     templates : {
         tag : function(tagData){
             try{
-            // _ESCAPE_START_
                 return `<tag title='${tagData.value}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
                         <x title='remove tag' class='tagify__tag__removeBtn'></x>
                         <div>
@@ -1792,20 +1810,17 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
                             <span class='tagify__tag-text'>${tagData.value}</span>
                         </div>
                     </tag>`
-            // _ESCAPE_END_
             }
             catch(err){}
         },
 
         dropdownItem : function(tagData){
             try{
-            // _ESCAPE_START_
                 return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}' tagifySuggestionIdx="${tagData.tagifySuggestionIdx}">
                             <img onerror="this.style.visibility = 'hidden'"
-                                 src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
+                                src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
                             <span>${tagData.value}</span>
                         </div>`
-            // _ESCAPE_END_
             }
             catch(err){}
         }
@@ -2099,6 +2114,13 @@ var input = document.querySelector('input[name=tags-readonly-mix]'),
 })()
 </script>
 
+<script data-name='disabled'>
+    (function(){
+    var input = document.querySelector('input[name=disabledInput]'),
+        tagify = new Tagify(input);
+    })()
+</script>
+
 
 <script data-name='drag-sort'>
 (function(){
@@ -2175,14 +2197,16 @@ var jqTagify = $input.data('tagify');
 $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
 })()
 </script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/themes/prism.min.css">
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/prism.min.js'></script>
     <script>
+        window.Prism = window.Prism || {};
+        window.Prism.manual = true;
         setTimeout(function(){
             Prism.highlightAll();
         }, 500)
     </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js'></script>
+
 
     <script src='https://unpkg.com/@yaireo/knobs'></script>
     <script>
@@ -2193,7 +2217,7 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
             },
             live: false,
             // 0 - starts as hidden, 1 - starts as visible, 2 - always visible
-            visible: 0,
+            visible: 1,
             CSSVarTarget: document.querySelectorAll('.tagify'),
             knobs: [
                 {
@@ -2339,6 +2363,8 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
         var knobs = new Knobs(settings)
 
         knobs.settings.live = true
+
+        setTimeout(knobs.toggle.bind(knobs), 2000)
      })()
     </script>
     </body>

@@ -14,12 +14,10 @@ const isSameDeep = (a,b) => {
 function templatesToString(templates) {
     if (templates) {
         for (let templateName in templates) {
-            let isReactComp = String(templates[templateName]).includes(".createElement")
-
-            if (isReactComp) {
-                let Template = templates[templateName]
-                templates[templateName] = data => renderToStaticMarkup(<Template {...data} />)
-            }
+            let Template = templates[templateName]
+            let isReactComp = String(Template).includes("jsxRuntime")
+            if (isReactComp)
+                templates[templateName] = (...props) => renderToStaticMarkup(<Template props={props} />)
         }
     }
 }
@@ -49,6 +47,7 @@ const TagifyWrapper = ({
     onDropdownNoMatch = noop,
     onDropdownUpdated = noop,
     readOnly,
+    disabled,
     children,
     settings = {},
     InputMode = "input",
@@ -71,6 +70,7 @@ const TagifyWrapper = ({
         defaultValue: children || typeof _value == 'string' ? _value : JSON.stringify(_value),
         className,
         readOnly,
+        disabled,
         autoFocus,
         placeholder,
     }), [])
@@ -167,6 +167,12 @@ const TagifyWrapper = ({
             tagify.current.setReadonly(readOnly)
         }
     }, [readOnly])
+
+    useEffect(() => {
+        if (mountedRef.current) {
+            tagify.current.setDisabled(disabled)
+        }
+    }, [disabled])
 
     useEffect(() => {
         const t = tagify.current

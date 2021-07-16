@@ -514,6 +514,9 @@ export default {
         }
 
         // todo: consider not doing this on mix-mode
+        if( !this.DOM.input.parentNode )
+            return
+
         setTimeout(() => {
             this.DOM.input.focus()
             this.toggleFocusClass(true)
@@ -655,7 +658,7 @@ export default {
                 ? escapeHTML(value)
                 : value
 
-            var tagHTMLString = this.settings.templates.dropdownItem.call(this, suggestion)
+            var tagHTMLString = this.settings.templates.dropdownItem.apply(this, [suggestion, this])
 
             // make sure the sugestion index is present as attribute, to match the data when one is selected
             tagHTMLString = tagHTMLString

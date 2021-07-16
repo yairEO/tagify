@@ -36,7 +36,9 @@
 <!--ts-->
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
-  - [Usage (in your bundle):](#usage-in-your-bundle)
+  - [Option 1 - import from CDN:](#option-1---import-from-cdn)
+  - [option 2 - import as a *Node module*:](#option-2---import-as-a-node-module)
+    - [Usage (in your bundle):](#usage-in-your-bundle)
 - [Features](#features)
 - [Building the project](#building-the-project)
 - [Adding tags dynamically](#adding-tags-dynamically)
@@ -47,6 +49,7 @@
 - [Drag & Sort](#drag--sort)
   - [Integration example:](#integration-example)
 - [DOM Templates](#dom-templates)
+  - [Example of overriding the `tag` template:](#example-of-overriding-the-tag-template)
 - [Suggestions list](#suggestions-list)
   - [Example for a suggestion item alias](#example-for-a-suggestion-item-alias)
   - [Example whitelist:](#example-whitelist)
@@ -54,7 +57,6 @@
 - [Single-Value](#single-value)
 - [React](#react)
   - [Update regarding `onChange` prop:](#update-regarding-onchange-prop)
-- [There is no more `e.target`, and to access the original DOM input element, do this: `e.detail.tagify.DOM.originalInput`.](#there-is-no-more-etarget-and-to-access-the-original-dom-input-element-do-this-edetailtagifydomoriginalinput)
     - [Updating the component's state](#updating-the-components-state)
 - [jQuery version](#jquery-version)
 - [CSS Variables](#css-variables)
@@ -67,11 +69,24 @@
 
 ## Installation
 
+### Option 1 - import from CDN:
+
+Place these lines before any other code which is (or will be) using *Tagify* ([Example here](https://jsbin.com/jekuqap/edit?html))
+```html
+<script src="https://unpkg.com/@yaireo/tagify"></script>
+<script src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+<link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+```
+
+`Tagify` will then be available globally.
+To load specific version use `@` - for example: `unpkg.com/@yaireo/tagify@3.1.0`
+
+### option 2 - import as a *Node module*:
 ```sh
 npm i @yaireo/tagify --save
 ```
 
-### Usage (in your bundle):
+#### Usage (in your bundle):
 
 [live demo using Parcel as bundler](https://codesandbox.io/s/simple-tagify-setup-6pfi2)
 
@@ -267,6 +282,30 @@ which is a special template for rendering a suggestion item (in the dropdown lis
 
 [View templates](https://github.com/yairEO/tagify/blob/master/src/parts/templates.js)
 
+### Example of overriding the `tag` template:
+
+Each template function automaticaly gets binded with `this` pointing to the current *Tagify* instance.
+It is imperative to preserve the class names and also the `this.getAttributes(tagData)` for proper functionality.
+
+```js
+new Tagify(inputElem, {
+  templates: {
+    tag(tagData, tagify){
+      return `<tag title="${(tagData.title || tagData.value)}"
+              contenteditable='false'
+              spellcheck='false'
+              tabIndex="${this.settings.a11y.focusableTags ? 0 : -1}"
+              class="${this.settings.classNames.tag} ${tagData.class ? tagData.class : ""}"
+              ${this.getAttributes(tagData)}>
+      <x title='' class="${this.settings.classNames.tagX}" role='button' aria-label='remove tag'></x>
+      <div>
+          <span class="${this.settings.classNames.tagText}">${tagData[this.settings.tagTextProp] || tagData.value}</span>
+      </div>
+    </tag>`
+  }
+})
+```
+
 ## Suggestions list
 
 <p align="center">
@@ -401,9 +440,11 @@ A Tagify React component is exported from [`react.tagify.js`](https://github.com
 
 ---
 ### Update regarding `onChange` prop:
+
 I have changed how the `onChange` works internally within the Wrapper of Tagify
 so as of *March 30, 2021* the `e` argument will include a `detail` parameter with the value as string.
 There is no more `e.target`, and to access the original DOM input element, do this: `e.detail.tagify.DOM.originalInput`.
+
 ----
 
 > Note: You will need to inport Tagify's CSS also, either by javasceript or by SCSS `@import` (which is preferable)
@@ -572,7 +613,7 @@ tagify.whitelist = ["foo", "bar"]
 ---
 
 <details>
-  <summary><strong>tags/whitelist data strcture</strong></summary>
+  <summary><strong>tags/whitelist data structure</strong></summary>
 
 Tagify does not accept just *any* kind of data structure.<br>
 If a tag data is represented as an `Object`, it **must** contain a **unique** property `value`
@@ -764,6 +805,7 @@ Name                       | Parameters                                         
 `updateValueByDOMTags`     |                                                                                         | Iterate tag DOM nodes and re-build  the `tagify.value` array (call this if tags get sorted manually)
 `parseTemplate`            | `String`/`Function` <sub>(template name or function)</sub>, `Array` <sub>(data)</sub>   | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node
 `setReadonly`              | `Boolean`                                                                               | Toggles "readonly" mode on/off
+`setDisabled`              | `Boolean`                                                                               | Toggles "disabled" mode on/off
 
 ## Events
 

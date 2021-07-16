@@ -7,6 +7,7 @@ export default {
     wrapper(input, _s){
         return `<tags class="${_s.classNames.namespace} ${_s.mode ? `${_s.classNames[_s.mode + "Mode"]}` : ""} ${input.className}"
                     ${_s.readonly ? 'readonly' : ''}
+                    ${_s.disabled ? 'disabled' : ''}
                     ${_s.required ? 'required' : ''}
                     tabIndex="-1">
             <span ${!_s.readonly || _s.mode != 'mix' ? 'contenteditable' : ''} data-placeholder="${_s.placeholder || '&#8203;'}" aria-placeholder="${_s.placeholder || ''}"
@@ -18,7 +19,7 @@ export default {
         </tags>`
     },
 
-    tag(tagData){
+    tag(tagData, tagify){
         return `<tag title="${(tagData.title || tagData.value)}"
                     contenteditable='false'
                     spellcheck='false'
@@ -43,7 +44,7 @@ export default {
                 </div>`
     },
 
-    dropdownItem( item ){
+    dropdownItem( item, tagify ){
         return `<div ${this.getAttributes(item)}
                     class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
                     data-tagify-control='dropdownItem'

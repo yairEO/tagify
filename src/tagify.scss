@@ -34,6 +34,7 @@
     $tagify-dd-color-primary : rgb(53,149,246) !default;
 
     // CSS variables
+    --tags-disabled-bg         : #F1F1F1;
     --tags-border-color        : #{$tags-border-color};
     --tags-hover-border-color  : #{$tags-hover-border-color};
     --tags-focus-border-color  : #{$tags-focus-border-color};
@@ -92,14 +93,14 @@
         animation: rotateLoader .4s infinite linear;
     }
 
-    @mixin tagReadonlyBG{
+    @mixin tagReadonlyBG($size:5px){
         background: linear-gradient(45deg, var(--tag-bg)  25%,
                                            transparent    25%,
                                            transparent    50%,
                                            var(--tag-bg)  50%,
                                            var(--tag-bg)  75%,
                                            transparent    75%,
-                                           transparent)   0/5px 5px;
+                                           transparent)   0/#{$size} #{$size};
         box-shadow: none;
         filter: brightness(.95);
     }
@@ -131,22 +132,33 @@
     }
 
     &.tagify--focus{
-      transition: 0s;
-      border-color: $tags-focus-border-color;
-      border-color: var(--tags-focus-border-color);
+        transition: 0s;
+        border-color: $tags-focus-border-color;
+        border-color: var(--tags-focus-border-color);
+    }
+
+    &[disabled]{
+        background: var(--tags-disabled-bg);
+        filter: saturate(0);
+        opacity: .5;
+        pointer-events: none;
     }
 
     // Global "read-only" mode (no input button)
     &[readonly]{
-        &:not(.tagify--mix){
+        &#{$self}--select{
+            pointer-events: none;
+        }
+
+        &:not(#{$self}--mix):not(#{$self}--select){
             cursor: default;
-            > #{ $self }__input{
+            > #{$self}__input{
                 visibility: hidden;
                 width: 0;
                 margin: $tagMargin 0;
             }
 
-            #{ $self }__tag > div{
+            #{$self}__tag > div{
                 padding: $tag-pad;
                 padding: var(--tag-pad);
                 &::before{
@@ -617,7 +629,7 @@
             margin-top: 0;
             transform: translateY(-100%);
             #{$dropdown}__wrapper{
-                border-top-width: 1px;
+                border-top-width: 1.1px; // fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523
                 border-bottom-width: 0;
             }
         }
@@ -638,7 +650,7 @@
             background: var(--tagify-dd-bg-color);
             border: 1px solid $tags-focus-border-color;
             border-color: var(--tagify-dd-color-primary);
-            border-width: 1.1px; // fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523
+            border-bottom-width: 1.33px; // fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523
             border-top-width: 0;
             box-shadow: 0 2px 4px -2px rgba(black,.2);
            // box-sizing: border-box;

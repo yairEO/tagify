@@ -748,6 +748,13 @@ export default {
                     newTagData = originalData
             }
 
+            else if( _s.keepInvalidTags ){
+                // cleaup any previous leftovers if the tag was
+                delete newTagData.title
+                delete newTagData["aria-invalid"]
+                delete newTagData.class
+            }
+
             // tagElm.classList.toggle(_s.classNames.tagInvalid, true)
 
             this.onEditTagDone(tagElm, newTagData)

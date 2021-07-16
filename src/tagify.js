@@ -97,6 +97,7 @@ Tagify.prototype = {
 
         var _s = this.settings = extend({}, DEFAULTS, settings)
 
+        _s.disabled = input.hasAttribute('disabled')
         _s.readonly = input.hasAttribute('readonly') // if "readonly" do not include an "input" element inside the Tags component
         _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || ""
         _s.required = input.hasAttribute('required')
@@ -154,19 +155,29 @@ Tagify.prototype = {
      * @param {Object} data [Tag data]
      */
     getAttributes( data ){
+        var attrs = this.getCustomAttributes(data), s = '', k;
+
+        for( k in attrs )
+            s += " " + k + (data[k] !== undefined ? `="${data[k]}"` : "");
+
+        return s;
+    },
+
+    /**
+     * Returns an object of attributes to be used for the templates
+     */
+    getCustomAttributes( data ){
         // only items which are objects have properties which can be used as attributes
-        if( Object.prototype.toString.call(data) != "[object Object]" )
+        if( !isObject(data) )
             return '';
 
-        var keys = Object.keys(data),
-            s = "", propName, i;
+        var output = {}, propName, k;
 
-        for( i=keys.length; i--; ){
-            propName = keys[i];
+        for( propName in data ){
             if( propName.slice(0,2) != '__' && propName != 'class' && data.hasOwnProperty(propName) && data[propName] !== undefined )
-                s += " " + propName + (data[propName] !== undefined ? `="${data[propName]}"` : "");
+                output[propName] = data[propName]
         }
-        return s;
+        return output
     },
 
     setStateSelection(){
@@ -470,8 +481,11 @@ Tagify.prototype = {
 
         isValid = !("__isValid" in tagData) || tagData.__isValid === true
 
-        if( !isValid )
+        if( !isValid ){
             this.removeTagsFromValue(tagElm)
+        }
+
+        this.update()
 
         //this.validateTag(tagData);
 
@@ -495,6 +509,7 @@ Tagify.prototype = {
         this.trigger("edit:beforeUpdate", eventData, {cloneData:false})
 
         this.state.editing = false;
+
         delete tagData.__originalData
         delete tagData.__originalHTML
 
@@ -909,16 +924,20 @@ Tagify.prototype = {
             : false
     },
 
-    setReadonly( isReadonly ){
-        var _s = this.settings;
+    setReadonly( toggle, attrribute ){
+        var _s = this.settings
 
         document.activeElement.blur() // exists possible edit-mode
-        _s.readonly = isReadonly
-        this.DOM.scope[(isReadonly?'set':'remove') + 'Attribute']('readonly', true)
+        _s[attrribute || 'readonly'] = toggle
+        this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true)
 
         if( _s.mode == 'mix' ){
-            this.DOM.input.contentEditable = !isReadonly
+            this.DOM.input.contentEditable = !toggle
         }
+    },
+
+    setDisabled( isDisabled ){
+        this.setReadonly(isDisabled, 'disabled')
     },
 
     /**
@@ -1100,8 +1119,10 @@ Tagify.prototype = {
         if( this.state.actions.selectOption )
             setTimeout(this.setRangeAtStartEnd.bind(this))
 
-        if( this.getLastTag() )
-            this.replaceTag(this.getLastTag(), tagData)
+        var lastTagElm = this.getLastTag()
+
+        if( lastTagElm )
+            this.replaceTag(lastTagElm, tagData)
         else
             this.appendTag(tagElm)
 
@@ -1139,7 +1160,6 @@ Tagify.prototype = {
             frag = document.createDocumentFragment()
 
         if( !tagsItems || tagsItems.length == 0 ){
-            // is mode is "select" clean all tagsargument of
             if( _s.mode == 'select' )
                 this.removeAllTags()
             return tagElems
@@ -1156,6 +1176,7 @@ Tagify.prototype = {
             clearInput = false
 
         this.DOM.input.removeAttribute('style')
+
         tagsItems.forEach(tagData => {
             var tagElm,
                 tagElmParams = {},
@@ -1200,7 +1221,6 @@ Tagify.prototype = {
             if( tagData.__isValid && tagData.__isValid === true ){
                 // update state
                 this.value.push(tagData)
-                this.update()
                 this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
             }
             else{
@@ -1214,6 +1234,7 @@ Tagify.prototype = {
         })
 
         this.appendTag(frag)
+        this.update()
 
         if( tagsItems.length && clearInput ){
             this.input.set.call(this)
@@ -1462,6 +1483,7 @@ Tagify.prototype = {
                 // update state regardless of animation
                 if( !silent ){
                     this.removeTagsFromValue(tagsToRemove.map(tag => tag.node))
+                    this.update() // update the original input with the current value
                 }
             }
             )
@@ -1479,17 +1501,14 @@ Tagify.prototype = {
         tags = Array.isArray(tags) ? tags : [tags];
 
         tags.forEach(tag => {
-            // remove "__removed" so the comparison in "getTagIdx" could work
             var tagData = this.tagData(tag),
                 tagIdx = this.getTagIdx(tagData)
 
-            delete tagData.__removed
+            //  delete tagData.__removed
 
             if( tagIdx > -1 )
                 this.value.splice(tagIdx, 1)
         })
-
-        this.update() // update the original input with the current value
     },
 
     removeAllTags( opts ){
@@ -1529,15 +1548,14 @@ Tagify.prototype = {
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update( args ){
-        var inputElm = this.DOM.originalInput,
-            { withoutChangeEvent } = args || {};
+        var inputElm = this.DOM.originalInput;
 
         if( !this.settings.mixMode.integrated )
             inputElm.value = this.getInputValue()
 
         this.postUpdate()
 
-        if( !withoutChangeEvent && this.state.loadedOriginalValues )
+        if( !(args||{}).withoutChangeEvent && this.state.loadedOriginalValues )
             this.triggerChangeEvent()
     },
 
@@ -1569,11 +1587,13 @@ Tagify.prototype = {
         function iterateChildren(rootNode){
             rootNode.childNodes.forEach((node) => {
                 if( node.nodeType == 1 ){
-                    if( node.dataset.tagifyControl === 'tag' && that.tagData(node) ){
-                        if( that.tagData(node).__removed )
+                    const tagData = that.tagData(node);
+
+                    if( node.dataset.tagifyControl === 'tag' && tagData ){
+                        if( tagData.__removed )
                             return;
                         else
-                            result += _interpolator[0] + JSON.stringify( omit(that.tagData(node), that.dataProps) ) + _interpolator[1]
+                            result += _interpolator[0] + JSON.stringify( omit(tagData, that.dataProps) ) + _interpolator[1]
                         return
                     }
 
