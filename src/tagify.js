@@ -1249,8 +1249,7 @@ Tagify.prototype = {
      */
     addMixTags( tagsData ){
         if( tagsData[0].prefix || this.state.tag ){
-            this.prefixedTextToTag(tagsData[0])
-            return
+            return this.prefixedTextToTag(tagsData[0])
         }
 
         if( typeof tagsData == 'string' )
@@ -1281,23 +1280,25 @@ Tagify.prototype = {
             this.updateValueByDOMTags() // updates internal "this.value"
             this.update() // updates original input/textarea
         }
+
+        return frag
     },
 
     /**
      * Adds a tag which was activly typed by the user
-     * @param {String/Array} tagsItem   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
+     * @param {String/Array} tagItem   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
      */
-    prefixedTextToTag( tagsItem ){
+    prefixedTextToTag( tagItem ){
         var _s = this.settings,
             tagElm,
             createdFromDelimiters = this.state.tag.delimiters
 
-        _s.transformTag.call(this, tagsItem)
+        _s.transformTag.call(this, tagItem)
 
-        tagsItem.prefix = tagsItem.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0];
+        tagItem.prefix = tagItem.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0];
 
         // TODO: should check if the tag is valid
-        tagElm = this.createTagElem(tagsItem)
+        tagElm = this.createTagElem(tagItem)
 
         // tries to replace a taged textNode with a tagElm, and if not able,
         // insert the new tag to the END if "addTags" was called from outside
@@ -1307,7 +1308,7 @@ Tagify.prototype = {
 
         setTimeout(()=> tagElm.classList.add(this.settings.classNames.tagNoAnimation), 300)
 
-        this.value.push(tagsItem)
+        this.value.push(tagItem)
         this.update()
 
         if( !createdFromDelimiters ) {
@@ -1316,7 +1317,7 @@ Tagify.prototype = {
         }
 
         this.state.tag = null
-        this.trigger('add', extend({}, {tag:tagElm}, {data:tagsItem}))
+        this.trigger('add', extend({}, {tag:tagElm}, {data:tagItem}))
 
         return tagElm
     },
