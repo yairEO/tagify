@@ -187,7 +187,6 @@ export default {
         },
 
         onWindowKeyDown(e){
-            console.log(11111)
             var focusedElm = document.activeElement,
                 isTag = focusedElm.classList.contains(this.settings.classNames.tag),
                 isBelong = isTag && this.DOM.scope.contains(document.activeElement),
