@@ -1,6 +1,7 @@
 import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, getUID } from './parts/helpers'
-import _dropdown, { initDropdown } from './parts/dropdown'
 import DEFAULTS from './parts/defaults'
+import _dropdown, { initDropdown } from './parts/dropdown'
+import TEXTS from './parts/texts'
 import templates from './parts/templates'
 import EventDispatcher from './parts/EventDispatcher'
 import events, { triggerChangeEvent } from './parts/events'
@@ -58,14 +59,6 @@ function Tagify( input, settings ){
 
 Tagify.prototype = {
     _dropdown,
-
-    TEXTS : {
-        empty      : "empty",
-        exceed     : "number of tags exceeded",
-        pattern    : "pattern mismatch",
-        duplicate  : "already exists",
-        notAllowed : "not allowed"
-    },
 
     customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:beforeUpdate', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch', 'dropdown:scroll'],
     dataProps: ['__isValid', '__removed', '__originalData', '__originalHTML', '__tagId'], // internal-uasge props
@@ -145,6 +138,8 @@ Tagify.prototype = {
             try { _s.delimiters = new RegExp(this.settings.delimiters, "g") }
             catch(e){}
         }
+
+        this.TEXTS = {...TEXTS, ...(_s.texts || {})}
 
         // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
         if( _s.mode == 'select' )

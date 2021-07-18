@@ -46,6 +46,7 @@
   - [Modify original input value format](#modify-original-input-value-format)
 - [Ajax whitelist](#ajax-whitelist)
 - [Edit tags](#edit-tags)
+- [Validations](#validations)
 - [Drag & Sort](#drag--sort)
   - [Integration example:](#integration-example)
 - [DOM Templates](#dom-templates)
@@ -242,6 +243,43 @@ To do the same but for specific tag(s), set those tags' data with `editable` pro
 
 ```html
 <input value='[{"value":"foo", "editable":false}, {"value":"bar"}]'>
+```
+
+
+## Validations
+For "regular" tags (not *mix-mode* or *select-mode*) the easiest way is to use the `pattern` setting and use a Regex, or
+apply the `pattern` attribute directly on the `input` which will be "transformed" into a *Tagify* component (for vanilla code where the `input` tag is fully accessible to develops).
+
+If the `pattern` setting does not meet your needs, use the [`validate` setting](#settings), which recieves a *tag data object* as an argument and should return `true` if validaiton is passing, or `false`/`string` of not.
+A *string* may be returned as the reason of the validation failure so it would be printed as the `title` attribute of the invalid tag.
+
+Note - there is a setting to keep invalid tags ([`keepInvalidTags`](#settings))  and if it's set to `true`, the user can see the reason for the invalidation by
+hovering the tag and see the browser's native tooltip via the `title` attribute:
+
+```js
+{
+  empty      : "empty",
+  exceed     : "number of tags exceeded",
+  pattern    : "pattern mismatch",
+  duplicate  : "already exists",
+  notAllowed : "not allowed"
+}
+```
+
+The texts for those (invalid tags) *titles* can be customized from the settings:
+
+```js
+new Tagify(inputElement, {
+  texts: {
+    duplicate: "Duplicates are not allowed"
+  }
+})
+```
+
+Or by directly manipulating the *Tagify* function *prototype*:
+
+```js
+Tagify.prototype.TEXTS = {...Tagify.prototype.TEXTS, {duplicate: "Duplicates are not allowed"}}
 ```
 
 ## Drag & Sort
