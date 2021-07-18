@@ -52,8 +52,12 @@ export default {
         if( bindUnbind && !this.listeners.main ){
             // this event should never be unbinded:
             // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
-            this.DOM.input.addEventListener(this.isIE ? "keydown" : "input", _CB[this.isIE ? "onInputIE" : "onInput"].bind(this));
-            window.addEventListener('keydown', _CB.onWindowKeyDown.bind(this));
+            this.listeners.global = {
+                onInput: _CB[this.isIE ? "onInputIE" : "onInput"].bind(this),
+                keyboard: _CB.onWindowKeyDown.bind(this)
+            };
+            this.DOM.input.addEventListener(this.isIE ? "keydown" : "input", this.listeners.global.onInput);
+            window.addEventListener('keydown', this.listeners.global.keydown);
 
             if( this.settings.isJQueryPlugin )
                 jQuery(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
@@ -71,9 +75,21 @@ export default {
 
         for( var eventName in _CBR ){
             // make sure the focus/blur event is always regesitered (and never more than once)
+            if( eventName == 'blur' && bindUnbind) this.listeners.global.blur = _CBR.blur[1];
             if( eventName == 'blur' && !bindUnbind ) continue;
 
             this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
+        }
+    },
+
+    // unbind global event listeners for this instance
+    // call this after binding(false) to release the remaining event listeners
+    unbindglobal() {
+        if (this.listeners.global) {
+            var glbl = this.listeners.global;
+            if (glbl.onInput) this.DOM.input.removeEventListener(this.isIE ? "keydown" : "input", glbl.onInput);
+            if (glbl.keydown) window.removeEventListener('keydown', glbl.keydown);
+            if (glbl.blur) this.DOM.input.removeEventListener('blur', glbl.blur);
         }
     },
 
