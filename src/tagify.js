@@ -271,6 +271,7 @@ Tagify.prototype = {
      * revert any changes made by this component
      */
     destroy(){
+        this.events.unbindGlobal.call(this)
         this.DOM.scope.parentNode.removeChild(this.DOM.scope)
         this.dropdown.hide(true)
         clearTimeout(this.dropdownHide__bindEventsTimeout)
