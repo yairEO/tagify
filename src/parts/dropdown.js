@@ -364,7 +364,7 @@ export default {
                         this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                             .then(() => {
                                 if( selectedElm )
-                                    this.dropdown.selectOption(selectedElm)
+                                    return this.dropdown.selectOption(selectedElm)
                                 else
                                     this.dropdown.hide()
 
