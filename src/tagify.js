@@ -97,7 +97,7 @@ Tagify.prototype = {
 
         for( let name in _s.classNames )
             Object.defineProperty(_s.classNames, name + "Selector" , {
-                get(){ return "."+this[name].split(" ").join(".") }
+                get(){ return "."+this[name].split(" ")[0] }
             })
 
         if( this.isIE )
@@ -158,7 +158,7 @@ Tagify.prototype = {
         var attrs = this.getCustomAttributes(data), s = '', k;
 
         for( k in attrs )
-            s += " " + k + (data[k] !== undefined ? `="${data[k]}"` : "");
+            s += " " + k + (data[k] !== undefined ? `="${attrs[k]}"` : "");
 
         return s;
     },
@@ -175,7 +175,7 @@ Tagify.prototype = {
 
         for( propName in data ){
             if( propName.slice(0,2) != '__' && propName != 'class' && data.hasOwnProperty(propName) && data[propName] !== undefined )
-                output[propName] = data[propName]
+                output[propName] = escapeHTML(data[propName])
         }
         return output
     },
