@@ -50,10 +50,7 @@ export default {
 
         // everything inside gets executed only once-per instance
         if( bindUnbind && !this.listeners.main ){
-            // this event should never be unbinded:
-            // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
-            this.DOM.input.addEventListener(this.isIE ? "keydown" : "input", _CB[this.isIE ? "onInputIE" : "onInput"].bind(this));
-            window.addEventListener('keydown', _CB.onWindowKeyDown.bind(this));
+            this.events.bindGlobal.call(this);
 
             if( this.settings.isJQueryPlugin )
                 jQuery(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
@@ -62,7 +59,6 @@ export default {
         // setup callback references so events could be removed later
         _CBR = (this.listeners.main = this.listeners.main || {
             focus    : ['input', _CB.onFocusBlur.bind(this)],
-            blur     : ['input', _CB.onFocusBlur.bind(this)],
             keydown  : ['input', _CB.onKeydown.bind(this)],
             click    : ['scope', _CB.onClickScope.bind(this)],
             dblclick : ['scope', _CB.onDoubleClickScope.bind(this)],
@@ -70,11 +66,42 @@ export default {
         })
 
         for( var eventName in _CBR ){
-            // make sure the focus/blur event is always regesitered (and never more than once)
-            if( eventName == 'blur' && !bindUnbind ) continue;
-
             this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
         }
+    },
+
+    bindGlobal( unbind ) {
+        var _CB = this.events.callbacks,
+            action = unbind ? 'removeEventListener' : 'addEventListener',
+            e;
+
+        if( !unbind  && this.listeners.global ) return; // do not re-bind
+
+        // these events are global event should never be unbinded, unless the instance is destroyed:
+        this.listeners.global = this.listeners && this.listeners.global || [
+            {
+                type: this.isIE ? 'keydown' : 'input',  // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
+                target: this.DOM.input,
+                cb: _CB[this.isIE ? 'onInputIE' : 'onInput'].bind(this)
+            },
+            {
+                type: 'keydown',
+                target: window,
+                cb: _CB.onWindowKeyDown.bind(this)
+            },
+            {
+                type: 'blur',
+                target: this.DOM.input,
+                cb: _CB.onFocusBlur.bind(this)
+            },
+        ]
+
+        for( e of this.listeners.global )
+            e.target[action](e.type, e.cb);
+    },
+
+    unbindGlobal() {
+        this.events.bindGlobal.call(this, true);
     },
 
     /**

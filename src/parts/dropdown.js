@@ -364,7 +364,7 @@ export default {
                         this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                             .then(() => {
                                 if( selectedElm )
-                                    this.dropdown.selectOption(selectedElm)
+                                    return this.dropdown.selectOption(selectedElm)
                                 else
                                     this.dropdown.hide()
 
@@ -483,10 +483,11 @@ export default {
      * @param {Object} elm  DOM node to select
      */
     selectOption( elm ){
-        var {clearOnSelect, closeOnSelect} = this.settings.dropdown
+        var {clearOnSelect, closeOnSelect} = this.settings.dropdown,
+            addedTag;
 
         if( !elm ) {
-            this.addTags(this.state.inputText, true)
+            addedTag = this.addTags(this.state.inputText, true)
             closeOnSelect && this.dropdown.hide()
             return;
         }
@@ -499,7 +500,7 @@ export default {
 
         this.trigger("dropdown:select", {data:tagData, elm})
 
-        // above event must  be triggered, regardless of anything else which might go wrong
+        // The above event must be triggered, regardless of anything else which might go wrong
         if( !tagifySuggestionIdx || !tagData ){
             this.dropdown.hide()
             return
@@ -510,7 +511,7 @@ export default {
 
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
         else{
-            this[this.settings.mode == 'mix'?"addMixTags":"addTags"]([tagData], clearOnSelect)
+            addedTag = this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData], clearOnSelect)
         }
 
         // todo: consider not doing this on mix-mode
@@ -520,12 +521,12 @@ export default {
         setTimeout(() => {
             this.DOM.input.focus()
             this.toggleFocusClass(true)
+            this.placeCaretAfterNode(addedTag)
         })
 
         if( closeOnSelect ){
             setTimeout(this.dropdown.hide.bind(this))
         }
-
         else
             this.dropdown.refilter()
     },

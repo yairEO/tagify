@@ -19,15 +19,16 @@ export default {
     },
 
     tag(tagData, tagify){
+        var _s = this.settings;
         return `<tag title="${(tagData.title || tagData.value)}"
                     contenteditable='false'
                     spellcheck='false'
-                    tabIndex="${this.settings.a11y.focusableTags ? 0 : -1}"
-                    class="${this.settings.classNames.tag} ${tagData.class ? tagData.class : ""}"
+                    tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
+                    class="${_s.classNames.tag} ${tagData.class || ""}"
                     ${this.getAttributes(tagData)}>
-            <x title='' class="${this.settings.classNames.tagX}" role='button' aria-label='remove tag'></x>
+            <x title='' class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
             <div>
-                <span class="${this.settings.classNames.tagText}">${tagData[this.settings.tagTextProp] || tagData.value}</span>
+                <span class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
             </div>
         </tag>`
     },
