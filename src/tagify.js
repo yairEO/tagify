@@ -1,6 +1,7 @@
 import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, getUID } from './parts/helpers'
-import _dropdown, { initDropdown } from './parts/dropdown'
 import DEFAULTS from './parts/defaults'
+import _dropdown, { initDropdown } from './parts/dropdown'
+import TEXTS from './parts/texts'
 import templates from './parts/templates'
 import EventDispatcher from './parts/EventDispatcher'
 import events, { triggerChangeEvent } from './parts/events'
@@ -58,14 +59,6 @@ function Tagify( input, settings ){
 
 Tagify.prototype = {
     _dropdown,
-
-    TEXTS : {
-        empty      : "empty",
-        exceed     : "number of tags exceeded",
-        pattern    : "pattern mismatch",
-        duplicate  : "already exists",
-        notAllowed : "not allowed"
-    },
 
     customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:beforeUpdate', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch', 'dropdown:scroll'],
     dataProps: ['__isValid', '__removed', '__originalData', '__originalHTML', '__tagId'], // internal-uasge props
@@ -141,6 +134,8 @@ Tagify.prototype = {
             catch(e){}
         }
 
+        this.TEXTS = {...TEXTS, ...(_s.texts || {})}
+
         // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
         if( _s.mode == 'select' )
             _s.dropdown.enabled = 0
@@ -158,7 +153,7 @@ Tagify.prototype = {
         var attrs = this.getCustomAttributes(data), s = '', k;
 
         for( k in attrs )
-            s += " " + k + (data[k] !== undefined ? `="${data[k]}"` : "");
+            s += " " + k + (data[k] !== undefined ? `="${attrs[k]}"` : "");
 
         return s;
     },
@@ -175,7 +170,7 @@ Tagify.prototype = {
 
         for( propName in data ){
             if( propName.slice(0,2) != '__' && propName != 'class' && data.hasOwnProperty(propName) && data[propName] !== undefined )
-                output[propName] = data[propName]
+                output[propName] = escapeHTML(data[propName])
         }
         return output
     },
@@ -271,6 +266,7 @@ Tagify.prototype = {
      * revert any changes made by this component
      */
     destroy(){
+        this.events.unbindGlobal.call(this)
         this.DOM.scope.parentNode.removeChild(this.DOM.scope)
         this.dropdown.hide(true)
         clearTimeout(this.dropdownHide__bindEventsTimeout)
@@ -1250,8 +1246,7 @@ Tagify.prototype = {
      */
     addMixTags( tagsData ){
         if( tagsData[0].prefix || this.state.tag ){
-            this.prefixedTextToTag(tagsData[0])
-            return
+            return this.prefixedTextToTag(tagsData[0])
         }
 
         if( typeof tagsData == 'string' )
@@ -1282,23 +1277,25 @@ Tagify.prototype = {
             this.updateValueByDOMTags() // updates internal "this.value"
             this.update() // updates original input/textarea
         }
+
+        return frag
     },
 
     /**
      * Adds a tag which was activly typed by the user
-     * @param {String/Array} tagsItem   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
+     * @param {String/Array} tagItem   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
      */
-    prefixedTextToTag( tagsItem ){
+    prefixedTextToTag( tagItem ){
         var _s = this.settings,
             tagElm,
             createdFromDelimiters = this.state.tag.delimiters
 
-        _s.transformTag.call(this, tagsItem)
+        _s.transformTag.call(this, tagItem)
 
-        tagsItem.prefix = tagsItem.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0];
+        tagItem.prefix = tagItem.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0];
 
         // TODO: should check if the tag is valid
-        tagElm = this.createTagElem(tagsItem)
+        tagElm = this.createTagElem(tagItem)
 
         // tries to replace a taged textNode with a tagElm, and if not able,
         // insert the new tag to the END if "addTags" was called from outside
@@ -1308,7 +1305,7 @@ Tagify.prototype = {
 
         setTimeout(()=> tagElm.classList.add(this.settings.classNames.tagNoAnimation), 300)
 
-        this.value.push(tagsItem)
+        this.value.push(tagItem)
         this.update()
 
         if( !createdFromDelimiters ) {
@@ -1317,7 +1314,7 @@ Tagify.prototype = {
         }
 
         this.state.tag = null
-        this.trigger('add', extend({}, {tag:tagElm}, {data:tagsItem}))
+        this.trigger('add', extend({}, {tag:tagElm}, {data:tagItem}))
 
         return tagElm
     },

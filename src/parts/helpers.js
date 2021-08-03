@@ -87,12 +87,13 @@ export function getfirstTextNode( elm, action ){
  * https://stackoverflow.com/a/6234804/104380
  */
 export function escapeHTML( s ){
-    return s
+    return typeof s == 'string' ? s
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/`|'/g, "&#039;")
+        : s;
 }
 
 /**
