@@ -213,6 +213,9 @@ export default {
         },
 
         onKeydown(e){
+            if( this.settings.mode == 'select' && this.settings.enforceWhitelist )
+                e.preventDefault()
+
             var s = this.trim(e.target.textContent);
 
             this.trigger("keydown", {originalEvent:this.cloneEvent(e)})
@@ -636,6 +639,11 @@ export default {
 
         // special proccess is needed for pasted content in order to "clean" it
         onPaste(e){
+            if( this.settings.mode == 'select' && this.settings.enforceWhitelist ){
+                e.preventDefault()
+                return false;
+            }
+
             var clipboardData, pastedText;
 
             e.preventDefault()
