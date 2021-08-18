@@ -1105,10 +1105,12 @@ Tagify.prototype = {
      * @param {Object} tagData  Tag data
      */
     selectTag( tagElm, tagData ){
-        if( this.settings.enforceWhitelist && !this.isTagWhitelisted(tagData.value) )
+        var _s = this.settings
+
+        if( _s.enforceWhitelist && !this.isTagWhitelisted(tagData.value) )
             return
 
-        this.input.set.call(this, tagData[this.settings.tagTextProp || 'value'], true)
+        this.input.set.call(this, tagData[_s.tagTextProp || 'value'], true)
 
         // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
         if( this.state.actions.selectOption )
@@ -1120,6 +1122,9 @@ Tagify.prototype = {
             this.replaceTag(lastTagElm, tagData)
         else
             this.appendTag(tagElm)
+
+        if( _s.enforceWhitelist )
+            this.DOM.input.removeAttribute('contenteditable');
 
         this.value[0] = tagData
         this.trigger('add', { tag:tagElm, data:tagData })
@@ -1479,6 +1484,9 @@ Tagify.prototype = {
                 if( !silent ){
                     this.removeTagsFromValue(tagsToRemove.map(tag => tag.node))
                     this.update() // update the original input with the current value
+
+                    if( this.settings.mode == 'select' )
+                        this.DOM.input.setAttribute('contenteditable', true)
                 }
             }
             )

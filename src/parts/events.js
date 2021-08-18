@@ -213,8 +213,9 @@ export default {
         },
 
         onKeydown(e){
-            if( this.settings.mode == 'select' && this.settings.enforceWhitelist )
+            if( this.settings.mode == 'select' && this.settings.enforceWhitelist && this.value.length ){
                 e.preventDefault()
+            }
 
             var s = this.trim(e.target.textContent);
 
@@ -374,10 +375,13 @@ export default {
 
             switch( e.key ){
                 case 'Backspace' :
-                    if( !this.state.dropdown.visible || this.settings.dropdown.position == 'manual' ){
+                    if( this.settings.mode == 'select' && this.settings.enforceWhitelist )
+                        this.removeTags()
+
+                    else if( !this.state.dropdown.visible || this.settings.dropdown.position == 'manual' ){
                         if( s == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
                             if( this.settings.backspace === true )
-                                this.removeTags();
+                                this.removeTags()
                             else if( this.settings.backspace == 'edit' )
                                 setTimeout(this.editTag.bind(this), 0) // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
                         }
@@ -639,14 +643,13 @@ export default {
 
         // special proccess is needed for pasted content in order to "clean" it
         onPaste(e){
+            e.preventDefault()
+
             if( this.settings.mode == 'select' && this.settings.enforceWhitelist ){
-                e.preventDefault()
                 return false;
             }
 
             var clipboardData, pastedText;
-
-            e.preventDefault()
 
             if( this.settings.readonly ) return
 
