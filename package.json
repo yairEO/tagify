@@ -14,7 +14,7 @@
     "browserslist": [
         ">1%",
         "not dead",
-        "not ie < 11",
+        "ie > 10",
         "not IE_Mob 11",
         "not op_mini all"
     ],
