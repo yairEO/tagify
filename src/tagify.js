@@ -1252,6 +1252,8 @@ Tagify.prototype = {
      * @param {String/Array} tagData    A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings
      */
     addMixTags( tagsData ){
+        tagsData = this.normalizeTags(tagsData);
+
         if( tagsData[0].prefix || this.state.tag ){
             return this.prefixedTextToTag(tagsData[0])
         }
@@ -1295,7 +1297,7 @@ Tagify.prototype = {
     prefixedTextToTag( tagItem ){
         var _s = this.settings,
             tagElm,
-            createdFromDelimiters = this.state.tag.delimiters
+            createdFromDelimiters = this.state.tag.delimiters;
 
         _s.transformTag.call(this, tagItem)
 
