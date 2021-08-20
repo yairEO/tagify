@@ -335,7 +335,7 @@ export default {
                         deleteBackspaceTimeout = setTimeout(() => {
                             var sel = document.getSelection(),
                                 currentValue = decode(this.DOM.input.innerHTML),
-                                prevElm = sel.anchorNode.previousElementSibling;
+                                prevElm = !deleteKeyTagDetected && sel.anchorNode.previousElementSibling;
 
                             // fixes #384, where the first and only tag will not get removed with backspace
                             if( !isChromeAndroidBrowser() && currentValue.length >= lastInputValue.length && prevElm && !prevElm.hasAttribute('readonly') ){
