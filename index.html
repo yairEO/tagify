@@ -800,6 +800,32 @@
             </section>
 
 
+            <section id='section-no-user-input'>
+                <aside class='leftSide'>
+                    <header>
+                        <h2><a href='#section-no-user-input'>Disabled user input</a></h2>
+                    </header>
+                    <p>
+                        User cannot type or paste any input not edit already-exiting tags.<br>
+                        Tags can only be selected from the suggestions list (<em>whitelist</em>) dropdown.
+                    </p>
+                    <details>
+                      <summary></summary>
+                    <h3>HTML</h3>
+<pre class="language-markup"><code>&lt;input name='tags-disabled-user-input' placeholder='Select tags from the list''></code></pre>
+                    <h3>JAVASCRIPT</h3>
+                    <script>renderPRE(document.currentScript, "noUserInput")</script>
+                    </details>
+                </aside>
+                <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/PomMMwp'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><use class="logo-use" xlink:href="#codepen-logo"/></svg>
+                    </a>
+                    <input name='tags-disabled-user-input' placeholder='Select tags from the list'>
+                </aside>
+            </section>
+
+
             <section id="users-list">
                 <aside class='leftSide'>
                     <header>
@@ -919,6 +945,7 @@
                     <p>
                         Each (valid) tag gets a random color, via the <code>transformTag</code> callback which modifies the tag's data object before creating the tag element.
                         Another way of giving colors to tags is <a href='https://github.com/yairEO/tagify/issues/644'>discussed here</a>.
+                        Clicking a tag <strong>once</strong> will change its color.
                     </p>
                     <p>
                         HTML5 <code>pattern</code> attribute is automatically used to validate tags.<br>
@@ -931,11 +958,16 @@
                         If there is no match for the typed text, a special dropdown item will be renderd using the optional <em>settings</em>: <code>templates.dropdownItemNoMatch</code>
                     </p>
                     <details>
-                      <summary></summary>
+                        <summary></summary>
                     <h3>HTML</h3>
 <pre class="language-markup"><code>&lt;input name='tags3' value='[{"value":"point"}, {"value":"soft"}]' pattern='^[A-Za-z_✲ ]{1,15}$'></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "advance-options")</script>
+                    <h3>CSS</h3>
+                    <style contenteditable>.advance .tagify__tag{
+    --tag-hover: var(--tag-bg);
+}
+</style>
                     </details>
                 </aside>
                 <aside class='rightSide'>
@@ -944,7 +976,7 @@
                             <use class="logo-use" xlink:href="#codepen-logo"/>
                         </svg>
                     </a>
-                    <input name='tags3' value='[{"value":"point"}, {"value":"soft"}]' pattern='^[A-Za-z_✲ ]{1,15}$'>
+                    <input name='tags3' class='advance' value='[{"value":"point"}, {"value":"soft"}]' pattern='^[A-Za-z_✲ ]{1,15}$'>
                 </aside>
             </section>
 
@@ -965,7 +997,7 @@
                         some attributes are in the specs and the made-up ones should technically be prefixed with <code>data-</code>.
                     </p>
                     <details>
-                      <summary></summary>
+                        <summary></summary>
                     <h3>HTML</h3>
                     <xmp><input name='tags3-1' class='countries' placeholder="Try to add tags from the list"></xmp>
                     <h3>Javascript</h3>
@@ -1171,6 +1203,10 @@
                     </header>
                     <p>
                         Similar to native <code>&lt;Select&gt;</code> element, but allows free text as value.
+                    </p>
+                    <p>
+                        If the `enforceWhitelist` setting is set to `true` and a tag is currently selected,
+                        user text input will be disabled, so altering the currently selected tag is forbidden.
                     </p>
                     <details>
                       <summary></summary>
@@ -1414,6 +1450,19 @@ var input = document.querySelector('input[name=tags-manual-suggestions]'),
 </script>
 
 
+<script data-name="noUserInput">
+(function(){
+
+var input = document.querySelector('input[name=tags-disabled-user-input]');
+
+new Tagify(input, {
+    whitelist: [1,2,3,4,5],
+    userInput: false
+})
+})()
+</script>
+
+
 <script data-name="textarea">
 (function(){
 var input = document.querySelector('textarea[name=tags2]'),
@@ -1568,7 +1617,7 @@ var input = document.querySelector('input[name=tags3]'),
         delimiters          : ",| ",        // add new tags when a comma or a space character is entered
         keepInvalidTags     : true,         // do not remove invalid tags (but keep them marked as invalid)
         editTags            : {
-            clicks: 1,              // single click to edit a tag
+            clicks: 2,              // single click to edit a tag
             keepInvalid: false      // if after editing, tag is invalid, auto-revert
         },
         maxTags             : 6,
@@ -1606,10 +1655,11 @@ function getRandomColor(){
 }
 
 function transformTag( tagData ){
-    tagData.style = "--tag-bg:" + getRandomColor();
+    tagData.color = getRandomColor();
+    tagData.style = "--tag-bg:" + tagData.color;
 
     if( tagData.value.toLowerCase() == 'shit' )
-       tagData.value = 's✲✲t'
+        tagData.value = 's✲✲t'
 }
 
 tagify.on('add', function(e){
@@ -1619,6 +1669,28 @@ tagify.on('add', function(e){
 tagify.on('invalid', function(e){
     console.log(e, e.detail);
 })
+
+var clickDebounce;
+
+tagify.on('click', function(e){
+    const {tag:tagElm, data:tagData} = e.detail;
+
+    // a delay is needed to distinguish between regular click and double-click.
+    // this allows enough time for a possible double-click, and noly fires if such
+    // did not occur.
+    clearTimeout(clickDebounce);
+    clickDebounce = setTimeout(() => {
+        tagData.color = getRandomColor();
+        tagData.style = "--tag-bg:" + tagData.color;
+        tagify.replaceTag(tagElm, tagData);
+    }, 200);
+})
+
+tagify.on('dblclick', function(e){
+    // when souble clicking, do not change the color of the tag
+    clearTimeout(clickDebounce);
+})
+
 
 })()
 </script>
@@ -2149,13 +2221,10 @@ function onDragEnd(elm){
 (function(){
 var input = document.querySelector('input[name=tags-select-mode]'),
     tagify = new Tagify(input, {
+        enforceWhitelist: true,
         mode : "select",
         whitelist: ["first option", "second option", "third option"],
         blacklist: ['foo', 'bar'],
-        keepInvalidTags: true,   // do not auto-remove invalid tags
-        dropdown: {
-            // closeOnSelect: false
-        }
     })
 
 // bind events

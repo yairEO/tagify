@@ -977,8 +977,11 @@ Tagify.prototype = {
                 // if suggestions are shown, they are already filtered, so it's easier to use them,
                 // because the whitelist might also include items which have already been added
                 var filteredList = this.dropdown.filterListItems.call(this, item[tagTextProp], { exact:true })
+
+
+                if( !this.settings.duplicates )
                     // also filter out items which have already been matches in previous iterations
-                    .filter(filteredItem => !whitelistMatchesValues.includes(filteredItem.value))
+                    filteredList = filteredList.filter(filteredItem => !whitelistMatchesValues.includes(filteredItem.value))
 
                 // get the best match out of list of possible matches.
                 // if there was a single item in the filtered list, use that one
@@ -1105,10 +1108,12 @@ Tagify.prototype = {
      * @param {Object} tagData  Tag data
      */
     selectTag( tagElm, tagData ){
-        if( this.settings.enforceWhitelist && !this.isTagWhitelisted(tagData.value) )
+        var _s = this.settings
+
+        if( _s.enforceWhitelist && !this.isTagWhitelisted(tagData.value) )
             return
 
-        this.input.set.call(this, tagData[this.settings.tagTextProp || 'value'], true)
+        this.input.set.call(this, tagData[_s.tagTextProp || 'value'], true)
 
         // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
         if( this.state.actions.selectOption )
@@ -1120,6 +1125,9 @@ Tagify.prototype = {
             this.replaceTag(lastTagElm, tagData)
         else
             this.appendTag(tagElm)
+
+        if( _s.enforceWhitelist )
+            this.DOM.input.removeAttribute('contenteditable');
 
         this.value[0] = tagData
         this.trigger('add', { tag:tagElm, data:tagData })
@@ -1244,6 +1252,8 @@ Tagify.prototype = {
      * @param {String/Array} tagData    A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings
      */
     addMixTags( tagsData ){
+        tagsData = this.normalizeTags(tagsData);
+
         if( tagsData[0].prefix || this.state.tag ){
             return this.prefixedTextToTag(tagsData[0])
         }
@@ -1287,7 +1297,7 @@ Tagify.prototype = {
     prefixedTextToTag( tagItem ){
         var _s = this.settings,
             tagElm,
-            createdFromDelimiters = this.state.tag.delimiters
+            createdFromDelimiters = this.state.tag.delimiters;
 
         _s.transformTag.call(this, tagItem)
 
@@ -1479,6 +1489,9 @@ Tagify.prototype = {
                 if( !silent ){
                     this.removeTagsFromValue(tagsToRemove.map(tag => tag.node))
                     this.update() // update the original input with the current value
+
+                    if( this.settings.mode == 'select' )
+                        this.DOM.input.setAttribute('contenteditable', true)
                 }
             }
             )

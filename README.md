@@ -122,7 +122,7 @@ var tagify = new Tagify(...)
 * Has built-in CSS loader, if needed (Ex. <em>AJAX</em> whitelist pulling)
 * Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
 * Easily change direction to RTL (via the SCSS file)
-* Internet Explorer - A polyfill script should be used: `tagify.polyfills.min.js` (in `/dist`)
+* <del>Internet Explorer - A polyfill script should be used: `tagify.polyfills.min.js` (in `/dist`)</del> ***(IE support has been dropped)***
 * Many useful custom [events](#events)
 * Original input/textarea element values kept in sync with Tagify
 
@@ -953,6 +953,7 @@ mixTagsAllowedAfter       | <sub>RegEx</sub>             | <sub>`/,\|\.\|\:\|\s/
 duplicates                | <sub>Boolean</sub>           | false                                       | Should duplicate tags be allowed or not
 trim                      | <sub>Boolean</sub>           | true                                        | If `true` trim the tag's value (remove before/after whitespaces)
 enforceWhitelist          | <sub>Boolean</sub>           | false                                       | Should ONLY use tags allowed in whitelist.<br>In `mix-mode`, setting it  to `false` will not allow creating new tags.
+userInput                 | <sub>Boolean</sub>           | true                                        | Disable manually typing/pasting/editing tags (tags may only be added from the whitelist)
 autoComplete.enabled      | <sub>Boolean</sub>           | true                                        | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
 autoComplete.rightKey     | <sub>Boolean</sub>           | false                                       | If `true`, when `→` is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
 whitelist                 | <sub>Array</sub>             | []                                          | An array of allowed tags (*Strings* or *Objects*). When using *Objects* in the *whitelist* array a `value` property is a must & should be unique. <br/>Also, the *whitelist used for auto-completion when `autoCompletion.enabled` is `true`

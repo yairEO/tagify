@@ -156,7 +156,7 @@ export default {
             if( type == "focus" ){
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
-                if( _s.dropdown.enabled === 0 ){  // && _s.mode != "select"
+                if( _s.dropdown.enabled === 0 || !_s.userInput ){  // && _s.mode != "select"
                     this.dropdown.show()
                 }
                 return
@@ -213,6 +213,10 @@ export default {
         },
 
         onKeydown(e){
+            if( this.settings.mode == 'select' && this.settings.enforceWhitelist && this.value.length ){
+                e.preventDefault()
+            }
+
             var s = this.trim(e.target.textContent);
 
             this.trigger("keydown", {originalEvent:this.cloneEvent(e)})
@@ -331,7 +335,7 @@ export default {
                         deleteBackspaceTimeout = setTimeout(() => {
                             var sel = document.getSelection(),
                                 currentValue = decode(this.DOM.input.innerHTML),
-                                prevElm = sel.anchorNode.previousElementSibling;
+                                prevElm = !deleteKeyTagDetected && sel.anchorNode.previousElementSibling;
 
                             // fixes #384, where the first and only tag will not get removed with backspace
                             if( !isChromeAndroidBrowser() && currentValue.length >= lastInputValue.length && prevElm && !prevElm.hasAttribute('readonly') ){
@@ -371,10 +375,13 @@ export default {
 
             switch( e.key ){
                 case 'Backspace' :
-                    if( !this.state.dropdown.visible || this.settings.dropdown.position == 'manual' ){
+                    if( this.settings.mode == 'select' && this.settings.enforceWhitelist )
+                        this.removeTags()
+
+                    else if( !this.state.dropdown.visible || this.settings.dropdown.position == 'manual' ){
                         if( s == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
                             if( this.settings.backspace === true )
-                                this.removeTags();
+                                this.removeTags()
                             else if( this.settings.backspace == 'edit' )
                                 setTimeout(this.editTag.bind(this), 0) // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
                         }
@@ -636,17 +643,24 @@ export default {
 
         // special proccess is needed for pasted content in order to "clean" it
         onPaste(e){
-            var clipboardData, pastedText;
-
             e.preventDefault()
 
-            if( this.settings.readonly ) return
+            var _s = this.settings,
+                selectModeWithoutInput =_s.mode == 'select' && _s.enforceWhitelist;
+
+            if( selectModeWithoutInput || !_s.userInput ){
+                return false;
+            }
+
+            var clipboardData, pastedText;
+
+            if( _s.readonly ) return
 
             // Get pasted data via clipboard API
             clipboardData = e.clipboardData || window.clipboardData
             pastedText = clipboardData.getData('Text')
 
-            this.settings.hooks.beforePaste(e, {tagify:this, pastedText, clipboardData})
+            _s.hooks.beforePaste(e, {tagify:this, pastedText, clipboardData})
                 .then(result => {
                     if( result === undefined )
                         result = pastedText;
@@ -807,7 +821,7 @@ export default {
                 isEditingTag,
                 isReadyOnlyTag;
 
-            if( !tagElm ) return
+            if( !tagElm || !_s.userInput ) return
 
             isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing)
             isReadyOnlyTag = tagElm.hasAttribute('readonly')
