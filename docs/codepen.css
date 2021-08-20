@@ -39,12 +39,14 @@ label[for='checkbox-tagify-show-input'] + input{
   transform: scale(1.4);
 }
 
-label[for='checkbox-tagify-show-input'] + input:checked ~ input,
-label[for='checkbox-tagify-show-input'] + input:checked ~ textarea{
+#checkbox-tagify-show-input:checked ~ input,
+#checkbox-tagify-show-input:checked ~ textarea{
   display: block !important;
+  position: static !important;
+  transform: none !important;
   width: 100%;
-  max-width: 700px;
-  margin-top: 1.5em;
+  margin-top: 1em;
+  padding: .5em;
 }
 
 label[for='checkbox-tagify-show-input'] + input:checked ~ textarea{
