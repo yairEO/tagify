@@ -977,8 +977,11 @@ Tagify.prototype = {
                 // if suggestions are shown, they are already filtered, so it's easier to use them,
                 // because the whitelist might also include items which have already been added
                 var filteredList = this.dropdown.filterListItems.call(this, item[tagTextProp], { exact:true })
+
+
+                if( !this.settings.duplicates )
                     // also filter out items which have already been matches in previous iterations
-                    .filter(filteredItem => !whitelistMatchesValues.includes(filteredItem.value))
+                    filteredList = filteredList.filter(filteredItem => !whitelistMatchesValues.includes(filteredItem.value))
 
                 // get the best match out of list of possible matches.
                 // if there was a single item in the filtered list, use that one
