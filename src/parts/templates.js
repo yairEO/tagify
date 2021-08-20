@@ -10,7 +10,7 @@ export default {
                     ${_s.disabled ? 'disabled' : ''}
                     ${_s.required ? 'required' : ''}
                     tabIndex="-1">
-            <span ${!_s.readonly && _s.mode != 'mix' ? 'contenteditable' : ''} tabIndex="-1" data-placeholder="${_s.placeholder || '&#8203;'}" aria-placeholder="${_s.placeholder || ''}"
+            <span ${!_s.readonly && _s.mode != 'mix' && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${_s.placeholder || '&#8203;'}" aria-placeholder="${_s.placeholder || ''}"
                 class="${_s.classNames.input}"
                 role="textbox"
                 aria-autocomplete="both"

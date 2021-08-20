@@ -156,7 +156,7 @@ export default {
             if( type == "focus" ){
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
-                if( _s.dropdown.enabled === 0 ){  // && _s.mode != "select"
+                if( _s.dropdown.enabled === 0 || !_s.userInput ){  // && _s.mode != "select"
                     this.dropdown.show()
                 }
                 return
@@ -645,19 +645,22 @@ export default {
         onPaste(e){
             e.preventDefault()
 
-            if( this.settings.mode == 'select' && this.settings.enforceWhitelist ){
+            var _s = this.settings,
+                selectModeWithoutInput =_s.mode == 'select' && _s.enforceWhitelist;
+
+            if( selectModeWithoutInput || !_s.userInput ){
                 return false;
             }
 
             var clipboardData, pastedText;
 
-            if( this.settings.readonly ) return
+            if( _s.readonly ) return
 
             // Get pasted data via clipboard API
             clipboardData = e.clipboardData || window.clipboardData
             pastedText = clipboardData.getData('Text')
 
-            this.settings.hooks.beforePaste(e, {tagify:this, pastedText, clipboardData})
+            _s.hooks.beforePaste(e, {tagify:this, pastedText, clipboardData})
                 .then(result => {
                     if( result === undefined )
                         result = pastedText;
@@ -818,7 +821,7 @@ export default {
                 isEditingTag,
                 isReadyOnlyTag;
 
-            if( !tagElm ) return
+            if( !tagElm || !_s.userInput ) return
 
             isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing)
             isReadyOnlyTag = tagElm.hasAttribute('readonly')

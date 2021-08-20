@@ -800,6 +800,32 @@
             </section>
 
 
+            <section id='section-no-user-input'>
+                <aside class='leftSide'>
+                    <header>
+                        <h2><a href='#section-no-user-input'>Disabled user input</a></h2>
+                    </header>
+                    <p>
+                        User cannot type or paste any input not edit already-exiting tags.<br>
+                        Tags can only be selected from the suggestions list (<em>whitelist</em>) dropdown.
+                    </p>
+                    <details>
+                      <summary></summary>
+                    <h3>HTML</h3>
+<pre class="language-markup"><code>&lt;input name='tags-disabled-user-input' placeholder='Select tags from the list''></code></pre>
+                    <h3>JAVASCRIPT</h3>
+                    <script>renderPRE(document.currentScript, "noUserInput")</script>
+                    </details>
+                </aside>
+                <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/PomMMwp'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><use class="logo-use" xlink:href="#codepen-logo"/></svg>
+                    </a>
+                    <input name='tags-disabled-user-input' placeholder='Select tags from the list'>
+                </aside>
+            </section>
+
+
             <section id="users-list">
                 <aside class='leftSide'>
                     <header>
@@ -1416,6 +1442,19 @@ var input = document.querySelector('input[name=tags-manual-suggestions]'),
         tagify.dropdown.show() // load the list
         tagify.DOM.scope.parentNode.appendChild(tagify.DOM.dropdown)
     }
+})()
+</script>
+
+
+<script data-name="noUserInput">
+(function(){
+
+var input = document.querySelector('input[name=tags-disabled-user-input]');
+
+new Tagify(input, {
+    whitelist: [1,2,3,4,5],
+    userInput: false
+})
 })()
 </script>
 
