@@ -944,8 +944,8 @@
                     </p>
                     <p>
                         Each (valid) tag gets a random color, via the <code>transformTag</code> callback which modifies the tag's data object before creating the tag element.
-                        Another way of giving colors to tags is <a href='https://github.com/yairEO/tagify/issues/644'>discussed here</a>.<br>
-                        Clicking a tag once will change its color.
+                        Another way of giving colors to tags is <a href='https://github.com/yairEO/tagify/issues/644'>discussed here</a>.
+                        Clicking a tag <strong>once</strong> will change its color.
                     </p>
                     <p>
                         HTML5 <code>pattern</code> attribute is automatically used to validate tags.<br>
@@ -1203,6 +1203,10 @@
                     </header>
                     <p>
                         Similar to native <code>&lt;Select&gt;</code> element, but allows free text as value.
+                    </p>
+                    <p>
+                        If the `enforceWhitelist` setting is set to `true` and a tag is currently selected,
+                        user text input will be disabled, so altering the currently selected tag is forbidden.
                     </p>
                     <details>
                       <summary></summary>
@@ -2217,6 +2221,7 @@ function onDragEnd(elm){
 (function(){
 var input = document.querySelector('input[name=tags-select-mode]'),
     tagify = new Tagify(input, {
+        enforceWhitelist: true,
         mode : "select",
         whitelist: ["first option", "second option", "third option"],
         blacklist: ['foo', 'bar'],
