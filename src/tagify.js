@@ -142,7 +142,7 @@ Tagify.prototype = {
         this.TEXTS = {...TEXTS, ...(_s.texts || {})}
 
         // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
-        if( _s.mode == 'select' )
+        if( _s.mode == 'select' || !_s.userInput )
             _s.dropdown.enabled = 0
 
         _s.dropdown.appendTarget = settings.dropdown && settings.dropdown.appendTarget
