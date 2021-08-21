@@ -123,9 +123,13 @@ export default {
         })
     },
 
-    hide( force ){
+    /**
+     * Hides the dropdown (if it's not managed manually by the developer)
+     * @param {Boolean} overrideManual
+     */
+    hide( overrideManual ){
         var {scope, dropdown} = this.DOM,
-            isManual = this.settings.dropdown.position == 'manual' && !force;
+            isManual = this.settings.dropdown.position == 'manual' && !overrideManual;
 
         // if there's no dropdown, this means the dropdown events aren't binded
         if( !dropdown || !document.body.contains(dropdown) || isManual ) return;
@@ -163,6 +167,14 @@ export default {
         this.trigger("dropdown:hide", dropdown)
 
         return this
+    },
+
+    /**
+     * Toggles dropdown show/hide
+     * @param {Boolean} show forces the dropdown to show
+     */
+    toggle(show){
+        this.dropdown[this.state.dropdown.visible && !show ? 'hide' : 'show']()
     },
 
     render(){

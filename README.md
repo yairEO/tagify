@@ -841,10 +841,14 @@ Name                       | Parameters                                         
 `insertAfterTag`           | `HTMLElement` <sub>(tag element)</sub>, `HTMLElement`/`String` <sub>(whatever to insert after)</sub> |
 `toggleClass`              | `Boolean`                                                                               | Toggles `class` on the main *tagify* container (`scope`)
 `dropdown.selectAll`       |                                                                                         | Add **all** whitelist items as tags and close the suggestion dropdown
+`dropdown.show`            | `String`                                                                                | Shows the sugegstions list dropdown. A string paramater allows filtering the results
+`dropdown.hide`            | `Boolean`                                                                               | Hides the suggestions list dropdown (if it's not managed manually by the developer)
+`dropdown.toggle`          | `Boolean`                                                                               | Toggles dropdown show/hide. the boolean parameter will force-show
 `updateValueByDOMTags`     |                                                                                         | Iterate tag DOM nodes and re-build  the `tagify.value` array (call this if tags get sorted manually)
 `parseTemplate`            | `String`/`Function` <sub>(template name or function)</sub>, `Array` <sub>(data)</sub>   | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node
 `setReadonly`              | `Boolean`                                                                               | Toggles "readonly" mode on/off
 `setDisabled`              | `Boolean`                                                                               | Toggles "disabled" mode on/off
+
 
 ## Events
 
