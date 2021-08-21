@@ -21,10 +21,6 @@ body{
   min-width: 160px;
 }
 
-input{
-  order: 5;
-}
-
 label[for='checkbox-tagify-show-input']{
   position: absolute;
   top: .85em;
@@ -32,7 +28,7 @@ label[for='checkbox-tagify-show-input']{
 
 }
 
-label[for='checkbox-tagify-show-input'] + input{
+#checkbox-tagify-show-input{
   position: absolute;
   top: 1em;
   left: 1em;
@@ -45,10 +41,11 @@ label[for='checkbox-tagify-show-input'] + input{
   position: static !important;
   transform: none !important;
   width: 100%;
+  max-width: 700px;
   margin-top: 1em;
   padding: .5em;
 }
 
-label[for='checkbox-tagify-show-input'] + input:checked ~ textarea{
+#checkbox-tagify-show-input:checked ~ textarea{
     min-height: 11ch;
 }

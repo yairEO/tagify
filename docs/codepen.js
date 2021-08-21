@@ -9,9 +9,9 @@
     var html = `
         <label for='checkbox-tagify-show-input'>Show original input</label>
         <input type='checkbox' id='checkbox-tagify-show-input'>
-        <section class="pen-intro">
-            ${repoLink}
-        </section>`
+        <section class="pen-intro">${repoLink}</section>`
 
-    document.body.insertAdjacentHTML('afterbegin', html)
+    setTimeout(() => {
+        document.body.insertAdjacentHTML('afterbegin', html.trim())
+    }, 200);
 })()
