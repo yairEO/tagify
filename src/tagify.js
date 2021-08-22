@@ -1611,7 +1611,8 @@ Tagify.prototype = {
 
                     else if( node.tagName == 'DIV' || node.tagName == 'P' ){
                         result += "\r\n";
-                        iterateChildren(node)
+                        if( !node.children.length && node.textContent )
+                            result += node.textContent;
                     }
                 }
                 else
