@@ -12,6 +12,7 @@ export default {
                     tabIndex="-1">
             <span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${_s.placeholder || '&#8203;'}" aria-placeholder="${_s.placeholder || ''}"
                 class="${_s.classNames.input}"
+                data-tagify-control='input'
                 role="textbox"
                 aria-autocomplete="both"
                 aria-multiline="${_s.mode=='mix'?true:false}"></span>
@@ -25,10 +26,11 @@ export default {
                     spellcheck='false'
                     tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
                     class="${_s.classNames.tag} ${tagData.class || ""}"
+                    data-tagify-control='tag'
                     ${this.getAttributes(tagData)}>
             <x title='' class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
             <div>
-                <span class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
+                <span class="${_s.classNames.tagText}" data-tagify-control='tagText'>${tagData[_s.tagTextProp] || tagData.value}</span>
             </div>
         </tag>`
     },
@@ -39,13 +41,14 @@ export default {
             className = `${settings.classNames.dropdown}`;
 
         return `<div class="${isManual ? "" : className} ${_sd.classname}" role="listbox" aria-labelledby="dropdown">
-                    <div class="${settings.classNames.dropdownWrapper}"></div>
+                    <div class="${settings.classNames.dropdownWrapper}" data-tagify-control='dropdownWrapper'></div>
                 </div>`
     },
 
     dropdownItem( item, tagify ){
         return `<div ${this.getAttributes(item)}
                     class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
+                    data-tagify-control='dropdownItem'
                     tabindex="0"
                     role="option">${item.value}</div>`
     },
