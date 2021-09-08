@@ -1,11 +1,14 @@
 var gulp = require('gulp'),
-    $ = require( "gulp-load-plugins" )({ pattern:['*', 'gulp-'] }),
+    $ = require( "gulp-load-plugins" )({ lazy: true, pattern:['*', 'gulp-'], rename: {
+        'sass': 'xsass' // map to some other name because 'gulp-sass' already loads "sass", so avoid collusion
+    } }),
     terser = require("rollup-plugin-terser").terser,
     rollupBanner = require("rollup-plugin-banner").default,
     babel = require("@rollup/plugin-babel").babel,
     fs = require('fs'),
     rollupStream = require("@rollup/stream"),
     pkg = require('./package.json'),
+    sass = require('gulp-sass')(require('sass')),
     opts = process.argv.reduce((result, item) => {
         if( item.indexOf('--') == 0 )
             result[item.replace('--','')] = 1
@@ -53,7 +56,7 @@ function scss(){
             extensions: '.scss'
         }))
         .pipe(
-            $.sass().on('error', $.sass.logError)
+            sass().on('error', sass.logError)
         )
         // .pipe($.combineMq()) // combine media queries
         .pipe($.autoprefixer({ overrideBrowserslist:['> 5%'] }) )
