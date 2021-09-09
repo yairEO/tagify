@@ -213,7 +213,9 @@ export default {
         },
 
         onKeydown(e){
-            if( this.settings.mode == 'select' && this.settings.enforceWhitelist && this.value.length ){
+            var _s = this.settings;
+
+            if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length ){
                 e.preventDefault()
             }
 
@@ -224,7 +226,7 @@ export default {
             /**
              * ONLY FOR MIX-MODE:
              */
-            if( this.settings.mode == 'mix' ){
+            if( _s.mode == 'mix' ){
                 switch( e.key ){
                     case 'Left' :
                     case 'ArrowLeft' : {
@@ -243,12 +245,12 @@ export default {
                             isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && sel.anchorNode.previousElementSibling,
                             lastInputValue = decode(this.DOM.input.innerHTML),
                             lastTagElems = this.getTagElms(),
-                            //  isCaretInsideTag = sel.anchorNode.parentNode('.' + this.settings.classNames.tag),
+                            //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
                             tagBeforeCaret,
                             tagElmToBeDeleted,
                             firstTextNodeBeforeTag;
 
-                        if( this.settings.backspace == 'edit' && isCaretAfterTag ){
+                        if( _s.backspace == 'edit' && isCaretAfterTag ){
                             tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
                             setTimeout(this.editTag.bind(this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
                             e.preventDefault() // needed so the tag elm won't get deleted
@@ -299,7 +301,7 @@ export default {
 
                         // if backspace not allowed, do nothing
                         // TODO: a better way to detect if nodes were deleted is to simply check the "this.value" before & after
-                        if( (isCaretAfterTag || deleteKeyTagDetected) && !this.settings.backspace ){
+                        if( (isCaretAfterTag || deleteKeyTagDetected) && !_s.backspace ){
                             e.preventDefault()
                             return
                         }
@@ -375,14 +377,14 @@ export default {
 
             switch( e.key ){
                 case 'Backspace' :
-                    if( this.settings.mode == 'select' && this.settings.enforceWhitelist )
+                    if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length)
                         this.removeTags()
 
-                    else if( !this.state.dropdown.visible || this.settings.dropdown.position == 'manual' ){
+                    else if( !this.state.dropdown.visible || _s.dropdown.position == 'manual' ){
                         if( s == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
-                            if( this.settings.backspace === true )
+                            if( _s.backspace === true )
                                 this.removeTags()
-                            else if( this.settings.backspace == 'edit' )
+                            else if( _s.backspace == 'edit' )
                                 setTimeout(this.editTag.bind(this), 0) // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
                         }
                     }
@@ -396,21 +398,21 @@ export default {
 
                 case 'Down' :
                 case 'ArrowDown' :
-                    // if( this.settings.mode == 'select' ) // issue #333
+                    // if( _s.mode == 'select' ) // issue #333
                     if( !this.state.dropdown.visible )
                         this.dropdown.show()
                     break;
 
                 case 'ArrowRight' : {
                     let tagData = this.state.inputSuggestion || this.state.ddItemData
-                    if( tagData && this.settings.autoComplete.rightKey ){
+                    if( tagData && _s.autoComplete.rightKey ){
                         this.addTags([tagData], true)
                         return;
                     }
                     break
                 }
                 case 'Tab' : {
-                    let selectMode = this.settings.mode == 'select'
+                    let selectMode = _s.mode == 'select'
                     if(s && !selectMode) e.preventDefault()
                     else return true;
                 }
