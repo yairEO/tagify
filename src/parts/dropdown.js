@@ -569,6 +569,7 @@ export default {
                 ? '' // do not filter if the tag, which is already selecetd in "select" mode, is the same as the typed text
                 : value),
             list = [],
+            exactMatchesList = [],
             whitelist = _s.whitelist,
             suggestionsCount = _sd.maxItems || Infinity,
             searchKeys = _sd.searchKeys,
@@ -590,28 +591,34 @@ export default {
             ? ""+value
             : (""+value).toLowerCase()
 
+        // checks if ALL of the words in the search query exists in the current whitelist item, regardless of their order
         function stringHasAll(s, query){
             return query.toLowerCase().split(' ').every(q => s.includes(q.toLowerCase()))
         }
 
         for( ; i < whitelist.length; i++ ){
+            let startsWithMatch, exactMatch;
+
             whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
 
             let itemWithoutSearchKeys = !Object.keys(whitelistItem).some(k => searchKeys.includes(k) ),
                 _searchKeys = itemWithoutSearchKeys ? ["value"] : searchKeys
 
             if( _sd.fuzzySearch && !options.exact ){
-                searchBy = _searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase()
+                searchBy = _searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase().trim()
 
                 if( _sd.accentedSearch ){
                     searchBy = unaccent(searchBy)
                     niddle = unaccent(niddle)
                 }
 
+                startsWithMatch = searchBy.indexOf(niddle) == 0
+                exactMatch = searchBy === niddle
                 valueIsInWhitelist = stringHasAll(searchBy, niddle)
             }
 
             else {
+                startsWithMatch = true;
                 valueIsInWhitelist = _searchKeys.some(k => {
                     var v = '' + (whitelistItem[k] || '') // if key exists, cast to type String
 
@@ -623,8 +630,10 @@ export default {
                     if( !_sd.caseSensitive )
                         v = v.toLowerCase()
 
+                    exactMatch = v === niddle
+
                     return options.exact
-                        ? v == niddle
+                        ? v === niddle
                         : v.indexOf(niddle) == 0
                 })
             }
@@ -632,13 +641,19 @@ export default {
             isDuplicate = !_s.duplicates && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
 
             // match for the value within each "whitelist" item
-            if( valueIsInWhitelist && !isDuplicate && suggestionsCount-- )
-                list.push(whitelistItem)
-
-            if( suggestionsCount == 0 ) break
+            if( valueIsInWhitelist && !isDuplicate )
+                if( exactMatch && startsWithMatch)
+                    exactMatchesList.push(whitelistItem)
+                else if( _sd.sortby == 'startsWith' && startsWithMatch )
+                    list.unshift(whitelistItem)
+                else
+                    list.push(whitelistItem)
         }
 
-        return list;
+        // custom sorting function
+        return typeof _sd.sortby == 'function'
+            ? _sd.sortby(exactMatchesList.concat(list), niddle)
+            : exactMatchesList.concat(list).slice(0, suggestionsCount)
     },
 
     /**
