@@ -1113,7 +1113,7 @@ Tagify.prototype = {
         if( _s.enforceWhitelist && !this.isTagWhitelisted(tagData.value) )
             return
 
-        this.input.set.call(this, tagData[_s.tagTextProp || 'value'], true)
+        this.input.set.call(this, tagData[_s.tagTextProp] || tagData.value, true)
 
         // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
         if( this.state.actions.selectOption )
