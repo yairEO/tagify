@@ -48,8 +48,8 @@ function Tagify( input, settings ){
     initDropdown.call(this)
 
     this.getCSSVars()
-    this.loadOriginalValues()
 
+    setTimeout(() => this.loadOriginalValues())
 
     this.events.customBinding.call(this);
     this.events.binding.call(this)
@@ -1157,10 +1157,12 @@ Tagify.prototype = {
      * @param {Boolean}      skipInvalid [do not add, mark & remove invalid tags]
      * @return {Array} Array of DOM elements (tags)
      */
-    addTags( tagsItems, clearInput, skipInvalid = this.settings.skipInvalid ){
+    addTags( tagsItems, clearInput, skipInvalid ){
         var tagElems = [],
             _s = this.settings,
             frag = document.createDocumentFragment()
+
+        skipInvalid = skipInvalid || _s.skipInvalid;
 
         if( !tagsItems || tagsItems.length == 0 ){
             if( _s.mode == 'select' )
