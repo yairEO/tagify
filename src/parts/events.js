@@ -157,7 +157,7 @@ export default {
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
                 if( _s.dropdown.enabled === 0 || !_s.userInput ){  // && _s.mode != "select"
-                    this.dropdown.show()
+                    this.dropdown.show(this.value.length ? '' : undefined)
                 }
                 return
             }
@@ -634,7 +634,7 @@ export default {
                     if( this.state.dropdown.visible )
                         this.dropdown.hide()
                     else if( _s.dropdown.enabled === 0 && _s.mode != 'mix' )
-                        this.dropdown.show()
+                        this.dropdown.show(this.value.length ? '' : undefined)
                     return
                 }
             }
