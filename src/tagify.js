@@ -383,8 +383,9 @@ Tagify.prototype = {
             range = sel.getRangeAt(0);
 
         if (sel.rangeCount) {
-            range.setStartBefore(nextSibling || node);
-            range.setEndBefore(nextSibling || node);
+            range.setStartAfter(nextSibling || node);
+            range.collapse(true)
+            // range.setEndBefore(nextSibling || node);
             sel.removeAllRanges();
             sel.addRange(range);
         }
@@ -1095,7 +1096,7 @@ Tagify.prototype = {
 
         newWrapperNode && nodeAtCaret.parentNode.replaceChild(newWrapperNode, nodeToReplace)
 
-        // must NOT normalize contenteditable or it will cause unwanetd issues:
+        // must NOT normalize contenteditable or it will cause unwanted issues:
         // https://monosnap.com/file/ZDVmRvq5upYkidiFedvrwzSswegWk7
         // nodeAtCaret.parentNode.normalize()
 

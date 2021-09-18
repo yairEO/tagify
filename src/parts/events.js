@@ -1,4 +1,4 @@
-import { decode, extend, getfirstTextNode, isChromeAndroidBrowser } from './helpers'
+import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag } from './helpers'
 
 var deleteBackspaceTimeout;
 
@@ -68,6 +68,14 @@ export default {
         for( var eventName in _CBR ){
             this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
         }
+
+
+        // observers
+        var inputMutationObserver = this.listeners.main.inputMutationObserver || new MutationObserver(_CB.onInputDOMChange.bind(this));
+        // cleaup just-in-case
+        if(inputMutationObserver) inputMutationObserver.disconnect()
+        // observe stuff
+        inputMutationObserver.observe(this.DOM.input, {childList:true})
     },
 
     bindGlobal( unbind ) {
@@ -319,17 +327,18 @@ export default {
                         }
 
                         // update regarding https://github.com/yairEO/tagify/issues/762#issuecomment-786464317:
-                        // the bug described is more severe than the fixed below, therefore I disable the fix until a solution
+                        // the bug described is more severe than the fix below, therefore I disable the fix until a solution
                         // is found which work well for both cases.
                         // -------
                         // nodeType is "1" only when the caret is at the end after last tag (no text after), or before first first (no text before)
-                        if( false && this.isFirefox && sel.anchorNode.nodeType == 1 && sel.anchorOffset != 0 ){
+                        /*
+                        if( this.isFirefox && sel.anchorNode.nodeType == 1 && sel.anchorOffset != 0 ){
                             this.removeTags() // removes last tag by default if no parameter supplied
                             // place caret inside last textNode, if exist. it's an annoying bug only in FF,
                             // if the last tag is removed, and there is a textNode before it, the caret is not placed at its end
                             this.placeCaretAfterNode( this.setRangeAtStartEnd() )
-
                         }
+                        */
 
                         clearTimeout(deleteBackspaceTimeout)
                         // a minimum delay is needed before the node actually gets detached from the document (don't know why),
@@ -341,14 +350,19 @@ export default {
 
                             // fixes #384, where the first and only tag will not get removed with backspace
                             if( !isChromeAndroidBrowser() && currentValue.length >= lastInputValue.length && prevElm && !prevElm.hasAttribute('readonly') ){
-                                this.removeTags(prevElm)
-                                this.fixFirefoxLastTagNoCaret()
+                                if( prevElm.nodeName == 'BR' )
+                                    prevElm.remove()
 
-                                // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
-                                if( this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR" ){
-                                    this.DOM.input.innerHTML = ""
-                                    this.value.length = 0
-                                    return true
+                                else{
+                                    this.removeTags(prevElm)
+                                    this.fixFirefoxLastTagNoCaret()
+
+                                    // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
+                                    if( this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR" ){
+                                        this.DOM.input.innerHTML = ""
+                                        this.value.length = 0
+                                        return true
+                                    }
                                 }
                             }
 
@@ -368,8 +382,30 @@ export default {
                         break;
                     }
                     // currently commented to allow new lines in mixed-mode
-                    // case 'Enter' :
-                    //     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+                    case 'Enter' :
+                        // e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+                        setTimeout(() => {
+
+                            var selection = window.getSelection(),
+                                nodeAtCaret = selection.anchorNode,
+                                isNodeAtCaretInsideTag = nodeAtCaret.parentElement.closest('.' + _s.classNames.tag)
+
+                            // if( nodeAtCaret.outerHTML == '<div><br></div>' ){
+                            //     var brElm = document.createElement('br')
+                            //     nodeAtCaret.replaceWith(brElm)
+                            // }
+
+                            // if the current caret is withint a text node which isn't a part of a tag, place the caret outside
+                            // if(!isNodeAtCaretInsideTag && nodeAtCaret){
+                            //     if( nodeAtCaret.children.length == '1' && nodeAtCaret.firstElementChild ){
+                            //         console.log(111, nodeAtCaret)
+                            //         var brElm = document.createElement('br');
+                            //         console.log( nodeAtCaret.replaceWith(brElm) )
+                            //     // this.placeCaretAfterNode(nodeAtCaret)
+                            //     }
+                            // }
+                        }, 0);
+                        break;
                 }
 
                 return true
@@ -834,6 +870,43 @@ export default {
 
             this.toggleFocusClass(true)
             this.trigger('dblclick', { tag:tagElm, index:this.getNodeIndex(tagElm), data:this.tagData(tagElm) })
+        },
+
+        /**
+         *
+         * @param {Object} m an object representing the observed DOM changes
+         */
+        onInputDOMChange(m){
+            // iterate all DOm mutation
+            m.forEach(record => {
+            // only the ADDED nodes
+                record.addedNodes.forEach(addedNode => {
+                    if( addedNode )
+                        // fix chrome's placing '<div><br></div>' everytime ENTER key is pressed, and replace with just `<br'
+                        if( addedNode.outerHTML == '<div><br></div>' ){
+                            var brElm = document.createElement('br')
+                            addedNode.replaceWith(brElm)
+                        }
+                })
+            })
+
+            var lastChild = this.DOM.input.lastChild,
+                lastElementChild = this.DOM.input.lastElementChild
+
+            if( lastChild && lastChild.nodeValue == '' )
+                lastChild.remove()
+
+
+            else if( lastChild && lastChild.nodeName == 'BR' && !m[0].removedNodes.length && isNodeTag.call(this, lastChild.previousSibling)){
+                this.removeTags(lastChild.previousSibling)
+                this.fixFirefoxLastTagNoCaret()
+            }
+
+            // make sure the last element is always a BR
+            if( lastElementChild && lastElementChild.nodeName != 'BR' ){
+                var brElm = document.createElement('br')
+                this.DOM.input.appendChild(brElm)
+            }
         }
     }
 }
