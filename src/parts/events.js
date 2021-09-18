@@ -884,11 +884,12 @@ export default {
                     if( addedNode )
                         // fix chrome's placing '<div><br></div>' everytime ENTER key is pressed, and replace with just `<br'
                         if( addedNode.outerHTML == '<div><br></div>' ){
-                            var brElm = document.createElement('br')
-                            addedNode.replaceWith(brElm)
+                            addedNode.replaceWith(document.createElement('br'))
                         }
                 })
             })
+
+
 
             var lastChild = this.DOM.input.lastChild,
                 lastElementChild = this.DOM.input.lastElementChild
@@ -903,9 +904,8 @@ export default {
             }
 
             // make sure the last element is always a BR
-            if( lastElementChild && lastElementChild.nodeName != 'BR' ){
-                var brElm = document.createElement('br')
-                this.DOM.input.appendChild(brElm)
+            if( !lastChild || lastChild.nodeName != 'BR' ){
+                this.DOM.input.appendChild(document.createElement('br'))
             }
         }
     }

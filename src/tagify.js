@@ -1599,22 +1599,22 @@ Tagify.prototype = {
                 if( node.nodeType == 1 ){
                     const tagData = that.tagData(node);
 
-                    if( isNodeTag.call(that, node) && tagData ){
+                    if( node.tagName == 'BR'  ){
+                        result += "\r\n";
+                    }
+
+                    if( node.tagName == 'DIV' || node.tagName == 'P' ){
+                        result += "\r\n";
+                        //  if( !node.children.length && node.textContent )
+                        //  result += node.textContent;
+                        iterateChildren(node)
+                    }
+
+                    else if( isNodeTag.call(that, node) && tagData ){
                         if( tagData.__removed )
                             return;
                         else
                             result += _interpolator[0] + JSON.stringify( omit(tagData, that.dataProps) ) + _interpolator[1]
-                        return
-                    }
-
-                    if( node.tagName == 'BR' && (node.parentNode == that.DOM.input || node.parentNode.childNodes.length == 1 ) ){
-                        result += "\r\n";
-                    }
-
-                    else if( node.tagName == 'DIV' || node.tagName == 'P' ){
-                        result += "\r\n";
-                        if( !node.children.length && node.textContent )
-                            result += node.textContent;
                     }
                 }
                 else
