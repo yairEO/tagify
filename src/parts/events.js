@@ -124,7 +124,7 @@ export default {
                 eventData = {relatedTarget:e.relatedTarget},
                 isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
                 isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
-                isRelatedTargetX = e.relatedTarget && e.relatedTarget.classList.contains(_s.classNames.tag) && this.DOM.scope.contains(e.relatedTarget),
+                isRelatedTargetX = e.relatedTarget && isNodeTag.call(this, e.relatedTarget) && this.DOM.scope.contains(e.relatedTarget),
                 shouldAddTags;
 
             if( type == 'blur' ){
@@ -196,7 +196,7 @@ export default {
 
         onWindowKeyDown(e){
             var focusedElm = document.activeElement,
-                isTag = focusedElm.classList.contains(this.settings.classNames.tag),
+                isTag = isNodeTag.call(this, focusedElm),
                 isBelong = isTag && this.DOM.scope.contains(document.activeElement),
                 nextTag;
 

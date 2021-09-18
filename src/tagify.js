@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, getUID } from './parts/helpers'
+import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, getUID, isNodeTag } from './parts/helpers'
 import DEFAULTS from './parts/defaults'
 import _dropdown, { initDropdown } from './parts/dropdown'
 import TEXTS from './parts/texts'
@@ -1592,7 +1592,6 @@ Tagify.prototype = {
     getMixedTagsAsString(){
         var result = "",
             that = this,
-            i = 0,
             _interpolator = this.settings.mixTagsInterpolator;
 
         function iterateChildren(rootNode){
@@ -1600,7 +1599,7 @@ Tagify.prototype = {
                 if( node.nodeType == 1 ){
                     const tagData = that.tagData(node);
 
-                    if( node.classList.contains(that.settings.classNames.tag) && tagData ){
+                    if( isNodeTag.call(that, node) && tagData ){
                         if( tagData.__removed )
                             return;
                         else
