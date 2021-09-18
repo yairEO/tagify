@@ -223,7 +223,7 @@ export default {
         onKeydown(e){
             var _s = this.settings;
 
-            if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length ){
+            if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length && e.key != 'Tab' ){
                 e.preventDefault()
             }
 
