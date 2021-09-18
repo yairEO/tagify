@@ -1559,10 +1559,13 @@ Tagify.prototype = {
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update( args ){
-        var inputElm = this.DOM.originalInput;
+        var inputElm = this.DOM.originalInput,
+            inputValue = this.getInputValue();
 
-        if( !this.settings.mixMode.integrated )
-            inputElm.value = this.getInputValue()
+        if( !this.settings.mixMode.integrated ){
+            inputElm.value = inputValue
+            inputElm.tagifyValue = inputValue;
+        }
 
         this.postUpdate()
 

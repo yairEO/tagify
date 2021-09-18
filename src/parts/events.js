@@ -69,11 +69,17 @@ export default {
             this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
         }
 
+        // listen to original input changes (unfortunetly this is the best way...)
+        // https://stackoverflow.com/a/1949416/104380
+        clearInterval(this.listeners.main.originalInputValueObserverInterval)
+        this.listeners.main.originalInputValueObserverInterval = setInterval(_CB.observeOriginalInputValue.bind(this), 500)
 
         // observers
         var inputMutationObserver = this.listeners.main.inputMutationObserver || new MutationObserver(_CB.onInputDOMChange.bind(this));
+
         // cleaup just-in-case
         if(inputMutationObserver) inputMutationObserver.disconnect()
+
         // observe stuff
         inputMutationObserver.observe(this.DOM.input, {childList:true})
     },
@@ -611,6 +617,12 @@ export default {
             })
         },
 
+        observeOriginalInputValue(){
+            // if original input value changes for some reason (for exmaple a form reset)
+            if( this.DOM.originalInput.value != this.DOM.originalInput.tagifyValue )
+                this.loadOriginalValues()
+        },
+
         onClickScope(e){
             var _s = this.settings,
                 tagElm = e.target.closest('.' + _s.classNames.tag),
@@ -885,6 +897,6 @@ export default {
             if( !lastChild || lastChild.nodeName != 'BR' ){
                 this.DOM.input.appendChild(document.createElement('br'))
             }
-        }
+        },
     }
 }
