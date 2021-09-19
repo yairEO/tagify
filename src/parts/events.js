@@ -871,18 +871,34 @@ export default {
             m.forEach(record => {
             // only the ADDED nodes
                 record.addedNodes.forEach(addedNode => {
-                    if( addedNode )
+                    if( addedNode ){
                         // fix chrome's placing '<div><br></div>' everytime ENTER key is pressed, and replace with just `<br'
                         if( addedNode.outerHTML == '<div><br></div>' ){
                             addedNode.replaceWith(document.createElement('br'))
                         }
+
+                        // if the added element is a div containing a tag within it (chrome does this when pressing ENTER before a tag)
+                        else if( addedNode.nodeType == 1 && addedNode.querySelector(this.settings.classNames.tagSelector) ){
+                            let newlineText = document.createTextNode(addedNode.childNodes[0].nodeType == 3 ? '\n' : '')
+
+                            // unwrap the useless div
+                            addedNode.replaceWith(...[newlineText, ...addedNode.childNodes])
+                            this.placeCaretAfterNode(newlineText.previousSibling)
+                        }
+
+                        // if this is a tag
+                        else if( isNodeTag.call(this, addedNode) ){
+                            // and it is the first node in a new line
+                            if( addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR' ){
+                                // allows placing the caret just before the tag, when the tag is the first node in that line
+                                addedNode.previousSibling.replaceWith('\n\u200B')
+                            }
+                        }
+                    }
                 })
             })
 
-
-
-            var lastChild = this.DOM.input.lastChild,
-                lastElementChild = this.DOM.input.lastElementChild
+            var lastChild = this.DOM.input.lastChild;
 
             if( lastChild && lastChild.nodeValue == '' )
                 lastChild.remove()
