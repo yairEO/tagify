@@ -1000,8 +1000,8 @@ Tagify.prototype = {
                 }
             })
 
-            // if( whitelistMatches.length )
-            tagsItems = whitelistMatches
+            if( whitelistMatches.length )
+                tagsItems = whitelistMatches
         }
 
         return tagsItems;
