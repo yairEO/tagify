@@ -1564,7 +1564,7 @@ Tagify.prototype = {
 
         if( !this.settings.mixMode.integrated ){
             inputElm.value = inputValue
-            inputElm.tagifyValue = inputValue;
+            inputElm.tagifyValue = inputElm.value; // must set to "inputElm.value" and not again to "inputValue" because for some reason the browser changes the string afterwards a bit.
         }
 
         this.postUpdate()
