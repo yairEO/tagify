@@ -256,7 +256,7 @@ export default {
 
                         var sel = document.getSelection(),
                             deleteKeyTagDetected = e.key == 'Delete' && sel.anchorOffset == (sel.anchorNode.length || 0),
-                            isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && sel.anchorNode.previousElementSibling,
+                            isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && sel.anchorNode.previousSibling.nodeType == 1 && sel.anchorNode.previousSibling,
                             lastInputValue = decode(this.DOM.input.innerHTML),
                             lastTagElems = this.getTagElms(),
                             //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
@@ -352,14 +352,11 @@ export default {
                         deleteBackspaceTimeout = setTimeout(() => {
                             var sel = document.getSelection(),
                                 currentValue = decode(this.DOM.input.innerHTML),
-                                prevElm = !deleteKeyTagDetected && sel.anchorNode.previousElementSibling;
+                                prevElm = !deleteKeyTagDetected && sel.anchorNode.previousSibling;
 
                             // fixes #384, where the first and only tag will not get removed with backspace
-                            if( !isChromeAndroidBrowser() && currentValue.length >= lastInputValue.length && prevElm && !prevElm.hasAttribute('readonly') ){
-                                if( prevElm.nodeName == 'BR' )
-                                    prevElm.remove()
-
-                                else{
+                            if( currentValue.length >= lastInputValue.length && prevElm ){
+                                if( isNodeTag.call(this, prevElm) && !prevElm.hasAttribute('readonly') ){
                                     this.removeTags(prevElm)
                                     this.fixFirefoxLastTagNoCaret()
 
@@ -370,6 +367,9 @@ export default {
                                         return true
                                     }
                                 }
+
+                                else
+                                    prevElm.remove()
                             }
 
                             // find out which tag(s) were deleted and trigger "remove" event
@@ -879,10 +879,14 @@ export default {
 
                         // if the added element is a div containing a tag within it (chrome does this when pressing ENTER before a tag)
                         else if( addedNode.nodeType == 1 && addedNode.querySelector(this.settings.classNames.tagSelector) ){
-                            let newlineText = document.createTextNode(addedNode.childNodes[0].nodeType == 3 ? '\n' : '')
+                            let newlineText = document.createTextNode('')
+
+                            if( addedNode.childNodes[0].nodeType == 3 && addedNode.previousSibling.nodeName != 'BR' )
+                                newlineText  = document.createTextNode('\n')
 
                             // unwrap the useless div
-                            addedNode.replaceWith(...[newlineText, ...addedNode.childNodes])
+                            // chrome adds a BR at the end which should be removed
+                            addedNode.replaceWith(...[newlineText, ...[...addedNode.childNodes].slice(0,-1)])
                             this.placeCaretAfterNode(newlineText.previousSibling)
                         }
 
@@ -892,27 +896,38 @@ export default {
                             if( addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR' ){
                                 // allows placing the caret just before the tag, when the tag is the first node in that line
                                 addedNode.previousSibling.replaceWith('\n\u200B')
+                                // when hitting ENTER for new line just before a tag
+                                this.placeCaretAfterNode(addedNode.previousSibling.previousSibling)
                             }
                         }
                     }
                 })
+
+                record.removedNodes.forEach(removedNode => {
+                    // when trying to delete a tag which is in a new line and there's nothing else there (caret is after the tag)
+                    if( removedNode && removedNode.nodeName == 'BR' && isNodeTag.call(this, lastInputChild)){
+                        this.removeTags(lastInputChild)
+                        this.fixFirefoxLastTagNoCaret()
+                    }
+                })
             })
 
-            var lastChild = this.DOM.input.lastChild;
+            // get the last child only after the above DOM modifications
+            // check these scenarios:
+            // 1. after a single line, press ENTER once - should add only 1 BR
+            // 2. presss ENTER right before a tag
+            // 3. press enter within a text node before a tag
+            var lastInputChild = this.DOM.input.lastChild;
 
-            if( lastChild && lastChild.nodeValue == '' )
-                lastChild.remove()
 
-
-            else if( lastChild && lastChild.nodeName == 'BR' && !m[0].removedNodes.length && isNodeTag.call(this, lastChild.previousSibling)){
-                this.removeTags(lastChild.previousSibling)
-                this.fixFirefoxLastTagNoCaret()
-            }
+            if( lastInputChild && lastInputChild.nodeValue == '' )
+                lastInputChild.remove()
 
             // make sure the last element is always a BR
-            if( !lastChild || lastChild.nodeName != 'BR' ){
+            if( !lastInputChild || lastInputChild.nodeName != 'BR' ){
                 this.DOM.input.appendChild(document.createElement('br'))
             }
         },
     }
 }
+
