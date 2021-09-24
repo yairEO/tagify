@@ -583,7 +583,7 @@ Tagify.prototype = {
                 )
             }
         } catch(err){
-            console.warn("Tagify: ", err)
+            // console.warn("Tagify: ", err)
         }
     },
 
@@ -629,6 +629,10 @@ Tagify.prototype = {
 
             this.input.autocomplete.suggest.call(this);
             this.input.validate.call(this);
+        },
+
+        raw(){
+            return this.DOM.input.textContent
         },
 
         /**
