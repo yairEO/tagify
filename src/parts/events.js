@@ -81,7 +81,8 @@ export default {
         if(inputMutationObserver) inputMutationObserver.disconnect()
 
         // observe stuff
-        inputMutationObserver.observe(this.DOM.input, {childList:true})
+        if( this.settings.mode == 'mix' )
+            inputMutationObserver.observe(this.DOM.input, {childList:true})
     },
 
     bindGlobal( unbind ) {
