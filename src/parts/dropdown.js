@@ -390,7 +390,7 @@ export default {
                     case 'Backspace' : {
                         if( this.settings.mode == 'mix' || this.state.editing.scope ) return;
 
-                        let value = this.state.inputText.trim()
+                        const value = this.input.raw.call(this)
 
                         if( value == "" || value.charCodeAt(0) == 8203 ){
                             if( this.settings.backspace === true )
