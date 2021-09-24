@@ -62,7 +62,8 @@ export default {
             keydown  : ['input', _CB.onKeydown.bind(this)],
             click    : ['scope', _CB.onClickScope.bind(this)],
             dblclick : ['scope', _CB.onDoubleClickScope.bind(this)],
-            paste    : ['input', _CB.onPaste.bind(this)]
+            paste    : ['input', _CB.onPaste.bind(this)],
+            drop     : ['input', _CB.onDrop.bind(this)]
         })
 
         for( var eventName in _CBR ){
@@ -710,6 +711,10 @@ export default {
                     }
                 })
                 .catch(err => err)
+        },
+
+        onDrop(e){
+            e.preventDefault()
         },
 
         onEditTagInput( editableElm, e ){
