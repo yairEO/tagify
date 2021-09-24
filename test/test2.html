@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Tagify - pupetteer tests</title>
+        <meta name="description" content="Converts HTML input/textarea into Tags component">
+        <meta name="author" content="Yair Even-Or">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="../dist/tagify.css">
+        <script src="../dist/tagify.min.js"></script>
+
+        <style>
+            body{ font: 16px Arial; }
+            form{
+                max-width:600px;
+            }
+
+            form > section{ margin-bottom: 2em; }
+
+            .tagify+input, .tagify+textarea {
+                position: initial !important;
+                left: 0 !important;
+                transform: none !important;
+                width: 100%;
+                margin-top: .2em;
+                min-height: 11ch;
+                background: powderblue;
+                font-family: "Fira Code";
+            }
+
+            .tagify{
+                margin: .2em;
+                min-width: 400px;
+            }
+        </style>
+    </head>
+
+    <body>
+    <section id='section-mode-select'>
+        <input value="123, 123" placeholder="type tags">
+    </section>
+
+<script>
+    new Tagify(document.querySelector('input'),{
+        tagTextProp: "name",
+        duplicates: true,
+        whitelist: [{"value":"123","name":"Bahamas"}]
+    });
+</script>
+</body>
+</html>

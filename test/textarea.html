@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Tagify - textarea</title>
+        <meta name="description" content="Converts HTML input/textarea into Tags component">
+        <meta name="author" content="Yair Even-Or">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="../dist/tagify.css">
+        <script src="../dist/tagify.min.js"></script>
+
+        <style>
+            body{ font: 16px Arial; }
+            form{
+                max-width:600px;
+            }
+
+            form > section{ margin-bottom: 2em; }
+
+            .tagify+input, .tagify+textarea {
+                position: initial !important;
+                left: 0 !important;
+                transform: none !important;
+                width: 100%;
+                margin-top: .2em;
+                min-height: 11ch;
+                background: powderblue;
+                font-family: "Fira Code";
+            }
+
+            .tagify{
+                margin: .2em;
+                min-width: 400px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <textarea name='simple-mix' placeholder="type something">mixed-mode [[example]] with [[{"value":"tags"}]].</textarea>
+
+        <textarea name='mix' class='tagify-editor' placeholder="type something">
+          [[{"value":200, "text":"  cartman  ", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":1000, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
+and [[{"value": "readonly", "readonly":true}]]
+        </textarea>
+
+
+
+
+<script>
+document.forms[0].reset()
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+var simpleMixInput = document.querySelector('[name="simple-mix"]')
+
+var settings = {
+    mode: "mix",
+    pattern: /@/,
+    dropdown: {
+        enabled: 1,
+        position: "text"
+    },
+        whitelist: [
+        {id: 100, value: "kenny", title: "Kenny McCormick"},
+        {id: 101, value: "cartman", title: "Eric Cartman"},
+        {id: 102, value: "kyle", title: "Kyle Broflovski"},
+        {id: 103, value: "token", title: "Token Black"},
+        {id: 104, value: "jimmy", title: "Jimmy Valmer"},
+        {id: 105, value: "butters", title: "Butters Stotch"},
+        {id: 106, value: "stan", title: "Stan Marsh"},
+        {id: 107, value: "randy", title: "Randy Marsh"},
+        {id: 108, value: "Mr. Garrison", title: "POTUS"},
+        {id: 109, value: "Mr. Mackey", title: "M'Kay"}
+    ],
+}
+
+var simpleMixTagify = new Tagify(simpleMixInput, settings);
+//   simpleMixTagify.on('keydown', e => console.log(e.detail))
+simpleMixTagify.on('input', console.log )
+
+
+  //////////////////////////////
+
+    var whitelist_1 = [
+    {
+        value: 100,
+        text : 'kenny',
+        title : 'Kenny McCormick'
+    },
+    {
+        value: 200,
+        text : 'cartman',
+        title : 'Eric Cartman'
+    },
+    {
+        value: 300,
+        text : 'kyle',
+        title : 'Kyle Broflovski'
+    },
+    {
+        value: 400,
+        text : 'token',
+        title : 'Token Black'
+    },
+    {
+        value: 500,
+        text : 'jimmy',
+        title : 'Jimmy Valmer'
+    },
+    {
+        value: 600,
+        text : 'butters',
+        title : 'Butters Stotch'
+    },
+    {
+        value: 700,
+        text : 'stan',
+        title : 'Stan Marsh'
+    },
+    {
+        value: 800,
+        text : 'randy',
+        title : 'Randy Marsh'
+    },
+    {
+        value: 900,
+        text : 'Mr. Garrison',
+        title : 'POTUS'
+    },
+    {
+        value: 1000,
+        text : 'Mr. Mackey',
+        title : "M'Kay"
+    }
+]
+
+var whitelist_2 = ['Homer simpson', 'Marge simpson', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
+
+
+var input = document.querySelector('[name=mix]'),
+    // init Tagify script on the above inputs
+    tagify = new Tagify(input, {
+        tagTextProp      : 'text',
+        //enforceWhitelist : true, // <-- see below post-init change
+        mode             : 'mix',  // <--  Enable mixed-content
+        pattern          : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
+        duplicates       : false,
+        whitelist        : [       // <--  Set the initial whitelist, which will dynamically changed as you type (see "input" event below)
+        ...whitelist_1,
+        ...whitelist_2
+        ],
+        dropdown   : {
+            enabled : 1,
+            maxItems: 20,
+            position: 'text',
+            highlightFirst: true,
+            mapValueTo: 'text'
+        },
+        callbacks        : {
+        add    : e=>console.log("ADD: ", e.detail),  // callback when adding a tag
+        remove : e=>console.log("REMOVE: ", e.detail)   // callback when removing a tag
+        }
+    })
+
+    // POST-INIT change:
+    tagify.settings.enforceWhitelist = true
+
+    // A good place to pull server suggestion list according to the prefix/value
+    tagify.on('input', async function(e){
+    var prefix = e.detail.prefix,
+        newWhitelist;
+
+    // tagify.settings.whitelist.length = 0;
+    // await delay(1500)
+
+    if( prefix ){
+        if( prefix == '@' )
+            newWhitelist = whitelist_1
+        if( prefix == '#' )
+            newWhitelist = whitelist_2
+
+        if( newWhitelist ){
+            tagify.settings.whitelist.length = 0;
+            tagify.settings.whitelist.push(...newWhitelist)
+        }
+
+        if( e.detail.value.length >= tagify.settings.dropdown.enabled )
+            tagify.dropdown.show(e.detail.value);
+    }
+
+    console.log('mix-mode "input" event value: ', e.detail, e.detail.tagify.value)
+    })
+
+    tagify.on('keydown', function(e){
+
+    })
+
+  // window.addEventListener("dblclick", insertTag)
+
+  function insertTag() {
+    tagify.addTags("xxx");
+    tagify.DOM.input.focus();
+  }
+</script>
+</body>
+</html>

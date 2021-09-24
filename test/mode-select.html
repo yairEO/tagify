@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Tagify - Select</title>
+        <meta name="description" content="Converts HTML input/textarea into Tags component">
+        <meta name="author" content="Yair Even-Or">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="../dist/tagify.css">
+        <script src="../dist/tagify.min.js"></script>
+
+        <style>
+            body{ font: 16px Arial; }
+            form{
+                max-width:600px;
+            }
+
+            form > section{ margin-bottom: 2em; }
+
+            .tagify+input, .tagify+textarea {
+                position: initial !important;
+                left: 0 !important;
+                transform: none !important;
+                width: 100%;
+                margin-top: .2em;
+                min-height: 11ch;
+                background: powderblue;
+                font-family: "Fira Code";
+            }
+
+            .tagify{
+                margin: .2em;
+                min-width: 400px;
+            }
+        </style>
+    </head>
+    <body>
+
+
+        <input name='tags-select-mode' class='selectMode' placeholder="Please select" value="1" />
+
+        <input name='tags-select-mode' class='selectMode' placeholder="Please select" value="1" />
+
+<script>
+var input = document.querySelector('input[name=tags-select-mode]'),
+    tagify = new Tagify(input, {
+        mode : "select",
+        tagTextProp : 'title',
+        enforceWhitelist: true,
+        keepInvalidTags: false,
+        whitelist: [
+            { "id":"1", "value": 1, "title":"First option" },
+            { "id":"2", "value": 2, "title":"Second option" },
+            {'value':'Item a',id:1},
+            {'value':'Item b',id:2},
+            {'value':'Item c',id:3},
+            {'value':'Item d',id:4},
+            {'value':'Item e',id:5}
+        ],
+        dropdown: {
+            maxItems: 3,
+            //mapValueTo: 'username',
+            //searchKeys: ['username'],
+            //  closeOnSelect: false
+        }
+    })
+
+// bind events
+tagify.on('add', onAddTag)
+      .on('change', console.log)
+
+tagify.DOM.input.addEventListener('focus', onSelectFocus)
+
+function onAddTag(e){
+    //  console.log(e.detail)
+}
+
+function onSelectFocus(e){
+    //  console.log(e)
+}
+
+</script>
+</body>
+</html>
