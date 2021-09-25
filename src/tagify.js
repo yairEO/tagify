@@ -1093,6 +1093,8 @@ Tagify.prototype = {
         // get index of LAST occurence of "#ba"
         idx = nodeAtCaret.nodeValue.lastIndexOf(strToReplace)
 
+        if( idx == -1 ) return true;
+
         nodeToReplace = nodeAtCaret.splitText(idx)
 
         // node 0: "foo #ba "
