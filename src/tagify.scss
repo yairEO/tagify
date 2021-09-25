@@ -449,15 +449,7 @@
               //  display: flex; // https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
             }
 
-            &::before{
-                @include placeholder;
-                display: inline-block;
-                width: auto;
 
-                #{ $self }--mix &{
-                    display: inline-block;
-                }
-            }
         }
 
         &:focus{
@@ -466,11 +458,7 @@
             &::before{
                 @include placeholder(false);
 
-                /* ALL MS BROWSERS: hide placeholder (on focus) otherwise the caret is places after it, which is weird */
-                /* IE10+ CSS styles go here */
-                @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-                    display: none;
-                }
+                /* ALL MS BROWSERS: hide placeholder (on focus) otherwise the caret is placed after it, which is weird */
                 /* IE Edge 12+ CSS styles go here */
                 @supports ( -ms-ime-align:auto ) {
                     display: none;
@@ -512,12 +500,6 @@
             pointer-events: none;
             opacity: 0;
             position: absolute;
-
-            #{$self}--mix &{
-                display: none;
-                position: static;
-                line-height: inherit;
-            }
         }
 /* Seems firefox newer versions don't need this any more
         @supports ( -moz-appearance:none ){
@@ -566,7 +548,11 @@
             line-height: 1.5;
             display: block; // needed to resolve this bug: https://bugs.chromium.org/p/chromium/issues/detail?id=1182621
 
-            &::before{ height:auto; }
+            &::before{
+                height:auto;
+                display: none;
+                line-height: inherit;
+            }
 
             // no suggested-complete are shown in mix-mode while higilighting dropdown options
             &::after{ content:none; }
@@ -608,6 +594,20 @@
 
         #{$self}__input{
             width: 100%;
+        }
+    }
+
+    &--empty{
+        #{ $self }__input{
+            &::before{
+                @include placeholder;
+                display: inline-block;
+                width: auto;
+
+                #{ $self }--mix &{
+                    display: inline-block;
+                }
+            }
         }
     }
 

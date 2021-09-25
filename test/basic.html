@@ -64,7 +64,7 @@ var inputElm = document.querySelector('input[name=tags-regular]')
 
 new Tagify(inputElm, {
     // whitelist: ['abb', 'cbb', 'bb', 'bb1', 'aaabb', 'bbb', 'aa', 'bba'],
-    // whitelist: ["ac", "aab", "aaa", "b", "bb", "ccc"],
+    whitelist: ["ac", "aab", "aaa", "b", "bb", "ccc"],
     enforceWhitelist: true,
     dropdown: {
         enabled: 0,

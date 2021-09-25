@@ -454,6 +454,8 @@ export default {
         },
 
         onInput(e){
+            this.postUpdate() // toggles "tagify--empty" class
+
             if( this.settings.mode == 'mix' )
                 return this.events.callbacks.onMixTagsInput.call(this, e);
 

@@ -1550,8 +1550,8 @@ Tagify.prototype = {
             hasValue = this.settings.mode == 'mix'
                 ? this.settings.mixMode.integrated
                     ? this.DOM.input.textContent
-                    : this.DOM.originalInput.value
-                : this.value.length;
+                    : this.DOM.originalInput.value.trim()
+                : this.value.length + this.input.raw.call(this).length;
 
         this.toggleClass(classNames.hasMaxTags, this.value.length >= this.settings.maxTags)
         this.toggleClass(classNames.hasNoTags, !this.value.length)
