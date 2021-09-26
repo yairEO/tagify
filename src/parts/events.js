@@ -246,7 +246,7 @@ export default {
                 switch( e.key ){
                     case 'Left' :
                     case 'ArrowLeft' : {
-                        // when left arrow was pressed, raise a flag so when the dropdown is shown, right-arrow will be ignored
+                        // when left arrow was pressed, set a flag so when the dropdown is shown, right-arrow will be ignored
                         // because it seems likely the user wishes to use the arrows to move the caret
                         this.state.actions.ArrowLeft = true
                         break
@@ -258,7 +258,8 @@ export default {
 
                         var sel = document.getSelection(),
                             deleteKeyTagDetected = e.key == 'Delete' && sel.anchorOffset == (sel.anchorNode.length || 0),
-                            isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && sel.anchorNode.previousSibling.nodeType == 1 && sel.anchorNode.previousSibling,
+                            prevAnchorSibling = sel.anchorNode.previousSibling,
+                            isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && prevAnchorSibling && prevAnchorSibling.nodeType == 1 && sel.anchorNode.previousSibling,
                             lastInputValue = decode(this.DOM.input.innerHTML),
                             lastTagElems = this.getTagElms(),
                             //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
