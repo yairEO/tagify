@@ -88,6 +88,15 @@ function js(done){
         .on('end', done)
 }
 
+function esm(done){
+    return rollup({
+        entry: 'src/tagify.js',
+        outputName: 'tagify.esm.js',
+        format: 'es'
+    })
+        .on('end', done)
+}
+
 function jquery(){
     // do not proccess jQuery version while developeing
     if( opts.dev )
@@ -114,7 +123,7 @@ function polyfills(done){
         .on('end', done)
 }
 
-function rollup({ entry, outputName, dest, plugins=[], babelConf={} }){
+function rollup({ entry, outputName, dest, plugins=[], babelConf={}, format='umd' }){
     plugins = [
         babel({...babelConfig, babelHelpers: 'bundled', ...babelConf}),
         ...plugins
@@ -132,7 +141,7 @@ function rollup({ entry, outputName, dest, plugins=[], babelConf={} }){
         cache: rollupCache[entry],
         output: {
             name: 'Tagify',
-            format: 'umd',
+            format: format,
         }
     })
         .on('bundle', function(bundle) {
@@ -197,10 +206,11 @@ function watch(){
 
 
 // const build = gulp.series(gulp.parallel(build_js, scss, polyfills), build_jquery_version, react)
-const build = gulp.series(gulp.parallel(js, scss, polyfills), jquery, react)
+const build = gulp.series(gulp.parallel(js, scss, polyfills), jquery, react, esm)
 
 exports.default = gulp.parallel(build, watch)
 exports.js = js
+exports.esm = esm
 exports.build = build
 exports.react = react
 exports.jquery = jquery
