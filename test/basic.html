@@ -42,7 +42,7 @@
                 <input name='tags-regular' placeholder='user input' value='a,b'>
             </fieldset>
             <fieldset>
-                <input name='tags-disabled-user-input' placeholder='disabled user input'>
+                <input name='tags-disabled-user-input' value="1,2,3" placeholder='disabled user input' disabled>
             </fieldset>
             <fieldset>
                 <input name='tags' class='some_class_name' placeholder='write some tags' value='"xxx", 123' autofocus data-blacklist='.NET,PHP'>
@@ -83,7 +83,7 @@ var inputElm = document.querySelector('input[name=tags-disabled-user-input]')
 
 new Tagify(inputElm, {
     whitelist: [1,2,3,4,5],
-    userInput: false
+    //userInput: false
 })
 </script>
 

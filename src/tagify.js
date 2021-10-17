@@ -139,6 +139,9 @@ Tagify.prototype = {
             catch(e){}
         }
 
+        if( _s.disabled )
+            _s.userInput = false;
+
         this.TEXTS = {...TEXTS, ...(_s.texts || {})}
 
         // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
