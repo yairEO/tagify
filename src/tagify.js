@@ -48,8 +48,8 @@ function Tagify( input, settings ){
     initDropdown.call(this)
 
     this.getCSSVars()
+    this.loadOriginalValues()
 
-    setTimeout(() => this.loadOriginalValues())
 
     this.events.customBinding.call(this);
     this.events.binding.call(this)
