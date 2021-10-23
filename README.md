@@ -41,6 +41,7 @@
     - [Usage (in your bundle):](#usage-in-your-bundle)
 - [Features](#features)
 - [Building the project](#building-the-project)
+- [Correctly instantiating Tagify](#correctly-instantiating-tagify)
 - [Adding tags dynamically](#adding-tags-dynamically)
 - [Output value](#output-value)
   - [Modify original input value format](#modify-original-input-value-format)
