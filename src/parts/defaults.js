@@ -8,7 +8,8 @@ export default {
     duplicates          : false,          // Flag - allow tuplicate tags
     whitelist           : [],             // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
     blacklist           : [],             // A list of non-allowed tags
-    enforceWhitelist    : false,          // Flag - Only allow tags from the whitelist
+    enforceWhitelist    : false,          // Flag - only allow tags from the whitelist
+    deferredWhitelist   : false,          // Flag - do not check tags at startup, as the whitelist will be loaded later
     userInput           : true,           // Flag - disable manually typing/pasting/editing tags (tags may only be added from the whitelist)
     keepInvalidTags     : false,          // Flag - if true, do not remove tags which did not pass validation
     mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content allows a tag to be added after

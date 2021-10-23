@@ -300,12 +300,24 @@ Tagify.prototype = {
             }
 
             else{
+                // Parse the value
                 try{
                     if( JSON.parse(value) instanceof Array )
                         value = JSON.parse(value)
                 }
                 catch(err){}
-                this.addTags(value).forEach(tag => tag && tag.classList.add(_s.classNames.tagNoAnimation))
+
+                // Check if a deferred whitelist is empty
+                var whitelistDeferredAndEmpty = _s.deferredWhitelist && _s.enforceWhitelist && (_s.whitelist.length < 1);
+
+                // If it is, temporarily disable the checks to avoid removing tags at startup
+                if (whitelistDeferredAndEmpty) _s.enforceWhitelist = false;
+
+                // Add the original tags
+                this.addTags(value).forEach(tag => tag && tag.classList.add(_s.classNames.tagNoAnimation));
+
+                // Enable the checks again to avoid entering non-whitelisted tags
+                if (whitelistDeferredAndEmpty) _s.enforceWhitelist = true;
             }
         }
 
@@ -314,6 +326,18 @@ Tagify.prototype = {
 
         this.state.lastOriginalValueReported = _s.mixMode.integrated ? '' : this.DOM.originalInput.value
         this.state.loadedOriginalValues = true
+    },
+
+    /***
+     * Signals that the whitelist has been loaded (when using deferredWhitelist),
+     * so invalid tags may now be removed
+     */
+     whitelistLoaded(){
+        if (this.settings.deferredWhitelist) {
+            // Remove existing invalid tags
+            this.settings.deferredWhitelist = false;
+            this.loadOriginalValues();
+        }
     },
 
     cloneEvent(e){
