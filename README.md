@@ -135,6 +135,34 @@ Output files, which are automatically generated using Gulp, are in: `/dist/`
 
 The rest of the files are most likely irrelevant.
 
+## Correctly instantiating Tagify
+If you want to keep the associated input control content when going back and forward using the browser, it's recommended to wire up Tagify during *onpageshow* event, otherwise Chrome will behave differently from Firefox (which uses [bfcache](https://stackoverflow.com/a/2218733/2631300)).
+
+**When going back**, Firefox doesn't call *onload* and keeps the DOM intact, while Chrome/Edge/etc. will re-instantiate Tagify. This means that for a brief moment Chrome will display the predefined value of the control (due to *onload* being called) and then the tags will be replaced with the previous ones after *onpageshow* (because only in that moment the posted data is available to Tagify). This is unpleasant especially when using `enforceWhitelist` and the whitelist is empty at startup.
+
+The solution is to wire-up Tagify only with *onpageshow* and in this way it will work with all the browser correctly when going forward and backward.
+
+Example:
+
+```javascript
+function initTagify() {
+  var inputElm = document.querySelector('input[name=tags]');
+  var tagify = new Tagify(inputElm, {
+      enforceWhitelist: false,
+      whitelist: ['css', 'html', 'javascript']
+  });
+}
+```
+```html
+<body onpageshow="initTagify();">
+  <form method="get" action="mycustompage">
+    <input name='tags' placeholder='write some tags' value='css, html'>
+    <!-- Try to delete all the tags and then add 'javascript': after posting and going back, the values above (css, html) are displayed for a brief moment (in Chrome) if the 'initTagify' function is called by 'onload' instead of 'onpageshow' -->
+    <input type="submit" value="Submit">
+  </form>
+</body>
+```
+
 ## Adding tags dynamically
 ```javascript
 var tagify = new Tagify(...);
