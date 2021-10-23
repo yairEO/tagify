@@ -60,6 +60,7 @@
   - [Update regarding `onChange` prop:](#update-regarding-onchange-prop)
     - [Updating the component's state](#updating-the-components-state)
 - [jQuery version](#jquery-version)
+- [FAQ](#faq)
 - [CSS Variables](#css-variables)
   - [Full list of Tagify's SCSS variables](#full-list-of-tagifys-scss-variables)
 - [Methods](#methods)
@@ -190,6 +191,7 @@ var tagify = new Tagify(inputElm, {
 **Output:**<br>
 `"cat,dog"`
 
+Take a look at the [FAQ below](#faq) for another example of formatting the input value with a custom separator.
 
 ## Ajax whitelist
 Dynamically-loaded suggestions list (*whitelist*) from the server (as the user types) is a frequent need to many.
@@ -651,7 +653,7 @@ tagify.whitelist = ["foo", "bar"]
 ---
 
 <details>
-  <summary><strong>tags/whitelist data structure</strong></summary>
+  <summary><strong>Tags/whitelist data structure</strong></summary>
 
 Tagify does not accept just *any* kind of data structure.<br>
 If a tag data is represented as an `Object`, it **must** contain a **unique** property `value`
@@ -680,6 +682,89 @@ which Tagify uses to check if a tag already exists, among other things, so make 
 ```javascript
 // ad a simple array of Strings
 ["foo bar"]
+```
+</details>
+
+---
+
+<details>
+  <summary><strong>Custom format of the input value with numeric tag values</strong></summary>
+
+Suppose you have a whitelist which uses a unique numeric value (e.g. `1, 2, 3, ...`) to distinguish tags and you want to post your form with a custom input value representing the selected tags, such as `2|1`.
+
+You could use `originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join('|')` but this method won't work correctly in Chrome if you post and then go back, because it doesn't use the *bfcache* (back/forward cache).
+
+You could do this, instead:
+
+```javascript
+function initTagify() {
+  // Initialize Tagify
+  var inputElm = document.getElementById('tagsInput');
+  var tagify = new Tagify(inputElm, {
+    enforceWhitelist: true,
+    // Whitelist with numeric value (unique)
+    whitelist: [
+      {value: 1, name: "Apple", descr: "A green apple."},
+      {value: 2, name: "Banana", descr: "A yellow banana."},
+      {value: 3, name: "Coconut", descr: "A brown coconut."},
+      {value: 4, name: "Strawberry", descr: "A red strawberry."}
+    ],
+    // Tags will be displayed by 'name'
+    tagTextProp: 'name',
+    dropdown: {
+      enabled: 1,
+      searchKeys: ['name'],
+      mapValueTo: 'name',
+      fuzzySearch: true,
+      position: 'text',
+      highlightFirst: true
+    },
+    // Custom template to show 'descr' attribute on tooltip (optional)
+    templates: {
+      tag(tagData, tagify) {
+        var _s = this.settings;
+        return `<tag title="${tagData.descr}"
+              contenteditable='false'
+              spellcheck='false'
+              tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
+              class="${_s.classNames.tag} ${tagData.class || ""}"
+              ${this.getAttributes(tagData)}>
+          <x title='' class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
+          <div>
+            <span class="${_s.classNames.tagText}">${tagData[_s.tagTextProp]}</span>
+          </div>
+        </tag>`
+      }
+    }
+  });
+}
+
+function formSubmit() {
+  // Read the JSON value from the Tagify input value
+  var tagsValue = JSON.parse(document.getElementById('tagsInput').value);
+
+  // Format the value by extracting the numeric ID
+  // joining the tags with the '|' separator
+  // and setting it to the hidden input that will be posted by the form
+  document.getElementById('tagsOutput').value = tagsValue.map(item => item.value).join('|');
+  return true;
+}
+```
+```html
+<!-- Always init from 'onpageshow' to keep the tags when going back -->
+<body onpageshow="initTagify();">
+  <!-- Use the 'onsubmit' event to format the JSON provided by Tagify -->
+  <form method="get" action="not-exists" onsubmit="formSubmit();">
+    <input id="tagsInput" placeholder="write some tags">
+    <!-- Do not use 'name' attribute in the control bound to Tagify -->
+    
+    <input id="tagsOutput" name="tags" type="hidden">
+    <!-- This is the hidden control that will contain the actual custom
+    value format, notice that it has the 'name' attribute -->
+
+    <input type="submit" value="Submit">
+  </form>
+</body>
 ```
 </details>
 
