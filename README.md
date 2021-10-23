@@ -46,6 +46,7 @@
 - [Output value](#output-value)
   - [Modify original input value format](#modify-original-input-value-format)
 - [Ajax whitelist](#ajax-whitelist)
+  - [Ajax whitelist with *deferredWhitelist*](#ajax-whitelist-with-deferredwhitelist)
 - [Edit tags](#edit-tags)
 - [Validations](#validations)
 - [Drag & Sort](#drag--sort)
@@ -257,6 +258,168 @@ function onInput( e ){
       tagify.loading(false).dropdown.show(value) // render the suggestions dropdown
     })
 }
+```
+</details>
+
+### Ajax whitelist with *deferredWhitelist*
+
+If you wish to avoid removing tags at startup (when the whitelist is empty), or after going back to a page with Tagify (in Chrome that does not have *bfcache*), you can set the `deferredWhitelist` property to `true` and then, after you've updated the whitelist array, call the `whitelistLoaded()` method.
+
+This is very useful when you need numeric ID values to distinguish tags, while the name and other data could be displayed on the tags using templates.
+
+<details>
+  <summary>Example:</summary>
+
+Javascript
+```javascript
+// Global flag to check if the whitelist
+// has been loaded at least once (prevents submit otherwise)
+var whitelistLoaded = false;
+
+function initTagify() {
+    // Initialize Tagify
+    var inputElm = document.getElementById('tagsInput');
+    var tagify = new Tagify(inputElm, {
+        enforceWhitelist: true,
+        deferredWhitelist: true, // will load whitelist later
+        whitelist: [], // empty whitelist
+        // Tags will be displayed by 'name'
+        tagTextProp: 'name',
+        dropdown: {
+            enabled: 1,
+            searchKeys: ['name'],
+            mapValueTo: 'name',
+            fuzzySearch: true,
+            position: 'text',
+            highlightFirst: true
+        },
+        // Custom template to show description on tooltip (optional)
+        templates: {
+            tag(tagData, tagify) {
+                var _s = this.settings;
+                return `<tag title="${tagData.descr}"
+                            contenteditable='false'
+                            spellcheck='false'
+                            tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
+                            class="${_s.classNames.tag} ${tagData.class || ""}"
+                            ${this.getAttributes(tagData)}>
+                    <x title='' class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
+                    <div>
+                        <span class="${_s.classNames.tagText}">${tagData[_s.tagTextProp]}</span>
+                    </div>
+                </tag>`
+            }
+        }
+    });
+
+    // AJAX whitelist simulation function
+    var mockAjax = function mockAjax() {
+        var timeout;
+        var whitelist = [
+            {value: 1, name: "Apple", descr: "A green apple."},
+            {value: 2, name: "Banana", descr: "A yellow banana."},
+            {value: 3, name: "Coconut", descr: "A brown coconut."},
+            {value: 4, name: "Strawberry", descr: "A red strawberry."}
+        ]; // this will be pulled from a db, normally
+        return function (duration) {
+            clearTimeout(timeout); // abort last request
+            return new Promise(function (resolve, reject) {
+                timeout = setTimeout(resolve, duration || 700, whitelist);
+            });
+        };
+    }();
+
+    // Whitelist loaded from AJAX after typing
+    function onInput(e) {
+        tagify.whitelist.length = 0; // reset current whitelist
+        tagify.loading(true).dropdown.hide.call(tagify); // show the loader animation
+
+        // get new whitelist from a delayed mocked request (Promise)
+        mockAjax().
+            then(function (result) {
+                // replace tagify "whitelist" array values with new values
+                tagify.whitelist.push(...result);
+
+                // signal that the whitelist has been loaded
+                // so wrong tags may now be removed
+                tagify.whitelistLoaded();
+
+                // render the suggestions dropdown
+                tagify.loading(false).dropdown.show.call(tagify, e.detail.value);
+
+                // set the global flag (allows submit)
+                whitelistLoaded = true;
+            });
+    }
+    tagify.on('input', onInput);
+
+    // Force loading whitelist at startup
+    // if there are tags without the numeric ID
+    // (NOTE: this is necessary ONLY if you're loading tags
+    // from the value attribute of the input control,
+    // like in the HTML below)
+    if((tagify.value.length > 0) && isNaN(tagify.value[0].value)) {
+        // Whitelist is not loaded
+        tagify.whitelist.length = 0; // reset current whitelist
+        tagify.loading(true).dropdown.hide.call(tagify); // show the loader animation
+
+        // get new whitelist from a delayed mocked request (Promise)
+        mockAjax(2000).
+            then(function (result) {
+                // replace tagify "whitelist" array values with new values
+                tagify.whitelist.push(...result);
+
+                // signal that the whitelist has been loaded
+                // so wrong tags may now be removed
+                tagify.whitelistLoaded();
+
+                // hide the loading indicator
+                tagify.loading(false);
+
+                // set the global flag (allows submit)
+                whitelistLoaded = true;
+            });
+    }
+}
+
+function formSubmit() {
+    // Read the JSON value from the Tagify input value
+    var tagsValue;
+    try {
+        tagsValue = JSON.parse(document.getElementById('tagsInput').value);
+    } catch(err) {}
+
+    // Check whether whitelist has been loaded once
+    if (!whitelistLoaded && tagsValue && isNaN(tagsValue[0].value)) {
+        // Whitelist has never been loaded
+        // Cannot submit without numeric tag values!
+        alert('Tags have not been verified!');
+        return false;
+    }
+
+    // Format the value by extracting the numeric ID, joining by '|'
+    // and setting it to the hidden input that will be posted
+    document.getElementById('tagsOutput').value = tagsValue.map(item => item.value).join('|');
+    return true;
+}
+```
+HTML
+```html
+<body onpageshow="initTagify();">
+  <form method="get" action="not-exists" onsubmit="return formSubmit();">
+    <!-- The input below has 2 predefined values: 'apple', 'Kiwi'.
+        After calling the 'whitelistLoaded()' the wrong tags ('Kiwi'
+        is not included in the whitelist) are automatically deleted.
+    -->
+    <input id="tagsInput" placeholder="write some tags" value="Apple, Kiwi">
+    <!-- Do not use 'name' tag on the control which will be bound to Tagify-->
+    
+    <input id="tagsOutput" name="tags" type="hidden">
+    <!-- This is the hidden control that will contain the custom value format -->
+
+    <input type="submit" value="Submit">
+  </form>
+</body>
 ```
 </details>
 
@@ -795,7 +958,7 @@ function onTagifyKeyDown(e){
 * [Insert emoji at caret location when editing a tag](https://github.com/yairEO/tagify/issues/365)
 * [propagate `change` event](https://github.com/yairEO/tagify/issues/413)
 * [Manually update tag data after it was added](https://github.com/yairEO/tagify/issues/433)
-* [Ajax Whitelist with "enforceWhitelist" setting enabled](https://github.com/yairEO/tagify/issues/465)
+* Ajax Whitelist with "enforceWhitelist" setting enabled - [Issue 1](https://github.com/yairEO/tagify/issues/465) - [Issue 2](https://github.com/yairEO/tagify/issues/885)
 * [Custom (multiple) tag validation & AJAX](https://github.com/yairEO/tagify/issues/474)
 * [Make tags from pasted multi-line text](https://github.com/yairEO/tagify/issues/160)
 * [Add a tag at *caret* position in *mixed mode*](https://github.com/yairEO/tagify/issues/524#issuecomment-699140465)
@@ -850,6 +1013,7 @@ Name                       | Parameters                                         
 `addTags`                  | <ol><li>`Array`/`String`/`Object` tag(s) to add</li><li>`Boolean` clear input after adding</li><li>`Boolean` - skip adding invalids</li><ol>  | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings.
 `addMixTags`               | `Array`/`String`                                                                        | Bypasses the normalization process in `addTags`, forcefully adding tags at the last caret location or at the end, if there's no last caret location saved (at `tagify.state.selection`)
 `removeTags`               | <ol><li>`Array`/`HTMLElement`/`String` tag(s) to remove</li><li>`silent` does not update the component's value</li><li>`tranDuration` Transition duration (in `ms`)</li></ul> | (#502) Remove single/multiple Tags. When nothing passed, removes last tag. <ul><li>`silent` - A flag, which when turned on, does not remove any value and does not update the original input value but simply removes the tag from tagify</li><li>`tranDuration` - delay for animation, after which the tag will be removed from the DOM</li></ul>
+`whitelistLoaded`                 |                                                                                         | When used with both `enforceWhitelist` and `deferredWhitelist` set as `true`, it tells Tagify to process the input data (and removing invalid tags). It should be called after the dynamic whitelist has been populated (e.g. from AJAX). [See example](#ajax-whitelist-with-deferredwhitelist)
 `addEmptyTag`              | `Object` <sub>(`tagData`)</sub>                                                         | Create an empty tag (optionally with pre-defined data) and enters "edit" mode directly. [See demo](https://yaireo.github.io/tagify#section-different-look)
 `loadOriginalValues`       | `String`/`Array`                                                                        | Converts the input's value into tags. This method gets called automatically when instansiating Tagify. Also works for mixed-tags
 `getWhitelistItemsByValue` | `Object`                                                                                | `{value}` - return an Array of found matching items (case-insensitive)
@@ -986,6 +1150,7 @@ mixTagsAllowedAfter       | <sub>RegEx</sub>             | <sub>`/,\|\.\|\:\|\s/
 duplicates                | <sub>Boolean</sub>           | false                                       | Should duplicate tags be allowed or not
 trim                      | <sub>Boolean</sub>           | true                                        | If `true` trim the tag's value (remove before/after whitespaces)
 enforceWhitelist          | <sub>Boolean</sub>           | false                                       | Should ONLY use tags allowed in whitelist.<br>In `mix-mode`, setting it  to `false` will not allow creating new tags.
+deferredWhitelist         | <sub>Boolean</sub>           | false                                       | If `true`, does not delete the tags at startup until `whitelistLoaded()` is called. [See example](#ajax-whitelist-with-deferredwhitelist)
 userInput                 | <sub>Boolean</sub>           | true                                        | Disable manually typing/pasting/editing tags (tags may only be added from the whitelist)
 autoComplete.enabled      | <sub>Boolean</sub>           | true                                        | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
 autoComplete.rightKey     | <sub>Boolean</sub>           | false                                       | If `true`, when `→` is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
