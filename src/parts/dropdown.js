@@ -430,7 +430,7 @@ export default {
                         else
                             this.dropdown.hide()
                     })
-                    .catch(err => err)
+                    .catch(err => console.warn(err))
             },
 
             onScroll(e){
@@ -519,7 +519,8 @@ export default {
         }
 
         if( this.state.editing )
-            this.onEditTagDone(null, extend({__isValid: true}, tagData))
+            // normalizing value, because "tagData" might be a string, and therefore will not be able to extend the object
+            this.onEditTagDone(null, extend({__isValid: true}, this.normalizeTags(tagData)[0]))
 
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
         else{
