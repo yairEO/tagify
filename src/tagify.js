@@ -1040,11 +1040,12 @@ Tagify.prototype = {
                 tagData = this.normalizeTags(preInterpolated)[0] || {value:preInterpolated}
             }
 
+            transformTag.call(this, tagData)
+
             if( !maxTagsReached   &&
                 s2.length > 1   &&
                 (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&
                 !(!duplicates && this.isTagDuplicate(tagData.value)) ){
-                transformTag.call(this, tagData)
 
                 // in case "tagTextProp" setting is set to other than "value" and this tag does not have this prop
                 textProp = tagData[tagTextProp] ? tagTextProp : 'value'
@@ -1199,9 +1200,8 @@ Tagify.prototype = {
 
             // shallow-clone tagData so later modifications will not apply to the source
             tagData = Object.assign({}, originalData)
-            tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData)
-
             _s.transformTag.call(this, tagData)
+            tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData)
 
             if( tagData.__isValid !== true ){
                 if( skipInvalid )
