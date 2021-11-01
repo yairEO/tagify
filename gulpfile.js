@@ -80,10 +80,32 @@ function react(done){
         .pipe( gulp.dest('./dist/') )
 }
 
-function js(done){
+function js_minified(done){
     return rollup({
         entry: 'src/tagify.js',
-        outputName: 'tagify.min.js'
+        outputName: 'tagify.min.js',
+        plugins: opts.dev ? [] : [terser()]
+    })
+        .on('end', done)
+}
+
+function js(done){
+    if( opts.dev ) return done();
+
+    return rollup({
+        entry: 'src/tagify.js',
+        outputName: 'tagify.js'
+    })
+        .on('end', done)
+}
+
+function esm(done){
+    if( opts.dev ) return done();
+
+    return rollup({
+        entry: 'src/tagify.js',
+        outputName: 'tagify.esm.js',
+        format: 'es'
     })
         .on('end', done)
 }
@@ -114,14 +136,11 @@ function polyfills(done){
         .on('end', done)
 }
 
-function rollup({ entry, outputName, dest, plugins=[], babelConf={} }){
+function rollup({ entry, outputName, dest, plugins=[], babelConf={}, format='umd' }){
     plugins = [
         babel({...babelConfig, babelHelpers: 'bundled', ...babelConf}),
         ...plugins
     ]
-
-    if( !opts.dev )
-        plugins.push( terser() )
 
     plugins.push( rollupBanner(banner) )
 
@@ -132,7 +151,7 @@ function rollup({ entry, outputName, dest, plugins=[], babelConf={} }){
         cache: rollupCache[entry],
         output: {
             name: 'Tagify',
-            format: 'umd',
+            format: format,
         }
     })
         .on('bundle', function(bundle) {
@@ -191,16 +210,18 @@ ${pkg.homepage}`;
 
 function watch(){
     gulp.watch('./src/*.scss', scss)
-    gulp.watch(['./src/tagify.js', './src/parts/*.js'], gulp.series([js, jquery]))
+    gulp.watch(['./src/tagify.js', './src/parts/*.js'], gulp.series([js_minified, jquery]))
     gulp.watch('./src/react.tagify.js', react)
 }
 
 
 // const build = gulp.series(gulp.parallel(build_js, scss, polyfills), build_jquery_version, react)
-const build = gulp.series(gulp.parallel(js, scss, polyfills), jquery, react)
+const build = gulp.series(gulp.parallel(js, scss, polyfills), js_minified, esm, jquery, react)
 
 exports.default = gulp.parallel(build, watch)
 exports.js = js
+exports.js_minified = js_minified
+exports.esm = esm
 exports.build = build
 exports.react = react
 exports.jquery = jquery
