@@ -485,7 +485,7 @@ There is no more `e.target`, and to access the original DOM input element, do th
 
 ----
 
-> Note: You will need to inport Tagify's CSS also, either by javasceript or by SCSS `@import` (which is preferable)
+> Note: You will need to import Tagify's CSS also, either by JavaScript or by SCSS `@import` (which is preferable)
 > Also note that you will need to use [*dart-sass*](https://www.npmjs.com/package/sass) and not *node-sass* in order to compile the file.
 
 ```javascript
