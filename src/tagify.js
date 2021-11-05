@@ -48,12 +48,10 @@ function Tagify( input, settings ){
     initDropdown.call(this)
 
     this.getCSSVars()
-
-    setTimeout(() => this.loadOriginalValues())
+    this.loadOriginalValues()
 
     this.events.customBinding.call(this);
     this.events.binding.call(this)
-
     input.autofocus && this.DOM.input.focus()
 }
 
@@ -988,7 +986,7 @@ Tagify.prototype = {
 
 
                 if( !this.settings.duplicates )
-                    // also filter out items which have already been matches in previous iterations
+                    // also filter out items which have already been matched in previous iterations
                     filteredList = filteredList.filter(filteredItem => !whitelistMatchesValues.includes(filteredItem.value))
 
                 // get the best match out of list of possible matches.
