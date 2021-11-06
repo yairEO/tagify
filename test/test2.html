@@ -36,15 +36,40 @@
     </head>
 
     <body>
-    <section id='section-mode-select'>
-        <input value="123, 123" placeholder="type tags">
+    <section>
+        <input value="aric.wolf@example.org" placeholder="type tags">
     </section>
 
 <script>
     new Tagify(document.querySelector('input'),{
-        tagTextProp: "name",
-        duplicates: true,
-        whitelist: [{"value":"123","name":"Bahamas"}]
+        tagTextProp: 'name',
+        dropdown: {
+            searchKeys: ['name', 'email'],
+        },
+        transformTag(tagData) {
+            console.log(999, tagData)
+        },
+
+        whitelist: [
+            {
+                "userId": 54,
+                "value": 54,
+                "name": "Aric Wolf",
+                "email": "aric.wolf@example.org"
+            },
+            {
+                "userId": 89,
+                "value": 89,
+                "name": "Carlos Bartell",
+                "email": "carlos.bartell.v@example.org"
+            },
+            {
+                "userId": 38,
+                "value": 38,
+                "name": "Carmen Abernathy",
+                "email": "carmen.abernathy@example.org"
+            }
+        ]
     });
 </script>
 </body>
