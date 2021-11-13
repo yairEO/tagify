@@ -45,6 +45,7 @@
 - [Output value](#output-value)
   - [Modify original input value format](#modify-original-input-value-format)
 - [Ajax whitelist](#ajax-whitelist)
+- [Persisted data](#persisted-data)
 - [Edit tags](#edit-tags)
 - [Validations](#validations)
 - [Drag & Sort](#drag--sort)
@@ -230,6 +231,22 @@ function onInput( e ){
 }
 ```
 </details>
+
+## Persisted data
+
+Sometimes the whitelist might be loaded asynchronously, and so any pre-filled value in the original input field
+will be removed if the `enforceWhitelist` is set to `true`.
+
+Tagify can automatically restore the last used `whitelist` by setting a ***unique id*** to the Tagify instance,
+by using the *localstorage* to persist the `whitelist` & `value` data:
+
+```js
+var input = document.querySelector('input'),
+    tagify = new Tagify(input, {
+      id: 'test1',  // must be unique (per-tagify instance)
+      enforceWhitelist: true,
+    }),
+```
 
 ## Edit tags
 Tags which aren't `read-only` can be edited by double-clicking them (by default)
@@ -848,7 +865,9 @@ Name                       | Parameters                                         
 `parseTemplate`            | `String`/`Function` <sub>(template name or function)</sub>, `Array` <sub>(data)</sub>   | converts a template string (by selecting one from the `settings.templates` by name or supplying a template function which returns a String) into a DOM node
 `setReadonly`              | `Boolean`                                                                               | Toggles "readonly" mode on/off
 `setDisabled`              | `Boolean`                                                                               | Toggles "disabled" mode on/off
-
+`getPersistedData`         | `String`                                                                                | Get data for the specific instance by parameter
+`setPersistedData`         | `*`, `String`                                                                           | Set data for the specific instance. Must supply a second parameter which will be the key to save the data in the localstorage (under the tagify namespace)
+`clearPersistedData`       | `String`                                                                                | Clears data for the specific instance, by parameter. If the parameter is ommited, clears all persisted data related to this instance (by its `id` which was set in the instance's settings)
 
 ## Events
 

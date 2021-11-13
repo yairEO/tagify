@@ -1,6 +1,7 @@
-import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, getUID, isNodeTag } from './parts/helpers'
+import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag } from './parts/helpers'
 import DEFAULTS from './parts/defaults'
 import _dropdown, { initDropdown } from './parts/dropdown'
+import { getPersistedData, setPersistedData, clearPersistedData } from './parts/persist'
 import TEXTS from './parts/texts'
 import templates from './parts/templates'
 import EventDispatcher from './parts/EventDispatcher'
@@ -26,7 +27,11 @@ function Tagify( input, settings ){
     this.isFirefox = typeof InstallTrigger !== 'undefined'
     this.isIE = window.document.documentMode; // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
 
-    this.applySettings(input, settings||{})
+    settings = settings || {};
+    this.getPersistedData = getPersistedData(settings.id)
+    this.setPersistedData = setPersistedData(settings.id)
+    this.clearPersistedData = clearPersistedData(settings.id)
+    this.applySettings(input, settings)
 
     this.state = {
         inputText: '',
@@ -76,7 +81,9 @@ Tagify.prototype = {
     },
 
     set whitelist( arr ){
-        this.settings.whitelist = arr && Array.isArray(arr) ? arr : []
+        const isArray = arr && Array.isArray(arr)
+        this.settings.whitelist = isArray ? arr : []
+        this.setPersistedData(isArray ? arr : [], 'whitelist')
     },
 
     get whitelist(){
@@ -149,6 +156,15 @@ Tagify.prototype = {
         _s.dropdown.appendTarget = settings.dropdown && settings.dropdown.appendTarget
             ? settings.dropdown.appendTarget
             : document.body
+
+
+        // get & merge persisted data with current data
+        let persistedWhitelist = this.getPersistedData('whitelist');
+
+        if( Array.isArray(persistedWhitelist))
+            this.whitelist = Array.isArray(_s.whitelist)
+                ? concatWithoutDups(_s.whitelist, persistedWhitelist)
+                : persistedWhitelist;
     },
 
     /**
@@ -285,8 +301,16 @@ Tagify.prototype = {
         var lastChild,
             _s = this.settings;
 
-        if( value === undefined )
-            value = _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value
+        if( value === undefined ){
+            const persistedOriginalValue = this.getPersistedData('value')
+
+            // if the field already has a field, trust its the desired
+            // one to be rendered and do not use the persisted one
+            if( persistedOriginalValue && !this.DOM.originalInput.value )
+                value = persistedOriginalValue
+            else
+                value = _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value
+        }
 
         this.removeAllTags({ withoutChangeEvent:true })
 
@@ -1038,6 +1062,7 @@ Tagify.prototype = {
                 tagData = this.normalizeTags(preInterpolated)[0] || {value:preInterpolated}
             }
 
+
             transformTag.call(this, tagData)
 
             if( !maxTagsReached   &&
@@ -1561,19 +1586,24 @@ Tagify.prototype = {
         this.toggleClass(classNames.empty, !hasValue)
     },
 
+    setOriginalInputValue( v ){
+        var inputElm = this.DOM.originalInput;
+
+        if( !this.settings.mixMode.integrated ){
+            inputElm.value = v
+            inputElm.tagifyValue = inputElm.value // must set to "inputElm.value" and not again to "inputValue" because for some reason the browser changes the string afterwards a bit.
+            this.setPersistedData(v, 'value')
+        }
+    },
+
     /**
      * update the origianl (hidden) input field's value
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update( args ){
-        var inputElm = this.DOM.originalInput,
-            inputValue = this.getInputValue();
+        var inputValue = this.getInputValue();
 
-        if( !this.settings.mixMode.integrated ){
-            inputElm.value = inputValue
-            inputElm.tagifyValue = inputElm.value; // must set to "inputElm.value" and not again to "inputValue" because for some reason the browser changes the string afterwards a bit.
-        }
-
+        this.setOriginalInputValue(inputValue)
         this.postUpdate()
 
         if( !(args||{}).withoutChangeEvent && this.state.loadedOriginalValues )

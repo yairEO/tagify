@@ -141,6 +141,33 @@ export function extend( o, o1, o2) {
 }
 
 /**
+ * concatenates N arrays without dups.
+ * If an array's item is an Object, compare by `value`
+ */
+export function concatWithoutDups(){
+    const newArr = [],
+        existingObj = {};
+
+    for( let arr of arguments ) {
+        for( let item of arr ) {
+            // if current item is an object which has yet to be added to the new array
+            if( isObject(item) ){
+                if( !existingObj[item.value] ){
+                    newArr.push(item)
+                    existingObj[item.value] = 1
+                }
+            }
+
+            // if current item is not an object and is not in the new array
+            else if( !newArr.includes(item) )
+                newArr.push(item)
+        }
+    }
+
+    return newArr
+}
+
+/**
  *  Extracted from: https://stackoverflow.com/a/37511463/104380
  * @param {String} s
  */
