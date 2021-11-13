@@ -39,9 +39,9 @@
     <body>
         <form method="get" action="not-exists">
             <fieldset>
-                <input name='tags-regular' placeholder='user input' value='a,b'>
+                <input name='tags-regular' placeholder='user input' value='b'>
             </fieldset>
-            <fieldset>
+            <!-- <fieldset>
                 <input name='tags-disabled-user-input' value="1,2,3" placeholder='disabled user input' disabled>
             </fieldset>
             <fieldset>
@@ -52,7 +52,7 @@
             </fieldset>
             <fieldset>
                 <input name='value_JSON' class='value_JSON' value='[{"value":1, "editable":false}, {"value":2, "title":"xxx"}]'>
-            </fieldset>
+            </fieldset> -->
             <br><br><br>
             <button style='font-size:40px'>Submit</button>
             <button type='reset'>Reset</button>
@@ -60,11 +60,13 @@
 
 
 <script>
+(() => {
 var inputElm = document.querySelector('input[name=tags-regular]')
 
-new Tagify(inputElm, {
+let tagify = new Tagify(inputElm, {
     // whitelist: ['abb', 'cbb', 'bb', 'bb1', 'aaabb', 'bbb', 'aa', 'bba'],
-    whitelist: ["ac", "aab", "aaa", "b", "bb", "ccc"],
+    // whitelist: ["ac", "aab", "aaa", "b", "bb", "ccc"],
+    id: 'test1',
     enforceWhitelist: true,
     dropdown: {
         enabled: 0,
@@ -75,19 +77,27 @@ new Tagify(inputElm, {
         // }
     }
 })
+
+setTimeout(() => {
+    tagify.whitelist = ["ac", "aab", "aaa", "b", "bb", "ccc"]
+}, 1000);
+})()
 </script>
 
 
 <script>
+(() => {
 var inputElm = document.querySelector('input[name=tags-disabled-user-input]')
 
 new Tagify(inputElm, {
     whitelist: [1,2,3,4,5],
     //userInput: false
 })
+})()
 </script>
 
-<script type="">
+<script>
+(() => {
     var emptyJSONTagify = new Tagify(document.querySelector('input[name=value_empty_JSON]'), {
         addTagOnBlur: false,
         autoComplete : {
@@ -117,8 +127,6 @@ new Tagify(inputElm, {
             },
         ]
     })
-
-
 
     var tagify3 = new Tagify(document.querySelector('input[name=value_JSON]'), {
     //  delimiters: ",|[\\n\\r]",
@@ -266,6 +274,7 @@ new Tagify(inputElm, {
     function onDropdownSelect(e){
         console.log("onDropdownSelect: ", e.detail)
     }
+})()
 </script>
 </body>
 </html>

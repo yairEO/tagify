@@ -480,6 +480,7 @@ export default {
                     this.input.set.call(this); // clear the input field's value
                 }
             }
+
             else if( this.settings.dropdown.enabled >= 0 ){
                 this.dropdown[showSuggestions ? "show" : "hide"](value);
             }
@@ -623,7 +624,7 @@ export default {
         },
 
         observeOriginalInputValue(){
-            // if original input value changes for some reason (for exmaple a form reset)
+            // if original input value changed for some reason (for exmaple a form reset)
             if( this.DOM.originalInput.value != this.DOM.originalInput.tagifyValue )
                 this.loadOriginalValues()
         },

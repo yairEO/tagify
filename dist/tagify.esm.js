@@ -172,6 +172,30 @@ function extend(o, o1, o2) {
   return o;
 }
 /**
+ * concatenates N arrays without dups.
+ * If an array's item is an Object, compare by `value`
+ */
+
+function concatWithoutDups() {
+  const newArr = [],
+        existingObj = {};
+
+  for (let arr of arguments) {
+    for (let item of arr) {
+      // if current item is an object which has yet to be added to the new array
+      if (isObject(item)) {
+        if (!existingObj[item.value]) {
+          newArr.push(item);
+          existingObj[item.value] = 1;
+        }
+      } // if current item is not an object and is not in the new array
+      else if (!newArr.includes(item)) newArr.push(item);
+    }
+  }
+
+  return newArr;
+}
+/**
  *  Extracted from: https://stackoverflow.com/a/37511463/104380
  * @param {String} s
  */
@@ -343,7 +367,8 @@ var _dropdown = {
         allowNewTags = _s.mode == 'mix' && !_s.enforceWhitelist,
         noWhitelist = !_s.whitelist || !_s.whitelist.length,
         noMatchListItem,
-        isManual = _s.dropdown.position == 'manual'; // if text still exists in the input, and `show` method has no argument, then the input's text should be used
+        isManual = _s.dropdown.position == 'manual';
+    console.log(22222, this.settings); // if text still exists in the input, and `show` method has no argument, then the input's text should be used
 
     value = value === undefined ? this.state.inputText : value; // ⚠️ Do not render suggestions list  if:
     // 1. there's no whitelist (can happen while async loading) AND new tags arn't allowed
@@ -932,6 +957,46 @@ var _dropdown = {
     }).join("");
   }
 
+};
+
+const VERSION = 1; // current version of persisted data. if code change breaks persisted data, verison number should be bumped.
+
+const STORE_KEY = '@yaireo/tagify/';
+const getPersistedData = id => key => {
+  // if "persist" is "false", do not save to localstorage
+  let customKey = '/' + key,
+      persistedData,
+      versionMatch = localStorage.getItem(STORE_KEY + id + '/v', VERSION) == VERSION;
+
+  if (versionMatch) {
+    try {
+      persistedData = JSON.parse(localStorage[STORE_KEY + id + customKey]);
+    } catch (err) {}
+  }
+
+  return persistedData;
+};
+const setPersistedData = id => {
+  if (!id) return () => {}; // for storage invalidation
+
+  localStorage.setItem(STORE_KEY + id + '/v', VERSION);
+  return (data, key) => {
+    let customKey = '/' + key,
+        persistedData = JSON.stringify(data);
+
+    if (data && key) {
+      localStorage.setItem(STORE_KEY + id + customKey, persistedData);
+      dispatchEvent(new Event('storage'));
+    }
+  };
+};
+const clearPersistedData = id => key => {
+  const base = STORE_KEY + '/' + id + '/'; // delete specific key in the storage
+
+  if (key) localStorage.removeItem(base + key); // delete all keys in the storage with a specific tagify id
+  else {
+    for (let k in localStorage) if (k.includes(base)) localStorage.removeItem(k);
+  }
 };
 
 var TEXTS = {
@@ -1619,7 +1684,7 @@ var events = {
     },
 
     observeOriginalInputValue() {
-      // if original input value changes for some reason (for exmaple a form reset)
+      // if original input value changed for some reason (for exmaple a form reset)
       if (this.DOM.originalInput.value != this.DOM.originalInput.tagifyValue) this.loadOriginalValues();
     },
 
@@ -1922,7 +1987,11 @@ function Tagify(input, settings) {
   this.isFirefox = typeof InstallTrigger !== 'undefined';
   this.isIE = window.document.documentMode; // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
 
-  this.applySettings(input, settings || {});
+  settings = settings || {};
+  this.getPersistedData = getPersistedData(settings.id);
+  this.setPersistedData = setPersistedData(settings.id);
+  this.clearPersistedData = clearPersistedData(settings.id);
+  this.applySettings(input, settings);
   this.state = {
     inputText: '',
     editing: false,
@@ -1942,7 +2011,7 @@ function Tagify(input, settings) {
   this.build(input);
   initDropdown.call(this);
   this.getCSSVars();
-  setTimeout(() => this.loadOriginalValues());
+  this.loadOriginalValues();
   this.events.customBinding.call(this);
   this.events.binding.call(this);
   input.autofocus && this.DOM.input.focus();
@@ -1968,7 +2037,9 @@ Tagify.prototype = {
   },
 
   set whitelist(arr) {
-    this.settings.whitelist = arr && Array.isArray(arr) ? arr : [];
+    const isArray = arr && Array.isArray(arr);
+    this.settings.whitelist = isArray ? arr : [];
+    this.setPersistedData(isArray ? arr : [], 'whitelist');
   },
 
   get whitelist() {
@@ -2033,7 +2104,10 @@ Tagify.prototype = {
     this.TEXTS = _objectSpread2(_objectSpread2({}, TEXTS), _s.texts || {}); // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
 
     if (_s.mode == 'select' || !_s.userInput) _s.dropdown.enabled = 0;
-    _s.dropdown.appendTarget = settings.dropdown && settings.dropdown.appendTarget ? settings.dropdown.appendTarget : document.body;
+    _s.dropdown.appendTarget = settings.dropdown && settings.dropdown.appendTarget ? settings.dropdown.appendTarget : document.body; // get & merge persisted data with current data
+
+    let persistedWhitelist = this.getPersistedData('whitelist');
+    if (Array.isArray(persistedWhitelist)) this.whitelist = Array.isArray(_s.whitelist) ? concatWithoutDups(_s.whitelist, persistedWhitelist) : persistedWhitelist;
   },
 
   /**
@@ -2177,7 +2251,14 @@ Tagify.prototype = {
   loadOriginalValues(value) {
     var lastChild,
         _s = this.settings;
-    if (value === undefined) value = _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value;
+
+    if (value === undefined) {
+      const persistedOriginalValue = this.getPersistedData('value'); // if the field already has a field, trust its the desired
+      // one to be rendered and do not use the persisted one
+
+      if (persistedOriginalValue && !this.DOM.originalInput.value) value = persistedOriginalValue;else value = _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value;
+    }
+
     this.removeAllTags({
       withoutChangeEvent: true
     });
@@ -2777,7 +2858,7 @@ Tagify.prototype = {
         var filteredList = this.dropdown.filterListItems.call(this, item[tagTextProp], {
           exact: true
         });
-        if (!this.settings.duplicates) // also filter out items which have already been matches in previous iterations
+        if (!this.settings.duplicates) // also filter out items which have already been matched in previous iterations
           filteredList = filteredList.filter(filteredItem => !whitelistMatchesValues.includes(filteredItem.value)); // get the best match out of list of possible matches.
         // if there was a single item in the filtered list, use that one
 
@@ -3281,19 +3362,24 @@ Tagify.prototype = {
     this.toggleClass(classNames.empty, !hasValue);
   },
 
+  setOriginalInputValue(v) {
+    var inputElm = this.DOM.originalInput;
+
+    if (!this.settings.mixMode.integrated) {
+      inputElm.value = v;
+      inputElm.tagifyValue = inputElm.value; // must set to "inputElm.value" and not again to "inputValue" because for some reason the browser changes the string afterwards a bit.
+
+      this.setPersistedData(v, 'value');
+    }
+  },
+
   /**
    * update the origianl (hidden) input field's value
    * see - https://stackoverflow.com/q/50957841/104380
    */
   update(args) {
-    var inputElm = this.DOM.originalInput,
-        inputValue = this.getInputValue();
-
-    if (!this.settings.mixMode.integrated) {
-      inputElm.value = inputValue;
-      inputElm.tagifyValue = inputElm.value; // must set to "inputElm.value" and not again to "inputValue" because for some reason the browser changes the string afterwards a bit.
-    }
-
+    var inputValue = this.getInputValue();
+    this.setOriginalInputValue(inputValue);
     this.postUpdate();
     if (!(args || {}).withoutChangeEvent && this.state.loadedOriginalValues) this.triggerChangeEvent();
   },
