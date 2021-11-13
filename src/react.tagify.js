@@ -1,7 +1,7 @@
 import React, {useMemo, useEffect, useRef, useCallback} from "react"
 import {renderToStaticMarkup} from "react-dom/server"
-import {string, array, func, bool, object, element, oneOfType} from "prop-types"
-import Tagify from "./tagify.min.js"
+import {string, array, func, bool, object, oneOfType} from "prop-types"
+import Tagify from "./tagify.js"
 
 const noop = _ => _
 
