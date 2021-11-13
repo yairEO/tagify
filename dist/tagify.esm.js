@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.8.1) - tags input component
+ * Tagify (v 4.9.0) - tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -367,8 +367,7 @@ var _dropdown = {
         allowNewTags = _s.mode == 'mix' && !_s.enforceWhitelist,
         noWhitelist = !_s.whitelist || !_s.whitelist.length,
         noMatchListItem,
-        isManual = _s.dropdown.position == 'manual';
-    console.log(22222, this.settings); // if text still exists in the input, and `show` method has no argument, then the input's text should be used
+        isManual = _s.dropdown.position == 'manual'; // if text still exists in the input, and `show` method has no argument, then the input's text should be used
 
     value = value === undefined ? this.state.inputText : value; // ⚠️ Do not render suggestions list  if:
     // 1. there's no whitelist (can happen while async loading) AND new tags arn't allowed
