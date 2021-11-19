@@ -188,7 +188,7 @@ Tagify.prototype = {
         if( !isObject(data) )
             return '';
 
-        var output = {}, propName, k;
+        var output = {}, propName;
 
         for( propName in data ){
             if( propName.slice(0,2) != '__' && propName != 'class' && data.hasOwnProperty(propName) && data[propName] !== undefined )
@@ -1456,12 +1456,14 @@ Tagify.prototype = {
             if( tagElm && typeof tagElm == 'string')
                 tagElm = this.getTagElmByValue(tagElm)
 
-            if( tagElm && this.tagData(tagElm) ) // make sure it's a tag and not some other node
+            var tagData = this.tagData(tagElm);
+
+            if( tagElm && tagData && !tagData.readonly ) // make sure it's a tag and not some other node
                 // because the DOM node might be removed by async animation, the state will be updated while
                 // the node might still be in the DOM, so the "update" method should know which nodes to ignore
                 elms.push({
                     node: tagElm,
-                    idx: this.getTagIdx(this.tagData(tagElm)), // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
+                    idx: this.getTagIdx(tagData), // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
                     data: this.tagData(tagElm, {'__removed':true})
                 })
 
