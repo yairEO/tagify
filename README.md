@@ -225,7 +225,7 @@ function onInput( e ){
   fetch('http://get_suggestions.com?value=' + value, {signal:controller.signal})
     .then(RES => RES.json())
     .then(function(newWhitelist){
-      tagify.whitelist = newWhitelist // update inwhitelist Array in-place
+      tagify.whitelist = newWhitelist // update whitelist Array in-place
       tagify.loading(false).dropdown.show(value) // render the suggestions dropdown
     })
 }
