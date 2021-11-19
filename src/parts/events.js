@@ -489,7 +489,7 @@ export default {
         },
 
         onMixTagsInput( e ){
-            var range, rangeText, match, matchedPatternCount, tag, showSuggestions, selection,
+            var rangeText, match, matchedPatternCount, tag, showSuggestions, selection,
                 _s = this.settings,
                 lastTagsCount = this.value.length,
                 matchFlaggedTag,
