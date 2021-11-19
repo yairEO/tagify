@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.9.0) - tags input component
+ * Tagify (v 4.9.1) - tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -1553,8 +1553,7 @@ var events = {
     },
 
     onMixTagsInput(e) {
-      var range,
-          rangeText,
+      var rangeText,
           match,
           matchedPatternCount,
           tag,
@@ -3253,12 +3252,13 @@ Tagify.prototype = {
 
     tagsToRemove = tagElms.reduce((elms, tagElm) => {
       if (tagElm && typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
-      if (tagElm && this.tagData(tagElm)) // make sure it's a tag and not some other node
+      var tagData = this.tagData(tagElm);
+      if (tagElm && tagData && !tagData.readonly) // make sure it's a tag and not some other node
         // because the DOM node might be removed by async animation, the state will be updated while
         // the node might still be in the DOM, so the "update" method should know which nodes to ignore
         elms.push({
           node: tagElm,
-          idx: this.getTagIdx(this.tagData(tagElm)),
+          idx: this.getTagIdx(tagData),
           // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
           data: this.tagData(tagElm, {
             '__removed': true
