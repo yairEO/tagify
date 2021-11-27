@@ -2985,11 +2985,11 @@
       if (lastTagElm) this.replaceTag(lastTagElm, tagData);else this.appendTag(tagElm);
       if (_s.enforceWhitelist) this.DOM.input.removeAttribute('contenteditable');
       this.value[0] = tagData;
+      this.update();
       this.trigger('add', {
         tag: tagElm,
         data: tagData
       });
-      this.update();
       return [tagElm];
     },
 
@@ -3061,7 +3061,11 @@
         } /////////////////////////////////////////////////////
 
 
-        if (tagData.readonly) tagElmParams["aria-readonly"] = true; // Create tag HTML element
+        if ('readonly' in tagData) {
+          if (tagData.readonly) tagElmParams["aria-readonly"] = true; // if "readonly" is "false", remove it from the tagData so it won't be added as an attribute in the template
+          else delete tagData.readonly;
+        } // Create tag HTML element
+
 
         tagElm = this.createTagElem(tagData, tagElmParams);
         tagElems.push(tagElm); // mode-select overrides
