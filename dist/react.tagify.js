@@ -5,4 +5,254 @@
  * https://github.com/yairEO/tagify
  */
 
-!function(e,n){"function"==typeof define&&define.amd?define([],n):"object"==typeof exports?module.exports=n():e.React.tagify=n()}(this,(function(){"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=exports.MixedTags=void 0;var e,n=function(e,n){if(!n&&e&&e.__esModule)return e;if(null===e||"object"!=typeof e&&"function"!=typeof e)return{default:e};var t=a(n);if(t&&t.has(e))return t.get(e);var o={},r=Object.defineProperty&&Object.getOwnPropertyDescriptor;for(var u in e)if("default"!==u&&Object.prototype.hasOwnProperty.call(e,u)){var c=r?Object.getOwnPropertyDescriptor(e,u):null;c&&(c.get||c.set)?Object.defineProperty(o,u,c):o[u]=e[u]}o.default=e,t&&t.set(e,o);return o}(require("react")),t=require("react-dom/server"),o=require("prop-types"),r=(e=require("./tagify.js"))&&e.__esModule?e:{default:e};const u=["children"];function a(e){if("function"!=typeof WeakMap)return null;var n=new WeakMap,t=new WeakMap;return(a=function(e){return e?t:n})(e)}function c(){return(c=Object.assign||function(e){for(var n=1;n<arguments.length;n++){var t=arguments[n];for(var o in t)Object.prototype.hasOwnProperty.call(t,o)&&(e[o]=t[o])}return e}).apply(this,arguments)}function d(e,n){if(null==e)return{};var t,o,r=function(e,n){if(null==e)return{};var t,o,r={},u=Object.keys(e);for(o=0;o<u.length;o++)t=u[o],n.indexOf(t)>=0||(r[t]=e[t]);return r}(e,n);if(Object.getOwnPropertySymbols){var u=Object.getOwnPropertySymbols(e);for(o=0;o<u.length;o++)t=u[o],n.indexOf(t)>=0||Object.prototype.propertyIsEnumerable.call(e,t)&&(r[t]=e[t])}return r}const i=e=>e;const l=({name:e,value:o,loading:u=!1,onInput:a=i,onAdd:c=i,onRemove:d=i,onEditInput:l=i,onEditBeforeUpdate:s=i,onEditUpdated:f=i,onEditStart:p=i,onEditKeydown:y=i,onInvalid:g=i,onClick:w=i,onKeydown:h=i,onFocus:O=i,onBlur:b=i,onChange:m=i,onDropdownShow:v=i,onDropdownHide:E=i,onDropdownSelect:j=i,onDropdownScroll:D=i,onDropdownNoMatch:M=i,onDropdownUpdated:x=i,readOnly:S,disabled:k,children:I,settings:R={},InputMode:N="input",autoFocus:P,className:T,whitelist:C,tagifyRef:U,placeholder:F="",defaultValue:_,showDropdown:V})=>{const q=(0,n.useRef)(),B=(0,n.useRef)(),K=(0,n.useRef)(),W=_||o,A=(0,n.useMemo)((()=>({ref:B,name:e,defaultValue:I||"string"==typeof W?W:JSON.stringify(W),className:T,readOnly:S,disabled:k,autoFocus:P,placeholder:F})),[]),H=(0,n.useCallback)((()=>{P&&K.current&&K.current.DOM.input.focus()}),[K]);return(0,n.useEffect)((()=>{!function(e){if(e)for(let o in e){let r=e[o];String(r).includes("jsxRuntime")&&(e[o]=(...e)=>(0,t.renderToStaticMarkup)(n.default.createElement(r,{props:e})))}}(R.templates),"textarea"==N&&(R.mode="mix"),C&&C.length&&(R.whitelist=C);const e=new r.default(B.current,R);return e.on("input",a).on("add",c).on("remove",d).on("invalid",g).on("keydown",h).on("focus",O).on("blur",b).on("click",w).on("change",m).on("edit:input",l).on("edit:beforeUpdate",s).on("edit:updated",f).on("edit:start",p).on("edit:keydown",y).on("dropdown:show",v).on("dropdown:hide",E).on("dropdown:select",j).on("dropdown:scroll",D).on("dropdown:noMatch",M).on("dropdown:updated",x),U&&(U.current=e),K.current=e,H(),()=>{e.destroy()}}),[]),(0,n.useEffect)((()=>{H()}),[P]),(0,n.useEffect)((()=>{q.current&&(K.current.settings.whitelist.length=0,C&&C.length&&K.current.settings.whitelist.push(...C))}),[C]),(0,n.useEffect)((()=>{const e=K.current.getInputValue();q.current&&!((e,n)=>{const t=e=>"string"==typeof e?e:JSON.stringify(e);return t(e)==t(n)})(o,e)&&K.current.loadOriginalValues(o)}),[o]),(0,n.useEffect)((()=>{q.current&&K.current.toggleClass(T)}),[T]),(0,n.useEffect)((()=>{q.current&&K.current.loading(u)}),[u]),(0,n.useEffect)((()=>{q.current&&K.current.setReadonly(S)}),[S]),(0,n.useEffect)((()=>{q.current&&K.current.setDisabled(k)}),[k]),(0,n.useEffect)((()=>{const e=K.current;q.current&&(V?(e.dropdown.show.call(e,V),e.toggleFocusClass(!0)):e.dropdown.hide.call(e))}),[V]),(0,n.useEffect)((()=>{q.current=!0}),[]),n.default.createElement("div",{className:"tags-input"},n.default.createElement(N,A))};l.propTypes={name:o.string,value:(0,o.oneOfType)([o.string,o.array]),loading:o.bool,children:(0,o.oneOfType)([o.string,o.array]),onChange:o.func,readOnly:o.bool,settings:o.object,InputMode:o.string,autoFocus:o.bool,className:o.string,tagifyRef:o.object,whitelist:o.array,placeholder:o.string,defaultValue:(0,o.oneOfType)([o.string,o.array]),showDropdown:(0,o.oneOfType)([o.string,o.bool]),onInput:o.func,onAdd:o.func,onRemove:o.func,onEditInput:o.func,onEditBeforeUpdate:o.func,onEditUpdated:o.func,onEditStart:o.func,onEditKeydown:o.func,onInvalid:o.func,onClick:o.func,onKeydown:o.func,onFocus:o.func,onBlur:o.func,onDropdownShow:o.func,onDropdownHide:o.func,onDropdownSelect:o.func,onDropdownScroll:o.func,onDropdownNoMatch:o.func,onDropdownUpdated:o.func};const s=n.default.memo(l);s.displayName="Tags";exports.MixedTags=e=>{let t=e.children,o=d(e,u);return n.default.createElement(s,c({InputMode:"textarea"},o),t)};var f=s;return exports.default=f,exports}));
+;(function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define([], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory();
+  } else {
+    root.React.tagify = factory();
+  }
+}(this, function() {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.MixedTags = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _server = require("react-dom/server");
+
+var _propTypes = require("prop-types");
+
+var _tagify = _interopRequireDefault(require("./tagify.js"));
+
+const _excluded = ["children"];
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+const noop = _ => _;
+
+const isSameDeep = (a, b) => {
+  const trans = x => typeof x == 'string' ? x : JSON.stringify(x);
+
+  return trans(a) == trans(b);
+}; // if a template is a React component, it should be outputed as a String (and not as a React component)
+
+
+function templatesToString(templates) {
+  if (templates) {
+    for (let templateName in templates) {
+      let Template = templates[templateName];
+      let isReactComp = String(Template).includes("jsxRuntime");
+      if (isReactComp) templates[templateName] = (...props) => (0, _server.renderToStaticMarkup)( /*#__PURE__*/_react.default.createElement(Template, {
+        props: props
+      }));
+    }
+  }
+}
+
+const TagifyWrapper = ({
+  name,
+  value,
+  loading = false,
+  onInput = noop,
+  onAdd = noop,
+  onRemove = noop,
+  onEditInput = noop,
+  onEditBeforeUpdate = noop,
+  onEditUpdated = noop,
+  onEditStart = noop,
+  onEditKeydown = noop,
+  onInvalid = noop,
+  onClick = noop,
+  onKeydown = noop,
+  onFocus = noop,
+  onBlur = noop,
+  onChange = noop,
+  onDropdownShow = noop,
+  onDropdownHide = noop,
+  onDropdownSelect = noop,
+  onDropdownScroll = noop,
+  onDropdownNoMatch = noop,
+  onDropdownUpdated = noop,
+  readOnly,
+  disabled,
+  children,
+  settings = {},
+  InputMode = "input",
+  autoFocus,
+  className,
+  whitelist,
+  tagifyRef,
+  placeholder = "",
+  defaultValue,
+  showDropdown
+}) => {
+  const mountedRef = (0, _react.useRef)();
+  const inputElmRef = (0, _react.useRef)();
+  const tagify = (0, _react.useRef)();
+
+  const _value = defaultValue || value;
+
+  const inputAttrs = (0, _react.useMemo)(() => ({
+    ref: inputElmRef,
+    name,
+    defaultValue: children || typeof _value == 'string' ? _value : JSON.stringify(_value),
+    className,
+    readOnly,
+    disabled,
+    autoFocus,
+    placeholder
+  }), []);
+  const setFocus = (0, _react.useCallback)(() => {
+    autoFocus && tagify.current && tagify.current.DOM.input.focus();
+  }, [tagify]);
+  (0, _react.useEffect)(() => {
+    templatesToString(settings.templates);
+    if (InputMode == "textarea") settings.mode = "mix"; // "whitelist" prop takes precedence
+
+    if (whitelist && whitelist.length) settings.whitelist = whitelist;
+    const t = new _tagify.default(inputElmRef.current, settings);
+    t.on("input", onInput).on("add", onAdd).on("remove", onRemove).on("invalid", onInvalid).on("keydown", onKeydown).on("focus", onFocus).on("blur", onBlur).on("click", onClick).on("change", onChange).on("edit:input", onEditInput).on("edit:beforeUpdate", onEditBeforeUpdate).on("edit:updated", onEditUpdated).on("edit:start", onEditStart).on("edit:keydown", onEditKeydown).on("dropdown:show", onDropdownShow).on("dropdown:hide", onDropdownHide).on("dropdown:select", onDropdownSelect).on("dropdown:scroll", onDropdownScroll).on("dropdown:noMatch", onDropdownNoMatch).on("dropdown:updated", onDropdownUpdated); // Bridge Tagify instance with parent component
+
+    if (tagifyRef) {
+      tagifyRef.current = t;
+    }
+
+    tagify.current = t;
+    setFocus(); // cleanup
+
+    return () => {
+      t.destroy();
+    };
+  }, []);
+  (0, _react.useEffect)(() => {
+    setFocus();
+  }, [autoFocus]);
+  (0, _react.useEffect)(() => {
+    if (mountedRef.current) {
+      tagify.current.settings.whitelist.length = 0; // replace whitelist array items
+
+      whitelist && whitelist.length && tagify.current.settings.whitelist.push(...whitelist);
+    }
+  }, [whitelist]);
+  (0, _react.useEffect)(() => {
+    const currentValue = tagify.current.getInputValue();
+
+    if (mountedRef.current && !isSameDeep(value, currentValue)) {
+      tagify.current.loadOriginalValues(value);
+    }
+  }, [value]);
+  (0, _react.useEffect)(() => {
+    if (mountedRef.current) {
+      tagify.current.toggleClass(className);
+    }
+  }, [className]);
+  (0, _react.useEffect)(() => {
+    if (mountedRef.current) {
+      tagify.current.loading(loading);
+    }
+  }, [loading]);
+  (0, _react.useEffect)(() => {
+    if (mountedRef.current) {
+      tagify.current.setReadonly(readOnly);
+    }
+  }, [readOnly]);
+  (0, _react.useEffect)(() => {
+    if (mountedRef.current) {
+      tagify.current.setDisabled(disabled);
+    }
+  }, [disabled]);
+  (0, _react.useEffect)(() => {
+    const t = tagify.current;
+
+    if (mountedRef.current) {
+      if (showDropdown) {
+        t.dropdown.show.call(t, showDropdown);
+        t.toggleFocusClass(true);
+      } else {
+        t.dropdown.hide.call(t);
+      }
+    }
+  }, [showDropdown]);
+  (0, _react.useEffect)(() => {
+    mountedRef.current = true;
+  }, []);
+  return (
+    /*#__PURE__*/
+    // a wrapper must be used because Tagify will appened inside it it's component,
+    // keeping the virtual-DOM out of the way
+    _react.default.createElement("div", {
+      className: "tags-input"
+    }, /*#__PURE__*/_react.default.createElement(InputMode, inputAttrs))
+  );
+};
+
+TagifyWrapper.propTypes = {
+  name: _propTypes.string,
+  value: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.array]),
+  loading: _propTypes.bool,
+  children: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.array]),
+  onChange: _propTypes.func,
+  readOnly: _propTypes.bool,
+  settings: _propTypes.object,
+  InputMode: _propTypes.string,
+  autoFocus: _propTypes.bool,
+  className: _propTypes.string,
+  tagifyRef: _propTypes.object,
+  whitelist: _propTypes.array,
+  placeholder: _propTypes.string,
+  defaultValue: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.array]),
+  showDropdown: (0, _propTypes.oneOfType)([_propTypes.string, _propTypes.bool]),
+  onInput: _propTypes.func,
+  onAdd: _propTypes.func,
+  onRemove: _propTypes.func,
+  onEditInput: _propTypes.func,
+  onEditBeforeUpdate: _propTypes.func,
+  onEditUpdated: _propTypes.func,
+  onEditStart: _propTypes.func,
+  onEditKeydown: _propTypes.func,
+  onInvalid: _propTypes.func,
+  onClick: _propTypes.func,
+  onKeydown: _propTypes.func,
+  onFocus: _propTypes.func,
+  onBlur: _propTypes.func,
+  onDropdownShow: _propTypes.func,
+  onDropdownHide: _propTypes.func,
+  onDropdownSelect: _propTypes.func,
+  onDropdownScroll: _propTypes.func,
+  onDropdownNoMatch: _propTypes.func,
+  onDropdownUpdated: _propTypes.func
+};
+
+const Tags = /*#__PURE__*/_react.default.memo(TagifyWrapper);
+
+Tags.displayName = "Tags";
+
+const MixedTags = _ref => {
+  let children = _ref.children,
+      rest = _objectWithoutProperties(_ref, _excluded);
+
+  return /*#__PURE__*/_react.default.createElement(Tags, _extends({
+    InputMode: "textarea"
+  }, rest), children);
+};
+
+exports.MixedTags = MixedTags;
+var _default = Tags;
+exports.default = _default;
+return exports;
+}));

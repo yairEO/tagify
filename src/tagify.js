@@ -1240,8 +1240,13 @@ Tagify.prototype = {
             }
             /////////////////////////////////////////////////////
 
-            if( tagData.readonly )
-                tagElmParams["aria-readonly"] = true
+            if( 'readonly' in tagData ){
+                if( tagData.readonly )
+                    tagElmParams["aria-readonly"] = true
+                // if "readonly" is "false", remove it from the tagData so it won't be added as an attribute in the template
+                else
+                    delete tagData.readonly
+            }
 
             // Create tag HTML element
             tagElm = this.createTagElem(tagData, tagElmParams)
