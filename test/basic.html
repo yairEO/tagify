@@ -39,7 +39,7 @@
     <body>
         <form method="get" action="not-exists">
             <fieldset>
-                <input name='tags-regular' placeholder='user input' value='b'>
+                <input name='tags-regular' placeholder='user input' value='b, B'>
             </fieldset>
             <!-- <fieldset>
                 <input name='tags-disabled-user-input' value="1,2,3" placeholder='disabled user input' disabled>
@@ -65,7 +65,7 @@ var inputElm = document.querySelector('input[name=tags-regular]')
 
 let tagify = new Tagify(inputElm, {
     // whitelist: ['abb', 'cbb', 'bb', 'bb1', 'aaabb', 'bbb', 'aa', 'bba'],
-    // whitelist: ["ac", "aab", "aaa", "b", "bb", "ccc"],
+    whitelist: ["ac", "aab", "aaa", "b", "bb", "ccc"],
     id: 'test1',
     enforceWhitelist: true,
     dropdown: {
