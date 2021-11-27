@@ -1164,8 +1164,8 @@ Tagify.prototype = {
             this.DOM.input.removeAttribute('contenteditable');
 
         this.value[0] = tagData
-        this.trigger('add', { tag:tagElm, data:tagData })
         this.update()
+        this.trigger('add', { tag:tagElm, data:tagData })
 
         return [tagElm]
     },
