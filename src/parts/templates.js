@@ -15,6 +15,7 @@ export default {
                 role="textbox"
                 aria-autocomplete="both"
                 aria-multiline="${_s.mode=='mix'?true:false}"></span>
+                &#8203;
         </tags>`
     },
 
