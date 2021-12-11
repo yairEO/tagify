@@ -957,8 +957,13 @@ Tagify.prototype = {
         this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true)
 
         if( _s.mode == 'mix' ){
-            this.DOM.input.contentEditable = !toggle
+            this.setContentEditable(!toggle)
         }
+    },
+
+    setContentEditable(state){
+        if( !this.settings.readonly && this.settings.userInput )
+            this.DOM.input.contentEditable = state
     },
 
     setDisabled( isDisabled ){
@@ -1161,7 +1166,7 @@ Tagify.prototype = {
             this.appendTag(tagElm)
 
         if( _s.enforceWhitelist )
-            this.DOM.input.removeAttribute('contenteditable');
+            this.setContentEditable(false);
 
         this.value[0] = tagData
         this.update()
@@ -1533,7 +1538,7 @@ Tagify.prototype = {
                     this.update() // update the original input with the current value
 
                     if( this.settings.mode == 'select' )
-                        this.DOM.input.setAttribute('contenteditable', true)
+                        this.setContentEditable(true);
                 }
             }
             )
@@ -1572,8 +1577,10 @@ Tagify.prototype = {
 
         this.dropdown.position()
 
-        if( this.settings.mode == 'select' )
+        if( this.settings.mode == 'select' ){
             this.input.set.call(this)
+            this.setContentEditable(true)
+        }
 
         // technically for now only "withoutChangeEvent" exists in the opts.
         // if more properties will be added later, only pass what's needed to "update"
