@@ -1029,6 +1029,7 @@
                 role="textbox"
                 aria-autocomplete="both"
                 aria-multiline="${_s.mode == 'mix' ? true : false}"></span>
+                &#8203;
         </tags>`;
     },
 
@@ -1476,7 +1477,7 @@
         switch (e.key) {
           case 'Backspace':
             if (_s.mode == 'select' && _s.enforceWhitelist && this.value.length) this.removeTags();else if (!this.state.dropdown.visible || _s.dropdown.position == 'manual') {
-              if (s == "" || s.charCodeAt(0) == 8203) {
+              if (e.target.textContent == "" || s.charCodeAt(0) == 8203) {
                 // 8203: ZERO WIDTH SPACE unicode
                 if (_s.backspace === true) this.removeTags();else if (_s.backspace == 'edit') setTimeout(this.editTag.bind(this), 0); // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
               }
@@ -2811,8 +2812,12 @@
       this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true);
 
       if (_s.mode == 'mix') {
-        this.DOM.input.contentEditable = !toggle;
+        this.setContentEditable(!toggle);
       }
+    },
+
+    setContentEditable(state) {
+      if (!this.settings.readonly && this.settings.userInput) this.DOM.input.contentEditable = state;
     },
 
     setDisabled(isDisabled) {
@@ -2983,7 +2988,7 @@
       if (this.state.actions.selectOption) setTimeout(this.setRangeAtStartEnd.bind(this));
       var lastTagElm = this.getLastTag();
       if (lastTagElm) this.replaceTag(lastTagElm, tagData);else this.appendTag(tagElm);
-      if (_s.enforceWhitelist) this.DOM.input.removeAttribute('contenteditable');
+      if (_s.enforceWhitelist) this.setContentEditable(false);
       this.value[0] = tagData;
       this.update();
       this.trigger('add', {
@@ -3330,7 +3335,7 @@
           this.removeTagsFromValue(tagsToRemove.map(tag => tag.node));
           this.update(); // update the original input with the current value
 
-          if (this.settings.mode == 'select') this.DOM.input.setAttribute('contenteditable', true);
+          if (this.settings.mode == 'select') this.setContentEditable(true);
         }
       }).catch(reason => {});
     },
@@ -3357,8 +3362,13 @@
       this.value = [];
       if (this.settings.mode == 'mix') this.DOM.input.innerHTML = '';else this.removeTagsFromDOM();
       this.dropdown.position();
-      if (this.settings.mode == 'select') this.input.set.call(this); // technically for now only "withoutChangeEvent" exists in the opts.
+
+      if (this.settings.mode == 'select') {
+        this.input.set.call(this);
+        this.setContentEditable(true);
+      } // technically for now only "withoutChangeEvent" exists in the opts.
       // if more properties will be added later, only pass what's needed to "update"
+
 
       this.update(opts);
     },
