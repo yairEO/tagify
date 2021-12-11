@@ -404,7 +404,7 @@ export default {
                         this.removeTags()
 
                     else if( !this.state.dropdown.visible || _s.dropdown.position == 'manual' ){
-                        if( s == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
+                        if( e.target.textContent == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
                             if( _s.backspace === true )
                                 this.removeTags()
                             else if( _s.backspace == 'edit' )
