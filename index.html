@@ -731,7 +731,7 @@
                     <details>
                       <summary></summary>
                     <h3>HTML</h3>
- <pre class="language-markup"><code>&lt;input name='tags-outside' class='tagify--outside' placeholder='write some tags'></code></pre>
+ <pre class="language-markup"><code>&lt;input name='tags-outside' class='tagify--outside' placeholder='write tags to add below'></code></pre>
                     <h3>JAVASCRIPT</h3>
                     <script>renderPRE(document.currentScript, "outside-of-the-box")</script>
                     <h3>CSS</h3>
@@ -760,7 +760,7 @@
                             <use class="logo-use" xlink:href="#codepen-logo"/>
                         </svg>
                     </a>
-                    <input name='tags-outside' class='tagify--outside' value='tag1, tag2, tag3' placeholder='write some tags'>
+                    <input name='tags-outside' class='tagify--outside' value='tag1, tag2, tag3' placeholder='write tags to add below'>
                 </aside>
             </section>
 
@@ -1879,7 +1879,7 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
                         <x title='remove tag' class='tagify__tag__removeBtn'></x>
                         <div>
                             ${tagData.code ?
-                            `<img onerror="this.style.visibility='hidden'" src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>` : ''
+                            `<img onerror="this.style.visibility='hidden'" src='https://flagicons.lipis.dev/flags/4x3/${tagData.code.toLowerCase()}.svg'>` : ''
                             }
                             <span class='tagify__tag-text'>${tagData.value}</span>
                         </div>
@@ -1892,7 +1892,7 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
             try{
                 return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}' tagifySuggestionIdx="${tagData.tagifySuggestionIdx}">
                             <img onerror="this.style.visibility = 'hidden'"
-                                src='https://lipis.github.io/flag-icon-css/flags/4x3/${tagData.code.toLowerCase()}.svg'>
+                                src='https://flagicons.lipis.dev/flags/4x3/${tagData.code.toLowerCase()}.svg'>
                             <span>${tagData.value}</span>
                         </div>`
             }
