@@ -78,9 +78,13 @@ let tagify = new Tagify(inputElm, {
     }
 })
 
+inputElm.addEventListener('change', () => console.log("CHANGED!"))
+
 setTimeout(() => {
-    tagify.whitelist = ["ac", "aab", "aaa", "b", "bb", "ccc"]
-}, 1000);
+    tagify.loadOriginalValues(["ac", "aab", "aaa", "b", "bb", "ccc"])
+}, 500);
+
+
 })()
 </script>
 

@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.9.2) - tags input component
+ * Tagify (v 4.9.4) - tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -1973,8 +1973,16 @@ var events = {
 
 function Tagify(input, settings) {
   if (!input) {
-    console.warn('Tagify: ', 'input element not found', input);
-    return this;
+    console.warn('Tagify:', 'input element not found', input); // return an empty mock of all methods, so the code using tagify will not break
+    // because it might be calling methods even though the input element does not exists
+
+    const mockInstance = new Proxy(this, {
+      get() {
+        return () => mockInstance;
+      }
+
+    });
+    return mockInstance;
   }
 
   if (input.previousElementSibling && input.previousElementSibling.classList.contains('tagify')) {
@@ -2249,7 +2257,10 @@ Tagify.prototype = {
    */
   loadOriginalValues(value) {
     var lastChild,
-        _s = this.settings;
+        _s = this.settings; // temporarily block firign the "change" event on the original input unil
+    // this method finish removing current value and adding the new one
+
+    this.state.blockChangeEvent = true;
 
     if (value === undefined) {
       const persistedOriginalValue = this.getPersistedData('value'); // if the field already has a field, trust its the desired
@@ -2258,9 +2269,7 @@ Tagify.prototype = {
       if (persistedOriginalValue && !this.DOM.originalInput.value) value = persistedOriginalValue;else value = _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value;
     }
 
-    this.removeAllTags({
-      withoutChangeEvent: true
-    });
+    this.removeAllTags();
 
     if (value) {
       if (_s.mode == 'mix') {
@@ -2277,7 +2286,7 @@ Tagify.prototype = {
     } else this.postUpdate();
 
     this.state.lastOriginalValueReported = _s.mixMode.integrated ? '' : this.DOM.originalInput.value;
-    this.state.loadedOriginalValues = true;
+    this.state.blockChangeEvent = false;
   },
 
   cloneEvent(e) {
@@ -3288,7 +3297,7 @@ Tagify.prototype = {
     }
 
     if (!tagsToRemove.length) return;
-    this.settings.hooks.beforeRemoveTag(tagsToRemove, {
+    return this.settings.hooks.beforeRemoveTag(tagsToRemove, {
       tagify: this
     }).then(() => {
       function removeNode(tag) {
@@ -3394,7 +3403,7 @@ Tagify.prototype = {
     var inputValue = this.getInputValue();
     this.setOriginalInputValue(inputValue);
     this.postUpdate();
-    if (!(args || {}).withoutChangeEvent && this.state.loadedOriginalValues) this.triggerChangeEvent();
+    if (!(args || {}).withoutChangeEvent && !this.state.blockChangeEvent) this.triggerChangeEvent();
   },
 
   getInputValue() {
