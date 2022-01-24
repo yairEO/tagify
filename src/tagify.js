@@ -303,7 +303,11 @@ Tagify.prototype = {
      */
     loadOriginalValues( value ){
         var lastChild,
-            _s = this.settings;
+            _s = this.settings
+
+        // temporarily block firign the "change" event on the original input unil
+        // this method finish removing current value and adding the new one
+        this.state.blockChangeEvent = true
 
         if( value === undefined ){
             const persistedOriginalValue = this.getPersistedData('value')
@@ -316,7 +320,7 @@ Tagify.prototype = {
                 value = _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value
         }
 
-        this.removeAllTags({ withoutChangeEvent:true })
+        this.removeAllTags()
 
         if( value ){
             if( _s.mode == 'mix' ){
@@ -342,7 +346,7 @@ Tagify.prototype = {
             this.postUpdate()
 
         this.state.lastOriginalValueReported = _s.mixMode.integrated ? '' : this.DOM.originalInput.value
-        this.state.loadedOriginalValues = true
+        this.state.blockChangeEvent = false
     },
 
     cloneEvent(e){
@@ -1500,7 +1504,7 @@ Tagify.prototype = {
         if( !tagsToRemove.length )
             return;
 
-        this.settings.hooks.beforeRemoveTag(tagsToRemove, {tagify:this})
+        return this.settings.hooks.beforeRemoveTag(tagsToRemove, {tagify:this})
             .then(() => {
                 function removeNode( tag ){
                     if( !tag.node.parentNode ) return
@@ -1544,8 +1548,7 @@ Tagify.prototype = {
                     if( this.settings.mode == 'select' )
                         this.setContentEditable(true);
                 }
-            }
-            )
+            })
             .catch(reason => {})
     },
 
@@ -1624,7 +1627,7 @@ Tagify.prototype = {
         this.setOriginalInputValue(inputValue)
         this.postUpdate()
 
-        if( !(args||{}).withoutChangeEvent && this.state.loadedOriginalValues )
+        if( !(args||{}).withoutChangeEvent && !this.state.blockChangeEvent )
             this.triggerChangeEvent()
     },
 
