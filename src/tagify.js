@@ -14,9 +14,13 @@ import events, { triggerChangeEvent } from './parts/events'
  */
 function Tagify( input, settings ){
     if( !input ){
-        console.warn('Tagify: ', 'input element not found', input)
-        return this
+        console.warn('Tagify:', 'input element not found', input)
+        // return an empty mock of all methods, so the code using tagify will not break
+        // because it might be calling methods even though the input element does not exists
+        const mockInstance = new Proxy(this, { get(){ return () => mockInstance } })
+        return mockInstance
     }
+
 
     if( input.previousElementSibling && input.previousElementSibling.classList.contains('tagify') ){
         console.warn('Tagify: ', 'input element is already Tagified', input)
