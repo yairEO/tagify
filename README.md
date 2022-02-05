@@ -801,6 +801,7 @@ For a *live* example, see the [demos page](https://yaireo.github.io/tagify/#sect
 
 Name                            | Info
 ------------------------------- | --------------------------------
+--tags-disabled-bg              | Tag background color when *disabled*
 --tags-border-color             | The outer border color which surrounds tagify
 --tags-hover-border-color       | *hover* state
 --tags-focus-border-color       | *focus* state
@@ -818,11 +819,12 @@ Name                            | Info
 --tag-remove-btn-color          | Remove (`×`) button text color
 --tag-remove-btn-bg             | Remove (`×`) button background color
 --tag-remove-btn-bg--hover      | Remove (`×`) button hover background color
---loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
+--input-color                   | Input text color
 --tag-hide-transition           | Controls the transition property when a tag is removed. default is '.3s'
 --placeholder-color             | Placeholder text color
 --placeholder-color-focus       | Placeholder text color when Tagify has focus and no input was typed
---input-color                   | Input text color
+--loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
+--readonly-striped              | Either a value `1` or `0` can be used to toggle the striped diagonal background in *readonly*
 
 ### Full list of Tagify's [SCSS variables](https://github.com/yairEO/tagify/blob/master/src/tagify.scss#L9-L24)
 

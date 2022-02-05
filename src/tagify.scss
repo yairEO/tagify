@@ -57,6 +57,7 @@
     --placeholder-color        : #{$placeholder-color};
     --placeholder-color-focus  : #{$placeholder-color-focus};
     --loader-size              : .8em;
+    --readonly-striped         : 1;
 
     @mixin firefox {
         @at-root {
@@ -94,15 +95,21 @@
     }
 
     @mixin tagReadonlyBG($size:5px){
-        background: linear-gradient(45deg, var(--tag-bg)  25%,
+        animation: readonlyStyles 1s calc(-1s * (var(--readonly-striped) - 1)) paused;
+
+        @keyframes readonlyStyles {
+            0% {
+                background: linear-gradient(45deg, var(--tag-bg)  25%,
                                            transparent    25%,
                                            transparent    50%,
                                            var(--tag-bg)  50%,
                                            var(--tag-bg)  75%,
                                            transparent    75%,
                                            transparent)   0/#{$size} #{$size};
-        box-shadow: none;
-        filter: brightness(.95);
+                box-shadow: none;
+                filter: brightness(.95);
+            }
+        }
     }
 
     @keyframes tags--bump{
