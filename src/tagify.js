@@ -100,7 +100,7 @@ Tagify.prototype = {
         var _s = this.settings = extend({}, DEFAULTS, settings)
 
         _s.disabled = input.hasAttribute('disabled')
-        _s.readonly = input.hasAttribute('readonly') // if "readonly" do not include an "input" element inside the Tags component
+        _s.readonly = _s.readonly || input.hasAttribute('readonly')
         _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || ""
         _s.required = input.hasAttribute('required')
 
@@ -960,7 +960,7 @@ Tagify.prototype = {
     setReadonly( toggle, attrribute ){
         var _s = this.settings
 
-        document.activeElement.blur() // exists possible edit-mode
+        document.activeElement.blur() // exit possible edit-mode
         _s[attrribute || 'readonly'] = toggle
         this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true)
 
