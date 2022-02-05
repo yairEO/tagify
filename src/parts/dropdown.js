@@ -8,12 +8,11 @@ export function initDropdown(){
             ? this._dropdown[p].bind(this)
             : this._dropdown[p]
 
-    if( this.settings.dropdown.enabled >= 0 )
-        this.dropdown.init()
+    this.dropdown.refs()
 }
 
 export default {
-    init(){
+    refs(){
         this.DOM.dropdown = this.parseTemplate('dropdown', [this.settings])
         this.DOM.dropdown.content = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownWrapperSelector)
     },
@@ -181,7 +180,10 @@ export default {
         // let the element render in the DOM first, to accurately measure it.
         // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
         var ddHeight = getNodeHeight(this.DOM.dropdown),
-            _s = this.settings;
+            _s = this.settings,
+            enabled = typeof _s.dropdown.enabled == 'number' && _s.dropdown.enabled >= 0;
+
+        if( !enabled ) return this;
 
         this.DOM.scope.setAttribute("aria-expanded", true)
 
