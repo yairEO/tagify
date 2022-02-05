@@ -794,6 +794,9 @@ export default {
                 return
             }
 
+            // need to know this because if "keepInvalidTags" setting is "true" and an invalid tag is edited as a valid one,
+            // but the maximum number of tags have alreay been reached, so it should not allow saving the new valid value.
+            // only if the tag was already valid before editing, ignore this check (see a few lines below)
             hasMaxTags = this.hasMaxTags()
 
             newTagData = this.getWhitelistItem(textValue) || extend(
@@ -813,7 +816,7 @@ export default {
             // -- Scenarios: --
             // 1. max 3 tags allowd. there are 4 tags, one has invalid input and is edited to a valid one, and now should be marked as "not allowed" because limit of tags has reached
             // 2. max 3 tags allowed. there are 3 tags, one is edited, and so max-tags vaildation should be OK
-            isValid = !hasMaxTags && this.validateTag({[_s.tagTextProp]:newTagData[_s.tagTextProp]})
+            isValid = (!hasMaxTags || originalData.__isValid === true) && this.validateTag({[_s.tagTextProp]:newTagData[_s.tagTextProp]})
 
             if( isValid !== true ){
                 this.trigger("invalid", { data:newTagData, tag:tagElm, message:isValid })
