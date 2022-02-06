@@ -797,7 +797,7 @@ Tagify.prototype = {
      */
     tagData(tagElm, data, override){
         if( !tagElm ){
-            console.warn("tag elment doesn't exist",tagElm, data)
+            console.warn("tag element doesn't exist",tagElm, data)
             return data
         }
 
