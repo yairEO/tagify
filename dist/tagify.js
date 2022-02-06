@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.9.5) - tags input component
+ * Tagify (v 4.9.6) - tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -2683,7 +2683,7 @@
      */
     tagData(tagElm, data, override) {
       if (!tagElm) {
-        console.warn("tag elment doesn't exist", tagElm, data);
+        console.warn("tag element doesn't exist", tagElm, data);
         return data;
       }
 
