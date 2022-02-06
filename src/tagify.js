@@ -811,24 +811,25 @@ Tagify.prototype = {
 
     /**
      * Searches if any tag with a certain value already exis
-     * @param  {String/Object} v [text value / tag data object]
-     * @return {Boolean}
+     * @param  {String/Object} value [text value / tag data object]
+     * @param  {Boolean} caseSensitive
+     * @return {Number}
      */
     isTagDuplicate( value, caseSensitive ){
-        var duplications,
+        var dupsCount,
             _s = this.settings;
 
         // duplications are irrelevant for this scenario
         if( _s.mode == 'select' )
             return false
 
-        duplications = this.value.reduce((acc, item) =>
+        dupsCount = this.value.reduce((acc, item) => (
             sameStr( this.trim(""+value), item.value, caseSensitive || _s.dropdown.caseSensitive )
                 ? acc+1
                 : acc
-        , 0)
+        ), 0)
 
-        return duplications
+        return dupsCount
     },
 
     getTagIndexByValue( value ){
@@ -930,7 +931,7 @@ Tagify.prototype = {
         if( _s.pattern && _s.pattern instanceof RegExp && !(_s.pattern.test(v)) )
             return this.TEXTS.pattern;
 
-        // if duplicates are not allowed and there is a duplicate
+        // check for duplicates
         if( !_s.duplicates && this.isTagDuplicate(v, this.state.editing) )
             return this.TEXTS.duplicate;
 
