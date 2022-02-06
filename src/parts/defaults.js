@@ -5,7 +5,7 @@ export default {
     maxTags             : Infinity,       // Maximum number of tags
     callbacks           : {},             // Exposed callbacks object to be triggered on certain events
     addTagOnBlur        : true,           // Flag - automatically adds the text which was inputed as a tag when blur event happens
-    duplicates          : false,          // Flag - allow tuplicate tags
+    duplicates          : false,          // "true" - allow duplicate tags
     whitelist           : [],             // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
     blacklist           : [],             // A list of non-allowed tags
     enforceWhitelist    : false,          // Flag - Only allow tags from the whitelist

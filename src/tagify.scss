@@ -532,16 +532,9 @@
         //     // color: $invalid-input-color;
         // }
 
-        /*
-            in "mix mode" the tags are inside the "input" element
-        */
+        // in "mix mode" the tags might be next to plain text, so spread things a bit
         #{ $self }__tag{
             margin: 0 1px;
-            // line-height: 1.1;
-
-            > div{
-                padding-top:0; padding-bottom:0;
-            }
         }
     }
 

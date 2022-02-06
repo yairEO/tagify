@@ -244,7 +244,7 @@ var DEFAULTS = {
   addTagOnBlur: true,
   // Flag - automatically adds the text which was inputed as a tag when blur event happens
   duplicates: false,
-  // Flag - allow tuplicate tags
+  // "true" - allow duplicate tags
   whitelist: [],
   // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
   blacklist: [],
@@ -295,26 +295,26 @@ var DEFAULTS = {
     selectMode: 'tagify--select',
     input: 'tagify__input',
     focus: 'tagify--focus',
-    tag: 'tagify__tag',
     tagNoAnimation: 'tagify--noAnim',
     tagInvalid: 'tagify--invalid',
     tagNotAllowed: 'tagify--notAllowed',
+    scopeLoading: 'tagify--loading',
+    hasMaxTags: 'tagify--hasMaxTags',
+    hasNoTags: 'tagify--noTags',
+    empty: 'tagify--empty',
     inputInvalid: 'tagify__input--invalid',
-    tagX: 'tagify__tag__removeBtn',
-    tagText: 'tagify__tag-text',
     dropdown: 'tagify__dropdown',
     dropdownWrapper: 'tagify__dropdown__wrapper',
     dropdownItem: 'tagify__dropdown__item',
     dropdownItemActive: 'tagify__dropdown__item--active',
     dropdownInital: 'tagify__dropdown--initial',
-    scopeLoading: 'tagify--loading',
+    tag: 'tagify__tag',
+    tagText: 'tagify__tag-text',
+    tagX: 'tagify__tag__removeBtn',
     tagLoading: 'tagify__tag--loading',
     tagEditing: 'tagify__tag--editable',
     tagFlash: 'tagify__tag--flash',
-    tagHide: 'tagify__tag--hide',
-    hasMaxTags: 'tagify--hasMaxTags',
-    hasNoTags: 'tagify--noTags',
-    empty: 'tagify--empty'
+    tagHide: 'tagify__tag--hide'
   },
   dropdown: {
     classname: '',
@@ -348,10 +348,10 @@ function initDropdown() {
 
   for (let p in this._dropdown) this.dropdown[p] = typeof this._dropdown[p] === 'function' ? this._dropdown[p].bind(this) : this._dropdown[p];
 
-  if (this.settings.dropdown.enabled >= 0) this.dropdown.init();
+  this.dropdown.refs();
 }
 var _dropdown = {
-  init() {
+  refs() {
     this.DOM.dropdown = this.parseTemplate('dropdown', [this.settings]);
     this.DOM.dropdown.content = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownWrapperSelector);
   },
@@ -498,7 +498,9 @@ var _dropdown = {
     // let the element render in the DOM first, to accurately measure it.
     // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
     var ddHeight = getNodeHeight(this.DOM.dropdown),
-        _s = this.settings;
+        _s = this.settings,
+        enabled = typeof _s.dropdown.enabled == 'number' && _s.dropdown.enabled >= 0;
+    if (!enabled) return this;
     this.DOM.scope.setAttribute("aria-expanded", true); // if the dropdown has yet to be appended to the DOM,
     // append the dropdown to the body element & handle events
 
@@ -1833,7 +1835,10 @@ var events = {
       if (!hasChanged) {
         this.onEditTagDone(tagElm, originalData);
         return;
-      }
+      } // need to know this because if "keepInvalidTags" setting is "true" and an invalid tag is edited as a valid one,
+      // but the maximum number of tags have alreay been reached, so it should not allow saving the new valid value.
+      // only if the tag was already valid before editing, ignore this check (see a few lines below)
+
 
       hasMaxTags = this.hasMaxTags();
       newTagData = this.getWhitelistItem(textValue) || extend({}, originalData, {
@@ -1849,7 +1854,7 @@ var events = {
       // 2. max 3 tags allowed. there are 3 tags, one is edited, and so max-tags vaildation should be OK
 
 
-      isValid = !hasMaxTags && this.validateTag({
+      isValid = (!hasMaxTags || originalData.__isValid === true) && this.validateTag({
         [_s.tagTextProp]: newTagData[_s.tagTextProp]
       });
 
@@ -2059,8 +2064,7 @@ Tagify.prototype = {
     var _s = this.settings = extend({}, DEFAULTS, settings);
 
     _s.disabled = input.hasAttribute('disabled');
-    _s.readonly = input.hasAttribute('readonly'); // if "readonly" do not include an "input" element inside the Tags component
-
+    _s.readonly = _s.readonly || input.hasAttribute('readonly');
     _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || "";
     _s.required = input.hasAttribute('required');
 
@@ -2683,16 +2687,17 @@ Tagify.prototype = {
 
   /**
    * Searches if any tag with a certain value already exis
-   * @param  {String/Object} v [text value / tag data object]
-   * @return {Boolean}
+   * @param  {String/Object} value [text value / tag data object]
+   * @param  {Boolean} caseSensitive
+   * @return {Number}
    */
   isTagDuplicate(value, caseSensitive) {
-    var duplications,
+    var dupsCount,
         _s = this.settings; // duplications are irrelevant for this scenario
 
     if (_s.mode == 'select') return false;
-    duplications = this.value.reduce((acc, item) => sameStr(this.trim("" + value), item.value, caseSensitive || _s.dropdown.caseSensitive) ? acc + 1 : acc, 0);
-    return duplications;
+    dupsCount = this.value.reduce((acc, item) => sameStr(this.trim("" + value), item.value, caseSensitive || _s.dropdown.caseSensitive) ? acc + 1 : acc, 0);
+    return dupsCount;
   },
 
   getTagIndexByValue(value) {
@@ -2787,7 +2792,7 @@ Tagify.prototype = {
 
     if (!(tagData[prop] + "").trim()) return this.TEXTS.empty; // check if pattern should be used and if so, use it to test the value
 
-    if (_s.pattern && _s.pattern instanceof RegExp && !_s.pattern.test(v)) return this.TEXTS.pattern; // if duplicates are not allowed and there is a duplicate
+    if (_s.pattern && _s.pattern instanceof RegExp && !_s.pattern.test(v)) return this.TEXTS.pattern; // check for duplicates
 
     if (!_s.duplicates && this.isTagDuplicate(v, this.state.editing)) return this.TEXTS.duplicate;
     if (this.isTagBlacklisted(v) || _s.enforceWhitelist && !this.isTagWhitelisted(v)) return this.TEXTS.notAllowed;
@@ -2809,7 +2814,7 @@ Tagify.prototype = {
 
   setReadonly(toggle, attrribute) {
     var _s = this.settings;
-    document.activeElement.blur(); // exists possible edit-mode
+    document.activeElement.blur(); // exit possible edit-mode
 
     _s[attrribute || 'readonly'] = toggle;
     this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true);

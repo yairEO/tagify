@@ -65,12 +65,15 @@ var inputElm = document.querySelector('input[name=tags-regular]')
 
 let tagify = new Tagify(inputElm, {
     // whitelist: ['abb', 'cbb', 'bb', 'bb1', 'aaabb', 'bbb', 'aa', 'bba'],
-    whitelist: ["ac", "aab", "aaa", "b", "bb", "ccc"],
+    whitelist: ["a", "ac", "aab", "aaa", "b", "bb", "ccc"],
     id: 'test1',
-    enforceWhitelist: true,
+    // maxTags: 1,
+    keepInvalidTags: true,
+    // enforceWhitelist: true,
     dropdown: {
-        enabled: 0,
+        enabled: false,
         sortby: 'startsWith',
+        // caseSensitive: true,
         // sortby(suggestions, query){
         //     console.log(suggestions, query)
         //     return suggestions;
@@ -80,9 +83,9 @@ let tagify = new Tagify(inputElm, {
 
 inputElm.addEventListener('change', () => console.log("CHANGED!"))
 
-setTimeout(() => {
-    tagify.loadOriginalValues(["ac", "aab", "aaa", "b", "bb", "ccc"])
-}, 500);
+// setTimeout(() => {
+//     tagify.loadOriginalValues(["ac", "aab", "aaa", "b", "bb", "ccc"])
+// }, 500);
 
 
 })()
