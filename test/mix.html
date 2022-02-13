@@ -37,7 +37,7 @@
 
     <body>
         <form>
-            <textarea name='mix1' placeholder="type something">mixed-mode [[example]] with [[{"value":"tags"}]].</textarea>
+            <textarea name='mix1' placeholder="type something">    mixed-mode [[example]] with [[{"value":"tags"}]].   </textarea>
 
             <textarea name='mix2' class='tagify-editor' placeholder="type something">
             [[{"value":200, "text":"  cartman  ", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":1000, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
@@ -58,6 +58,7 @@ var simpleMixInput = document.querySelector('[name="mix1"]')
 
 var settings = {
     mode: "mix",
+    trim: false,
     pattern: /@/,
     dropdown: {
         enabled: 0,
