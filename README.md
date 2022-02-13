@@ -895,8 +895,8 @@ tagify
 ```javascript
 var tagify = new Tagify(inputNode, {
   callbacks: {
-    "change": (e) => console.log(e.detail))
-    "dropdown:show": (e) => console.log(e.detail))
+    "change": (e) => console.log(e.detail),
+    "dropdown:show": (e) => console.log(e.detail)
   }
 })
 ```
