@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.9.6) - tags input component
+ * Tagify (v 4.9.7) - tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -2263,7 +2263,7 @@
     },
 
     /**
-     * if the original input had any values, add them as tags
+     * if the original input has any values, add them as tags
      */
     loadOriginalValues(value) {
       var lastChild,
@@ -2283,7 +2283,7 @@
 
       if (value) {
         if (_s.mode == 'mix') {
-          this.parseMixTags(value.trim());
+          this.parseMixTags(this.trim(value));
           lastChild = this.DOM.input.lastChild;
           if (!lastChild || lastChild.tagName != 'BR') this.DOM.input.insertAdjacentHTML('beforeend', '<br>');
         } else {
