@@ -299,7 +299,7 @@ Tagify.prototype = {
     },
 
     /**
-     * if the original input had any values, add them as tags
+     * if the original input has any values, add them as tags
      */
     loadOriginalValues( value ){
         var lastChild,
@@ -324,7 +324,7 @@ Tagify.prototype = {
 
         if( value ){
             if( _s.mode == 'mix' ){
-                this.parseMixTags(value.trim())
+                this.parseMixTags(this.trim(value))
 
                 lastChild = this.DOM.input.lastChild;
 
