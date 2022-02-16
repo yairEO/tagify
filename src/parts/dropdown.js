@@ -520,10 +520,10 @@ export default {
             return
         }
 
-        if( this.state.editing )
+        if( this.state.editing ) {
             // normalizing value, because "tagData" might be a string, and therefore will not be able to extend the object
-            this.onEditTagDone(null, extend({__isValid: true}, this.normalizeTags(tagData)[0]))
-
+            this.onEditTagDone(null, extend({__isValid: true}, this.normalizeTags([tagData])[0]))
+        }
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
         else{
             addedTag = this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData], clearOnSelect)
