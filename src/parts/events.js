@@ -215,8 +215,11 @@ export default {
             switch( e.key ){
                 // remove tag if has focus
                 case 'Backspace': {
-                    this.removeTags(focusedElm);
-                    (nextTag ? nextTag : this.DOM.input).focus()
+                    if( !this.settings.readonly ) {
+                        this.removeTags(focusedElm);
+                        (nextTag ? nextTag : this.DOM.input).focus()
+                    }
+
                     break;
                 }
 
