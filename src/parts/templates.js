@@ -1,3 +1,5 @@
+import { escapeHTML } from './helpers'
+
 export default {
     /**
      *
@@ -5,12 +7,13 @@ export default {
      * @param {Object}     settings  Tagify instance settings Object
      */
     wrapper(input, _s){
+        const placeholder = escapeHTML(_s.placeholder);
         return `<tags class="${_s.classNames.namespace} ${_s.mode ? `${_s.classNames[_s.mode + "Mode"]}` : ""} ${input.className}"
                     ${_s.readonly ? 'readonly' : ''}
                     ${_s.disabled ? 'disabled' : ''}
                     ${_s.required ? 'required' : ''}
                     tabIndex="-1">
-            <span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${_s.placeholder || '&#8203;'}" aria-placeholder="${_s.placeholder || ''}"
+            <span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${placeholder || '&#8203;'}" aria-placeholder="${placeholder || ''}"
                 class="${_s.classNames.input}"
                 role="textbox"
                 aria-autocomplete="both"
