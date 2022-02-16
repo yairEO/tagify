@@ -536,7 +536,6 @@ export default {
         setTimeout(() => {
             this.DOM.input.focus()
             this.toggleFocusClass(true)
-            this.placeCaretAfterNode(addedTag)
         })
 
         if( closeOnSelect ){
