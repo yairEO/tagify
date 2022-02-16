@@ -551,6 +551,9 @@ Tagify.prototype = {
 
             if( this.settings.a11y.focusableTags )
                 tagElm.focus()
+            else
+                // place caret after edited tag
+                this.placeCaretAfterNode(tagElm.previousSibling)
         }
 
         else if(tagElm)
