@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.9.7) - tags input component
+ * Tagify (v 4.9.8) - tags input component
  * By Yair Even-Or
  * Don't sell this code. (c)
  * https://github.com/yairEO/tagify
@@ -792,11 +792,10 @@ var _dropdown = {
   selectOption(elm) {
     var _this$settings$dropdo = this.settings.dropdown,
         clearOnSelect = _this$settings$dropdo.clearOnSelect,
-        closeOnSelect = _this$settings$dropdo.closeOnSelect,
-        addedTag;
+        closeOnSelect = _this$settings$dropdo.closeOnSelect;
 
     if (!elm) {
-      addedTag = this.addTags(this.state.inputText, true);
+      this.addTags(this.state.inputText, true);
       closeOnSelect && this.dropdown.hide();
       return;
     } // if in edit-mode, do not continue but instead replace the tag's text.
@@ -815,19 +814,21 @@ var _dropdown = {
       return;
     }
 
-    if (this.state.editing) // normalizing value, because "tagData" might be a string, and therefore will not be able to extend the object
+    if (this.state.editing) {
+      // normalizing value, because "tagData" might be a string, and therefore will not be able to extend the object
       this.onEditTagDone(null, extend({
         __isValid: true
-      }, this.normalizeTags(tagData)[0])); // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
+      }, this.normalizeTags([tagData])[0]));
+    } // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
     else {
-      addedTag = this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData], clearOnSelect);
+      this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData], clearOnSelect);
     } // todo: consider not doing this on mix-mode
+
 
     if (!this.DOM.input.parentNode) return;
     setTimeout(() => {
       this.DOM.input.focus();
       this.toggleFocusClass(true);
-      this.placeCaretAfterNode(addedTag);
     });
 
     if (closeOnSelect) {
@@ -1303,8 +1304,11 @@ var events = {
         // remove tag if has focus
         case 'Backspace':
           {
-            this.removeTags(focusedElm);
-            (nextTag ? nextTag : this.DOM.input).focus();
+            if (!this.settings.readonly) {
+              this.removeTags(focusedElm);
+              (nextTag ? nextTag : this.DOM.input).focus();
+            }
+
             break;
           }
         // edit tag if has focus
@@ -2065,7 +2069,7 @@ Tagify.prototype = {
 
     _s.disabled = input.hasAttribute('disabled');
     _s.readonly = _s.readonly || input.hasAttribute('readonly');
-    _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || "";
+    _s.placeholder = escapeHTML(input.getAttribute('placeholder') || _s.placeholder || "");
     _s.required = input.hasAttribute('required');
 
     for (let name in _s.classNames) Object.defineProperty(_s.classNames, name + "Selector", {
@@ -2466,7 +2470,8 @@ Tagify.prototype = {
     if (tagElm && tagData[this.settings.tagTextProp]) {
       tagElm = this.replaceTag(tagElm, tagData);
       this.editTagToggleValidity(tagElm, tagData);
-      if (this.settings.a11y.focusableTags) tagElm.focus();
+      if (this.settings.a11y.focusableTags) tagElm.focus();else // place caret after edited tag
+        this.placeCaretAfterNode(tagElm.previousSibling);
     } else if (tagElm) this.removeTags(tagElm);
 
     this.trigger("edit:updated", eventData);
