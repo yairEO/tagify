@@ -101,7 +101,7 @@ Tagify.prototype = {
 
         _s.disabled = input.hasAttribute('disabled')
         _s.readonly = _s.readonly || input.hasAttribute('readonly')
-        _s.placeholder = input.getAttribute('placeholder') || _s.placeholder || ""
+        _s.placeholder = escapeHTML(input.getAttribute('placeholder') || _s.placeholder || "")
         _s.required = input.hasAttribute('required')
 
         for( let name in _s.classNames )
