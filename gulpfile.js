@@ -15,13 +15,14 @@ var gulp = require('gulp'),
         return result;
     }, {});
 
+const LICENSE = fs.readFileSync("./LICENSE", "utf8");
 
 var rollupCache = {};
 
 var banner = `Tagify (v ${process.env.npm_package_version}) - tags input component
 By ${pkg.author.name}
-Don't sell this code. (c)
-${pkg.homepage}`;
+${pkg.homepage}
+${LICENSE}`;
 
 var jQueryPluginWrap = [`;(function($){
     // just a jQuery wrapper for the vanilla version of this component
@@ -199,8 +200,8 @@ function addBanner(){
     var packageJson = JSON.parse(fs.readFileSync('./package.json'))
     var banner = `Tagify (v${packageJson.version}) - tags input component
 By ${pkg.author.name}
-Don't sell this code. (c)
-${pkg.homepage}`;
+${pkg.homepage}
+${LICENSE}`;
 
     return gulp.src('dist/*.js')
         .pipe($.headerComment(banner))
