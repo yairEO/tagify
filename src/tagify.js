@@ -1672,7 +1672,10 @@ Tagify.prototype = {
                         result += "\r\n";
                     }
 
-                    if( node.tagName == 'DIV' || node.tagName == 'P' ){
+                    if( node.tagName == 'DIV' && node.getAttribute('style') )
+                        result += node.textContent;
+
+                    else if( node.tagName == 'DIV' || node.tagName == 'P' ){
                         result += "\r\n";
                         //  if( !node.children.length && node.textContent )
                         //  result += node.textContent;
