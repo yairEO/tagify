@@ -282,9 +282,11 @@ Tagify.prototype = {
 
         else {
             DOM.originalInput = input
+            DOM.originalInput_tabIndex = input.tabIndex
             DOM.scope = this.parseTemplate('wrapper', [input, this.settings])
             DOM.input = DOM.scope.querySelector(this.settings.classNames.inputSelector)
             input.parentNode.insertBefore(DOM.scope, input)
+            input.tabIndex = -1; // do not allow focus or typing directly, once tagified
         }
     },
 
@@ -294,6 +296,7 @@ Tagify.prototype = {
     destroy(){
         this.events.unbindGlobal.call(this)
         this.DOM.scope.parentNode.removeChild(this.DOM.scope)
+        this.DOM.originalInput.tabIndex = DOM.originalInput_tabIndex
         this.dropdown.hide(true)
         clearTimeout(this.dropdownHide__bindEventsTimeout)
     },
