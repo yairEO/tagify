@@ -9,6 +9,7 @@ export default {
                     ${_s.readonly ? 'readonly' : ''}
                     ${_s.disabled ? 'disabled' : ''}
                     ${_s.required ? 'required' : ''}
+                    ${_s.mode === 'select' ? "spellcheck='false'" : ''}
                     tabIndex="-1">
             <span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${_s.placeholder || '&#8203;'}" aria-placeholder="${_s.placeholder || ''}"
                 class="${_s.classNames.input}"
