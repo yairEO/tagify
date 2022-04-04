@@ -1394,7 +1394,7 @@ Tagify.prototype = {
      */
     appendTag(tagElm){
         var DOM = this.DOM,
-            insertBeforeNode = DOM.scope.lastElementChild;
+            insertBeforeNode = DOM.input;
 
         if( insertBeforeNode === DOM.input )
             DOM.scope.insertBefore(tagElm, insertBeforeNode)
