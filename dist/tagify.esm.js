@@ -1020,6 +1020,7 @@ var templates = {
                     ${_s.readonly ? 'readonly' : ''}
                     ${_s.disabled ? 'disabled' : ''}
                     ${_s.required ? 'required' : ''}
+                    ${_s.mode === 'select' ? "spellcheck='false'" : ''}
                     tabIndex="-1">
             <span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${_s.placeholder || '&#8203;'}" aria-placeholder="${_s.placeholder || ''}"
                 class="${_s.classNames.input}"
@@ -2244,9 +2245,11 @@ Tagify.prototype = {
       DOM.input = input;
     } else {
       DOM.originalInput = input;
+      DOM.originalInput_tabIndex = input.tabIndex;
       DOM.scope = this.parseTemplate('wrapper', [input, this.settings]);
       DOM.input = DOM.scope.querySelector(this.settings.classNames.inputSelector);
       input.parentNode.insertBefore(DOM.scope, input);
+      input.tabIndex = -1; // do not allow focus or typing directly, once tagified
     }
   },
 
@@ -2256,6 +2259,7 @@ Tagify.prototype = {
   destroy() {
     this.events.unbindGlobal.call(this);
     this.DOM.scope.parentNode.removeChild(this.DOM.scope);
+    this.DOM.originalInput.tabIndex = DOM.originalInput_tabIndex;
     this.dropdown.hide(true);
     clearTimeout(this.dropdownHide__bindEventsTimeout);
   },
@@ -2823,14 +2827,18 @@ Tagify.prototype = {
 
     _s[attrribute || 'readonly'] = toggle;
     this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true);
-
-    if (_s.mode == 'mix') {
-      this.setContentEditable(!toggle);
-    }
+    this.setContentEditable(!toggle);
   },
 
   setContentEditable(state) {
-    if (!this.settings.readonly && this.settings.userInput) this.DOM.input.contentEditable = state;
+    console.log({
+      state
+    });
+
+    if (!this.settings.readonly && this.settings.userInput) {
+      this.DOM.input.contentEditable = state;
+      this.DOM.input.tabIndex = !!state ? 0 : -1;
+    }
   },
 
   setDisabled(isDisabled) {
@@ -3212,7 +3220,7 @@ Tagify.prototype = {
    */
   appendTag(tagElm) {
     var DOM = this.DOM,
-        insertBeforeNode = DOM.scope.lastElementChild;
+        insertBeforeNode = DOM.input;
     if (insertBeforeNode === DOM.input) DOM.scope.insertBefore(tagElm, insertBeforeNode);else DOM.scope.appendChild(tagElm);
   },
 
@@ -3442,7 +3450,7 @@ Tagify.prototype = {
             result += "\r\n";
           }
 
-          if (node.tagName == 'DIV' || node.tagName == 'P') {
+          if (node.tagName == 'DIV' && node.getAttribute('style')) result += node.textContent;else if (node.tagName == 'DIV' || node.tagName == 'P') {
             result += "\r\n"; //  if( !node.children.length && node.textContent )
             //  result += node.textContent;
 
