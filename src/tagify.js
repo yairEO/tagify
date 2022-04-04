@@ -968,14 +968,15 @@ Tagify.prototype = {
         _s[attrribute || 'readonly'] = toggle
         this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true)
 
-        if( _s.mode == 'mix' ){
-            this.setContentEditable(!toggle)
-        }
+        this.setContentEditable(!toggle)
     },
 
     setContentEditable(state){
-        if( !this.settings.readonly && this.settings.userInput )
+        console.log({state})
+        if( !this.settings.readonly && this.settings.userInput ) {
             this.DOM.input.contentEditable = state
+            this.DOM.input.tabIndex = !!state ? 0 : -1;
+        }
     },
 
     setDisabled( isDisabled ){
