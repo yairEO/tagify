@@ -104,20 +104,20 @@ var tagify = new Tagify(...)
 > [See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
 
 ## Features
-* Can be applied on input & textarea elements
+* Can be applied to input & textarea elements
 * Supports [mix content](#mixed-content) (text and tags together)
 * Supports [single-value](#single-value) mode (like `<select>`)
 * Supports whitelist/blacklist
 * Supports Templates for: <em>component wrapper</em>, <em>tag items</em>, <em>suggestion list</em> & <em>suggestion items</em>
 * Shows suggestions list (flexiable settings & styling) at *full (component) width* or *next to* the typed texted (caret)
 * Allows setting suggestions' [aliases](#example-for-a-suggestion-item-alias) for easier fuzzy-searching
-* Auto-suggest input as-you-type with ability to auto-complete
+* Auto-suggest input as-you-type with the ability to auto-complete
 * Can paste in multiple values: `tag 1, tag 2, tag 3` or even newline-separated tags
 * Tags can be created by Regex delimiter or by pressing the "Enter" key / focusing of the input
 * Validate tags by Regex *pattern* or by function
 * Tags may be [editable](#edit-tags) (double-click)
 * <del>ARIA accessibility support</del>(Component too generic for any meaningful ARIA)
-* Supports read-only mode to the whole componenet or per-tag
+* Supports read-only mode to the whole component or per-tag
 * Each tag can have any properties desired (class, data-whatever, readonly...)
 * Automatically disallow duplicate tags (vis "settings" object)
 * Has built-in CSS loader, if needed (Ex. <em>AJAX</em> whitelist pulling)
@@ -142,7 +142,7 @@ var tagify = new Tagify(...);
 
 tagify.addTags(["banana", "orange", "apple"])
 
-// or add tags with pre-defined propeties
+// or add tags with pre-defined properties
 
 tagify.addTags([{value:"banana", color:"yellow"}, {value:"apple", color:"red"}, {value:"watermelon", color:"green"}])
 ```
@@ -198,7 +198,7 @@ Dynamically-loaded suggestions list (*whitelist*) from the server (as the user t
 Tagify comes with its own loading animation, which is a very lightweight CSS-only code, and the <em>loading</em>
 state is controlled by the method `tagify.loading` which accepts `true` or `false` as arguments.
 
-Below is a basic example using the `fetch` API. I advise to abort the last request on any input before starting a new request.
+Below is a basic example using the `fetch` API. I advise aborting the last request on any input before starting a new request.
 
 <details>
   <summary>Example:</summary>
@@ -249,7 +249,7 @@ var input = document.querySelector('input'),
 ```
 
 ## Edit tags
-Tags which aren't `read-only` can be edited by double-clicking them (by default)
+Tags that aren't `read-only` can be edited by double-clicking them (by default)
 or by changing the `editTags` *setting* to `1`, making tags editable by single-clicking them.
 
 The value is saved on `blur` or by pressing `enter` key. Pressing `Escape` will revert the change trigger `blur`.
@@ -265,7 +265,7 @@ To do the same but for specific tag(s), set those tags' data with `editable` pro
 
 ## Validations
 For "regular" tags (not *mix-mode* or *select-mode*) the easiest way is to use the `pattern` setting and use a Regex, or
-apply the `pattern` attribute directly on the `input` which will be "transformed" into a *Tagify* component (for vanilla code where the `input` tag is fully accessible to develops).
+apply the `pattern` attribute directly on the `input` which will be "transformed" into a *Tagify* component (for vanilla code where the `input` tag is fully accessible to developers).
 
 If the `pattern` setting does not meet your needs, use the [`validate` setting](#settings), which recieves a *tag data object* as an argument and should return `true` if validaiton is passing, or `false`/`string` of not.
 A *string* may be returned as the reason of the validation failure so it would be printed as the `title` attribute of the invalid tag.
@@ -301,11 +301,11 @@ Tagify.prototype.TEXTS = {...Tagify.prototype.TEXTS, {duplicate: "Duplicates are
 
 ## Drag & Sort
 
-To be able to sort tags by draging, a 3rd-party script is needed.
+To be able to sort tags by dragging, a 3rd-party script is needed.
 
 I have made a very simple *drag & drop* (~`11kb` *unminified*) script which uses [HTML5 native API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) and
 it is available to download via [NPM](https://www.npmjs.com/package/@yaireo/dragsort) or [Github](https://github.com/yairEO/dragsort)
-but any other *drag & drop* script may possibly work. I could not find in the whole internet a decent lightweight script.
+but any other *drag & drop* script may work. I could not find on the whole internet a decent lightweight script.
 
 ### [Integration example](https://codepen.io/vsync/pen/jOqYOVJ):
 
@@ -329,7 +329,7 @@ function onDragEnd(elm){
 
 
 ## DOM Templates
-It's possible to control the templates for some of the HTML elements tagify is using by
+It's possible to control the templates for some of the HTML elements Tagify is using by
 modifying the `settings.templates` Object with your own custom functions which **must return** an *HTML string*.
 
 Available templates are: `wrapper`, `tag`, `dropdown`, `dropdownItem` and the optional `dropdownItemNoMatch`
@@ -339,7 +339,7 @@ which is a special template for rendering a suggestion item (in the dropdown lis
 
 ### Example of overriding the `tag` template:
 
-Each template function automaticaly gets binded with `this` pointing to the current *Tagify* instance.
+Each template function is automatically binded with `this` pointing to the current *Tagify* instance.
 It is imperative to preserve the class names and also the `this.getAttributes(tagData)` for proper functionality.
 
 ```js
@@ -367,14 +367,14 @@ new Tagify(inputElem, {
   <img src="/docs/suggestions-list.apng" alt='suggestions list dropdown'/>
 </p>
 
-The suggestions list is a *whitelist Array* of *Strings* or *Objects* which was set in the [settings](#settings) Object when the Tagify instance was created, and can be set latet directly on the instance: `tagifyInstance.whitelist = ["tag1", "tag2", ...]`.
+The suggestions list is a *whitelist Array* of *Strings* or *Objects* which was set in the [settings](#settings) Object when the Tagify instance was created, and can be set later directly on the instance: `tagifyInstance.whitelist = ["tag1", "tag2", ...]`.
 
 The suggestions dropdown will be appended to the document's `<body>` element and will be rendered by default in a position below (bottom of) the Tagify element.
 Using the keyboard arrows up/down will highlight an option from the list, and hitting the Enter key to select.
 
 It is possible to tweak the list dropdown via 2 settings:
 
- - `enabled` - this is a numeral value which tells Tagify when to show the suggestions dropdown, when a minimum of N characters were typed.
+ - `enabled` - this is a numeral value that tells Tagify when to show the suggestions dropdown, when a minimum of N characters were typed.
  - `maxItems` - Limits the number of items the suggestions list will render
 
 ```javascript
@@ -412,7 +412,7 @@ If you wish to assign *alias* to items (in your suggestion list), add the `searc
 to have an *alias* for.
 
 In the below example, typing a part of a string which is included in the `searchBy` property, for example *`land midd"`* -
-the suggested item which match the value "Israel" will be rendered in the suggestions (dropdown) list.
+the suggested item which matches the value "Israel" will be rendered in the suggestions (dropdown) list.
 
 ### [Example](https://yaireo.github.io/tagify/#section-extra-properties) for a suggestion item alias
 
@@ -472,15 +472,15 @@ When mixing text with tags, the original textarea (or input) element will have a
 
     [[cartman]]⁠ and [[kyle]]⁠ do not know [[Homer simpson]]⁠
 
-If the inital value of the textarea or input is formatted as the above example, tagify will try to
+If the initial value of the textarea or input is formatted as the above example, Tagify will try to
 automatically convert everything between `[[` & `]]` to a tag, if tag exists in the *whitelist*, so make
 sure when the Tagify instance is initialized, that it has tags with the correct `value` property that match
 the same values that appear between `[[` & `]]`.
 
 Applying the setting `dropdown.position:"text"` is encouraged for mixed-content tags, because the suggestions list
-weird when there is already a lot of content at multiple lines.
+weird when there is already a lot of content on multiple lines.
 
-If a tag does not exists in the *whitelist*, it may be created by the user and all you should do is listen to the `add` event and update your local/remote state.
+If a tag does not exist in the *whitelist*, it may be created by the user and all you should do is listen to the `add` event and update your local/remote state.
 
 ## Single-Value
 
@@ -603,7 +603,7 @@ onDropdownUpdated       | <sub>Function</sub>       |           | See [*events* 
 
 `jQuery.tagify.js`
 
-A jQuery wrapper verison is also available, but I advise not using it because it's basically the exact same as the "normal"
+A jQuery wrapper version is also available, but I advise not using it because it's basically the exact same as the "normal"
 script (non-jqueryfied) and all the jQuery's wrapper does is allowing to chain the event listeners for ('add', 'remove', 'invalid')
 
 ```javascript
@@ -904,14 +904,14 @@ var tagify = new Tagify(inputNode, {
 
 Name               | Info
 ------------------ | --------------------------------------------------------------------------
-change             | Any change to the value has occured. `e.details.value` callback listener argument is a *String*
+change             | Any change to the value has occurred. `e.details.value` callback listener argument is a *String*
 add                | A tag has been added
 remove             | A tag has been removed ([use `removeTag`](https://github.com/yairEO/tagify/issues/222) instead with *jQuery*)
-invalid            | A tag has been added but did not pass vaildation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
+invalid            | A tag has been added but did not pass validation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
 input              | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes `value`, `inputElm` & `isValid`
 click              | Clicking a tag. Exposes the tag element, its index & data
 dblclick           | Double-clicking a tag
-keydown            | When tagify input has focus and a key was pressed
+keydown            | When Tagify input has focus and a key was pressed
 focus              | The component currently has focus
 blur               | The component lost focus
 edit:input         | Typing inside an edited tag
@@ -923,7 +923,7 @@ dropdown:show      | Suggestions dropdown is to be rendered. The dropdown DOM no
 dropdown:hide      | Suggestions dropdown has been removed from the DOM
 dropdown:select    | Suggestions dropdown item selected (by mouse/keyboard/touch)
 dropdown:scroll    | Tells the percentage scrolled. (`event.detail.percentage`)
-dropdown:noMatch   | No whitelist suggestion item matched for the the typed input. At this point it is possible to manually set `tagify.suggestedListItems` to any possible custom value, for example: `[{ value:"default" }]`
+dropdown:noMatch   | No whitelist suggestion item matched for the typed input. At this point it is possible to manually set `tagify.suggestedListItems` to any possible custom value, for example: `[{ value:"default" }]`
 dropdown:updated   | Fired when the dropdown list is re-filtered while suggestions list is visible and a tag was removed so it was re-added as a suggestion
 
 ## Hooks
@@ -931,7 +931,7 @@ dropdown:updated   | Fired when the dropdown list is re-filtered while suggestio
 **Promise**-based hooks for *async* program flow scenarios.
 
 Allows to "hook" (intervene) at certain points of the program, which were selected as a suitable place to
-**pause** the program flow and wait for further instructions on how/if to procceed.
+**pause** the program flow and wait for further instructions on how/if to proceed.
 
 <details>
   <summary>For example, if a developer wishes to add a (native) confirmation popup before a tag is removed (by a user action):
@@ -991,7 +991,7 @@ editTags                  | <sub>Object/Number</sub>     | {}                   
 editTags.*clicks*         | <sub>Number</sub>            | 2                                           | Number of clicks to enter "edit-mode": 1 for single click. Any other value is considered as double-click
 editTags.*keepInvalid*    | <sub>Boolean</sub>           | true                                        | keeps invalid edits as-is until `esc` is pressed while in focus
 templates                 | <sub>Object</sub>            | <sub>`wrapper`, `tag`, `dropdownItem`</sub> | Object consisting of functions which return template strings
-validate                  | <sub>Function</sub>          |                                             | If the `pattern` setting does not meet your needs, use this function, which recieves *tag data object* as an argument and should return `true` if validaiton passed or `false`/`string` of not. A *string* may be returned as the reason of the validation failure.
+validate                  | <sub>Function</sub>          |                                             | If the `pattern` setting does not meet your needs, use this function, which receives *tag data object* as an argument and should return `true` if validation passed or `false`/`string` of not. A *string* may be returned as the reason for the validation failure.
 transformTag              | <sub>Function</sub>          |                                             | Takes a tag data as argument and allows mutating it before a tag is created or edited and also before validation.<br>Should not `return` anything, only **mutate** the argument.
 keepInvalidTags           | <sub>Boolean</sub>           | false                                       | If `true`, do not remove tags which did not pass validation
 skipInvalid               | <sub>Boolean</sub>           | false                                       | If `true`, do not add invalid, temporary, tags before automatically removing them
