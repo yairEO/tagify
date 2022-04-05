@@ -152,7 +152,7 @@
     }
 
     // Global "read-only" mode (no input button)
-    &[readonly]{
+    &[readonly], &[disabled]{
         &#{$self}--select{
             pointer-events: none;
         }
