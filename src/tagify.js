@@ -296,7 +296,7 @@ Tagify.prototype = {
     destroy(){
         this.events.unbindGlobal.call(this)
         this.DOM.scope.parentNode.removeChild(this.DOM.scope)
-        this.DOM.originalInput.tabIndex = DOM.originalInput_tabIndex
+        this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex
         this.dropdown.hide(true)
         clearTimeout(this.dropdownHide__bindEventsTimeout)
     },
