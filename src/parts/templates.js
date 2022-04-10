@@ -41,8 +41,19 @@ export default {
             className = `${settings.classNames.dropdown}`;
 
         return `<div class="${isManual ? "" : className} ${_sd.classname}" role="listbox" aria-labelledby="dropdown">
-                    <div class="${settings.classNames.dropdownWrapper}"></div>
+                    <div data-selector='tagify-dropdown-wrapper' class="${settings.classNames.dropdownWrapper}"></div>
                 </div>`
+    },
+
+    dropdownContent(HTMLContent) {
+        var _s = this.settings,
+            suggestions = this.state.dropdown.suggestions;
+
+        return `
+            ${_s.templates.dropdownHeader.call(this, suggestions)}
+            ${HTMLContent}
+            ${_s.templates.dropdownFooter.call(this, suggestions)}
+        `
     },
 
     dropdownItem( item, tagify ){
@@ -50,6 +61,20 @@ export default {
                     class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
                     tabindex="0"
                     role="option">${item.value}</div>`
+    },
+
+    dropdownHeader(suggestions){
+        return `<header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownHeader}"></header>`
+    },
+
+    dropdownFooter(suggestions){
+        var hasMore = suggestions.length - this.settings.dropdown.maxItems;
+
+        return hasMore > 0
+            ? `<footer data-selector='tagify-suggestions-footer' class="${this.settings.classNames.dropdownFooter}">
+                ${hasMore} more items. Refine your search.
+            </footer>`
+            : '';
     },
 
     dropdownItemNoMatch: null

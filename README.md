@@ -108,7 +108,7 @@ var tagify = new Tagify(...)
 * Supports [mix content](#mixed-content) (text and tags together)
 * Supports [single-value](#single-value) mode (like `<select>`)
 * Supports whitelist/blacklist
-* Supports Templates for: <em>component wrapper</em>, <em>tag items</em>, <em>suggestion list</em> & <em>suggestion items</em>
+* Customizable HTML templates for the different areas of the component (wrapper, tags, dropdown, dropdown item, dropdown header, dropdown footer)
 * Shows suggestions list (flexiable settings & styling) at *full (component) width* or *next to* the typed texted (caret)
 * Allows setting suggestions' [aliases](#example-for-a-suggestion-item-alias) for easier fuzzy-searching
 * Auto-suggest input as-you-type with the ability to auto-complete
@@ -356,7 +356,17 @@ new Tagify(inputElem, {
       <div>
           <span class="${this.settings.classNames.tagText}">${tagData[this.settings.tagTextProp] || tagData.value}</span>
       </div>
-    </tag>`
+    </tag>`,
+
+    dropdownFooter(suggestions){
+      var hasMore = suggestions.length - this.settings.dropdown.maxItems;
+
+      return hasMore > 0
+        ? `<footer data-selector='tagify-suggestions-footer' class="${this.settings.classNames.dropdownFooter}">
+            ${hasMore} more items. Refine your search.
+          </footer>`
+        : '';
+    }
   }
 })
 ```

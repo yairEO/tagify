@@ -52,6 +52,8 @@ export default {
         inputInvalid       : 'tagify__input--invalid',
         dropdown           : 'tagify__dropdown',
         dropdownWrapper    : 'tagify__dropdown__wrapper',
+        dropdownHeader     : 'tagify__dropdown__header',
+        dropdownFooter     : 'tagify__dropdown__footer',
         dropdownItem       : 'tagify__dropdown__item',
         dropdownItemActive : 'tagify__dropdown__item--active',
         dropdownInital     : 'tagify__dropdown--initial',

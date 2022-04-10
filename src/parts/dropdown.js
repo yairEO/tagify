@@ -14,7 +14,7 @@ export function initDropdown(){
 export default {
     refs(){
         this.DOM.dropdown = this.parseTemplate('dropdown', [this.settings])
-        this.DOM.dropdown.content = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownWrapperSelector)
+        this.DOM.dropdown.content = this.DOM.dropdown.querySelector("[data-selector='tagify-dropdown-wrapper']")
     },
 
     /**
@@ -211,7 +211,8 @@ export default {
             ? HTMLContent
             : this.dropdown.createListHTML(HTMLContent || this.suggestedListItems)
 
-        this.DOM.dropdown.content.innerHTML = minify(HTMLContent)
+        var dropdownContent = this.settings.templates.dropdownContent.call(this, HTMLContent)
+        this.DOM.dropdown.content.innerHTML = minify(dropdownContent)
     },
 
     /**
@@ -545,15 +546,24 @@ export default {
             this.dropdown.refilter()
     },
 
-    selectAll(){
+    // adds all the suggested items, including the ones which are not currently rendered,
+    // unless specified otherwise (by the "onlyRendered" argument)
+    selectAll( onlyRendered ){
         // having suggestedListItems with items messes with "normalizeTags" when wanting
         // to add all tags
         this.suggestedListItems.length = 0;
         this.dropdown.hide()
 
+        this.dropdown.filterListItems('');
+
+        var tagsToAdd = this.dropdown.filterListItems('');
+
+        if( !onlyRendered )
+            tagsToAdd = this.state.dropdown.suggestions
+
         // some whitelist items might have already been added as tags so when addings all of them,
         // skip adding already-added ones, so best to use "filterListItems" method over "settings.whitelist"
-        this.addTags(this.dropdown.filterListItems(''), true)
+        this.addTags(tagsToAdd, true)
         return this
     },
 
@@ -583,10 +593,12 @@ export default {
             i = 0;
 
         if( !value || !searchKeys.length ){
-            return (_s.duplicates
+            list = _s.duplicates
                 ? whitelist
                 : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
-            ).slice(0, suggestionsCount); // respect "maxItems" dropdown setting
+
+            this.state.dropdown.suggestions = list;
+            return list.slice(0, suggestionsCount); // respect "maxItems" dropdown setting
         }
 
         niddle = _sd.caseSensitive
@@ -652,6 +664,8 @@ export default {
                     list.push(whitelistItem)
         }
 
+        this.state.dropdown.suggestions = exactMatchesList.concat(list);
+
         // custom sorting function
         return typeof _sd.sortby == 'function'
             ? _sd.sortby(exactMatchesList.concat(list), niddle)
@@ -692,7 +706,7 @@ export default {
 
             // make sure the sugestion index is present as attribute, to match the data when one is selected
             tagHTMLString = tagHTMLString
-                .replace(/\s*tagifySuggestionIdx=(["'])(.*?)\1/gmi, '') // remove the "tagifySuggestionIdx" attribute if for some reason was there
+                .replace(/\s*tagifySuggestionIdx=(["'])(.*?)\1/gmi, '') // remove the "tagifySuggestionIdx" attribute if for some reason it was there
                 .replace('>', ` tagifySuggestionIdx="${idx}">`) // add "tagifySuggestionIdx"
 
             return tagHTMLString

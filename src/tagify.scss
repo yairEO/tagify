@@ -658,6 +658,21 @@
             transition: $trans;
         }
 
+        &__header{
+            &:empty{ display: none; }
+        }
+
+        &__footer{
+            display: inline-block;
+            margin-top: .5em;
+            padding: $tag-pad;
+            font-size: 0.7em;
+            font-style: italic;
+            opacity: .5;
+
+            &:empty{ display: none; }
+        }
+
         // intial state, pre-rendered
         &--initial{
             #{$dropdown}__wrapper{
