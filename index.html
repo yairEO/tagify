@@ -889,7 +889,7 @@
     opacity: .6;
 }
 
-.tagify__dropdown.users-list .addAll{
+.tagify__dropdown.users-list .tagify__dropdown__item__addAll{
     border-bottom: 1px solid #DDD;
     gap: 0;
 }
@@ -1739,6 +1739,15 @@ function suggestionItemTemplate(tagData){
     `
 }
 
+function dropdownHeaderTemplate(suggestions){
+    return `
+        <div class="${this.settings.classNames.dropdownItem} ${this.settings.classNames.dropdownItem}__addAll">
+            <strong>${this.value.length ? `Add remaning ${suggestions.length}` : 'Add All'}</strong>
+            <span>${suggestions.length} members</span>
+        </div>
+    `
+}
+
 // initialize Tagify on the above input node reference
 var tagify = new Tagify(inputElm, {
     tagTextProp: 'name', // very important since a custom template is used with this property as text
@@ -1752,7 +1761,8 @@ var tagify = new Tagify(inputElm, {
     },
     templates: {
         tag: tagTemplate,
-        dropdownItem: suggestionItemTemplate
+        dropdownItem: suggestionItemTemplate,
+        dropdownHeader: dropdownHeaderTemplate
     },
     whitelist: [
         {
@@ -1830,38 +1840,15 @@ var tagify = new Tagify(inputElm, {
     ]
 })
 
-tagify.on('dropdown:show dropdown:updated', onDropdownShow)
+// listen to dropdown suggestion items selection
 tagify.on('dropdown:select', onSelectSuggestion)
 
-var addAllSuggestionsElm;
-
-function onDropdownShow(e){
-    var dropdownContentElm = e.detail.tagify.DOM.dropdown.content;
-
-    if( tagify.suggestedListItems.length > 1 ){
-        addAllSuggestionsElm = getAddAllSuggestionsElm();
-
-        // insert "addAllSuggestionsElm" as the first element in the suggestions list
-        dropdownContentElm.insertBefore(addAllSuggestionsElm, dropdownContentElm.firstChild)
-    }
-}
-
 function onSelectSuggestion(e){
-    if( e.detail.elm == addAllSuggestionsElm )
-        tagify.dropdown.selectAll();
-}
+    console.log(this)
+    console.log(e.detail.elm.className,  e.detail.elm.classList.contains(`${tagify.settings.classNames.dropdownItem}__addAll`)  )
 
-// create a "add all" custom suggestion element every time the dropdown changes
-function getAddAllSuggestionsElm(){
-    // suggestions items should be based on "dropdownItem" template
-    return tagify.parseTemplate('dropdownItem', [{
-            class: "addAll",
-            name: "Add all",
-            email: tagify.whitelist.reduce(function(remainingSuggestions, item){
-                return tagify.isTagDuplicate(item.value) ? remainingSuggestions : remainingSuggestions + 1
-            }, 0) + " Members"
-        }]
-      )
+    if( e.detail.elm.classList.contains(`${tagify.settings.classNames.dropdownItem}__addAll`) )
+        tagify.dropdown.selectAll();
 }
 })()
 </script>
