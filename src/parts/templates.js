@@ -63,8 +63,12 @@ export default {
                     role="option">${item.value}</div>`
     },
 
+    /**
+     * Example: <header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownHeader}"></header>
+     * @param {Array} suggestions An array of all the matched sugegsted items, including those which were sliced away due to the "dropdown.maxItems" setting
+     */
     dropdownHeader(suggestions){
-        return `<header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownHeader}"></header>`
+        return '';
     },
 
     dropdownFooter(suggestions){
