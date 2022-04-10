@@ -975,7 +975,6 @@ Tagify.prototype = {
     },
 
     setContentEditable(state){
-        console.log({state})
         if( !this.settings.readonly && this.settings.userInput ) {
             this.DOM.input.contentEditable = state
             this.DOM.input.tabIndex = !!state ? 0 : -1;
@@ -1181,8 +1180,8 @@ Tagify.prototype = {
         else
             this.appendTag(tagElm)
 
-        if( _s.enforceWhitelist )
-            this.setContentEditable(false);
+        // if( _s.enforceWhitelist )
+        //     this.setContentEditable(false);
 
         this.value[0] = tagData
         this.update()
