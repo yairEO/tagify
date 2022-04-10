@@ -184,20 +184,14 @@ export default {
 
                 let inWhitelist = _s.enforceWhitelist
                     ? !!this.getWhitelistItem(this.value?.[0]?.value)
-                    : true; // treat as if the item is in the whitelist
-
-                console.log( 22222, inWhitelist  )
-
+                    : _s.keepInvalidTags;
 
                 // when clicking the X button of a selected tag, it is unwanted it will be added back
                 // again in a few more lines of code (shouldAddTags && addTags)
                 if( this.settings.mode == 'select' && isRelatedTargetX )
                     text = '';
 
-                shouldAddTags = this.settings.mode == 'select' && text
-                    ? this.value?.[0]?.value != text
-                    : text && !this.state.actions.selectOption && _s.addTagOnBlur
-
+                shouldAddTags = this.settings.mode !== 'select' && text && !this.state.actions.selectOption && _s.addTagOnBlur;
 
                 // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
                 shouldAddTags && this.addTags(text, true)
