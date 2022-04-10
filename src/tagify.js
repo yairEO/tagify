@@ -1672,7 +1672,7 @@ Tagify.prototype = {
                         result += "\r\n";
                     }
 
-                    if( node.tagName == 'DIV' && node.getAttribute('style') )
+                    if( node.getAttribute('style') || ['B', 'I', 'U'].includes(node.tagName)  )
                         result += node.textContent;
 
                     else if( node.tagName == 'DIV' || node.tagName == 'P' ){
