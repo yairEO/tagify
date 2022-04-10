@@ -188,7 +188,7 @@ export default {
                     text = '';
 
                 shouldAddTags = this.settings.mode == 'select' && text
-                    ? !this.value.length || this.value[0].value != text
+                    ? flase // !this.value.length || this.value[0].value != text
                     : text && !this.state.actions.selectOption && _s.addTagOnBlur
 
                 // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
