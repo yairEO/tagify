@@ -583,7 +583,7 @@ export default {
             list = [],
             exactMatchesList = [],
             whitelist = _s.whitelist,
-            suggestionsCount = _sd.maxItems || Infinity,
+            suggestionsCount = _sd.maxItems >= 0 ? _sd.maxItems : Infinity,
             searchKeys = _sd.searchKeys,
             whitelistItem,
             valueIsInWhitelist,
