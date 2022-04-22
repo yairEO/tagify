@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Tagify - basic</title>
+        <meta name="description" content="Converts HTML input/textarea into Tags component">
+        <meta name="author" content="Yair Even-Or">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="../dist/tagify.css">
+        <script src="../dist/tagify.min.js"></script>
+        <link rel="stylesheet" href="../../dragsort/dist/dragsort.css" media="print" onload="this.media='all'">
+        <script src="../../dragsort/dist/dragsort.js"></script>
+
+        <style>
+            body{ font: 16px Arial; }
+            form{
+                max-width:600px;
+            }
+
+            fieldset{ margin:1em; border:2px dashed red; }
+
+            form > section{ margin-bottom: 2em; }
+
+            .tagify+input, .tagify+textarea {
+                position: initial !important;
+                left: 0 !important;
+                transform: none !important;
+                width: 100%;
+                margin-top: .2em;
+                min-height: 11ch;
+                background: powderblue;
+                font-family: "Fira Code";
+            }
+
+            .tagify{
+                margin: .2em;
+                min-width: 400px;
+            }
+        </style>
+    </head>
+    <body>
+        <input name='tags' placeholder='user input' value='foo, very long tag, bar, baz, and another long'>
+
+<script>
+(() => {
+var inputElm = document.querySelector('input[name=tags]')
+
+let tagify = new Tagify(inputElm)
+
+var dragsort = new DragSort(tagify.DOM.scope, {
+    selector:'.'+tagify.settings.classNames.tag,
+    callbacks: {
+        dragEnd: onDragEnd
+    }
+})
+
+function onDragEnd(elm){
+    tagify.updateValueByDOMTags()
+}
+
+})()
+</script>
+</body>
+</html>
