@@ -3,6 +3,7 @@ import { sameStr, isObject, minify, escapeHTML, extend, unaccent, getNodeHeight 
 export function initDropdown(){
     this.dropdown = {}
 
+    // auto-bind "this" to all the dropdown methods
     for( let p in this._dropdown )
         this.dropdown[p] = typeof this._dropdown[p] === 'function'
             ? this._dropdown[p].bind(this)
