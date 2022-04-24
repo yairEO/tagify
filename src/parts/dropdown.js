@@ -699,9 +699,7 @@ export default {
 
             var value = this.dropdown.getMappedValue(suggestion)
 
-            suggestion.value = value && typeof value == 'string'
-                ? escapeHTML(value)
-                : value
+            suggestion.value = typeof value == 'string' ? escapeHTML(value) : value
 
             var tagHTMLString = this.settings.templates.dropdownItem.apply(this, [suggestion, this])
 
