@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.11.0) - tags input component
+ * Tagify (v 4.12.0) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -364,7 +364,7 @@ var DEFAULTS = {
 };
 
 function initDropdown() {
-  this.dropdown = {};
+  this.dropdown = {}; // auto-bind "this" to all the dropdown methods
 
   for (let p in this._dropdown) this.dropdown[p] = typeof this._dropdown[p] === 'function' ? this._dropdown[p].bind(this) : this._dropdown[p];
 
@@ -888,7 +888,7 @@ var _dropdown = {
         list = [],
         exactMatchesList = [],
         whitelist = _s.whitelist,
-        suggestionsCount = _sd.maxItems || Infinity,
+        suggestionsCount = _sd.maxItems >= 0 ? _sd.maxItems : Infinity,
         searchKeys = _sd.searchKeys,
         whitelistItem,
         valueIsInWhitelist,
@@ -978,7 +978,7 @@ var _dropdown = {
         value: suggestion
       };
       var value = this.dropdown.getMappedValue(suggestion);
-      suggestion.value = value && typeof value == 'string' ? escapeHTML(value) : value;
+      suggestion.value = typeof value == 'string' ? escapeHTML(value) : value;
       var tagHTMLString = this.settings.templates.dropdownItem.apply(this, [suggestion, this]); // make sure the sugestion index is present as attribute, to match the data when one is selected
 
       tagHTMLString = tagHTMLString.replace(/\s*tagifySuggestionIdx=(["'])(.*?)\1/gmi, '') // remove the "tagifySuggestionIdx" attribute if for some reason it was there
@@ -1834,9 +1834,9 @@ var events = {
           tagData = this.tagData(tagElm),
           value = this.input.normalize.call(this, editableElm),
           hasChanged = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
-          isValid = this.validateTag({
+          isValid = this.validateTag(extend(tagElm.__tagifyTagData, {
         [this.settings.tagTextProp]: value
-      }); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
+      })); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
       // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
 
       if (!hasChanged && editableElm.originalIsValid === true) isValid = true;
@@ -1904,11 +1904,11 @@ var events = {
 
 
       hasMaxTags = this.hasMaxTags();
-      newTagData = this.getWhitelistItem(textValue) || extend({}, originalData, {
-        [_s.tagTextProp]: textValue,
+      newTagData = extend({}, originalData, {
+        [_s.tagTextProp]: this.trim(textValue),
         value: textValue,
         __isValid: isValid
-      });
+      }); // pass through optional transformer defined in settings
 
       _s.transformTag.call(this, newTagData, originalData); // MUST re-validate after tag transformation
       // only validate the "tagTextProp" because is the only thing that metters for validating an edited tag.
@@ -1917,9 +1917,7 @@ var events = {
       // 2. max 3 tags allowed. there are 3 tags, one is edited, and so max-tags vaildation should be OK
 
 
-      isValid = (!hasMaxTags || originalData.__isValid === true) && this.validateTag({
-        [_s.tagTextProp]: newTagData[_s.tagTextProp]
-      });
+      isValid = (!hasMaxTags || originalData.__isValid === true) && this.validateTag(newTagData);
 
       if (isValid !== true) {
         this.trigger("invalid", {
@@ -2094,6 +2092,18 @@ function Tagify(input, settings) {
 
 Tagify.prototype = {
   _dropdown,
+  helpers: {
+    sameStr,
+    removeCollectionProp,
+    omit,
+    isObject,
+    parseHTML,
+    escapeHTML,
+    extend,
+    concatWithoutDups,
+    getUID,
+    isNodeTag
+  },
   customEventsList: ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:beforeUpdate', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch', 'dropdown:scroll'],
   dataProps: ['__isValid', '__removed', '__originalData', '__originalHTML', '__tagId'],
 
@@ -2655,7 +2665,7 @@ Tagify.prototype = {
 
       if (this.settings.trim) v = v.replace(/^\s+/, ''); // trimLeft
 
-      return v;
+      return this.trim(v);
     },
 
     /**
@@ -2758,12 +2768,12 @@ Tagify.prototype = {
    * @param  {Boolean} caseSensitive
    * @return {Number}
    */
-  isTagDuplicate(value, caseSensitive) {
+  isTagDuplicate(value, caseSensitive, tagId) {
     var dupsCount,
         _s = this.settings; // duplications are irrelevant for this scenario
 
     if (_s.mode == 'select') return false;
-    dupsCount = this.value.reduce((acc, item) => sameStr(this.trim("" + value), item.value, caseSensitive || _s.dropdown.caseSensitive) ? acc + 1 : acc, 0);
+    dupsCount = this.value.reduce((acc, item) => sameStr(this.trim("" + value), item.value, caseSensitive || _s.dropdown.caseSensitive) && tagId != item.__tagId ? acc + 1 : acc, 0);
     return dupsCount;
   },
 
@@ -2861,7 +2871,7 @@ Tagify.prototype = {
 
     if (_s.pattern && _s.pattern instanceof RegExp && !_s.pattern.test(v)) return this.TEXTS.pattern; // check for duplicates
 
-    if (!_s.duplicates && this.isTagDuplicate(v, this.state.editing)) return this.TEXTS.duplicate;
+    if (!_s.duplicates && this.isTagDuplicate(v, this.state.editing, tagData.__tagId)) return this.TEXTS.duplicate;
     if (this.isTagBlacklisted(v) || _s.enforceWhitelist && !this.isTagWhitelisted(v)) return this.TEXTS.notAllowed;
     if (_s.validate) return _s.validate(tagData);
     return true;
