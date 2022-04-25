@@ -823,7 +823,7 @@ Tagify.prototype = {
      * @param  {Boolean} caseSensitive
      * @return {Number}
      */
-    isTagDuplicate( value, caseSensitive ){
+    isTagDuplicate( value, caseSensitive, tagId ){
         var dupsCount,
             _s = this.settings;
 
@@ -832,7 +832,7 @@ Tagify.prototype = {
             return false
 
         dupsCount = this.value.reduce((acc, item) => (
-            sameStr( this.trim(""+value), item.value, caseSensitive || _s.dropdown.caseSensitive )
+            sameStr( this.trim(""+value), item.value, caseSensitive || _s.dropdown.caseSensitive ) && tagId != item.__tagId
                 ? acc+1
                 : acc
         ), 0)
@@ -940,7 +940,7 @@ Tagify.prototype = {
             return this.TEXTS.pattern;
 
         // check for duplicates
-        if( !_s.duplicates && this.isTagDuplicate(v, this.state.editing) )
+        if( !_s.duplicates && this.isTagDuplicate(v, this.state.editing, tagData.__tagId) )
             return this.TEXTS.duplicate;
 
         if( this.isTagBlacklisted(v) || (_s.enforceWhitelist && !this.isTagWhitelisted(v)) )

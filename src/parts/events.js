@@ -815,6 +815,7 @@ export default {
                 }
             )
 
+            // pass through optional transformer defined in settings
             _s.transformTag.call(this, newTagData, originalData)
 
             // MUST re-validate after tag transformation
@@ -822,7 +823,7 @@ export default {
             // -- Scenarios: --
             // 1. max 3 tags allowd. there are 4 tags, one has invalid input and is edited to a valid one, and now should be marked as "not allowed" because limit of tags has reached
             // 2. max 3 tags allowed. there are 3 tags, one is edited, and so max-tags vaildation should be OK
-            isValid = (!hasMaxTags || originalData.__isValid === true) && this.validateTag({[_s.tagTextProp]:newTagData[_s.tagTextProp]})
+            isValid = (!hasMaxTags || originalData.__isValid === true) && this.validateTag(newTagData)
 
             if( isValid !== true ){
                 this.trigger("invalid", { data:newTagData, tag:tagElm, message:isValid })
