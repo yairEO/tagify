@@ -733,7 +733,7 @@ export default {
                 tagData = this.tagData(tagElm),
                 value = this.input.normalize.call(this, editableElm),
                 hasChanged = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
-                isValid = this.validateTag({[this.settings.tagTextProp]:value}); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
+                isValid = this.validateTag(extend(tagElm.__tagifyTagData, {[this.settings.tagTextProp]: value})); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
 
             // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
             if( !hasChanged && editableElm.originalIsValid === true )
@@ -784,7 +784,7 @@ export default {
                 textValue    = this.input.normalize.call(this, editableElm),
                 originalData = this.tagData(tagElm).__originalData, // pre-edit data
                 hasChanged   = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
-                isValid      = this.validateTag({[_s.tagTextProp]:textValue}),
+                isValid      = this.validateTag({[_s.tagTextProp]: textValue}),
                 hasMaxTags,
                 newTagData;
 
@@ -805,13 +805,13 @@ export default {
             // only if the tag was already valid before editing, ignore this check (see a few lines below)
             hasMaxTags = this.hasMaxTags()
 
-            newTagData = this.getWhitelistItem(textValue) || extend(
+            newTagData = extend(
                 {},
                 originalData,
                 {
-                    [_s.tagTextProp]:textValue,
-                    value:textValue,
-                    __isValid:isValid
+                    [_s.tagTextProp]: this.trim(textValue),
+                    value: textValue,
+                    __isValid: isValid
                 }
             )
 

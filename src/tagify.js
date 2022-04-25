@@ -708,7 +708,7 @@ Tagify.prototype = {
             if( this.settings.trim )
                 v = v.replace(/^\s+/, '') // trimLeft
 
-            return v
+            return this.trim(v)
         },
 
         /**
