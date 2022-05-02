@@ -16,7 +16,7 @@ function Tagify( input, settings ){
     if( !input ){
         console.warn('Tagify:', 'input element not found', input)
         // return an empty mock of all methods, so the code using tagify will not break
-        // because it might be calling methods even though the input element does not exists
+        // because it might be calling methods even though the input element does not exist
         const mockInstance = new Proxy(this, { get(){ return () => mockInstance } })
         return mockInstance
     }
