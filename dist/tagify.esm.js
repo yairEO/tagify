@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.12.0) - tags input component
+ * Tagify (v 4.12.0-pyc) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,14 +28,9 @@ function ownKeys(object, enumerableOnly) {
 
   if (Object.getOwnPropertySymbols) {
     var symbols = Object.getOwnPropertySymbols(object);
-
-    if (enumerableOnly) {
-      symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      });
-    }
-
-    keys.push.apply(keys, symbols);
+    enumerableOnly && (symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    })), keys.push.apply(keys, symbols);
   }
 
   return keys;
@@ -43,19 +38,12 @@ function ownKeys(object, enumerableOnly) {
 
 function _objectSpread2(target) {
   for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-
-    if (i % 2) {
-      ownKeys(Object(source), true).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
+    var source = null != arguments[i] ? arguments[i] : {};
+    i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
+      Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+    });
   }
 
   return target;
@@ -623,7 +611,9 @@ var _dropdown = {
      * because there might be multiple Tagify instances on a certain page
      * @param  {Boolean} bindUnbind [optional. true when wanting to unbind all the events]
      */
-    binding(bindUnbind = true) {
+    binding() {
+      let bindUnbind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
       // references to the ".bind()" methods must be saved so they could be unbinded later
       var _CB = this.dropdown.events.callbacks,
           // callback-refs
@@ -1202,7 +1192,9 @@ var events = {
     });
   },
 
-  binding(bindUnbind = true) {
+  binding() {
+    let bindUnbind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
     var _CB = this.events.callbacks,
         _CBR,
         action = bindUnbind ? 'addEventListener' : 'removeEventListener'; // do not allow the main events to be bound more than once
@@ -2040,7 +2032,7 @@ var events = {
 function Tagify(input, settings) {
   if (!input) {
     console.warn('Tagify:', 'input element not found', input); // return an empty mock of all methods, so the code using tagify will not break
-    // because it might be calling methods even though the input element does not exists
+    // because it might be calling methods even though the input element does not exist
 
     const mockInstance = new Proxy(this, {
       get() {
@@ -2293,10 +2285,11 @@ Tagify.prototype = {
     }
 
     this.CSSVars = {
-      tagHideTransition: (({
-        value,
-        unit
-      }) => unit == 's' ? value * 1000 : value)(seprateUnitFromValue(getProp('tag-hide-transition')))
+      tagHideTransition: (_ref => {
+        let value = _ref.value,
+            unit = _ref.unit;
+        return unit == 's' ? value * 1000 : value;
+      })(seprateUnitFromValue(getProp('tag-hide-transition')))
     };
   },
 
@@ -2622,7 +2615,9 @@ Tagify.prototype = {
    * @type {Object}
    */
   input: {
-    set(s = '', updateDOM = true) {
+    set() {
+      let s = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+      let updateDOM = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
       var hideDropdown = this.settings.dropdown.closeOnSelect;
       this.state.inputText = s;
       if (updateDOM) this.DOM.input.innerHTML = escapeHTML("" + s);
@@ -2734,7 +2729,11 @@ Tagify.prototype = {
     return index;
   },
 
-  getTagElms(...classess) {
+  getTagElms() {
+    for (var _len = arguments.length, classess = new Array(_len), _key = 0; _key < _len; _key++) {
+      classess[_key] = arguments[_key];
+    }
+
     var classname = '.' + [...this.settings.classNames.tag.split(' '), ...classess].join('.');
     return [].slice.call(this.DOM.scope.querySelectorAll(classname)); // convert nodeList to Array - https://stackoverflow.com/a/3199627/104380
   },
@@ -3038,7 +3037,7 @@ Tagify.prototype = {
     strToReplace = strToReplace || this.state.tag.prefix + this.state.tag.value;
     var idx,
         nodeToReplace,
-        selection = window.getSelection(),
+        selection = this.state.selection || window.getSelection(),
         nodeAtCaret = selection.anchorNode,
         firstSplitOffset = this.state.tag.delimiters ? this.state.tag.delimiters.length : 0; // STEP 1: ex. replace #ba with the tag "bart" where "|" is where the caret is:
     // CURRENT STATE: "foo #ba #ba| #ba"

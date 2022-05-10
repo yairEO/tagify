@@ -1126,7 +1126,7 @@ Tagify.prototype = {
 
         strToReplace = strToReplace || this.state.tag.prefix + this.state.tag.value;
         var idx, nodeToReplace,
-            selection = window.getSelection(),
+            selection = this.state.selection || window.getSelection(),
             nodeAtCaret = selection.anchorNode,
             firstSplitOffset = this.state.tag.delimiters ? this.state.tag.delimiters.length : 0;
 
