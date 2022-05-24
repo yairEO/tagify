@@ -1673,7 +1673,13 @@ Tagify.prototype = {
                         result += "\r\n";
                     }
 
-                    if( node.getAttribute('style') || ['B', 'I', 'U'].includes(node.tagName)  )
+                    if( tagData && isNodeTag.call(that, node) ){
+                        if( tagData.__removed )
+                            return;
+                        else
+                            result += _interpolator[0] + JSON.stringify( omit(tagData, that.dataProps) ) + _interpolator[1]
+                    }
+                    else if( node.getAttribute('style') || ['B', 'I', 'U'].includes(node.tagName)  )
                         result += node.textContent;
 
                     else if( node.tagName == 'DIV' || node.tagName == 'P' ){
@@ -1681,13 +1687,6 @@ Tagify.prototype = {
                         //  if( !node.children.length && node.textContent )
                         //  result += node.textContent;
                         iterateChildren(node)
-                    }
-
-                    else if( isNodeTag.call(that, node) && tagData ){
-                        if( tagData.__removed )
-                            return;
-                        else
-                            result += _interpolator[0] + JSON.stringify( omit(tagData, that.dataProps) ) + _interpolator[1]
                     }
                 }
                 else
