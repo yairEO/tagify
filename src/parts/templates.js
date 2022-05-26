@@ -56,7 +56,7 @@ export default {
         `
     },
 
-    dropdownItem( item, tagify ){
+    dropdownItem(item, tagify){
         return `<div ${this.getAttributes(item)}
                     class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
                     tabindex="0"
