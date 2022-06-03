@@ -501,7 +501,7 @@ Tagify.prototype = {
     },
 
     /**
-     * If a tag is invalid, for any reason, set its class to as "not allowed" (see defaults file)
+     * If a tag is invalid, for any reason, set its class to "not allowed" (see defaults file)
      * @param {Node} tagElm required
      * @param {Object} tagData optional
      * @returns true if valid, a string (reason) if not
