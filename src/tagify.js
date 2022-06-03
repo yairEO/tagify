@@ -634,9 +634,12 @@ Tagify.prototype = {
      * @param {Object} selection [optional range Object. must have "anchorNode" & "anchorOffset"]
      */
     injectAtCaret( injectedNode, range ){
-        range = range || this.state.selection.range
+        range = range || this.state.selection?.range
 
-        if( !range ) return;
+        if( !range && injectedNode ) {
+            this.appendMixTags(injectedNode)
+            return this;
+        }
 
         if( typeof injectedNode == 'string' )
             injectedNode = document.createTextNode(injectedNode);
@@ -1084,7 +1087,6 @@ Tagify.prototype = {
                 tagData = this.normalizeTags(preInterpolated)[0] || {value:preInterpolated}
             }
 
-
             transformTag.call(this, tagData)
 
             if( !maxTagsReached   &&
@@ -1126,7 +1128,7 @@ Tagify.prototype = {
 
         strToReplace = strToReplace || this.state.tag.prefix + this.state.tag.value;
         var idx, nodeToReplace,
-            selection = window.getSelection(),
+            selection = this.state.selection || window.getSelection(),
             nodeAtCaret = selection.anchorNode,
             firstSplitOffset = this.state.tag.delimiters ? this.state.tag.delimiters.length : 0;
 
@@ -1332,10 +1334,18 @@ Tagify.prototype = {
             this.insertAfterTag(tagElm)
         })
 
+        this.appendMixTags(frag)
+
+        return frag
+    },
+
+    appendMixTags( node ) {
+        var selection = !!this.state.selection;
+
         // if "selection" exists, assumes intention of inecting the new tag at the last
         // saved location of the caret inside "this.DOM.input"
         if( selection ){
-            this.injectAtCaret(frag)
+            this.injectAtCaret(node)
         }
         // else, create a range and inject the new tag as the last child of "this.DOM.input"
         else{
@@ -1343,13 +1353,11 @@ Tagify.prototype = {
             selection = this.setStateSelection()
             selection.range.setStart(this.DOM.input, selection.range.endOffset)
             selection.range.setEnd(this.DOM.input, selection.range.endOffset)
-            this.DOM.input.appendChild(frag)
+            this.DOM.input.appendChild(node)
 
             this.updateValueByDOMTags() // updates internal "this.value"
             this.update() // updates original input/textarea
         }
-
-        return frag
     },
 
     /**
