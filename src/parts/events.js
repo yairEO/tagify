@@ -889,7 +889,7 @@ export default {
         onInputDOMChange(m){
             // iterate all DOm mutation
             m.forEach(record => {
-            // only the ADDED nodes
+                // only the ADDED nodes
                 record.addedNodes.forEach(addedNode => {
                     if( addedNode ){
                         // fix chrome's placing '<div><br></div>' everytime ENTER key is pressed, and replace with just `<br'
