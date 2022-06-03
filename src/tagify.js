@@ -331,10 +331,7 @@ Tagify.prototype = {
             if( _s.mode == 'mix' ){
                 this.parseMixTags(this.trim(value))
 
-                lastChild = this.DOM.input.lastChild;
-
-                if( !lastChild || lastChild.tagName != 'BR' )
-                    this.DOM.input.insertAdjacentHTML('beforeend', '<br>')
+                lastChild = this.DOM.input.lastChild
             }
 
             else{
