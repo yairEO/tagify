@@ -824,18 +824,18 @@ Tagify.prototype = {
      * @return {Number}
      */
     isTagDuplicate( value, caseSensitive, tagId ){
-        var dupsCount,
+        var dupsCount = 0,
             _s = this.settings;
 
         // duplications are irrelevant for this scenario
         if( _s.mode == 'select' )
             return false
 
-        dupsCount = this.value.reduce((acc, item) => (
-            sameStr( this.trim(""+value), item.value, caseSensitive || _s.dropdown.caseSensitive ) && tagId != item.__tagId
-                ? acc+1
-                : acc
-        ), 0)
+        for( let item of this.value ) {
+            let isSameStr = sameStr( this.trim(""+value), item.value, caseSensitive );
+            if( isSameStr && tagId != item.__tagId )
+                dupsCount++;
+        }
 
         return dupsCount
     },
@@ -940,7 +940,7 @@ Tagify.prototype = {
             return this.TEXTS.pattern;
 
         // check for duplicates
-        if( !_s.duplicates && this.isTagDuplicate(v, this.state.editing, tagData.__tagId) )
+        if( !_s.duplicates && this.isTagDuplicate(v, _s.dropdown.caseSensitive, tagData.__tagId) )
             return this.TEXTS.duplicate;
 
         if( this.isTagBlacklisted(v) || (_s.enforceWhitelist && !this.isTagWhitelisted(v)) )
@@ -1029,7 +1029,6 @@ Tagify.prototype = {
                 // if suggestions are shown, they are already filtered, so it's easier to use them,
                 // because the whitelist might also include items which have already been added
                 var filteredList = this.dropdown.filterListItems.call(this, item[tagTextProp], { exact:true })
-
 
                 if( !this.settings.duplicates )
                     // also filter out items which have already been matched in previous iterations
@@ -1304,7 +1303,7 @@ Tagify.prototype = {
             this.input.set.call(this)
         }
 
-        this.dropdown.refilter()
+        _s.dropdown.enabled && this.dropdown.refilter()
         return tagElems
     },
 
@@ -1469,7 +1468,8 @@ Tagify.prototype = {
      * TODO: Allow multiple tags to be removed at-once
      */
     removeTags( tagElms, silent, tranDuration ){
-        var tagsToRemove;
+        var tagsToRemove,
+            _s = this.settings;
 
         tagElms = tagElms && tagElms instanceof HTMLElement
             ? [tagElms]
@@ -1504,21 +1504,21 @@ Tagify.prototype = {
 
         tranDuration = typeof tranDuration == "number" ? tranDuration : this.CSSVars.tagHideTransition
 
-        if( this.settings.mode == 'select' ){
+        if( _s.mode == 'select' ){
             tranDuration = 0;
             this.input.set.call(this)
         }
 
         // if only a single tag is to be removed
         if( tagsToRemove.length == 1 ){
-            if( tagsToRemove[0].node.classList.contains(this.settings.classNames.tagNotAllowed) )
+            if( tagsToRemove[0].node.classList.contains(_s.classNames.tagNotAllowed) )
                 silent = true
         }
 
         if( !tagsToRemove.length )
             return;
 
-        return this.settings.hooks.beforeRemoveTag(tagsToRemove, {tagify:this})
+        return _s.hooks.beforeRemoveTag(tagsToRemove, {tagify:this})
             .then(() => {
                 function removeNode( tag ){
                     if( !tag.node.parentNode ) return
@@ -1533,17 +1533,21 @@ Tagify.prototype = {
                         this.DOM.input.normalize() // best-practice when in mix-mode (safe to do always anyways)
 
                         // check if any of the current tags which might have been marked as "duplicate" should be un-marked
-                        if( this.settings.keepInvalidTags )
+                        if( _s.keepInvalidTags )
                             this.reCheckInvalidTags()
+
+                        // below code is unfinished. it should iterate all currently invalid edited tags, which their edits have not
+                        // changed the value yet, and should re-trigger the check, but since nothing has changed, it does not work...
+                        // this.getTagElms(_s.classNames.tagEditing).forEach( this.events.callbacks.onEditTagBlur.bind )
                     }
-                    else if( this.settings.keepInvalidTags )
+                    else if( _s.keepInvalidTags )
                         this.trigger('remove', { tag:tag.node, index:tag.idx })
                 }
 
                 function animation( tag ){
                     tag.node.style.width = parseFloat(window.getComputedStyle(tag.node).width) + 'px'
                     document.body.clientTop // force repaint for the width to take affect before the "hide" class below
-                    tag.node.classList.add(this.settings.classNames.tagHide)
+                    tag.node.classList.add(_s.classNames.tagHide)
 
                     // manual timeout (hack, since transitionend cannot be used because of hover)
                     setTimeout(removeNode.bind(this), tranDuration, tag)
@@ -1559,7 +1563,7 @@ Tagify.prototype = {
                     this.removeTagsFromValue(tagsToRemove.map(tag => tag.node))
                     this.update() // update the original input with the current value
 
-                    if( this.settings.mode == 'select' )
+                    if( _s.mode == 'select' )
                         this.setContentEditable(true);
                 }
             })
