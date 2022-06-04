@@ -1673,7 +1673,9 @@ Tagify.prototype = {
     getMixedTagsAsString(){
         var result = "",
             that = this,
-            _interpolator = this.settings.mixTagsInterpolator;
+            _s = this.settings,
+            originalInputValueFormat = _s.originalInputValueFormat || JSON.stringify,
+            _interpolator = _s.mixTagsInterpolator;
 
         function iterateChildren(rootNode){
             rootNode.childNodes.forEach((node) => {
@@ -1688,7 +1690,7 @@ Tagify.prototype = {
                         if( tagData.__removed )
                             return;
                         else
-                            result += _interpolator[0] + JSON.stringify( omit(tagData, that.dataProps) ) + _interpolator[1]
+                            result += _interpolator[0] + originalInputValueFormat( omit(tagData, that.dataProps) ) + _interpolator[1]
                     }
                     else if( node.getAttribute('style') || ['B', 'I', 'U'].includes(node.tagName)  )
                         result += node.textContent;
