@@ -307,7 +307,7 @@ export default {
                                     ? lastTagElems[0]
                                     : null;
                             else
-                                tagElmToBeDeleted = lastTagElems[sel.anchorOffset - 1]
+                                tagElmToBeDeleted = lastTagElems[Math.min(lastTagElems.length, sel.anchorOffset) - 1]
 
                         // find out if a tag *might* be a candidate for deletion, and if so, which
                         else if( deleteKeyTagDetected )
@@ -337,6 +337,7 @@ export default {
                         if( sel.type != 'Range' && tagElmToBeDeleted && tagElmToBeDeleted.hasAttribute('readonly') ){
                             // allows the continuation of deletion by placing the caret on the first previous textNode.
                             // since a few readonly-tags might be one after the other, iteration is needed:
+
                             this.placeCaretAfterNode( getfirstTextNode(tagElmToBeDeleted) )
                             return
                         }
@@ -891,34 +892,42 @@ export default {
             m.forEach(record => {
                 // only the ADDED nodes
                 record.addedNodes.forEach(addedNode => {
-                    if( addedNode ){
-                        // fix chrome's placing '<div><br></div>' everytime ENTER key is pressed, and replace with just `<br'
-                        if( addedNode.outerHTML == '<div><br></div>' ){
-                            addedNode.replaceWith(document.createElement('br'))
-                        }
+                    // fix chrome's placing '<div><br></div>' everytime ENTER key is pressed, and replace with just `<br'
+                    if( addedNode.outerHTML == '<div><br></div>' ){
+                        addedNode.replaceWith(document.createElement('br'))
+                    }
 
-                        // if the added element is a div containing a tag within it (chrome does this when pressing ENTER before a tag)
-                        else if( addedNode.nodeType == 1 && addedNode.querySelector(this.settings.classNames.tagSelector) ){
-                            let newlineText = document.createTextNode('')
+                    // if the added element is a div containing a tag within it (chrome does this when pressing ENTER before a tag)
+                    else if( addedNode.nodeType == 1 && addedNode.querySelector(this.settings.classNames.tagSelector) ){
+                        let newlineText = document.createTextNode('')
 
-                            if( addedNode.childNodes[0].nodeType == 3 && addedNode.previousSibling.nodeName != 'BR' )
-                                newlineText  = document.createTextNode('\n')
+                        if( addedNode.childNodes[0].nodeType == 3 && addedNode.previousSibling.nodeName != 'BR' )
+                            newlineText  = document.createTextNode('\n')
 
-                            // unwrap the useless div
-                            // chrome adds a BR at the end which should be removed
-                            addedNode.replaceWith(...[newlineText, ...[...addedNode.childNodes].slice(0,-1)])
-                            this.placeCaretAfterNode(newlineText.previousSibling)
-                        }
+                        // unwrap the useless div
+                        // chrome adds a BR at the end which should be removed
+                        addedNode.replaceWith(...[newlineText, ...[...addedNode.childNodes].slice(0,-1)])
+                        this.placeCaretAfterNode(newlineText)
+                    }
 
-                        // if this is a tag
-                        else if( isNodeTag.call(this, addedNode) ){
-                            // and it is the first node in a new line
-                            if( addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR' ){
-                                // allows placing the caret just before the tag, when the tag is the first node in that line
-                                addedNode.previousSibling.replaceWith('\n\u200B')
-                                // when hitting ENTER for new line just before a tag
-                                this.placeCaretAfterNode(addedNode.previousSibling.previousSibling)
+                    // if this is a tag
+                    else if( isNodeTag.call(this, addedNode) ){
+                        if( addedNode.previousSibling?.nodeType == 3 && !addedNode.previousSibling.textContent )
+                            addedNode.previousSibling.remove()
+                        // and it is the first node in a new line
+                        if( addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR' ){
+                            // allows placing the caret just before the tag, when the tag is the first node in that line
+                            addedNode.previousSibling.replaceWith('\n\u200B')
+
+                            let nextNode = addedNode.nextSibling, anythingAfterNode = '';
+
+                            while (nextNode) {
+                                anythingAfterNode += nextNode.textContent
+                                nextNode = nextNode.nextSibling;
                             }
+
+                            // when hitting ENTER for new line just before an existing tag, but skip below logic when a tag has been addded
+                            anythingAfterNode.trim() && this.placeCaretAfterNode(addedNode.previousSibling)
                         }
                     }
                 })
