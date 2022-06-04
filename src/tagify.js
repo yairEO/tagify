@@ -332,6 +332,10 @@ Tagify.prototype = {
                 this.parseMixTags(this.trim(value))
 
                 lastChild = this.DOM.input.lastChild
+
+                // fixes a Chrome bug, when the last node in `mix-mode` is a tag, the caret appears at the far-top-top, outside the field
+                if( !lastChild || lastChild.tagName != 'BR' )
+                    this.DOM.input.insertAdjacentHTML('beforeend', '<br>')
             }
 
             else{
@@ -413,7 +417,7 @@ Tagify.prototype = {
     placeCaretAfterNode( node ){
         if( !node || !node.parentNode ) return
 
-        var nextSibling = node.nextSibling,
+        var nextSibling = node,
             sel = window.getSelection(),
             range = sel.getRangeAt(0);
 
@@ -642,11 +646,9 @@ Tagify.prototype = {
             injectedNode = document.createTextNode(injectedNode);
 
         range.deleteContents()
-
         range.insertNode(injectedNode)
 
         this.setRangeAtStartEnd(false, injectedNode)
-
         this.updateValueByDOMTags() // updates internal "this.value"
         this.update() // updates original input/textarea
 
