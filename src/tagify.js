@@ -559,7 +559,7 @@ Tagify.prototype = {
                 tagElm.focus()
             else
                 // place caret after edited tag
-                this.placeCaretAfterNode(tagElm.previousSibling)
+                this.placeCaretAfterNode(tagElm)
         }
 
         else if(tagElm)
