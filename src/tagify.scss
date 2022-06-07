@@ -523,6 +523,7 @@
             display: inline-block;
             white-space: pre; /* allows spaces at the beginning */
             color: $tag-text-color;
+            color: var(--tag-text-color);
             opacity: .3;
             pointer-events:none;
             max-width: 100px;
