@@ -1,5 +1,6 @@
 {
     "rules": {
+        "no-console"               : ["error", { "allow": ["warn", "error"] }],
         "no-mixed-spaces-and-tabs" : [2, "smart-tabs"],
         "block-spacing"            : [2, "always"],
         "comma-style"              : [2, "last"],
@@ -10,33 +11,12 @@
         "no-undef"                 : 1
     },
     "parserOptions": {
-        "ecmaVersion" : 9,
+        "ecmaVersion" : 2021,
         "sourceType": "module",
         "ecmaFeatures": {
             "modules": true,
-            "sourceTyp": "module",
-            "experimentalObjectRestSpread": true
+            "sourceTyp": "module"
         }
-    },
-    "globals" : {
-        "FB": "readonly",
-        "ga": "readonly",
-        "jQuery": "readonly",
-        "$":"readonly",
-        "_": "readonly",
-        "d3": "readonly",
-        "Router": "readonly",
-        "ttip": "readonly",
-        "Cookies": "readonly",
-        "fastdom": "readonly",
-        "describe": "readonly",
-        "beforeEach": "readonly",
-        "it": "readonly",
-        "expect": "readonly",
-        "assert": "readonly",
-        "done": "readonly",
-        "dataLayer": "readonly",
-        "validator": "readonly"
     },
     "env": {
         "es6": true,
