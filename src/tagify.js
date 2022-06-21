@@ -707,9 +707,6 @@ Tagify.prototype = {
 
             v = v.replace(/\s/g, ' ')  // replace NBSPs with spaces characters
 
-            if( this.settings.trim )
-                v = v.replace(/^\s+/, '') // trimLeft
-
             return this.trim(v)
         },
 
