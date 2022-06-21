@@ -24,6 +24,7 @@ export default {
         var _s = this.settings;
         return `<tag title="${(tagData.title || tagData.value)}"
                     contenteditable='false'
+                    data-editable='${tagData.editable != false}'
                     spellcheck='false'
                     tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
                     class="${_s.classNames.tag} ${tagData.class || ""}"
