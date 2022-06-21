@@ -1,8 +1,10 @@
 @use "sass:math";
 
+// The suggestions list (dropdown) is appended to the document's body so the CSS variables should be defined at root-level
 :root {
     --tagify-dd-color-primary: rgb(53,149,246); // should be same as "$tags-focus-border-color"
     --tagify-dd-bg-color: white;
+    --tagify-dd-item-pad: .3em .5em; // should be same as $tag-pad (below)
 }
 
 .tagify{
@@ -123,7 +125,6 @@
     display       : flex;
     align-items   : flex-start;
     flex-wrap     : wrap;
-    border        : 1px solid $tags-border-color;
     border        : 1px solid var(--tags-border-color);
     padding       : 0;
     line-height   : 0;
@@ -134,14 +135,12 @@
     transition    : .1s;
 
     &:hover{
-        border-color: $tags-hover-border-color;
         border-color: var(--tags-hover-border-color);
     }
 
     &.tagify--focus{
-        transition: 0s;
-        border-color: $tags-focus-border-color;
         border-color: var(--tags-focus-border-color);
+        transition: 0s;
     }
 
     &[disabled]{
@@ -166,7 +165,6 @@
             }
 
             #{$self}__tag > div{
-                padding: $tag-pad;
                 padding: var(--tag-pad);
                 &::before{
                     @include tagReadonlyBG;
@@ -219,10 +217,8 @@
             vertical-align : top;
             box-sizing     : border-box;
             max-width      : 100%;
-            padding        : $tag-pad;
-            padding        : var(--tag-pad, $tag-pad);
-            color          : $tag-text-color;
-            color          : var(--tag-text-color, $tag-text-color);
+            padding        : var(--tag-pad);
+            color          : var(--tag-text-color);
             line-height    : inherit;
             border-radius  : 3px;
          // user-select    : none;  // should allow selecting text if the user wishes to copy something
@@ -235,10 +231,8 @@
                 text-overflow  : ellipsis;
                 display        : inline-block;
                 vertical-align : top;
-                min-width      : $tag-min-width;
-                max-width      : $tag-max-width;
-                min-width      : var(--tag--min-width, $tag-min-width);
-                max-width      : var(--tag--max-width, $tag-max-width);
+                min-width      : var(--tag--min-width);
+                max-width      : var(--tag--max-width);
                 transition     : .8s ease, .1s color;
 
 
@@ -257,14 +251,12 @@
                 content: '';
                 position: absolute;
                 border-radius: inherit;
-                left:0; top:0; right:0; bottom:0;
+                inset: var(--tag-bg-inset, 0);
                 z-index: -1;
                 pointer-events:none;
                 transition: 120ms ease;
                 animation : tags--bump .3s ease-out 1;
-
-                box-shadow: 0 0 0 $tag-inset-shadow-size $tag-bg inset;
-                box-shadow: 0 0 0 var(--tag-inset-shadow-size, $tag-inset-shadow-size) var(--tag-bg, $tag-bg) inset;
+                box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-bg) inset;
             }
         }
 
@@ -272,17 +264,9 @@
         &:focus{
             div{  // :not([contenteditable])
                 &::before{
-                    $size: math.div(-$tagMargin, 2);
-                    $size: -2px;
-                    top:$size; right:$size; bottom:$size; left:$size;
-                    box-shadow: 0 0 0 $tag-inset-shadow-size $tag-hover inset;
-                    box-shadow: 0 0 0 var(--tag-inset-shadow-size, $tag-inset-shadow-size) var(--tag-hover, $tag-hover) inset;
-                  //  box-shadow: 0 0 0 0 $tag-remove inset
+                    --tag-bg-inset: #{math.div(-$tagMargin, 2)};
+                    --tag-bg: var(--tag-hover);
                 }
-                // background:nth($tagColor,2);
-                //background:none;
-                // box-shadow: 0 0 0 2px $tag-hover inset;
-                // transition:50ms;
             }
         }
 
@@ -312,8 +296,7 @@
             margin-right   : 0;
             opacity        : 0;
             transform      : scale(0);
-            transition     : $tag-hide-transition;
-            transition     : var(--tag-hide-transition, $tag-hide-transition);
+            transition     : var(--tag-hide-transition);
             pointer-events : none;
 
             > div > *{
@@ -332,8 +315,7 @@
                 div{
                     > span{ opacity:.5; } // filter:blur(.2px);
                     &::before{
-                        box-shadow: 0 0 0 $tag-inset-shadow-size $tag-invalid-bg inset !important;
-                        box-shadow: 0 0 0 var(--tag-inset-shadow-size, $tag-inset-shadow-size) var(--tag-invalid-bg, $tag-invalid-bg) inset !important;
+                        --tag-bg: var(--tag-invalid-bg);
                         transition: .2s;
                     }
                 }
@@ -351,12 +333,10 @@
 
         &--editable{
             > div{
-                color : $tag-text-color--edit;
-                color : var(--tag-text-color--edit, $tag-text-color--edit);
+                color : var(--tag-text-color--edit);
 
                 &::before{
-                    box-shadow: 0 0 0 2px $tag-hover inset !important;
-                    box-shadow: 0 0 0 2px var(--tag-hover, $tag-hover) inset !important;
+                    box-shadow: 0 0 0 2px var(--tag-hover) inset !important;
                 }
             }
 
@@ -372,8 +352,7 @@
             &.tagify--invalid{
                 > div{
                     &::before{
-                        box-shadow: 0 0 0 2px $tag-invalid-color inset !important;
-                        box-shadow: 0 0 0 2px var(--tag-invalid-color, $tag-invalid-color) inset !important;
+                        box-shadow: 0 0 0 2px var(--tag-invalid-color) inset !important;
                     }
                 }
             }
@@ -389,10 +368,8 @@
             border-radius  : 50px;
             cursor         : pointer;
             font           : #{$size}/1 Arial;
-            background     : $tag-remove-btn-bg;
-            background     : var(--tag-remove-btn-bg, $tag-remove-btn-bg);
-            color          : $tag-remove-btn-color;
-            color          : var(--tag-remove-btn-color, $tag-remove-btn-color);
+            background     : var(--tag-remove-btn-bg);
+            color          : var(--tag-remove-btn-color);
 
             width          : $size;
             height         : $size;
@@ -409,14 +386,12 @@
 
             &:hover{
                 color: white;
-                background: $tag-remove-btn-bg--hover;
-                background: var(--tag-remove-btn-bg--hover, $tag-remove-btn-bg--hover);
+                background: var(--tag-remove-btn-bg--hover);
                 // + span{ box-shadow: 0 0 0 2px $tag-remove inset; transition:.2s; }
                 + div{
                     > span{ opacity:.5; } // filter:blur(.2px);
                     &::before{
-                        box-shadow: 0 0 0 $tag-inset-shadow-size rgba($tag-remove, .3) inset !important;
-                        box-shadow: 0 0 0 var(--tag-inset-shadow-size, $tag-inset-shadow-size) var(--tag-remove-bg, rgba($tag-remove, .3)) inset !important;
+                        box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-remove-bg, rgba($tag-remove, .3)) inset !important;
                         transition: box-shadow .2s;
                     }
                 }
@@ -441,13 +416,11 @@
         display: inline-block;
         min-width: $placeholder-width;
         margin: $tagMargin;
-        padding: $tag-pad;
-        padding: var(--tag-pad, $tag-pad);
+        padding: var(--tag-pad);
         line-height: normal;
         position: relative;
         white-space: pre-wrap; // #160 Line break (\n) as delimeter
-        color: $input-color;
-        color: var(--input-color, $input-color);
+        color: var(--input-color);
         box-sizing: inherit;
 
         &:empty{
@@ -502,7 +475,6 @@
             line-height: 1em;
             margin: auto 0;
             z-index: 1;
-            color: $placeholder-color;
             color: var(--placeholder-color);
             white-space: nowrap;
             pointer-events: none;
@@ -563,6 +535,7 @@
     &--select{
         &::after{
             $size: 16px;
+
             content: '>';
             opacity: .5;
             position: absolute;
@@ -588,6 +561,7 @@
             top: 0;
             right: 1.8em;
             bottom: 0;
+
             div{
                 display: none;
             }
@@ -621,6 +595,7 @@
     &__dropdown{
         $dropdown: &;
         $trans: .25s cubic-bezier(0,1,.5,1);
+
         position: absolute;
         z-index: 9999;
         transform: translateY(1px);
@@ -629,6 +604,7 @@
         &[placement="top"]{
             margin-top: 0;
             transform: translateY(-100%);
+
             #{$dropdown}__wrapper{
                 border-top-width: 1.1px; // fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523
                 border-bottom-width: 0;
@@ -639,6 +615,7 @@
         &[position="text"]{
             box-shadow: 0 0 0 3px rgba(var(--tagify-dd-color-primary), .1);
             font-size: .9em;
+
             #{$dropdown}__wrapper{
                 border-width: 1px;
             }
@@ -647,14 +624,13 @@
         &__wrapper{
             max-height: 300px;
             overflow: auto;
-            background: $tagify-dd-bg-color;
             background: var(--tagify-dd-bg-color);
             border: 1px solid $tags-focus-border-color;
             border-color: var(--tagify-dd-color-primary);
             border-bottom-width: 1.33px; // fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523
             border-top-width: 0;
             box-shadow: 0 2px 4px -2px rgba(black,.2);
-           // box-sizing: border-box;
+            // box-sizing: border-box;
             transition: $trans;
         }
 
@@ -665,7 +641,7 @@
         &__footer{
             display: inline-block;
             margin-top: .5em;
-            padding: $tag-pad;
+            padding: var(--tagify-dd-item-pad);
             font-size: 0.7em;
             font-style: italic;
             opacity: .5;
@@ -689,7 +665,7 @@
 
         &__item{
             box-sizing: inherit;
-            padding: $tag-pad;
+            padding: var(--tagify-dd-item-pad);
             margin: 1px;
             cursor: pointer;
             border-radius: 2px;
@@ -697,7 +673,6 @@
             outline: none;
 
             &--active{
-                background: $tagify-dd-color-primary;
                 background: var(--tagify-dd-color-primary);
                 color: white;
             }
