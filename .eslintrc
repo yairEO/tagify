@@ -1,26 +1,37 @@
 {
     "rules": {
-        "no-console"               : ["error", { "allow": ["warn", "error"] }],
-        "no-mixed-spaces-and-tabs" : [2, "smart-tabs"],
-        "block-spacing"            : [2, "always"],
-        "comma-style"              : [2, "last"],
-        "no-debugger"              : [1],
-        "no-alert"                 : [1],
-        "indent"                   : [1, 4, {"SwitchCase":1}],
-        "strict"                   : 0,
-        "no-undef"                 : 1
+        "no-console"              : ["error", { "allow": ["warn", "error"] }],
+        "no-mixed-spaces-and-tabs": [2, "smart-tabs"],
+        "block-spacing"           : [2, "always"],
+        "comma-style"             : [2, "last"],
+        "no-debugger"             : [1],
+        "no-alert"                : [1],
+        "indent"                  : [1, 4, {"SwitchCase":1}],
+        "strict"                  : 0,
+        "no-undef"                : 1,
+        "no-dupe-args"            : 2,
+        "no-const-assign"         : 2,
+        "no-extra-semi"           : 2,
+        "no-dupe-class-members"   : 2,
+        "no-dupe-else-if"         : 2,
+        "no-dupe-keys"            : 2,
+        "no-invalid-regexp"       : 2,
+        "valid-typeof"            : 2
     },
     "parserOptions": {
-        "ecmaVersion" : 2021,
+        "ecmaVersion" : 2020,
         "sourceType": "module",
         "ecmaFeatures": {
             "modules": true,
-            "sourceTyp": "module"
+            "sourceType": "module"
         }
     },
     "env": {
         "es6": true,
         "browser": true,
         "node": true
+    },
+    "globals": {
+        "jQuery": "readonly"
     }
 }
