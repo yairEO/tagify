@@ -375,7 +375,7 @@ Tagify.prototype = {
     },
 
     /**
-     * Toogle specieif tag loading state on/off
+     * Toogle a tag loading state on/off
      * @param {Boolean} isLoading
      */
     tagLoading( tagElm, isLoading ){
