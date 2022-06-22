@@ -270,6 +270,12 @@ apply the `pattern` attribute directly on the `input` which will be "transformed
 If the `pattern` setting does not meet your needs, use the [`validate` setting](#settings), which recieves a *tag data object* as an argument and should return `true` if validaiton is passing, or `false`/`string` of not.
 A *string* may be returned as the reason of the validation failure so it would be printed as the `title` attribute of the invalid tag.
 
+[Here's an example](https://jsbin.com/rojixul/edit?js,output) for async validation for an added tag. The idea is to listen to `"add"` event,
+and when it fires, first set the tag to "loading" state, run an async call, and then set the *loading* state (of the tag) back to `false`.
+If the custom async validation failed, call the `replaceTag` Tagify method and set the `__isValid` tag data property to the error string which will
+be shown when hovering the tag.
+
+
 Note - there is a setting to keep invalid tags ([`keepInvalidTags`](#settings))  and if it's set to `true`, the user can see the reason for the invalidation by
 hovering the tag and see the browser's native tooltip via the `title` attribute:
 
@@ -654,7 +660,7 @@ List of questions & scenarios which might come up during development with Tagify
   <summary><strong>Dynamic whitelist</strong></summary>
 The whitelist initial value is set like so:
 
-```javascript
+```js
 const tagify = new Tagify(tagNode, {
   whitelist: ["a", "b", "c"]
 })
@@ -1001,7 +1007,7 @@ editTags                  | <sub>Object/Number</sub>     | {}                   
 editTags.*clicks*         | <sub>Number</sub>            | 2                                           | Number of clicks to enter "edit-mode": 1 for single click. Any other value is considered as double-click
 editTags.*keepInvalid*    | <sub>Boolean</sub>           | true                                        | keeps invalid edits as-is until `esc` is pressed while in focus
 templates                 | <sub>Object</sub>            | <sub>`wrapper`, `tag`, `dropdownItem`</sub> | Object consisting of functions which return template strings
-validate                  | <sub>Function</sub>          |                                             | If the `pattern` setting does not meet your needs, use this function, which receives *tag data object* as an argument and should return `true` if validation passed or `false`/`string` of not. A *string* may be returned as the reason for the validation failure.
+validate                  | <sub>Function</sub>          |                                             | If the `pattern` setting does not meet your needs, use this function, which receives *tag data object* as an argument and should return `true` if validation passed or `false`/`string` if not. A *string* may be returned as the reason for the validation failure.
 transformTag              | <sub>Function</sub>          |                                             | Takes a tag data as argument and allows mutating it before a tag is created or edited and also before validation.<br>Should not `return` anything, only **mutate** the argument.
 keepInvalidTags           | <sub>Boolean</sub>           | false                                       | If `true`, do not remove tags which did not pass validation
 skipInvalid               | <sub>Boolean</sub>           | false                                       | If `true`, do not add invalid, temporary, tags before automatically removing them
