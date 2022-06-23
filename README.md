@@ -338,7 +338,7 @@ function onDragEnd(elm){
 It's possible to control the templates for some of the HTML elements Tagify is using by
 modifying the `settings.templates` Object with your own custom functions which **must return** an *HTML string*.
 
-Available templates are: `wrapper`, `tag`, `dropdown`, `dropdownItem` and the optional `dropdownItemNoMatch`
+Available templates are: `wrapper`, `tag`, `dropdown`, `dropdownItem`, `dropdownContent`, `dropdownHeader`, `dropdownFooter` and the optional `dropdownItemNoMatch`
 which is a special template for rendering a suggestion item (in the dropdown list) only if there were no matches found for the typed input, for example:
 
 ```js
