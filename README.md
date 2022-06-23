@@ -339,7 +339,17 @@ It's possible to control the templates for some of the HTML elements Tagify is u
 modifying the `settings.templates` Object with your own custom functions which **must return** an *HTML string*.
 
 Available templates are: `wrapper`, `tag`, `dropdown`, `dropdownItem` and the optional `dropdownItemNoMatch`
-which is a special template for rendering a suggestion item (in the dropdown list) only if there were no matches found for the typed input.
+which is a special template for rendering a suggestion item (in the dropdown list) only if there were no matches found for the typed input, for example:
+
+```js
+// ...more tagify settings...
+templates: {
+  dropdownItemNoMatch: data =>
+    `<div class='${tagify.settings.classNames.dropdownItem}' tagifySuggestionIdx="noMatch" tabindex="0" role="option">
+        No suggestion found for: <strong>${data.value}</strong>
+    </div>`
+}
+```
 
 [View templates](https://github.com/yairEO/tagify/blob/master/src/parts/templates.js)
 

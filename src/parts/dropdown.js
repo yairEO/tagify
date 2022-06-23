@@ -512,12 +512,13 @@ export default {
         // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
         var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
+            isNoMatch = tagifySuggestionIdx == 'noMatch',
             tagData = this.suggestedListItems[+tagifySuggestionIdx];
 
         this.trigger("dropdown:select", {data:tagData, elm})
 
         // The above event must be triggered, regardless of anything else which might go wrong
-        if( !tagifySuggestionIdx || !tagData ){
+        if( !tagifySuggestionIdx || !tagData && !isNoMatch ){
             this.dropdown.hide()
             return
         }
@@ -528,7 +529,7 @@ export default {
         }
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
         else{
-            addedTag = this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData], clearOnSelect)
+            addedTag = this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect)
         }
 
         // todo: consider not doing this on mix-mode
