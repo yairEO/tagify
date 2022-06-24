@@ -861,6 +861,7 @@ Name                            | Info
 
 Name                       | Parameters                                                                              | Info
 -------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------
+`id`                       | `String`                                                                                | See [*Persisted data*](https://github.com/yairEO/tagify/#persisted-data)
 `destroy`                  |                                                                                         | Reverts the input element back as it was before Tagify was applied
 `removeAllTags`            |                                                                                         | Removes all tags and resets the original input tag's value property
 `addTags`                  | <ol><li>`Array`/`String`/`Object` tag(s) to add</li><li>`Boolean` clear input after adding</li><li>`Boolean` - skip adding invalids</li><ol>  | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings.
