@@ -443,6 +443,27 @@ Tagify.prototype = {
         return newNode
     },
 
+    // compares all "__originalData" property values with the current "tagData" properties
+    // and returns "true" if something changed.
+    editTagChangeDetected(tagData) {
+        var originalData = tagData.__originalData;
+
+        for( var prop in originalData )
+            if( !this.dataProps.includes(prop) && tagData[prop] != originalData[prop] )
+                return true
+
+        return false; // not changed
+    },
+
+    // returns the node which has the actual tag's content
+    getTagTextNode(tagElm){
+        return tagElm.querySelector(this.settings.classNames.tagTextSelector)
+    },
+
+    setTagTextNode(tagElm, HTML){
+        this.getTagTextNode(tagElm).innerHTML = escapeHTML(HTML)
+    },
+
     /**
      * Enters a tag into "edit" mode
      * @param {Node} tagElm the tag element to edit. if nothing specified, use last last
@@ -453,20 +474,15 @@ Tagify.prototype = {
 
         this.dropdown.hide()
 
-        var _s = this.settings;
-
-        function getEditableElm(){
-            return tagElm.querySelector(_s.classNames.tagTextSelector)
-        }
-
-        var editableElm = getEditableElm(),
+        var _s = this.settings,
+            editableElm = this.getTagTextNode(tagElm),
             tagIdx = this.getNodeIndex(tagElm),
             tagData = this.tagData(tagElm),
             _CB = this.events.callbacks,
             that = this,
             isValid = true,
             delayed_onEditTagBlur = function(){
-                setTimeout(() => _CB.onEditTagBlur.call(that, getEditableElm()))
+                setTimeout(() => _CB.onEditTagBlur.call(that, that.getTagTextNode(tagElm)))
             }
 
         if( !editableElm ){
@@ -477,22 +493,20 @@ Tagify.prototype = {
         if( tagData instanceof Object && "editable" in tagData && !tagData.editable )
             return
 
-        editableElm.setAttribute('contenteditable', true)
-        tagElm.classList.add( _s.classNames.tagEditing )
-
         // cache the original data, on the DOM node, before any modification ocurs, for possible revert
-        this.tagData(tagElm, {
+        tagData = this.tagData(tagElm, {
             __originalData: extend({}, tagData),
             __originalHTML: tagElm.innerHTML
         })
+        // this.replaceTag(tagElm, tagData)
+
+        editableElm.setAttribute('contenteditable', true)
+        tagElm.classList.add( _s.classNames.tagEditing )
 
         editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm))
         editableElm.addEventListener('blur', delayed_onEditTagBlur)
         editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
         editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e, tagElm))
-
-        editableElm.focus()
-        this.setRangeAtStartEnd(false, editableElm)
 
         if( !opts.skipValidation )
             isValid = this.editTagToggleValidity(tagElm)
@@ -500,6 +514,9 @@ Tagify.prototype = {
         editableElm.originalIsValid = isValid
 
         this.trigger("edit:start", { tag:tagElm, index:tagIdx, data:tagData, isValid })
+
+        editableElm.focus()
+        this.setRangeAtStartEnd(false, editableElm) // place the caret at the END of the editable tag text
 
         return this
     },
@@ -908,7 +925,7 @@ Tagify.prototype = {
             }
         })
 
-        // first iterate the whitelist, try find maches by "value" and if that fails
+        // first iterate the whitelist, try find matches by "value" and if that fails
         // and a "tagTextProp" is set to be other than "value", try that also
         if( !result && prop == 'value' && _s.tagTextProp != 'value' ){
             // if found, adds the first which matches
