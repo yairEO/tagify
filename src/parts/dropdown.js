@@ -512,7 +512,7 @@ export default {
         // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
         var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
-            tagData = this.suggestedListItems[+tagifySuggestionIdx];
+            tagData = this.suggestedListItems[+tagifySuggestionIdx] || elm.getAttribute("value");
 
         this.trigger("dropdown:select", {data:tagData, elm})
 
