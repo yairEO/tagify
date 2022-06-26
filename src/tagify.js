@@ -460,6 +460,7 @@ Tagify.prototype = {
         return tagElm.querySelector(this.settings.classNames.tagTextSelector)
     },
 
+    // sets the text of a tag
     setTagTextNode(tagElm, HTML){
         this.getTagTextNode(tagElm).innerHTML = escapeHTML(HTML)
     },
