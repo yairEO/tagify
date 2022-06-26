@@ -861,7 +861,6 @@ Name                            | Info
 
 Name                       | Parameters                                                                              | Info
 -------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------
-`id`                       | `String`                                                                                | See [*Persisted data*](https://github.com/yairEO/tagify/#persisted-data)
 `destroy`                  |                                                                                         | Reverts the input element back as it was before Tagify was applied
 `removeAllTags`            |                                                                                         | Removes all tags and resets the original input tag's value property
 `addTags`                  | <ol><li>`Array`/`String`/`Object` tag(s) to add</li><li>`Boolean` clear input after adding</li><li>`Boolean` - skip adding invalids</li><ol>  | Accepts a String (word, single or multiple with a delimiter), an Array of Objects (see above) or Strings.
@@ -878,9 +877,11 @@ Name                       | Parameters                                         
 `getTagElmByValue`         | `String`                                                                                | Returns a specific tag DOM node by value
 `tagData`                  | `HTMLElement`, `Object`                                                                 | set/get tag data on a tag element (has`.tagify__tag` class by default)
 `editTag`                  | `HTMLElement`                                                                           | Goes to edit-mode in a specific tag
+`getTagTextNode`           | `HTMLElement`                                                                           | Get the node which has the actual tag's content
+`setTagTextNode`           | `HTMLElement`, `String`                                                                 | Sets the text of a tag (DOM only, does not affect actual data)
 `replaceTag`               | `tagElm`, `Object` <sub>(`tagData`)</sub>                                               | Exit a tag's edit-mode. if "tagData" exists, replace the tag element with new data and update Tagify value
 `loading`                  | `Boolean`                                                                               | toggle loading state on/off (Ex. AJAX whitelist pulling)
-`tagLoading`               | `HTMLElement`, Boolean                                                                  | same as above but for a specific tag element
+`tagLoading`               | `HTMLElement`, `Boolean`                                                                | same as above but for a specific tag element
 `createTagElem`            | `Object` <sub>(`tagData`)</sub>                                                         | Returns a tag element from the supplied tag data
 `injectAtCaret`            | `HTMLElement` <sub>(`injectedNode`)</sub>, `Object` <sub>(`range`)</sub>                | Injects text or HTML node at last caret position. `range` parameter is *optional*
 `placeCaretAfterNode`      | `HTMLElement`                                                             | Places the caret after a given node
@@ -995,6 +996,7 @@ beforePaste            | `tagify`, `pastedText`, `clipboardData`     | Before pa
 
 Name                      | Type                         | Default                                     | Info
 ------------------------- | ---------------------------- | ------------------------------------------- | --------------------------------------------------------------------------
+id                        | <sub>String</sub>            |                                             | See [*Persisted data*](https://github.com/yairEO/tagify/#persisted-data)
 tagTextProp               | <sub>String</sub>            | `"value"`                                   | Tag data Object property which will be displayed as the tag's text. Remember to keep "value" property <em>unique</em>. See Also: `dropdown.mapValueTo`, `dropdown.searchKeys`
 placeholder               | <sub>String</sub>            |                                             | Placeholder text. If this attribute is set on an input/textarea element it will override this setting
 delimiters                | <sub>String</sub>            | `","`                                       | [RegEx **string**] split tags by any of these delimiters. Example delimeters: ",&#124;.&#124; " (*comma*, *dot* or *whitespace*)
