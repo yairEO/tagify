@@ -150,7 +150,7 @@ describe("simple tests", () => {
         * smarter "fuzzySearch" autosuggest text: do not fill in the autosuggest if the match isn't from the start!
         * select-mode: if multiple tags were added, ignore all except first and add it
         * when dropdown is open and blur event occured, close it
-        * starting to type something that is in the whitelist and then clicking it should select it and remove the sugegsted text (::after)
+        * starting to type something that is in the whitelist and then clicking it should select it and remove the suggested text (::after)
         * select mode: arrow down should show the suggestions dropdown
     */
 })
