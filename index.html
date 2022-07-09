@@ -1751,7 +1751,7 @@ function dropdownHeaderTemplate(suggestions){
 // initialize Tagify on the above input node reference
 var tagify = new Tagify(inputElm, {
     tagTextProp: 'name', // very important since a custom template is used with this property as text
-    enforceWhitelist: true,
+    // enforceWhitelist: true,
     skipInvalid: true, // do not remporarily add invalid tags
     dropdown: {
         closeOnSelect: false,
@@ -1837,18 +1837,53 @@ var tagify = new Tagify(inputElm, {
             "avatar": "https://i.pravatar.cc/80?img=12",
             "email": "foo.aaa@foo.com"
         },
-    ]
+    ],
+    transformTag: (tagData, originalData) => {
+        var {name, email} = parseFullValue(tagData.name)
+        tagData.name = name
+        tagData.email = email || tagData.email
+    },
+    validate({name, email}) {
+        // when editing a tag, there will only be the "name" property which contains name + email (see 'transformTag' above)
+        if( !email && name ) {
+            var parsed = parseFullValue(name)
+            name = parsed.name
+            email = parsed.email
+        }
+
+        if( !name ) return "Missing name"
+        if( !validateEmail(email) ) return "Invalid email"
+
+        return true
+    }
 })
 
-// listen to dropdown suggestion items selection
-tagify.on('dropdown:select', onSelectSuggestion)
+// attach events listeners
+tagify.on('dropdown:select', onSelectSuggestion) // allows selecting all the suggested (whitelist) items
+      .on('edit:start', onEditStart)  // show custom text in the tag while in edit-mode
 
 function onSelectSuggestion(e){
-    console.log(this)
-    console.log(e.detail.elm.className,  e.detail.elm.classList.contains(`${tagify.settings.classNames.dropdownItem}__addAll`)  )
-
+    // custom class from "dropdownHeaderTemplate"
     if( e.detail.elm.classList.contains(`${tagify.settings.classNames.dropdownItem}__addAll`) )
         tagify.dropdown.selectAll();
+}
+
+function onEditStart({detail:{tag, data}}){
+    tagify.setTagTextNode(tag, `${data.name} <${data.email}>`)
+}
+
+// https://stackoverflow.com/a/9204568/104380
+function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function parseFullValue(value) {
+    // https://stackoverflow.com/a/11592042/104380
+    var parts = value.split(/<(.*?)>/g),
+        name = parts[0].trim(),
+        email = parts[1]?.replace(/<(.*?)>/g, '').trim();
+
+    return {name, email}
 }
 })()
 </script>
