@@ -12,7 +12,8 @@
 <p>
 
 <h3 align="center">
-  👉 <a href="https://yaireo.github.io/tagify">See Demos</a> 👈
+  👉 <a href="https://yaireo.github.io/tagify">See Many Examples</a> 👈
+  <br/><br/>
 </h3>
 
 <p align="center">
