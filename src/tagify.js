@@ -108,7 +108,7 @@ Tagify.prototype = {
 
         for( let name in _s.classNames )
             Object.defineProperty(_s.classNames, name + "Selector" , {
-                get(){ return "."+this[name].split(" ")[0] }
+                get(){ return "." + this[name].split(" ")[0] }
             })
 
         if( this.isIE )
@@ -370,7 +370,7 @@ Tagify.prototype = {
     loading( isLoading ){
         this.state.isLoading = isLoading
         // IE11 doesn't support toggle with second parameter
-        this.DOM.scope.classList[isLoading?"add":"remove"](this.settings.classNames.scopeLoading)
+        this.DOM.scope.classList[isLoading ? "add" : "remove"](this.settings.classNames.scopeLoading)
         return this
     },
 
@@ -381,7 +381,7 @@ Tagify.prototype = {
     tagLoading( tagElm, isLoading ){
         if( tagElm )
             // IE11 doesn't support toggle with second parameter
-            tagElm.classList[isLoading?"add":"remove"](this.settings.classNames.tagLoading)
+            tagElm.classList[isLoading ? "add" : "remove"](this.settings.classNames.tagLoading)
         return this
     },
 
@@ -393,6 +393,11 @@ Tagify.prototype = {
     toggleClass( className, force ){
         if( typeof className == 'string' )
             this.DOM.scope.classList.toggle(className, force)
+    },
+
+    toggleScopeValidation( validation ){
+        this.toggleClass(this.settings.classNames.tagInvalid, validation != true)
+        this.DOM.scope.title = validation === true ? '' : validation;
     },
 
     toggleFocusClass( force ){
@@ -1236,20 +1241,19 @@ Tagify.prototype = {
         skipInvalid = skipInvalid || _s.skipInvalid;
 
         if( !tagsItems || tagsItems.length == 0 ){
-            if( _s.mode == 'select' )
-                this.removeAllTags()
             return tagElems
         }
 
         // converts Array/String/Object to an Array of Objects
         tagsItems = this.normalizeTags(tagsItems)
 
-        if( _s.mode == 'mix' ){
-            return this.addMixTags(tagsItems)
+        switch( _s.mode ){
+            case 'mix': return this.addMixTags(tagsItems)
+            case 'select': {
+                clearInput = false
+                this.removeAllTags()
+            }
         }
-
-        if( _s.mode == 'select' )
-            clearInput = false
 
         this.DOM.input.removeAttribute('style')
 
@@ -1261,6 +1265,7 @@ Tagify.prototype = {
             // shallow-clone tagData so later modifications will not apply to the source
             tagData = Object.assign({}, originalData)
             _s.transformTag.call(this, tagData)
+
             tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData)
 
             if( tagData.__isValid !== true ){
@@ -1274,6 +1279,9 @@ Tagify.prototype = {
                 if( tagData.__isValid == this.TEXTS.duplicate )
                     // mark, for a brief moment, the tag (this this one) which THIS CURRENT tag is a duplcate of
                     this.flashTag( this.getTagElmByValue(tagData.value) )
+
+                if( _s.mode == 'select' )
+                    this.toggleScopeValidation(tagData.__isValid)
             }
             /////////////////////////////////////////////////////
 
@@ -1461,10 +1469,14 @@ Tagify.prototype = {
         this.getTagElms(_s.classNames.tagNotAllowed).forEach((tagElm, i) => {
             var tagData = this.tagData(tagElm),
                 hasMaxTags = this.hasMaxTags(),
-                tagValidation = this.validateTag(tagData);
+                tagValidation = this.validateTag(tagData),
+                isValid = tagValidation === true && !hasMaxTags;
+
+            if( _s.mode == 'select' )
+                this.toggleScopeValidation(tagValidation)
 
             // if the tag has become valid
-            if( tagValidation === true && !hasMaxTags ){
+            if( isValid ){
                 tagData = tagData.__preInvalidData
                     ? tagData.__preInvalidData
                     : { value:tagData.value }
@@ -1526,8 +1538,9 @@ Tagify.prototype = {
             this.input.set.call(this)
         }
 
-        // if only a single tag is to be removed
-        if( tagsToRemove.length == 1 ){
+        // if only a single tag is to be removed.
+        // skip "select" mode because invalid tags are actually set to `this.value`
+        if( tagsToRemove.length == 1 && _s.mode != 'select' ){
             if( tagsToRemove[0].node.classList.contains(_s.classNames.tagNotAllowed) )
                 silent = true
         }

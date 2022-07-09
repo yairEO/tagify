@@ -182,22 +182,18 @@ export default {
                 this.trigger("blur", eventData)
                 this.loading(false)
 
-                let inWhitelist = _s.enforceWhitelist
-                    ? !!this.getWhitelistItem(this.value?.[0]?.value)
-                    : _s.keepInvalidTags;
-
-                // when clicking the X button of a selected tag, it is unwanted it will be added back
+                // when clicking the X button of a selected tag, it is unwanted for it to be added back
                 // again in a few more lines of code (shouldAddTags && addTags)
                 if( this.settings.mode == 'select' && isRelatedTargetX )
                     text = '';
 
-                shouldAddTags = this.settings.mode !== 'select' && text && !this.state.actions.selectOption && _s.addTagOnBlur;
+                shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur;
 
                 // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
                 shouldAddTags && this.addTags(text, true)
 
                 // if text value is not in the whitelist, clear it once the input is blured
-                if( this.settings.mode == 'select' && (!text || !inWhitelist) )
+                if( this.settings.mode == 'select' && !text )
                     this.removeTags()
             }
 
@@ -732,9 +728,10 @@ export default {
             var tagElm = editableElm.closest('.' + this.settings.classNames.tag),
                 tagElmIdx = this.getNodeIndex(tagElm),
                 tagData = this.tagData(tagElm),
-                value = this.input.normalize.call(this, editableElm),
-                hasChanged = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
-                isValid = this.validateTag(extend(tagElm.__tagifyTagData, {[this.settings.tagTextProp]: value})); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
+                textValue = this.input.normalize.call(this, editableElm),
+                dataForChangedProp = {[this.settings.tagTextProp]: textValue},
+                isValid = this.validateTag(dataForChangedProp), // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
+                hasChanged = this.editTagChangeDetected(extend(tagData, dataForChangedProp));
 
             // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
             if( !hasChanged && editableElm.originalIsValid === true )
@@ -748,18 +745,18 @@ export default {
                 : isValid // change the tag's title to indicate why is the tag invalid (if it's so)
 
             // show dropdown if typed text is equal or more than the "enabled" dropdown setting
-            if( value.length >= this.settings.dropdown.enabled ){
+            if( textValue.length >= this.settings.dropdown.enabled ){
                 // this check is needed apparently because doing browser "undo" will fire
                 //  "onEditTagInput" but "this.state.editing" will be "false"
                 if( this.state.editing )
-                    this.state.editing.value = value
-                this.dropdown.show(value)
+                    this.state.editing.value = textValue
+                this.dropdown.show(textValue)
             }
 
             this.trigger("edit:input", {
                 tag          : tagElm,
                 index        : tagElmIdx,
-                data         : extend({}, this.value[tagElmIdx], {newValue:value}),
+                data         : extend({}, this.value[tagElmIdx], {newValue:textValue}),
                 originalEvent: this.cloneEvent(e)
             })
         },
@@ -784,12 +781,11 @@ export default {
                 tagElm       = editableElm.closest('.' + _s.classNames.tag),
                 textValue    = this.input.normalize.call(this, editableElm),
                 originalData = this.tagData(tagElm).__originalData, // pre-edit data
-                hasChanged   = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
+                hasChanged   = this.editTagChangeDetected( this.tagData(tagElm) ),
                 isValid      = this.validateTag({[_s.tagTextProp]: textValue}),
                 hasMaxTags,
                 newTagData;
 
-            //  this.DOM.input.focus()
             if( !textValue ){
                 this.onEditTagDone(tagElm)
                 return
@@ -811,7 +807,6 @@ export default {
                 originalData,
                 {
                     [_s.tagTextProp]: this.trim(textValue),
-                    value: textValue,
                     __isValid: isValid
                 }
             )
@@ -840,7 +835,7 @@ export default {
             }
 
             else if( _s.keepInvalidTags ){
-                // cleaup any previous leftovers if the tag was
+                // cleaup any previous leftovers if the tag was invalid
                 delete newTagData.title
                 delete newTagData["aria-invalid"]
                 delete newTagData.class
