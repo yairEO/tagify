@@ -502,9 +502,10 @@ Tagify.prototype = {
         // cache the original data, on the DOM node, before any modification ocurs, for possible revert
         tagData = this.tagData(tagElm, {
             __originalData: extend({}, tagData),
-            __originalHTML: tagElm.innerHTML
+            __originalHTML: tagElm.cloneNode(true)
         })
-        // this.replaceTag(tagElm, tagData)
+        // re-set the tagify custom-prop on the clones element (because cloning removed it)
+        this.tagData(tagData.__originalHTML, tagData.__originalData)
 
         editableElm.setAttribute('contenteditable', true)
         tagElm.classList.add( _s.classNames.tagEditing )
