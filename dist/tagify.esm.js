@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.12.0) - tags input component
+ * Tagify (v 4.13.0) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,14 +28,9 @@ function ownKeys(object, enumerableOnly) {
 
   if (Object.getOwnPropertySymbols) {
     var symbols = Object.getOwnPropertySymbols(object);
-
-    if (enumerableOnly) {
-      symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      });
-    }
-
-    keys.push.apply(keys, symbols);
+    enumerableOnly && (symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    })), keys.push.apply(keys, symbols);
   }
 
   return keys;
@@ -43,19 +38,12 @@ function ownKeys(object, enumerableOnly) {
 
 function _objectSpread2(target) {
   for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-
-    if (i % 2) {
-      ownKeys(Object(source), true).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
+    var source = null != arguments[i] ? arguments[i] : {};
+    i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
+      Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+    });
   }
 
   return target;
@@ -623,7 +611,9 @@ var _dropdown = {
      * because there might be multiple Tagify instances on a certain page
      * @param  {Boolean} bindUnbind [optional. true when wanting to unbind all the events]
      */
-    binding(bindUnbind = true) {
+    binding() {
+      let bindUnbind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
       // references to the ".bind()" methods must be saved so they could be unbinded later
       var _CB = this.dropdown.events.callbacks,
           // callback-refs
@@ -664,10 +654,11 @@ var _dropdown = {
               // >IE11
               e.preventDefault();
               var dropdownItems;
-              if (selectedElm) selectedElm = selectedElm[(e.key == 'ArrowUp' || e.key == 'Up' ? "previous" : "next") + "ElementSibling"]; // if no element was found, loop
+              if (selectedElm) selectedElm = selectedElm[(e.key == 'ArrowUp' || e.key == 'Up' ? "previous" : "next") + "ElementSibling"]; // if no element was found OR current item is not a "real" item, loop
 
-              if (!selectedElm) {
-                dropdownItems = this.DOM.dropdown.content.children;
+              if (!selectedElm || !selectedElm.matches(this.settings.classNames.dropdownItemSelector)) {
+                // filter only the dropdown-item elements (not header/footer/custom ones)
+                dropdownItems = this.DOM.dropdown.content.querySelectorAll(this.settings.classNames.dropdownItemSelector);
                 selectedElm = dropdownItems[e.key == 'ArrowUp' || e.key == 'Up' ? dropdownItems.length - 1 : 0];
               }
 
@@ -824,13 +815,14 @@ var _dropdown = {
 
 
     var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
+        isNoMatch = tagifySuggestionIdx == 'noMatch',
         tagData = this.suggestedListItems[+tagifySuggestionIdx];
     this.trigger("dropdown:select", {
       data: tagData,
       elm
     }); // The above event must be triggered, regardless of anything else which might go wrong
 
-    if (!tagifySuggestionIdx || !tagData) {
+    if (!tagifySuggestionIdx || !tagData && !isNoMatch) {
       this.dropdown.hide();
       return;
     }
@@ -842,7 +834,7 @@ var _dropdown = {
       }, this.normalizeTags([tagData])[0]));
     } // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
     else {
-      this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData], clearOnSelect);
+      this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect);
     } // todo: consider not doing this on mix-mode
 
 
@@ -1103,7 +1095,7 @@ var templates = {
 
   /**
    * Example: <header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownHeader}"></header>
-   * @param {Array} suggestions An array of all the matched sugegsted items, including those which were sliced away due to the "dropdown.maxItems" setting
+   * @param {Array} suggestions An array of all the matched suggested items, including those which were sliced away due to the "dropdown.maxItems" setting
    */
   dropdownHeader(suggestions) {
     return '';
@@ -1202,7 +1194,9 @@ var events = {
     });
   },
 
-  binding(bindUnbind = true) {
+  binding() {
+    let bindUnbind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
     var _CB = this.events.callbacks,
         _CBR,
         action = bindUnbind ? 'addEventListener' : 'removeEventListener'; // do not allow the main events to be bound more than once
@@ -1332,19 +1326,16 @@ var events = {
 
         return;
       } else if (type == "blur") {
-        var _this$value, _this$value$;
-
         this.trigger("blur", eventData);
-        this.loading(false);
-        let inWhitelist = _s.enforceWhitelist ? !!this.getWhitelistItem((_this$value = this.value) === null || _this$value === void 0 ? void 0 : (_this$value$ = _this$value[0]) === null || _this$value$ === void 0 ? void 0 : _this$value$.value) : _s.keepInvalidTags; // when clicking the X button of a selected tag, it is unwanted it will be added back
+        this.loading(false); // when clicking the X button of a selected tag, it is unwanted for it to be added back
         // again in a few more lines of code (shouldAddTags && addTags)
 
         if (this.settings.mode == 'select' && isRelatedTargetX) text = '';
-        shouldAddTags = this.settings.mode !== 'select' && text && !this.state.actions.selectOption && _s.addTagOnBlur; // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
+        shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur; // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
 
         shouldAddTags && this.addTags(text, true); // if text value is not in the whitelist, clear it once the input is blured
 
-        if (this.settings.mode == 'select' && (!text || !inWhitelist)) this.removeTags();
+        if (this.settings.mode == 'select' && !text) this.removeTags();
       }
 
       this.DOM.input.removeAttribute('style');
@@ -1448,7 +1439,7 @@ var events = {
               if ((deleteKeyTagDetected || isCaretAfterTag) && sel.anchorNode.nodeType == 1) {
                 if (sel.anchorOffset == 0) // caret is at the very begining, before a tag
                   tagElmToBeDeleted = deleteKeyTagDetected // delete key pressed
-                  ? lastTagElems[0] : null;else tagElmToBeDeleted = lastTagElems[sel.anchorOffset - 1]; // find out if a tag *might* be a candidate for deletion, and if so, which
+                  ? lastTagElems[0] : null;else tagElmToBeDeleted = lastTagElems[Math.min(lastTagElems.length, sel.anchorOffset) - 1]; // find out if a tag *might* be a candidate for deletion, and if so, which
 
               } else if (deleteKeyTagDetected) tagElmToBeDeleted = sel.anchorNode.nextElementSibling;else if (isCaretAfterTag) tagElmToBeDeleted = isCaretAfterTag; // tagElm.hasAttribute('readonly')
 
@@ -1590,28 +1581,36 @@ var events = {
     onInput(e) {
       this.postUpdate(); // toggles "tagify--empty" class
 
-      if (this.settings.mode == 'mix') return this.events.callbacks.onMixTagsInput.call(this, e);
+      var _s = this.settings;
+      if (_s.mode == 'mix') return this.events.callbacks.onMixTagsInput.call(this, e);
       var value = this.input.normalize.call(this),
-          showSuggestions = value.length >= this.settings.dropdown.enabled,
+          showSuggestions = value.length >= _s.dropdown.enabled,
           eventData = {
         value,
         inputElm: this.DOM.input
-      };
-      eventData.isValid = this.validateTag({
+      },
+          validation = this.validateTag({
         value
-      }); // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
+      });
+
+      if (_s.mode == 'select') {
+        this.toggleScopeValidation(validation);
+      }
+
+      eventData.isValid = validation; // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
       // and so many keys do not change the input, and for those do not continue.
 
       if (this.state.inputText == value) return; // save the value on the input's State object
 
       this.input.set.call(this, value, false); // update the input with the normalized value and run validations
       // this.setRangeAtStartEnd(); // fix caret position
+      // if delimiters detected, add tags
 
-      if (value.search(this.settings.delimiters) != -1) {
+      if (value.search(_s.delimiters) != -1) {
         if (this.addTags(value)) {
           this.input.set.call(this); // clear the input field's value
         }
-      } else if (this.settings.dropdown.enabled >= 0) {
+      } else if (_s.dropdown.enabled >= 0) {
         this.dropdown[showSuggestions ? "show" : "hide"](value);
       }
 
@@ -1832,12 +1831,13 @@ var events = {
       var tagElm = editableElm.closest('.' + this.settings.classNames.tag),
           tagElmIdx = this.getNodeIndex(tagElm),
           tagData = this.tagData(tagElm),
-          value = this.input.normalize.call(this, editableElm),
-          hasChanged = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
-          isValid = this.validateTag(extend(tagElm.__tagifyTagData, {
-        [this.settings.tagTextProp]: value
-      })); // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
-      // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
+          textValue = this.input.normalize.call(this, editableElm),
+          dataForChangedProp = {
+        [this.settings.tagTextProp]: textValue
+      },
+          isValid = this.validateTag(dataForChangedProp),
+          // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
+      hasChanged = this.editTagChangeDetected(extend(tagData, dataForChangedProp)); // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
 
       if (!hasChanged && editableElm.originalIsValid === true) isValid = true;
       tagElm.classList.toggle(this.settings.classNames.tagInvalid, isValid !== true);
@@ -1845,18 +1845,18 @@ var events = {
       tagElm.title = isValid === true ? tagData.title || tagData.value : isValid; // change the tag's title to indicate why is the tag invalid (if it's so)
       // show dropdown if typed text is equal or more than the "enabled" dropdown setting
 
-      if (value.length >= this.settings.dropdown.enabled) {
+      if (textValue.length >= this.settings.dropdown.enabled) {
         // this check is needed apparently because doing browser "undo" will fire
         //  "onEditTagInput" but "this.state.editing" will be "false"
-        if (this.state.editing) this.state.editing.value = value;
-        this.dropdown.show(value);
+        if (this.state.editing) this.state.editing.value = textValue;
+        this.dropdown.show(textValue);
       }
 
       this.trigger("edit:input", {
         tag: tagElm,
         index: tagElmIdx,
         data: extend({}, this.value[tagElmIdx], {
-          newValue: value
+          newValue: textValue
         }),
         originalEvent: this.cloneEvent(e)
       });
@@ -1881,13 +1881,12 @@ var events = {
           textValue = this.input.normalize.call(this, editableElm),
           originalData = this.tagData(tagElm).__originalData,
           // pre-edit data
-      hasChanged = tagElm.innerHTML != tagElm.__tagifyTagData.__originalHTML,
+      hasChanged = this.editTagChangeDetected(this.tagData(tagElm)),
           isValid = this.validateTag({
         [_s.tagTextProp]: textValue
       }),
           hasMaxTags,
-          newTagData; //  this.DOM.input.focus()
-
+          newTagData;
 
       if (!textValue) {
         this.onEditTagDone(tagElm);
@@ -1906,7 +1905,6 @@ var events = {
       hasMaxTags = this.hasMaxTags();
       newTagData = extend({}, originalData, {
         [_s.tagTextProp]: this.trim(textValue),
-        value: textValue,
         __isValid: isValid
       }); // pass through optional transformer defined in settings
 
@@ -1930,7 +1928,7 @@ var events = {
         if (_s.keepInvalidTags) newTagData.__isValid = isValid;else // revert back if not specified to keep
           newTagData = originalData;
       } else if (_s.keepInvalidTags) {
-        // cleaup any previous leftovers if the tag was
+        // cleaup any previous leftovers if the tag was invalid
         delete newTagData.title;
         delete newTagData["aria-invalid"];
         delete newTagData.class;
@@ -1948,7 +1946,12 @@ var events = {
       switch (e.key) {
         case 'Esc':
         case 'Escape':
-          tagElm.innerHTML = tagElm.__tagifyTagData.__originalHTML;
+          {
+            // revert the tag to how it was before editing
+            // replace current tag with original one (pre-edited one)
+            tagElm.parentNode.replaceChild(tagElm.__tagifyTagData.__originalHTML, tagElm);
+            this.state.editing = false;
+          }
 
         case 'Enter':
         case 'Tab':
@@ -1959,10 +1962,11 @@ var events = {
 
     onDoubleClickScope(e) {
       var tagElm = e.target.closest('.' + this.settings.classNames.tag),
+          tagData = this.tagData(tagElm),
           _s = this.settings,
           isEditingTag,
           isReadyOnlyTag;
-      if (!tagElm || !_s.userInput) return;
+      if (!tagElm || !_s.userInput || tagData.editable === false) return;
       isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing);
       isReadyOnlyTag = tagElm.hasAttribute('readonly');
       if (_s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags) this.editTag(tagElm);
@@ -1983,27 +1987,34 @@ var events = {
       m.forEach(record => {
         // only the ADDED nodes
         record.addedNodes.forEach(addedNode => {
-          if (addedNode) {
-            // fix chrome's placing '<div><br></div>' everytime ENTER key is pressed, and replace with just `<br'
-            if (addedNode.outerHTML == '<div><br></div>') {
-              addedNode.replaceWith(document.createElement('br'));
-            } // if the added element is a div containing a tag within it (chrome does this when pressing ENTER before a tag)
-            else if (addedNode.nodeType == 1 && addedNode.querySelector(this.settings.classNames.tagSelector)) {
-              let newlineText = document.createTextNode('');
-              if (addedNode.childNodes[0].nodeType == 3 && addedNode.previousSibling.nodeName != 'BR') newlineText = document.createTextNode('\n'); // unwrap the useless div
-              // chrome adds a BR at the end which should be removed
+          // fix chrome's placing '<div><br></div>' everytime ENTER key is pressed, and replace with just `<br'
+          if (addedNode.outerHTML == '<div><br></div>') {
+            addedNode.replaceWith(document.createElement('br'));
+          } // if the added element is a div containing a tag within it (chrome does this when pressing ENTER before a tag)
+          else if (addedNode.nodeType == 1 && addedNode.querySelector(this.settings.classNames.tagSelector)) {
+            let newlineText = document.createTextNode('');
+            if (addedNode.childNodes[0].nodeType == 3 && addedNode.previousSibling.nodeName != 'BR') newlineText = document.createTextNode('\n'); // unwrap the useless div
+            // chrome adds a BR at the end which should be removed
 
-              addedNode.replaceWith(...[newlineText, ...[...addedNode.childNodes].slice(0, -1)]);
-              this.placeCaretAfterNode(newlineText.previousSibling);
-            } // if this is a tag
-            else if (isNodeTag.call(this, addedNode)) {
-              // and it is the first node in a new line
-              if (addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR') {
-                // allows placing the caret just before the tag, when the tag is the first node in that line
-                addedNode.previousSibling.replaceWith('\n\u200B'); // when hitting ENTER for new line just before a tag
+            addedNode.replaceWith(...[newlineText, ...[...addedNode.childNodes].slice(0, -1)]);
+            this.placeCaretAfterNode(newlineText);
+          } // if this is a tag
+          else if (isNodeTag.call(this, addedNode)) {
+            if (addedNode.previousSibling?.nodeType == 3 && !addedNode.previousSibling.textContent) addedNode.previousSibling.remove(); // and it is the first node in a new line
 
-                this.placeCaretAfterNode(addedNode.previousSibling.previousSibling);
-              }
+            if (addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR') {
+              // allows placing the caret just before the tag, when the tag is the first node in that line
+              addedNode.previousSibling.replaceWith('\n\u200B');
+              let nextNode = addedNode.nextSibling,
+                  anythingAfterNode = '';
+
+              while (nextNode) {
+                anythingAfterNode += nextNode.textContent;
+                nextNode = nextNode.nextSibling;
+              } // when hitting ENTER for new line just before an existing tag, but skip below logic when a tag has been addded
+
+
+              anythingAfterNode.trim() && this.placeCaretAfterNode(addedNode.previousSibling);
             }
           }
         });
@@ -2040,7 +2051,7 @@ var events = {
 function Tagify(input, settings) {
   if (!input) {
     console.warn('Tagify:', 'input element not found', input); // return an empty mock of all methods, so the code using tagify will not break
-    // because it might be calling methods even though the input element does not exists
+    // because it might be calling methods even though the input element does not exist
 
     const mockInstance = new Proxy(this, {
       get() {
@@ -2293,10 +2304,11 @@ Tagify.prototype = {
     }
 
     this.CSSVars = {
-      tagHideTransition: (({
-        value,
-        unit
-      }) => unit == 's' ? value * 1000 : value)(seprateUnitFromValue(getProp('tag-hide-transition')))
+      tagHideTransition: (_ref => {
+        let value = _ref.value,
+            unit = _ref.unit;
+        return unit == 's' ? value * 1000 : value;
+      })(seprateUnitFromValue(getProp('tag-hide-transition')))
     };
   },
 
@@ -2354,7 +2366,8 @@ Tagify.prototype = {
     if (value) {
       if (_s.mode == 'mix') {
         this.parseMixTags(this.trim(value));
-        lastChild = this.DOM.input.lastChild;
+        lastChild = this.DOM.input.lastChild; // fixes a Chrome bug, when the last node in `mix-mode` is a tag, the caret appears at the far-top-top, outside the field
+
         if (!lastChild || lastChild.tagName != 'BR') this.DOM.input.insertAdjacentHTML('beforeend', '<br>');
       } else {
         try {
@@ -2390,7 +2403,7 @@ Tagify.prototype = {
   },
 
   /**
-   * Toogle specieif tag loading state on/off
+   * Toogle a tag loading state on/off
    * @param {Boolean} isLoading
    */
   tagLoading(tagElm, isLoading) {
@@ -2408,6 +2421,11 @@ Tagify.prototype = {
     if (typeof className == 'string') this.DOM.scope.classList.toggle(className, force);
   },
 
+  toggleScopeValidation(validation) {
+    this.toggleClass(this.settings.classNames.tagInvalid, validation != true);
+    this.DOM.scope.title = validation === true ? '' : validation;
+  },
+
   toggleFocusClass(force) {
     this.toggleClass(this.settings.classNames.focus, !!force);
   },
@@ -2421,7 +2439,7 @@ Tagify.prototype = {
 
   placeCaretAfterNode(node) {
     if (!node || !node.parentNode) return;
-    var nextSibling = node.nextSibling,
+    var nextSibling = node,
         sel = window.getSelection(),
         range = sel.getRangeAt(0);
 
@@ -2442,6 +2460,26 @@ Tagify.prototype = {
     return newNode;
   },
 
+  // compares all "__originalData" property values with the current "tagData" properties
+  // and returns "true" if something changed.
+  editTagChangeDetected(tagData) {
+    var originalData = tagData.__originalData;
+
+    for (var prop in originalData) if (!this.dataProps.includes(prop) && tagData[prop] != originalData[prop]) return true;
+
+    return false; // not changed
+  },
+
+  // returns the node which has the actual tag's content
+  getTagTextNode(tagElm) {
+    return tagElm.querySelector(this.settings.classNames.tagTextSelector);
+  },
+
+  // sets the text of a tag
+  setTagTextNode(tagElm, HTML) {
+    this.getTagTextNode(tagElm).innerHTML = escapeHTML(HTML);
+  },
+
   /**
    * Enters a tag into "edit" mode
    * @param {Node} tagElm the tag element to edit. if nothing specified, use last last
@@ -2450,20 +2488,16 @@ Tagify.prototype = {
     tagElm = tagElm || this.getLastTag();
     opts = opts || {};
     this.dropdown.hide();
-    var _s = this.settings;
 
-    function getEditableElm() {
-      return tagElm.querySelector(_s.classNames.tagTextSelector);
-    }
-
-    var editableElm = getEditableElm(),
+    var _s = this.settings,
+        editableElm = this.getTagTextNode(tagElm),
         tagIdx = this.getNodeIndex(tagElm),
         tagData = this.tagData(tagElm),
         _CB = this.events.callbacks,
         that = this,
         isValid = true,
         delayed_onEditTagBlur = function () {
-      setTimeout(() => _CB.onEditTagBlur.call(that, getEditableElm()));
+      setTimeout(() => _CB.onEditTagBlur.call(that, that.getTagTextNode(tagElm)));
     };
 
     if (!editableElm) {
@@ -2471,20 +2505,20 @@ Tagify.prototype = {
       return;
     }
 
-    if (tagData instanceof Object && "editable" in tagData && !tagData.editable) return;
-    editableElm.setAttribute('contenteditable', true);
-    tagElm.classList.add(_s.classNames.tagEditing); // cache the original data, on the DOM node, before any modification ocurs, for possible revert
+    if (tagData instanceof Object && "editable" in tagData && !tagData.editable) return; // cache the original data, on the DOM node, before any modification ocurs, for possible revert
 
-    this.tagData(tagElm, {
+    tagData = this.tagData(tagElm, {
       __originalData: extend({}, tagData),
-      __originalHTML: tagElm.innerHTML
-    });
+      __originalHTML: tagElm.cloneNode(true)
+    }); // re-set the tagify custom-prop on the clones element (because cloning removed it)
+
+    this.tagData(tagData.__originalHTML, tagData.__originalData);
+    editableElm.setAttribute('contenteditable', true);
+    tagElm.classList.add(_s.classNames.tagEditing);
     editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm));
     editableElm.addEventListener('blur', delayed_onEditTagBlur);
     editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
     editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e, tagElm));
-    editableElm.focus();
-    this.setRangeAtStartEnd(false, editableElm);
     if (!opts.skipValidation) isValid = this.editTagToggleValidity(tagElm);
     editableElm.originalIsValid = isValid;
     this.trigger("edit:start", {
@@ -2493,11 +2527,14 @@ Tagify.prototype = {
       data: tagData,
       isValid
     });
+    editableElm.focus();
+    this.setRangeAtStartEnd(false, editableElm); // place the caret at the END of the editable tag text
+
     return this;
   },
 
   /**
-   * If a tag is invalid, for any reason, set its class to as "not allowed" (see defaults file)
+   * If a tag is invalid, for any reason, set its class to "not allowed" (see defaults file)
    * @param {Node} tagElm required
    * @param {Object} tagData optional
    * @returns true if valid, a string (reason) if not
@@ -2543,7 +2580,7 @@ Tagify.prototype = {
       tagElm = this.replaceTag(tagElm, tagData);
       this.editTagToggleValidity(tagElm, tagData);
       if (this.settings.a11y.focusableTags) tagElm.focus();else // place caret after edited tag
-        this.placeCaretAfterNode(tagElm.previousSibling);
+        this.placeCaretAfterNode(tagElm);
     } else if (tagElm) this.removeTags(tagElm);
 
     this.trigger("edit:updated", eventData);
@@ -2604,8 +2641,13 @@ Tagify.prototype = {
    * @param {Object} selection [optional range Object. must have "anchorNode" & "anchorOffset"]
    */
   injectAtCaret(injectedNode, range) {
-    range = range || this.state.selection.range;
-    if (!range) return;
+    range = range || this.state.selection?.range;
+
+    if (!range && injectedNode) {
+      this.appendMixTags(injectedNode);
+      return this;
+    }
+
     if (typeof injectedNode == 'string') injectedNode = document.createTextNode(injectedNode);
     range.deleteContents();
     range.insertNode(injectedNode);
@@ -2622,7 +2664,9 @@ Tagify.prototype = {
    * @type {Object}
    */
   input: {
-    set(s = '', updateDOM = true) {
+    set() {
+      let s = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+      let updateDOM = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
       var hideDropdown = this.settings.dropdown.closeOnSelect;
       this.state.inputText = s;
       if (updateDOM) this.DOM.input.innerHTML = escapeHTML("" + s);
@@ -2662,8 +2706,6 @@ Tagify.prototype = {
       } catch (err) {}
 
       v = v.replace(/\s/g, ' '); // replace NBSPs with spaces characters
-
-      if (this.settings.trim) v = v.replace(/^\s+/, ''); // trimLeft
 
       return this.trim(v);
     },
@@ -2734,7 +2776,11 @@ Tagify.prototype = {
     return index;
   },
 
-  getTagElms(...classess) {
+  getTagElms() {
+    for (var _len = arguments.length, classess = new Array(_len), _key = 0; _key < _len; _key++) {
+      classess[_key] = arguments[_key];
+    }
+
     var classname = '.' + [...this.settings.classNames.tag.split(' '), ...classess].join('.');
     return [].slice.call(this.DOM.scope.querySelectorAll(classname)); // convert nodeList to Array - https://stackoverflow.com/a/3199627/104380
   },
@@ -2769,11 +2815,16 @@ Tagify.prototype = {
    * @return {Number}
    */
   isTagDuplicate(value, caseSensitive, tagId) {
-    var dupsCount,
+    var dupsCount = 0,
         _s = this.settings; // duplications are irrelevant for this scenario
 
     if (_s.mode == 'select') return false;
-    dupsCount = this.value.reduce((acc, item) => sameStr(this.trim("" + value), item.value, caseSensitive || _s.dropdown.caseSensitive) && tagId != item.__tagId ? acc + 1 : acc, 0);
+
+    for (let item of this.value) {
+      let isSameStr = sameStr(this.trim("" + value), item.value, caseSensitive);
+      if (isSameStr && tagId != item.__tagId) dupsCount++;
+    }
+
     return dupsCount;
   },
 
@@ -2844,7 +2895,7 @@ Tagify.prototype = {
         } : _wi;
         return true;
       }
-    }); // first iterate the whitelist, try find maches by "value" and if that fails
+    }); // first iterate the whitelist, try find matches by "value" and if that fails
     // and a "tagTextProp" is set to be other than "value", try that also
 
     if (!result && prop == 'value' && _s.tagTextProp != 'value') {
@@ -2871,7 +2922,7 @@ Tagify.prototype = {
 
     if (_s.pattern && _s.pattern instanceof RegExp && !_s.pattern.test(v)) return this.TEXTS.pattern; // check for duplicates
 
-    if (!_s.duplicates && this.isTagDuplicate(v, this.state.editing, tagData.__tagId)) return this.TEXTS.duplicate;
+    if (!_s.duplicates && this.isTagDuplicate(v, _s.dropdown.caseSensitive, tagData.__tagId)) return this.TEXTS.duplicate;
     if (this.isTagBlacklisted(v) || _s.enforceWhitelist && !this.isTagWhitelisted(v)) return this.TEXTS.notAllowed;
     if (_s.validate) return _s.validate(tagData);
     return true;
@@ -3038,7 +3089,7 @@ Tagify.prototype = {
     strToReplace = strToReplace || this.state.tag.prefix + this.state.tag.value;
     var idx,
         nodeToReplace,
-        selection = window.getSelection(),
+        selection = this.state.selection || window.getSelection(),
         nodeAtCaret = selection.anchorNode,
         firstSplitOffset = this.state.tag.delimiters ? this.state.tag.delimiters.length : 0; // STEP 1: ex. replace #ba with the tag "bart" where "|" is where the caret is:
     // CURRENT STATE: "foo #ba #ba| #ba"
@@ -3114,18 +3165,23 @@ Tagify.prototype = {
     skipInvalid = skipInvalid || _s.skipInvalid;
 
     if (!tagsItems || tagsItems.length == 0) {
-      if (_s.mode == 'select') this.removeAllTags();
       return tagElems;
     } // converts Array/String/Object to an Array of Objects
 
 
     tagsItems = this.normalizeTags(tagsItems);
 
-    if (_s.mode == 'mix') {
-      return this.addMixTags(tagsItems);
+    switch (_s.mode) {
+      case 'mix':
+        return this.addMixTags(tagsItems);
+
+      case 'select':
+        {
+          clearInput = false;
+          this.removeAllTags();
+        }
     }
 
-    if (_s.mode == 'select') clearInput = false;
     this.DOM.input.removeAttribute('style');
     tagsItems.forEach(tagData => {
       var tagElm,
@@ -3149,6 +3205,7 @@ Tagify.prototype = {
         });
         if (tagData.__isValid == this.TEXTS.duplicate) // mark, for a brief moment, the tag (this this one) which THIS CURRENT tag is a duplcate of
           this.flashTag(this.getTagElmByValue(tagData.value));
+        if (_s.mode == 'select') this.toggleScopeValidation(tagData.__isValid);
       } /////////////////////////////////////////////////////
 
 
@@ -3197,7 +3254,7 @@ Tagify.prototype = {
       this.input.set.call(this);
     }
 
-    this.dropdown.refilter();
+    _s.dropdown.enabled && this.dropdown.refilter();
     return tagElems;
   },
 
@@ -3215,31 +3272,35 @@ Tagify.prototype = {
     if (typeof tagsData == 'string') tagsData = [{
       value: tagsData
     }];
-    var selection = !!this.state.selection,
-        // must be cast, not to use the reference which is changing
+    !!this.state.selection;
+        var // must be cast, not to use the reference which is changing
     frag = document.createDocumentFragment();
     tagsData.forEach(tagData => {
       var tagElm = this.createTagElem(tagData);
       frag.appendChild(tagElm);
       this.insertAfterTag(tagElm);
-    }); // if "selection" exists, assumes intention of inecting the new tag at the last
+    });
+    this.appendMixTags(frag);
+    return frag;
+  },
+
+  appendMixTags(node) {
+    var selection = !!this.state.selection; // if "selection" exists, assumes intention of inecting the new tag at the last
     // saved location of the caret inside "this.DOM.input"
 
     if (selection) {
-      this.injectAtCaret(frag);
+      this.injectAtCaret(node);
     } // else, create a range and inject the new tag as the last child of "this.DOM.input"
     else {
       this.DOM.input.focus();
       selection = this.setStateSelection();
       selection.range.setStart(this.DOM.input, selection.range.endOffset);
       selection.range.setEnd(this.DOM.input, selection.range.endOffset);
-      this.DOM.input.appendChild(frag);
+      this.DOM.input.appendChild(node);
       this.updateValueByDOMTags(); // updates internal "this.value"
 
       this.update(); // updates original input/textarea
     }
-
-    return frag;
   },
 
   /**
@@ -3322,9 +3383,11 @@ Tagify.prototype = {
     this.getTagElms(_s.classNames.tagNotAllowed).forEach((tagElm, i) => {
       var tagData = this.tagData(tagElm),
           hasMaxTags = this.hasMaxTags(),
-          tagValidation = this.validateTag(tagData); // if the tag has become valid
+          tagValidation = this.validateTag(tagData),
+          isValid = tagValidation === true && !hasMaxTags;
+      if (_s.mode == 'select') this.toggleScopeValidation(tagValidation); // if the tag has become valid
 
-      if (tagValidation === true && !hasMaxTags) {
+      if (isValid) {
         tagData = tagData.__preInvalidData ? tagData.__preInvalidData : {
           value: tagData.value
         };
@@ -3344,7 +3407,8 @@ Tagify.prototype = {
    * TODO: Allow multiple tags to be removed at-once
    */
   removeTags(tagElms, silent, tranDuration) {
-    var tagsToRemove;
+    var tagsToRemove,
+        _s = this.settings;
     tagElms = tagElms && tagElms instanceof HTMLElement ? [tagElms] : tagElms instanceof Array ? tagElms : tagElms ? [tagElms] : [this.getLastTag()]; // normalize tagElms array values:
     // 1. removing invalid items
     // 2, if an item is String try to get the matching Tag HTML node
@@ -3369,18 +3433,19 @@ Tagify.prototype = {
     }, []);
     tranDuration = typeof tranDuration == "number" ? tranDuration : this.CSSVars.tagHideTransition;
 
-    if (this.settings.mode == 'select') {
+    if (_s.mode == 'select') {
       tranDuration = 0;
       this.input.set.call(this);
-    } // if only a single tag is to be removed
+    } // if only a single tag is to be removed.
+    // skip "select" mode because invalid tags are actually set to `this.value`
 
 
-    if (tagsToRemove.length == 1) {
-      if (tagsToRemove[0].node.classList.contains(this.settings.classNames.tagNotAllowed)) silent = true;
+    if (tagsToRemove.length == 1 && _s.mode != 'select') {
+      if (tagsToRemove[0].node.classList.contains(_s.classNames.tagNotAllowed)) silent = true;
     }
 
     if (!tagsToRemove.length) return;
-    return this.settings.hooks.beforeRemoveTag(tagsToRemove, {
+    return _s.hooks.beforeRemoveTag(tagsToRemove, {
       tagify: this
     }).then(() => {
       function removeNode(tag) {
@@ -3399,8 +3464,10 @@ Tagify.prototype = {
           this.DOM.input.normalize(); // best-practice when in mix-mode (safe to do always anyways)
           // check if any of the current tags which might have been marked as "duplicate" should be un-marked
 
-          if (this.settings.keepInvalidTags) this.reCheckInvalidTags();
-        } else if (this.settings.keepInvalidTags) this.trigger('remove', {
+          if (_s.keepInvalidTags) this.reCheckInvalidTags(); // below code is unfinished. it should iterate all currently invalid edited tags, which their edits have not
+          // changed the value yet, and should re-trigger the check, but since nothing has changed, it does not work...
+          // this.getTagElms(_s.classNames.tagEditing).forEach( this.events.callbacks.onEditTagBlur.bind )
+        } else if (_s.keepInvalidTags) this.trigger('remove', {
           tag: tag.node,
           index: tag.idx
         });
@@ -3410,7 +3477,7 @@ Tagify.prototype = {
         tag.node.style.width = parseFloat(window.getComputedStyle(tag.node).width) + 'px';
         document.body.clientTop; // force repaint for the width to take affect before the "hide" class below
 
-        tag.node.classList.add(this.settings.classNames.tagHide); // manual timeout (hack, since transitionend cannot be used because of hover)
+        tag.node.classList.add(_s.classNames.tagHide); // manual timeout (hack, since transitionend cannot be used because of hover)
 
         setTimeout(removeNode.bind(this), tranDuration, tag);
       }
@@ -3421,7 +3488,7 @@ Tagify.prototype = {
         this.removeTagsFromValue(tagsToRemove.map(tag => tag.node));
         this.update(); // update the original input with the current value
 
-        if (this.settings.mode == 'select') this.setContentEditable(true);
+        if (_s.mode == 'select') this.setContentEditable(true);
       }
     }).catch(reason => {});
   },
@@ -3504,7 +3571,9 @@ Tagify.prototype = {
   getMixedTagsAsString() {
     var result = "",
         that = this,
-        _interpolator = this.settings.mixTagsInterpolator;
+        _s = this.settings,
+        originalInputValueFormat = _s.originalInputValueFormat || JSON.stringify,
+        _interpolator = _s.mixTagsInterpolator;
 
     function iterateChildren(rootNode) {
       rootNode.childNodes.forEach(node => {
@@ -3515,13 +3584,13 @@ Tagify.prototype = {
             result += "\r\n";
           }
 
-          if (node.getAttribute('style') || ['B', 'I', 'U'].includes(node.tagName)) result += node.textContent;else if (node.tagName == 'DIV' || node.tagName == 'P') {
+          if (tagData && isNodeTag.call(that, node)) {
+            if (tagData.__removed) return;else result += _interpolator[0] + originalInputValueFormat(omit(tagData, that.dataProps)) + _interpolator[1];
+          } else if (node.getAttribute('style') || ['B', 'I', 'U'].includes(node.tagName)) result += node.textContent;else if (node.tagName == 'DIV' || node.tagName == 'P') {
             result += "\r\n"; //  if( !node.children.length && node.textContent )
             //  result += node.textContent;
 
             iterateChildren(node);
-          } else if (isNodeTag.call(that, node) && tagData) {
-            if (tagData.__removed) return;else result += _interpolator[0] + JSON.stringify(omit(tagData, that.dataProps)) + _interpolator[1];
           }
         } else result += node.textContent;
       });
