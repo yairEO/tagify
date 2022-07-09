@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.13.0) - tags input component
+ * Tagify (v 4.13.1) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -1058,8 +1058,8 @@
         </tags>`;
     },
 
-    tag(tagData, tagify) {
-      var _s = this.settings;
+    tag(tagData, _ref) {
+      let _s = _ref.settings;
       return `<tag title="${tagData.title || tagData.value}"
                     contenteditable='false'
                     spellcheck='false'
@@ -3370,7 +3370,7 @@
       }, extraData)); // if( this.settings.readonly )
       //     tagData.readonly = true
 
-      tagElm = this.parseTemplate('tag', [templateData]); // crucial for proper caret placement when deleting content. if textNodes are allowed as children of
+      tagElm = this.parseTemplate('tag', [templateData, this]); // crucial for proper caret placement when deleting content. if textNodes are allowed as children of
       // a tag element, a browser bug casues the caret to misplaced inside the tag element (especcially affects "readonly" tags)
 
       removeTextChildNodes(tagElm); // while( tagElm.lastChild.nodeType == 3 )
