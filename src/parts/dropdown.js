@@ -339,14 +339,15 @@ export default {
                     case 'Down' :  // >IE11
                     case 'Up' : {  // >IE11
                         e.preventDefault()
-                        var dropdownItems;
+                        var dropdownItems, isDDItem;
 
                         if( selectedElm )
                             selectedElm = selectedElm[(e.key == 'ArrowUp' || e.key == 'Up' ? "previous" : "next") + "ElementSibling"];
 
-                        // if no element was found, loop
-                        if( !selectedElm ){
-                            dropdownItems = this.DOM.dropdown.content.children
+                        // if no element was found OR current item is not a "real" item, loop
+                        if( !selectedElm || !selectedElm.matches(this.settings.classNames.dropdownItemSelector) ){
+                            // filter only the dropdown-item elements (not header/footer/custom ones)
+                            dropdownItems = this.DOM.dropdown.content.querySelectorAll(this.settings.classNames.dropdownItemSelector)
                             selectedElm = dropdownItems[e.key == 'ArrowUp' || e.key == 'Up' ? dropdownItems.length - 1 : 0];
                         }
 
