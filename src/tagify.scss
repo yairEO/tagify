@@ -134,13 +134,8 @@
     box-sizing    : border-box;
     transition    : .1s;
 
-    &:hover{
-        border-color: var(--tags-hover-border-color);
-    }
-
-    &.tagify--focus{
-        border-color: var(--tags-focus-border-color);
-        transition: 0s;
+    &:hover:not(.tagify--focus):not(.tagify--invalid){
+        --tags-border-color : var(--tags-hover-border-color);
     }
 
     &[disabled]{
@@ -481,14 +476,14 @@
             opacity: 0;
             position: absolute;
         }
-/* Seems firefox newer versions don't need this any more
+        /* Seems firefox newer versions don't need this any more
         @supports ( -moz-appearance:none ){
             &::before{
                 line-height: inherit;
                 position:relative;
             }
         }
-*/
+        */
         // tries to suggest the rest of the value from the first item in the whitelist which matches it
         &::after{
             content: attr(data-suggest);
@@ -584,6 +579,11 @@
                 }
             }
         }
+    }
+
+    &--focus{
+        --tags-border-color: var(--tags-focus-border-color);
+        transition: 0s;
     }
 
     &--invalid{
