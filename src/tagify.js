@@ -1448,7 +1448,7 @@ Tagify.prototype = {
         // if( this.settings.readonly )
         //     tagData.readonly = true
 
-        tagElm = this.parseTemplate('tag', [templateData])
+        tagElm = this.parseTemplate('tag', [templateData, this])
 
         // crucial for proper caret placement when deleting content. if textNodes are allowed as children of
         // a tag element, a browser bug casues the caret to misplaced inside the tag element (especcially affects "readonly" tags)

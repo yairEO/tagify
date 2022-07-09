@@ -20,8 +20,7 @@ export default {
         </tags>`
     },
 
-    tag(tagData, tagify){
-        var _s = this.settings;
+    tag(tagData, {settings: _s}){
         return `<tag title="${(tagData.title || tagData.value)}"
                     contenteditable='false'
                     spellcheck='false'
