@@ -460,14 +460,21 @@ export default {
         onInput(e){
             this.postUpdate() // toggles "tagify--empty" class
 
-            if( this.settings.mode == 'mix' )
+            var _s = this.settings;
+
+            if( _s.mode == 'mix' )
                 return this.events.callbacks.onMixTagsInput.call(this, e);
 
             var value = this.input.normalize.call(this),
-                showSuggestions = value.length >= this.settings.dropdown.enabled,
-                eventData = {value, inputElm:this.DOM.input};
+                showSuggestions = value.length >= _s.dropdown.enabled,
+                eventData = {value, inputElm:this.DOM.input},
+                validation = this.validateTag({value});
 
-            eventData.isValid = this.validateTag({value});
+            if( _s.mode == 'select' ) {
+                this.toggleScopeValidation(validation)
+            }
+
+            eventData.isValid = validation;
 
             // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
             // and so many keys do not change the input, and for those do not continue.
@@ -477,14 +484,14 @@ export default {
             this.input.set.call(this, value, false); // update the input with the normalized value and run validations
             // this.setRangeAtStartEnd(); // fix caret position
 
-
-            if( value.search(this.settings.delimiters) != -1 ){
+            // if delimiters detected, add tags
+            if( value.search(_s.delimiters) != -1 ){
                 if( this.addTags( value ) ){
                     this.input.set.call(this); // clear the input field's value
                 }
             }
 
-            else if( this.settings.dropdown.enabled >= 0 ){
+            else if( _s.dropdown.enabled >= 0 ){
                 this.dropdown[showSuggestions ? "show" : "hide"](value);
             }
 
@@ -851,8 +858,12 @@ export default {
 
             switch( e.key ){
                 case 'Esc' :
-                case 'Escape' :
-                    tagElm.innerHTML = tagElm.__tagifyTagData.__originalHTML
+                case 'Escape' : {
+                    // revert the tag to how it was before editing
+                    // replace current tag with original one (pre-edited one)
+                    tagElm.parentNode.replaceChild(tagElm.__tagifyTagData.__originalHTML, tagElm)
+                    this.state.editing = false;
+                }
                 case 'Enter' :
                 case 'Tab' :
                     e.preventDefault()
