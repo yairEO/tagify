@@ -38,10 +38,10 @@
     </head>
     <body>
         <form method="get" action="not-exists">
-            <fieldset>
-                <input name='tags-regular' placeholder='user input' value='b, B'>
-            </fieldset>
             <!-- <fieldset>
+                <input name='tags-regular' placeholder='user input' value=''>
+            </fieldset>
+            <fieldset>
                 <input name='tags-disabled-user-input' value="1,2,3" placeholder='disabled user input' disabled>
             </fieldset>
             <fieldset>
@@ -49,10 +49,10 @@
             </fieldset>
             <fieldset>
                 <input name='value_empty_JSON' class='value_empty_JSON' value='[]'>
-            </fieldset>
+            </fieldset> -->
             <fieldset>
                 <input name='value_JSON' class='value_JSON' value='[{"value":1, "editable":false}, {"value":2, "title":"xxx"}]'>
-            </fieldset> -->
+            </fieldset>
             <br><br><br>
             <button style='font-size:40px'>Submit</button>
             <button type='reset'>Reset</button>
@@ -63,29 +63,53 @@
 (() => {
 var inputElm = document.querySelector('input[name=tags-regular]')
 
+const mockAjax = (timeout => (RES, duration) => {
+  clearTimeout(timeout); // abort last request
+  return new Promise((resolve, reject) => timeout = setTimeout(resolve, duration || 0, RES))
+})()
+
 let tagify = new Tagify(inputElm, {
     // whitelist: ['abb', 'cbb', 'bb', 'bb1', 'aaabb', 'bbb', 'aa', 'bba'],
-    whitelist: ["a", "ac", "aab", "aaa", "b", "bb", "ccc"],
+    // whitelist: ["a", "ac", "aab", "aaa", "b", "bb", "ccc"],
     id: 'test1',
+    tagTextProp: 'name',
+    editTags: {
+        clicks: 2,
+    },
+    transformTag: (tagData, originalData) => {
+        tagData.title = tagData.value
+    },
     // maxTags: 1,
     keepInvalidTags: true,
     // enforceWhitelist: true,
     dropdown: {
-        enabled: false,
+        enabled: 1,
         sortby: 'startsWith',
         // caseSensitive: true,
         // sortby(suggestions, query){
         //     console.log(suggestions, query)
         //     return suggestions;
         // }
+    },
+    templates: {
+        dropdownItemNoMatch: function(data) {
+            return `<div class='${this.settings.classNames.dropdownItem}' tagifySuggestionIdx="noMatch" tabindex="0" role="option">
+                No suggestion found for: <strong>${data.value}</strong>
+            </div>`
+        }
     }
 })
 
-inputElm.addEventListener('change', () => console.log("CHANGED!"))
+// tagify.on('edit:start', ({detail}) => tagify.setTagTextNode(detail.tag, detail.data.value))
+tagify.on('edit:updated', ({detail: {tagify}}) => {
+    tagify.DOM.input.focus()
+});
 
-// setTimeout(() => {
-//     tagify.loadOriginalValues(["ac", "aab", "aaa", "b", "bb", "ccc"])
-// }, 500);
+inputElm && inputElm.addEventListener('change', () => console.log("CHANGED!")  )
+
+setTimeout(() => {
+    tagify.loadOriginalValues(["ac", {value: "aab", editable:false}, "aaa", "b", "bb", "ccc"])
+}, 500);
 
 
 })()

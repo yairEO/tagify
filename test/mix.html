@@ -37,12 +37,15 @@
 
     <body>
         <form>
+            <button type='button'>Inject tag (in second Tagify)</button>
+            <br><br>
             <textarea name='mix1' placeholder="type something">    mixed-mode [[example]] with [[{"value":"tags"}]].   </textarea>
 
             <textarea name='mix2' class='tagify-editor' placeholder="type something">
-            [[{"value":200, "text":"  cartman  ", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":1000, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because he's a
-    and [[{"value": "readonly", "readonly":true}]]
-            </textarea>
+            [[{"value":200, "text":"  cartman  ", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":1000, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because:
+(new line)
+          last tag - [[{"value": "readonly", "readonly":true}]]
+</textarea>
 
         </form>
 
@@ -76,6 +79,7 @@ var settings = {
         {id: 108, value: "Mr. Garrison", title: "POTUS"},
         {id: 109, value: "Mr. Mackey", title: "M'Kay"}
     ],
+    originalInputValueFormat: tagData => tagData.value
 }
 
 var simpleMixTagify = new Tagify(simpleMixInput, settings);
@@ -86,6 +90,9 @@ simpleMixTagify.on('input', console.log )
 
 
 <script>
+    /////////////////////////////////////////////////
+    // DEMO 2
+
     var whitelist_1 = [
         {
             value: 100,
@@ -141,7 +148,6 @@ simpleMixTagify.on('input', console.log )
 
 var whitelist_2 = ['Homer simpson', 'Marge simpson', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
 
-
 var input = document.querySelector('[name=mix2]'),
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
@@ -169,40 +175,49 @@ var input = document.querySelector('[name=mix2]'),
 
     // A good place to pull server suggestion list according to the prefix/value
     tagify.on('input', async function(e){
-    var prefix = e.detail.prefix,
-        newWhitelist;
+        var prefix = e.detail.prefix,
+            newWhitelist;
 
-    // tagify.settings.whitelist.length = 0;
-    // await delay(1500)
+        // tagify.settings.whitelist.length = 0;
+        // await delay(1500)
 
-    if( prefix ){
-        if( prefix == '@' )
-            newWhitelist = whitelist_1
-        if( prefix == '#' )
-            newWhitelist = whitelist_2
+        if( prefix ){
+            if( prefix == '@' )
+                newWhitelist = whitelist_1
+            if( prefix == '#' )
+                newWhitelist = whitelist_2
 
-        if( newWhitelist ){
-            tagify.settings.whitelist.length = 0;
-            tagify.settings.whitelist.push(...newWhitelist)
+            if( newWhitelist ){
+                tagify.settings.whitelist.length = 0;
+                tagify.settings.whitelist.push(...newWhitelist)
+            }
+
+            if( e.detail.value.length >= tagify.settings.dropdown.enabled )
+                tagify.dropdown.show(e.detail.value);
         }
 
-        if( e.detail.value.length >= tagify.settings.dropdown.enabled )
-            tagify.dropdown.show(e.detail.value);
-    }
-
-    console.log('mix-mode "input" event value: ', e.detail, e.detail.tagify.value)
+        // console.log('mix-mode "input" event value: ', e.detail, e.detail.tagify.value)
     })
 
     tagify.on('keydown', function(e){
 
     })
 
-  // window.addEventListener("dblclick", insertTag)
+    document.querySelector("button").addEventListener('click', ()=> {
+        var tagElm = tagify.createTagElem({ value:"my tag" })
+        tagify.injectAtCaret(tagElm)
+        // A timeout is needed until the node is Acutally in the DOM and focus has been applied
+        var elm = tagify.insertAfterTag(tagElm)
+        setTimeout(() => {
+            tagify.placeCaretAfterNode(elm)
+        });
+    })
 
-  function insertTag() {
-    tagify.addTags("xxx");
-    tagify.DOM.input.focus();
-  }
+    // window.addEventListener("dblclick", insertTag)
+    // function insertTag() {
+    //     tagify.addTags("xxx");
+    //     tagify.DOM.input.focus();
+    // }
 </script>
 </body>
 </html>

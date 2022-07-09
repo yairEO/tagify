@@ -46,19 +46,20 @@ var input = document.querySelector('input[name=tags-select-mode]'),
     tagify = new Tagify(input, {
         mode : "select",
         tagTextProp : 'title',
-        enforceWhitelist: true,
+        pattern: /^[A-Za-z_✲ "]+$/,
+        enforceWhitelist: false,
         keepInvalidTags: false,
         maxTags: 1,
         whitelist: [
             { "id":"1", "value": 1, "title":"First option" },
             { "id":"2", "value": 2, "title":"Second option" },
-            {'value':'Item a',id:1},
-            {'value':'Item b',id:2},
-            {'value':'Item c',id:3},
-            {'value':'Item d',id:4},
-            {'value':'Item e',id:5}
+            { 'value':'Item a', id:1 },
+            { 'value':'Item b', id:2 },
+            { 'value':'Item c', id:3 },
+            { 'value':'Item d', id:4 },
+            { 'value':'Item e', id:5 }
         ],
-        whitelist: ['One', 'Two', 'Three'],
+        // whitelist: ['One', 'Two', 'Three'],
         dropdown: {
             maxItems: 3,
             //mapValueTo: 'username',
