@@ -736,7 +736,7 @@ export default {
                 tagElmIdx = this.getNodeIndex(tagElm),
                 tagData = this.tagData(tagElm),
                 textValue = this.input.normalize.call(this, editableElm),
-                dataForChangedProp = {[this.settings.tagTextProp]: textValue},
+                dataForChangedProp = {[this.settings.tagTextProp]: textValue, __tagId: tagData.__tagId}, // "__tagId" is needed so validation will skip current tag when checking for dups
                 isValid = this.validateTag(dataForChangedProp), // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
                 hasChanged = this.editTagChangeDetected(extend(tagData, dataForChangedProp));
 
