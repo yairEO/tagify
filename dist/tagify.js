@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.13.1) - tags input component
+ * Tagify (v 4.13.2) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -1839,9 +1839,11 @@
             tagData = this.tagData(tagElm),
             textValue = this.input.normalize.call(this, editableElm),
             dataForChangedProp = {
-          [this.settings.tagTextProp]: textValue
+          [this.settings.tagTextProp]: textValue,
+          __tagId: tagData.__tagId
         },
-            isValid = this.validateTag(dataForChangedProp),
+            // "__tagId" is needed so validation will skip current tag when checking for dups
+        isValid = this.validateTag(dataForChangedProp),
             // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
         hasChanged = this.editTagChangeDetected(extend(tagData, dataForChangedProp)); // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
 
