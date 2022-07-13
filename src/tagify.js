@@ -1000,10 +1000,8 @@ Tagify.prototype = {
     },
 
     setContentEditable(state){
-        if( !this.settings.readonly && this.settings.userInput ) {
-            this.DOM.input.contentEditable = state
-            this.DOM.input.tabIndex = !!state ? 0 : -1;
-        }
+        this.DOM.input.contentEditable = state
+        this.DOM.input.tabIndex = !!state ? 0 : -1;
     },
 
     setDisabled( isDisabled ){
