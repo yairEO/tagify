@@ -122,7 +122,7 @@
         to{ transform: rotate(1turn) }
     }
 
-    display       : flex;
+    display       : inline-flex;
     align-items   : flex-start;
     flex-wrap     : wrap;
     border        : 1px solid var(--tags-border-color);
