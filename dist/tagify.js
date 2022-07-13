@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.13.2) - tags input component
+ * Tagify (v 4.13.3) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -388,7 +388,7 @@
       // 2. dropdown is disabled
       // 3. loader is showing (controlled outside of this code)
 
-      if (noWhitelist && !allowNewTags && !_s.templates.dropdownItemNoMatch || _s.dropdown.enable === false || this.state.isLoading) return;
+      if (noWhitelist && !allowNewTags && !_s.templates.dropdownItemNoMatch || _s.dropdown.enable === false || this.state.isLoading || this.settings.readonly) return;
       clearTimeout(this.dropdownHide__bindEventsTimeout); // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
       // TODO: add a Setting to control items' sort order for "listItems"
@@ -1883,17 +1883,19 @@
         // node isn't in the DOM anynmore because it has been replaced.
 
         if (!this.DOM.scope.contains(editableElm)) return;
-
         var _s = this.settings,
             tagElm = editableElm.closest('.' + _s.classNames.tag),
             textValue = this.input.normalize.call(this, editableElm),
-            originalData = this.tagData(tagElm).__originalData,
+            tagData = this.tagData(tagElm),
+            originalData = tagData.__originalData,
             // pre-edit data
-        hasChanged = this.editTagChangeDetected(this.tagData(tagElm)),
+        hasChanged = this.editTagChangeDetected(tagData),
             isValid = this.validateTag({
-          [_s.tagTextProp]: textValue
+          [_s.tagTextProp]: textValue,
+          __tagId: tagData.__tagId
         }),
-            hasMaxTags,
+            // "__tagId" is needed so validation will skip current tag when checking for dups
+        hasMaxTags,
             newTagData;
 
         if (!textValue) {
@@ -2958,10 +2960,8 @@
     },
 
     setContentEditable(state) {
-      if (!this.settings.readonly && this.settings.userInput) {
-        this.DOM.input.contentEditable = state;
-        this.DOM.input.tabIndex = !!state ? 0 : -1;
-      }
+      this.DOM.input.contentEditable = state;
+      this.DOM.input.tabIndex = !!state ? 0 : -1;
     },
 
     setDisabled(isDisabled) {

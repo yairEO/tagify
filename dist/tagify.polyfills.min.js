@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.13.2) - tags input component
+ * Tagify (v 4.13.3) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
