@@ -787,9 +787,10 @@ export default {
             var _s           = this.settings,
                 tagElm       = editableElm.closest('.' + _s.classNames.tag),
                 textValue    = this.input.normalize.call(this, editableElm),
-                originalData = this.tagData(tagElm).__originalData, // pre-edit data
-                hasChanged   = this.editTagChangeDetected( this.tagData(tagElm) ),
-                isValid      = this.validateTag({[_s.tagTextProp]: textValue}),
+                tagData      = this.tagData(tagElm),
+                originalData = tagData.__originalData, // pre-edit data
+                hasChanged   = this.editTagChangeDetected( tagData ),
+                isValid      = this.validateTag({[_s.tagTextProp]: textValue, __tagId: tagData.__tagId}), // "__tagId" is needed so validation will skip current tag when checking for dups
                 hasMaxTags,
                 newTagData;
 
