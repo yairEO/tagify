@@ -634,6 +634,10 @@ export default {
         },
 
         observeOriginalInputValue(){
+            // if, for some reason, the Tagified element is no longer in the DOM,
+            // call the "destroy" method to kill all references to timeouts/intervals
+            if( !this.DOM.originalInput.parentNode ) this.destroy()
+
             // if original input value changed for some reason (for exmaple a form reset)
             if( this.DOM.originalInput.value != this.DOM.originalInput.tagifyValue )
                 this.loadOriginalValues()

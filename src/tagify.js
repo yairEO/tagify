@@ -301,6 +301,7 @@ Tagify.prototype = {
         this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex
         this.dropdown.hide(true)
         clearTimeout(this.dropdownHide__bindEventsTimeout)
+        clearInterval(this.listeners.main.originalInputValueObserverInterval)
     },
 
     /**
