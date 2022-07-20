@@ -143,7 +143,7 @@ export default {
                 }
 
                 this.postUpdate()
-                this.triggerChangeEvent()
+                _s.onChangeAfterBlur && this.triggerChangeEvent()
             }
 
             if( isTargetSelectOption || isTargetAddNewBtn )

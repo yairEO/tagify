@@ -1675,7 +1675,7 @@ Tagify.prototype = {
         this.setOriginalInputValue(inputValue)
         this.postUpdate()
 
-        if( !(args||{}).withoutChangeEvent && !this.state.blockChangeEvent )
+        if( (!this.settings.onChangeAfterBlur || !(args||{}).withoutChangeEvent) && !this.state.blockChangeEvent )
             this.triggerChangeEvent()
     },
 
