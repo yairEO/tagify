@@ -988,14 +988,20 @@
                     </header>
                     <p>
                         Some cases requires more control per-tag, for example, sending a different value to the server than the textual value
-                        the user sees/entered. Another example, would be different colors for different tags or tags' groups.
-                        It's possible to add any number of properties per tag, the only constant is the <code>value</code> property which
-                        must be declared per-tag, and that will be the rendered text.
+                        the user sees/entered.
+                        <br/><br/>
+                        Another example, would be different colors for different tags or tags' groups.
+                        <br/><br/>
+                        It's possible to add any number of properties for a tag. The only constant is the <code>value</code> property which
+                        must be unique and declared per-tag, and by default that will be the rendered text, unless specified otherwise using the settings.
                     </p>
                     <p>
                         The properties shown in the example below, declared in the <code>allowedTags</code> Array, will be transformed into
                         HTML attributes for each tag element rendered from the allowed <code>whitelist</code> settings, so naturally
                         some attributes are in the specs and the made-up ones should technically be prefixed with <code>data-</code>.
+                    </p>
+                    <p>
+                        💡 In this example, some countries have an extra property <code>searchBy</code> which is used for smarter suggestions matching when the user types something.
                     </p>
                     <details>
                         <summary></summary>
