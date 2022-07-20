@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.13.3) - tags input component
+ * Tagify (v 4.14.0) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -255,6 +255,8 @@
     // Exposed callbacks object to be triggered on certain events
     addTagOnBlur: true,
     // Flag - automatically adds the text which was inputed as a tag when blur event happens
+    onChangeAfterBlur: true,
+    // By default, the native way of inputs' onChange events is kept, and it only fires when the field is blured.
     duplicates: false,
     // "true" - allow duplicate tags
     whitelist: [],
@@ -1300,7 +1302,7 @@
           }
 
           this.postUpdate();
-          this.triggerChangeEvent();
+          _s.onChangeAfterBlur && this.triggerChangeEvent();
         }
 
         if (isTargetSelectOption || isTargetAddNewBtn) return;
@@ -1753,7 +1755,10 @@
       },
 
       observeOriginalInputValue() {
-        // if original input value changed for some reason (for exmaple a form reset)
+        // if, for some reason, the Tagified element is no longer in the DOM,
+        // call the "destroy" method to kill all references to timeouts/intervals
+        if (!this.DOM.originalInput.parentNode) this.destroy(); // if original input value changed for some reason (for exmaple a form reset)
+
         if (this.DOM.originalInput.value != this.DOM.originalInput.tagifyValue) this.loadOriginalValues();
       },
 
@@ -2352,6 +2357,7 @@
       this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex;
       this.dropdown.hide(true);
       clearTimeout(this.dropdownHide__bindEventsTimeout);
+      clearInterval(this.listeners.main.originalInputValueObserverInterval);
     },
 
     /**
@@ -3561,7 +3567,7 @@
       var inputValue = this.getInputValue();
       this.setOriginalInputValue(inputValue);
       this.postUpdate();
-      if (!(args || {}).withoutChangeEvent && !this.state.blockChangeEvent) this.triggerChangeEvent();
+      if ((!this.settings.onChangeAfterBlur || !(args || {}).withoutChangeEvent) && !this.state.blockChangeEvent) this.triggerChangeEvent();
     },
 
     getInputValue() {
