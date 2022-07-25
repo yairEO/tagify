@@ -1020,7 +1020,8 @@ Tagify.prototype = {
             whitelistMatches = [],
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
-            isArray = tagsItems instanceof Array,
+            isArray = Array.isArray(tagsItems),
+            isCollection = isArray && tagsItems[0].value,
             mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ [tagTextProp]:this.trim(v), value:this.trim(v) }))
 
         if( typeof tagsItems == 'number' )
@@ -1034,7 +1035,7 @@ Tagify.prototype = {
             tagsItems = mapStringToCollection(tagsItems)
         }
 
-        // is is an Array of Strings, convert to an Array of Objects
+        // if is an Array of Strings, convert to an Array of Objects
         else if( isArray ){
             // flatten the 2D array
             tagsItems = [].concat(...tagsItems.map(item => item.value
@@ -1044,8 +1045,9 @@ Tagify.prototype = {
         }
 
         // search if the tag exists in the whitelist as an Object (has props),
-        // to be able to use its properties
-        if( whitelistWithProps ){
+        // to be able to use its properties.
+        // skip matching collections with whitelist items as they are considered "whole"
+        if( whitelistWithProps && !isCollection ){
             tagsItems.forEach(item => {
                 var whitelistMatchesValues = whitelistMatches.map(a=>a.value)
 

@@ -125,8 +125,9 @@ export default {
      */
     callbacks : {
         onFocusBlur(e){
-            var text = e.target ? this.trim(e.target.textContent) : '', // a string
-                _s = this.settings,
+            var _s = this.settings,
+                text = e.target ? this.trim(e.target.textContent) : '', // a string
+                currentDisplayValue = this.value?.[0]?.[_s.tagTextProp],
                 type = e.type,
                 ddEnabled = _s.dropdown.enabled >= 0,
                 eventData = {relatedTarget:e.relatedTarget},
@@ -184,17 +185,21 @@ export default {
 
                 // when clicking the X button of a selected tag, it is unwanted for it to be added back
                 // again in a few more lines of code (shouldAddTags && addTags)
-                if( this.settings.mode == 'select' && isRelatedTargetX )
-                    text = '';
+                if( _s.mode == 'select' ) {
+                    if( isRelatedTargetX ) {
+                        this.removeTags()
+                        text = '';
+                    }
+
+                    // if nothing has changed (same display value), do not add a tag
+                    if( currentDisplayValue === text )
+                        text = ''
+                }
 
                 shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur;
 
                 // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
                 shouldAddTags && this.addTags(text, true)
-
-                // if text value is not in the whitelist, clear it once the input is blured
-                if( this.settings.mode == 'select' && !text )
-                    this.removeTags()
             }
 
             this.DOM.input.removeAttribute('style')
