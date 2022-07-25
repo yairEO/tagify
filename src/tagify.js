@@ -397,8 +397,9 @@ Tagify.prototype = {
     },
 
     toggleScopeValidation( validation ){
-        this.toggleClass(this.settings.classNames.tagInvalid, validation != true)
-        this.DOM.scope.title = validation === true ? '' : validation;
+        var isValid = validation === true || (!this.settings.required && validation === this.TEXTS.empty)
+        this.toggleClass(this.settings.classNames.tagInvalid, !isValid)
+        this.DOM.scope.title = isValid ? '' : validation
     },
 
     toggleFocusClass( force ){
@@ -1279,11 +1280,7 @@ Tagify.prototype = {
                 if( tagData.__isValid == this.TEXTS.duplicate )
                     // mark, for a brief moment, the tag (this this one) which THIS CURRENT tag is a duplcate of
                     this.flashTag( this.getTagElmByValue(tagData.value) )
-
-                if( _s.mode == 'select' )
-                    this.toggleScopeValidation(tagData.__isValid)
             }
-            /////////////////////////////////////////////////////
 
             if( 'readonly' in tagData ){
                 if( tagData.readonly )
@@ -1643,16 +1640,22 @@ Tagify.prototype = {
     },
 
     postUpdate(){
-        var classNames = this.settings.classNames,
-            hasValue = this.settings.mode == 'mix'
-                ? this.settings.mixMode.integrated
+        var _s = this.settings,
+            classNames = _s.classNames,
+            hasValue = _s.mode == 'mix'
+                ? _s.mixMode.integrated
                     ? this.DOM.input.textContent
                     : this.DOM.originalInput.value.trim()
                 : this.value.length + this.input.raw.call(this).length;
 
-        this.toggleClass(classNames.hasMaxTags, this.value.length >= this.settings.maxTags)
+        this.toggleClass(classNames.hasMaxTags, this.value.length >= _s.maxTags)
         this.toggleClass(classNames.hasNoTags, !this.value.length)
         this.toggleClass(classNames.empty, !hasValue)
+
+        // specifically the "select mode" might have the "invalid" classname set when the field is changed, so it must be toggled on add/remove/edit
+        if( _s.mode == 'select' ){
+            this.toggleScopeValidation(this.value?.[0]?.__isValid)
+        }
     },
 
     setOriginalInputValue( v ){
