@@ -397,7 +397,11 @@ Tagify.prototype = {
     },
 
     toggleScopeValidation( validation ){
-        var isValid = validation === true || (!this.settings.required && validation === this.TEXTS.empty)
+        var isValid = validation === true || validation === undefined; // initially it is undefined
+
+        if( !this.settings.required && validation && validation === this.TEXTS.empty)
+            isValid = true
+
         this.toggleClass(this.settings.classNames.tagInvalid, !isValid)
         this.DOM.scope.title = isValid ? '' : validation
     },
