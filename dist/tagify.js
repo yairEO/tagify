@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.14.0) - tags input component
+ * Tagify (v 4.14.1) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -1281,9 +1281,10 @@
      */
     callbacks: {
       onFocusBlur(e) {
-        var text = e.target ? this.trim(e.target.textContent) : '',
+        var _s = this.settings,
+            text = e.target ? this.trim(e.target.textContent) : '',
             // a string
-        _s = this.settings,
+        currentDisplayValue = this.value?.[0]?.[_s.tagTextProp],
             type = e.type,
             ddEnabled = _s.dropdown.enabled >= 0,
             eventData = {
@@ -1338,12 +1339,19 @@
           this.loading(false); // when clicking the X button of a selected tag, it is unwanted for it to be added back
           // again in a few more lines of code (shouldAddTags && addTags)
 
-          if (this.settings.mode == 'select' && isRelatedTargetX) text = '';
+          if (_s.mode == 'select') {
+            if (isRelatedTargetX) {
+              this.removeTags();
+              text = '';
+            } // if nothing has changed (same display value), do not add a tag
+
+
+            if (currentDisplayValue === text) text = '';
+          }
+
           shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur; // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
 
-          shouldAddTags && this.addTags(text, true); // if text value is not in the whitelist, clear it once the input is blured
-
-          if (this.settings.mode == 'select' && !text) this.removeTags();
+          shouldAddTags && this.addTags(text, true);
         }
 
         this.DOM.input.removeAttribute('style');
@@ -2438,8 +2446,11 @@
     },
 
     toggleScopeValidation(validation) {
-      this.toggleClass(this.settings.classNames.tagInvalid, validation != true);
-      this.DOM.scope.title = validation === true ? '' : validation;
+      var isValid = validation === true || validation === undefined; // initially it is undefined
+
+      if (!this.settings.required && validation && validation === this.TEXTS.empty) isValid = true;
+      this.toggleClass(this.settings.classNames.tagInvalid, !isValid);
+      this.DOM.scope.title = isValid ? '' : validation;
     },
 
     toggleFocusClass(force) {
@@ -2988,7 +2999,8 @@
           _this$settings.enforceWhitelist;
           var whitelistMatches = [],
           whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
-          isArray = tagsItems instanceof Array,
+          isArray = Array.isArray(tagsItems),
+          isCollection = isArray && tagsItems[0].value,
           mapStringToCollection = s => (s + "").split(delimiters).filter(n => n).map(v => ({
         [tagTextProp]: this.trim(v),
         value: this.trim(v)
@@ -3000,16 +3012,17 @@
         if (!tagsItems.trim()) return []; // go over each tag and add it (if there were multiple ones)
 
         tagsItems = mapStringToCollection(tagsItems);
-      } // is is an Array of Strings, convert to an Array of Objects
+      } // if is an Array of Strings, convert to an Array of Objects
       else if (isArray) {
         // flatten the 2D array
         tagsItems = [].concat(...tagsItems.map(item => item.value ? item // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
         : mapStringToCollection(item)));
       } // search if the tag exists in the whitelist as an Object (has props),
-      // to be able to use its properties
+      // to be able to use its properties.
+      // skip matching collections with whitelist items as they are considered "whole"
 
 
-      if (whitelistWithProps) {
+      if (whitelistWithProps && !isCollection) {
         tagsItems.forEach(item => {
           var whitelistMatchesValues = whitelistMatches.map(a => a.value); // if suggestions are shown, they are already filtered, so it's easier to use them,
           // because the whitelist might also include items which have already been added
@@ -3219,9 +3232,7 @@
           });
           if (tagData.__isValid == this.TEXTS.duplicate) // mark, for a brief moment, the tag (this this one) which THIS CURRENT tag is a duplcate of
             this.flashTag(this.getTagElmByValue(tagData.value));
-          if (_s.mode == 'select') this.toggleScopeValidation(tagData.__isValid);
-        } /////////////////////////////////////////////////////
-
+        }
 
         if ('readonly' in tagData) {
           if (tagData.readonly) tagElmParams["aria-readonly"] = true; // if "readonly" is "false", remove it from the tagData so it won't be added as an attribute in the template
@@ -3541,11 +3552,16 @@
     },
 
     postUpdate() {
-      var classNames = this.settings.classNames,
-          hasValue = this.settings.mode == 'mix' ? this.settings.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value.trim() : this.value.length + this.input.raw.call(this).length;
-      this.toggleClass(classNames.hasMaxTags, this.value.length >= this.settings.maxTags);
+      var _s = this.settings,
+          classNames = _s.classNames,
+          hasValue = _s.mode == 'mix' ? _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value.trim() : this.value.length + this.input.raw.call(this).length;
+      this.toggleClass(classNames.hasMaxTags, this.value.length >= _s.maxTags);
       this.toggleClass(classNames.hasNoTags, !this.value.length);
-      this.toggleClass(classNames.empty, !hasValue);
+      this.toggleClass(classNames.empty, !hasValue); // specifically the "select mode" might have the "invalid" classname set when the field is changed, so it must be toggled on add/remove/edit
+
+      if (_s.mode == 'select') {
+        this.toggleScopeValidation(this.value?.[0]?.__isValid);
+      }
     },
 
     setOriginalInputValue(v) {
