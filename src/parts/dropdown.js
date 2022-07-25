@@ -533,7 +533,7 @@ export default {
             this.onEditTagDone(null, extend({__isValid: true}, this.normalizeTags([tagData])[0]))
         }
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
-        else{
+        else {
             addedTag = this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect)
         }
 
