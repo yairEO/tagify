@@ -4,14 +4,15 @@ export default {
     tagTextProp         : 'value',        // tag data Object property which will be displayed as the tag's text
     maxTags             : Infinity,       // Maximum number of tags
     callbacks           : {},             // Exposed callbacks object to be triggered on certain events
-    addTagOnBlur        : true,           // Flag - automatically adds the text which was inputed as a tag when blur event happens
+    addTagOnBlur        : true,           // automatically adds the text which was inputed as a tag when blur event happens
     onChangeAfterBlur   : true,           // By default, the native way of inputs' onChange events is kept, and it only fires when the field is blured.
     duplicates          : false,          // "true" - allow duplicate tags
     whitelist           : [],             // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
     blacklist           : [],             // A list of non-allowed tags
-    enforceWhitelist    : false,          // Flag - Only allow tags from the whitelist
-    userInput           : true,           // Flag - disable manually typing/pasting/editing tags (tags may only be added from the whitelist)
-    keepInvalidTags     : false,          // Flag - if true, do not remove tags which did not pass validation
+    enforceWhitelist    : false,          // Only allow tags from the whitelist
+    userInput           : true,           // disable manually typing/pasting/editing tags (tags may only be added from the whitelist)
+    keepInvalidTags     : false,          // if true, do not remove tags which did not pass validation
+    createInvalidTags   : true,           // if false, do not create invalid tags from invalid user input
     mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content allows a tag to be added after
     mixTagsInterpolator : ['[[', ']]'],   // Interpolation for mix mode. Everything between this will becmoe a tag
     backspace           : true,           // false / true / "edit"

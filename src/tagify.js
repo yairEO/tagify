@@ -145,7 +145,8 @@ Tagify.prototype = {
             catch(e){}
 
         // Convert the "delimiters" setting into a REGEX object
-        if( this.settings.delimiters ){
+        if( _s.delimiters ){
+            _s._delimiters = _s.delimiters;
             try { _s.delimiters = new RegExp(this.settings.delimiters, "g") }
             catch(e){}
         }
@@ -345,7 +346,7 @@ Tagify.prototype = {
                         value = JSON.parse(value)
                 }
                 catch(err){}
-                this.addTags(value).forEach(tag => tag && tag.classList.add(_s.classNames.tagNoAnimation))
+                this.addTags(value, true).forEach(tag => tag && tag.classList.add(_s.classNames.tagNoAnimation))
             }
         }
 
@@ -1243,6 +1244,7 @@ Tagify.prototype = {
     addTags( tagsItems, clearInput, skipInvalid ){
         var tagElems = [],
             _s = this.settings,
+            aggregatedinvalidInput = [],
             frag = document.createDocumentFragment()
 
         skipInvalid = skipInvalid || _s.skipInvalid;
@@ -1286,6 +1288,11 @@ Tagify.prototype = {
                 if( tagData.__isValid == this.TEXTS.duplicate )
                     // mark, for a brief moment, the tag (this this one) which THIS CURRENT tag is a duplcate of
                     this.flashTag( this.getTagElmByValue(tagData.value) )
+
+                if( !_s.createInvalidTags ){
+                    aggregatedinvalidInput.push(tagData.value)
+                    return
+                }
             }
 
             if( 'readonly' in tagData ){
@@ -1328,7 +1335,8 @@ Tagify.prototype = {
         this.update()
 
         if( tagsItems.length && clearInput ){
-            this.input.set.call(this)
+            this.input.set.call(this, _s.createInvalidTags ? '' : aggregatedinvalidInput.join(_s._delimiters))
+            this.setRangeAtStartEnd()
         }
 
         _s.dropdown.enabled && this.dropdown.refilter()
