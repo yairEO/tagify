@@ -40,6 +40,7 @@
     --tags-border-color        : #{$tags-border-color};
     --tags-hover-border-color  : #{$tags-hover-border-color};
     --tags-focus-border-color  : #{$tags-focus-border-color};
+    --tag-border-radius        : 3px;
     --tag-bg                   : #{$tag-bg};
     --tag-hover                : #{$tag-hover};
     --tag-text-color           : #{$tag-text-color};
@@ -215,7 +216,7 @@
             padding        : var(--tag-pad);
             color          : var(--tag-text-color);
             line-height    : inherit;
-            border-radius  : 3px;
+            border-radius  : var(--tag-border-radius);
          // user-select    : none;  // should allow selecting text if the user wishes to copy something
             white-space    : nowrap;
             transition     : .13s ease-out;

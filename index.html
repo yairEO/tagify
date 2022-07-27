@@ -586,6 +586,7 @@
   --tag-hover               : #CE0078;
   --tag-text-color          : #FFF;
   --tags-border-color       : silver;
+  --tag-border-radius       : 25px;
   --tag-text-color--edit    : #111;
   --tag-remove-bg           : var(--tag-hover);
   --tag-pad                 : .6em 1em;
@@ -599,10 +600,6 @@
 
 .customLook .tagify__tag{
   margin-top: 0;
-}
-
-.customLook .tagify__tag > div{
-  border-radius: 25px;
 }
 
 /* Do not show the "remove tag" (x) button when only a single tag remains */
@@ -2334,6 +2331,12 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
                     label: 'tag-pad',
                     type: 'range',
                     value: .5, min: 0, max: 1.5, step: 0.01,
+                },
+                {
+                    cssVar: ['tag-border-radius', 'px'],
+                    label: 'tag-border-radius',
+                    type: 'range',
+                    value: 3, min: 0, max: 25
                 },
                 {
                     cssVar: ['tag-inset-shadow-size', 'em'],
