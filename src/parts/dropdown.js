@@ -222,7 +222,7 @@ export default {
 
     /**
      * fill data into the suggestions list
-     * (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
+     * (mainly used to update the list when removing tags while the suggestions dropdown is visible, so they will be re-added to the list. not efficient)
      */
     refilter( value ){
         value = value || this.state.dropdown.query || ''
@@ -231,7 +231,7 @@ export default {
         this.dropdown.fill()
 
         if( !this.suggestedListItems.length )
-            this.dropdown.hide()
+            setTimeout(this.dropdown.hide.bind(this)) // a timeout is sadly needed so a possible underlying Tagify won't get focused when selecting a suggestion
 
         this.trigger("dropdown:updated", this.DOM.dropdown)
     },
@@ -549,8 +549,17 @@ export default {
         if( closeOnSelect ){
             setTimeout(this.dropdown.hide.bind(this))
         }
-        else
-            this.dropdown.refilter()
+
+        // hide selected suggestion
+        elm.addEventListener('transitionend', () => {
+            if( this.dropdown.filterListItems(this.state.dropdown.query || '') <= 1)
+                this.dropdown.hide()
+        }, {once: true})
+
+        elm.classList.add(this.settings.classNames.dropdownItemHidden)
+
+        // else
+        //     this.dropdown.refilter()
     },
 
     // adds all the suggested items, including the ones which are not currently rendered,
@@ -584,9 +593,6 @@ export default {
         var _s = this.settings,
             _sd = _s.dropdown,
             options = options || {},
-            value = (_s.mode == 'select' && this.value.length && this.value[0][_s.tagTextProp] == value
-                ? '' // do not filter if the tag, which is already selecetd in "select" mode, is the same as the typed text
-                : value),
             list = [],
             exactMatchesList = [],
             whitelist = _s.whitelist,
@@ -598,6 +604,10 @@ export default {
             isDuplicate,
             niddle,
             i = 0;
+
+        value = (_s.mode == 'select' && this.value.length && this.value[0][_s.tagTextProp] == value
+            ? '' // do not filter if the tag, which is already selecetd in "select" mode, is the same as the typed text
+            : value);
 
         if( !value || !searchKeys.length ){
             list = _s.duplicates

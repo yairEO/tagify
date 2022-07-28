@@ -677,8 +677,18 @@
                 background: var(--tagify-dd-color-primary);
                 color: white;
             }
+
             &:active{
                 filter: brightness(105%);
+            }
+
+            &--hidden{
+                padding-top: 0;
+                padding-bottom: 0;
+                margin: 0 1px;
+                font-size: 0;
+                pointer-events: none;
+                transition: .2s;
             }
         }
     }
