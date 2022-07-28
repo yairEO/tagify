@@ -63,6 +63,7 @@
     - [Updating the component's state](#updating-the-components-state)
 - [jQuery version](#jquery-version)
 - [CSS Variables](#css-variables)
+  - [Suggestions Dropdown CSS variables](#suggestions-dropdown-css-variables)
   - [Full list of Tagify's SCSS variables](#full-list-of-tagifys-scss-variables)
 - [Methods](#methods)
 - [Events](#events)
@@ -833,6 +834,7 @@ Name                            | Info
 --tags-border-color             | The outer border color which surrounds tagify
 --tags-hover-border-color       | *hover* state
 --tags-focus-border-color       | *focus* state
+--tag-border-radius             | Tag border radius
 --tag-bg                        | Tag background color
 --tag-hover                     | Tag background color on hover (mouse)
 --tag-text-color                | Tag text color
@@ -853,6 +855,17 @@ Name                            | Info
 --placeholder-color-focus       | Placeholder text color when Tagify has focus and no input was typed
 --loader-size                   | Loading animation size. `1em` is pretty big, default is a bit less.
 --readonly-striped              | Either a value `1` or `0` can be used to toggle the striped diagonal background in *readonly*
+
+### Suggestions Dropdown CSS variables
+
+should be appiled on the `:root {...}` selector
+
+Name                              | Info
+--------------------------------- | --------------------------------
+--tagify-dd-color-primary         | The suggestion's dropdown background color
+--tagify-dd-bg-color              | Sugegstion's background color on hover
+--tagify-dd-item--hidden-duration | When selecting a suggestion, this is the duration for it to become hidden (shrink)
+--tagify-dd-item-pad              | Suggestion item padding
 
 ### Full list of Tagify's [SCSS variables](https://github.com/yairEO/tagify/blob/master/src/tagify.scss#L9-L24)
 
