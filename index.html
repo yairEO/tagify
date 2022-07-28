@@ -1622,6 +1622,7 @@ var input = document.querySelector('input[name=tags3]'),
         pattern             : /^.{0,20}$/,  // Validate typed tag(s) by Regex. Here maximum chars length is defined as "20"
         delimiters          : ",| ",        // add new tags when a comma or a space character is entered
         keepInvalidTags     : true,         // do not remove invalid tags (but keep them marked as invalid)
+        // createInvalidTags: false,
         editTags            : {
             clicks: 2,              // single click to edit a tag
             keepInvalid: false      // if after editing, tag is invalid, auto-revert
