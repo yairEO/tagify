@@ -2340,7 +2340,7 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
                         document.body.classList[e.target.checked ? 'add' : 'remove']('showOriginal')
                     }
                 },
-                "Sizes",
+                "Dynamic values",
                 {
                     cssVar: ['tag-pad', 'em'],
                     label: 'tag-pad',
@@ -2363,27 +2363,33 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
                     cssVar: ['tag--min-width', 'ch'],
                     label: 'tag--min-width',
                     type: 'range',
-                    value: 1,
-                    min: 0,
-                    max: 20,
+                    value: 1, min: 0, max: 20,
                 },
                 {
                     cssVar: ['tag--max-width', 'ch'],
                     label: 'tag--max-width',
                     type: 'range',
-                    value: 'auto',
-                    min: 1,
-                    max: 20,
+                    value: 'auto', min: 1, max: 20,
                 },
                 {
                     cssVar: ['loader-size', 'em'],
                     label: 'loader-size',
                     type: 'range',
-                    value: 'auto',
-                    min:.1,
-                    max: 1.4,
-                    step: 0.05
+                    value: 'auto', min:.1, max: 1.4, step: 0.05
                 },
+                {
+                    cssVar: ['tagify-dd-item--hidden-duration', 'ms', document.documentElement],
+                    label: 'tagify-dd-item--hidden-duration',
+                    type: 'range',
+                    value: '300', min: 0, max: 3000, step: 50
+                },
+                {
+                    cssVar: ['tagify-dd-item-pad', 'em', document.documentElement],
+                    label: 'tagify-dd-item-pad',
+                    type: 'range',
+                    value: .3, min: 0, max: 1.5, step: 0.01,
+                },
+
                 "Colors",
                 {
                     cssVar: ['tag-bg'],
@@ -2414,7 +2420,18 @@ $('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify
                     label: 'tags-focus-border-color',
                     type: 'color',
                     value: '#85C8EA',
+                    onChange(e, knobData) {
+                        // those should match:
+                        document.documentElement.style.setProperty('--tagify-dd-color-primary', knobData.value)
+                    }
                 },
+
+                {
+                    cssVar: ['tagify-dd-bg-color', null, document.documentElement],
+                    label: 'tagify-dd-bg-color',
+                    type: 'color',
+                },
+
                 {
                     cssVar: ['tag-text-color'],
                     label: 'tag-text-color',
