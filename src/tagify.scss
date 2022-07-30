@@ -91,6 +91,7 @@
         height: .7em;
         width: var(--loader-size);
         height: var(--loader-size);
+        min-width: 0;
         border: 3px solid;
         border-color: #EEE #BBB #888 transparent;
         border-radius: 50%;
