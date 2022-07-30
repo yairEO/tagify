@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.15.0) - tags input component
+ * Tagify (v 4.15.1) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -383,6 +383,10 @@
       return this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-footer']");
     },
 
+    getAllSuggestionsRefs() {
+      return [...this.DOM.dropdown.content.querySelectorAll(this.settings.classNames.dropdownItemSelector)];
+    },
+
     /**
      * shows the suggestions select box
      * @param {String} value [optional, filter the whitelist by this value]
@@ -689,17 +693,21 @@
               {
                 // >IE11
                 e.preventDefault();
-                var dropdownItems;
-                if (selectedElm) selectedElm = selectedElm[(e.key == 'ArrowUp' || e.key == 'Up' ? "previous" : "next") + "ElementSibling"]; // if no element was found OR current item is not a "real" item, loop
+                var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
+                    actionUp = e.key == 'ArrowUp' || e.key == 'Up';
+
+                if (selectedElm) {
+                  selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp);
+                } // if no element was found OR current item is not a "real" item, loop
+
 
                 if (!selectedElm || !selectedElm.matches(this.settings.classNames.dropdownItemSelector)) {
-                  // filter only the dropdown-item elements (not header/footer/custom ones)
-                  dropdownItems = this.DOM.dropdown.content.querySelectorAll(this.settings.classNames.dropdownItemSelector);
-                  selectedElm = dropdownItems[e.key == 'ArrowUp' || e.key == 'Up' ? dropdownItems.length - 1 : 0];
+                  selectedElm = dropdownItems[actionUp ? dropdownItems.length - 1 : 0];
                 }
 
                 selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm);
-                this.dropdown.highlightOption(selectedElm, true);
+                this.dropdown.highlightOption(selectedElm, true); // selectedElm.scrollIntoView({inline: 'nearest', behavior: 'smooth'})
+
                 break;
               }
 
@@ -734,7 +742,14 @@
                   tagData: selectedElmData,
                   suggestionElm: selectedElm
                 }).then(() => {
-                  if (selectedElm) return this.dropdown.selectOption(selectedElm);else this.dropdown.hide();
+                  if (selectedElm) {
+                    this.dropdown.selectOption(selectedElm); // highlight next option
+
+                    selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp);
+                    this.dropdown.highlightOption(selectedElm);
+                    return;
+                  } else this.dropdown.hide();
+
                   if (this.settings.mode != 'mix') this.addTags(this.state.inputText.trim(), true);
                 }).catch(err => err);
                 break;
@@ -793,7 +808,14 @@
 
     getSuggestionDataByNode(tagElm) {
       var idx = tagElm ? +tagElm.getAttribute('tagifySuggestionIdx') : -1;
-      return this.suggestedListItems[idx] || null;
+      return this.suggestedListItems.find(item => item.value == idx) || null;
+    },
+
+    getNextOrPrevOption(selected) {
+      let next = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+      var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
+          selectedIdx = dropdownItems.findIndex(item => item === selected);
+      return next ? dropdownItems[selectedIdx + 1] : dropdownItems[selectedIdx - 1];
     },
 
     /**
@@ -854,7 +876,7 @@
 
       var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
           isNoMatch = tagifySuggestionIdx == 'noMatch',
-          tagData = this.suggestedListItems[+tagifySuggestionIdx]; // The below event must be triggered, regardless of anything else which might go wrong
+          tagData = this.suggestedListItems.find(item => item.value == tagifySuggestionIdx); // The below event must be triggered, regardless of anything else which might go wrong
 
       this.trigger("dropdown:select", {
         data: tagData,
@@ -1019,7 +1041,7 @@
         var tagHTMLString = this.settings.templates.dropdownItem.apply(this, [suggestion, this]); // make sure the sugestion index is present as attribute, to match the data when one is selected
 
         tagHTMLString = tagHTMLString.replace(/\s*tagifySuggestionIdx=(["'])(.*?)\1/gmi, '') // remove the "tagifySuggestionIdx" attribute if for some reason it was there
-        .replace('>', ` tagifySuggestionIdx="${idx}">`); // add "tagifySuggestionIdx"
+        .replace('>', ` tagifySuggestionIdx="${suggestion.value}">`); // add "tagifySuggestionIdx"
 
         return tagHTMLString;
       }).join("");
