@@ -21,10 +21,9 @@ function Tagify( input, settings ){
         return mockInstance
     }
 
-
-    if( input.previousElementSibling && input.previousElementSibling.classList.contains('tagify') ){
-        console.warn('Tagify: ', 'input element is already Tagified', input)
-        return this
+    if( input.__tagify ){
+        console.warn('Tagify: ', 'input element is already Tagified - Same instance is returned.', input)
+        return input.__tagify
     }
 
     extend(this, EventDispatcher(this))
@@ -59,9 +58,10 @@ function Tagify( input, settings ){
     this.getCSSVars()
     this.loadOriginalValues()
 
-    this.events.customBinding.call(this);
+    this.events.customBinding.call(this)
     this.events.binding.call(this)
     input.autofocus && this.DOM.input.focus()
+    input.__tagify = this
 }
 
 Tagify.prototype = {
@@ -300,6 +300,7 @@ Tagify.prototype = {
         this.events.unbindGlobal.call(this)
         this.DOM.scope.parentNode.removeChild(this.DOM.scope)
         this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex
+        delete this.DOM.originalInput.__tagify
         this.dropdown.hide(true)
         clearTimeout(this.dropdownHide__bindEventsTimeout)
         clearInterval(this.listeners.main.originalInputValueObserverInterval)
