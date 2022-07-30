@@ -922,15 +922,22 @@
 
 
 /* Tags items */
-.tagify__tag{
+#users-list .tagify__tag{
     white-space: nowrap;
 }
 
-.tagify__tag:hover .tagify__tag__avatar-wrap{
+#users-list .tagify__tag img{
+    width: 100%;
+    vertical-align: top;
+    pointer-events: none;
+}
+
+
+#users-list .tagify__tag:hover .tagify__tag__avatar-wrap{
     transform: scale(1.6) translateX(-10%);
 }
 
-.tagify__tag .tagify__tag__avatar-wrap{
+#users-list .tagify__tag .tagify__tag__avatar-wrap{
     width: 16px;
     height: 16px;
     white-space: normal;
@@ -938,12 +945,6 @@
     background: silver;
     margin-right: 5px;
     transition: .12s ease-out;
-}
-
-.tagify__tag img{
-    width: 100%;
-    vertical-align: top;
-    pointer-events: none;
 }
 
 .users-list .tagify__dropdown__itemsGroup:empty{
@@ -1306,6 +1307,7 @@
                         </svg>
                     </a>
                     <input name='tags-jquery' value='try, adding, a tag'>
+                    <br>
                     <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
                 </aside>
             </section>
@@ -1978,8 +1980,9 @@ tagify.on('dropdown:select', onSelectSuggestion) // allows selecting all the sug
       .on('edit:start', onEditStart)  // show custom text in the tag while in edit-mode
 
 function onSelectSuggestion(e){
-    if( e.detail.event.target.matches('.remove-all-tags'))
+    if( e.detail.event.target.matches('.remove-all-tags')) {
         tagify.removeAllTags()
+    }
 
     // custom class from "dropdownHeaderTemplate"
     else if( e.detail.elm.classList.contains(`${tagify.settings.classNames.dropdownItem}__addAll`) )
