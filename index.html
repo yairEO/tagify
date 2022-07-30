@@ -1778,12 +1778,12 @@ function tagTemplate(tagData){
     `
 }
 
-function suggestionItemTemplate(tagData, idx){
+function suggestionItemTemplate(tagData){
     return `
         <div ${this.getAttributes(tagData)}
             class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'
             tabindex="0"
-            tagifySuggestionIdx="${idx}"
+            tagifySuggestionIdx="${tagData.value}"
             role="option">
             ${ tagData.avatar ? `
                 <div class='tagify__dropdown__item__avatar-wrap'>
@@ -1965,7 +1965,7 @@ tagify.dropdown.createListHTML = sugegstionsList  => {
 
         suggestion.value = value && typeof value == 'string' ? escapeHTML(value) : value
 
-        return tagify.settings.templates.dropdownItem.apply(tagify, [suggestion, idx]);
+        return tagify.settings.templates.dropdownItem.apply(tagify, [suggestion]);
     }).join("")
 
 

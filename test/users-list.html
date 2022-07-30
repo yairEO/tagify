@@ -363,7 +363,7 @@ tagify.dropdown.createListHTML = sugegstionsList  => {
 
         suggestion.value = value && typeof value == 'string' ? escapeHTML(value) : value
 
-        return tagify.settings.templates.dropdownItem.apply(tagify, [suggestion, idx]);
+        return tagify.settings.templates.dropdownItem.apply(tagify, [suggestion, suggestion.value]);
     }).join("")
 
 
