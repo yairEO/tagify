@@ -1645,6 +1645,11 @@ Tagify.prototype = {
         this.dropdown.refilter()
         this.dropdown.position()
 
+        if( this.state.dropdown.visible )
+            setTimeout(() => {
+                this.DOM.input.focus()
+            })
+
         if( this.settings.mode == 'select' ){
             this.input.set.call(this)
             this.setContentEditable(true)
