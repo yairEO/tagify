@@ -15,7 +15,15 @@ export function initDropdown(){
 export default {
     refs(){
         this.DOM.dropdown = this.parseTemplate('dropdown', [this.settings])
-        this.DOM.dropdown.content = this.DOM.dropdown.querySelector("[data-selector='tagify-dropdown-wrapper']")
+        this.DOM.dropdown.content = this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-wrapper']")
+    },
+
+    getHeaderRef(){
+        return this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-header']")
+    },
+
+    getFooterRef(){
+        return this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-footer']")
     },
 
     /**
@@ -208,7 +216,7 @@ export default {
     },
 
     /**
-     *
+     * re-renders the dropdown content element (see "dropdownContent" in templates file)
      * @param {String/Array} HTMLContent - optional
      */
     fill( HTMLContent ){
@@ -218,6 +226,24 @@ export default {
 
         var dropdownContent = this.settings.templates.dropdownContent.call(this, HTMLContent)
         this.DOM.dropdown.content.innerHTML = minify(dropdownContent)
+    },
+
+    /**
+     * Re-renders only the header & footer.
+     * Used when selecting a suggestion and it is wanted that the suggestions dropdown stays open.
+     * Since the list of sugegstions is not being re-rendered completely every time a suggestion is selected (the item is transitioned-out)
+     * then the header & footer should be kept in sync with the suggestions data change
+     */
+    fillHeaderFooter(){
+        var {templates} = this.settings,
+            suggestions = this.dropdown.filterListItems(this.state.dropdown.query),
+            newHeaderElem = this.parseTemplate('dropdownHeader', [suggestions]),
+            newFooterElem = this.parseTemplate('dropdownFooter', [suggestions]),
+            headerRef = this.dropdown.getHeaderRef(),
+            footerRef = this.dropdown.getFooterRef();
+
+        newHeaderElem && headerRef?.parentNode.replaceChild(newHeaderElem, headerRef)
+        newFooterElem && footerRef?.parentNode.replaceChild(newFooterElem, footerRef)
     },
 
     /**
@@ -435,7 +461,7 @@ export default {
                 this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                     .then(() => {
                         if( selectedElm )
-                            this.dropdown.selectOption(selectedElm)
+                            this.dropdown.selectOption(selectedElm, e)
                         else
                             this.dropdown.hide()
                     })
@@ -502,8 +528,9 @@ export default {
     /**
      * Create a tag from the currently active suggestion option
      * @param {Object} elm  DOM node to select
+     * @param {Object} event The original Click event, if available (since keyboard ENTER key also triggers this method)
      */
-    selectOption( elm ){
+    selectOption( elm, event ){
         var {clearOnSelect, closeOnSelect} = this.settings.dropdown,
             addedTag;
 
@@ -513,6 +540,8 @@ export default {
             return;
         }
 
+        event = event || {}
+
         // if in edit-mode, do not continue but instead replace the tag's text.
         // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
@@ -520,11 +549,11 @@ export default {
             isNoMatch = tagifySuggestionIdx == 'noMatch',
             tagData = this.suggestedListItems[+tagifySuggestionIdx];
 
-        this.trigger("dropdown:select", {data:tagData, elm})
+        // The below event must be triggered, regardless of anything else which might go wrong
+        this.trigger("dropdown:select", {data:tagData, elm, event})
 
-        // The above event must be triggered, regardless of anything else which might go wrong
         if( !tagifySuggestionIdx || !tagData && !isNoMatch ){
-            this.dropdown.hide()
+            closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
             return
         }
 
@@ -546,20 +575,15 @@ export default {
             this.toggleFocusClass(true)
         })
 
-        if( closeOnSelect ){
-            setTimeout(this.dropdown.hide.bind(this))
-        }
+        closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
 
         // hide selected suggestion
         elm.addEventListener('transitionend', () => {
-            if( this.dropdown.filterListItems(this.state.dropdown.query || '') <= 1)
-                this.dropdown.hide()
+            this.dropdown.fillHeaderFooter()
+            setTimeout(() => elm.remove(), 500)
         }, {once: true})
 
         elm.classList.add(this.settings.classNames.dropdownItemHidden)
-
-        // else
-        //     this.dropdown.refilter()
     },
 
     // adds all the suggested items, including the ones which are not currently rendered,
@@ -705,11 +729,11 @@ export default {
 
     /**
      * Creates the dropdown items' HTML
-     * @param  {Array} list  [Array of Objects]
+     * @param  {Array} sugegstionsList  [Array of Objects]
      * @return {String}
      */
-    createListHTML( optionsArr ){
-        return extend([], optionsArr).map((suggestion, idx) => {
+    createListHTML( sugegstionsList ){
+        return extend([], sugegstionsList).map((suggestion, idx) => {
             if( typeof suggestion == 'string' || typeof suggestion == 'number' )
                 suggestion = {value:suggestion}
 
