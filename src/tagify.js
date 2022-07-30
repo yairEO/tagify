@@ -1642,6 +1642,7 @@ Tagify.prototype = {
         else
             this.removeTagsFromDOM()
 
+        this.dropdown.refilter()
         this.dropdown.position()
 
         if( this.settings.mode == 'select' ){
