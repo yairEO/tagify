@@ -857,8 +857,11 @@
                     <script>renderPRE(document.currentScript, "users-list")</script>
                     <h3>CSS</h3>
 <style contenteditable>/* Suggestions items */
+:root {
+    --tagify-dd-item-pad: .5em .7em;
+}
+
 .tagify__dropdown.users-list .tagify__dropdown__item{
-    padding: .5em .7em;
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 0 1em;
