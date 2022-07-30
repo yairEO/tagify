@@ -426,7 +426,9 @@
               //  display: flex; // https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
             }
 
-
+            &::before{
+                position: static;
+            }
         }
 
         &:focus{
@@ -489,6 +491,13 @@
         &::after{
             content: attr(data-suggest);
             display: inline-block;
+            vertical-align: middle;
+
+            position: absolute;
+            min-width: calc(100% - 1.5em);
+            text-overflow: ellipsis;
+            overflow: hidden;
+
             white-space: pre; /* allows spaces at the beginning */
             color: var(--tag-text-color);
             opacity: .3;
@@ -632,7 +641,7 @@
             border-bottom-width: 1.5px; // fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523
             border-top-width: 0;
             box-shadow: 0 2px 4px -2px rgba(black,.2);
-            box-sizing: border-box;
+            // box-sizing: border-box;
             transition: $trans;
         }
 
