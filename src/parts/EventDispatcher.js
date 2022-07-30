@@ -1,5 +1,17 @@
 import { extend } from './helpers'
 
+// clones an event since it cannot be destructured
+function cloneEvent(e) {
+    if (!e) return;
+    let clone = new Function();
+    for (let p in e) {
+        let d = Object.getOwnPropertyDescriptor(e, p);
+        if (d && (d.get || d.set)) Object.defineProperty(clone, p, d); else clone[p] = e[p];
+    }
+    Object.setPrototypeOf(clone, e);
+    return clone;
+}
+
 export default function EventDispatcher( instance ){
     // Create a DOM EventTarget object
     var target = document.createTextNode('')
@@ -43,6 +55,9 @@ export default function EventDispatcher( instance ){
 
                     eventData = opts.cloneData ? extend({}, eventData) : eventData
                     eventData.tagify = this
+
+                    if( data.event )
+                        eventData.event = cloneEvent(data.event)
 
                     // TODO: move the below to the "extend" function
                     if( data instanceof Object )
