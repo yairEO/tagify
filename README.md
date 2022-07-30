@@ -473,7 +473,7 @@ expanding the search of any typed terms to more than the `value` property of the
 ]
 ```
 
-// setting to search in other keys:
+Modified `searchKeys` setting to also search in other keys:
 ```javascript
 {
   dropdown: {
@@ -815,7 +815,7 @@ function onTagifyKeyDown(e){
 * [Custom (multiple) tag validation & AJAX](https://github.com/yairEO/tagify/issues/474)
 * [Make tags from pasted multi-line text](https://github.com/yairEO/tagify/issues/160)
 * [Add a tag at *caret* position in *mixed mode*](https://github.com/yairEO/tagify/issues/524#issuecomment-699140465)
-* [Change automatic title tooltips for invalid tags]([https0465](https://github.com/yairEO/tagify/issues/862))
+* [Change automatic title tooltips for invalid tags](https://github.com/yairEO/tagify/issues/862)
 * [Create a submenu for the suggestions dropdown](https://github.com/yairEO/tagify/issues/1016#issuecomment-1106910803)
 
 ## CSS Variables
