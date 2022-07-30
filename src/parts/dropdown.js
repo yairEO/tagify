@@ -26,6 +26,10 @@ export default {
         return this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-footer']")
     },
 
+    getAllSuggestionsRefs(){
+        return [...this.DOM.dropdown.content.querySelectorAll(this.settings.classNames.dropdownItemSelector)]
+    },
+
     /**
      * shows the suggestions select box
      * @param {String} value [optional, filter the whitelist by this value]
@@ -369,21 +373,25 @@ export default {
                     case 'Down' :  // >IE11
                     case 'Up' : {  // >IE11
                         e.preventDefault()
-                        var dropdownItems, isDDItem;
+                        var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
+                            selectedIdx = dropdownItems.findIndex(item => item === selectedElm),
+                            actionUp = e.key == 'ArrowUp' || e.key == 'Up',
+                            isDDItem;
 
-                        if( selectedElm )
-                            selectedElm = selectedElm[(e.key == 'ArrowUp' || e.key == 'Up' ? "previous" : "next") + "ElementSibling"];
+
+                        if( selectedElm ) {
+                            selectedElm = actionUp ? dropdownItems[selectedIdx - 1] : dropdownItems[selectedIdx + 1]
+                        }
 
                         // if no element was found OR current item is not a "real" item, loop
                         if( !selectedElm || !selectedElm.matches(this.settings.classNames.dropdownItemSelector) ){
-                            // filter only the dropdown-item elements (not header/footer/custom ones)
-                            dropdownItems = this.DOM.dropdown.content.querySelectorAll(this.settings.classNames.dropdownItemSelector)
-                            selectedElm = dropdownItems[e.key == 'ArrowUp' || e.key == 'Up' ? dropdownItems.length - 1 : 0];
+                            selectedElm = dropdownItems[actionUp ? dropdownItems.length - 1 : 0];
                         }
 
                         selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
 
-                        this.dropdown.highlightOption(selectedElm, true);
+                        this.dropdown.highlightOption(selectedElm, true)
+                        selectedElm.scrollIntoView({block: actionUp ? 'start' : 'end', behavior: 'smooth'})
                         break;
                     }
                     case 'Escape' :
@@ -479,7 +487,7 @@ export default {
 
     getSuggestionDataByNode( tagElm ){
         var idx = tagElm ? +tagElm.getAttribute('tagifySuggestionIdx') : -1;
-        return this.suggestedListItems[idx] || null
+        return this.suggestedListItems.find(item => item.value == idx) || null
     },
 
     /**
@@ -547,7 +555,7 @@ export default {
 
         var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
             isNoMatch = tagifySuggestionIdx == 'noMatch',
-            tagData = this.suggestedListItems[+tagifySuggestionIdx];
+            tagData = this.suggestedListItems.find(item => item.value == tagifySuggestionIdx)
 
         // The below event must be triggered, regardless of anything else which might go wrong
         this.trigger("dropdown:select", {data:tagData, elm, event})
@@ -746,7 +754,7 @@ export default {
             // make sure the sugestion index is present as attribute, to match the data when one is selected
             tagHTMLString = tagHTMLString
                 .replace(/\s*tagifySuggestionIdx=(["'])(.*?)\1/gmi, '') // remove the "tagifySuggestionIdx" attribute if for some reason it was there
-                .replace('>', ` tagifySuggestionIdx="${idx}">`) // add "tagifySuggestionIdx"
+                .replace('>', ` tagifySuggestionIdx="${suggestion.value}">`) // add "tagifySuggestionIdx"
 
             return tagHTMLString
         }).join("")
