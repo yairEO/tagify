@@ -625,13 +625,14 @@
         &__wrapper{
             max-height: 300px;
             overflow: auto;
+            overflow-x: hidden;
             background: var(--tagify-dd-bg-color);
-            border: 1px solid $tags-focus-border-color;
+            border: 1px solid;
             border-color: var(--tagify-dd-color-primary);
-            border-bottom-width: 1.33px; // fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523
+            border-bottom-width: 1.5px; // fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523
             border-top-width: 0;
             box-shadow: 0 2px 4px -2px rgba(black,.2);
-            // box-sizing: border-box;
+            box-sizing: border-box;
             transition: $trans;
         }
 
@@ -665,7 +666,7 @@
         }
 
         &__item{
-            box-sizing: inherit;
+            box-sizing: border-box;
             padding: var(--tagify-dd-item-pad);
             margin: 1px;
             cursor: pointer;
