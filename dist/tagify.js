@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.14.1) - tags input component
+ * Tagify (v 4.15.0) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -254,7 +254,7 @@
     callbacks: {},
     // Exposed callbacks object to be triggered on certain events
     addTagOnBlur: true,
-    // Flag - automatically adds the text which was inputed as a tag when blur event happens
+    // automatically adds the text which was inputed as a tag when blur event happens
     onChangeAfterBlur: true,
     // By default, the native way of inputs' onChange events is kept, and it only fires when the field is blured.
     duplicates: false,
@@ -264,11 +264,13 @@
     blacklist: [],
     // A list of non-allowed tags
     enforceWhitelist: false,
-    // Flag - Only allow tags from the whitelist
+    // Only allow tags from the whitelist
     userInput: true,
-    // Flag - disable manually typing/pasting/editing tags (tags may only be added from the whitelist)
+    // disable manually typing/pasting/editing tags (tags may only be added from the whitelist)
     keepInvalidTags: false,
-    // Flag - if true, do not remove tags which did not pass validation
+    // if true, do not remove tags which did not pass validation
+    createInvalidTags: true,
+    // if false, do not create invalid tags from invalid user input
     mixTagsAllowedAfter: /,|\.|\:|\s/,
     // RegEx - Define conditions in which mix-tags content allows a tag to be added after
     mixTagsInterpolator: ['[[', ']]'],
@@ -323,6 +325,7 @@
       dropdownFooter: 'tagify__dropdown__footer',
       dropdownItem: 'tagify__dropdown__item',
       dropdownItemActive: 'tagify__dropdown__item--active',
+      dropdownItemHidden: 'tagify__dropdown__item--hidden',
       dropdownInital: 'tagify__dropdown--initial',
       tag: 'tagify__tag',
       tagText: 'tagify__tag-text',
@@ -369,7 +372,15 @@
   var _dropdown = {
     refs() {
       this.DOM.dropdown = this.parseTemplate('dropdown', [this.settings]);
-      this.DOM.dropdown.content = this.DOM.dropdown.querySelector("[data-selector='tagify-dropdown-wrapper']");
+      this.DOM.dropdown.content = this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-wrapper']");
+    },
+
+    getHeaderRef() {
+      return this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-header']");
+    },
+
+    getFooterRef() {
+      return this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-footer']");
     },
 
     /**
@@ -533,7 +544,7 @@
     },
 
     /**
-     *
+     * re-renders the dropdown content element (see "dropdownContent" in templates file)
      * @param {String/Array} HTMLContent - optional
      */
     fill(HTMLContent) {
@@ -543,8 +554,25 @@
     },
 
     /**
+     * Re-renders only the header & footer.
+     * Used when selecting a suggestion and it is wanted that the suggestions dropdown stays open.
+     * Since the list of sugegstions is not being re-rendered completely every time a suggestion is selected (the item is transitioned-out)
+     * then the header & footer should be kept in sync with the suggestions data change
+     */
+    fillHeaderFooter() {
+      this.settings.templates;
+          var suggestions = this.dropdown.filterListItems(this.state.dropdown.query),
+          newHeaderElem = this.parseTemplate('dropdownHeader', [suggestions]),
+          newFooterElem = this.parseTemplate('dropdownFooter', [suggestions]),
+          headerRef = this.dropdown.getHeaderRef(),
+          footerRef = this.dropdown.getFooterRef();
+      newHeaderElem && headerRef?.parentNode.replaceChild(newHeaderElem, headerRef);
+      newFooterElem && footerRef?.parentNode.replaceChild(newFooterElem, footerRef);
+    },
+
+    /**
      * fill data into the suggestions list
-     * (mainly used to update the list when removing tags, so they will be re-added to the list. not efficient)
+     * (mainly used to update the list when removing tags while the suggestions dropdown is visible, so they will be re-added to the list. not efficient)
      */
     refilter(value) {
       value = value || this.state.dropdown.query || '';
@@ -748,7 +776,7 @@
             tagData: selectedElmData,
             suggestionElm: selectedElm
           }).then(() => {
-            if (selectedElm) this.dropdown.selectOption(selectedElm);else this.dropdown.hide();
+            if (selectedElm) this.dropdown.selectOption(selectedElm, e);else this.dropdown.hide();
           }).catch(err => console.warn(err));
         },
 
@@ -808,8 +836,9 @@
     /**
      * Create a tag from the currently active suggestion option
      * @param {Object} elm  DOM node to select
+     * @param {Object} event The original Click event, if available (since keyboard ENTER key also triggers this method)
      */
-    selectOption(elm) {
+    selectOption(elm, event) {
       var _this$settings$dropdo = this.settings.dropdown,
           clearOnSelect = _this$settings$dropdo.clearOnSelect,
           closeOnSelect = _this$settings$dropdo.closeOnSelect;
@@ -818,20 +847,23 @@
         this.addTags(this.state.inputText, true);
         closeOnSelect && this.dropdown.hide();
         return;
-      } // if in edit-mode, do not continue but instead replace the tag's text.
-      // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
+      }
 
+      event = event || {}; // if in edit-mode, do not continue but instead replace the tag's text.
+      // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
       var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
           isNoMatch = tagifySuggestionIdx == 'noMatch',
-          tagData = this.suggestedListItems[+tagifySuggestionIdx];
+          tagData = this.suggestedListItems[+tagifySuggestionIdx]; // The below event must be triggered, regardless of anything else which might go wrong
+
       this.trigger("dropdown:select", {
         data: tagData,
-        elm
-      }); // The above event must be triggered, regardless of anything else which might go wrong
+        elm,
+        event
+      });
 
       if (!tagifySuggestionIdx || !tagData && !isNoMatch) {
-        this.dropdown.hide();
+        closeOnSelect && setTimeout(this.dropdown.hide.bind(this));
         return;
       }
 
@@ -851,10 +883,15 @@
         this.DOM.input.focus();
         this.toggleFocusClass(true);
       });
+      closeOnSelect && setTimeout(this.dropdown.hide.bind(this)); // hide selected suggestion
 
-      if (closeOnSelect) {
-        setTimeout(this.dropdown.hide.bind(this));
-      } else this.dropdown.refilter();
+      elm.addEventListener('transitionend', () => {
+        this.dropdown.fillHeaderFooter();
+        setTimeout(() => elm.remove(), 100);
+      }, {
+        once: true
+      });
+      elm.classList.add(this.settings.classNames.dropdownItemHidden);
     },
 
     // adds all the suggested items, including the ones which are not currently rendered,
@@ -883,8 +920,6 @@
       var _s = this.settings,
           _sd = _s.dropdown,
           options = options || {},
-          value = _s.mode == 'select' && this.value.length && this.value[0][_s.tagTextProp] == value ? '' // do not filter if the tag, which is already selecetd in "select" mode, is the same as the typed text
-      : value,
           list = [],
           exactMatchesList = [],
           whitelist = _s.whitelist,
@@ -896,6 +931,8 @@
           isDuplicate,
           niddle,
           i = 0;
+      value = _s.mode == 'select' && this.value.length && this.value[0][_s.tagTextProp] == value ? '' // do not filter if the tag, which is already selecetd in "select" mode, is the same as the typed text
+      : value;
 
       if (!value || !searchKeys.length) {
         list = _s.duplicates ? whitelist : whitelist.filter(item => !this.isTagDuplicate(isObject(item) ? item.value : item)); // don't include tags which have already been added.
@@ -969,11 +1006,11 @@
 
     /**
      * Creates the dropdown items' HTML
-     * @param  {Array} list  [Array of Objects]
+     * @param  {Array} sugegstionsList  [Array of Objects]
      * @return {String}
      */
-    createListHTML(optionsArr) {
-      return extend([], optionsArr).map((suggestion, idx) => {
+    createListHTML(sugegstionsList) {
+      return extend([], sugegstionsList).map((suggestion, idx) => {
         if (typeof suggestion == 'string' || typeof suggestion == 'number') suggestion = {
           value: suggestion
         };
@@ -1080,7 +1117,7 @@
           isManual = _sd.position == 'manual',
           className = `${settings.classNames.dropdown}`;
       return `<div class="${isManual ? "" : className} ${_sd.classname}" role="listbox" aria-labelledby="dropdown">
-                    <div data-selector='tagify-dropdown-wrapper' class="${settings.classNames.dropdownWrapper}"></div>
+                    <div data-selector='tagify-suggestions-wrapper' class="${settings.classNames.dropdownWrapper}"></div>
                 </div>`;
     },
 
@@ -1102,11 +1139,10 @@
     },
 
     /**
-     * Example: <header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownHeader}"></header>
      * @param {Array} suggestions An array of all the matched suggested items, including those which were sliced away due to the "dropdown.maxItems" setting
      */
     dropdownHeader(suggestions) {
-      return '';
+      return `<header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownHeader}"></header>`;
     },
 
     dropdownFooter(suggestions) {
@@ -1118,6 +1154,19 @@
 
     dropdownItemNoMatch: null
   };
+
+  function cloneEvent(e) {
+    if (!e) return;
+    let clone = new Function();
+
+    for (let p in e) {
+      let d = Object.getOwnPropertyDescriptor(e, p);
+      if (d && (d.get || d.set)) Object.defineProperty(clone, p, d);else clone[p] = e[p];
+    }
+
+    Object.setPrototypeOf(clone, e);
+    return clone;
+  }
 
   function EventDispatcher(instance) {
     // Create a DOM EventTarget object
@@ -1156,7 +1205,8 @@
               value: data
             };
             eventData = opts.cloneData ? extend({}, eventData) : eventData;
-            eventData.tagify = this; // TODO: move the below to the "extend" function
+            eventData.tagify = this;
+            if (data.event) eventData.event = cloneEvent(data.event); // TODO: move the below to the "extend" function
 
             if (data instanceof Object) for (var prop in data) if (data[prop] instanceof HTMLElement) eventData[prop] = data[prop];
             e = new CustomEvent(eventName, {
@@ -2085,9 +2135,9 @@
       return mockInstance;
     }
 
-    if (input.previousElementSibling && input.previousElementSibling.classList.contains('tagify')) {
-      console.warn('Tagify: ', 'input element is already Tagified', input);
-      return this;
+    if (input.__tagify) {
+      console.warn('Tagify: ', 'input element is already Tagified - Same instance is returned.', input);
+      return input.__tagify;
     }
 
     extend(this, EventDispatcher(this));
@@ -2122,6 +2172,7 @@
     this.events.customBinding.call(this);
     this.events.binding.call(this);
     input.autofocus && this.DOM.input.focus();
+    input.__tagify = this;
   }
 
   Tagify.prototype = {
@@ -2212,7 +2263,9 @@
         _s.pattern = new RegExp(input.pattern);
       } catch (e) {} // Convert the "delimiters" setting into a REGEX object
 
-      if (this.settings.delimiters) {
+      if (_s.delimiters) {
+        _s._delimiters = _s.delimiters;
+
         try {
           _s.delimiters = new RegExp(this.settings.delimiters, "g");
         } catch (e) {}
@@ -2363,6 +2416,7 @@
       this.events.unbindGlobal.call(this);
       this.DOM.scope.parentNode.removeChild(this.DOM.scope);
       this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex;
+      delete this.DOM.originalInput.__tagify;
       this.dropdown.hide(true);
       clearTimeout(this.dropdownHide__bindEventsTimeout);
       clearInterval(this.listeners.main.originalInputValueObserverInterval);
@@ -2398,7 +2452,7 @@
             if (JSON.parse(value) instanceof Array) value = JSON.parse(value);
           } catch (err) {}
 
-          this.addTags(value).forEach(tag => tag && tag.classList.add(_s.classNames.tagNoAnimation));
+          this.addTags(value, true).forEach(tag => tag && tag.classList.add(_s.classNames.tagNoAnimation));
         }
       } else this.postUpdate();
 
@@ -3188,6 +3242,7 @@
     addTags(tagsItems, clearInput, skipInvalid) {
       var tagElems = [],
           _s = this.settings,
+          aggregatedinvalidInput = [],
           frag = document.createDocumentFragment();
       skipInvalid = skipInvalid || _s.skipInvalid;
 
@@ -3232,6 +3287,11 @@
           });
           if (tagData.__isValid == this.TEXTS.duplicate) // mark, for a brief moment, the tag (this this one) which THIS CURRENT tag is a duplcate of
             this.flashTag(this.getTagElmByValue(tagData.value));
+
+          if (!_s.createInvalidTags) {
+            aggregatedinvalidInput.push(tagData.value);
+            return;
+          }
         }
 
         if ('readonly' in tagData) {
@@ -3276,7 +3336,8 @@
       this.update();
 
       if (tagsItems.length && clearInput) {
-        this.input.set.call(this);
+        this.input.set.call(this, _s.createInvalidTags ? '' : aggregatedinvalidInput.join(_s._delimiters));
+        this.setRangeAtStartEnd();
       }
 
       _s.dropdown.enabled && this.dropdown.refilter();
@@ -3539,7 +3600,11 @@
       opts = opts || {};
       this.value = [];
       if (this.settings.mode == 'mix') this.DOM.input.innerHTML = '';else this.removeTagsFromDOM();
+      this.dropdown.refilter();
       this.dropdown.position();
+      if (this.state.dropdown.visible) setTimeout(() => {
+        this.DOM.input.focus();
+      });
 
       if (this.settings.mode == 'select') {
         this.input.set.call(this);
