@@ -374,13 +374,11 @@ export default {
                     case 'Up' : {  // >IE11
                         e.preventDefault()
                         var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
-                            selectedIdx = dropdownItems.findIndex(item => item === selectedElm),
                             actionUp = e.key == 'ArrowUp' || e.key == 'Up',
                             isDDItem;
 
-
                         if( selectedElm ) {
-                            selectedElm = actionUp ? dropdownItems[selectedIdx - 1] : dropdownItems[selectedIdx + 1]
+                            selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
                         }
 
                         // if no element was found OR current item is not a "real" item, loop
@@ -391,7 +389,7 @@ export default {
                         selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
 
                         this.dropdown.highlightOption(selectedElm, true)
-                        selectedElm.scrollIntoView({block: actionUp ? 'start' : 'end', behavior: 'smooth'})
+                        // selectedElm.scrollIntoView({inline: 'nearest', behavior: 'smooth'})
                         break;
                     }
                     case 'Escape' :
@@ -418,8 +416,13 @@ export default {
 
                         this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                             .then(() => {
-                                if( selectedElm )
-                                    return this.dropdown.selectOption(selectedElm)
+                                if( selectedElm ){
+                                    this.dropdown.selectOption(selectedElm)
+                                    // highlight next option
+                                    selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
+                                    this.dropdown.highlightOption(selectedElm)
+                                    return
+                                }
                                 else
                                     this.dropdown.hide()
 
@@ -488,6 +491,13 @@ export default {
     getSuggestionDataByNode( tagElm ){
         var idx = tagElm ? +tagElm.getAttribute('tagifySuggestionIdx') : -1;
         return this.suggestedListItems.find(item => item.value == idx) || null
+    },
+
+    getNextOrPrevOption(selected, next = true) {
+        var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
+            selectedIdx = dropdownItems.findIndex(item => item === selected);
+
+        return next ? dropdownItems[selectedIdx + 1] : dropdownItems[selectedIdx - 1]
     },
 
     /**
