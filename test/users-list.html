@@ -35,8 +35,11 @@
                 min-width: 400px;
             }
 
+            :root {
+                --tagify-dd-item-pad: .5em .7em;
+            }
+
             .tagify__dropdown.users-list .tagify__dropdown__item{
-                padding: .5em .7em;
                 display: grid;
                 grid-template-columns: auto 1fr;
                 gap: 0 1em;
@@ -63,6 +66,7 @@
                 vertical-align: top;
             }
 
+            .tagify__dropdown.users-list div,
             .tagify__dropdown.users-list strong{
                 grid-area: name;
                 width: 100%;
@@ -79,6 +83,19 @@
             .tagify__dropdown.users-list .tagify__dropdown__item__addAll{
                 border-bottom: 1px solid #DDD;
                 gap: 0;
+            }
+
+            .tagify__dropdown.users-list .remove-all-tags{
+                float: right;
+                font-size: .8em;
+                padding: .2em .3em;
+                border-radius: 3px;
+                user-select: none;
+            }
+
+            .tagify__dropdown.users-list .remove-all-tags:hover{
+                color: white;
+                background: salmon;
             }
 
 
@@ -106,6 +123,27 @@
                 vertical-align: top;
                 pointer-events: none;
             }
+
+            .users-list .tagify__dropdown__itemsGroup:empty{
+                display: none;
+            }
+
+            .users-list .tagify__dropdown__itemsGroup::before{
+                content: attr(data-title);
+                display: inline-block;
+                font-size: .9em;
+                padding: 4px 6px;
+                margin: var(--tagify-dd-item-pad);
+                font-style: italic;
+                border-radius: 4px;
+                background: salmon;
+                color: white;
+            }
+
+            .users-list .tagify__dropdown__itemsGroup:not(:first-of-type)::before{
+                border-top: 1px solid #DDD;
+            }
+
         </style>
     </head>
     <body>
@@ -137,16 +175,17 @@ function tagTemplate(tagData){
     `
 }
 
-function suggestionItemTemplate(tagData){
+function suggestionItemTemplate(tagData, idx){
     return `
         <div ${this.getAttributes(tagData)}
             class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'
             tabindex="0"
+            tagifySuggestionIdx="${idx}"
             role="option">
             ${ tagData.avatar ? `
-            <div class='tagify__dropdown__item__avatar-wrap'>
-                <img onerror="this.style.visibility='hidden'" src="${tagData.avatar}">
-            </div>` : ''
+                <div class='tagify__dropdown__item__avatar-wrap'>
+                    <img onerror="this.style.visibility='hidden'" src="${tagData.avatar}">
+                </div>` : ''
             }
             <strong>${tagData.name}</strong>
             <span>${tagData.email}</span>
@@ -156,10 +195,13 @@ function suggestionItemTemplate(tagData){
 
 function dropdownHeaderTemplate(suggestions){
     return `
-        <div class="${this.settings.classNames.dropdownItem} ${this.settings.classNames.dropdownItem}__addAll">
-            <strong>${this.value.length ? `Add remaning ${suggestions.length}` : 'Add All'}</strong>
+        <header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownItem} ${this.settings.classNames.dropdownItem}__addAll">
+            <div>
+                <strong>${this.value.length ? `Add Remaning` : 'Add All'}</strong>
+                <a class='remove-all-tags'>Remove all</a>
+            </div>
             <span>${suggestions.length} members</span>
-        </div>
+        </header>
     `
 }
 
@@ -184,80 +226,95 @@ var tagify = new Tagify(inputElm, {
             "value": 1,
             "name": "Justinian Hattersley",
             "avatar": "https://i.pravatar.cc/80?img=1",
-            "email": "jhattersley0@ucsd.edu"
+            "email": "jhattersley0@ucsd.edu",
+            "team": "A"
         },
         {
             "value": 2,
             "name": "Antons Esson",
             "avatar": "https://i.pravatar.cc/80?img=2",
-            "email": "aesson1@ning.com"
+            "email": "aesson1@ning.com",
+            "team": "B"
+
         },
         {
             "value": 3,
             "name": "Ardeen Batisse",
             "avatar": "https://i.pravatar.cc/80?img=3",
-            "email": "abatisse2@nih.gov"
+            "email": "abatisse2@nih.gov",
+            "team": "A"
         },
         {
             "value": 4,
             "name": "Graeme Yellowley",
             "avatar": "https://i.pravatar.cc/80?img=4",
-            "email": "gyellowley3@behance.net"
+            "email": "gyellowley3@behance.net",
+            "team": "C"
         },
         {
             "value": 5,
             "name": "Dido Wilford",
             "avatar": "https://i.pravatar.cc/80?img=5",
-            "email": "dwilford4@jugem.jp"
+            "email": "dwilford4@jugem.jp",
+            "team": "A"
         },
         {
             "value": 6,
             "name": "Celesta Orwin",
             "avatar": "https://i.pravatar.cc/80?img=6",
-            "email": "corwin5@meetup.com"
+            "email": "corwin5@meetup.com",
+            "team": "C"
         },
         {
             "value": 7,
             "name": "Sally Main",
             "avatar": "https://i.pravatar.cc/80?img=7",
-            "email": "smain6@techcrunch.com"
+            "email": "smain6@techcrunch.com",
+            "team": "A"
         },
         {
             "value": 8,
             "name": "Grethel Haysman",
             "avatar": "https://i.pravatar.cc/80?img=8",
-            "email": "ghaysman7@mashable.com"
+            "email": "ghaysman7@mashable.com",
+            "team": "B"
         },
         {
             "value": 9,
             "name": "Marvin Mandrake",
             "avatar": "https://i.pravatar.cc/80?img=9",
-            "email": "mmandrake8@sourceforge.net"
+            "email": "mmandrake8@sourceforge.net",
+            "team": "B"
         },
         {
             "value": 10,
             "name": "Corrie Tidey",
             "avatar": "https://i.pravatar.cc/80?img=10",
-            "email": "ctidey9@youtube.com"
+            "email": "ctidey9@youtube.com",
+            "team": "A"
         },
         {
             "value": 11,
             "name": "foo",
             "avatar": "https://i.pravatar.cc/80?img=11",
-            "email": "foo@bar.com"
+            "email": "foo@bar.com",
+            "team": "B"
         },
         {
             "value": 12,
             "name": "foo",
             "avatar": "https://i.pravatar.cc/80?img=12",
-            "email": "foo.aaa@foo.com"
+            "email": "foo.aaa@foo.com",
+            "team": "A"
         },
     ],
+
     transformTag: (tagData, originalData) => {
         var {name, email} = parseFullValue(tagData.name)
         tagData.name = name
         tagData.email = email || tagData.email
     },
+
     validate({name, email}) {
         // when editing a tag, there will only be the "name" property which contains name + email (see 'transformTag' above)
         if( !email && name ) {
@@ -273,13 +330,58 @@ var tagify = new Tagify(inputElm, {
     }
 })
 
+function escapeHTML( s ){
+    return typeof s == 'string' ? s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/`|'/g, "&#039;")
+        : s;
+}
+
+// highly-customized suggestions list design, which splits the users list into their teams,
+// since each user also has a 'team' property:
+tagify.dropdown.createListHTML = sugegstionsList  => {
+    const teamsOfUsers = sugegstionsList.reduce((acc, suggestion) => {
+        const team = suggestion.team || 'Not Assigned';
+
+        if( !acc[team] )
+            acc[team] = [suggestion]
+        else
+            acc[team].push(suggestion)
+
+        return acc
+    }, {})
+
+    const getUsersSuggestionsHTML = teamUsers => teamUsers.map((suggestion, idx) => {
+        if( typeof suggestion == 'string' || typeof suggestion == 'number' )
+            suggestion = {value:suggestion}
+
+        var value = tagify.dropdown.getMappedValue.call(tagify, suggestion)
+
+        suggestion.value = value && typeof value == 'string' ? escapeHTML(value) : value
+
+        return tagify.settings.templates.dropdownItem.apply(tagify, [suggestion, idx]);
+    }).join("")
+
+
+    // assign the user to a group
+    return Object.entries(teamsOfUsers).map(([team, teamUsers]) => {
+        return `<div class="tagify__dropdown__itemsGroup" data-title="Team ${team}:">${getUsersSuggestionsHTML(teamUsers)}</div>`
+    }).join("")
+}
+
 // attach events listeners
 tagify.on('dropdown:select', onSelectSuggestion) // allows selecting all the suggested (whitelist) items
       .on('edit:start', onEditStart)  // show custom text in the tag while in edit-mode
 
 function onSelectSuggestion(e){
+    if( e.detail.event.target.matches('.remove-all-tags'))
+        tagify.removeAllTags()
+
     // custom class from "dropdownHeaderTemplate"
-    if( e.detail.elm.classList.contains(`${tagify.settings.classNames.dropdownItem}__addAll`) )
+    else if( e.detail.elm.classList.contains(`${tagify.settings.classNames.dropdownItem}__addAll`) )
         tagify.dropdown.selectAll();
 }
 
@@ -300,6 +402,8 @@ function parseFullValue(value) {
 
     return {name, email}
 }
+
+window.xxx = tagify
 </script>
 </body>
 </html>
