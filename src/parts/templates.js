@@ -40,7 +40,7 @@ export default {
             className = `${settings.classNames.dropdown}`;
 
         return `<div class="${isManual ? "" : className} ${_sd.classname}" role="listbox" aria-labelledby="dropdown">
-                    <div data-selector='tagify-dropdown-wrapper' class="${settings.classNames.dropdownWrapper}"></div>
+                    <div data-selector='tagify-suggestions-wrapper' class="${settings.classNames.dropdownWrapper}"></div>
                 </div>`
     },
 
@@ -63,11 +63,10 @@ export default {
     },
 
     /**
-     * Example: <header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownHeader}"></header>
      * @param {Array} suggestions An array of all the matched suggested items, including those which were sliced away due to the "dropdown.maxItems" setting
      */
     dropdownHeader(suggestions){
-        return '';
+        return `<header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownHeader}"></header>`
     },
 
     dropdownFooter(suggestions){
