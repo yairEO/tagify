@@ -231,7 +231,7 @@ export default {
         this.dropdown.fill()
 
         if( !this.suggestedListItems.length )
-            setTimeout(this.dropdown.hide.bind(this)) // a timeout is sadly needed so a possible underlying Tagify won't get focused when selecting a suggestion
+            this.dropdown.hide()
 
         this.trigger("dropdown:updated", this.DOM.dropdown)
     },

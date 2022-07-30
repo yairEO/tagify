@@ -58,6 +58,7 @@ export default {
         dropdownFooter     : 'tagify__dropdown__footer',
         dropdownItem       : 'tagify__dropdown__item',
         dropdownItemActive : 'tagify__dropdown__item--active',
+        dropdownItemHidden : 'tagify__dropdown__item--hidden',
         dropdownInital     : 'tagify__dropdown--initial',
         tag                : 'tagify__tag',
         tagText            : 'tagify__tag-text',

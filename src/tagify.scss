@@ -672,6 +672,8 @@
             border-radius: 2px;
             position: relative;
             outline: none;
+            max-height: 60px;
+            max-width: 100%;
 
             &--active{
                 background: var(--tagify-dd-color-primary);
@@ -682,13 +684,21 @@
                 filter: brightness(105%);
             }
 
+            /* custom hidden transition effect is needed for horizontal-layout suggestions */
             &--hidden{
                 padding-top: 0;
                 padding-bottom: 0;
                 margin: 0 1px;
-                font-size: 0;
                 pointer-events: none;
-                transition: .2s;
+                overflow: hidden;
+                max-height: 0;
+                transition: var(--tagify-dd-item--hidden-duration, .3s) !important;
+
+                > * {
+                    transform: translateY(-100%);
+                    opacity: 0;
+                    transition: inherit;
+                }
             }
         }
     }
