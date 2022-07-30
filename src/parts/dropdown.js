@@ -580,7 +580,7 @@ export default {
         // hide selected suggestion
         elm.addEventListener('transitionend', () => {
             this.dropdown.fillHeaderFooter()
-            setTimeout(() => elm.remove(), 500)
+            setTimeout(() => elm.remove(), 100)
         }, {once: true})
 
         elm.classList.add(this.settings.classNames.dropdownItemHidden)
