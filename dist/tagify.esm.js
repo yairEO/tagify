@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.15.1) - tags input component
+ * Tagify (v 4.15.2) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -870,7 +870,7 @@ var _dropdown = {
 
     var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
         isNoMatch = tagifySuggestionIdx == 'noMatch',
-        tagData = this.suggestedListItems.find(item => item.value == tagifySuggestionIdx); // The below event must be triggered, regardless of anything else which might go wrong
+        tagData = this.suggestedListItems.find(item => (item.value || item) == tagifySuggestionIdx); // The below event must be triggered, regardless of anything else which might go wrong
 
     this.trigger("dropdown:select", {
       data: tagData,
