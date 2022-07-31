@@ -565,7 +565,7 @@ export default {
 
         var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
             isNoMatch = tagifySuggestionIdx == 'noMatch',
-            tagData = this.suggestedListItems.find(item => item.value == tagifySuggestionIdx)
+            tagData = this.suggestedListItems.find(item => (item.value || item) == tagifySuggestionIdx)
 
         // The below event must be triggered, regardless of anything else which might go wrong
         this.trigger("dropdown:select", {data:tagData, elm, event})
