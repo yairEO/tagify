@@ -38,7 +38,7 @@
     </head>
     <body>
         <form method="get" action="not-exists">
-            <!-- <fieldset>
+            <fieldset>
                 <input name='tags-regular' placeholder='user input' value=''>
             </fieldset>
             <fieldset>
@@ -49,7 +49,7 @@
             </fieldset>
             <fieldset>
                 <input name='value_empty_JSON' class='value_empty_JSON' value='[]'>
-            </fieldset> -->
+            </fieldset>
             <fieldset>
                 <input name='value_JSON' class='value_JSON' value='[{"value":1, "editable":false}, {"value":2, "title":"xxx"}]'>
             </fieldset>
@@ -69,7 +69,7 @@ const mockAjax = (timeout => (RES, duration) => {
 })()
 
 let tagify = new Tagify(inputElm, {
-    // whitelist: ['abb', 'cbb', 'bb', 'bb1', 'aaabb', 'bbb', 'aa', 'bba'],
+    whitelist: ['abb', 'cbb', 'bb', 'bb1', 'aaabb', 'bbb', 'aa', 'bba'],
     // whitelist: ["a", "ac", "aab", "aaa", "b", "bb", "ccc"],
     id: 'test1',
     tagTextProp: 'name',
@@ -83,7 +83,7 @@ let tagify = new Tagify(inputElm, {
     keepInvalidTags: true,
     // enforceWhitelist: true,
     dropdown: {
-        enabled: 1,
+        enabled: 0,
         sortby: 'startsWith',
         // caseSensitive: true,
         // sortby(suggestions, query){
