@@ -541,7 +541,7 @@ import "@yaireo/tagify/dist/tagify.css" // Tagify CSS
 const onChange = useCallback((e) => {
   console.log("CHANGED:"
     , e.detail.tagify.value // Array where each tag includes tagify's (needed) extra properties
-    , e.detail.tagify.getCleanValue()) // Same as above, without the extra properties
+    , e.detail.tagify.getCleanValue() // Same as above, without the extra properties
     , e.detail.value // a string representing the tags
   )
 }, [])
