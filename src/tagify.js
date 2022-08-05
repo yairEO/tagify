@@ -367,7 +367,8 @@ Tagify.prototype = {
     cloneEvent(e){
         var clonedEvent = {}
         for( var v in e )
-            clonedEvent[v] = e[v]
+            if( v != 'path' )
+                clonedEvent[v] = e[v]
         return clonedEvent
     },
 
