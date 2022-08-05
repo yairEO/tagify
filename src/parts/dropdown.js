@@ -488,9 +488,14 @@ export default {
         }
     },
 
+    /**
+     * Given a suggestion-item, return the data associated with it
+     * @param {HTMLElement} tagElm
+     * @returns Object
+     */
     getSuggestionDataByNode( tagElm ){
-        var idx = tagElm ? +tagElm.getAttribute('tagifySuggestionIdx') : -1;
-        return this.suggestedListItems.find(item => item.value == idx) || null
+        var value = tagElm && tagElm.getAttribute('value')
+        return this.suggestedListItems.find(item => item.value == value) || null
     },
 
     getNextOrPrevOption(selected, next = true) {
@@ -563,14 +568,14 @@ export default {
         // if in edit-mode, do not continue but instead replace the tag's text.
         // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
-        var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
-            isNoMatch = tagifySuggestionIdx == 'noMatch',
-            tagData = this.suggestedListItems.find(item => (item.value || item) == tagifySuggestionIdx)
+        var value = elm.getAttribute('value'),
+            isNoMatch = value == 'noMatch',
+            tagData = this.suggestedListItems.find(item => (item.value || item) == value)
 
         // The below event must be triggered, regardless of anything else which might go wrong
         this.trigger("dropdown:select", {data:tagData, elm, event})
 
-        if( !tagifySuggestionIdx || !tagData && !isNoMatch ){
+        if( !value || !tagData && !isNoMatch ){
             closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
             return
         }
@@ -755,18 +760,12 @@ export default {
             if( typeof suggestion == 'string' || typeof suggestion == 'number' )
                 suggestion = {value:suggestion}
 
-            var value = this.dropdown.getMappedValue(suggestion)
+            var mappedValue = this.dropdown.getMappedValue(suggestion);
+            mappedValue = typeof mappedValue == 'string' ? escapeHTML(mappedValue) : mappedValue
 
-            suggestion.value = typeof value == 'string' ? escapeHTML(value) : value
-
-            var tagHTMLString = this.settings.templates.dropdownItem.apply(this, [suggestion, this])
-
-            // make sure the sugestion index is present as attribute, to match the data when one is selected
-            tagHTMLString = tagHTMLString
-                .replace(/\s*tagifySuggestionIdx=(["'])(.*?)\1/gmi, '') // remove the "tagifySuggestionIdx" attribute if for some reason it was there
-                .replace('>', ` tagifySuggestionIdx="${suggestion.value}">`) // add "tagifySuggestionIdx"
-
-            return tagHTMLString
+            var x =  this.settings.templates.dropdownItem.apply(this, [{...suggestion, mappedValue}, this])
+            console.log(x, sugegstionsList)
+            return x
         }).join("")
     }
 }

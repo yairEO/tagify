@@ -1692,7 +1692,7 @@ var input = document.querySelector('input[name=tags3]'),
         },
         templates: {
             dropdownItemNoMatch: function(data) {
-                return `<div class='${this.settings.classNames.dropdownItem}' tagifySuggestionIdx="noMatch" tabindex="0" role="option">
+                return `<div class='${this.settings.classNames.dropdownItem}' value="noMatch" tabindex="0" role="option">
                     No suggestion found for: <strong>${data.value}</strong>
                 </div>`
             }
@@ -1783,7 +1783,6 @@ function suggestionItemTemplate(tagData){
         <div ${this.getAttributes(tagData)}
             class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'
             tabindex="0"
-            tagifySuggestionIdx="${tagData.value}"
             role="option">
             ${ tagData.avatar ? `
                 <div class='tagify__dropdown__item__avatar-wrap'>
@@ -2033,13 +2032,13 @@ var tagify = new Tagify(document.querySelector('input[name=tags3-1]'), {
 
         dropdownItem : function(tagData){
             try{
-                return `<div class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}' tagifySuggestionIdx="${tagData.tagifySuggestionIdx}">
+                return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}' >
                             <img onerror="this.style.visibility = 'hidden'"
                                 src='https://flagicons.lipis.dev/flags/4x3/${tagData.code.toLowerCase()}.svg'>
                             <span>${tagData.value}</span>
                         </div>`
             }
-            catch(err){}
+            catch(err){ console.error(err)}
         }
     },
     enforceWhitelist : true,

@@ -347,7 +347,7 @@ which is a special template for rendering a suggestion item (in the dropdown lis
 // ...more tagify settings...
 templates: {
   dropdownItemNoMatch: data =>
-    `<div class='${tagify.settings.classNames.dropdownItem}' tagifySuggestionIdx="noMatch" tabindex="0" role="option">
+    `<div class='${tagify.settings.classNames.dropdownItem}' value="noMatch" tabindex="0" role="option">
         No suggestion found for: <strong>${data.value}</strong>
     </div>`
 }

@@ -181,7 +181,7 @@ function suggestionItemTemplate(tagData, idx){
         <div ${this.getAttributes(tagData)}
             class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'
             tabindex="0"
-            tagifySuggestionIdx="${idx}"
+            value="${idx}"
             role="option">
             ${ tagData.avatar ? `
                 <div class='tagify__dropdown__item__avatar-wrap'>

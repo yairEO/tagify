@@ -55,11 +55,11 @@ export default {
         `
     },
 
-    dropdownItem(item, tagify){
+    dropdownItem(item){
         return `<div ${this.getAttributes(item)}
                     class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
                     tabindex="0"
-                    role="option">${item.value}</div>`
+                    role="option">${item.mappedValue || item.value}</div>`
     },
 
     /**
