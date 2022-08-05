@@ -576,7 +576,7 @@ export default {
             tagData = this.suggestedListItems.find(item => (item.value || item) == value)
 
         // The below event must be triggered, regardless of anything else which might go wrong
-        this.trigger("dropdown:select", {data:tagData, elm, event})
+        this.trigger('dropdown:select', {data:tagData, elm, event})
 
         if( !value || !tagData && !isNoMatch ){
             closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
