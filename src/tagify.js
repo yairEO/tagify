@@ -96,6 +96,15 @@ Tagify.prototype = {
         return this.settings.whitelist
     },
 
+    generateClassSelectors(classNames){
+        for( let name in classNames ) {
+            let currentName = name;
+            Object.defineProperty(classNames, currentName + "Selector" , {
+                get(){ return "." + this[currentName].split(" ")[0] }
+            })
+        }
+    },
+
     applySettings( input, settings ){
         DEFAULTS.templates = this.templates
 
@@ -106,10 +115,7 @@ Tagify.prototype = {
         _s.placeholder = escapeHTML(input.getAttribute('placeholder') || _s.placeholder || "")
         _s.required = input.hasAttribute('required')
 
-        for( let name in _s.classNames )
-            Object.defineProperty(_s.classNames, name + "Selector" , {
-                get(){ return "." + this[name].split(" ")[0] }
-            })
+        this.generateClassSelectors(_s.classNames)
 
         if( this.isIE )
             _s.autoComplete = false; // IE goes crazy if this isn't false
