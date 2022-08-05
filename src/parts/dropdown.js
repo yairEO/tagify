@@ -363,6 +363,9 @@ export default {
 
         callbacks : {
             onKeyDown(e){
+                if( !this.state.hasFocus )
+                    return
+
                 // get the "active" element, and if there was none (yet) active, use first child
                 var selectedElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
                     selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
@@ -763,9 +766,7 @@ export default {
             var mappedValue = this.dropdown.getMappedValue(suggestion);
             mappedValue = typeof mappedValue == 'string' ? escapeHTML(mappedValue) : mappedValue
 
-            var x =  this.settings.templates.dropdownItem.apply(this, [{...suggestion, mappedValue}, this])
-            console.log(x, sugegstionsList)
-            return x
+            return this.settings.templates.dropdownItem.apply(this, [{...suggestion, mappedValue}, this])
         }).join("")
     }
 }
