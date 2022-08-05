@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.15.2) - tags input component
+ * Tagify (v 4.15.3) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -680,7 +680,8 @@
 
       callbacks: {
         onKeyDown(e) {
-          // get the "active" element, and if there was none (yet) active, use first child
+          if (!this.state.hasFocus) return; // get the "active" element, and if there was none (yet) active, use first child
+
           var selectedElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
               selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm);
 
@@ -806,9 +807,14 @@
       }
     },
 
+    /**
+     * Given a suggestion-item, return the data associated with it
+     * @param {HTMLElement} tagElm
+     * @returns Object
+     */
     getSuggestionDataByNode(tagElm) {
-      var idx = tagElm ? +tagElm.getAttribute('tagifySuggestionIdx') : -1;
-      return this.suggestedListItems.find(item => item.value == idx) || null;
+      var value = tagElm && tagElm.getAttribute('value');
+      return this.suggestedListItems.find(item => item.value == value) || null;
     },
 
     getNextOrPrevOption(selected) {
@@ -874,9 +880,9 @@
       event = event || {}; // if in edit-mode, do not continue but instead replace the tag's text.
       // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
 
-      var tagifySuggestionIdx = elm.getAttribute('tagifySuggestionIdx'),
-          isNoMatch = tagifySuggestionIdx == 'noMatch',
-          tagData = this.suggestedListItems.find(item => (item.value || item) == tagifySuggestionIdx); // The below event must be triggered, regardless of anything else which might go wrong
+      var value = elm.getAttribute('value'),
+          isNoMatch = value == 'noMatch',
+          tagData = this.suggestedListItems.find(item => (item.value || item) == value); // The below event must be triggered, regardless of anything else which might go wrong
 
       this.trigger("dropdown:select", {
         data: tagData,
@@ -884,7 +890,7 @@
         event
       });
 
-      if (!tagifySuggestionIdx || !tagData && !isNoMatch) {
+      if (!value || !tagData && !isNoMatch) {
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this));
         return;
       }
@@ -1036,14 +1042,11 @@
         if (typeof suggestion == 'string' || typeof suggestion == 'number') suggestion = {
           value: suggestion
         };
-        var value = this.dropdown.getMappedValue(suggestion);
-        suggestion.value = typeof value == 'string' ? escapeHTML(value) : value;
-        var tagHTMLString = this.settings.templates.dropdownItem.apply(this, [suggestion, this]); // make sure the sugestion index is present as attribute, to match the data when one is selected
-
-        tagHTMLString = tagHTMLString.replace(/\s*tagifySuggestionIdx=(["'])(.*?)\1/gmi, '') // remove the "tagifySuggestionIdx" attribute if for some reason it was there
-        .replace('>', ` tagifySuggestionIdx="${suggestion.value}">`); // add "tagifySuggestionIdx"
-
-        return tagHTMLString;
+        var mappedValue = this.dropdown.getMappedValue(suggestion);
+        mappedValue = typeof mappedValue == 'string' ? escapeHTML(mappedValue) : mappedValue;
+        return this.settings.templates.dropdownItem.apply(this, [_objectSpread2(_objectSpread2({}, suggestion), {}, {
+          mappedValue
+        }), this]);
       }).join("");
     }
 
@@ -1153,11 +1156,11 @@
         `;
     },
 
-    dropdownItem(item, tagify) {
+    dropdownItem(item) {
       return `<div ${this.getAttributes(item)}
                     class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
                     tabindex="0"
-                    role="option">${item.value}</div>`;
+                    role="option">${item.mappedValue || item.value}</div>`;
     },
 
     /**
@@ -2238,6 +2241,18 @@
       return this.settings.whitelist;
     },
 
+    generateClassSelectors(classNames) {
+      for (let name in classNames) {
+        let currentName = name;
+        Object.defineProperty(classNames, currentName + "Selector", {
+          get() {
+            return "." + this[currentName].split(" ")[0];
+          }
+
+        });
+      }
+    },
+
     applySettings(input, settings) {
       DEFAULTS.templates = this.templates;
 
@@ -2247,14 +2262,7 @@
       _s.readonly = _s.readonly || input.hasAttribute('readonly');
       _s.placeholder = escapeHTML(input.getAttribute('placeholder') || _s.placeholder || "");
       _s.required = input.hasAttribute('required');
-
-      for (let name in _s.classNames) Object.defineProperty(_s.classNames, name + "Selector", {
-        get() {
-          return "." + this[name].split(" ")[0];
-        }
-
-      });
-
+      this.generateClassSelectors(_s.classNames);
       if (this.isIE) _s.autoComplete = false; // IE goes crazy if this isn't false
 
       ["whitelist", "blacklist"].forEach(name => {
