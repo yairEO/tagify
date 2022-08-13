@@ -451,9 +451,13 @@
       }
 
       this.dropdown.fill(noMatchListItem);
-      if (_s.dropdown.highlightFirst) this.dropdown.highlightOption(this.DOM.dropdown.content.children[0]); // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
+
+      if (_s.dropdown.highlightFirst) {
+        this.dropdown.highlightOption(this.DOM.dropdown.content.querySelector(_s.classNames.dropdownItemSelector));
+      } // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
       // called multiple times, regardless if the dropdown is currently visible, but the events-binding
       // should only be called if the dropdown wasn't previously visible.
+
 
       if (!this.state.dropdown.visible) // timeout is needed for when pressing arrow down to show the dropdown,
         // so the key event won't get registered in the dropdown events listeners
@@ -884,7 +888,7 @@
           isNoMatch = value == 'noMatch',
           tagData = this.suggestedListItems.find(item => (item.value || item) == value); // The below event must be triggered, regardless of anything else which might go wrong
 
-      this.trigger("dropdown:select", {
+      this.trigger('dropdown:select', {
         data: tagData,
         elm,
         event
@@ -1180,19 +1184,6 @@
     dropdownItemNoMatch: null
   };
 
-  function cloneEvent(e) {
-    if (!e) return;
-    let clone = new Function();
-
-    for (let p in e) {
-      let d = Object.getOwnPropertyDescriptor(e, p);
-      if (d && (d.get || d.set)) Object.defineProperty(clone, p, d);else clone[p] = e[p];
-    }
-
-    Object.setPrototypeOf(clone, e);
-    return clone;
-  }
-
   function EventDispatcher(instance) {
     // Create a DOM EventTarget object
     var target = document.createTextNode('');
@@ -1231,7 +1222,7 @@
             };
             eventData = opts.cloneData ? extend({}, eventData) : eventData;
             eventData.tagify = this;
-            if (data.event) eventData.event = cloneEvent(data.event); // TODO: move the below to the "extend" function
+            if (data.event) eventData.event = this.cloneEvent(data.event); // TODO: move the below to the "extend" function
 
             if (data instanceof Object) for (var prop in data) if (data[prop] instanceof HTMLElement) eventData[prop] = data[prop];
             e = new CustomEvent(eventName, {
@@ -1471,7 +1462,7 @@
 
         var s = this.trim(e.target.textContent);
         this.trigger("keydown", {
-          originalEvent: this.cloneEvent(e)
+          event: e
         });
         /**
          * ONLY FOR MIX-MODE:
@@ -1861,7 +1852,7 @@
             tag: tagElm,
             index: this.getNodeIndex(tagElm),
             data: this.tagData(tagElm),
-            originalEvent: this.cloneEvent(e)
+            event: e
           });
           if (_s.editTags === 1 || _s.editTags.clicks === 1) this.events.callbacks.onDoubleClickScope.call(this, e);
           return;
@@ -1954,7 +1945,7 @@
           data: extend({}, this.value[tagElmIdx], {
             newValue: textValue
           }),
-          originalEvent: this.cloneEvent(e)
+          event: e
         });
       },
 
@@ -2038,7 +2029,7 @@
 
       onEditTagkeydown(e, tagElm) {
         this.trigger("edit:keydown", {
-          originalEvent: this.cloneEvent(e)
+          event: e
         });
 
         switch (e.key) {
@@ -2493,7 +2484,7 @@
     cloneEvent(e) {
       var clonedEvent = {};
 
-      for (var v in e) clonedEvent[v] = e[v];
+      for (var v in e) if (v != 'path') clonedEvent[v] = e[v];
 
       return clonedEvent;
     },
