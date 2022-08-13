@@ -104,8 +104,9 @@ export default {
 
         this.dropdown.fill(noMatchListItem)
 
-        if( _s.dropdown.highlightFirst )
-            this.dropdown.highlightOption(this.DOM.dropdown.content.children[0])
+        if( _s.dropdown.highlightFirst ) {
+            this.dropdown.highlightOption(this.DOM.dropdown.content.querySelector(_s.classNames.dropdownItemSelector))
+        }
 
         // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
         // called multiple times, regardless if the dropdown is currently visible, but the events-binding
