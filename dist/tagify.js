@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.15.4) - tags input component
+ * Tagify (v 4.16.0) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -344,6 +344,8 @@
       fuzzySearch: true,
       caseSensitive: false,
       accentedSearch: true,
+      includeSelectedTags: false,
+      // Should the suggestions list Include already-selected tags (after filtering)
       highlightFirst: false,
       // highlights first-matched item in the list
       closeOnSelect: true,
@@ -967,7 +969,7 @@
       : value;
 
       if (!value || !searchKeys.length) {
-        list = _s.duplicates ? whitelist : whitelist.filter(item => !this.isTagDuplicate(isObject(item) ? item.value : item)); // don't include tags which have already been added.
+        list = _sd.includeSelectedTags ? whitelist : whitelist.filter(item => !this.isTagDuplicate(isObject(item) ? item.value : item)); // don't include tags which have already been added.
 
         this.state.dropdown.suggestions = list;
         return list.slice(0, suggestionsCount); // respect "maxItems" dropdown setting
@@ -1015,7 +1017,7 @@
           });
         }
 
-        isDuplicate = !_s.duplicates && this.isTagDuplicate(isObject(whitelistItem) ? whitelistItem.value : whitelistItem); // match for the value within each "whitelist" item
+        isDuplicate = !_sd.includeSelectedTags && this.isTagDuplicate(isObject(whitelistItem) ? whitelistItem.value : whitelistItem); // match for the value within each "whitelist" item
 
         if (valueIsInWhitelist && !isDuplicate) if (exactMatch && startsWithMatch) exactMatchesList.push(whitelistItem);else if (_sd.sortby == 'startsWith' && startsWithMatch) list.unshift(whitelistItem);else list.push(whitelistItem);
       }
@@ -2254,6 +2256,7 @@
       _s.placeholder = escapeHTML(input.getAttribute('placeholder') || _s.placeholder || "");
       _s.required = input.hasAttribute('required');
       this.generateClassSelectors(_s.classNames);
+      if (_s.dropdown.includeSelectedTags === undefined) _s.dropdown.includeSelectedTags = _s.duplicates;
       if (this.isIE) _s.autoComplete = false; // IE goes crazy if this isn't false
 
       ["whitelist", "blacklist"].forEach(name => {
