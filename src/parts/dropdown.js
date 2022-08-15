@@ -661,7 +661,7 @@ export default {
             : value);
 
         if( !value || !searchKeys.length ){
-            list = _s.duplicates
+            list = _sd.includeSelectedTags
                 ? whitelist
                 : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
 
@@ -720,7 +720,7 @@ export default {
                 })
             }
 
-            isDuplicate = !_s.duplicates && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
+            isDuplicate = !_sd.includeSelectedTags && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
 
             // match for the value within each "whitelist" item
             if( valueIsInWhitelist && !isDuplicate )
