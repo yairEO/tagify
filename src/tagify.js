@@ -812,12 +812,13 @@ Tagify.prototype = {
         return this.value.findIndex(item => item.__tagId == (tagData||{}).__tagId )
     },
 
-    getNodeIndex( node ){
+    getNodeIndex( node, selector ){
         var index = 0;
 
         if( node )
             while( (node = node.previousElementSibling) )
-                index++;
+                if ( !selector || node.matches(selector) )
+                    index++;
 
         return index;
     },

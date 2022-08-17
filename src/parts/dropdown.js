@@ -533,7 +533,7 @@ export default {
             return;
         }
 
-        itemData = this.suggestedListItems[this.getNodeIndex(elm)]
+        itemData = this.suggestedListItems[this.getNodeIndex(elm, this.settings.classNames.dropdownItemSelector)]
         this.state.ddItemData = itemData
         this.state.ddItemElm = elm
 

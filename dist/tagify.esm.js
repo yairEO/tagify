@@ -841,7 +841,7 @@ var _dropdown = {
       return;
     }
 
-    itemData = this.suggestedListItems[this.getNodeIndex(elm)];
+    itemData = this.suggestedListItems[this.getNodeIndex(elm, this.settings.classNames.dropdownItemSelector)];
     this.state.ddItemData = itemData;
     this.state.ddItemElm = elm; // this.DOM.dropdown.querySelectorAll("." + this.settings.classNames.dropdownItemActive).forEach(activeElm => activeElm.classList.remove(className));
 
@@ -2875,9 +2875,9 @@ Tagify.prototype = {
     return this.value.findIndex(item => item.__tagId == (tagData || {}).__tagId);
   },
 
-  getNodeIndex(node) {
+  getNodeIndex(node, selector) {
     var index = 0;
-    if (node) while (node = node.previousElementSibling) index++;
+    if (node) while (node = node.previousElementSibling) if (!selector || node.matches(selector)) index++;
     return index;
   },
 
