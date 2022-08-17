@@ -71,18 +71,19 @@ export default {
     },
 
     dropdown: {
-        classname     : '',
-        enabled       : 2,      // minimum input characters to be typed for the suggestions dropdown to show
-        maxItems      : 10,
-        searchKeys    : ["value", "searchBy"],
-        fuzzySearch   : true,
-        caseSensitive : false,
-        accentedSearch: true,
-        highlightFirst: false,  // highlights first-matched item in the list
-        closeOnSelect : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
-        clearOnSelect : true,   // after selecting a suggetion, should the typed text input remain or be cleared
-        position      : 'all',  // 'manual' / 'text' / 'all'
-        appendTarget  : null    // defaults to document.body one DOM has been loaded
+        classname          : '',
+        enabled            : 2,      // minimum input characters to be typed for the suggestions dropdown to show
+        maxItems           : 10,
+        searchKeys         : ["value", "searchBy"],
+        fuzzySearch        : true,
+        caseSensitive      : false,
+        accentedSearch     : true,
+        includeSelectedTags: false,  // Should the suggestions list Include already-selected tags (after filtering)
+        highlightFirst     : false,  // highlights first-matched item in the list
+        closeOnSelect      : true,   // closes the dropdown after selecting an item, if `enabled:0` (which means always show dropdown)
+        clearOnSelect      : true,   // after selecting a suggetion, should the typed text input remain or be cleared
+        position           : 'all',  // 'manual' / 'text' / 'all'
+        appendTarget       : null    // defaults to document.body one DOM has been loaded
     },
 
     hooks: {

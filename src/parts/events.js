@@ -244,7 +244,7 @@ export default {
 
             var s = this.trim(e.target.textContent);
 
-            this.trigger("keydown", {originalEvent:this.cloneEvent(e)})
+            this.trigger("keydown", {event:e})
 
             /**
              * ONLY FOR MIX-MODE:
@@ -665,7 +665,7 @@ export default {
             }
 
             else if( tagElm ){
-                this.trigger("click", { tag:tagElm, index:this.getNodeIndex(tagElm), data:this.tagData(tagElm), originalEvent:this.cloneEvent(e) })
+                this.trigger("click", { tag:tagElm, index:this.getNodeIndex(tagElm), data:this.tagData(tagElm), event:e })
 
                 if( _s.editTags === 1 || _s.editTags.clicks === 1 )
                     this.events.callbacks.onDoubleClickScope.call(this, e)
@@ -770,10 +770,10 @@ export default {
             }
 
             this.trigger("edit:input", {
-                tag          : tagElm,
-                index        : tagElmIdx,
-                data         : extend({}, this.value[tagElmIdx], {newValue:textValue}),
-                originalEvent: this.cloneEvent(e)
+                tag  : tagElm,
+                index: tagElmIdx,
+                data : extend({}, this.value[tagElmIdx], {newValue:textValue}),
+                event: e
             })
         },
 
@@ -864,7 +864,7 @@ export default {
         },
 
         onEditTagkeydown(e, tagElm){
-            this.trigger("edit:keydown", {originalEvent:this.cloneEvent(e)})
+            this.trigger("edit:keydown", {event:e})
 
             switch( e.key ){
                 case 'Esc' :

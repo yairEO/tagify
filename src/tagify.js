@@ -117,6 +117,9 @@ Tagify.prototype = {
 
         this.generateClassSelectors(_s.classNames)
 
+        if ( _s.dropdown.includeSelectedTags === undefined )
+            _s.dropdown.includeSelectedTags = _s.duplicates;
+
         if( this.isIE )
             _s.autoComplete = false; // IE goes crazy if this isn't false
 
@@ -367,7 +370,8 @@ Tagify.prototype = {
     cloneEvent(e){
         var clonedEvent = {}
         for( var v in e )
-            clonedEvent[v] = e[v]
+            if( v != 'path' )
+                clonedEvent[v] = e[v]
         return clonedEvent
     },
 

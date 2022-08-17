@@ -41,9 +41,11 @@
     </section>
 
 <script>
-    new Tagify(document.querySelector('input'),{
+    window.xxx = new Tagify(document.querySelector('input'),{
         tagTextProp: 'name',
         dropdown: {
+            highlightFirst: true,
+            enabled: 0,
             searchKeys: ['name', 'email'],
         },
         transformTag(tagData) {

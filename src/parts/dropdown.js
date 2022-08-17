@@ -104,8 +104,9 @@ export default {
 
         this.dropdown.fill(noMatchListItem)
 
-        if( _s.dropdown.highlightFirst )
-            this.dropdown.highlightOption(this.DOM.dropdown.content.children[0])
+        if( _s.dropdown.highlightFirst ) {
+            this.dropdown.highlightOption(this.DOM.dropdown.content.querySelector(_s.classNames.dropdownItemSelector))
+        }
 
         // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
         // called multiple times, regardless if the dropdown is currently visible, but the events-binding
@@ -576,7 +577,7 @@ export default {
             tagData = this.suggestedListItems.find(item => (item.value || item) == value)
 
         // The below event must be triggered, regardless of anything else which might go wrong
-        this.trigger("dropdown:select", {data:tagData, elm, event})
+        this.trigger('dropdown:select', {data:tagData, elm, event})
 
         if( !value || !tagData && !isNoMatch ){
             closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
@@ -660,7 +661,7 @@ export default {
             : value);
 
         if( !value || !searchKeys.length ){
-            list = _s.duplicates
+            list = _sd.includeSelectedTags
                 ? whitelist
                 : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
 
@@ -719,7 +720,7 @@ export default {
                 })
             }
 
-            isDuplicate = !_s.duplicates && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
+            isDuplicate = !_sd.includeSelectedTags && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
 
             // match for the value within each "whitelist" item
             if( valueIsInWhitelist && !isDuplicate )
