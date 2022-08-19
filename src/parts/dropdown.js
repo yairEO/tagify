@@ -534,7 +534,7 @@ export default {
             return;
         }
 
-        itemData = this.suggestedListItems[this.getNodeIndex(elm)]
+        itemData = this.dropdown.getSuggestionDataByNode(elm)
         this.state.ddItemData = itemData
         this.state.ddItemElm = elm
 
