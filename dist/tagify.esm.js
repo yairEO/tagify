@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.16.0) - tags input component
+ * Tagify (v 4.16.2) - tags input component
  * By Yair Even-Or
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -668,6 +668,7 @@ var _dropdown = {
           action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
       if (this.settings.dropdown.position != 'manual') {
+        document[action]('scroll', _CBR.position, true);
         window[action]('resize', _CBR.position);
         window[action]('keydown', _CBR.onKeyDown);
       }
@@ -847,7 +848,7 @@ var _dropdown = {
       return;
     }
 
-    itemData = this.suggestedListItems[this.getNodeIndex(elm)];
+    itemData = this.dropdown.getSuggestionDataByNode(elm);
     this.state.ddItemData = itemData;
     this.state.ddItemElm = elm; // this.DOM.dropdown.querySelectorAll("." + this.settings.classNames.dropdownItemActive).forEach(activeElm => activeElm.classList.remove(className));
 
