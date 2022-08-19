@@ -348,14 +348,13 @@ export default {
                     onMouseLeave      : _CB.onMouseLeave.bind(this),
                     onClick           : _CB.onClick.bind(this),
                     onScroll          : _CB.onScroll.bind(this),
-                    onContainerScroll : _CB.onContainerScroll.bind(this)
                 }),
                 action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
             if( this.settings.dropdown.position != 'manual' ){
+                document[action]('scroll', _CBR.position, true)
                 window[action]('resize', _CBR.position)
                 window[action]('keydown', _CBR.onKeyDown)
-                document[action]('scroll', _CBR.onContainerScroll, true)
             }
 
             this.DOM.dropdown[action]('mouseover', _CBR.onMouseOver)
@@ -491,10 +490,6 @@ export default {
 
                 this.trigger("dropdown:scroll", {percentage:Math.round(pos)})
             },
-
-            onContainerScroll(e){
-                this.dropdown.position()
-            }
         }
     },
 
