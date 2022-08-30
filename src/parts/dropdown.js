@@ -601,6 +601,7 @@ export default {
         setTimeout(() => {
             this.DOM.input.focus()
             this.toggleFocusClass(true)
+            this.setRangeAtStartEnd(false)
         })
 
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
