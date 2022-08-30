@@ -33,10 +33,7 @@
     "jest": {
         "preset": "jest-puppeteer"
     },
-    "author": {
-        "name": "Yair Even-Or",
-        "email": "vsync.design@gmail.com"
-    },
+    "author": "Yair Even-Or <vsync.design@gmail.com>",
     "main": "./dist/tagify.min.js",
     "repository": {
         "type": "git",
