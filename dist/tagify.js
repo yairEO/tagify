@@ -1,6 +1,6 @@
 /**
- * Tagify (v 4.16.2) - tags input component
- * By Yair Even-Or
+ * Tagify (v 4.16.3) - tags input component
+ * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -354,7 +354,7 @@
       // after selecting a suggetion, should the typed text input remain or be cleared
       position: 'all',
       // 'manual' / 'text' / 'all'
-      appendTarget: null // defaults to document.body one DOM has been loaded
+      appendTarget: null // defaults to document.body once DOM has been loaded
 
     },
     hooks: {
@@ -603,17 +603,20 @@
           parentsPositions,
           ddElm = this.DOM.dropdown,
           placeAbove = _sd.placeAbove,
-          viewportHeight = document.documentElement.clientHeight,
-          viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0),
+          isDefaultAppendTarget = _sd.appendTarget === document.body,
+          appendTargetScrollTop = isDefaultAppendTarget ? window.pageYOffset : _sd.appendTarget.scrollTop,
+          root = document.fullscreenElement || document.webkitFullscreenElement || document.documentElement,
+          viewportHeight = root.clientHeight,
+          viewportWidth = Math.max(root.clientWidth || 0, window.innerWidth || 0),
           positionTo = viewportWidth > 480 ? _sd.position : 'all',
           ddTarget = this.DOM[positionTo == 'input' ? 'input' : 'scope'];
       ddHeight = ddHeight || ddElm.clientHeight;
 
       function getParentsPositions(p) {
         var left = 0,
-            top = 0;
+            top = 0; // when in element-fullscreen mode, do not go above the fullscreened-element
 
-        while (p) {
+        while (p && p != root) {
           left += p.offsetLeft || 0;
           top += p.offsetTop || 0;
           p = p.parentNode;
@@ -625,6 +628,18 @@
         };
       }
 
+      function getAccumulatedAncestorsScrollTop() {
+        var scrollTop = 0,
+            p = _sd.appendTarget.parentNode;
+
+        while (p) {
+          scrollTop += p.scrollTop || 0;
+          p = p.parentNode;
+        }
+
+        return scrollTop;
+      }
+
       if (!this.state.dropdown.visible) return;
 
       if (positionTo == 'text') {
@@ -634,19 +649,26 @@
         left = rect.left;
         width = 'auto';
       } else {
-        parentsPositions = getParentsPositions(this.settings.dropdown.appendTarget);
+        parentsPositions = getParentsPositions(_sd.appendTarget);
         rect = ddTarget.getBoundingClientRect();
         top = rect.top - parentsPositions.top;
         bottom = rect.bottom - 1 - parentsPositions.top;
         left = rect.left - parentsPositions.left;
         width = rect.width + 'px';
+      } // if the "append target" isn't the default, correct the `top` variable by ignoring any scrollTop of the target's Ancestors
+
+
+      if (!isDefaultAppendTarget) {
+        let accumulatedAncestorsScrollTop = getAccumulatedAncestorsScrollTop();
+        top += accumulatedAncestorsScrollTop;
+        bottom += accumulatedAncestorsScrollTop;
       }
 
       top = Math.floor(top);
       bottom = Math.ceil(bottom);
       placeAbove = placeAbove === undefined ? viewportHeight - rect.bottom < ddHeight : placeAbove; // flip vertically if there is no space for the dropdown below the input
 
-      ddElm.style.cssText = "left:" + (left + window.pageXOffset) + "px; width:" + width + ";" + (placeAbove ? "top: " + (top + window.pageYOffset) + "px" : "top: " + (bottom + window.pageYOffset) + "px");
+      ddElm.style.cssText = "left:" + (left + window.pageXOffset) + "px; width:" + width + ";" + (placeAbove ? "top: " + (top + appendTargetScrollTop) + "px" : "top: " + (bottom + appendTargetScrollTop) + "px");
       ddElm.setAttribute('placement', placeAbove ? "top" : "bottom");
       ddElm.setAttribute('position', positionTo);
     },
@@ -664,7 +686,7 @@
         var _CB = this.dropdown.events.callbacks,
             // callback-refs
         _CBR = this.listeners.dropdown = this.listeners.dropdown || {
-          position: this.dropdown.position.bind(this),
+          position: this.dropdown.position.bind(this, null),
           onKeyDown: _CB.onKeyDown.bind(this),
           onMouseOver: _CB.onMouseOver.bind(this),
           onMouseLeave: _CB.onMouseLeave.bind(this),
@@ -917,6 +939,7 @@
       setTimeout(() => {
         this.DOM.input.focus();
         this.toggleFocusClass(true);
+        this.setRangeAtStartEnd(false);
       });
       closeOnSelect && setTimeout(this.dropdown.hide.bind(this)); // hide selected suggestion
 
