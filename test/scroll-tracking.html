@@ -17,13 +17,18 @@
                 background: white;
                 position: absolute;
                 width: 50%;
-                height: 50%;
-                inset: 0;
+                xheight: 50%;
+                top: 200px;
+                left: 200px;
+                bottom: -500px;
                 margin: auto;
                 overflow: auto;
             }
 
             .tagify {
+                position: relative;
+                top: -100px;
+                left: 50px;
                 width: 70%;
                 margin: 1000px 1em;
             }
@@ -31,6 +36,7 @@
     </head>
 
     <body>
+        <button onclick='document.querySelector("section").requestFullscreen({ navigationUI: "show" });'>FullScreen</button>
     <section>
         <input>
     </section>
@@ -40,6 +46,7 @@
         whitelist: [1,2,3,4,5,6,7,8,9],
         dropdown: {
             enabled: 0,
+            appendTarget: document.querySelector("section")
         }
     })
 </script>
