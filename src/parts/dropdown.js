@@ -275,8 +275,11 @@ export default {
         var rect, top, bottom, left, width, parentsPositions,
             ddElm = this.DOM.dropdown,
             placeAbove = _sd.placeAbove,
-            viewportHeight = document.documentElement.clientHeight,
-            viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0),
+            isDefaultAppendTarget = _sd.appendTarget === document.body,
+            appendTargetScrollTop = isDefaultAppendTarget ? window.pageYOffset : _sd.appendTarget.scrollTop,
+            root = document.fullscreenElement || document.webkitFullscreenElement || document.documentElement,
+            viewportHeight = root.clientHeight,
+            viewportWidth = Math.max(root.clientWidth || 0, window.innerWidth || 0),
             positionTo = viewportWidth > 480 ? _sd.position : 'all',
             ddTarget = this.DOM[positionTo == 'input' ? 'input' : 'scope'];
 
@@ -286,13 +289,26 @@ export default {
             var left = 0,
                 top = 0;
 
-            while(p){
+            // when in element-fullscreen mode, do not go above the fullscreened-element
+            while(p && p != root){
                 left += p.offsetLeft || 0;
                 top += p.offsetTop || 0;
                 p = p.parentNode
             }
 
             return {left, top};
+        }
+
+        function getAccumulatedAncestorsScrollTop() {
+            var scrollTop = 0,
+                p = _sd.appendTarget.parentNode;
+
+            while(p){
+                scrollTop += p.scrollTop || 0;
+                p = p.parentNode
+            }
+
+            return scrollTop;
         }
 
         if( !this.state.dropdown.visible ) return
@@ -306,17 +322,24 @@ export default {
         }
 
         else{
-            parentsPositions = getParentsPositions(this.settings.dropdown.appendTarget)
+            parentsPositions = getParentsPositions(_sd.appendTarget)
             rect   = ddTarget.getBoundingClientRect()
-
             top    = rect.top - parentsPositions.top
             bottom = rect.bottom - 1 - parentsPositions.top
             left   = rect.left - parentsPositions.left
             width  = rect.width + 'px'
         }
 
+        // if the "append target" isn't the default, correct the `top` variable by ignoring any scrollTop of the target's Ancestors
+        if( !isDefaultAppendTarget ) {
+            let accumulatedAncestorsScrollTop = getAccumulatedAncestorsScrollTop()
+            top += accumulatedAncestorsScrollTop
+            bottom += accumulatedAncestorsScrollTop
+        }
+
         top = Math.floor(top)
         bottom = Math.ceil(bottom)
+
 
         placeAbove = placeAbove === undefined
             ? viewportHeight - rect.bottom < ddHeight
@@ -324,8 +347,8 @@ export default {
 
         // flip vertically if there is no space for the dropdown below the input
         ddElm.style.cssText = "left:"  + (left + window.pageXOffset) + "px; width:" + width + ";" + (placeAbove
-            ? "top: "   + (top + window.pageYOffset)    + "px"
-            : "top: "   + (bottom + window.pageYOffset) + "px");
+            ? "top: "   + (top + appendTargetScrollTop)    + "px"
+            : "top: "   + (bottom + appendTargetScrollTop) + "px");
 
         ddElm.setAttribute('placement', placeAbove ? "top" : "bottom")
         ddElm.setAttribute('position', positionTo)
@@ -342,7 +365,7 @@ export default {
             var _CB = this.dropdown.events.callbacks,
                 // callback-refs
                 _CBR = (this.listeners.dropdown = this.listeners.dropdown || {
-                    position          : this.dropdown.position.bind(this),
+                    position          : this.dropdown.position.bind(this, null),
                     onKeyDown         : _CB.onKeyDown.bind(this),
                     onMouseOver       : _CB.onMouseOver.bind(this),
                     onMouseLeave      : _CB.onMouseLeave.bind(this),
