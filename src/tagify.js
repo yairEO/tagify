@@ -39,6 +39,7 @@ function Tagify( input, settings ){
     this.state = {
         inputText: '',
         editing : false,
+        composing: false,
         actions : {},   // UI actions for state-locking
         mixMode : {},
         dropdown: {},
@@ -532,6 +533,8 @@ Tagify.prototype = {
         editableElm.addEventListener('blur', delayed_onEditTagBlur)
         editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
         editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e, tagElm))
+        editableElm.addEventListener('compositionstart', e => _CB.onCompositionStart.call(this, e))
+        editableElm.addEventListener('compositionend', e => _CB.onCompositionEnd.call(this, e))
 
         if( !opts.skipValidation )
             isValid = this.editTagToggleValidity(tagElm)

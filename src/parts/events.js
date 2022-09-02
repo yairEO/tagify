@@ -58,12 +58,14 @@ export default {
 
         // setup callback references so events could be removed later
         _CBR = (this.listeners.main = this.listeners.main || {
-            focus    : ['input', _CB.onFocusBlur.bind(this)],
-            keydown  : ['input', _CB.onKeydown.bind(this)],
-            click    : ['scope', _CB.onClickScope.bind(this)],
-            dblclick : ['scope', _CB.onDoubleClickScope.bind(this)],
-            paste    : ['input', _CB.onPaste.bind(this)],
-            drop     : ['input', _CB.onDrop.bind(this)]
+            focus            : ['input', _CB.onFocusBlur.bind(this)],
+            keydown          : ['input', _CB.onKeydown.bind(this)],
+            click            : ['scope', _CB.onClickScope.bind(this)],
+            dblclick         : ['scope', _CB.onDoubleClickScope.bind(this)],
+            paste            : ['input', _CB.onPaste.bind(this)],
+            drop             : ['input', _CB.onDrop.bind(this)],
+            compositionstart : ['input', _CB.onCompositionStart.bind(this)],
+            compositionend   : ['input', _CB.onCompositionEnd.bind(this)]
         })
 
         for( var eventName in _CBR ){
@@ -206,6 +208,14 @@ export default {
             this.dropdown.hide()
         },
 
+        onCompositionStart(e){
+            this.state.composing = true
+        },
+
+        onCompositionEnd(e){
+            this.state.composing = false
+        },
+
         onWindowKeyDown(e){
             var focusedElm = document.activeElement,
                 isTag = isNodeTag.call(this, focusedElm),
@@ -237,6 +247,10 @@ export default {
 
         onKeydown(e){
             var _s = this.settings;
+
+            // ignore keys during IME composition
+            if( this.state.composing )
+                return
 
             if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length && e.key != 'Tab' ){
                 e.preventDefault()
@@ -449,7 +463,7 @@ export default {
                 }
 
                 case 'Enter' :
-                    if( this.state.dropdown.visible || e.keyCode == 229 ) return
+                    if( this.state.dropdown.visible ) return
                     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                     // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
                     // know if an option was just selected from the dropdown menu. If an option was selected,
@@ -864,6 +878,10 @@ export default {
         },
 
         onEditTagkeydown(e, tagElm){
+            // ignore keys during IME composition
+            if( this.state.composing )
+                return
+
             this.trigger("edit:keydown", {event:e})
 
             switch( e.key ){
