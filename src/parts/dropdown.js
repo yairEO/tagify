@@ -390,6 +390,9 @@ export default {
             onKeyDown(e){
                 if( !this.state.hasFocus )
                     return
+                // ignore keys during IME composition
+                if( this.state.composing )
+                    return
 
                 // get the "active" element, and if there was none (yet) active, use first child
                 var selectedElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
