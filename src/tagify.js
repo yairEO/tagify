@@ -533,8 +533,8 @@ Tagify.prototype = {
         editableElm.addEventListener('blur', delayed_onEditTagBlur)
         editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
         editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e, tagElm))
-        editableElm.addEventListener('compositionstart', e => _CB.onCompositionStart.call(this, e))
-        editableElm.addEventListener('compositionend', e => _CB.onCompositionEnd.call(this, e))
+        editableElm.addEventListener('compositionstart', _CB.onCompositionStart.bind(this))
+        editableElm.addEventListener('compositionend', _CB.onCompositionEnd.bind(this))
 
         if( !opts.skipValidation )
             isValid = this.editTagToggleValidity(tagElm)
