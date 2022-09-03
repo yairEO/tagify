@@ -463,7 +463,8 @@ export default {
                 }
 
                 case 'Enter' :
-                    if( this.state.dropdown.visible ) return
+                    // manual suggestion boxes are assumed to always be visible
+                    if( this.state.dropdown.visible && _s.dropdown.position != 'manual' ) return
                     e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                     // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
                     // know if an option was just selected from the dropdown menu. If an option was selected,
