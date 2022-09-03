@@ -388,10 +388,8 @@ export default {
 
         callbacks : {
             onKeyDown(e){
-                if( !this.state.hasFocus )
-                    return
                 // ignore keys during IME composition
-                if( this.state.composing )
+                if( !this.state.hasFocus || this.state.composing )
                     return
 
                 // get the "active" element, and if there was none (yet) active, use first child
