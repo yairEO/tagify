@@ -248,8 +248,8 @@ export default {
         onKeydown(e){
             var _s = this.settings;
 
-            // ignore keys during IME composition
-            if( this.state.composing )
+            // ignore keys during IME composition or when user input is not allowed
+            if( this.state.composing || !_s.userInput )
                 return
 
             if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length && e.key != 'Tab' ){

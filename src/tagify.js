@@ -1021,6 +1021,7 @@ Tagify.prototype = {
     },
 
     setContentEditable(state){
+        if( !this.settings.userInput ) return;
         this.DOM.input.contentEditable = state
         this.DOM.input.tabIndex = !!state ? 0 : -1;
     },
