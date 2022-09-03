@@ -791,8 +791,16 @@
                     <h3>CSS</h3>
 <style contenteditable>.customSuggestionsList > div{
   max-height: 300px;
+  min-height: 50px;
   border: 2px solid pink;
   overflow: auto;
+}
+
+.customSuggestionsList .empty{
+  color: #999;
+  font-size: 20px;
+  text-align: center;
+  padding: 1em;
 }
 </style>
                     </details>
@@ -1476,6 +1484,11 @@ var input = document.querySelector('input[name=tags-manual-suggestions]'),
             enabled: 0,
             classname: "customSuggestionsList"
         },
+        templates: {
+            dropdownItemNoMatch() {
+                return `<div class='empty'>Nothing Found</div>`;
+            }
+        },
         enforceWhitelist: true
     })
 
@@ -1483,7 +1496,7 @@ var input = document.querySelector('input[name=tags-manual-suggestions]'),
           .on("dropdown:hide", onSuggestionsListHide)
           .on('dropdown:scroll', onDropdownScroll)
 
-    renderSuggestionsList()
+    renderSuggestionsList()  // defined down below
 
     // ES2015 argument destructuring
     function onSuggestionsListUpdate({ detail:suggestionsElm }){
