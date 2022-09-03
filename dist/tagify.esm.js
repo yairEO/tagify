@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.16.3) - tags input component
+ * Tagify (v 4.16.4) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -703,7 +703,8 @@ var _dropdown = {
 
     callbacks: {
       onKeyDown(e) {
-        if (!this.state.hasFocus) return; // get the "active" element, and if there was none (yet) active, use first child
+        // ignore keys during IME composition
+        if (!this.state.hasFocus || this.state.composing) return; // get the "active" element, and if there was none (yet) active, use first child
 
         var selectedElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
             selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm);
@@ -1312,7 +1313,9 @@ var events = {
       click: ['scope', _CB.onClickScope.bind(this)],
       dblclick: ['scope', _CB.onDoubleClickScope.bind(this)],
       paste: ['input', _CB.onPaste.bind(this)],
-      drop: ['input', _CB.onDrop.bind(this)]
+      drop: ['input', _CB.onDrop.bind(this)],
+      compositionstart: ['input', _CB.onCompositionStart.bind(this)],
+      compositionend: ['input', _CB.onCompositionEnd.bind(this)]
     };
 
     for (var eventName in _CBR) {
@@ -1444,6 +1447,14 @@ var events = {
       this.dropdown.hide();
     },
 
+    onCompositionStart(e) {
+      this.state.composing = true;
+    },
+
+    onCompositionEnd(e) {
+      this.state.composing = false;
+    },
+
     onWindowKeyDown(e) {
       var focusedElm = document.activeElement,
           isTag = isNodeTag.call(this, focusedElm),
@@ -1474,7 +1485,9 @@ var events = {
     },
 
     onKeydown(e) {
-      var _s = this.settings;
+      var _s = this.settings; // ignore keys during IME composition or when user input is not allowed
+
+      if (this.state.composing || !_s.userInput) return;
 
       if (_s.mode == 'select' && _s.enforceWhitelist && this.value.length && e.key != 'Tab') {
         e.preventDefault();
@@ -1667,7 +1680,8 @@ var events = {
           }
 
         case 'Enter':
-          if (this.state.dropdown.visible || e.keyCode == 229) return;
+          // manual suggestion boxes are assumed to always be visible
+          if (this.state.dropdown.visible && _s.dropdown.position != 'manual') return;
           e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
           // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
           // know if an option was just selected from the dropdown menu. If an option was selected,
@@ -2048,6 +2062,8 @@ var events = {
     },
 
     onEditTagkeydown(e, tagElm) {
+      // ignore keys during IME composition
+      if (this.state.composing) return;
       this.trigger("edit:keydown", {
         event: e
       });
@@ -2188,6 +2204,7 @@ function Tagify(input, settings) {
   this.state = {
     inputText: '',
     editing: false,
+    composing: false,
     actions: {},
     // UI actions for state-locking
     mixMode: {},
@@ -2642,6 +2659,8 @@ Tagify.prototype = {
     editableElm.addEventListener('blur', delayed_onEditTagBlur);
     editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
     editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e, tagElm));
+    editableElm.addEventListener('compositionstart', _CB.onCompositionStart.bind(this));
+    editableElm.addEventListener('compositionend', _CB.onCompositionEnd.bind(this));
     if (!opts.skipValidation) isValid = this.editTagToggleValidity(tagElm);
     editableElm.originalIsValid = isValid;
     this.trigger("edit:start", {
@@ -3073,6 +3092,7 @@ Tagify.prototype = {
   },
 
   setContentEditable(state) {
+    if (!this.settings.userInput) return;
     this.DOM.input.contentEditable = state;
     this.DOM.input.tabIndex = !!state ? 0 : -1;
   },
