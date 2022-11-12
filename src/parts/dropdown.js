@@ -1,4 +1,4 @@
-import { sameStr, isObject, minify, escapeHTML, extend, unaccent, getNodeHeight } from './helpers'
+import { sameStr, isObject, minify, escapeHTML, extend, unaccent, getNodeHeight, getCaretGlobalPosition, setRangeAtStartEnd } from './helpers'
 
 export function initDropdown(){
     this.dropdown = {}
@@ -314,7 +314,7 @@ export default {
         if( !this.state.dropdown.visible ) return
 
         if( positionTo == 'text' ){
-            rect   = this.getCaretGlobalPosition()
+            rect   = getCaretGlobalPosition()
             bottom = rect.bottom
             top    = rect.top
             left   = rect.left
@@ -625,7 +625,7 @@ export default {
         setTimeout(() => {
             this.DOM.input.focus()
             this.toggleFocusClass(true)
-            this.setRangeAtStartEnd(false)
+            setRangeAtStartEnd(false, this.DOM.input)
         })
 
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this))

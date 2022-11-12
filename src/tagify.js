@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag } from './parts/helpers'
+import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag, injectAtCaret, setRangeAtStartEnd } from './parts/helpers'
 import DEFAULTS from './parts/defaults'
 import _dropdown, { initDropdown } from './parts/dropdown'
 import { getPersistedData, setPersistedData, clearPersistedData } from './parts/persist'
@@ -229,36 +229,6 @@ Tagify.prototype = {
     },
 
     /**
-     * Get the caret position relative to the viewport
-     * https://stackoverflow.com/q/58985076/104380
-     *
-     * @returns {object} left, top distance in pixels
-     */
-    getCaretGlobalPosition(){
-        const sel = document.getSelection()
-
-        if( sel.rangeCount ){
-            const r = sel.getRangeAt(0)
-            const node = r.startContainer
-            const offset = r.startOffset
-            let rect,  r2;
-
-            if (offset > 0) {
-                r2 = document.createRange()
-                r2.setStart(node, offset - 1)
-                r2.setEnd(node, offset)
-                rect = r2.getBoundingClientRect()
-                return {left:rect.right, top:rect.top, bottom:rect.bottom}
-            }
-
-            if( node.getBoundingClientRect )
-                return node.getBoundingClientRect()
-        }
-
-        return {left:-9999, top:-9999}
-    },
-
-    /**
      * Get specific CSS variables which are relevant to this script and parse them as needed.
      * The result is saved on the instance in "this.CSSVars"
      */
@@ -433,10 +403,12 @@ Tagify.prototype = {
 
         if( this.isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1 ){
             inputElm.appendChild(document.createTextNode("\u200b"))
-            this.setRangeAtStartEnd(true)
+            setRangeAtStartEnd(true, inputElm)
             return true
         }
     },
+
+    setRangeAtStartEnd,
 
     placeCaretAfterNode( node ){
         if( !node || !node.parentNode ) return
@@ -532,6 +504,7 @@ Tagify.prototype = {
         editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm))
         editableElm.addEventListener('blur', delayed_onEditTagBlur)
         editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
+        editableElm.addEventListener('paste', _CB.onEditTagPaste.bind(this, editableElm))
         editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e, tagElm))
         editableElm.addEventListener('compositionstart', _CB.onCompositionStart.bind(this))
         editableElm.addEventListener('compositionend', _CB.onCompositionEnd.bind(this))
@@ -544,7 +517,7 @@ Tagify.prototype = {
         this.trigger("edit:start", { tag:tagElm, index:tagIdx, data:tagData, isValid })
 
         editableElm.focus()
-        this.setRangeAtStartEnd(false, editableElm) // place the caret at the END of the editable tag text
+        setRangeAtStartEnd(false, editableElm) // place the caret at the END of the editable tag text
 
         return this
     },
@@ -653,27 +626,6 @@ Tagify.prototype = {
         this.update()
     },
 
-    /** https://stackoverflow.com/a/59156872/104380
-     * @param {Boolean} start indicating where to place it (start or end of the node)
-     * @param {Object}  node  DOM node to place the caret at
-     */
-    setRangeAtStartEnd( start, node ){
-        start = typeof start == 'number' ? start : !!start
-        node = node || this.DOM.input;
-        node = node.lastChild || node;
-        var sel = document.getSelection()
-
-        try{
-            if( sel.rangeCount >= 1 ){
-                ['Start', 'End'].forEach(pos =>
-                    sel.getRangeAt(0)["set" + pos](node, start ? start : node.length)
-                )
-            }
-        } catch(err){
-            // console.warn("Tagify: ", err)
-        }
-    },
-
     /**
      * injects nodes/text at caret position, which is saved on the "state" when "blur" event gets triggered
      * @param {Node} injectedNode [the node to inject at the caret position]
@@ -687,13 +639,9 @@ Tagify.prototype = {
             return this;
         }
 
-        if( typeof injectedNode == 'string' )
-            injectedNode = document.createTextNode(injectedNode);
+        injectAtCaret(injectedNode, range)
+        setRangeAtStartEnd(false, content)
 
-        range.deleteContents()
-        range.insertNode(injectedNode)
-
-        this.setRangeAtStartEnd(false, injectedNode)
         this.updateValueByDOMTags() // updates internal "this.value"
         this.update() // updates original input/textarea
 
@@ -796,7 +744,7 @@ Tagify.prototype = {
                     }
                     else{
                         this.input.set.call(this, suggestion);
-                        this.setRangeAtStartEnd()
+                        setRangeAtStartEnd(false, this.DOM.input)
                     }
 
                     this.input.autocomplete.suggest.call(this);
@@ -1216,7 +1164,7 @@ Tagify.prototype = {
 
         // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
         if( this.state.actions.selectOption )
-            setTimeout(this.setRangeAtStartEnd.bind(this))
+            setTimeout(() => setRangeAtStartEnd(false, this.DOM.input))
 
         var lastTagElm = this.getLastTag()
 
@@ -1351,7 +1299,7 @@ Tagify.prototype = {
 
         if( tagsItems.length && clearInput ){
             this.input.set.call(this, _s.createInvalidTags ? '' : aggregatedinvalidInput.join(_s._delimiters))
-            this.setRangeAtStartEnd()
+            setRangeAtStartEnd(false, this.DOM.input)
         }
 
         _s.dropdown.enabled && this.dropdown.refilter()
