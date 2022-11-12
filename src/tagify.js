@@ -1708,13 +1708,19 @@ Tagify.prototype = {
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update( args ){
-        var inputValue = this.getInputValue();
+        const UPDATE_DELAY = 100
+        clearTimeout(this.debouncedUpdateTimeout)
+        this.debouncedUpdateTimeout = setTimeout(reallyUpdate.bind(this), UPDATE_DELAY)
 
-        this.setOriginalInputValue(inputValue)
-        this.postUpdate()
+        function reallyUpdate() {
+            var inputValue = this.getInputValue();
 
-        if( (!this.settings.onChangeAfterBlur || !(args||{}).withoutChangeEvent) && !this.state.blockChangeEvent )
-            this.triggerChangeEvent()
+            this.setOriginalInputValue(inputValue)
+            this.postUpdate()
+
+            if( (!this.settings.onChangeAfterBlur || !(args||{}).withoutChangeEvent) && !this.state.blockChangeEvent )
+                this.triggerChangeEvent()
+        }
     },
 
     getInputValue(){
