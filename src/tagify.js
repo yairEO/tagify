@@ -27,7 +27,7 @@ function Tagify( input, settings ){
     }
 
     extend(this, EventDispatcher(this))
-    this.isFirefox = typeof InstallTrigger !== 'undefined'
+    this.isFirefox = (/firefox|fxios/i).test(navigator.userAgent) && !(/seamonkey/i).test(navigator.userAgent)
     this.isIE = window.document.documentMode; // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
 
     settings = settings || {};
