@@ -342,7 +342,7 @@ Tagify.prototype = {
 
         if( value ){
             if( _s.mode == 'mix' ){
-                this.parseMixTags(this.trim(value))
+                this.parseMixTags(value)
 
                 lastChild = this.DOM.input.lastChild
 
