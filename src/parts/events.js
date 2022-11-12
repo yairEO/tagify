@@ -1,4 +1,4 @@
-import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, injectAtCaret, setRangeAtStartEnd } from './helpers'
+import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, injectAtCaret } from './helpers'
 
 var deleteBackspaceTimeout;
 
@@ -502,7 +502,7 @@ export default {
 
             // save the value on the input's State object
             this.input.set.call(this, value, false); // update the input with the normalized value and run validations
-            // setRangeAtStartEnd(false, this.DOM.input); // fix caret position
+            // this.setRangeAtStartEnd(false, this.DOM.input); // fix caret position
 
             // if delimiters detected, add tags
             if( value.search(_s.delimiters) != -1 ){
@@ -546,7 +546,7 @@ export default {
 
             if( fragment.childNodes.length ){
                 range.insertNode(fragment)
-                setRangeAtStartEnd(false, fragment.lastChild)
+                this.setRangeAtStartEnd(false, fragment.lastChild)
             }
 
             // check if tags were "magically" added/removed (browser redo/undo or CTRL-A -> delete)
@@ -801,7 +801,7 @@ export default {
             e.preventDefault()
 
             var newNode = injectAtCaret(pastedText)
-            setRangeAtStartEnd(false, newNode)
+            this.setRangeAtStartEnd(false, newNode)
         },
 
         onEditTagFocus( tagElm ){

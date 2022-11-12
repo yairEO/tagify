@@ -256,23 +256,3 @@ export function injectAtCaret(content, range){
 
     return content
 }
-
-/** https://stackoverflow.com/a/59156872/104380
- * @param {Boolean} start indicating where to place it (start or end of the node)
- * @param {Object}  node  DOM node to place the caret at
- */
- export function setRangeAtStartEnd( start, node ){
-    start = typeof start == 'number' ? start : !!start
-    node = node.lastChild || node;
-    var sel = document.getSelection()
-
-    try{
-        if( sel.rangeCount >= 1 ){
-            ['Start', 'End'].forEach(pos =>
-                sel.getRangeAt(0)["set" + pos](node, start ? start : node.length)
-            )
-        }
-    } catch(err){
-        // console.warn("Tagify: ", err)
-    }
-}

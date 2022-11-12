@@ -1,4 +1,4 @@
-import { sameStr, isObject, minify, escapeHTML, extend, unaccent, getNodeHeight, getCaretGlobalPosition, setRangeAtStartEnd } from './helpers'
+import { sameStr, isObject, minify, escapeHTML, extend, unaccent, getNodeHeight, getCaretGlobalPosition } from './helpers'
 
 export function initDropdown(){
     this.dropdown = {}
@@ -625,7 +625,7 @@ export default {
         setTimeout(() => {
             this.DOM.input.focus()
             this.toggleFocusClass(true)
-            setRangeAtStartEnd(false, this.DOM.input)
+            this.setRangeAtStartEnd(false, this.DOM.input)
         })
 
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
