@@ -1,4 +1,4 @@
-import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag } from './helpers'
+import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, injectAtCaret, setRangeAtStartEnd } from './helpers'
 
 var deleteBackspaceTimeout;
 
@@ -367,7 +367,7 @@ export default {
                             this.removeTags() // removes last tag by default if no parameter supplied
                             // place caret inside last textNode, if exist. it's an annoying bug only in FF,
                             // if the last tag is removed, and there is a textNode before it, the caret is not placed at its end
-                            this.placeCaretAfterNode( this.setRangeAtStartEnd() )
+                            this.placeCaretAfterNode( setRangeAtStartEnd(false, this.DOM.input) )
                         }
                         */
 
@@ -502,7 +502,7 @@ export default {
 
             // save the value on the input's State object
             this.input.set.call(this, value, false); // update the input with the normalized value and run validations
-            // this.setRangeAtStartEnd(); // fix caret position
+            // setRangeAtStartEnd(false, this.DOM.input); // fix caret position
 
             // if delimiters detected, add tags
             if( value.search(_s.delimiters) != -1 ){
@@ -546,7 +546,7 @@ export default {
 
             if( fragment.childNodes.length ){
                 range.insertNode(fragment)
-                this.setRangeAtStartEnd(false, fragment.lastChild)
+                setRangeAtStartEnd(false, fragment.lastChild)
             }
 
             // check if tags were "magically" added/removed (browser redo/undo or CTRL-A -> delete)
@@ -790,6 +790,18 @@ export default {
                 data : extend({}, this.value[tagElmIdx], {newValue:textValue}),
                 event: e
             })
+        },
+
+        onEditTagPaste( tagElm, e ){
+            // Get pasted data via clipboard API
+            var clipboardData = e.clipboardData || window.clipboardData,
+                pastedText = clipboardData.getData('Text'),
+                selection = window.getSelection();
+
+            e.preventDefault()
+
+            var newNode = injectAtCaret(pastedText)
+            setRangeAtStartEnd(false, newNode)
         },
 
         onEditTagFocus( tagElm ){
