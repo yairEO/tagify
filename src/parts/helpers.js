@@ -207,3 +207,72 @@ export function getUID() {
 export function isNodeTag(node){
     return node && node.classList && node.classList.contains(this.settings.classNames.tag)
 }
+
+/**
+* Get the caret position relative to the viewport
+* https://stackoverflow.com/q/58985076/104380
+*
+* @returns {object} left, top distance in pixels
+*/
+export function getCaretGlobalPosition(){
+   const sel = document.getSelection()
+
+   if( sel.rangeCount ){
+       const r = sel.getRangeAt(0)
+       const node = r.startContainer
+       const offset = r.startOffset
+       let rect,  r2;
+
+       if (offset > 0) {
+           r2 = document.createRange()
+           r2.setStart(node, offset - 1)
+           r2.setEnd(node, offset)
+           rect = r2.getBoundingClientRect()
+           return {left:rect.right, top:rect.top, bottom:rect.bottom}
+       }
+
+       if( node.getBoundingClientRect )
+           return node.getBoundingClientRect()
+   }
+
+   return {left:-9999, top:-9999}
+}
+
+/**
+ * Injects content (either string or node) at the current the current (or specificed) caret position
+ * @param {content} string/node
+ */
+export function injectAtCaret(content, range){
+    var selection = window.getSelection();
+    range = range || selection.getRangeAt(0)
+
+    if( typeof content == 'string' )
+        content = document.createTextNode(content)
+
+    if( range ) {
+        range.deleteContents()
+        range.insertNode(content)
+    }
+
+    return content
+}
+
+/** https://stackoverflow.com/a/59156872/104380
+ * @param {Boolean} start indicating where to place it (start or end of the node)
+ * @param {Object}  node  DOM node to place the caret at
+ */
+ export function setRangeAtStartEnd( start, node ){
+    start = typeof start == 'number' ? start : !!start
+    node = node.lastChild || node;
+    var sel = document.getSelection()
+
+    try{
+        if( sel.rangeCount >= 1 ){
+            ['Start', 'End'].forEach(pos =>
+                sel.getRangeAt(0)["set" + pos](node, start ? start : node.length)
+            )
+        }
+    } catch(err){
+        // console.warn("Tagify: ", err)
+    }
+}
