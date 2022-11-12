@@ -46,6 +46,16 @@
         "/dist",
         "/src/tagify.scss"
     ],
+    "exports": {
+        ".": {
+            "require": "./dist/tagify.js",
+            "import": "./dist/tagify.esm.js",
+            "default": "./dist/tagify.js"
+        },
+        "./helpers": {
+            "import": "./src/parts/helpers.js"
+        }
+    },
     "peerDependencies": {
         "prop-types": "^15.7.2"
     },
