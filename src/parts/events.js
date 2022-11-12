@@ -705,8 +705,8 @@ export default {
                 }
             }
 
-            if( _s.mode == 'select' )
-                !this.state.dropdown.visible && this.dropdown.show();
+            if( _s.mode == 'select' && _s.dropdown.enabled === 0 && !this.state.dropdown.visible)
+                this.dropdown.show()
         },
 
         // special proccess is needed for pasted content in order to "clean" it
