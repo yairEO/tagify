@@ -1424,8 +1424,8 @@ Tagify.prototype = {
 
         tagElm = this.parseTemplate('tag', [templateData, this])
 
-        // crucial for proper caret placement when deleting content. if textNodes are allowed as children of
-        // a tag element, a browser bug casues the caret to misplaced inside the tag element (especcially affects "readonly" tags)
+        // crucial for proper caret placement when deleting content. if textNodes are allowed as children of a tag element,
+        // a browser bug casues the caret to be misplaced inside the tag element (especcially affects "readonly" tags)
         removeTextChildNodes(tagElm)
         // while( tagElm.lastChild.nodeType == 3 )
         //     tagElm.lastChild.parentNode.removeChild(tagElm.lastChild)
