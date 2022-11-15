@@ -1,4 +1,4 @@
-import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, injectAtCaret } from './helpers'
+import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, injectAtCaret, getSetTagData } from './helpers'
 
 var deleteBackspaceTimeout;
 
@@ -400,7 +400,7 @@ export default {
                             // find out which tag(s) were deleted and trigger "remove" event
                             // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
                             this.value = [].map.call(lastTagElems, (node, nodeIdx) => {
-                                var tagData = this.tagData(node)
+                                var tagData = getSetTagData(node)
 
                                 // since readonly cannot be removed (it's technically resurrected if removed somehow)
                                 if( node.parentNode || tagData.readonly )
@@ -527,7 +527,7 @@ export default {
                 tagsElems = this.getTagElms(),
                 fragment = document.createDocumentFragment(),
                 range = window.getSelection().getRangeAt(0),
-                remainingTagsValues = [].map.call(tagsElems, node => this.tagData(node).value);
+                remainingTagsValues = [].map.call(tagsElems, node => getSetTagData(node).value);
 
             // Android Chrome "keydown" event argument does not report the correct "key".
             // this workaround is needed to manually call "onKeydown" method with a synthesized event object
@@ -551,7 +551,7 @@ export default {
 
             // check if tags were "magically" added/removed (browser redo/undo or CTRL-A -> delete)
             if( tagsElems.length != lastTagsCount ){
-                this.value = [].map.call(this.getTagElms(), node => this.tagData(node))
+                this.value = [].map.call(this.getTagElms(), node => getSetTagData(node))
                 this.update({ withoutChangeEvent:true })
                 return
             }
@@ -680,7 +680,7 @@ export default {
             }
 
             else if( tagElm ){
-                this.trigger("click", { tag:tagElm, index:this.getNodeIndex(tagElm), data:this.tagData(tagElm), event:e })
+                this.trigger("click", { tag:tagElm, index:this.getNodeIndex(tagElm), data:getSetTagData(tagElm), event:e })
 
                 if( _s.editTags === 1 || _s.editTags.clicks === 1 )
                     this.events.callbacks.onDoubleClickScope.call(this, e)
@@ -758,7 +758,7 @@ export default {
         onEditTagInput( editableElm, e ){
             var tagElm = editableElm.closest('.' + this.settings.classNames.tag),
                 tagElmIdx = this.getNodeIndex(tagElm),
-                tagData = this.tagData(tagElm),
+                tagData = getSetTagData(tagElm),
                 textValue = this.input.normalize.call(this, editableElm),
                 dataForChangedProp = {[this.settings.tagTextProp]: textValue, __tagId: tagData.__tagId}, // "__tagId" is needed so validation will skip current tag when checking for dups
                 isValid = this.validateTag(dataForChangedProp), // the value could have been invalid in the first-place so make sure to re-validate it (via "addEmptyTag" method)
@@ -795,8 +795,7 @@ export default {
         onEditTagPaste( tagElm, e ){
             // Get pasted data via clipboard API
             var clipboardData = e.clipboardData || window.clipboardData,
-                pastedText = clipboardData.getData('Text'),
-                selection = window.getSelection();
+                pastedText = clipboardData.getData('Text');
 
             e.preventDefault()
 
@@ -823,7 +822,7 @@ export default {
             var _s           = this.settings,
                 tagElm       = editableElm.closest('.' + _s.classNames.tag),
                 textValue    = this.input.normalize.call(this, editableElm),
-                tagData      = this.tagData(tagElm),
+                tagData      = getSetTagData(tagElm),
                 originalData = tagData.__originalData, // pre-edit data
                 hasChanged   = this.editTagChangeDetected( tagData ),
                 isValid      = this.validateTag({[_s.tagTextProp]: textValue, __tagId: tagData.__tagId}), // "__tagId" is needed so validation will skip current tag when checking for dups
@@ -914,7 +913,7 @@ export default {
 
         onDoubleClickScope(e){
             var tagElm = e.target.closest('.' + this.settings.classNames.tag),
-                tagData = this.tagData(tagElm),
+                tagData = getSetTagData(tagElm),
                 _s = this.settings,
                 isEditingTag,
                 isReadyOnlyTag;
@@ -928,7 +927,7 @@ export default {
                 this.editTag(tagElm)
 
             this.toggleFocusClass(true)
-            this.trigger('dblclick', { tag:tagElm, index:this.getNodeIndex(tagElm), data:this.tagData(tagElm) })
+            this.trigger('dblclick', { tag:tagElm, index:this.getNodeIndex(tagElm), data:getSetTagData(tagElm) })
         },
 
         /**

@@ -256,3 +256,22 @@ export function injectAtCaret(content, range){
 
     return content
 }
+
+/** Setter/Getter
+ * Each tag DOM node contains a custom property called "__tagifyTagData" which hosts its data
+ * @param {Node}   tagElm
+ * @param {Object} data
+ */
+export function getSetTagData(tagElm, data, override){
+    if( !tagElm ){
+        console.warn("tag element doesn't exist",tagElm, data)
+        return data
+    }
+
+    if( data )
+        tagElm.__tagifyTagData = override
+            ? data
+            : extend({}, tagElm.__tagifyTagData || {}, data)
+
+    return tagElm.__tagifyTagData
+}

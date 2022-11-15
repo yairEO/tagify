@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag, injectAtCaret } from './parts/helpers'
+import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag, injectAtCaret, getSetTagData } from './parts/helpers'
 import DEFAULTS from './parts/defaults'
 import _dropdown, { initDropdown } from './parts/dropdown'
 import { getPersistedData, setPersistedData, clearPersistedData } from './parts/persist'
@@ -84,7 +84,7 @@ Tagify.prototype = {
 
     parseTemplate(template, data){
         template = this.settings.templates[template] || template;
-        return this.parseHTML( template.apply(this, data) )
+        return parseHTML( template.apply(this, data) )
     },
 
     set whitelist( arr ){
@@ -498,7 +498,7 @@ Tagify.prototype = {
         var _s = this.settings,
             editableElm = this.getTagTextNode(tagElm),
             tagIdx = this.getNodeIndex(tagElm),
-            tagData = this.tagData(tagElm),
+            tagData = getSetTagData(tagElm),
             _CB = this.events.callbacks,
             that = this,
             isValid = true,
@@ -515,12 +515,12 @@ Tagify.prototype = {
             return
 
         // cache the original data, on the DOM node, before any modification ocurs, for possible revert
-        tagData = this.tagData(tagElm, {
+        tagData = getSetTagData(tagElm, {
             __originalData: extend({}, tagData),
             __originalHTML: tagElm.cloneNode(true)
         })
         // re-set the tagify custom-prop on the clones element (because cloning removed it)
-        this.tagData(tagData.__originalHTML, tagData.__originalData)
+        getSetTagData(tagData.__originalHTML, tagData.__originalData)
 
         editableElm.setAttribute('contenteditable', true)
         tagElm.classList.add( _s.classNames.tagEditing )
@@ -553,7 +553,7 @@ Tagify.prototype = {
      * @returns true if valid, a string (reason) if not
      */
     editTagToggleValidity( tagElm, tagData ){
-        var tagData = tagData || this.tagData(tagElm),
+        var tagData = tagData || getSetTagData(tagElm),
             isValid;
 
         if( !tagData ){
@@ -582,7 +582,7 @@ Tagify.prototype = {
         var eventData = {
             tag         : tagElm,
             index       : this.getNodeIndex(tagElm),
-            previousData: this.tagData(tagElm),
+            previousData: getSetTagData(tagElm),
             data        : tagData
         }
 
@@ -644,7 +644,7 @@ Tagify.prototype = {
 
         [].forEach.call(this.getTagElms(), node => {
             if( node.classList.contains(this.settings.classNames.tagNotAllowed.split(' ')[0]) ) return
-            this.value.push( this.tagData(node) )
+            this.value.push( getSetTagData(node) )
         })
 
         this.update()
@@ -812,25 +812,6 @@ Tagify.prototype = {
     getLastTag(){
         var lastTag = this.DOM.scope.querySelectorAll(`${this.settings.classNames.tagSelector}:not(.${this.settings.classNames.tagHide}):not([readonly])`);
         return lastTag[lastTag.length - 1];
-    },
-
-    /** Setter/Getter
-     * Each tag DOM node contains a custom property called "__tagifyTagData" which hosts its data
-     * @param {Node}   tagElm
-     * @param {Object} data
-     */
-    tagData(tagElm, data, override){
-        if( !tagElm ){
-            console.warn("tag element doesn't exist",tagElm, data)
-            return data
-        }
-
-        if( data )
-            tagElm.__tagifyTagData = override
-                ? data
-                : extend({}, tagElm.__tagifyTagData || {}, data)
-
-        return tagElm.__tagifyTagData
     },
 
     /**
@@ -1127,7 +1108,7 @@ Tagify.prototype = {
         this.DOM.input.innerHTML = s
         this.DOM.input.appendChild(document.createTextNode(''))
         this.DOM.input.normalize()
-        this.getTagElms().forEach((elm, idx) => this.tagData(elm,  tagsDataSet[idx]))
+        this.getTagElms().forEach((elm, idx) => getSetTagData(elm,  tagsDataSet[idx]))
         this.update({withoutChangeEvent:true})
         return s
     },
@@ -1214,7 +1195,7 @@ Tagify.prototype = {
         var tagData = extend({ value:"" }, initialData || {}),
             tagElm = this.createTagElem(tagData)
 
-        this.tagData(tagElm, tagData)
+        getSetTagData(tagElm, tagData)
 
         // add the tag to the component's DOM
         this.appendTag(tagElm)
@@ -1453,7 +1434,7 @@ Tagify.prototype = {
         // while( tagElm.lastChild.nodeType == 3 )
         //     tagElm.lastChild.parentNode.removeChild(tagElm.lastChild)
 
-        this.tagData(tagElm, tagData)
+        getSetTagData(tagElm, tagData)
         return tagElm
     },
 
@@ -1465,7 +1446,7 @@ Tagify.prototype = {
         var _s = this.settings
 
         this.getTagElms(_s.classNames.tagNotAllowed).forEach((tagElm, i) => {
-            var tagData = this.tagData(tagElm),
+            var tagData = getSetTagData(tagElm),
                 hasMaxTags = this.hasMaxTags(),
                 tagValidation = this.validateTag(tagData),
                 isValid = tagValidation === true && !hasMaxTags;
@@ -1515,7 +1496,7 @@ Tagify.prototype = {
             if( tagElm && typeof tagElm == 'string')
                 tagElm = this.getTagElmByValue(tagElm)
 
-            var tagData = this.tagData(tagElm);
+            var tagData = getSetTagData(tagElm);
 
             if( tagElm && tagData && !tagData.readonly ) // make sure it's a tag and not some other node
                 // because the DOM node might be removed by async animation, the state will be updated while
@@ -1523,7 +1504,7 @@ Tagify.prototype = {
                 elms.push({
                     node: tagElm,
                     idx: this.getTagIdx(tagData), // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
-                    data: this.tagData(tagElm, {'__removed':true})
+                    data: getSetTagData(tagElm, {'__removed':true})
                 })
 
             return elms
@@ -1609,7 +1590,7 @@ Tagify.prototype = {
         tags = Array.isArray(tags) ? tags : [tags];
 
         tags.forEach(tag => {
-            var tagData = this.tagData(tag),
+            var tagData = getSetTagData(tag),
                 tagIdx = this.getTagIdx(tagData)
 
             //  delete tagData.__removed
@@ -1724,7 +1705,7 @@ Tagify.prototype = {
         function iterateChildren(rootNode){
             rootNode.childNodes.forEach((node) => {
                 if( node.nodeType == 1 ){
-                    const tagData = that.tagData(node);
+                    const tagData = getSetTagData(node);
 
                     if( node.tagName == 'BR'  ){
                         result += "\r\n";
