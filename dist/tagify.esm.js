@@ -271,6 +271,20 @@ function injectAtCaret(content, range) {
   return content;
 }
 
+/** Setter/Getter
+ * Each tag DOM node contains a custom property called "__tagifyTagData" which hosts its data
+ * @param {Node}   tagElm
+ * @param {Object} data
+ */
+function getSetTagData(tagElm, data, override) {
+  if (!tagElm) {
+    console.warn("tag element doesn't exist", tagElm, data);
+    return data;
+  }
+  if (data) tagElm.__tagifyTagData = override ? data : extend({}, tagElm.__tagifyTagData || {}, data);
+  return tagElm.__tagifyTagData;
+}
+
 var DEFAULTS = {
   delimiters: ",",
   // [RegEx] split tags by any of these delimiters ("null" to cancel) Example: ",| |."
@@ -303,7 +317,7 @@ var DEFAULTS = {
   mixTagsAllowedAfter: /,|\.|\:|\s/,
   // RegEx - Define conditions in which mix-tags content allows a tag to be added after
   mixTagsInterpolator: ['[[', ']]'],
-  // Interpolation for mix mode. Everything between this will becmoe a tag
+  // Interpolation for mix mode. Everything between these will become a tag, if is a valid Object
   backspace: true,
   // false / true / "edit"
   skipInvalid: false,
@@ -1591,7 +1605,7 @@ var events = {
                 // find out which tag(s) were deleted and trigger "remove" event
                 // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
                 this.value = [].map.call(lastTagElems, (node, nodeIdx) => {
-                  var tagData = this.tagData(node);
+                  var tagData = getSetTagData(node);
 
                   // since readonly cannot be removed (it's technically resurrected if removed somehow)
                   if (node.parentNode || tagData.readonly) return tagData;else this.trigger('remove', {
@@ -1709,7 +1723,7 @@ var events = {
         tagsElems = this.getTagElms(),
         fragment = document.createDocumentFragment(),
         range = window.getSelection().getRangeAt(0),
-        remainingTagsValues = [].map.call(tagsElems, node => this.tagData(node).value);
+        remainingTagsValues = [].map.call(tagsElems, node => getSetTagData(node).value);
 
       // Android Chrome "keydown" event argument does not report the correct "key".
       // this workaround is needed to manually call "onKeydown" method with a synthesized event object
@@ -1731,7 +1745,7 @@ var events = {
 
       // check if tags were "magically" added/removed (browser redo/undo or CTRL-A -> delete)
       if (tagsElems.length != lastTagsCount) {
-        this.value = [].map.call(this.getTagElms(), node => this.tagData(node));
+        this.value = [].map.call(this.getTagElms(), node => getSetTagData(node));
         this.update({
           withoutChangeEvent: true
         });
@@ -1843,7 +1857,7 @@ var events = {
         this.trigger("click", {
           tag: tagElm,
           index: this.getNodeIndex(tagElm),
-          data: this.tagData(tagElm),
+          data: getSetTagData(tagElm),
           event: e
         });
         if (_s.editTags === 1 || _s.editTags.clicks === 1) this.events.callbacks.onDoubleClickScope.call(this, e);
@@ -1900,7 +1914,7 @@ var events = {
     onEditTagInput(editableElm, e) {
       var tagElm = editableElm.closest('.' + this.settings.classNames.tag),
         tagElmIdx = this.getNodeIndex(tagElm),
-        tagData = this.tagData(tagElm),
+        tagData = getSetTagData(tagElm),
         textValue = this.input.normalize.call(this, editableElm),
         dataForChangedProp = {
           [this.settings.tagTextProp]: textValue,
@@ -1937,7 +1951,6 @@ var events = {
       // Get pasted data via clipboard API
       var clipboardData = e.clipboardData || window.clipboardData,
         pastedText = clipboardData.getData('Text');
-        window.getSelection();
       e.preventDefault();
       var newNode = injectAtCaret(pastedText);
       this.setRangeAtStartEnd(false, newNode);
@@ -1958,7 +1971,7 @@ var events = {
       var _s = this.settings,
         tagElm = editableElm.closest('.' + _s.classNames.tag),
         textValue = this.input.normalize.call(this, editableElm),
-        tagData = this.tagData(tagElm),
+        tagData = getSetTagData(tagElm),
         originalData = tagData.__originalData,
         // pre-edit data
         hasChanged = this.editTagChangeDetected(tagData),
@@ -2044,7 +2057,7 @@ var events = {
     },
     onDoubleClickScope(e) {
       var tagElm = e.target.closest('.' + this.settings.classNames.tag),
-        tagData = this.tagData(tagElm),
+        tagData = getSetTagData(tagElm),
         _s = this.settings,
         isEditingTag,
         isReadyOnlyTag;
@@ -2056,7 +2069,7 @@ var events = {
       this.trigger('dblclick', {
         tag: tagElm,
         index: this.getNodeIndex(tagElm),
-        data: this.tagData(tagElm)
+        data: getSetTagData(tagElm)
       });
     },
     /**
@@ -2211,7 +2224,7 @@ Tagify.prototype = {
   templates,
   parseTemplate(template, data) {
     template = this.settings.templates[template] || template;
-    return this.parseHTML(template.apply(this, data));
+    return parseHTML(template.apply(this, data));
   },
   set whitelist(arr) {
     const isArray = arr && Array.isArray(arr);
@@ -2533,7 +2546,7 @@ Tagify.prototype = {
     var _s = this.settings,
       editableElm = this.getTagTextNode(tagElm),
       tagIdx = this.getNodeIndex(tagElm),
-      tagData = this.tagData(tagElm),
+      tagData = getSetTagData(tagElm),
       _CB = this.events.callbacks,
       that = this,
       isValid = true,
@@ -2547,12 +2560,12 @@ Tagify.prototype = {
     if (tagData instanceof Object && "editable" in tagData && !tagData.editable) return;
 
     // cache the original data, on the DOM node, before any modification ocurs, for possible revert
-    tagData = this.tagData(tagElm, {
+    tagData = getSetTagData(tagElm, {
       __originalData: extend({}, tagData),
       __originalHTML: tagElm.cloneNode(true)
     });
     // re-set the tagify custom-prop on the clones element (because cloning removed it)
-    this.tagData(tagData.__originalHTML, tagData.__originalData);
+    getSetTagData(tagData.__originalHTML, tagData.__originalData);
     editableElm.setAttribute('contenteditable', true);
     tagElm.classList.add(_s.classNames.tagEditing);
     editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm));
@@ -2582,7 +2595,7 @@ Tagify.prototype = {
    * @returns true if valid, a string (reason) if not
    */
   editTagToggleValidity(tagElm, tagData) {
-    var tagData = tagData || this.tagData(tagElm),
+    var tagData = tagData || getSetTagData(tagElm),
       isValid;
     if (!tagData) {
       console.warn("tag has no data: ", tagElm, tagData);
@@ -2605,7 +2618,7 @@ Tagify.prototype = {
     var eventData = {
       tag: tagElm,
       index: this.getNodeIndex(tagElm),
-      previousData: this.tagData(tagElm),
+      previousData: getSetTagData(tagElm),
       data: tagData
     };
     this.trigger("edit:beforeUpdate", eventData, {
@@ -2651,7 +2664,7 @@ Tagify.prototype = {
     this.value.length = 0;
     [].forEach.call(this.getTagElms(), node => {
       if (node.classList.contains(this.settings.classNames.tagNotAllowed.split(' ')[0])) return;
-      this.value.push(this.tagData(node));
+      this.value.push(getSetTagData(node));
     });
     this.update();
   },
@@ -2791,19 +2804,6 @@ Tagify.prototype = {
   getLastTag() {
     var lastTag = this.DOM.scope.querySelectorAll(`${this.settings.classNames.tagSelector}:not(.${this.settings.classNames.tagHide}):not([readonly])`);
     return lastTag[lastTag.length - 1];
-  },
-  /** Setter/Getter
-   * Each tag DOM node contains a custom property called "__tagifyTagData" which hosts its data
-   * @param {Node}   tagElm
-   * @param {Object} data
-   */
-  tagData(tagElm, data, override) {
-    if (!tagElm) {
-      console.warn("tag element doesn't exist", tagElm, data);
-      return data;
-    }
-    if (data) tagElm.__tagifyTagData = override ? data : extend({}, tagElm.__tagifyTagData || {}, data);
-    return tagElm.__tagifyTagData;
   },
   /**
    * Searches if any tag with a certain value already exis
@@ -3057,7 +3057,7 @@ Tagify.prototype = {
     this.DOM.input.innerHTML = s;
     this.DOM.input.appendChild(document.createTextNode(''));
     this.DOM.input.normalize();
-    this.getTagElms().forEach((elm, idx) => this.tagData(elm, tagsDataSet[idx]));
+    this.getTagElms().forEach((elm, idx) => getSetTagData(elm, tagsDataSet[idx]));
     this.update({
       withoutChangeEvent: true
     });
@@ -3135,7 +3135,7 @@ Tagify.prototype = {
         value: ""
       }, initialData || {}),
       tagElm = this.createTagElem(tagData);
-    this.tagData(tagElm, tagData);
+    getSetTagData(tagElm, tagData);
 
     // add the tag to the component's DOM
     this.appendTag(tagElm);
@@ -3357,7 +3357,7 @@ Tagify.prototype = {
     // while( tagElm.lastChild.nodeType == 3 )
     //     tagElm.lastChild.parentNode.removeChild(tagElm.lastChild)
 
-    this.tagData(tagElm, tagData);
+    getSetTagData(tagElm, tagData);
     return tagElm;
   },
   /**
@@ -3367,7 +3367,7 @@ Tagify.prototype = {
   reCheckInvalidTags() {
     var _s = this.settings;
     this.getTagElms(_s.classNames.tagNotAllowed).forEach((tagElm, i) => {
-      var tagData = this.tagData(tagElm),
+      var tagData = getSetTagData(tagElm),
         hasMaxTags = this.hasMaxTags(),
         tagValidation = this.validateTag(tagData),
         isValid = tagValidation === true && !hasMaxTags;
@@ -3404,7 +3404,7 @@ Tagify.prototype = {
     // 4. return a collection of Objects
     tagsToRemove = tagElms.reduce((elms, tagElm) => {
       if (tagElm && typeof tagElm == 'string') tagElm = this.getTagElmByValue(tagElm);
-      var tagData = this.tagData(tagElm);
+      var tagData = getSetTagData(tagElm);
       if (tagElm && tagData && !tagData.readonly)
         // make sure it's a tag and not some other node
         // because the DOM node might be removed by async animation, the state will be updated while
@@ -3413,7 +3413,7 @@ Tagify.prototype = {
           node: tagElm,
           idx: this.getTagIdx(tagData),
           // this.getNodeIndex(tagElm); // this.getTagIndexByValue(tagElm.textContent)
-          data: this.tagData(tagElm, {
+          data: getSetTagData(tagElm, {
             '__removed': true
           })
         });
@@ -3487,7 +3487,7 @@ Tagify.prototype = {
   removeTagsFromValue(tags) {
     tags = Array.isArray(tags) ? tags : [tags];
     tags.forEach(tag => {
-      var tagData = this.tagData(tag),
+      var tagData = getSetTagData(tag),
         tagIdx = this.getTagIdx(tagData);
 
       //  delete tagData.__removed
@@ -3569,7 +3569,7 @@ Tagify.prototype = {
     function iterateChildren(rootNode) {
       rootNode.childNodes.forEach(node => {
         if (node.nodeType == 1) {
-          const tagData = that.tagData(node);
+          const tagData = getSetTagData(node);
           if (node.tagName == 'BR') {
             result += "\r\n";
           }
