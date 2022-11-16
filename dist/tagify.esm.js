@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.17.1) - tags input component
+ * Tagify (v 4.17.2) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -2245,6 +2245,7 @@ Tagify.prototype = {
     }
   },
   applySettings(input, settings) {
+    var _settings$dropdown, _settings$dropdown2;
     DEFAULTS.templates = this.templates;
     var _s = this.settings = extend({}, DEFAULTS, settings);
     _s.disabled = input.hasAttribute('disabled');
@@ -2292,10 +2293,10 @@ Tagify.prototype = {
     this.TEXTS = _objectSpread2(_objectSpread2({}, TEXTS), _s.texts || {});
 
     // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
-    if (_s.mode == 'select' && !settings.dropdown.enabled || !_s.userInput) {
+    if (_s.mode == 'select' && !((_settings$dropdown = settings.dropdown) !== null && _settings$dropdown !== void 0 && _settings$dropdown.enabled) || !_s.userInput) {
       _s.dropdown.enabled = 0;
     }
-    _s.dropdown.appendTarget = settings.dropdown && settings.dropdown.appendTarget ? settings.dropdown.appendTarget : document.body;
+    _s.dropdown.appendTarget = ((_settings$dropdown2 = settings.dropdown) === null || _settings$dropdown2 === void 0 ? void 0 : _settings$dropdown2.appendTarget) || document.body;
 
     // get & merge persisted data with current data
     let persistedWhitelist = this.getPersistedData('whitelist');
