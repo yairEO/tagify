@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.17.2) - tags input component
+ * Tagify (v 4.17.3) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -2495,7 +2495,7 @@
       var sel = document.getSelection();
 
       // do not force caret placement if the current selection (focus) is on another element (not this tagify instance)
-      if (sel.focusNode && sel.focusNode !== this.DOM.input) {
+      if (sel.focusNode instanceof Element && !this.DOM.input.contains(sel.focusNode)) {
         return true;
       }
       try {
@@ -2688,7 +2688,7 @@
         return this;
       }
       injectAtCaret(injectedNode, range);
-      this.setRangeAtStartEnd(false, content);
+      this.setRangeAtStartEnd(false, injectedNode);
       this.updateValueByDOMTags(); // updates internal "this.value"
       this.update(); // updates original input/textarea
 
