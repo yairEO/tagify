@@ -417,7 +417,7 @@ Tagify.prototype = {
         var sel = document.getSelection()
 
         // do not force caret placement if the current selection (focus) is on another element (not this tagify instance)
-        if( sel.focusNode && sel.focusNode !== this.DOM.input ) {
+        if( sel.focusNode instanceof Element && !this.DOM.input.contains(sel.focusNode) ) {
             return true
         }
 
