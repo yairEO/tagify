@@ -662,7 +662,7 @@ Tagify.prototype = {
         }
 
         injectAtCaret(injectedNode, range)
-        this.setRangeAtStartEnd(false, content)
+        this.setRangeAtStartEnd(false, injectedNode)
 
         this.updateValueByDOMTags() // updates internal "this.value"
         this.update() // updates original input/textarea
