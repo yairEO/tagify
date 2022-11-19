@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.17.3) - tags input component
+ * Tagify (v 4.17.4) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -616,8 +616,7 @@
      * then the header & footer should be kept in sync with the suggestions data change
      */
     fillHeaderFooter() {
-      this.settings.templates;
-        var suggestions = this.dropdown.filterListItems(this.state.dropdown.query),
+      var suggestions = this.dropdown.filterListItems(this.state.dropdown.query),
         newHeaderElem = this.parseTemplate('dropdownHeader', [suggestions]),
         newFooterElem = this.parseTemplate('dropdownFooter', [suggestions]),
         headerRef = this.dropdown.getHeaderRef(),
@@ -766,7 +765,6 @@
                 if (!selectedElm || !selectedElm.matches(this.settings.classNames.dropdownItemSelector)) {
                   selectedElm = dropdownItems[actionUp ? dropdownItems.length - 1 : 0];
                 }
-                selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm);
                 this.dropdown.highlightOption(selectedElm, true);
                 // selectedElm.scrollIntoView({inline: 'nearest', behavior: 'smooth'})
                 break;
@@ -2484,7 +2482,15 @@
     events,
     fixFirefoxLastTagNoCaret() {
       return; // seems to be fixed in newer version of FF, so retiring below code (for now)
+      // var inputElm = this.DOM.input
+
+      // if( this.isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1 ){
+      //     inputElm.appendChild(document.createTextNode("\u200b"))
+      //     this.setRangeAtStartEnd(true, inputElm)
+      //     return true
+      // }
     },
+
     /** https://stackoverflow.com/a/59156872/104380
      * @param {Boolean} start indicating where to place it (start or end of the node)
      * @param {Object}  node  DOM node to place the caret at
@@ -2512,7 +2518,7 @@
         sel = window.getSelection(),
         range = sel.getRangeAt(0);
       if (sel.rangeCount) {
-        range.setStartAfter(nextSibling || node);
+        range.setStartAfter(nextSibling);
         range.collapse(true);
         // range.setEndBefore(nextSibling || node);
         sel.removeAllRanges();
@@ -2747,12 +2753,15 @@
       autocomplete: {
         suggest(data) {
           if (!this.settings.autoComplete.enabled) return;
-          data = data || {};
+          data = data || {
+            value: ''
+          };
           if (typeof data == 'string') data = {
             value: data
           };
-          var suggestedText = data.value ? '' + data.value : '',
-            suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(),
+          var suggestedText = this.dropdown.getMappedValue(data);
+          if (typeof suggestedText === 'number') return;
+          var suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(),
             suggestionTrimmed = suggestedText.substring(this.state.inputText.length);
           if (!suggestedText || !this.state.inputText || suggestionStart != this.state.inputText.toLowerCase()) {
             this.DOM.input.removeAttribute("data-suggest");
@@ -2961,9 +2970,8 @@
         whitelist = _this$settings.whitelist,
         delimiters = _this$settings.delimiters,
         mode = _this$settings.mode,
-        tagTextProp = _this$settings.tagTextProp;
-        _this$settings.enforceWhitelist;
-        var whitelistMatches = [],
+        tagTextProp = _this$settings.tagTextProp,
+        whitelistMatches = [],
         whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
         isArray = Array.isArray(tagsItems),
         isCollection = isArray && tagsItems[0].value,
@@ -3267,9 +3275,7 @@
       if (typeof tagsData == 'string') tagsData = [{
         value: tagsData
       }];
-      !!this.state.selection;
-        var // must be cast, not to use the reference which is changing
-        frag = document.createDocumentFragment();
+      var frag = document.createDocumentFragment();
       tagsData.forEach(tagData => {
         var tagElm = this.createTagElem(tagData);
         frag.appendChild(tagElm);
@@ -3338,8 +3344,13 @@
     appendTag(tagElm) {
       var DOM = this.DOM,
         insertBeforeNode = DOM.input;
-      if (insertBeforeNode === DOM.input) DOM.scope.insertBefore(tagElm, insertBeforeNode);else DOM.scope.appendChild(tagElm);
+
+      //if( insertBeforeNode === DOM.input )
+      DOM.scope.insertBefore(tagElm, insertBeforeNode);
+      //else
+      //    DOM.scope.appendChild(tagElm)
     },
+
     /**
      * creates a DOM tag element and injects it into the component (this.DOM.scope)
      * @param  {Object}  tagData [text value & properties for the created tag]
