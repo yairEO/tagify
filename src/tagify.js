@@ -733,16 +733,21 @@ Tagify.prototype = {
             suggest( data ){
                 if( !this.settings.autoComplete.enabled ) return;
 
-                data = data || {}
+                data = data || {value:''}
 
                 if( typeof data == 'string' )
                     data = {value:data}
 
-                var suggestedText = this.dropdown.getMappedValue(data) || '',
-                    suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(),
+                var suggestedText = this.dropdown.getMappedValue(data);
+
+                if( typeof suggestedText === 'number' )
+                    return
+
+                var suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(),
                     suggestionTrimmed = suggestedText.substring(this.state.inputText.length);
 
-                if( !suggestedText || !this.state.inputText || suggestionStart != this.state.inputText.toLowerCase() ){
+
+                    if( !suggestedText || !this.state.inputText || suggestionStart != this.state.inputText.toLowerCase() ){
                     this.DOM.input.removeAttribute("data-suggest");
                     delete this.state.inputSuggestion
                 }
