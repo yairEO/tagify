@@ -240,8 +240,7 @@ export default {
      * then the header & footer should be kept in sync with the suggestions data change
      */
     fillHeaderFooter(){
-        var {templates} = this.settings,
-            suggestions = this.dropdown.filterListItems(this.state.dropdown.query),
+        var suggestions = this.dropdown.filterListItems(this.state.dropdown.query),
             newHeaderElem = this.parseTemplate('dropdownHeader', [suggestions]),
             newFooterElem = this.parseTemplate('dropdownFooter', [suggestions]),
             headerRef = this.dropdown.getHeaderRef(),
@@ -403,8 +402,7 @@ export default {
                     case 'Up' : {  // >IE11
                         e.preventDefault()
                         var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
-                            actionUp = e.key == 'ArrowUp' || e.key == 'Up',
-                            isDDItem;
+                            actionUp = e.key == 'ArrowUp' || e.key == 'Up';
 
                         if( selectedElm ) {
                             selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
@@ -414,8 +412,6 @@ export default {
                         if( !selectedElm || !selectedElm.matches(this.settings.classNames.dropdownItemSelector) ){
                             selectedElm = dropdownItems[actionUp ? dropdownItems.length - 1 : 0];
                         }
-
-                        selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
 
                         this.dropdown.highlightOption(selectedElm, true)
                         // selectedElm.scrollIntoView({inline: 'nearest', behavior: 'smooth'})
@@ -583,11 +579,10 @@ export default {
      * @param {Object} event The original Click event, if available (since keyboard ENTER key also triggers this method)
      */
     selectOption( elm, event ){
-        var {clearOnSelect, closeOnSelect} = this.settings.dropdown,
-            addedTag;
+        var {clearOnSelect, closeOnSelect} = this.settings.dropdown;
 
         if( !elm ) {
-            addedTag = this.addTags(this.state.inputText, true)
+            this.addTags(this.state.inputText, true)
             closeOnSelect && this.dropdown.hide()
             return;
         }
@@ -615,7 +610,7 @@ export default {
         }
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
         else {
-            addedTag = this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect)
+            this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect)
         }
 
         // todo: consider not doing this on mix-mode

@@ -398,13 +398,13 @@ Tagify.prototype = {
 
     fixFirefoxLastTagNoCaret(){
         return // seems to be fixed in newer version of FF, so retiring below code (for now)
-        var inputElm = this.DOM.input
+        // var inputElm = this.DOM.input
 
-        if( this.isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1 ){
-            inputElm.appendChild(document.createTextNode("\u200b"))
-            this.setRangeAtStartEnd(true, inputElm)
-            return true
-        }
+        // if( this.isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1 ){
+        //     inputElm.appendChild(document.createTextNode("\u200b"))
+        //     this.setRangeAtStartEnd(true, inputElm)
+        //     return true
+        // }
     },
 
     /** https://stackoverflow.com/a/59156872/104380
@@ -440,7 +440,7 @@ Tagify.prototype = {
             range = sel.getRangeAt(0);
 
         if (sel.rangeCount) {
-            range.setStartAfter(nextSibling || node);
+            range.setStartAfter(nextSibling);
             range.collapse(true)
             // range.setEndBefore(nextSibling || node);
             sel.removeAllRanges();
@@ -987,7 +987,7 @@ Tagify.prototype = {
      * @return {Array} [Array of Objects]
      */
     normalizeTags( tagsItems ){
-        var {whitelist, delimiters, mode, tagTextProp, enforceWhitelist} = this.settings,
+        var {whitelist, delimiters, mode, tagTextProp} = this.settings,
             whitelistMatches = [],
             whitelistWithProps = whitelist ? whitelist[0] instanceof Object : false,
             // checks if this is a "collection", meanning an Array of Objects
@@ -1323,8 +1323,7 @@ Tagify.prototype = {
         if( typeof tagsData == 'string' )
             tagsData = [{ value:tagsData }]
 
-        var selection = !!this.state.selection, // must be cast, not to use the reference which is changing
-            frag = document.createDocumentFragment()
+        var frag = document.createDocumentFragment()
 
         tagsData.forEach(tagData => {
             var tagElm = this.createTagElem(tagData)
@@ -1403,10 +1402,10 @@ Tagify.prototype = {
         var DOM = this.DOM,
             insertBeforeNode = DOM.input;
 
-        if( insertBeforeNode === DOM.input )
+        //if( insertBeforeNode === DOM.input )
             DOM.scope.insertBefore(tagElm, insertBeforeNode)
-        else
-            DOM.scope.appendChild(tagElm)
+        //else
+        //    DOM.scope.appendChild(tagElm)
     },
 
     /**
