@@ -738,7 +738,7 @@ Tagify.prototype = {
                 if( typeof data == 'string' )
                     data = {value:data}
 
-                var suggestedText = data.value ? ''+data.value : '',
+                var suggestedText = this.dropdown.getMappedValue(data) || '',
                     suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(),
                     suggestionTrimmed = suggestedText.substring(this.state.inputText.length);
 
