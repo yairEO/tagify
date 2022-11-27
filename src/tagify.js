@@ -109,7 +109,14 @@ Tagify.prototype = {
     applySettings( input, settings ){
         DEFAULTS.templates = this.templates
 
-        var _s = this.settings = extend({}, DEFAULTS, settings)
+        var mixModeDefaults = {
+            dropdown: {
+                position: "text"
+            }
+        }
+
+        var mergedDefaults = extend({}, DEFAULTS, (settings.mode == 'mix' ? mixModeDefaults : {}));
+        var _s = this.settings = extend({}, mergedDefaults, settings)
 
         _s.disabled = input.hasAttribute('disabled')
         _s.readonly = _s.readonly || input.hasAttribute('readonly')
@@ -140,6 +147,7 @@ Tagify.prototype = {
         }
 
         if( _s.mode == 'mix' ){
+            _s.pattern = _s.pattern || /@/;
             _s.autoComplete.rightKey = true
             _s.delimiters = settings.delimiters || null // default dlimiters in mix-mode must be NULL
 
