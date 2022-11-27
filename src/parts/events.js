@@ -634,7 +634,7 @@ export default {
 
 
             // wait until the "this.value" has been updated (see "onKeydown" method for "mix-mode")
-            // the dropdown must be shown only after this event has been driggered, so an implementer could
+            // the dropdown must be shown only after this event has been triggered, so an implementer could
             // dynamically change the whitelist.
             setTimeout(()=>{
                 this.update({withoutChangeEvent:true})
