@@ -241,6 +241,7 @@ export function getCaretGlobalPosition(){
 /**
  * Injects content (either string or node) at the current the current (or specificed) caret position
  * @param {content} string/node
+ * @param {range} Object (optional, a range other than the current window selection)
  */
 export function injectAtCaret(content, range){
     var selection = window.getSelection();
