@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.17.4) - tags input component
+ * Tagify (v 4.17.5) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -51,6 +51,7 @@
     return target;
   }
   function _defineProperty(obj, key, value) {
+    key = _toPropertyKey(key);
     if (key in obj) {
       Object.defineProperty(obj, key, {
         value: value,
@@ -62,6 +63,20 @@
       obj[key] = value;
     }
     return obj;
+  }
+  function _toPrimitive(input, hint) {
+    if (typeof input !== "object" || input === null) return input;
+    var prim = input[Symbol.toPrimitive];
+    if (prim !== undefined) {
+      var res = prim.call(input, hint || "default");
+      if (typeof res !== "object") return res;
+      throw new TypeError("@@toPrimitive must return a primitive value.");
+    }
+    return (hint === "string" ? String : Number)(input);
+  }
+  function _toPropertyKey(arg) {
+    var key = _toPrimitive(arg, "string");
+    return typeof key === "symbol" ? key : String(key);
   }
 
   // console.json = console.json || function(argument){
@@ -265,6 +280,7 @@
   /**
    * Injects content (either string or node) at the current the current (or specificed) caret position
    * @param {content} string/node
+   * @param {range} Object (optional, a range other than the current window selection)
    */
   function injectAtCaret(content, range) {
     var selection = window.getSelection();
@@ -621,8 +637,8 @@
         newFooterElem = this.parseTemplate('dropdownFooter', [suggestions]),
         headerRef = this.dropdown.getHeaderRef(),
         footerRef = this.dropdown.getFooterRef();
-      newHeaderElem && (headerRef === null || headerRef === void 0 ? void 0 : headerRef.parentNode.replaceChild(newHeaderElem, headerRef));
-      newFooterElem && (footerRef === null || footerRef === void 0 ? void 0 : footerRef.parentNode.replaceChild(newFooterElem, footerRef));
+      newHeaderElem && headerRef?.parentNode.replaceChild(newHeaderElem, headerRef);
+      newFooterElem && footerRef?.parentNode.replaceChild(newFooterElem, footerRef);
     },
     /**
      * fill data into the suggestions list
@@ -1333,7 +1349,7 @@
       var inputMutationObserver = this.listeners.main.inputMutationObserver || new MutationObserver(_CB.onInputDOMChange.bind(this));
 
       // cleaup just-in-case
-      if (inputMutationObserver) inputMutationObserver.disconnect();
+      inputMutationObserver.disconnect();
 
       // observe stuff
       if (this.settings.mode == 'mix') inputMutationObserver.observe(this.DOM.input, {
@@ -1371,11 +1387,10 @@
      */
     callbacks: {
       onFocusBlur(e) {
-        var _this$value, _this$value$;
         var _s = this.settings,
           text = e.target ? this.trim(e.target.textContent) : '',
           // a string
-          currentDisplayValue = (_this$value = this.value) === null || _this$value === void 0 ? void 0 : (_this$value$ = _this$value[0]) === null || _this$value$ === void 0 ? void 0 : _this$value$[_s.tagTextProp],
+          currentDisplayValue = this.value?.[0]?.[_s.tagTextProp],
           type = e.type,
           ddEnabled = _s.dropdown.enabled >= 0,
           eventData = {
@@ -1506,14 +1521,14 @@
                 var sel = document.getSelection(),
                   deleteKeyTagDetected = e.key == 'Delete' && sel.anchorOffset == (sel.anchorNode.length || 0),
                   prevAnchorSibling = sel.anchorNode.previousSibling,
-                  isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && prevAnchorSibling && prevAnchorSibling.nodeType == 1 && sel.anchorNode.previousSibling,
-                  lastInputValue = decode(this.DOM.input.innerHTML),
-                  lastTagElems = this.getTagElms(),
+                  isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && prevAnchorSibling && prevAnchorSibling.nodeType == 1 && sel.anchorNode.previousSibling;
+                  decode(this.DOM.input.innerHTML);
+                  var lastTagElems = this.getTagElms(),
                   //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
                   tagBeforeCaret,
                   tagElmToBeDeleted,
                   firstTextNodeBeforeTag;
-                if (_s.backspace == 'edit' && isCaretAfterTag) {
+                if (_s.backspace == 'edit' && isCaretAfterTag instanceof Element) {
                   tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
                   setTimeout(this.editTag.bind(this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
                   e.preventDefault(); // needed so the tag elm won't get deleted
@@ -1587,24 +1602,29 @@
                 // a minimum delay is needed before the node actually gets detached from the document (don't know why),
                 // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
                 deleteBackspaceTimeout = setTimeout(() => {
-                  var sel = document.getSelection(),
-                    currentValue = decode(this.DOM.input.innerHTML),
-                    prevElm = !deleteKeyTagDetected && sel.anchorNode.previousSibling;
+                  var sel = document.getSelection();
+                    decode(this.DOM.input.innerHTML);
+                    !deleteKeyTagDetected && sel.anchorNode.previousSibling;
 
                   // fixes #384, where the first and only tag will not get removed with backspace
-                  if (currentValue.length >= lastInputValue.length && prevElm) {
-                    if (isNodeTag.call(this, prevElm) && !prevElm.hasAttribute('readonly')) {
-                      this.removeTags(prevElm);
-                      this.fixFirefoxLastTagNoCaret();
-
-                      // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
-                      if (this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR") {
-                        this.DOM.input.innerHTML = "";
-                        this.value.length = 0;
-                        return true;
+                  /*
+                   * [UPDATE DEC 3, 22] SEEMS BELOEW CODE IS NOT NEEDED ANY MORE
+                   *
+                  if( currentValue.length > lastInputValue.length && prevElm ){
+                      if( isNodeTag.call(this, prevElm) && !prevElm.hasAttribute('readonly') ){
+                          this.removeTags(prevElm)
+                          this.fixFirefoxLastTagNoCaret()
+                            // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
+                          if( this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR" ){
+                              this.DOM.input.innerHTML = ""
+                              this.value.length = 0
+                              return true
+                          }
                       }
-                    } else prevElm.remove();
+                        else
+                          prevElm.remove()
                   }
+                  */
 
                   // find out which tag(s) were deleted and trigger "remove" event
                   // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
@@ -1670,7 +1690,7 @@
             // know if an option was just selected from the dropdown menu. If an option was selected,
             // the dropdown events should handle adding the tag
             setTimeout(() => {
-              if (this.state.actions.selectOption) return;
+              if (this.state.dropdown.visible || this.state.actions.selectOption) return;
               this.addTags(s, true);
             });
         }
@@ -1820,7 +1840,7 @@
         }
 
         // wait until the "this.value" has been updated (see "onKeydown" method for "mix-mode")
-        // the dropdown must be shown only after this event has been driggered, so an implementer could
+        // the dropdown must be shown only after this event has been triggered, so an implementer could
         // dynamically change the whitelist.
         setTimeout(() => {
           this.update({
@@ -2103,8 +2123,7 @@
 
             // if this is a tag
             else if (isNodeTag.call(this, addedNode)) {
-              var _addedNode$previousSi;
-              if (((_addedNode$previousSi = addedNode.previousSibling) === null || _addedNode$previousSi === void 0 ? void 0 : _addedNode$previousSi.nodeType) == 3 && !addedNode.previousSibling.textContent) addedNode.previousSibling.remove();
+              if (addedNode.previousSibling?.nodeType == 3 && !addedNode.previousSibling.textContent) addedNode.previousSibling.remove();
               // and it is the first node in a new line
               if (addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR') {
                 // allows placing the caret just before the tag, when the tag is the first node in that line
@@ -2249,9 +2268,14 @@
       }
     },
     applySettings(input, settings) {
-      var _settings$dropdown, _settings$dropdown2;
       DEFAULTS.templates = this.templates;
-      var _s = this.settings = extend({}, DEFAULTS, settings);
+      var mixModeDefaults = {
+        dropdown: {
+          position: "text"
+        }
+      };
+      var mergedDefaults = extend({}, DEFAULTS, settings.mode == 'mix' ? mixModeDefaults : {});
+      var _s = this.settings = extend({}, mergedDefaults, settings);
       _s.disabled = input.hasAttribute('disabled');
       _s.readonly = _s.readonly || input.hasAttribute('readonly');
       _s.placeholder = escapeHTML(input.getAttribute('placeholder') || _s.placeholder || "");
@@ -2274,6 +2298,7 @@
         _s.autoComplete.enabled = settings.autoComplete;
       }
       if (_s.mode == 'mix') {
+        _s.pattern = _s.pattern || /@/;
         _s.autoComplete.rightKey = true;
         _s.delimiters = settings.delimiters || null; // default dlimiters in mix-mode must be NULL
 
@@ -2297,10 +2322,10 @@
       this.TEXTS = _objectSpread2(_objectSpread2({}, TEXTS), _s.texts || {});
 
       // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
-      if (_s.mode == 'select' && !((_settings$dropdown = settings.dropdown) !== null && _settings$dropdown !== void 0 && _settings$dropdown.enabled) || !_s.userInput) {
+      if (_s.mode == 'select' && !settings.dropdown?.enabled || !_s.userInput) {
         _s.dropdown.enabled = 0;
       }
-      _s.dropdown.appendTarget = ((_settings$dropdown2 = settings.dropdown) === null || _settings$dropdown2 === void 0 ? void 0 : _settings$dropdown2.appendTarget) || document.body;
+      _s.dropdown.appendTarget = settings.dropdown?.appendTarget || document.body;
 
       // get & merge persisted data with current data
       let persistedWhitelist = this.getPersistedData('whitelist');
@@ -2496,6 +2521,7 @@
      * @param {Object}  node  DOM node to place the caret at
      */
     setRangeAtStartEnd(start, node) {
+      if (!node) return;
       start = typeof start == 'number' ? start : !!start;
       node = node.lastChild || node;
       var sel = document.getSelection();
@@ -2687,8 +2713,7 @@
      * @param {Object} selection [optional range Object. must have "anchorNode" & "anchorOffset"]
      */
     injectAtCaret(injectedNode, range) {
-      var _this$state$selection;
-      range = range || ((_this$state$selection = this.state.selection) === null || _this$state$selection === void 0 ? void 0 : _this$state$selection.range);
+      range = range || this.state.selection?.range;
       if (!range && injectedNode) {
         this.appendMixTags(injectedNode);
         return this;
@@ -3541,8 +3566,7 @@
 
       // specifically the "select mode" might have the "invalid" classname set when the field is changed, so it must be toggled on add/remove/edit
       if (_s.mode == 'select') {
-        var _this$value, _this$value$;
-        this.toggleScopeValidation((_this$value = this.value) === null || _this$value === void 0 ? void 0 : (_this$value$ = _this$value[0]) === null || _this$value$ === void 0 ? void 0 : _this$value$.__isValid);
+        this.toggleScopeValidation(this.value?.[0]?.__isValid);
       }
     },
     setOriginalInputValue(v) {
