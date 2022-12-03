@@ -420,6 +420,8 @@ Tagify.prototype = {
      * @param {Object}  node  DOM node to place the caret at
      */
     setRangeAtStartEnd( start, node ){
+        if( !node ) return;
+
         start = typeof start == 'number' ? start : !!start
         node = node.lastChild || node;
         var sel = document.getSelection()
