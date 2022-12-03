@@ -49,7 +49,7 @@
 - [Persisted data](#persisted-data)
 - [Edit tags](#edit-tags)
 - [Validations](#validations)
-- [Drag & Sort](#drag--sort)
+- [Drag \& Sort](#drag--sort)
   - [Integration example:](#integration-example)
 - [DOM Templates](#dom-templates)
   - [Example of overriding the `tag` template:](#example-of-overriding-the-tag-template)
@@ -62,6 +62,8 @@
   - [Update regarding `onChange` prop:](#update-regarding-onchange-prop)
     - [Updating the component's state](#updating-the-components-state)
 - [jQuery version](#jquery-version)
+- [HTML input \& textarea attributes](#html-input--textarea-attributes)
+- [FAQ](#faq)
 - [CSS Variables](#css-variables)
   - [Suggestions Dropdown CSS variables](#suggestions-dropdown-css-variables)
   - [Full list of Tagify's SCSS variables](#full-list-of-tagifys-scss-variables)
@@ -519,7 +521,7 @@ Similar to native `<Select>` element, but allows typing text as value.
 See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
 ⚠️ Tagify is **not** a [controlled component](https://github.com/yairEO/tagify/issues/489#issuecomment-629316093).
 
-A Tagify React component is exported from [`react.tagify.js`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.js):
+A Tagify React component is exported from [`react.tagify.jsx`](https://github.com/yairEO/tagify/blob/master/dist/react.tagify.jsx):
 
 ---
 ### Update regarding `onChange` prop:
