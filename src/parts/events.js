@@ -470,7 +470,7 @@ export default {
                     // know if an option was just selected from the dropdown menu. If an option was selected,
                     // the dropdown events should handle adding the tag
                     setTimeout(()=>{
-                        if( this.state.actions.selectOption )
+                        if( this.state.dropdown.visible || this.state.actions.selectOption )
                             return
                         this.addTags(s, true)
                     })
