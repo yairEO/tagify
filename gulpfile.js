@@ -73,7 +73,7 @@ function react(done){
         }
     }
 
-    return gulp.src('src/react.tagify.js')
+    return gulp.src('src/react.tagify.jsx')
         .pipe( $.babel({ ...babelConfig, presets:[...babelConfig.presets, '@babel/preset-react'] }))
         .pipe( $.umd(umdConf) )
         .pipe(opts.dev ? $.tap(()=>{}) : $.terser())
@@ -212,7 +212,7 @@ ${LICENSE}`;
 function watch(){
     gulp.watch('./src/*.scss', scss)
     gulp.watch(['./src/tagify.js', './src/parts/*.js'], gulp.series([js_minified, jquery]))
-    gulp.watch('./src/react.tagify.js', react)
+    gulp.watch('./src/react.tagify.jsx', react)
 }
 
 
