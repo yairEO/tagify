@@ -81,7 +81,7 @@ export default {
         var inputMutationObserver = this.listeners.main.inputMutationObserver || new MutationObserver(_CB.onInputDOMChange.bind(this));
 
         // cleaup just-in-case
-        if(inputMutationObserver) inputMutationObserver.disconnect()
+        inputMutationObserver.disconnect()
 
         // observe stuff
         if( this.settings.mode == 'mix' )
