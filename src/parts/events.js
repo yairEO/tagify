@@ -288,7 +288,7 @@ export default {
                             tagElmToBeDeleted,
                             firstTextNodeBeforeTag;
 
-                        if( _s.backspace == 'edit' && isCaretAfterTag ){
+                        if( _s.backspace == 'edit' && isCaretAfterTag instanceof Element ){
                             tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
                             setTimeout(this.editTag.bind(this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
                             e.preventDefault() // needed so the tag elm won't get deleted
