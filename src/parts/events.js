@@ -380,7 +380,10 @@ export default {
                                 prevElm = !deleteKeyTagDetected && sel.anchorNode.previousSibling;
 
                             // fixes #384, where the first and only tag will not get removed with backspace
-                            if( currentValue.length >= lastInputValue.length && prevElm ){
+                            /*
+                             * [UPDATE DEC 3, 22] SEEMS BELOEW CODE IS NOT NEEDED ANY MORE
+                             *
+                            if( currentValue.length > lastInputValue.length && prevElm ){
                                 if( isNodeTag.call(this, prevElm) && !prevElm.hasAttribute('readonly') ){
                                     this.removeTags(prevElm)
                                     this.fixFirefoxLastTagNoCaret()
@@ -396,6 +399,7 @@ export default {
                                 else
                                     prevElm.remove()
                             }
+                            */
 
                             // find out which tag(s) were deleted and trigger "remove" event
                             // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
