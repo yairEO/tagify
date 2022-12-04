@@ -288,14 +288,14 @@ export default {
                             tagElmToBeDeleted,
                             firstTextNodeBeforeTag;
 
-                        if( _s.backspace == 'edit' && isCaretAfterTag instanceof Element ){
+                        if( _s.backspace == 'edit' && isCaretAfterTag ){
                             tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
                             setTimeout(this.editTag.bind(this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
                             e.preventDefault() // needed so the tag elm won't get deleted
                             return;
                         }
 
-                        if( isChromeAndroidBrowser() && isCaretAfterTag ){
+                        if( isChromeAndroidBrowser() && isCaretAfterTag instanceof Element ){
                             firstTextNodeBeforeTag = getfirstTextNode(isCaretAfterTag)
 
                             if( !isCaretAfterTag.hasAttribute('readonly') )
@@ -328,7 +328,7 @@ export default {
                         else if( deleteKeyTagDetected )
                             tagElmToBeDeleted = sel.anchorNode.nextElementSibling;
 
-                        else if( isCaretAfterTag )
+                        else if( isCaretAfterTag instanceof Element )
                             tagElmToBeDeleted = isCaretAfterTag;
 
                         // tagElm.hasAttribute('readonly')
