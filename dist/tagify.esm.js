@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.17.5) - tags input component
+ * Tagify (v 4.17.6) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -1522,13 +1522,13 @@ var events = {
                 tagBeforeCaret,
                 tagElmToBeDeleted,
                 firstTextNodeBeforeTag;
-              if (_s.backspace == 'edit' && isCaretAfterTag instanceof Element) {
+              if (_s.backspace == 'edit' && isCaretAfterTag) {
                 tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
                 setTimeout(this.editTag.bind(this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
                 e.preventDefault(); // needed so the tag elm won't get deleted
                 return;
               }
-              if (isChromeAndroidBrowser() && isCaretAfterTag) {
+              if (isChromeAndroidBrowser() && isCaretAfterTag instanceof Element) {
                 firstTextNodeBeforeTag = getfirstTextNode(isCaretAfterTag);
                 if (!isCaretAfterTag.hasAttribute('readonly')) isCaretAfterTag.remove(); // since this is Chrome, can safetly use this "new" DOM API
 
@@ -1549,7 +1549,7 @@ var events = {
                   ? lastTagElems[0] : null;else tagElmToBeDeleted = lastTagElems[Math.min(lastTagElems.length, sel.anchorOffset) - 1];
 
                 // find out if a tag *might* be a candidate for deletion, and if so, which
-              } else if (deleteKeyTagDetected) tagElmToBeDeleted = sel.anchorNode.nextElementSibling;else if (isCaretAfterTag) tagElmToBeDeleted = isCaretAfterTag;
+              } else if (deleteKeyTagDetected) tagElmToBeDeleted = sel.anchorNode.nextElementSibling;else if (isCaretAfterTag instanceof Element) tagElmToBeDeleted = isCaretAfterTag;
 
               // tagElm.hasAttribute('readonly')
               if (sel.anchorNode.nodeType == 3 &&
