@@ -602,8 +602,8 @@ export default {
 
                         showSuggestions = this.state.tag.value.length >= _s.dropdown.enabled
 
-                        // When writeing something that might look like a tag (an email address) but isn't one - it is unwanted
-                        // the suggestions dropdown be shown, so the user closes it (in any way), and while continue typing,
+                        // When writing something that might look like a tag (an email address) but isn't one - it is unwanted
+                        // the suggestions dropdown be shown, so the user can close it (in any way), and while continue typing,
                         // dropdown should stay closed until another tag is typed.
                         // if( this.state.tag.value.length && this.state.dropdown.visible === false )
                         //     showSuggestions = false
@@ -621,7 +621,7 @@ export default {
                         }
                         catch(err){}
 
-                        // scenario: (do not show suggestions of previous matched tag, if more than 1 detected)
+                        // scenario: (do not show suggestions if previous matched tag, if more than 1 detected)
                         // (2 tags exist)                          " a@a.com and @"
                         // (second tag is removed by backspace)    " a@a.com and "
                         if( matchFlaggedTag || matchedPatternCount < this.state.mixMode.matchedPatternCount )
