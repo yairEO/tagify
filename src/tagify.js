@@ -68,6 +68,7 @@ function Tagify( input, settings ){
 Tagify.prototype = {
     _dropdown,
 
+    getSetTagData,
     helpers: {sameStr, removeCollectionProp, omit, isObject, parseHTML, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag},
 
     customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:beforeUpdate', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch', 'dropdown:scroll'],
@@ -1441,7 +1442,7 @@ Tagify.prototype = {
         tagElm = this.parseTemplate('tag', [templateData, this])
 
         // crucial for proper caret placement when deleting content. if textNodes are allowed as children of a tag element,
-        // a browser bug casues the caret to be misplaced inside the tag element (especcially affects "readonly" tags)
+        // a browser bug casues the caret to be misplaced inside the tag element (especially affects "readonly" tags)
         removeTextChildNodes(tagElm)
         // while( tagElm.lastChild.nodeType == 3 )
         //     tagElm.lastChild.parentNode.removeChild(tagElm.lastChild)

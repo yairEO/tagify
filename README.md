@@ -892,7 +892,7 @@ Name                       | Parameters                                         
 `parseMixTags`             | `String`                                                                                | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
 `getTagElms`               |                                                                                         | Returns a DOM nodes list of all the tags
 `getTagElmByValue`         | `String`                                                                                | Returns a specific tag DOM node by value
-`tagData`                  | `HTMLElement`, `Object`                                                                 | set/get tag data on a tag element (has`.tagify__tag` class by default)
+`getSetTagData`            | `HTMLElement`, `Object`                                                                 | set/get tag data on a tag element (has`.tagify__tag` class by default)
 `editTag`                  | `HTMLElement`                                                                           | Goes to edit-mode in a specific tag
 `getTagTextNode`           | `HTMLElement`                                                                           | Get the node which has the actual tag's content
 `setTagTextNode`           | `HTMLElement`, `String`                                                                 | Sets the text of a tag (DOM only, does not affect actual data)
