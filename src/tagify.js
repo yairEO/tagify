@@ -1336,15 +1336,11 @@ Tagify.prototype = {
             return this.prefixedTextToTag(tagsData[0])
         }
 
-        if( typeof tagsData == 'string' )
-            tagsData = [{ value:tagsData }]
-
         var frag = document.createDocumentFragment()
 
         tagsData.forEach(tagData => {
             var tagElm = this.createTagElem(tagData)
             frag.appendChild(tagElm)
-            this.insertAfterTag(tagElm)
         })
 
         this.appendMixTags(frag)
@@ -1402,7 +1398,10 @@ Tagify.prototype = {
 
         if( !createdFromDelimiters ) {
             var elm = this.insertAfterTag(tagElm) || tagElm;
-            this.placeCaretAfterNode(elm)
+            // a timeout is needed when selecting a tag from the suggestions via mouse.
+            // Without it, it seems the caret is placed right after the tag and not after the
+            // node which was inserted after the tag (whitespace by default)
+            setTimeout(this.placeCaretAfterNode, 0, elm);
         }
 
         this.state.tag = null
