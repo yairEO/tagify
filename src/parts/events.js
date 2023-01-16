@@ -621,7 +621,7 @@ export default {
                         }
                         catch(err){}
 
-                        // scenario: (do not show suggestions if previous matched tag, if more than 1 detected)
+                        // scenario: (do not show suggestions of another matched tag, if more than one detected)
                         // (2 tags exist)                          " a@a.com and @"
                         // (second tag is removed by backspace)    " a@a.com and "
                         if( matchFlaggedTag || matchedPatternCount < this.state.mixMode.matchedPatternCount )
@@ -998,7 +998,6 @@ export default {
             // 2. presss ENTER right before a tag
             // 3. press enter within a text node before a tag
             var lastInputChild = this.DOM.input.lastChild;
-
 
             if( lastInputChild && lastInputChild.nodeValue == '' )
                 lastInputChild.remove()
