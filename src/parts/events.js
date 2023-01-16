@@ -93,10 +93,10 @@ export default {
             action = unbind ? 'removeEventListener' : 'addEventListener',
             e;
 
-        if( !unbind  && this.listeners.global ) return; // do not re-bind
+        if( !this.listeners || (!unbind  && this.listeners.global) ) return; // do not re-bind
 
         // these events are global event should never be unbinded, unless the instance is destroyed:
-        this.listeners.global = this.listeners && this.listeners.global || [
+        this.listeners.global = this.listeners.global || [
             {
                 type: this.isIE ? 'keydown' : 'input',  // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
                 target: this.DOM.input,
@@ -111,6 +111,11 @@ export default {
                 type: 'blur',
                 target: this.DOM.input,
                 cb: _CB.onFocusBlur.bind(this)
+            },
+            {
+                type: 'click',
+                target: document,
+                cb: _CB.onClickAnywhere.bind(this)
             },
         ]
 
@@ -665,6 +670,13 @@ export default {
             // if original input value changed for some reason (for exmaple a form reset)
             if( this.DOM.originalInput.value != this.DOM.originalInput.tagifyValue )
                 this.loadOriginalValues()
+        },
+
+        onClickAnywhere(e){
+            if (e.target != this.DOM.scope && !this.DOM.scope.contains(e.target)) {
+                this.toggleFocusClass(false)
+                this.state.hasFocus = false
+            }
         },
 
         onClickScope(e){
