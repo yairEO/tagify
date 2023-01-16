@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.17.6) - tags input component
+ * Tagify (v 4.17.7) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -970,7 +970,6 @@
       setTimeout(() => {
         this.DOM.input.focus();
         this.toggleFocusClass(true);
-        this.setRangeAtStartEnd(false, this.DOM.input);
       });
       closeOnSelect && setTimeout(this.dropdown.hide.bind(this));
 
@@ -1360,10 +1359,10 @@
       var _CB = this.events.callbacks,
         action = unbind ? 'removeEventListener' : 'addEventListener',
         e;
-      if (!unbind && this.listeners.global) return; // do not re-bind
+      if (!this.listeners || !unbind && this.listeners.global) return; // do not re-bind
 
       // these events are global event should never be unbinded, unless the instance is destroyed:
-      this.listeners.global = this.listeners && this.listeners.global || [{
+      this.listeners.global = this.listeners.global || [{
         type: this.isIE ? 'keydown' : 'input',
         // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
         target: this.DOM.input,
@@ -1376,6 +1375,10 @@
         type: 'blur',
         target: this.DOM.input,
         cb: _CB.onFocusBlur.bind(this)
+      }, {
+        type: 'click',
+        target: document,
+        cb: _CB.onClickAnywhere.bind(this)
       }];
       for (e of this.listeners.global) e.target[action](e.type, e.cb);
     },
@@ -1810,8 +1813,8 @@
               }
               showSuggestions = this.state.tag.value.length >= _s.dropdown.enabled;
 
-              // When writeing something that might look like a tag (an email address) but isn't one - it is unwanted
-              // the suggestions dropdown be shown, so the user closes it (in any way), and while continue typing,
+              // When writing something that might look like a tag (an email address) but isn't one - it is unwanted
+              // the suggestions dropdown be shown, so the user can close it (in any way), and while continue typing,
               // dropdown should stay closed until another tag is typed.
               // if( this.state.tag.value.length && this.state.dropdown.visible === false )
               //     showSuggestions = false
@@ -1826,7 +1829,7 @@
                 if (this.state.flaggedTags[this.state.tag.baseOffset] && !this.state.tag.value) delete this.state.flaggedTags[this.state.tag.baseOffset];
               } catch (err) {}
 
-              // scenario: (do not show suggestions of previous matched tag, if more than 1 detected)
+              // scenario: (do not show suggestions of another matched tag, if more than one detected)
               // (2 tags exist)                          " a@a.com and @"
               // (second tag is removed by backspace)    " a@a.com and "
               if (matchFlaggedTag || matchedPatternCount < this.state.mixMode.matchedPatternCount) showSuggestions = false;
@@ -1866,6 +1869,12 @@
 
         // if original input value changed for some reason (for exmaple a form reset)
         if (this.DOM.originalInput.value != this.DOM.originalInput.tagifyValue) this.loadOriginalValues();
+      },
+      onClickAnywhere(e) {
+        if (e.target != this.DOM.scope && !this.DOM.scope.contains(e.target)) {
+          this.toggleFocusClass(false);
+          this.state.hasFocus = false;
+        }
       },
       onClickScope(e) {
         var _s = this.settings,
@@ -1994,15 +2003,17 @@
         if (!this.DOM.scope.contains(editableElm)) return;
         var _s = this.settings,
           tagElm = editableElm.closest('.' + _s.classNames.tag),
-          textValue = this.input.normalize.call(this, editableElm),
           tagData = getSetTagData(tagElm),
-          originalData = tagData.__originalData,
-          // pre-edit data
-          hasChanged = this.editTagChangeDetected(tagData),
-          isValid = this.validateTag({
+          textValue = this.input.normalize.call(this, editableElm),
+          dataForChangedProp = {
             [_s.tagTextProp]: textValue,
             __tagId: tagData.__tagId
-          }),
+          },
+          // "__tagId" is needed so validation will skip current tag when checking for dups
+          originalData = tagData.__originalData,
+          // pre-edit data
+          hasChanged = this.editTagChangeDetected(extend(tagData, dataForChangedProp)),
+          isValid = this.validateTag(dataForChangedProp),
           // "__tagId" is needed so validation will skip current tag when checking for dups
           hasMaxTags,
           newTagData;
@@ -2223,6 +2234,7 @@
   }
   Tagify.prototype = {
     _dropdown,
+    getSetTagData,
     helpers: {
       sameStr,
       removeCollectionProp,
@@ -3297,14 +3309,10 @@
       if (tagsData[0].prefix || this.state.tag) {
         return this.prefixedTextToTag(tagsData[0]);
       }
-      if (typeof tagsData == 'string') tagsData = [{
-        value: tagsData
-      }];
       var frag = document.createDocumentFragment();
       tagsData.forEach(tagData => {
         var tagElm = this.createTagElem(tagData);
         frag.appendChild(tagElm);
-        this.insertAfterTag(tagElm);
       });
       this.appendMixTags(frag);
       return frag;
@@ -3353,7 +3361,10 @@
       this.update();
       if (!createdFromDelimiters) {
         var elm = this.insertAfterTag(tagElm) || tagElm;
-        this.placeCaretAfterNode(elm);
+        // a timeout is needed when selecting a tag from the suggestions via mouse.
+        // Without it, it seems the caret is placed right after the tag and not after the
+        // node which was inserted after the tag (whitespace by default)
+        setTimeout(this.placeCaretAfterNode, 0, elm);
       }
       this.state.tag = null;
       this.trigger('add', extend({}, {
@@ -3395,7 +3406,7 @@
       tagElm = this.parseTemplate('tag', [templateData, this]);
 
       // crucial for proper caret placement when deleting content. if textNodes are allowed as children of a tag element,
-      // a browser bug casues the caret to be misplaced inside the tag element (especcially affects "readonly" tags)
+      // a browser bug casues the caret to be misplaced inside the tag element (especially affects "readonly" tags)
       removeTextChildNodes(tagElm);
       // while( tagElm.lastChild.nodeType == 3 )
       //     tagElm.lastChild.parentNode.removeChild(tagElm.lastChild)
