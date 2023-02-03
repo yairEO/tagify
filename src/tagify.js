@@ -301,10 +301,6 @@ Tagify.prototype = {
         var lastChild,
             _s = this.settings
 
-        // temporarily block firign the "change" event on the original input unil
-        // this method finish removing current value and adding the new one
-        this.state.blockChangeEvent = true
-
         if( value === undefined ){
             const persistedOriginalValue = this.getPersistedData('value')
 
@@ -316,7 +312,7 @@ Tagify.prototype = {
                 value = _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value
         }
 
-        this.removeAllTags()
+        this.removeAllTags({withoutChangeEvent:true})
 
         if( value ){
             if( _s.mode == 'mix' ){
@@ -335,7 +331,7 @@ Tagify.prototype = {
                         value = JSON.parse(value)
                 }
                 catch(err){}
-                this.addTags(value, true).forEach(tag => tag && tag.classList.add(_s.classNames.tagNoAnimation))
+                this.addTags(value, true, false, {withoutChangeEvent:true}).forEach(tag => tag && tag.classList.add(_s.classNames.tagNoAnimation))
             }
         }
 
@@ -343,7 +339,6 @@ Tagify.prototype = {
             this.postUpdate()
 
         this.state.lastOriginalValueReported = _s.mixMode.integrated ? '' : this.DOM.originalInput.value
-        this.state.blockChangeEvent = false
     },
 
     cloneEvent(e){
@@ -1221,15 +1216,18 @@ Tagify.prototype = {
      * @param {String/Array} tagsItems   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
      * @param {Boolean}      clearInput  [flag if the input's value should be cleared after adding tags]
      * @param {Boolean}      skipInvalid [do not add, mark & remove invalid tags]
+     * @param {Object}       opts        Other options (only "withoutChangeEvent" for now)
      * @return {Array} Array of DOM elements (tags)
      */
-    addTags( tagsItems, clearInput, skipInvalid ){
+    addTags( tagsItems, clearInput, skipInvalid, opts ){
         var tagElems = [],
             _s = this.settings,
             aggregatedinvalidInput = [],
             frag = document.createDocumentFragment()
 
         skipInvalid = skipInvalid || _s.skipInvalid;
+
+        var opts = opts || {}
 
         if( !tagsItems || tagsItems.length == 0 ){
             return tagElems
@@ -1314,7 +1312,7 @@ Tagify.prototype = {
         })
 
         this.appendTag(frag)
-        this.update()
+        this.update(opts)
 
         if( tagsItems.length && clearInput ){
             this.input.set.call(this, _s.createInvalidTags ? '' : aggregatedinvalidInput.join(_s._delimiters))
@@ -1683,7 +1681,7 @@ Tagify.prototype = {
             this.setOriginalInputValue(inputValue)
             this.postUpdate()
 
-            if( (!this.settings.onChangeAfterBlur || !(args||{}).withoutChangeEvent) && !this.state.blockChangeEvent )
+            if( (!this.settings.onChangeAfterBlur || !(args||{}).withoutChangeEvent))
                 this.triggerChangeEvent()
         }
     },
