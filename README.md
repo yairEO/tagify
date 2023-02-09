@@ -949,7 +949,7 @@ var tagify = new Tagify(inputNode, {
 
 Name               | Info
 ------------------ | --------------------------------------------------------------------------
-change             | Any change to the value has occurred. `e.details.value` callback listener argument is a *String*
+change             | Any change to the value has occurred. `e.detail.value` callback listener argument is a *String*
 add                | A tag has been added
 remove             | A tag has been removed ([use `removeTag`](https://github.com/yairEO/tagify/issues/222) instead with *jQuery*)
 invalid            | A tag has been added but did not pass validation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
