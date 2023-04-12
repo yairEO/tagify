@@ -301,8 +301,8 @@ Tagify.prototype = {
         var lastChild,
             _s = this.settings
 
-        // temporarily block firign the "change" event on the original input unil
-        // this method finish removing current value and adding the new one
+        // temporarily block firing the "change" event on the original input until
+        // this method finish removing current value and adding a new one
         this.state.blockChangeEvent = true
 
         if( value === undefined ){
@@ -343,7 +343,6 @@ Tagify.prototype = {
             this.postUpdate()
 
         this.state.lastOriginalValueReported = _s.mixMode.integrated ? '' : this.DOM.originalInput.value
-        this.state.blockChangeEvent = false
     },
 
     cloneEvent(e){
@@ -1640,6 +1639,8 @@ Tagify.prototype = {
     },
 
     postUpdate(){
+        this.state.blockChangeEvent = false
+
         var _s = this.settings,
             classNames = _s.classNames,
             hasValue = _s.mode == 'mix'
@@ -1681,10 +1682,11 @@ Tagify.prototype = {
             var inputValue = this.getInputValue();
 
             this.setOriginalInputValue(inputValue)
-            this.postUpdate()
 
             if( (!this.settings.onChangeAfterBlur || !(args||{}).withoutChangeEvent) && !this.state.blockChangeEvent )
                 this.triggerChangeEvent()
+
+            this.postUpdate()
         }
     },
 
