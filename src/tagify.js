@@ -1025,7 +1025,7 @@ Tagify.prototype = {
         // if is an Array of Strings, convert to an Array of Objects
         else if( isArray ){
             // flatten the 2D array
-            tagsItems = [].concat(...tagsItems.map(item => item.value
+            tagsItems = [].concat(...tagsItems.map(item => 'value' in item
                 ? item // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
                 : mapStringToCollection(item)
             ))

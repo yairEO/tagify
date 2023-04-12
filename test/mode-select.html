@@ -45,12 +45,14 @@
 var input = document.querySelector('input[name=tags-select-mode]'),
     tagify = new Tagify(input, {
         mode : "select",
-        tagTextProp : 'title',
-        pattern: /^[A-Za-z_✲ "]+$/,
+        // tagTextProp : 'title',
+        // pattern: /^[A-Za-z_✲ "]+$/,
         enforceWhitelist: false,
         keepInvalidTags: false,
         maxTags: 1,
         whitelist: [
+            { value:0, title: 'interger value 0' },
+            { value:1, title: 'interger value 1' },
             { "id":"1", "value": 1, "title":"First option" },
             { "id":"2", "value": 2, "title":"Second option" },
             { 'value':'Item a', id:1 },
@@ -59,7 +61,9 @@ var input = document.querySelector('input[name=tags-select-mode]'),
             { 'value':'Item d', id:4 },
             { 'value':'Item e', id:5 }
         ],
-
+        dropdown: {
+            mapValueTo: 'title'
+        }
     })
 
 // bind events
