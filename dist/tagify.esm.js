@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.17.7) - tags input component
+ * Tagify (v 4.17.8) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -936,7 +936,7 @@ var _dropdown = {
 
     var value = elm.getAttribute('value'),
       isNoMatch = value == 'noMatch',
-      tagData = this.suggestedListItems.find(item => (item.value || item) == value);
+      tagData = this.suggestedListItems.find(item => (item.value ?? item) == value);
 
     // The below event must be triggered, regardless of anything else which might go wrong
     this.trigger('dropdown:select', {
@@ -1463,8 +1463,9 @@ var events = {
       var focusedElm = document.activeElement,
         isTag = isNodeTag.call(this, focusedElm),
         isBelong = isTag && this.DOM.scope.contains(document.activeElement),
+        isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
         nextTag;
-      if (!isBelong) return;
+      if (!isBelong || isReadyOnlyTag) return;
       nextTag = focusedElm.nextElementSibling;
       switch (e.key) {
         // remove tag if has focus
@@ -1875,7 +1876,8 @@ var events = {
         tagElm = e.target.closest('.' + _s.classNames.tag),
         timeDiffFocus = +new Date() - this.state.hasFocus;
       if (e.target == this.DOM.scope) {
-        if (!this.state.hasFocus) this.DOM.input.focus();
+        // if( !this.state.hasFocus )
+        this.DOM.input.focus();
         return;
       } else if (e.target.classList.contains(_s.classNames.tagX)) {
         this.removeTags(e.target.parentNode);
@@ -2437,8 +2439,8 @@ Tagify.prototype = {
     var lastChild,
       _s = this.settings;
 
-    // temporarily block firign the "change" event on the original input unil
-    // this method finish removing current value and adding the new one
+    // temporarily block firing the "change" event on the original input until
+    // this method finish removing current value and adding a new one
     this.state.blockChangeEvent = true;
     if (value === undefined) {
       const persistedOriginalValue = this.getPersistedData('value');
@@ -2463,7 +2465,6 @@ Tagify.prototype = {
       }
     } else this.postUpdate();
     this.state.lastOriginalValueReported = _s.mixMode.integrated ? '' : this.DOM.originalInput.value;
-    this.state.blockChangeEvent = false;
   },
   cloneEvent(e) {
     var clonedEvent = {};
@@ -3023,7 +3024,7 @@ Tagify.prototype = {
     // if is an Array of Strings, convert to an Array of Objects
     else if (isArray) {
       // flatten the 2D array
-      tagsItems = [].concat(...tagsItems.map(item => item.value ? item // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
+      tagsItems = [].concat(...tagsItems.map(item => item.value != undefined ? item // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
       : mapStringToCollection(item)));
     }
 
@@ -3562,6 +3563,7 @@ Tagify.prototype = {
     this.update(opts);
   },
   postUpdate() {
+    this.state.blockChangeEvent = false;
     var _s = this.settings,
       classNames = _s.classNames,
       hasValue = _s.mode == 'mix' ? _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value.trim() : this.value.length + this.input.raw.call(this).length;
@@ -3593,8 +3595,8 @@ Tagify.prototype = {
     function reallyUpdate() {
       var inputValue = this.getInputValue();
       this.setOriginalInputValue(inputValue);
-      this.postUpdate();
       if ((!this.settings.onChangeAfterBlur || !(args || {}).withoutChangeEvent) && !this.state.blockChangeEvent) this.triggerChangeEvent();
+      this.postUpdate();
     }
   },
   getInputValue() {
