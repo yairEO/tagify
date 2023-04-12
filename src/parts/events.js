@@ -225,9 +225,10 @@ export default {
             var focusedElm = document.activeElement,
                 isTag = isNodeTag.call(this, focusedElm),
                 isBelong = isTag && this.DOM.scope.contains(document.activeElement),
+                isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
                 nextTag;
 
-            if( !isBelong ) return
+            if( !isBelong || isReadyOnlyTag ) return;
 
             nextTag = focusedElm.nextElementSibling
 
