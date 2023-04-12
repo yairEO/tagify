@@ -686,7 +686,7 @@ export default {
                 timeDiffFocus = +new Date() - this.state.hasFocus;
 
             if( e.target == this.DOM.scope ){
-                if( !this.state.hasFocus )
+                // if( !this.state.hasFocus )
                     this.DOM.input.focus()
                 return
             }
