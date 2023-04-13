@@ -1946,6 +1946,8 @@ var tagify = new Tagify(inputElm, {
     }
 })
 
+// The below code is printed as escaped, so please copy this function from:
+// https://github.com/yairEO/tagify/blob/master/src/parts/helpers.js#L89-L97
 function escapeHTML( s ){
     return typeof s == 'string' ? s
         .replace(/&/g, "&amp;")
