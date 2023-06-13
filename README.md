@@ -597,7 +597,7 @@ defaultValue            | <sub>String/Array</sub>   |           | Same as `value
 placeholder             | <sub>String</sub>         | ✔         | placeholder text for the component
 readOnly                | <sub>Boolean</sub>        | ✔         | Toggles `readonly` state. With capital `O`.
 tagifyRef               | <sub>Object</sub>         |           | `useRef` hook refference for the component inner instance of vailla *Tagify* (for methods access)
-showFilteredDropdown    | <sub>Boolean/String</sub> | ✔         | if `true` shows the suggestions dropdown. if assigned a String, show the dropdown pre-filtered.
+showDropdown            | <sub>Boolean/String</sub> | ✔         | if `true` shows the suggestions dropdown. if assigned a String, show the dropdown pre-filtered.
 loading                 | <sub>Boolean</sub>        | ✔         | Toggles `loading` state for the whole component
 whitelist               | <sub>Array</sub>          | ✔         | Sets the `whitelist` which is the basis for the suggestions dropdown & autocomplete
 className               | <sub>String</sub>         |           | Component's optional class name to be added
