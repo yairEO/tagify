@@ -60,7 +60,7 @@ export function parseHTML( s ){
 export function minify( s ){
     return s ? s
         .replace(/\>[\r\n ]+\</g, "><")
-        .replace(/(<.*?>)|\s+/g, (m, $1) => $1 ? $1 : ' ') // https://stackoverflow.com/a/44841484/104380
+        .split(/>\s+</).join('><').trim()
         : ""
 }
 
