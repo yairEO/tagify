@@ -1,0 +1,1 @@
+export var ZERO_WIDTH_CHAR = '\u200B';

@@ -1,3 +1,5 @@
+import {ZERO_WIDTH_CHAR} from './constants'
+
 // console.json = console.json || function(argument){
 //     for(var arg=0; arg < arguments.length; ++arg)
 //         console.log(  JSON.stringify(arguments[arg], null, 4)  )
@@ -299,12 +301,12 @@ export function placeCaretAfterNode( node ){
  * Also do that if the tag is the first node.
  * @param {Array} tags
  */
-export function fixCaretBetweenTags(tags) {
+export function fixCaretBetweenTags(tags, TagifyHasFocuse) {
     tags.forEach(tag => {
         if( getSetTagData(tag.previousSibling) || !tag.previousSibling ) {
-            var textNode = document.createTextNode('\u200B')
+            var textNode = document.createTextNode(ZERO_WIDTH_CHAR)
             tag.before(textNode)
-            placeCaretAfterNode(textNode)
+            TagifyHasFocuse && placeCaretAfterNode(textNode)
         }
     })
 }

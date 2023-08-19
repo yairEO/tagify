@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag, injectAtCaret, placeCaretAfterNode, getSetTagData } from './parts/helpers'
+import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag, injectAtCaret, placeCaretAfterNode, getSetTagData, fixCaretBetweenTags } from './parts/helpers'
 import DEFAULTS from './parts/defaults'
 import _dropdown, { initDropdown } from './parts/dropdown'
 import { getPersistedData, setPersistedData, clearPersistedData } from './parts/persist'
@@ -1109,8 +1109,13 @@ Tagify.prototype = {
         this.DOM.input.innerHTML = s
         this.DOM.input.appendChild(document.createTextNode(''))
         this.DOM.input.normalize()
-        this.getTagElms().forEach((elm, idx) => getSetTagData(elm,  tagsDataSet[idx]))
+
+        var tagNodes = this.getTagElms()
+
+        tagNodes.forEach((elm, idx) => getSetTagData(elm,  tagsDataSet[idx]))
         this.update({withoutChangeEvent:true})
+
+        fixCaretBetweenTags(tagNodes, this.state.hasFocus)
         return s
     },
 

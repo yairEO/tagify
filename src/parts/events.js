@@ -1,4 +1,5 @@
 import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, injectAtCaret, getSetTagData, fixCaretBetweenTags, placeCaretAfterNode } from './helpers'
+import {ZERO_WIDTH_CHAR} from './constants'
 
 var deleteBackspaceTimeout;
 
@@ -290,6 +291,7 @@ export default {
                             isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && prevAnchorSibling && prevAnchorSibling.nodeType == 1 && sel.anchorNode.previousSibling,
                             lastInputValue = decode(this.DOM.input.innerHTML),
                             lastTagElems = this.getTagElms(),
+                            isZWS = sel.anchorNode.length === 1 && sel.anchorNode.nodeValue == String.fromCharCode(8203),
                             //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
                             tagBeforeCaret,
                             tagElmToBeDeleted,
@@ -362,6 +364,10 @@ export default {
 
                             placeCaretAfterNode( getfirstTextNode(tagElmToBeDeleted) )
                             return
+                        }
+
+                        if ( isZWS && getSetTagData(sel.anchorNode.nextSibling) ) {
+                            this.removeTags(sel.anchorNode.nextSibling)
                         }
 
                         // update regarding https://github.com/yairEO/tagify/issues/762#issuecomment-786464317:
@@ -988,7 +994,7 @@ export default {
                         // and it is the first node in a new line
                         if( addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR' ){
                             // allows placing the caret just before the tag, when the tag is the first node in that line
-                            addedNode.previousSibling.replaceWith('\n\u200B')
+                            addedNode.previousSibling.replaceWith('\n' + ZERO_WIDTH_CHAR)
 
                             let nextNode = addedNode.nextSibling, anythingAfterNode = '';
 
@@ -1004,7 +1010,7 @@ export default {
                         // if previous sibling does not exists (meanning the addedNode is the first node in this.DOM.input)
                         // or, if the previous sibling is also a tag, add a zero-space character before (to allow showing the caret in Chrome)
                         else if( !addedNode.previousSibling || getSetTagData(addedNode.previousSibling) ){
-                            addedNode.before(`\u200B`)
+                            addedNode.before(ZERO_WIDTH_CHAR)
                         }
                     }
                 })
