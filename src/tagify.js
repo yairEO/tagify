@@ -580,6 +580,8 @@ Tagify.prototype = {
         //this.validateTag(tagData);
 
         tagElm.classList.toggle(this.settings.classNames.tagNotAllowed, !isValid)
+        tagData.__isValid = isValid;
+
         return tagData.__isValid
     },
 
@@ -947,7 +949,7 @@ Tagify.prototype = {
             return this.TEXTS.empty;
 
         // check if pattern should be used and if so, use it to test the value
-        if( _s.pattern && _s.pattern instanceof RegExp && !(_s.pattern.test(v)) )
+        if( _s.mode != 'mix' && _s.pattern && _s.pattern instanceof RegExp && !(_s.pattern.test(v)) )
             return this.TEXTS.pattern;
 
         // check for duplicates
