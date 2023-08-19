@@ -1,4 +1,4 @@
-import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, injectAtCaret, getSetTagData } from './helpers'
+import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, injectAtCaret, getSetTagData, fixCaretBetweenTags, placeCaretAfterNode } from './helpers'
 
 var deleteBackspaceTimeout;
 
@@ -84,8 +84,9 @@ export default {
         inputMutationObserver.disconnect()
 
         // observe stuff
-        if( this.settings.mode == 'mix' )
+        if( this.settings.mode == 'mix' ) {
             inputMutationObserver.observe(this.DOM.input, {childList:true})
+        }
     },
 
     bindGlobal( unbind ) {
@@ -311,7 +312,7 @@ export default {
                             // so this hack below is needed to regain focus at the correct place:
                             this.DOM.input.focus()
                             setTimeout(() => {
-                                this.placeCaretAfterNode(firstTextNodeBeforeTag)
+                                placeCaretAfterNode(firstTextNodeBeforeTag)
                                 this.DOM.input.click()
 
                             })
@@ -359,7 +360,7 @@ export default {
                             // allows the continuation of deletion by placing the caret on the first previous textNode.
                             // since a few readonly-tags might be one after the other, iteration is needed:
 
-                            this.placeCaretAfterNode( getfirstTextNode(tagElmToBeDeleted) )
+                            placeCaretAfterNode( getfirstTextNode(tagElmToBeDeleted) )
                             return
                         }
 
@@ -373,7 +374,7 @@ export default {
                             this.removeTags() // removes last tag by default if no parameter supplied
                             // place caret inside last textNode, if exist. it's an annoying bug only in FF,
                             // if the last tag is removed, and there is a textNode before it, the caret is not placed at its end
-                            this.placeCaretAfterNode( setRangeAtStartEnd(false, this.DOM.input) )
+                            placeCaretAfterNode( setRangeAtStartEnd(false, this.DOM.input) )
                         }
                         */
 
@@ -547,6 +548,10 @@ export default {
                     key: "Backspace",
                 })
             }
+
+            // if there's a tag as the first child of the input, always make sure it has a zero-width character before it
+            // or if two tags are next to each-other, add a zero-space width character (For the caret to appear)
+            fixCaretBetweenTags(this.getTagElms())
 
             // re-add "readonly" tags which might have been removed
             this.value.slice().forEach(item => {
@@ -953,7 +958,7 @@ export default {
          * @param {Object} m an object representing the observed DOM changes
          */
         onInputDOMChange(m){
-            // iterate all DOm mutation
+            // iterate all DOM mutation
             m.forEach(record => {
                 // only the ADDED nodes
                 record.addedNodes.forEach(addedNode => {
@@ -972,13 +977,14 @@ export default {
                         // unwrap the useless div
                         // chrome adds a BR at the end which should be removed
                         addedNode.replaceWith(...[newlineText, ...[...addedNode.childNodes].slice(0,-1)])
-                        this.placeCaretAfterNode(newlineText)
+                        placeCaretAfterNode(newlineText)
                     }
 
                     // if this is a tag
                     else if( isNodeTag.call(this, addedNode) ){
                         if( addedNode.previousSibling?.nodeType == 3 && !addedNode.previousSibling.textContent )
                             addedNode.previousSibling.remove()
+
                         // and it is the first node in a new line
                         if( addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR' ){
                             // allows placing the caret just before the tag, when the tag is the first node in that line
@@ -992,7 +998,13 @@ export default {
                             }
 
                             // when hitting ENTER for new line just before an existing tag, but skip below logic when a tag has been addded
-                            anythingAfterNode.trim() && this.placeCaretAfterNode(addedNode.previousSibling)
+                            anythingAfterNode.trim() && placeCaretAfterNode(addedNode.previousSibling)
+                        }
+
+                        // if previous sibling does not exists (meanning the addedNode is the first node in this.DOM.input)
+                        // or, if the previous sibling is also a tag, add a zero-space character before (to allow showing the caret in Chrome)
+                        else if( !addedNode.previousSibling || getSetTagData(addedNode.previousSibling) ){
+                            addedNode.before(`\u200B`)
                         }
                     }
                 })

@@ -276,3 +276,35 @@ export function getSetTagData(tagElm, data, override){
 
     return tagElm.__tagifyTagData
 }
+
+export function placeCaretAfterNode( node ){
+    if( !node || !node.parentNode ) return
+
+    var nextSibling = node,
+        sel = window.getSelection(),
+        range = sel.getRangeAt(0);
+
+    if (sel.rangeCount) {
+        range.setStartAfter(nextSibling);
+        range.collapse(true)
+        // range.setEndBefore(nextSibling || node);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+}
+
+/**
+ * iterate all tags, checking if multiple ones are close-siblings and if so, add a zero-space width character between them,
+ * which forces the caret to be rendered when the selection is between tags.
+ * Also do that if the tag is the first node.
+ * @param {Array} tags
+ */
+export function fixCaretBetweenTags(tags) {
+    tags.forEach(tag => {
+        if( getSetTagData(tag.previousSibling) || !tag.previousSibling ) {
+            var textNode = document.createTextNode('\u200B')
+            tag.before(textNode)
+            placeCaretAfterNode(textNode)
+        }
+    })
+}

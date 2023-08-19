@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag, injectAtCaret, getSetTagData } from './parts/helpers'
+import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag, injectAtCaret, placeCaretAfterNode, getSetTagData } from './parts/helpers'
 import DEFAULTS from './parts/defaults'
 import _dropdown, { initDropdown } from './parts/dropdown'
 import { getPersistedData, setPersistedData, clearPersistedData } from './parts/persist'
@@ -442,22 +442,6 @@ Tagify.prototype = {
         }
     },
 
-    placeCaretAfterNode( node ){
-        if( !node || !node.parentNode ) return
-
-        var nextSibling = node,
-            sel = window.getSelection(),
-            range = sel.getRangeAt(0);
-
-        if (sel.rangeCount) {
-            range.setStartAfter(nextSibling);
-            range.collapse(true)
-            // range.setEndBefore(nextSibling || node);
-            sel.removeAllRanges();
-            sel.addRange(range);
-        }
-    },
-
     insertAfterTag( tagElm, newNode ){
         newNode = newNode || this.settings.mixMode.insertAfterTag;
 
@@ -611,7 +595,7 @@ Tagify.prototype = {
                 tagElm.focus()
             else
                 // place caret after edited tag
-                this.placeCaretAfterNode(tagElm)
+                placeCaretAfterNode(tagElm)
         }
 
         else if(tagElm)
@@ -1403,7 +1387,7 @@ Tagify.prototype = {
             // a timeout is needed when selecting a tag from the suggestions via mouse.
             // Without it, it seems the caret is placed right after the tag and not after the
             // node which was inserted after the tag (whitespace by default)
-            setTimeout(this.placeCaretAfterNode, 0, elm);
+            setTimeout(placeCaretAfterNode, 0, elm);
         }
 
         this.state.tag = null
