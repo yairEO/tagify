@@ -39,7 +39,7 @@
         <form>
             <button type='button'>Inject tag (in second Tagify)</button>
             <br><br>
-            <textarea name='mix1' placeholder="type something">    mixed-mode [[example]] with [[{"value":"tags"}]].   </textarea>
+            <textarea name='mix1' placeholder="type something">    mixed-mode #example [[example]] with [[{"value":"tags"}]].   </textarea>
 
             <textarea name='mix2' class='tagify-editor' placeholder="type something">
             [[{"value":200, "text":"  cartman  ", "title":"Eric Cartman", "prefix":"@"}]] and [[{"value":1000, "text":"cartman", "title":"xxx", "prefix":"@", "readonly":true}]] [[kyle]] do not know [[homer simpson]] because:
@@ -63,6 +63,10 @@ var settings = {
     mode: "mix",
     trim: false,
     pattern: /@/,
+    validate(data){
+        // custom validation - no special characters
+        return !/[^a-zA-Z0-9 ]/.test(data.value)
+    },
     dropdown: {
         enabled: 0,
         position: "text"
@@ -85,6 +89,7 @@ var settings = {
 var simpleMixTagify = new Tagify(simpleMixInput, settings);
 //   simpleMixTagify.on('keydown', e => console.log(e.detail))
 simpleMixTagify.on('input', console.log )
+
 </script>
 
 
