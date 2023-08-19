@@ -366,7 +366,7 @@ export default {
                             return
                         }
 
-                        if ( isZWS && getSetTagData(sel.anchorNode.nextSibling) ) {
+                        if ( e.key == 'Delete' && isZWS && getSetTagData(sel.anchorNode.nextSibling) ) {
                             this.removeTags(sel.anchorNode.nextSibling)
                         }
 
