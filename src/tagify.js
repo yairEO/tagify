@@ -851,10 +851,11 @@ Tagify.prototype = {
     },
 
     getTagIndexByValue( value ){
-        var indices = [];
+        var indices = [],
+            isCaseSensitive = this.settings.dropdown.caseSensitive;
 
         this.getTagElms().forEach((tagElm, i) => {
-            if(  sameStr( this.trim(tagElm.textContent), value, this.settings.dropdown.caseSensitive )  )
+            if(  tagElm.__tagifyTagData && sameStr( this.trim(tagElm.__tagifyTagData.value), value, isCaseSensitive )  )
                 indices.push(i)
         })
 
