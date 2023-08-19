@@ -970,6 +970,7 @@ Tagify.prototype = {
         _s[attrribute || 'readonly'] = toggle
         this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true)
 
+        this.settings.userInput = true;
         this.setContentEditable(!toggle)
     },
 
