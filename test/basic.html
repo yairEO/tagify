@@ -39,7 +39,7 @@
     <body>
         <form method="get" action="not-exists">
             <fieldset>
-                <input name='tags-regular' placeholder='user input' value=''>
+                <input name='tags-regular' placeholder='user input' value='' disabled>
             </fieldset>
             <fieldset>
                 <input name='tags-disabled-user-input' value="1,2,3" placeholder='disabled user input' disabled>
@@ -109,6 +109,8 @@ inputElm && inputElm.addEventListener('change', () => console.log("CHANGED!")  )
 
 setTimeout(() => {
     tagify.loadOriginalValues(["ac", {value: "aab", editable:false}, "aaa", "b", "bb", "ccc"])
+
+    tagify.setDisabled(false)
 }, 500);
 
 
