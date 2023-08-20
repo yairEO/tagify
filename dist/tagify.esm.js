@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.17.8) - tags input component
+ * Tagify (v 4.17.9) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -73,6 +73,8 @@ function _toPropertyKey(arg) {
   return typeof key === "symbol" ? key : String(key);
 }
 
+var ZERO_WIDTH_CHAR = '\u200B';
+
 // console.json = console.json || function(argument){
 //     for(var arg=0; arg < arguments.length; ++arg)
 //         console.log(  JSON.stringify(arguments[arg], null, 4)  )
@@ -123,8 +125,7 @@ function parseHTML(s) {
  * @param {string} s [HTML string]
  */
 function minify(s) {
-  return s ? s.replace(/\>[\r\n ]+\</g, "><").replace(/(<.*?>)|\s+/g, (m, $1) => $1 ? $1 : ' ') // https://stackoverflow.com/a/44841484/104380
-  : "";
+  return s ? s.replace(/\>[\r\n ]+\</g, "><").split(/>\s+</).join('><').trim() : "";
 }
 function removeTextChildNodes(elm) {
   var iter = document.createNodeIterator(elm, NodeFilter.SHOW_TEXT, null, false),
@@ -299,6 +300,35 @@ function getSetTagData(tagElm, data, override) {
   }
   if (data) tagElm.__tagifyTagData = override ? data : extend({}, tagElm.__tagifyTagData || {}, data);
   return tagElm.__tagifyTagData;
+}
+function placeCaretAfterNode(node) {
+  if (!node || !node.parentNode) return;
+  var nextSibling = node,
+    sel = window.getSelection(),
+    range = sel.getRangeAt(0);
+  if (sel.rangeCount) {
+    range.setStartAfter(nextSibling);
+    range.collapse(true);
+    // range.setEndBefore(nextSibling || node);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+}
+
+/**
+ * iterate all tags, checking if multiple ones are close-siblings and if so, add a zero-space width character between them,
+ * which forces the caret to be rendered when the selection is between tags.
+ * Also do that if the tag is the first node.
+ * @param {Array} tags
+ */
+function fixCaretBetweenTags(tags, TagifyHasFocuse) {
+  tags.forEach(tag => {
+    if (getSetTagData(tag.previousSibling) || !tag.previousSibling) {
+      var textNode = document.createTextNode(ZERO_WIDTH_CHAR);
+      tag.before(textNode);
+      TagifyHasFocuse && placeCaretAfterNode(textNode);
+    }
+  });
 }
 
 var DEFAULTS = {
@@ -1345,9 +1375,11 @@ var events = {
     inputMutationObserver.disconnect();
 
     // observe stuff
-    if (this.settings.mode == 'mix') inputMutationObserver.observe(this.DOM.input, {
-      childList: true
-    });
+    if (this.settings.mode == 'mix') {
+      inputMutationObserver.observe(this.DOM.input, {
+        childList: true
+      });
+    }
   },
   bindGlobal(unbind) {
     var _CB = this.events.callbacks,
@@ -1522,6 +1554,7 @@ var events = {
                 isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && prevAnchorSibling && prevAnchorSibling.nodeType == 1 && sel.anchorNode.previousSibling;
                 decode(this.DOM.input.innerHTML);
                 var lastTagElems = this.getTagElms(),
+                isZWS = sel.anchorNode.length === 1 && sel.anchorNode.nodeValue == String.fromCharCode(8203),
                 //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
                 tagBeforeCaret,
                 tagElmToBeDeleted,
@@ -1540,7 +1573,7 @@ var events = {
                 // so this hack below is needed to regain focus at the correct place:
                 this.DOM.input.focus();
                 setTimeout(() => {
-                  this.placeCaretAfterNode(firstTextNodeBeforeTag);
+                  placeCaretAfterNode(firstTextNodeBeforeTag);
                   this.DOM.input.click();
                 });
                 return;
@@ -1578,8 +1611,11 @@ var events = {
                 // allows the continuation of deletion by placing the caret on the first previous textNode.
                 // since a few readonly-tags might be one after the other, iteration is needed:
 
-                this.placeCaretAfterNode(getfirstTextNode(tagElmToBeDeleted));
+                placeCaretAfterNode(getfirstTextNode(tagElmToBeDeleted));
                 return;
+              }
+              if (e.key == 'Delete' && isZWS && getSetTagData(sel.anchorNode.nextSibling)) {
+                this.removeTags(sel.anchorNode.nextSibling);
               }
 
               // update regarding https://github.com/yairEO/tagify/issues/762#issuecomment-786464317:
@@ -1592,7 +1628,7 @@ var events = {
                   this.removeTags() // removes last tag by default if no parameter supplied
                   // place caret inside last textNode, if exist. it's an annoying bug only in FF,
                   // if the last tag is removed, and there is a textNode before it, the caret is not placed at its end
-                  this.placeCaretAfterNode( setRangeAtStartEnd(false, this.DOM.input) )
+                  placeCaretAfterNode( setRangeAtStartEnd(false, this.DOM.input) )
               }
               */
 
@@ -1755,6 +1791,10 @@ var events = {
           key: "Backspace"
         });
       }
+
+      // if there's a tag as the first child of the input, always make sure it has a zero-width character before it
+      // or if two tags are next to each-other, add a zero-space width character (For the caret to appear)
+      fixCaretBetweenTags(this.getTagElms());
 
       // re-add "readonly" tags which might have been removed
       this.value.slice().forEach(item => {
@@ -2108,7 +2148,7 @@ var events = {
      * @param {Object} m an object representing the observed DOM changes
      */
     onInputDOMChange(m) {
-      // iterate all DOm mutation
+      // iterate all DOM mutation
       m.forEach(record => {
         // only the ADDED nodes
         record.addedNodes.forEach(addedNode => {
@@ -2125,16 +2165,17 @@ var events = {
             // unwrap the useless div
             // chrome adds a BR at the end which should be removed
             addedNode.replaceWith(...[newlineText, ...[...addedNode.childNodes].slice(0, -1)]);
-            this.placeCaretAfterNode(newlineText);
+            placeCaretAfterNode(newlineText);
           }
 
           // if this is a tag
           else if (isNodeTag.call(this, addedNode)) {
             if (addedNode.previousSibling?.nodeType == 3 && !addedNode.previousSibling.textContent) addedNode.previousSibling.remove();
+
             // and it is the first node in a new line
             if (addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR') {
               // allows placing the caret just before the tag, when the tag is the first node in that line
-              addedNode.previousSibling.replaceWith('\n\u200B');
+              addedNode.previousSibling.replaceWith('\n' + ZERO_WIDTH_CHAR);
               let nextNode = addedNode.nextSibling,
                 anythingAfterNode = '';
               while (nextNode) {
@@ -2143,7 +2184,13 @@ var events = {
               }
 
               // when hitting ENTER for new line just before an existing tag, but skip below logic when a tag has been addded
-              anythingAfterNode.trim() && this.placeCaretAfterNode(addedNode.previousSibling);
+              anythingAfterNode.trim() && placeCaretAfterNode(addedNode.previousSibling);
+            }
+
+            // if previous sibling does not exists (meanning the addedNode is the first node in this.DOM.input)
+            // or, if the previous sibling is also a tag, add a zero-space character before (to allow showing the caret in Chrome)
+            else if (!addedNode.previousSibling || getSetTagData(addedNode.previousSibling)) {
+              addedNode.before(ZERO_WIDTH_CHAR);
             }
           }
         });
@@ -2545,19 +2592,6 @@ Tagify.prototype = {
       // console.warn("Tagify: ", err)
     }
   },
-  placeCaretAfterNode(node) {
-    if (!node || !node.parentNode) return;
-    var nextSibling = node,
-      sel = window.getSelection(),
-      range = sel.getRangeAt(0);
-    if (sel.rangeCount) {
-      range.setStartAfter(nextSibling);
-      range.collapse(true);
-      // range.setEndBefore(nextSibling || node);
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-  },
   insertAfterTag(tagElm, newNode) {
     newNode = newNode || this.settings.mixMode.insertAfterTag;
     if (!tagElm || !tagElm.parentNode || !newNode) return;
@@ -2656,6 +2690,7 @@ Tagify.prototype = {
     //this.validateTag(tagData);
 
     tagElm.classList.toggle(this.settings.classNames.tagNotAllowed, !isValid);
+    tagData.__isValid = isValid;
     return tagData.__isValid;
   },
   onEditTagDone(tagElm, tagData) {
@@ -2678,7 +2713,7 @@ Tagify.prototype = {
       this.editTagToggleValidity(tagElm, tagData);
       if (this.settings.a11y.focusableTags) tagElm.focus();else
         // place caret after edited tag
-        this.placeCaretAfterNode(tagElm);
+        placeCaretAfterNode(tagElm);
     } else if (tagElm) this.removeTags(tagElm);
     this.trigger("edit:updated", eventData);
     this.dropdown.hide();
@@ -2872,9 +2907,10 @@ Tagify.prototype = {
     return dupsCount;
   },
   getTagIndexByValue(value) {
-    var indices = [];
+    var indices = [],
+      isCaseSensitive = this.settings.dropdown.caseSensitive;
     this.getTagElms().forEach((tagElm, i) => {
-      if (sameStr(this.trim(tagElm.textContent), value, this.settings.dropdown.caseSensitive)) indices.push(i);
+      if (tagElm.__tagifyTagData && sameStr(this.trim(tagElm.__tagifyTagData.value), value, isCaseSensitive)) indices.push(i);
     });
     return indices;
   },
@@ -2959,7 +2995,7 @@ Tagify.prototype = {
     if (!(tagData[prop] + "").trim()) return this.TEXTS.empty;
 
     // check if pattern should be used and if so, use it to test the value
-    if (_s.pattern && _s.pattern instanceof RegExp && !_s.pattern.test(v)) return this.TEXTS.pattern;
+    if (_s.mode != 'mix' && _s.pattern && _s.pattern instanceof RegExp && !_s.pattern.test(v)) return this.TEXTS.pattern;
 
     // check for duplicates
     if (!_s.duplicates && this.isTagDuplicate(v, _s.dropdown.caseSensitive, tagData.__tagId)) return this.TEXTS.duplicate;
@@ -2982,6 +3018,7 @@ Tagify.prototype = {
     document.activeElement.blur(); // exit possible edit-mode
     _s[attrribute || 'readonly'] = toggle;
     this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true);
+    this.settings.userInput = true;
     this.setContentEditable(!toggle);
   },
   setContentEditable(state) {
@@ -3104,10 +3141,12 @@ Tagify.prototype = {
     this.DOM.input.innerHTML = s;
     this.DOM.input.appendChild(document.createTextNode(''));
     this.DOM.input.normalize();
-    this.getTagElms().forEach((elm, idx) => getSetTagData(elm, tagsDataSet[idx]));
+    var tagNodes = this.getTagElms();
+    tagNodes.forEach((elm, idx) => getSetTagData(elm, tagsDataSet[idx]));
     this.update({
       withoutChangeEvent: true
     });
+    fixCaretBetweenTags(tagNodes, this.state.hasFocus);
     return s;
   },
   /**
@@ -3359,7 +3398,7 @@ Tagify.prototype = {
       // a timeout is needed when selecting a tag from the suggestions via mouse.
       // Without it, it seems the caret is placed right after the tag and not after the
       // node which was inserted after the tag (whitespace by default)
-      setTimeout(this.placeCaretAfterNode, 0, elm);
+      setTimeout(placeCaretAfterNode, 0, elm);
     }
     this.state.tag = null;
     this.trigger('add', extend({}, {

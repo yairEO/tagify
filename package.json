@@ -1,6 +1,6 @@
 {
     "name": "@yaireo/tagify",
-    "version": "4.17.8",
+    "version": "4.17.9",
     "homepage": "https://github.com/yairEO/tagify",
     "description": "lightweight, efficient Tags input component in Vanilla JS / React / Angular [super customizable, tiny size & top performance]",
     "keywords": [
@@ -18,9 +18,9 @@
         "not IE_Mob 11",
         "not op_mini all"
     ],
-    "engines" : {
-        "npm" : ">=8.0.0",
-        "node" : ">=14.20.0"
+    "engines": {
+        "npm": ">=8.0.0",
+        "node": ">=14.20.0"
     },
     "np": {
         "yarn": false,
