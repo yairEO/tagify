@@ -18,6 +18,10 @@
         "not IE_Mob 11",
         "not op_mini all"
     ],
+    "engines" : {
+        "npm" : ">=8.0.0",
+        "node" : ">=14.20.0"
+    },
     "np": {
         "yarn": false,
         "yolo": true
