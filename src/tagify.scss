@@ -135,6 +135,7 @@
     position      : relative;
     box-sizing    : border-box;
     transition    : .1s;
+    overflow      : hidden;
 
     &:hover:not(.tagify--focus):not(.tagify--invalid){
         --tags-border-color : var(--tags-hover-border-color);
@@ -241,6 +242,7 @@
                     margin: -2px;
                     padding: 2px;
                     max-width: 350px;
+                    text-overflow: clip;
                 }
             }
 
