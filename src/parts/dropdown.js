@@ -271,7 +271,7 @@ export default {
 
         if( _sd.position == 'manual' ) return
 
-        var rect, top, bottom, left, width, parentsPositions,
+        var rect, top, bottom, left, width, parentsPositions, right, maxWidth, minWidth,
             ddElm = this.DOM.dropdown,
             placeAbove = _sd.placeAbove,
             isDefaultAppendTarget = _sd.appendTarget === document.body,
@@ -327,6 +327,16 @@ export default {
             bottom = rect.bottom - 1 - parentsPositions.top
             left   = rect.left - parentsPositions.left
             width  = rect.width + 'px'
+            if (this.settings.dropdown.widthAuto){
+                const spaceFromEnd = 12;
+                width = 'auto';
+                minWidth = rect.width ;
+                if (this.settings.dropdown.overflowToLeft){
+                    right = window.innerWidth - rect.right;
+                    maxWidth = window.innerWidth - right - spaceFromEnd;
+                }
+                else maxWidth = window.innerWidth - left - spaceFromEnd;
+            }
         }
 
         // if the "append target" isn't the default, correct the `top` variable by ignoring any scrollTop of the target's Ancestors
@@ -344,13 +354,21 @@ export default {
             ? viewportHeight - rect.bottom < ddHeight
             : placeAbove
 
+        let cssText;
+        if(right)
+        	  cssText = "right:" + (right - window.pageXOffset) + "px;";
+        else cssText = "left:" + (left + window.pageXOffset) + "px;";
+        if(minWidth && maxWidth)
+        	  cssText += " min-width:" + minWidth + "px; max-width:" + maxWidth + "px;"
         // flip vertically if there is no space for the dropdown below the input
-        ddElm.style.cssText = "left:"  + (left + window.pageXOffset) + "px; width:" + width + ";" + (placeAbove
+         ddElm.style.cssText = cssText + " width:" + width + ";" + (placeAbove 
             ? "top: "   + (top + appendTargetScrollTop)    + "px"
             : "top: "   + (bottom + appendTargetScrollTop) + "px");
 
         ddElm.setAttribute('placement', placeAbove ? "top" : "bottom")
-        ddElm.setAttribute('position', positionTo)
+        ddElm.setAttribute('position', positionTo) 
+        if(_sd.widthAuto)       
+            ddElm.setAttribute('width-auto')
     },
 
     events : {

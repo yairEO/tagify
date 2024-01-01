@@ -623,7 +623,7 @@
         }
 
         // when the dropdown shows next to the caret while typing
-        &[position="text"]{
+        &[position="text"], &[width-auto]{
             box-shadow: 0 0 0 3px rgba(var(--tagify-dd-color-primary), .1);
             font-size: .9em;
 

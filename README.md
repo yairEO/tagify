@@ -1056,6 +1056,10 @@ dropdown.*sortby*              | <sub>String/Function</sub>   |                 
 dropdown.*accentedSearch*      | <sub>Boolean</sub>           | true                                        | Enable searching for <em>accented</em> items in the whitelist without typing exact match (#491)
 dropdown.*includeSelectedTags* | <sub>Boolean</sub>           | false                                       | Should the suggestions list Include already-selected tags (after filtering)
 dropdown.*position*            | <sub>String</sub>            | `"all"`                                     | <ul><li>`manual` - will not render the dropdown, and you would need to do it yourself. [See demo](https://yaireo.github.io/tagify/#section-manual-suggestions)</li><li>`text` - places the dropdown next to the caret</li><li>`input` - places the dropdown next to the input (useful in rare situations)</li><li>`all` - normal, full-width design</li></ul>
+dropdown.*widthAuto*            | <sub>Boolean</sub>            | false                                     | Allows the dropdown to expand beyond the width of the input
+dropdown.*overflowToLeft*            | <sub>Boolean</sub>            | false                                     | Expend dropdown to left, by default expend to left
+Mainly relevant for RTL languages
+Must assign true to withAuto property
 dropdown.*highlightFirst*      | <sub>Boolean</sub>           | false                                       | When a suggestions list is shown, highlight the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
 dropdown.*closeOnSelect*       | <sub>Boolean</sub>           | true                                        | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
 dropdown.*clearOnSelect*       | <sub>Boolean</sub>           | true                                        | Keep typed text after selecting a suggestion
