@@ -230,6 +230,7 @@ export default {
             : this.dropdown.createListHTML(HTMLContent || this.suggestedListItems)
 
         var dropdownContent = this.settings.templates.dropdownContent.call(this, HTMLContent)
+
         this.DOM.dropdown.content.innerHTML = minify(dropdownContent)
     },
 
@@ -787,7 +788,10 @@ export default {
                 suggestion = {value:suggestion}
 
             var mappedValue = this.dropdown.getMappedValue(suggestion);
-            mappedValue = typeof mappedValue == 'string' ? escapeHTML(mappedValue) : mappedValue
+
+            mappedValue = (typeof mappedValue == 'string' && this.settings.dropdown.escapeHTML)
+                ? escapeHTML(mappedValue)
+                : mappedValue;
 
             return this.settings.templates.dropdownItem.apply(this, [{...suggestion, mappedValue}, this])
         }).join("")
