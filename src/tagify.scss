@@ -5,6 +5,7 @@
     --tagify-dd-color-primary: rgb(53,149,246); // should be same as "$tags-focus-border-color"
     --tagify-dd-bg-color: white;
     --tagify-dd-item-pad: .3em .5em; // should be same as $tag-pad (below)
+    --tagify-dd-max-height: 300px;
 }
 
 .tagify{
@@ -202,7 +203,9 @@
     &__tag{
         display    : inline-flex;
         align-items: center;
-        margin     : $tagMargin 0 $tagMargin $tagMargin;
+        // margin     : $tagMargin 0 $tagMargin $tagMargin;
+        margin-inline: $tagMargin 0;
+        margin-block: $tagMargin;
         position   : relative;
         z-index    : 1;
         outline    : none;
@@ -370,8 +373,7 @@
 
             width          : $size;
             height         : $size;
-            margin-right   : math.div($size,3);
-            margin-left    : auto;
+            margin-inline  : auto math.div($size,3);
 
             overflow       : hidden;
             transition     : .2s ease-out;
@@ -605,12 +607,18 @@
     // it cannot ingerit the CSS variables applied on the ".Tagify" element
     &__dropdown{
         $dropdown: &;
-        $trans: .25s cubic-bezier(0,1,.5,1);
+        $trans: .4s;
+        $trans-curve: cubic-bezier(.5, 0, .3, 1);
 
         position: absolute;
         z-index: 9999;
-        transform: translateY(1px);
+        transform: translateY(-1px);
+        border-top: 1px solid var(--tagify-dd-color-primary);
         overflow: hidden;
+
+        &--rtl {
+            transform: translate(-100%, -1px);
+        }
 
         &[placement="top"]{
             margin-top: 0;
@@ -633,8 +641,8 @@
         }
 
         &__wrapper{
-            max-height: 300px;
-            overflow: auto;
+            max-height: var(--tagify-dd-max-height);
+            overflow: hidden;
             overflow-x: hidden;
             background: var(--tagify-dd-bg-color);
             border: 1px solid;
@@ -642,8 +650,12 @@
             border-bottom-width: 1.5px; // fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523
             border-top-width: 0;
             box-shadow: 0 2px 4px -2px rgba(black,.2);
-            // box-sizing: border-box;
-            transition: $trans;
+            transition: $trans $trans-curve, transform math.div($trans, 2);
+            animation: dd-wrapper-show 0s $trans forwards;
+        }
+
+        @keyframes dd-wrapper-show {
+            to { overflow-y: auto; }
         }
 
         &__header{
