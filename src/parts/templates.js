@@ -45,13 +45,13 @@ export default {
     },
 
     dropdownContent(HTMLContent) {
-        var _s = this.settings,
+        var _t = this.settings.templates,
             suggestions = this.state.dropdown.suggestions;
 
         return `
-            ${_s.templates.dropdownHeader.call(this, suggestions)}
+            ${_t.dropdownHeader.call(this, suggestions)}
             ${HTMLContent}
-            ${_s.templates.dropdownFooter.call(this, suggestions)}
+            ${_t.dropdownFooter.call(this, suggestions)}
         `
     },
 
