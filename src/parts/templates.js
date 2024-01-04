@@ -1,3 +1,5 @@
+import {cx} from './helpers'
+
 export default {
     /**
      *
@@ -37,9 +39,9 @@ export default {
     dropdown(settings){
         var _sd = settings.dropdown,
             isManual = _sd.position == 'manual',
-            className = `${settings.classNames.dropdown}`;
+            className = cx(!isManual && settings.classNames.dropdown, _sd.RTL && settings.classNames.dropdown + '--rtl', _sd.classname);
 
-        return `<div class="${isManual ? "" : className} ${_sd.classname}" role="listbox" aria-labelledby="dropdown">
+        return `<div class="${className}" role="listbox" aria-labelledby="dropdown">
                     <div data-selector='tagify-suggestions-wrapper' class="${settings.classNames.dropdownWrapper}"></div>
                 </div>`
     },
@@ -57,7 +59,7 @@ export default {
 
     dropdownItem(item){
         return `<div ${this.getAttributes(item)}
-                    class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
+                    class='${this.settings.classNames.dropdownItem} ${item.class || ""}'
                     tabindex="0"
                     role="option">${item.mappedValue || item.value}</div>`
     },
