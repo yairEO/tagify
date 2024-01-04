@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.17.9) - tags input component
+ * Tagify (v 4.18.0) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -442,6 +442,8 @@
       accentedSearch: true,
       includeSelectedTags: false,
       // Should the suggestions list Include already-selected tags (after filtering)
+      escapeHTML: true,
+      // escapes HTML entities in the suggestions' rendered text
       highlightFirst: false,
       // highlights first-matched item in the list
       closeOnSelect: true,
@@ -689,9 +691,12 @@
         bottom,
         left,
         width,
-        parentsPositions,
+        ancestorsOffsets,
+        isPlacedAbove,
+        cssTop,
+        cssLeft,
         ddElm = this.DOM.dropdown,
-        placeAbove = _sd.placeAbove,
+        isRTL = _sd.RTL,
         isDefaultAppendTarget = _sd.appendTarget === document.body,
         appendTargetScrollTop = isDefaultAppendTarget ? window.pageYOffset : _sd.appendTarget.scrollTop,
         root = document.fullscreenElement || document.webkitFullscreenElement || document.documentElement,
@@ -700,19 +705,19 @@
         positionTo = viewportWidth > 480 ? _sd.position : 'all',
         ddTarget = this.DOM[positionTo == 'input' ? 'input' : 'scope'];
       ddHeight = ddHeight || ddElm.clientHeight;
-      function getParentsPositions(p) {
-        var left = 0,
-          top = 0;
+      function getAncestorsOffsets(p) {
+        var top = 0,
+          left = 0;
 
         // when in element-fullscreen mode, do not go above the fullscreened-element
         while (p && p != root) {
-          left += p.offsetLeft || 0;
           top += p.offsetTop || 0;
+          left += p.offsetLeft || 0;
           p = p.parentNode;
         }
         return {
-          left,
-          top
+          top,
+          left
         };
       }
       function getAccumulatedAncestorsScrollTop() {
@@ -732,11 +737,11 @@
         left = rect.left;
         width = 'auto';
       } else {
-        parentsPositions = getParentsPositions(_sd.appendTarget);
+        ancestorsOffsets = getAncestorsOffsets(_sd.appendTarget);
         rect = ddTarget.getBoundingClientRect();
-        top = rect.top - parentsPositions.top;
-        bottom = rect.bottom - 1 - parentsPositions.top;
-        left = rect.left - parentsPositions.left;
+        top = rect.top - ancestorsOffsets.top;
+        bottom = rect.bottom - 1 - ancestorsOffsets.top;
+        left = rect.left - ancestorsOffsets.left;
         width = rect.width + 'px';
       }
 
@@ -748,11 +753,17 @@
       }
       top = Math.floor(top);
       bottom = Math.ceil(bottom);
-      placeAbove = placeAbove === undefined ? viewportHeight - rect.bottom < ddHeight : placeAbove;
+      isPlacedAbove = _sd.placeAbove ?? viewportHeight - rect.bottom < ddHeight;
 
       // flip vertically if there is no space for the dropdown below the input
-      ddElm.style.cssText = "left:" + (left + window.pageXOffset) + "px; width:" + width + ";" + (placeAbove ? "top: " + (top + appendTargetScrollTop) + "px" : "top: " + (bottom + appendTargetScrollTop) + "px");
-      ddElm.setAttribute('placement', placeAbove ? "top" : "bottom");
+      cssTop = (isPlacedAbove ? top : bottom) + appendTargetScrollTop;
+
+      // "pageXOffset" property is an alias for "scrollX"
+      cssLeft = `left: ${left + (isRTL ? rect.width || 0 : 0) + window.pageXOffset}px;`;
+
+      // rtl = rtl ?? viewportWidth -
+      ddElm.style.cssText = `${cssLeft}; top: ${cssTop}px; min-width: ${width}; max-width: ${width}`;
+      ddElm.setAttribute('placement', isPlacedAbove ? 'top' : 'bottom');
       ddElm.setAttribute('position', positionTo);
     },
     events: {
@@ -1126,7 +1137,7 @@
           value: suggestion
         };
         var mappedValue = this.dropdown.getMappedValue(suggestion);
-        mappedValue = typeof mappedValue == 'string' ? escapeHTML(mappedValue) : mappedValue;
+        mappedValue = typeof mappedValue == 'string' && this.settings.dropdown.escapeHTML ? escapeHTML(mappedValue) : mappedValue;
         return this.settings.templates.dropdownItem.apply(this, [_objectSpread2(_objectSpread2({}, suggestion), {}, {
           mappedValue
         }), this]);
@@ -1219,24 +1230,23 @@
     },
     dropdown(settings) {
       var _sd = settings.dropdown,
-        isManual = _sd.position == 'manual',
-        className = `${settings.classNames.dropdown}`;
-      return `<div class="${isManual ? "" : className} ${_sd.classname}" role="listbox" aria-labelledby="dropdown">
+        isManual = _sd.position == 'manual';
+      return `<div class="${isManual ? '' : settings.classNames.dropdown} ${_sd.classname}" role="listbox" aria-labelledby="dropdown" dir="${_sd.RTL ? 'rtl' : ''}">
                     <div data-selector='tagify-suggestions-wrapper' class="${settings.classNames.dropdownWrapper}"></div>
                 </div>`;
     },
     dropdownContent(HTMLContent) {
-      var _s = this.settings,
+      var _t = this.settings.templates,
         suggestions = this.state.dropdown.suggestions;
       return `
-            ${_s.templates.dropdownHeader.call(this, suggestions)}
+            ${_t.dropdownHeader.call(this, suggestions)}
             ${HTMLContent}
-            ${_s.templates.dropdownFooter.call(this, suggestions)}
+            ${_t.dropdownFooter.call(this, suggestions)}
         `;
     },
     dropdownItem(item) {
       return `<div ${this.getAttributes(item)}
-                    class='${this.settings.classNames.dropdownItem} ${item.class ? item.class : ""}'
+                    class='${this.settings.classNames.dropdownItem} ${item.class || ""}'
                     tabindex="0"
                     role="option">${item.mappedValue || item.value}</div>`;
     },
