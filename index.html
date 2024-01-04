@@ -392,7 +392,7 @@
                     <details>
                       <summary></summary>
                       <h3>HTML</h3>
-<pre class="language-markup"><code>&lt;input name='basic' value='tag1, tag2 autofocus'&gt;</code></pre>
+<pre class="language-markup"><code>&lt;input name='basic' value='tag1, tag2' autofocus&gt;</code></pre>
                       <h3>JAVASCRIPT</h3>
                       <script>renderPRE(document.currentScript, "basic")</script>
                     </details>
@@ -567,6 +567,63 @@
 
 
 
+            <section id='section-rtl'>
+                <aside class='leftSide'>
+                    <header>
+                        <h2><a href='#section-rtl'>RTL & uncapped dropdown width</a></h2>
+                    </header>
+                    <p>
+                        In this example, the <em>Tagify</em> field is inside a container which has <code>dir='rtl'</code> attribute and
+                        also the Tagify <code>RTL</code> setting for the <code>dropdown</code> is set accordingly (because it's better not infer it from the HTML but defined explicitly)
+                    </p>
+                    <p>
+                        This example also showcases the ability to have the suggestions dropdown's maximum <code>width</code> as wide as the longest item in the suggestions list,
+                        but still not less wide than the Taigy field for which the dropdown "belongs".
+                    </p>
+                    <details>
+                        <summary></summary>
+                        <h3>HTML</h3><pre class="language-markup"><code>&lt;div dir='rtl'&gt;
+    &lt;input name='rtl-example' class='tagify--rtl-exmaple' placeholder='לחץ בשדה והוסף ערך'&gt;
+&lt;/div&gt;
+</code></pre>
+                        <h3>JAVASCRIPT</h3>
+                        <script>renderPRE(document.currentScript, "rtl")</script>
+                        <h3>CSS</h3>
+<style contenteditable>.tagify__dropdown--rtl-example {
+    max-width: none !important;
+}
+
+/* each suggestion item in the dropdown should be rendered as a single line of text */
+.tagify__dropdown--rtl-example .tagify__dropdown__item {
+    white-space: nowrap;
+}
+
+/* just for fun */
+.tagify__dropdown--rtl-example .tagify__dropdown__item > em {
+    font-weight: 700;
+}
+
+/* in this example the tagify itself is narrower than the other examples */
+.tagify--rtl-exmaple {
+    min-width: 300px;
+}
+</style>
+                    </details>
+                </aside>
+                <aside class='rightSide'>
+                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/VwReGKL'>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                            <use class="logo-use" xlink:href="#codepen-logo"/>
+                        </svg>
+                    </a>
+                    <div dir='rtl'>
+                        <input name='rtl-example' class='tagify--rtl-exmaple' placeholder='לחץ בשדה והוסף ערך'/>
+                    </div>
+                </aside>
+            </section>
+
+
+
             <section id='section-different-look'>
                 <aside class='leftSide'>
                     <header>
@@ -600,6 +657,7 @@
   --tag-border-radius       : 25px;
   --tag-text-color--edit    : #111;
   --tag-remove-bg           : var(--tag-hover);
+  --tag-remove-btn-color    : white;
   --tag-pad                 : .6em 1em;
   --tag-inset-shadow-size   : 1.35em;
   --tag-remove-btn-bg--hover: black;
@@ -1351,6 +1409,33 @@ var input = document.querySelector('input[name=basic]');
 
 // initialize Tagify on the above input node reference
 new Tagify(input)
+})()
+</script>
+
+
+<script data-name="rtl">
+(function(){
+// The DOM element you wish to replace with Tagify
+var input = document.querySelector('input[name=rtl-example]');
+
+// initialize Tagify on the above input node reference
+new Tagify(input, {
+    whitelist: [
+        { value: "מיכאל כהן", full: "<em>מיכאל כהן</em> - פיתוח תוכנה מתקדם ויישום טכנולוגיות חדשניות בתחום התעשייה והייצור" },
+        { value: "שרה לוי", full: "<em>שרה לוי</em> - ניהול ופיתוח פתרונות אקולוגיים וסביבתיים למתן יתרון תחרותי לעסקים" },
+        { value: "אברהם גולן", full: "<em>אברהם גולן</em> - יישום ופיתוח טכנולוגיות מתקדמות לשיפור פרודוקטיביות ויצירתיות בארגונים" },
+        { value: "רחל רביבו", full: "<em>רחל רביבו</em> - מחקר ופיתוח טכנולוגי בתחום החדשנות והיזמות לקידום עסקים ותעשיות" },
+        { value: "דוד כהן", full: "<em>דוד כהן</em> - פיתוח ויישום טכנולוגיות מתקדמות לשיפור תשתיות מידע עסקיות" },
+        { value: "רבקה אריאל", full: "<em>רבקה אריאל</em> - ייזום ופיתוח מוצרים חדשניים עבור תעשיות יצירתיות ומתקדמות" }
+    ],
+    dropdown: {
+        mapValueTo: 'full',
+        classname: 'tagify__dropdown--rtl-example',
+        enabled: 0, // shows the suggestiosn dropdown once field is focused
+        RTL: true,
+        escapeHTML: false // allows HTML inside each suggestion item
+    }
+})
 })()
 </script>
 
