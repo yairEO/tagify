@@ -5,6 +5,7 @@ import {ZERO_WIDTH_CHAR} from './constants'
 //         console.log(  JSON.stringify(arguments[arg], null, 4)  )
 // }
 
+export const cx = (...list) => list.filter(Boolean).join(' ')
 
 // const isEdge = /Edge/.test(navigator.userAgent)
 export const sameStr = (s1, s2, caseSensitive, trim) => {
