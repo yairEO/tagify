@@ -271,9 +271,11 @@ export default {
 
         if( _sd.position == 'manual' ) return
 
-        var rect, top, bottom, left, width, parentsPositions,
+        var rect, top, bottom, left, width, ancestorsOffsets,
+            isPlacedAbove,
+            cssTop, cssLeft,
             ddElm = this.DOM.dropdown,
-            placeAbove = _sd.placeAbove,
+            isRTL = _sd.RTL,
             isDefaultAppendTarget = _sd.appendTarget === document.body,
             appendTargetScrollTop = isDefaultAppendTarget ? window.pageYOffset : _sd.appendTarget.scrollTop,
             root = document.fullscreenElement || document.webkitFullscreenElement || document.documentElement,
@@ -284,18 +286,17 @@ export default {
 
         ddHeight = ddHeight || ddElm.clientHeight
 
-        function getParentsPositions(p){
-            var left = 0,
-                top = 0;
+        function getAncestorsOffsets(p){
+            var top = 0, left = 0;
 
             // when in element-fullscreen mode, do not go above the fullscreened-element
             while(p && p != root){
-                left += p.offsetLeft || 0;
-                top += p.offsetTop || 0;
+                top += p.offsetTop || 0
+                left += p.offsetLeft || 0
                 p = p.parentNode
             }
 
-            return {left, top};
+            return {top, left};
         }
 
         function getAccumulatedAncestorsScrollTop() {
@@ -321,11 +322,11 @@ export default {
         }
 
         else{
-            parentsPositions = getParentsPositions(_sd.appendTarget)
+            ancestorsOffsets = getAncestorsOffsets(_sd.appendTarget)
             rect   = ddTarget.getBoundingClientRect()
-            top    = rect.top - parentsPositions.top
-            bottom = rect.bottom - 1 - parentsPositions.top
-            left   = rect.left - parentsPositions.left
+            top    = rect.top - ancestorsOffsets.top
+            bottom = rect.bottom - 1 - ancestorsOffsets.top
+            left   = rect.left - ancestorsOffsets.left
             width  = rect.width + 'px'
         }
 
@@ -339,17 +340,18 @@ export default {
         top = Math.floor(top)
         bottom = Math.ceil(bottom)
 
-
-        placeAbove = placeAbove === undefined
-            ? viewportHeight - rect.bottom < ddHeight
-            : placeAbove
+        isPlacedAbove = _sd.placeAbove ?? viewportHeight - rect.bottom < ddHeight
 
         // flip vertically if there is no space for the dropdown below the input
-        ddElm.style.cssText = "left:"  + (left + window.pageXOffset) + "px; width:" + width + ";" + (placeAbove
-            ? "top: "   + (top + appendTargetScrollTop)    + "px"
-            : "top: "   + (bottom + appendTargetScrollTop) + "px");
+        cssTop = (isPlacedAbove ? top : bottom) + appendTargetScrollTop;
 
-        ddElm.setAttribute('placement', placeAbove ? "top" : "bottom")
+        // "pageXOffset" property is an alias for "scrollX"
+        cssLeft = `left: ${(left + (isRTL ? (rect.width || 0) : 0) + window.pageXOffset)}px;`
+
+       // rtl = rtl ?? viewportWidth -
+        ddElm.style.cssText = `${cssLeft}; top: ${cssTop}px; min-width: ${width}; max-width: ${width}`;
+
+        ddElm.setAttribute('placement', isPlacedAbove ? 'top' : 'bottom')
         ddElm.setAttribute('position', positionTo)
     },
 
