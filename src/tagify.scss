@@ -41,6 +41,7 @@
     --tags-border-color        : #{$tags-border-color};
     --tags-hover-border-color  : #{$tags-hover-border-color};
     --tags-focus-border-color  : #{$tags-focus-border-color};
+
     --tag-border-radius        : 3px;
     --tag-bg                   : #{$tag-bg};
     --tag-hover                : #{$tag-hover};
@@ -50,14 +51,16 @@
     --tag-inset-shadow-size    : #{$tag-inset-shadow-size};
     --tag-invalid-color        : #{$tag-invalid-color};
     --tag-invalid-bg           : #{$tag-invalid-bg};
+    --tag--min-width           : #{$tag-min-width};
+    --tag--max-width           : #{$tag-max-width};
+    --tag-hide-transition      : #{$tag-hide-transition};
+
     --tag-remove-bg            : #{rgba($tag-remove, .3)};
     --tag-remove-btn-color     : #{$tag-remove-btn-color};
     --tag-remove-btn-bg        : #{$tag-remove-btn-bg};
     --tag-remove-btn-bg--hover : #{$tag-remove-btn-bg--hover};
+
     --input-color              : #{$input-color};
-    --tag--min-width           : #{$tag-min-width};
-    --tag--max-width           : #{$tag-max-width};
-    --tag-hide-transition      : #{$tag-hide-transition};
     --placeholder-color        : #{$placeholder-color};
     --placeholder-color-focus  : #{$placeholder-color-focus};
     --loader-size              : .8em;
@@ -607,7 +610,7 @@
     // it cannot ingerit the CSS variables applied on the ".Tagify" element
     &__dropdown{
         $dropdown: &;
-        $trans: .4s;
+        $trans: .3s;
         $trans-curve: cubic-bezier(.5, 0, .3, 1);
 
         position: absolute;
@@ -616,7 +619,7 @@
         border-top: 1px solid var(--tagify-dd-color-primary);
         overflow: hidden;
 
-        &--rtl {
+        &[dir='rtl'] {
             transform: translate(-100%, -1px);
         }
 
