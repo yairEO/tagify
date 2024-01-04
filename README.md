@@ -868,6 +868,7 @@ Name                              | Info
 --tagify-dd-bg-color              | Sugegstion's background color on hover
 --tagify-dd-item--hidden-duration | When selecting a suggestion, this is the duration for it to become hidden (shrink)
 --tagify-dd-item-pad              | Suggestion item padding
+--tagify-dd-max-height            | Maximum height of the suggestions dropdown (`300px` by default)
 
 ### Full list of Tagify's [SCSS variables](https://github.com/yairEO/tagify/blob/master/src/tagify.scss#L9-L24)
 
@@ -1056,6 +1057,7 @@ dropdown.*sortby*              | <sub>String/Function</sub>   |                 
 dropdown.*accentedSearch*      | <sub>Boolean</sub>           | true                                        | Enable searching for <em>accented</em> items in the whitelist without typing exact match (#491)
 dropdown.*includeSelectedTags* | <sub>Boolean</sub>           | false                                       | Should the suggestions list Include already-selected tags (after filtering)
 dropdown.*position*            | <sub>String</sub>            | `"all"`                                     | <ul><li>`manual` - will not render the dropdown, and you would need to do it yourself. [See demo](https://yaireo.github.io/tagify/#section-manual-suggestions)</li><li>`text` - places the dropdown next to the caret</li><li>`input` - places the dropdown next to the input (useful in rare situations)</li><li>`all` - normal, full-width design</li></ul>
+dropdown.*RTL*                 | <sub>Boolean</sub>           | false                                       | Dictates the dropdown's horizontal starting position. By default it would be aligned with the left side of the *Tagify* component.
 dropdown.*highlightFirst*      | <sub>Boolean</sub>           | false                                       | When a suggestions list is shown, highlight the first item, and also suggest it in the input (The suggestion can be accepted with <kbd>→</kbd> key)
 dropdown.*closeOnSelect*       | <sub>Boolean</sub>           | true                                        | close the dropdown after selecting an item, if `enabled:0` is set (which means always show dropdown on focus)
 dropdown.*clearOnSelect*       | <sub>Boolean</sub>           | true                                        | Keep typed text after selecting a suggestion
