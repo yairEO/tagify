@@ -119,7 +119,7 @@ function jquery(){
     return gulp.src('dist/tagify.min.js')
         .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
         .pipe($.rename('jQuery.tagify.min.js'))
-        // .pipe($.terser())
+        .pipe($.terser())
         .pipe($.headerComment(banner))
         .pipe(gulp.dest('./dist/'))
 }
