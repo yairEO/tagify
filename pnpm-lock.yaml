@@ -2344,7 +2344,7 @@ packages:
     resolution: {integrity: sha512-sbZu5DHE535MZxKMndx8S8FMIJoPBLRfbLhtfKBt1hSkm/nx3yoN7HOcrFIIdKmud+nZlm3PO4FGouTh0rKY7w==}
     hasBin: true
     dependencies:
-      minimist: 0.2.2
+      minimist: 0.2.4
       unique-random: 0.1.1
     dev: true
 
@@ -3271,7 +3271,7 @@ packages:
       dateformat: 1.0.12
       lodash._reinterpolate: 2.4.1
       lodash.template: 2.4.1
-      minimist: 0.2.2
+      minimist: 0.2.4
       multipipe: 0.1.2
       through2: 0.5.1
       vinyl: 0.2.3
@@ -4247,8 +4247,8 @@ packages:
       brace-expansion: 1.1.11
     dev: true
 
-  /minimist@0.2.2:
-    resolution: {integrity: sha512-g92kDfAOAszDRtHNagjZPPI/9lfOFaRBL/Ud6Z0RKZua/x+49awTydZLh5Gkhb80Xy5hmcvZNLGzscW5n5yd0g==}
+  /minimist@0.2.4:
+    resolution: {integrity: sha512-Pkrrm8NjyQ8yVt8Am9M+yUt74zE3iokhzbG1bFVNjLB92vwM71hf40RkEsryg98BujhVOncKm/C1xROxZ030LQ==}
     dev: true
 
   /minimist@1.2.7:
