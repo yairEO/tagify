@@ -17,7 +17,7 @@
     $tagMargin               : 5px !default;
     $tag-pad                 : .3em .5em !default;
     $tag-min-width           : 1ch !default;
-    $tag-max-width           : auto !default;
+    $tag-max-width           : 100% !default;
     $tag-text-color          : black !default;
     $tag-text-color--edit    : black !default;
     $tag-bg                  : #E5E5E5 !default;
@@ -206,7 +206,7 @@
     &__tag{
         display    : inline-flex;
         align-items: center;
-        // margin     : $tagMargin 0 $tagMargin $tagMargin;
+        max-width  : calc(var(--tag--max-width) - #{$tagMargin * 2}) ;
         margin-inline: $tagMargin 0;
         margin-block: $tagMargin;
         position   : relative;
