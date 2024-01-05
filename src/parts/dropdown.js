@@ -479,7 +479,7 @@ export default {
             onMouseOver(e){
                 var ddItem = e.target.closest(this.settings.classNames.dropdownItemSelector)
                 // event delegation check
-                ddItem && this.dropdown.highlightOption(ddItem)
+                this.dropdown.highlightOption(ddItem)
             },
 
             onMouseLeave(e){
