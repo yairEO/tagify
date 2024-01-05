@@ -596,7 +596,7 @@ value                   | <sub>String/Array</sub>   | ✔         | Initial valu
 defaultValue            | <sub>String/Array</sub>   |           | Same as `value prop
 placeholder             | <sub>String</sub>         | ✔         | placeholder text for the component
 readOnly                | <sub>Boolean</sub>        | ✔         | Toggles `readonly` state. With capital `O`.
-tagifyRef               | <sub>Object</sub>         |           | `useRef` hook refference for the component inner instance of vailla *Tagify* (for methods access)
+tagifyRef               | <sub>Object</sub>         |           | `useRef` hook refference for the component inner instance of vanilla *Tagify* (for methods access)
 showDropdown            | <sub>Boolean/String</sub> | ✔         | if `true` shows the suggestions dropdown. if assigned a String, show the dropdown pre-filtered.
 loading                 | <sub>Boolean</sub>        | ✔         | Toggles `loading` state for the whole component
 whitelist               | <sub>Array</sub>          | ✔         | Sets the `whitelist` which is the basis for the suggestions dropdown & autocomplete
