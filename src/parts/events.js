@@ -772,8 +772,10 @@ export default {
                             this.addTags(this.state.inputText + result, true)
                         }
 
-                        else
+                        else {
                             this.state.inputText = result
+                            this.dropdown.show(result)
+                        }
                     }
                 })
                 .catch(err => err)
