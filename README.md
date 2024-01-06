@@ -923,6 +923,8 @@ Name                       | Parameters                                         
 
 ## Events
 
+To listen to `tagify` events use the `.on(EVENT_NAME, EVENT_CALLBACK_REFERENCE)` mehotd and stop listening use the `.off(EVENT_NAME, EVENT_CALLBACK_REFERENCE)`
+
 All triggered events return the instance's scope (tagify).<br>
 See `e.detail` for custom event additional data.
 
@@ -934,8 +936,15 @@ var tagify = new Tagify(...)
 
 // events can be chainable, and multiple events may be binded for the same callback
 tagify
-  .on('input', e => console.log(e.detail))
+  .on('input', onInput)
   .on('edit:input edit:updated edit:start edit:keydown', e => console.log(e.type, e.detail))
+
+function onInput(e) {
+  console.log(e.detail)
+}
+
+// later in the code you might do to unsubscribe the event listener with a specific callback
+tagify.off('input', onInput)
 ```
 </details>
 
