@@ -492,11 +492,7 @@ Tagify.prototype = {
             tagIdx = this.getNodeIndex(tagElm),
             tagData = getSetTagData(tagElm),
             _CB = this.events.callbacks,
-            that = this,
-            isValid = true,
-            delayed_onEditTagBlur = function(){
-                setTimeout(() => _CB.onEditTagBlur.call(that, that.getTagTextNode(tagElm)))
-            }
+            isValid = true
 
         if( !editableElm ){
             console.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
@@ -518,7 +514,7 @@ Tagify.prototype = {
         tagElm.classList.add( _s.classNames.tagEditing )
 
         editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm))
-        editableElm.addEventListener('blur', delayed_onEditTagBlur)
+        editableElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, this.getTagTextNode(tagElm)))
         editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
         editableElm.addEventListener('paste', _CB.onEditTagPaste.bind(this, editableElm))
         editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e, tagElm))

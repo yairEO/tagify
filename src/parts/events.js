@@ -839,6 +839,11 @@ export default {
         },
 
         onEditTagBlur( editableElm ){
+            // is "ESC" key was pressed then the "editing" state should be `false` and if so, logic should not continue
+            // because "ESC" reverts the edited tag back to how it was (replace the node) before editing
+            if( !this.state.editing )
+                return;
+
             if( !this.state.hasFocus )
                 this.toggleFocusClass()
 
@@ -928,10 +933,11 @@ export default {
             switch( e.key ){
                 case 'Esc' :
                 case 'Escape' : {
+                    this.state.editing = false;
                     // revert the tag to how it was before editing
                     // replace current tag with original one (pre-edited one)
                     tagElm.parentNode.replaceChild(tagElm.__tagifyTagData.__originalHTML, tagElm)
-                    this.state.editing = false;
+                    break;
                 }
                 case 'Enter' :
                 case 'Tab' :
