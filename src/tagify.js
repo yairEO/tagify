@@ -438,7 +438,7 @@ Tagify.prototype = {
                 )
             }
         } catch(err){
-            // console.warn("Tagify: ", err)
+            console.warn("Tagify: ", err)
         }
     },
 
@@ -653,8 +653,8 @@ Tagify.prototype = {
             return this;
         }
 
-        injectAtCaret(injectedNode, range)
-        this.setRangeAtStartEnd(false, injectedNode)
+        let node = injectAtCaret(injectedNode, range)
+        this.setRangeAtStartEnd(false, node)
 
         this.updateValueByDOMTags() // updates internal "this.value"
         this.update() // updates original input/textarea
