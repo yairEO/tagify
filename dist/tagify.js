@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.18.0) - tags input component
+ * Tagify (v 4.18.1) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -876,7 +876,7 @@
         onMouseOver(e) {
           var ddItem = e.target.closest(this.settings.classNames.dropdownItemSelector);
           // event delegation check
-          ddItem && this.dropdown.highlightOption(ddItem);
+          this.dropdown.highlightOption(ddItem);
         },
         onMouseLeave(e) {
           // de-highlight any previously highlighted option
@@ -968,9 +968,10 @@
      * @param {Object} event The original Click event, if available (since keyboard ENTER key also triggers this method)
      */
     selectOption(elm, event) {
-      var _this$settings$dropdo = this.settings.dropdown,
-        clearOnSelect = _this$settings$dropdo.clearOnSelect,
-        closeOnSelect = _this$settings$dropdo.closeOnSelect;
+      var _s = this.settings,
+        _s$dropdown = _s.dropdown,
+        clearOnSelect = _s$dropdown.clearOnSelect,
+        closeOnSelect = _s$dropdown.closeOnSelect;
       if (!elm) {
         this.addTags(this.state.inputText, true);
         closeOnSelect && this.dropdown.hide();
@@ -996,14 +997,17 @@
         return;
       }
       if (this.state.editing) {
+        let normalizedTagData = this.normalizeTags([tagData])[0];
+        tagData = _s.transformTag.call(this, normalizedTagData) || normalizedTagData;
+
         // normalizing value, because "tagData" might be a string, and therefore will not be able to extend the object
         this.onEditTagDone(null, extend({
           __isValid: true
-        }, this.normalizeTags([tagData])[0]));
+        }, tagData));
       }
       // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
       else {
-        this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect);
+        this[_s.mode == 'mix' ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect);
       }
 
       // todo: consider not doing this on mix-mode
@@ -1989,7 +1993,10 @@
               this.events.callbacks.onMixTagsInput.call(this, e);
             } else if (this.settings.pasteAsTags) {
               this.addTags(this.state.inputText + result, true);
-            } else this.state.inputText = result;
+            } else {
+              this.state.inputText = result;
+              this.dropdown.show(result);
+            }
           }
         }).catch(err => err);
       },
@@ -2047,6 +2054,9 @@
         };
       },
       onEditTagBlur(editableElm) {
+        // is "ESC" key was pressed then the "editing" state should be `false` and if so, logic should not continue
+        // because "ESC" reverts the edited tag back to how it was (replace the node) before editing
+        if (!this.state.editing) return;
         if (!this.state.hasFocus) this.toggleFocusClass();
 
         // one scenario is when selecting a suggestion from the dropdown, when editing, and by selecting it
@@ -2131,10 +2141,11 @@
           case 'Esc':
           case 'Escape':
             {
+              this.state.editing = false;
               // revert the tag to how it was before editing
               // replace current tag with original one (pre-edited one)
               tagElm.parentNode.replaceChild(tagElm.__tagifyTagData.__originalHTML, tagElm);
-              this.state.editing = false;
+              break;
             }
           case 'Enter':
           case 'Tab':
@@ -2605,7 +2616,7 @@
           ['Start', 'End'].forEach(pos => sel.getRangeAt(0)["set" + pos](node, start ? start : node.length));
         }
       } catch (err) {
-        // console.warn("Tagify: ", err)
+        console.warn("Tagify: ", err);
       }
     },
     insertAfterTag(tagElm, newNode) {
@@ -2644,11 +2655,7 @@
         tagIdx = this.getNodeIndex(tagElm),
         tagData = getSetTagData(tagElm),
         _CB = this.events.callbacks,
-        that = this,
-        isValid = true,
-        delayed_onEditTagBlur = function () {
-          setTimeout(() => _CB.onEditTagBlur.call(that, that.getTagTextNode(tagElm)));
-        };
+        isValid = true;
       if (!editableElm) {
         console.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
         return;
@@ -2665,7 +2672,7 @@
       editableElm.setAttribute('contenteditable', true);
       tagElm.classList.add(_s.classNames.tagEditing);
       editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm));
-      editableElm.addEventListener('blur', delayed_onEditTagBlur);
+      editableElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, this.getTagTextNode(tagElm)));
       editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
       editableElm.addEventListener('paste', _CB.onEditTagPaste.bind(this, editableElm));
       editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e, tagElm));
@@ -2776,8 +2783,8 @@
         this.appendMixTags(injectedNode);
         return this;
       }
-      injectAtCaret(injectedNode, range);
-      this.setRangeAtStartEnd(false, injectedNode);
+      let node = injectAtCaret(injectedNode, range);
+      this.setRangeAtStartEnd(false, node);
       this.updateValueByDOMTags(); // updates internal "this.value"
       this.update(); // updates original input/textarea
 
