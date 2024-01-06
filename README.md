@@ -63,6 +63,7 @@
     - [Updating the component's state](#updating-the-components-state)
 - [jQuery version](#jquery-version)
 - [HTML input \& textarea attributes](#html-input--textarea-attributes)
+- [Caveats](#caveats)
 - [FAQ](#faq)
 - [CSS Variables](#css-variables)
   - [Suggestions Dropdown CSS variables](#suggestions-dropdown-css-variables)
@@ -666,6 +667,9 @@ autofocus         | <pre lang=html>`<input autofocus>`</pre> | Automatically foc
 required          | <pre lang=html>`<input required>`</pre> | Adds a `required` attribute to the Tagify wrapper element. Does nothing more.
 
 
+
+## Caveats
+- `<input>` wrapped in a `<label>` doesn't work - [#1219](https://github.com/yairEO/tagify/issues/1219)
 
 ## FAQ
 List of questions & scenarios which might come up during development with Tagify:
