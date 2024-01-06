@@ -582,7 +582,8 @@ export default {
      * @param {Object} event The original Click event, if available (since keyboard ENTER key also triggers this method)
      */
     selectOption( elm, event ){
-        var {clearOnSelect, closeOnSelect} = this.settings.dropdown;
+        var _s = this.settings,
+            {clearOnSelect, closeOnSelect} = _s.dropdown;
 
         if( !elm ) {
             this.addTags(this.state.inputText, true)
@@ -608,12 +609,15 @@ export default {
         }
 
         if( this.state.editing ) {
+            let normalizedTagData = this.normalizeTags([tagData])[0]
+            tagData =  _s.transformTag.call(this, normalizedTagData) || normalizedTagData
+
             // normalizing value, because "tagData" might be a string, and therefore will not be able to extend the object
-            this.onEditTagDone(null, extend({__isValid: true}, this.normalizeTags([tagData])[0]))
+            this.onEditTagDone(null, extend({__isValid: true}, tagData))
         }
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
         else {
-            this[this.settings.mode == 'mix' ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect)
+            this[_s.mode == 'mix' ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect)
         }
 
         // todo: consider not doing this on mix-mode
