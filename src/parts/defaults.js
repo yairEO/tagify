@@ -5,6 +5,7 @@ export default {
     maxTags             : Infinity,       // Maximum number of tags
     callbacks           : {},             // Exposed callbacks object to be triggered on certain events
     addTagOnBlur        : true,           // automatically adds the text which was inputed as a tag when blur event happens
+    addTagOn            : ['blur', 'tab', 'enter'],  // if the tagify field (in a normal mode) has any non-tag input in it, convert it to a tag on any of these events: blur away from the field, click "tab"/"enter" key
     onChangeAfterBlur   : true,           // By default, the native way of inputs' onChange events is kept, and it only fires when the field is blured.
     duplicates          : false,          // "true" - allow duplicate tags
     whitelist           : [],             // Array of tags to suggest as the user types (can be used along with "enforceWhitelist" setting)
@@ -90,6 +91,7 @@ export default {
     hooks: {
         beforeRemoveTag: () => Promise.resolve(),
         beforePaste: () => Promise.resolve(),
-        suggestionClick: () => Promise.resolve()
+        suggestionClick: () => Promise.resolve(),
+        beforeKeyDown: () => Promise.resolve(),
     }
 }

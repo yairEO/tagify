@@ -205,7 +205,7 @@ export default {
                         text = ''
                 }
 
-                shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur;
+                shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur && _s.addTagOn.includes('blur');
 
                 // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
                 shouldAddTags && this.addTags(text, true)
@@ -268,230 +268,234 @@ export default {
 
             this.trigger("keydown", {event:e})
 
-            /**
-             * ONLY FOR MIX-MODE:
-             */
-            if( _s.mode == 'mix' ){
-                switch( e.key ){
-                    case 'Left' :
-                    case 'ArrowLeft' : {
-                        // when left arrow was pressed, set a flag so when the dropdown is shown, right-arrow will be ignored
-                        // because it seems likely the user wishes to use the arrows to move the caret
-                        this.state.actions.ArrowLeft = true
-                        break
-                    }
+            _s.hooks.beforeKeyDown(e, {tagify:this})
+                .then(result => {
+                    /**
+                     * ONLY FOR MIX-MODE:
+                     */
+                    if( _s.mode == 'mix' ){
+                        switch( e.key ){
+                            case 'Left' :
+                            case 'ArrowLeft' : {
+                                // when left arrow was pressed, set a flag so when the dropdown is shown, right-arrow will be ignored
+                                // because it seems likely the user wishes to use the arrows to move the caret
+                                this.state.actions.ArrowLeft = true
+                                break
+                            }
 
-                    case 'Delete':
-                    case 'Backspace' : {
-                        if( this.state.editing ) return
+                            case 'Delete':
+                            case 'Backspace' : {
+                                if( this.state.editing ) return
 
-                        var sel = document.getSelection(),
-                            deleteKeyTagDetected = e.key == 'Delete' && sel.anchorOffset == (sel.anchorNode.length || 0),
-                            prevAnchorSibling = sel.anchorNode.previousSibling,
-                            isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && prevAnchorSibling && prevAnchorSibling.nodeType == 1 && sel.anchorNode.previousSibling,
-                            lastInputValue = decode(this.DOM.input.innerHTML),
-                            lastTagElems = this.getTagElms(),
-                            isZWS = sel.anchorNode.length === 1 && sel.anchorNode.nodeValue == String.fromCharCode(8203),
-                            //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
-                            tagBeforeCaret,
-                            tagElmToBeDeleted,
-                            firstTextNodeBeforeTag;
+                                var sel = document.getSelection(),
+                                    deleteKeyTagDetected = e.key == 'Delete' && sel.anchorOffset == (sel.anchorNode.length || 0),
+                                    prevAnchorSibling = sel.anchorNode.previousSibling,
+                                    isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && prevAnchorSibling && prevAnchorSibling.nodeType == 1 && sel.anchorNode.previousSibling,
+                                    lastInputValue = decode(this.DOM.input.innerHTML),
+                                    lastTagElems = this.getTagElms(),
+                                    isZWS = sel.anchorNode.length === 1 && sel.anchorNode.nodeValue == String.fromCharCode(8203),
+                                    //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
+                                    tagBeforeCaret,
+                                    tagElmToBeDeleted,
+                                    firstTextNodeBeforeTag;
 
-                        if( _s.backspace == 'edit' && isCaretAfterTag ){
-                            tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
-                            setTimeout(this.editTag.bind(this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
-                            e.preventDefault() // needed so the tag elm won't get deleted
-                            return;
-                        }
-
-                        if( isChromeAndroidBrowser() && isCaretAfterTag instanceof Element ){
-                            firstTextNodeBeforeTag = getfirstTextNode(isCaretAfterTag)
-
-                            if( !isCaretAfterTag.hasAttribute('readonly') )
-                                isCaretAfterTag.remove() // since this is Chrome, can safetly use this "new" DOM API
-
-                            // Android-Chrome wrongly hides the keyboard, and loses focus,
-                            // so this hack below is needed to regain focus at the correct place:
-                            this.DOM.input.focus()
-                            setTimeout(() => {
-                                placeCaretAfterNode(firstTextNodeBeforeTag)
-                                this.DOM.input.click()
-
-                            })
-
-                            return
-                        }
-
-                        if( sel.anchorNode.nodeName == 'BR')
-                            return
-
-                        if( (deleteKeyTagDetected || isCaretAfterTag) && sel.anchorNode.nodeType == 1 )
-                            if( sel.anchorOffset == 0 ) // caret is at the very begining, before a tag
-                                tagElmToBeDeleted = deleteKeyTagDetected // delete key pressed
-                                    ? lastTagElems[0]
-                                    : null;
-                            else
-                                tagElmToBeDeleted = lastTagElems[Math.min(lastTagElems.length, sel.anchorOffset) - 1]
-
-                        // find out if a tag *might* be a candidate for deletion, and if so, which
-                        else if( deleteKeyTagDetected )
-                            tagElmToBeDeleted = sel.anchorNode.nextElementSibling;
-
-                        else if( isCaretAfterTag instanceof Element )
-                            tagElmToBeDeleted = isCaretAfterTag;
-
-                        // tagElm.hasAttribute('readonly')
-                        if( sel.anchorNode.nodeType == 3 &&   // node at caret location is a Text node
-                            !sel.anchorNode.nodeValue    &&   // has some text
-                            sel.anchorNode.previousElementSibling )  // text node has a Tag node before it
-                            e.preventDefault()
-
-                        // if backspace not allowed, do nothing
-                        // TODO: a better way to detect if nodes were deleted is to simply check the "this.value" before & after
-                        if( (isCaretAfterTag || deleteKeyTagDetected) && !_s.backspace ){
-                            e.preventDefault()
-                            return
-                        }
-
-                        if( sel.type != 'Range' && !sel.anchorOffset && sel.anchorNode == this.DOM.input && e.key != 'Delete' ){
-                            e.preventDefault()
-                            return
-                        }
-
-                        if( sel.type != 'Range' && tagElmToBeDeleted && tagElmToBeDeleted.hasAttribute('readonly') ){
-                            // allows the continuation of deletion by placing the caret on the first previous textNode.
-                            // since a few readonly-tags might be one after the other, iteration is needed:
-
-                            placeCaretAfterNode( getfirstTextNode(tagElmToBeDeleted) )
-                            return
-                        }
-
-                        if ( e.key == 'Delete' && isZWS && getSetTagData(sel.anchorNode.nextSibling) ) {
-                            this.removeTags(sel.anchorNode.nextSibling)
-                        }
-
-                        // update regarding https://github.com/yairEO/tagify/issues/762#issuecomment-786464317:
-                        // the bug described is more severe than the fix below, therefore I disable the fix until a solution
-                        // is found which work well for both cases.
-                        // -------
-                        // nodeType is "1" only when the caret is at the end after last tag (no text after), or before first first (no text before)
-                        /*
-                        if( this.isFirefox && sel.anchorNode.nodeType == 1 && sel.anchorOffset != 0 ){
-                            this.removeTags() // removes last tag by default if no parameter supplied
-                            // place caret inside last textNode, if exist. it's an annoying bug only in FF,
-                            // if the last tag is removed, and there is a textNode before it, the caret is not placed at its end
-                            placeCaretAfterNode( setRangeAtStartEnd(false, this.DOM.input) )
-                        }
-                        */
-
-                        clearTimeout(deleteBackspaceTimeout)
-                        // a minimum delay is needed before the node actually gets detached from the document (don't know why),
-                        // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
-                        deleteBackspaceTimeout = setTimeout(() => {
-                            var sel = document.getSelection(),
-                                currentValue = decode(this.DOM.input.innerHTML),
-                                prevElm = !deleteKeyTagDetected && sel.anchorNode.previousSibling;
-
-                            // fixes #384, where the first and only tag will not get removed with backspace
-                            /*
-                             * [UPDATE DEC 3, 22] SEEMS BELOEW CODE IS NOT NEEDED ANY MORE
-                             *
-                            if( currentValue.length > lastInputValue.length && prevElm ){
-                                if( isNodeTag.call(this, prevElm) && !prevElm.hasAttribute('readonly') ){
-                                    this.removeTags(prevElm)
-                                    this.fixFirefoxLastTagNoCaret()
-
-                                    // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
-                                    if( this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR" ){
-                                        this.DOM.input.innerHTML = ""
-                                        this.value.length = 0
-                                        return true
-                                    }
+                                if( _s.backspace == 'edit' && isCaretAfterTag ){
+                                    tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
+                                    setTimeout(this.editTag.bind(this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
+                                    e.preventDefault() // needed so the tag elm won't get deleted
+                                    return;
                                 }
 
-                                else
-                                    prevElm.remove()
+                                if( isChromeAndroidBrowser() && isCaretAfterTag instanceof Element ){
+                                    firstTextNodeBeforeTag = getfirstTextNode(isCaretAfterTag)
+
+                                    if( !isCaretAfterTag.hasAttribute('readonly') )
+                                        isCaretAfterTag.remove() // since this is Chrome, can safetly use this "new" DOM API
+
+                                    // Android-Chrome wrongly hides the keyboard, and loses focus,
+                                    // so this hack below is needed to regain focus at the correct place:
+                                    this.DOM.input.focus()
+                                    setTimeout(() => {
+                                        placeCaretAfterNode(firstTextNodeBeforeTag)
+                                        this.DOM.input.click()
+
+                                    })
+
+                                    return
+                                }
+
+                                if( sel.anchorNode.nodeName == 'BR')
+                                    return
+
+                                if( (deleteKeyTagDetected || isCaretAfterTag) && sel.anchorNode.nodeType == 1 )
+                                    if( sel.anchorOffset == 0 ) // caret is at the very begining, before a tag
+                                        tagElmToBeDeleted = deleteKeyTagDetected // delete key pressed
+                                            ? lastTagElems[0]
+                                            : null;
+                                    else
+                                        tagElmToBeDeleted = lastTagElems[Math.min(lastTagElems.length, sel.anchorOffset) - 1]
+
+                                // find out if a tag *might* be a candidate for deletion, and if so, which
+                                else if( deleteKeyTagDetected )
+                                    tagElmToBeDeleted = sel.anchorNode.nextElementSibling;
+
+                                else if( isCaretAfterTag instanceof Element )
+                                    tagElmToBeDeleted = isCaretAfterTag;
+
+                                // tagElm.hasAttribute('readonly')
+                                if( sel.anchorNode.nodeType == 3 &&   // node at caret location is a Text node
+                                    !sel.anchorNode.nodeValue    &&   // has some text
+                                    sel.anchorNode.previousElementSibling )  // text node has a Tag node before it
+                                    e.preventDefault()
+
+                                // if backspace not allowed, do nothing
+                                // TODO: a better way to detect if nodes were deleted is to simply check the "this.value" before & after
+                                if( (isCaretAfterTag || deleteKeyTagDetected) && !_s.backspace ){
+                                    e.preventDefault()
+                                    return
+                                }
+
+                                if( sel.type != 'Range' && !sel.anchorOffset && sel.anchorNode == this.DOM.input && e.key != 'Delete' ){
+                                    e.preventDefault()
+                                    return
+                                }
+
+                                if( sel.type != 'Range' && tagElmToBeDeleted && tagElmToBeDeleted.hasAttribute('readonly') ){
+                                    // allows the continuation of deletion by placing the caret on the first previous textNode.
+                                    // since a few readonly-tags might be one after the other, iteration is needed:
+
+                                    placeCaretAfterNode( getfirstTextNode(tagElmToBeDeleted) )
+                                    return
+                                }
+
+                                if ( e.key == 'Delete' && isZWS && getSetTagData(sel.anchorNode.nextSibling) ) {
+                                    this.removeTags(sel.anchorNode.nextSibling)
+                                }
+
+                                // update regarding https://github.com/yairEO/tagify/issues/762#issuecomment-786464317:
+                                // the bug described is more severe than the fix below, therefore I disable the fix until a solution
+                                // is found which work well for both cases.
+                                // -------
+                                // nodeType is "1" only when the caret is at the end after last tag (no text after), or before first first (no text before)
+                                /*
+                                if( this.isFirefox && sel.anchorNode.nodeType == 1 && sel.anchorOffset != 0 ){
+                                    this.removeTags() // removes last tag by default if no parameter supplied
+                                    // place caret inside last textNode, if exist. it's an annoying bug only in FF,
+                                    // if the last tag is removed, and there is a textNode before it, the caret is not placed at its end
+                                    placeCaretAfterNode( setRangeAtStartEnd(false, this.DOM.input) )
+                                }
+                                */
+
+                                clearTimeout(deleteBackspaceTimeout)
+                                // a minimum delay is needed before the node actually gets detached from the document (don't know why),
+                                // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
+                                deleteBackspaceTimeout = setTimeout(() => {
+                                    var sel = document.getSelection(),
+                                        currentValue = decode(this.DOM.input.innerHTML),
+                                        prevElm = !deleteKeyTagDetected && sel.anchorNode.previousSibling;
+
+                                    // fixes #384, where the first and only tag will not get removed with backspace
+                                    /*
+                                    * [UPDATE DEC 3, 22] SEEMS BELOEW CODE IS NOT NEEDED ANY MORE
+                                    *
+                                    if( currentValue.length > lastInputValue.length && prevElm ){
+                                        if( isNodeTag.call(this, prevElm) && !prevElm.hasAttribute('readonly') ){
+                                            this.removeTags(prevElm)
+                                            this.fixFirefoxLastTagNoCaret()
+
+                                            // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
+                                            if( this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR" ){
+                                                this.DOM.input.innerHTML = ""
+                                                this.value.length = 0
+                                                return true
+                                            }
+                                        }
+
+                                        else
+                                            prevElm.remove()
+                                    }
+                                    */
+
+                                    // find out which tag(s) were deleted and trigger "remove" event
+                                    // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
+                                    this.value = [].map.call(lastTagElems, (node, nodeIdx) => {
+                                        var tagData = getSetTagData(node)
+
+                                        // since readonly cannot be removed (it's technically resurrected if removed somehow)
+                                        if( node.parentNode || tagData.readonly )
+                                            return tagData
+                                        else
+                                            this.trigger('remove', { tag:node, index:nodeIdx, data:tagData })
+                                    })
+                                        .filter(n=>n)  // remove empty items in the mapped array
+                                }, 20) // Firefox needs this higher duration for some reason or things get buggy when deleting text from the end
+                                break;
                             }
-                            */
-
-                            // find out which tag(s) were deleted and trigger "remove" event
-                            // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
-                            this.value = [].map.call(lastTagElems, (node, nodeIdx) => {
-                                var tagData = getSetTagData(node)
-
-                                // since readonly cannot be removed (it's technically resurrected if removed somehow)
-                                if( node.parentNode || tagData.readonly )
-                                    return tagData
-                                else
-                                    this.trigger('remove', { tag:node, index:nodeIdx, data:tagData })
-                            })
-                                .filter(n=>n)  // remove empty items in the mapped array
-                        }, 20) // Firefox needs this higher duration for some reason or things get buggy when deleting text from the end
-                        break;
-                    }
-                    // currently commented to allow new lines in mixed-mode
-                    // case 'Enter' :
-                    //     // e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                }
-
-                return true
-            }
-
-            switch( e.key ){
-                case 'Backspace' :
-                    if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length)
-                        this.removeTags()
-
-                    else if( !this.state.dropdown.visible || _s.dropdown.position == 'manual' ){
-                        if( e.target.textContent == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
-                            if( _s.backspace === true )
-                                this.removeTags()
-                            else if( _s.backspace == 'edit' )
-                                setTimeout(this.editTag.bind(this), 0) // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
+                            // currently commented to allow new lines in mixed-mode
+                            // case 'Enter' :
+                            //     // e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                         }
+
+                        return true
                     }
-                    break;
 
-                case 'Esc' :
-                case 'Escape' :
-                    if( this.state.dropdown.visible ) return
-                    e.target.blur()
-                    break;
+                    switch( e.key ){
+                        case 'Backspace' :
+                            if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length)
+                                this.removeTags()
 
-                case 'Down' :
-                case 'ArrowDown' :
-                    // if( _s.mode == 'select' ) // issue #333
-                    if( !this.state.dropdown.visible )
-                        this.dropdown.show()
-                    break;
+                            else if( !this.state.dropdown.visible || _s.dropdown.position == 'manual' ){
+                                if( e.target.textContent == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
+                                    if( _s.backspace === true )
+                                        this.removeTags()
+                                    else if( _s.backspace == 'edit' )
+                                        setTimeout(this.editTag.bind(this), 0) // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
+                                }
+                            }
+                            break;
 
-                case 'ArrowRight' : {
-                    let tagData = this.state.inputSuggestion || this.state.ddItemData
-                    if( tagData && _s.autoComplete.rightKey ){
-                        this.addTags([tagData], true)
-                        return;
+                        case 'Esc' :
+                        case 'Escape' :
+                            if( this.state.dropdown.visible ) return
+                            e.target.blur()
+                            break;
+
+                        case 'Down' :
+                        case 'ArrowDown' :
+                            // if( _s.mode == 'select' ) // issue #333
+                            if( !this.state.dropdown.visible )
+                                this.dropdown.show()
+                            break;
+
+                        case 'ArrowRight' : {
+                            let tagData = this.state.inputSuggestion || this.state.ddItemData
+                            if( tagData && _s.autoComplete.rightKey ){
+                                this.addTags([tagData], true)
+                                return;
+                            }
+                            break
+                        }
+                        case 'Tab' : {
+                            let selectMode = _s.mode == 'select'
+                            if(s && !selectMode) e.preventDefault()
+                            else return true;
+                        }
+
+                        case 'Enter' :
+                            // manual suggestion boxes are assumed to always be visible
+                            if( this.state.dropdown.visible && _s.dropdown.position != 'manual' ) return
+                            e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+                            // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
+                            // know if an option was just selected from the dropdown menu. If an option was selected,
+                            // the dropdown events should handle adding the tag
+
+                            setTimeout(()=>{
+                                if( !this.state.dropdown.visible && !this.state.actions.selectOption && _s.addTagOn.includes(e.key.toLowerCase()) )
+                                    this.addTags(s, true)
+                            })
                     }
-                    break
-                }
-                case 'Tab' : {
-                    let selectMode = _s.mode == 'select'
-                    if(s && !selectMode) e.preventDefault()
-                    else return true;
-                }
-
-                case 'Enter' :
-                    // manual suggestion boxes are assumed to always be visible
-                    if( this.state.dropdown.visible && _s.dropdown.position != 'manual' ) return
-                    e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-                    // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
-                    // know if an option was just selected from the dropdown menu. If an option was selected,
-                    // the dropdown events should handle adding the tag
-                    setTimeout(()=>{
-                        if( this.state.dropdown.visible || this.state.actions.selectOption )
-                            return
-                        this.addTags(s, true)
-                    })
-            }
+                })
+                .catch(err => err)
         },
 
         onInput(e){

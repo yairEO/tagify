@@ -398,82 +398,85 @@ export default {
                 var selectedElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
                     selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
 
-                switch( e.key ){
-                    case 'ArrowDown' :
-                    case 'ArrowUp' :
-                    case 'Down' :  // >IE11
-                    case 'Up' : {  // >IE11
-                        e.preventDefault()
-                        var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
-                            actionUp = e.key == 'ArrowUp' || e.key == 'Up';
+                this.settings.hooks.beforeKeyDown(e, {tagify:this})
+                    .then(result => {
+                        switch( e.key ){
+                            case 'ArrowDown' :
+                            case 'ArrowUp' :
+                            case 'Down' :  // >IE11
+                            case 'Up' : {  // >IE11
+                                e.preventDefault()
+                                var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
+                                    actionUp = e.key == 'ArrowUp' || e.key == 'Up';
 
-                        if( selectedElm ) {
-                            selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
-                        }
-
-                        // if no element was found OR current item is not a "real" item, loop
-                        if( !selectedElm || !selectedElm.matches(this.settings.classNames.dropdownItemSelector) ){
-                            selectedElm = dropdownItems[actionUp ? dropdownItems.length - 1 : 0];
-                        }
-
-                        this.dropdown.highlightOption(selectedElm, true)
-                        // selectedElm.scrollIntoView({inline: 'nearest', behavior: 'smooth'})
-                        break;
-                    }
-                    case 'Escape' :
-                    case 'Esc': // IE11
-                        this.dropdown.hide();
-                        break;
-
-                    case 'ArrowRight' :
-                        if( this.state.actions.ArrowLeft )
-                            return
-                    case 'Tab' : {
-                        // in mix-mode, treat arrowRight like Enter key, so a tag will be created
-                        if( this.settings.mode != 'mix' && selectedElm && !this.settings.autoComplete.rightKey && !this.state.editing ){
-                            e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
-                            var value = this.dropdown.getMappedValue(selectedElmData)
-
-                            this.input.autocomplete.set.call(this, value)
-                            return false
-                        }
-                        return true
-                    }
-                    case 'Enter' : {
-                        e.preventDefault()
-
-                        this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
-                            .then(() => {
-                                if( selectedElm ){
-                                    this.dropdown.selectOption(selectedElm)
-                                    // highlight next option
+                                if( selectedElm ) {
                                     selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
-                                    this.dropdown.highlightOption(selectedElm)
-                                    return
                                 }
-                                else
-                                    this.dropdown.hide()
 
-                                if( this.settings.mode != 'mix' )
-                                    this.addTags(this.state.inputText.trim(), true)
-                            })
-                            .catch(err => err)
+                                // if no element was found OR current item is not a "real" item, loop
+                                if( !selectedElm || !selectedElm.matches(this.settings.classNames.dropdownItemSelector) ){
+                                    selectedElm = dropdownItems[actionUp ? dropdownItems.length - 1 : 0];
+                                }
 
-                        break;
-                    }
-                    case 'Backspace' : {
-                        if( this.settings.mode == 'mix' || this.state.editing.scope ) return;
+                                this.dropdown.highlightOption(selectedElm, true)
+                                // selectedElm.scrollIntoView({inline: 'nearest', behavior: 'smooth'})
+                                break;
+                            }
+                            case 'Escape' :
+                            case 'Esc': // IE11
+                                this.dropdown.hide();
+                                break;
 
-                        const value = this.input.raw.call(this)
+                            case 'ArrowRight' :
+                                if( this.state.actions.ArrowLeft )
+                                    return
+                            case 'Tab' : {
+                                // in mix-mode, treat arrowRight like Enter key, so a tag will be created
+                                if( this.settings.mode != 'mix' && selectedElm && !this.settings.autoComplete.rightKey && !this.state.editing ){
+                                    e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
+                                    var value = this.dropdown.getMappedValue(selectedElmData)
 
-                        if( value == "" || value.charCodeAt(0) == 8203 ){
-                            if( this.settings.backspace === true )
-                                this.removeTags()
-                            else if( this.settings.backspace == 'edit' )
-                                setTimeout(this.editTag.bind(this), 0)
+                                    this.input.autocomplete.set.call(this, value)
+                                    return false
+                                }
+                                return true
+                            }
+                            case 'Enter' : {
+                                e.preventDefault()
+
+                                this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
+                                    .then(() => {
+                                        if( selectedElm ){
+                                            this.dropdown.selectOption(selectedElm)
+                                            // highlight next option
+                                            selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
+                                            this.dropdown.highlightOption(selectedElm)
+                                            return
+                                        }
+                                        else
+                                            this.dropdown.hide()
+
+                                        if( this.settings.mode != 'mix' )
+                                            this.addTags(this.state.inputText.trim(), true)
+                                    })
+                                    .catch(err => err)
+
+                                break;
+                            }
+                            case 'Backspace' : {
+                                if( this.settings.mode == 'mix' || this.state.editing.scope ) return;
+
+                                const value = this.input.raw.call(this)
+
+                                if( value == "" || value.charCodeAt(0) == 8203 ){
+                                    if( this.settings.backspace === true )
+                                        this.removeTags()
+                                    else if( this.settings.backspace == 'edit' )
+                                        setTimeout(this.editTag.bind(this), 0)
+                                }
+                            }
                         }
-                    }
-                }
+                    })
             },
 
             onMouseOver(e){
