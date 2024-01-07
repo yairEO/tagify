@@ -71,7 +71,7 @@ export default {
                 noMatchListItem = _s.templates.dropdownItemNoMatch.call(this, {value})
         }
 
-        // if "dropdownItemNoMatch" was no defined, procceed regular flow.
+        // if "dropdownItemNoMatch" was not defined, procceed regular flow.
         //
         if( !noMatchListItem ){
             // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
