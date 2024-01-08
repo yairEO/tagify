@@ -395,10 +395,12 @@ export default {
                     return
 
                 // get the "active" element, and if there was none (yet) active, use first child
-                var selectedElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
-                    selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
+                var _s = this.settings,
+                    selectedElm = this.DOM.dropdown.querySelector(_s.classNames.dropdownItemActiveSelector),
+                    selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm),
+                    isMixMode = _s.mode == 'mix';
 
-                this.settings.hooks.beforeKeyDown(e, {tagify:this})
+                _s.hooks.beforeKeyDown(e, {tagify:this})
                     .then(result => {
                         switch( e.key ){
                             case 'ArrowDown' :
@@ -414,7 +416,7 @@ export default {
                                 }
 
                                 // if no element was found OR current item is not a "real" item, loop
-                                if( !selectedElm || !selectedElm.matches(this.settings.classNames.dropdownItemSelector) ){
+                                if( !selectedElm || !selectedElm.matches(_s.classNames.dropdownItemSelector) ){
                                     selectedElm = dropdownItems[actionUp ? dropdownItems.length - 1 : 0];
                                 }
 
@@ -431,8 +433,10 @@ export default {
                                 if( this.state.actions.ArrowLeft )
                                     return
                             case 'Tab' : {
+                                let shouldAutocompleteOnKey = !_s.autoComplete.rightKey || !_s.autoComplete.tabKey
+
                                 // in mix-mode, treat arrowRight like Enter key, so a tag will be created
-                                if( this.settings.mode != 'mix' && selectedElm && !this.settings.autoComplete.rightKey && !this.state.editing ){
+                                if( !isMixMode && selectedElm && shouldAutocompleteOnKey && !this.state.editing ){
                                     e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
                                     var value = this.dropdown.getMappedValue(selectedElmData)
 
@@ -444,7 +448,7 @@ export default {
                             case 'Enter' : {
                                 e.preventDefault()
 
-                                this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
+                                _s.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                                     .then(() => {
                                         if( selectedElm ){
                                             this.dropdown.selectOption(selectedElm)
@@ -456,7 +460,7 @@ export default {
                                         else
                                             this.dropdown.hide()
 
-                                        if( this.settings.mode != 'mix' )
+                                        if( !isMixMode )
                                             this.addTags(this.state.inputText.trim(), true)
                                     })
                                     .catch(err => err)
@@ -464,14 +468,14 @@ export default {
                                 break;
                             }
                             case 'Backspace' : {
-                                if( this.settings.mode == 'mix' || this.state.editing.scope ) return;
+                                if( isMixMode || this.state.editing.scope ) return;
 
                                 const value = this.input.raw.call(this)
 
                                 if( value == "" || value.charCodeAt(0) == 8203 ){
-                                    if( this.settings.backspace === true )
+                                    if( _s.backspace === true )
                                         this.removeTags()
-                                    else if( this.settings.backspace == 'edit' )
+                                    else if( _s.backspace == 'edit' )
                                         setTimeout(this.editTag.bind(this), 0)
                                 }
                             }
