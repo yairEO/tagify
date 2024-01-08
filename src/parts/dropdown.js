@@ -60,7 +60,6 @@ export default {
 
         // if no value was supplied, show all the "whitelist" items in the dropdown
         // @type [Array] listItems
-        // TODO: add a Setting to control items' sort order for "listItems"
         this.suggestedListItems = this.dropdown.filterListItems(value)
 
         // trigger at this exact point to let the developer the chance to manually set "this.suggestedListItems"
