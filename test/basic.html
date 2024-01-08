@@ -130,7 +130,8 @@ new Tagify(inputElm, {
 <script>
 (() => {
     var emptyJSONTagify = new Tagify(document.querySelector('input[name=value_empty_JSON]'), {
-        addTagOnBlur: false,
+        // addTagOnBlur: false,
+        addTagOn: ['blur', 'tab', 'enter'],
         autoComplete : {
             rightKey:true
         },
@@ -157,7 +158,14 @@ new Tagify(inputElm, {
                 value: 'aaaaa1',
                 email: '11aaa@gmail.com',
             },
-        ]
+        ],
+        hooks: {
+            beforeKeyDown: function(e){
+                return new Promise((resolve, reject) => {
+                    resolve()
+                })
+            }
+        }
     })
 
     var tagify3 = new Tagify(document.querySelector('input[name=value_JSON]'), {
@@ -203,7 +211,7 @@ new Tagify(inputElm, {
                         ? resolve()
                         : reject()
                 })
-        }
+            }
         }
     })
 
