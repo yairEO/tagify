@@ -576,6 +576,8 @@ Tagify.prototype = {
             data        : tagData
         }
 
+        var _s = this.settings
+
         this.trigger("edit:beforeUpdate", eventData, {cloneData:false})
 
         this.state.editing = false;
@@ -583,11 +585,25 @@ Tagify.prototype = {
         delete tagData.__originalData
         delete tagData.__originalHTML
 
-        if( tagElm && tagData[this.settings.tagTextProp] ){
+        // some scenarrios like in the one in the demos page with textarea that has 2 whitelists, one of the whitelist might be
+        // an array of objects with a property defined the same as the `tagTextProp` setting (if used) but another whitelist
+        // might be simpler - just an array of primitives.
+        function veryfyTagTextProp() {
+            var tagTextProp = tagData[_s.tagTextProp];
+
+            if( tagTextProp ) {
+                return tagTextProp.trim() ? tagTextProp : false;
+            }
+
+            if( !(_s.tagTextProp in tagData) )
+                return tagData.value
+        }
+
+        if( tagElm && veryfyTagTextProp() ){
             tagElm = this.replaceTag(tagElm, tagData)
             this.editTagToggleValidity(tagElm, tagData)
 
-            if( this.settings.a11y.focusableTags )
+            if( _s.a11y.focusableTags )
                 tagElm.focus()
             else
                 // place caret after edited tag
