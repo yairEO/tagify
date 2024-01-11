@@ -131,12 +131,14 @@ new Tagify(inputElm, {
 (() => {
     var emptyJSONTagify = new Tagify(document.querySelector('input[name=value_empty_JSON]'), {
         // addTagOnBlur: false,
+        delimiters: /,|\s/,
         addTagOn: ['blur', 'tab', 'enter'],
         autoComplete : {
-            rightKey:true
+            tabKey: true
         },
         dropdown: {
             enabled: 0,
+            highlightFirst: true,
             mapValueTo: "email",
             searchKeys: ['value', 'email']
         },
