@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.18.1) - tags input component
+ * Tagify (v 4.18.2) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -350,6 +350,8 @@
     // Exposed callbacks object to be triggered on certain events
     addTagOnBlur: true,
     // automatically adds the text which was inputed as a tag when blur event happens
+    addTagOn: ['blur', 'tab', 'enter'],
+    // if the tagify field (in a normal mode) has any non-tag input in it, convert it to a tag on any of these events: blur away from the field, click "tab"/"enter" key
     onChangeAfterBlur: true,
     // By default, the native way of inputs' onChange events is kept, and it only fires when the field is blured.
     duplicates: false,
@@ -398,7 +400,9 @@
     autoComplete: {
       enabled: true,
       // Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
-      rightKey: false // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
+      rightKey: false,
+      // If `true`, when Right key is pressed, use the suggested value to create a tag, else just auto-completes the input. in mixed-mode this is set to "true"
+      tabKey: false // If 'true`, pressing `tab` key would only auto-complete but not also convert to a tag (like `rightKey` does).
     },
 
     classNames: {
@@ -458,7 +462,8 @@
     hooks: {
       beforeRemoveTag: () => Promise.resolve(),
       beforePaste: () => Promise.resolve(),
-      suggestionClick: () => Promise.resolve()
+      suggestionClick: () => Promise.resolve(),
+      beforeKeyDown: () => Promise.resolve()
     }
   };
 
@@ -508,7 +513,6 @@
 
       // if no value was supplied, show all the "whitelist" items in the dropdown
       // @type [Array] listItems
-      // TODO: add a Setting to control items' sort order for "listItems"
       this.suggestedListItems = this.dropdown.filterListItems(value);
 
       // trigger at this exact point to let the developer the chance to manually set "this.suggestedListItems"
@@ -519,7 +523,7 @@
         });
       }
 
-      // if "dropdownItemNoMatch" was no defined, procceed regular flow.
+      // if "dropdownItemNoMatch" was not defined, procceed regular flow.
       //
       if (!noMatchListItem) {
         // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
@@ -802,76 +806,84 @@
           if (!this.state.hasFocus || this.state.composing) return;
 
           // get the "active" element, and if there was none (yet) active, use first child
-          var selectedElm = this.DOM.dropdown.querySelector(this.settings.classNames.dropdownItemActiveSelector),
-            selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm);
-          switch (e.key) {
-            case 'ArrowDown':
-            case 'ArrowUp':
-            case 'Down': // >IE11
-            case 'Up':
-              {
-                // >IE11
-                e.preventDefault();
-                var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
-                  actionUp = e.key == 'ArrowUp' || e.key == 'Up';
-                if (selectedElm) {
-                  selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp);
-                }
-
-                // if no element was found OR current item is not a "real" item, loop
-                if (!selectedElm || !selectedElm.matches(this.settings.classNames.dropdownItemSelector)) {
-                  selectedElm = dropdownItems[actionUp ? dropdownItems.length - 1 : 0];
-                }
-                this.dropdown.highlightOption(selectedElm, true);
-                // selectedElm.scrollIntoView({inline: 'nearest', behavior: 'smooth'})
-                break;
-              }
-            case 'Escape':
-            case 'Esc':
-              // IE11
-              this.dropdown.hide();
-              break;
-            case 'ArrowRight':
-              if (this.state.actions.ArrowLeft) return;
-            case 'Tab':
-              {
-                // in mix-mode, treat arrowRight like Enter key, so a tag will be created
-                if (this.settings.mode != 'mix' && selectedElm && !this.settings.autoComplete.rightKey && !this.state.editing) {
-                  e.preventDefault(); // prevents blur so the autocomplete suggestion will not become a tag
-                  var value = this.dropdown.getMappedValue(selectedElmData);
-                  this.input.autocomplete.set.call(this, value);
-                  return false;
-                }
-                return true;
-              }
-            case 'Enter':
-              {
-                e.preventDefault();
-                this.settings.hooks.suggestionClick(e, {
-                  tagify: this,
-                  tagData: selectedElmData,
-                  suggestionElm: selectedElm
-                }).then(() => {
+          var _s = this.settings,
+            selectedElm = this.DOM.dropdown.querySelector(_s.classNames.dropdownItemActiveSelector),
+            selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm),
+            isMixMode = _s.mode == 'mix';
+          _s.hooks.beforeKeyDown(e, {
+            tagify: this
+          }).then(result => {
+            switch (e.key) {
+              case 'ArrowDown':
+              case 'ArrowUp':
+              case 'Down': // >IE11
+              case 'Up':
+                {
+                  // >IE11
+                  e.preventDefault();
+                  var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
+                    actionUp = e.key == 'ArrowUp' || e.key == 'Up';
                   if (selectedElm) {
-                    this.dropdown.selectOption(selectedElm);
-                    // highlight next option
                     selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp);
-                    this.dropdown.highlightOption(selectedElm);
-                    return;
-                  } else this.dropdown.hide();
-                  if (this.settings.mode != 'mix') this.addTags(this.state.inputText.trim(), true);
-                }).catch(err => err);
-                break;
-              }
-            case 'Backspace':
-              {
-                if (this.settings.mode == 'mix' || this.state.editing.scope) return;
-                const value = this.input.raw.call(this);
-                if (value == "" || value.charCodeAt(0) == 8203) {
-                  if (this.settings.backspace === true) this.removeTags();else if (this.settings.backspace == 'edit') setTimeout(this.editTag.bind(this), 0);
+                  }
+
+                  // if no element was found OR current item is not a "real" item, loop
+                  if (!selectedElm || !selectedElm.matches(_s.classNames.dropdownItemSelector)) {
+                    selectedElm = dropdownItems[actionUp ? dropdownItems.length - 1 : 0];
+                  }
+                  this.dropdown.highlightOption(selectedElm, true);
+                  // selectedElm.scrollIntoView({inline: 'nearest', behavior: 'smooth'})
+                  break;
                 }
-              }
-          }
+              case 'Escape':
+              case 'Esc':
+                // IE11
+                this.dropdown.hide();
+                break;
+              case 'ArrowRight':
+                if (this.state.actions.ArrowLeft) return;
+              case 'Tab':
+                {
+                  let shouldAutocompleteOnKey = !_s.autoComplete.rightKey || !_s.autoComplete.tabKey;
+
+                  // in mix-mode, treat arrowRight like Enter key, so a tag will be created
+                  if (!isMixMode && selectedElm && shouldAutocompleteOnKey && !this.state.editing) {
+                    e.preventDefault(); // prevents blur so the autocomplete suggestion will not become a tag
+                    var value = this.dropdown.getMappedValue(selectedElmData);
+                    this.input.autocomplete.set.call(this, value);
+                    return false;
+                  }
+                  return true;
+                }
+              case 'Enter':
+                {
+                  e.preventDefault();
+                  _s.hooks.suggestionClick(e, {
+                    tagify: this,
+                    tagData: selectedElmData,
+                    suggestionElm: selectedElm
+                  }).then(() => {
+                    if (selectedElm) {
+                      this.dropdown.selectOption(selectedElm);
+                      // highlight next option
+                      selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp);
+                      this.dropdown.highlightOption(selectedElm);
+                      return;
+                    } else this.dropdown.hide();
+                    if (!isMixMode) this.addTags(this.state.inputText.trim(), true);
+                  }).catch(err => err);
+                  break;
+                }
+              case 'Backspace':
+                {
+                  if (isMixMode || this.state.editing.scope) return;
+                  const value = this.input.raw.call(this);
+                  if (value == "" || value.charCodeAt(0) == 8203) {
+                    if (_s.backspace === true) this.removeTags();else if (_s.backspace == 'edit') setTimeout(this.editTag.bind(this), 0);
+                  }
+                }
+            }
+          });
         },
         onMouseOver(e) {
           var ddItem = e.target.closest(this.settings.classNames.dropdownItemSelector);
@@ -1497,7 +1509,7 @@
             // if nothing has changed (same display value), do not add a tag
             if (currentDisplayValue === text) text = '';
           }
-          shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur;
+          shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur && _s.addTagOn.includes('blur');
 
           // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
           shouldAddTags && this.addTags(text, true);
@@ -1550,211 +1562,217 @@
         this.trigger("keydown", {
           event: e
         });
-
-        /**
-         * ONLY FOR MIX-MODE:
-         */
-        if (_s.mode == 'mix') {
-          switch (e.key) {
-            case 'Left':
-            case 'ArrowLeft':
-              {
-                // when left arrow was pressed, set a flag so when the dropdown is shown, right-arrow will be ignored
-                // because it seems likely the user wishes to use the arrows to move the caret
-                this.state.actions.ArrowLeft = true;
-                break;
-              }
-            case 'Delete':
-            case 'Backspace':
-              {
-                if (this.state.editing) return;
-                var sel = document.getSelection(),
-                  deleteKeyTagDetected = e.key == 'Delete' && sel.anchorOffset == (sel.anchorNode.length || 0),
-                  prevAnchorSibling = sel.anchorNode.previousSibling,
-                  isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && prevAnchorSibling && prevAnchorSibling.nodeType == 1 && sel.anchorNode.previousSibling;
-                  decode(this.DOM.input.innerHTML);
-                  var lastTagElems = this.getTagElms(),
-                  isZWS = sel.anchorNode.length === 1 && sel.anchorNode.nodeValue == String.fromCharCode(8203),
-                  //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
-                  tagBeforeCaret,
-                  tagElmToBeDeleted,
-                  firstTextNodeBeforeTag;
-                if (_s.backspace == 'edit' && isCaretAfterTag) {
-                  tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
-                  setTimeout(this.editTag.bind(this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
-                  e.preventDefault(); // needed so the tag elm won't get deleted
-                  return;
+        _s.hooks.beforeKeyDown(e, {
+          tagify: this
+        }).then(result => {
+          /**
+           * ONLY FOR MIX-MODE:
+           */
+          if (_s.mode == 'mix') {
+            switch (e.key) {
+              case 'Left':
+              case 'ArrowLeft':
+                {
+                  // when left arrow was pressed, set a flag so when the dropdown is shown, right-arrow will be ignored
+                  // because it seems likely the user wishes to use the arrows to move the caret
+                  this.state.actions.ArrowLeft = true;
+                  break;
                 }
-                if (isChromeAndroidBrowser() && isCaretAfterTag instanceof Element) {
-                  firstTextNodeBeforeTag = getfirstTextNode(isCaretAfterTag);
-                  if (!isCaretAfterTag.hasAttribute('readonly')) isCaretAfterTag.remove(); // since this is Chrome, can safetly use this "new" DOM API
-
-                  // Android-Chrome wrongly hides the keyboard, and loses focus,
-                  // so this hack below is needed to regain focus at the correct place:
-                  this.DOM.input.focus();
-                  setTimeout(() => {
-                    placeCaretAfterNode(firstTextNodeBeforeTag);
-                    this.DOM.input.click();
-                  });
-                  return;
-                }
-                if (sel.anchorNode.nodeName == 'BR') return;
-                if ((deleteKeyTagDetected || isCaretAfterTag) && sel.anchorNode.nodeType == 1) {
-                  if (sel.anchorOffset == 0)
-                    // caret is at the very begining, before a tag
-                    tagElmToBeDeleted = deleteKeyTagDetected // delete key pressed
-                    ? lastTagElems[0] : null;else tagElmToBeDeleted = lastTagElems[Math.min(lastTagElems.length, sel.anchorOffset) - 1];
-
-                  // find out if a tag *might* be a candidate for deletion, and if so, which
-                } else if (deleteKeyTagDetected) tagElmToBeDeleted = sel.anchorNode.nextElementSibling;else if (isCaretAfterTag instanceof Element) tagElmToBeDeleted = isCaretAfterTag;
-
-                // tagElm.hasAttribute('readonly')
-                if (sel.anchorNode.nodeType == 3 &&
-                // node at caret location is a Text node
-                !sel.anchorNode.nodeValue &&
-                // has some text
-                sel.anchorNode.previousElementSibling)
-                  // text node has a Tag node before it
-                  e.preventDefault();
-
-                // if backspace not allowed, do nothing
-                // TODO: a better way to detect if nodes were deleted is to simply check the "this.value" before & after
-                if ((isCaretAfterTag || deleteKeyTagDetected) && !_s.backspace) {
-                  e.preventDefault();
-                  return;
-                }
-                if (sel.type != 'Range' && !sel.anchorOffset && sel.anchorNode == this.DOM.input && e.key != 'Delete') {
-                  e.preventDefault();
-                  return;
-                }
-                if (sel.type != 'Range' && tagElmToBeDeleted && tagElmToBeDeleted.hasAttribute('readonly')) {
-                  // allows the continuation of deletion by placing the caret on the first previous textNode.
-                  // since a few readonly-tags might be one after the other, iteration is needed:
-
-                  placeCaretAfterNode(getfirstTextNode(tagElmToBeDeleted));
-                  return;
-                }
-                if (e.key == 'Delete' && isZWS && getSetTagData(sel.anchorNode.nextSibling)) {
-                  this.removeTags(sel.anchorNode.nextSibling);
-                }
-
-                // update regarding https://github.com/yairEO/tagify/issues/762#issuecomment-786464317:
-                // the bug described is more severe than the fix below, therefore I disable the fix until a solution
-                // is found which work well for both cases.
-                // -------
-                // nodeType is "1" only when the caret is at the end after last tag (no text after), or before first first (no text before)
-                /*
-                if( this.isFirefox && sel.anchorNode.nodeType == 1 && sel.anchorOffset != 0 ){
-                    this.removeTags() // removes last tag by default if no parameter supplied
-                    // place caret inside last textNode, if exist. it's an annoying bug only in FF,
-                    // if the last tag is removed, and there is a textNode before it, the caret is not placed at its end
-                    placeCaretAfterNode( setRangeAtStartEnd(false, this.DOM.input) )
-                }
-                */
-
-                clearTimeout(deleteBackspaceTimeout);
-                // a minimum delay is needed before the node actually gets detached from the document (don't know why),
-                // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
-                deleteBackspaceTimeout = setTimeout(() => {
-                  var sel = document.getSelection();
+              case 'Delete':
+              case 'Backspace':
+                {
+                  if (this.state.editing) return;
+                  var sel = document.getSelection(),
+                    deleteKeyTagDetected = e.key == 'Delete' && sel.anchorOffset == (sel.anchorNode.length || 0),
+                    prevAnchorSibling = sel.anchorNode.previousSibling,
+                    isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && prevAnchorSibling && prevAnchorSibling.nodeType == 1 && sel.anchorNode.previousSibling;
                     decode(this.DOM.input.innerHTML);
-                    !deleteKeyTagDetected && sel.anchorNode.previousSibling;
+                    var lastTagElems = this.getTagElms(),
+                    isZWS = sel.anchorNode.length === 1 && sel.anchorNode.nodeValue == String.fromCharCode(8203),
+                    //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
+                    tagBeforeCaret,
+                    tagElmToBeDeleted,
+                    firstTextNodeBeforeTag;
+                  if (_s.backspace == 'edit' && isCaretAfterTag) {
+                    tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
+                    setTimeout(this.editTag.bind(this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
+                    e.preventDefault(); // needed so the tag elm won't get deleted
+                    return;
+                  }
+                  if (isChromeAndroidBrowser() && isCaretAfterTag instanceof Element) {
+                    firstTextNodeBeforeTag = getfirstTextNode(isCaretAfterTag);
+                    if (!isCaretAfterTag.hasAttribute('readonly')) isCaretAfterTag.remove(); // since this is Chrome, can safetly use this "new" DOM API
 
-                  // fixes #384, where the first and only tag will not get removed with backspace
+                    // Android-Chrome wrongly hides the keyboard, and loses focus,
+                    // so this hack below is needed to regain focus at the correct place:
+                    this.DOM.input.focus();
+                    setTimeout(() => {
+                      placeCaretAfterNode(firstTextNodeBeforeTag);
+                      this.DOM.input.click();
+                    });
+                    return;
+                  }
+                  if (sel.anchorNode.nodeName == 'BR') return;
+                  if ((deleteKeyTagDetected || isCaretAfterTag) && sel.anchorNode.nodeType == 1) {
+                    if (sel.anchorOffset == 0)
+                      // caret is at the very begining, before a tag
+                      tagElmToBeDeleted = deleteKeyTagDetected // delete key pressed
+                      ? lastTagElems[0] : null;else tagElmToBeDeleted = lastTagElems[Math.min(lastTagElems.length, sel.anchorOffset) - 1];
+
+                    // find out if a tag *might* be a candidate for deletion, and if so, which
+                  } else if (deleteKeyTagDetected) tagElmToBeDeleted = sel.anchorNode.nextElementSibling;else if (isCaretAfterTag instanceof Element) tagElmToBeDeleted = isCaretAfterTag;
+
+                  // tagElm.hasAttribute('readonly')
+                  if (sel.anchorNode.nodeType == 3 &&
+                  // node at caret location is a Text node
+                  !sel.anchorNode.nodeValue &&
+                  // has some text
+                  sel.anchorNode.previousElementSibling)
+                    // text node has a Tag node before it
+                    e.preventDefault();
+
+                  // if backspace not allowed, do nothing
+                  // TODO: a better way to detect if nodes were deleted is to simply check the "this.value" before & after
+                  if ((isCaretAfterTag || deleteKeyTagDetected) && !_s.backspace) {
+                    e.preventDefault();
+                    return;
+                  }
+                  if (sel.type != 'Range' && !sel.anchorOffset && sel.anchorNode == this.DOM.input && e.key != 'Delete') {
+                    e.preventDefault();
+                    return;
+                  }
+                  if (sel.type != 'Range' && tagElmToBeDeleted && tagElmToBeDeleted.hasAttribute('readonly')) {
+                    // allows the continuation of deletion by placing the caret on the first previous textNode.
+                    // since a few readonly-tags might be one after the other, iteration is needed:
+
+                    placeCaretAfterNode(getfirstTextNode(tagElmToBeDeleted));
+                    return;
+                  }
+                  if (e.key == 'Delete' && isZWS && getSetTagData(sel.anchorNode.nextSibling)) {
+                    this.removeTags(sel.anchorNode.nextSibling);
+                  }
+
+                  // update regarding https://github.com/yairEO/tagify/issues/762#issuecomment-786464317:
+                  // the bug described is more severe than the fix below, therefore I disable the fix until a solution
+                  // is found which work well for both cases.
+                  // -------
+                  // nodeType is "1" only when the caret is at the end after last tag (no text after), or before first first (no text before)
                   /*
-                   * [UPDATE DEC 3, 22] SEEMS BELOEW CODE IS NOT NEEDED ANY MORE
-                   *
-                  if( currentValue.length > lastInputValue.length && prevElm ){
-                      if( isNodeTag.call(this, prevElm) && !prevElm.hasAttribute('readonly') ){
-                          this.removeTags(prevElm)
-                          this.fixFirefoxLastTagNoCaret()
-                            // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
-                          if( this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR" ){
-                              this.DOM.input.innerHTML = ""
-                              this.value.length = 0
-                              return true
-                          }
-                      }
-                        else
-                          prevElm.remove()
+                  if( this.isFirefox && sel.anchorNode.nodeType == 1 && sel.anchorOffset != 0 ){
+                      this.removeTags() // removes last tag by default if no parameter supplied
+                      // place caret inside last textNode, if exist. it's an annoying bug only in FF,
+                      // if the last tag is removed, and there is a textNode before it, the caret is not placed at its end
+                      placeCaretAfterNode( setRangeAtStartEnd(false, this.DOM.input) )
                   }
                   */
 
-                  // find out which tag(s) were deleted and trigger "remove" event
-                  // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
-                  this.value = [].map.call(lastTagElems, (node, nodeIdx) => {
-                    var tagData = getSetTagData(node);
+                  clearTimeout(deleteBackspaceTimeout);
+                  // a minimum delay is needed before the node actually gets detached from the document (don't know why),
+                  // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
+                  deleteBackspaceTimeout = setTimeout(() => {
+                    var sel = document.getSelection();
+                      decode(this.DOM.input.innerHTML);
+                      !deleteKeyTagDetected && sel.anchorNode.previousSibling;
 
-                    // since readonly cannot be removed (it's technically resurrected if removed somehow)
-                    if (node.parentNode || tagData.readonly) return tagData;else this.trigger('remove', {
-                      tag: node,
-                      index: nodeIdx,
-                      data: tagData
-                    });
-                  }).filter(n => n); // remove empty items in the mapped array
-                }, 20); // Firefox needs this higher duration for some reason or things get buggy when deleting text from the end
+                    // fixes #384, where the first and only tag will not get removed with backspace
+                    /*
+                    * [UPDATE DEC 3, 22] SEEMS BELOEW CODE IS NOT NEEDED ANY MORE
+                    *
+                    if( currentValue.length > lastInputValue.length && prevElm ){
+                        if( isNodeTag.call(this, prevElm) && !prevElm.hasAttribute('readonly') ){
+                            this.removeTags(prevElm)
+                            this.fixFirefoxLastTagNoCaret()
+                              // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
+                            if( this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR" ){
+                                this.DOM.input.innerHTML = ""
+                                this.value.length = 0
+                                return true
+                            }
+                        }
+                          else
+                            prevElm.remove()
+                    }
+                    */
+
+                    // find out which tag(s) were deleted and trigger "remove" event
+                    // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
+                    this.value = [].map.call(lastTagElems, (node, nodeIdx) => {
+                      var tagData = getSetTagData(node);
+
+                      // since readonly cannot be removed (it's technically resurrected if removed somehow)
+                      if (node.parentNode || tagData.readonly) return tagData;else this.trigger('remove', {
+                        tag: node,
+                        index: nodeIdx,
+                        data: tagData
+                      });
+                    }).filter(n => n); // remove empty items in the mapped array
+                  }, 20); // Firefox needs this higher duration for some reason or things get buggy when deleting text from the end
+                  break;
+                }
+              // currently commented to allow new lines in mixed-mode
+              // case 'Enter' :
+              //     // e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+            }
+
+            return true;
+          }
+          var isManualDropdown = _s.dropdown.position == 'manual';
+          switch (e.key) {
+            case 'Backspace':
+              if (_s.mode == 'select' && _s.enforceWhitelist && this.value.length) this.removeTags();else if (!this.state.dropdown.visible || _s.dropdown.position == 'manual') {
+                if (e.target.textContent == "" || s.charCodeAt(0) == 8203) {
+                  // 8203: ZERO WIDTH SPACE unicode
+                  if (_s.backspace === true) this.removeTags();else if (_s.backspace == 'edit') setTimeout(this.editTag.bind(this), 0); // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
+                }
+              }
+
+              break;
+            case 'Esc':
+            case 'Escape':
+              if (this.state.dropdown.visible) return;
+              e.target.blur();
+              break;
+            case 'Down':
+            case 'ArrowDown':
+              // if( _s.mode == 'select' ) // issue #333
+              if (!this.state.dropdown.visible) this.dropdown.show();
+              break;
+            case 'ArrowRight':
+              {
+                let tagData = this.state.inputSuggestion || this.state.ddItemData;
+                if (tagData && _s.autoComplete.rightKey) {
+                  this.addTags([tagData], true);
+                  return;
+                }
                 break;
               }
-            // currently commented to allow new lines in mixed-mode
-            // case 'Enter' :
-            //     // e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+            case 'Tab':
+              {
+                let selectMode = _s.mode == 'select';
+                if (s && !selectMode) e.preventDefault();else return true;
+              }
+            case 'Enter':
+              // manual suggestion boxes are assumed to always be visible
+              if (this.state.dropdown.visible && !isManualDropdown) return;
+              e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+              // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
+              // know if an option was just selected from the dropdown menu. If an option was selected,
+              // the dropdown events should handle adding the tag
+
+              setTimeout(() => {
+                if ((!this.state.dropdown.visible || isManualDropdown) && !this.state.actions.selectOption && _s.addTagOn.includes(e.key.toLowerCase())) this.addTags(s, true);
+              });
           }
-
-          return true;
-        }
-        switch (e.key) {
-          case 'Backspace':
-            if (_s.mode == 'select' && _s.enforceWhitelist && this.value.length) this.removeTags();else if (!this.state.dropdown.visible || _s.dropdown.position == 'manual') {
-              if (e.target.textContent == "" || s.charCodeAt(0) == 8203) {
-                // 8203: ZERO WIDTH SPACE unicode
-                if (_s.backspace === true) this.removeTags();else if (_s.backspace == 'edit') setTimeout(this.editTag.bind(this), 0); // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
-              }
-            }
-
-            break;
-          case 'Esc':
-          case 'Escape':
-            if (this.state.dropdown.visible) return;
-            e.target.blur();
-            break;
-          case 'Down':
-          case 'ArrowDown':
-            // if( _s.mode == 'select' ) // issue #333
-            if (!this.state.dropdown.visible) this.dropdown.show();
-            break;
-          case 'ArrowRight':
-            {
-              let tagData = this.state.inputSuggestion || this.state.ddItemData;
-              if (tagData && _s.autoComplete.rightKey) {
-                this.addTags([tagData], true);
-                return;
-              }
-              break;
-            }
-          case 'Tab':
-            {
-              let selectMode = _s.mode == 'select';
-              if (s && !selectMode) e.preventDefault();else return true;
-            }
-          case 'Enter':
-            // manual suggestion boxes are assumed to always be visible
-            if (this.state.dropdown.visible && _s.dropdown.position != 'manual') return;
-            e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
-            // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
-            // know if an option was just selected from the dropdown menu. If an option was selected,
-            // the dropdown events should handle adding the tag
-            setTimeout(() => {
-              if (this.state.dropdown.visible || this.state.actions.selectOption) return;
-              this.addTags(s, true);
-            });
-        }
+        }).catch(err => err);
       },
       onInput(e) {
         this.postUpdate(); // toggles "tagify--empty" class
 
         var _s = this.settings;
         if (_s.mode == 'mix') return this.events.callbacks.onMixTagsInput.call(this, e);
-        var value = this.input.normalize.call(this),
+        var value = this.input.normalize.call(this, undefined, {
+            trim: false
+          }),
           showSuggestions = value.length >= _s.dropdown.enabled,
           eventData = {
             value,
@@ -1767,7 +1785,7 @@
           this.toggleScopeValidation(validation);
         }
         eventData.isValid = validation;
-
+        console.log(this.state.inputText, value);
         // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
         // and so many keys do not change the input, and for those do not continue.
         if (this.state.inputText == value) return;
@@ -2725,16 +2743,28 @@
         previousData: getSetTagData(tagElm),
         data: tagData
       };
+      var _s = this.settings;
       this.trigger("edit:beforeUpdate", eventData, {
         cloneData: false
       });
       this.state.editing = false;
       delete tagData.__originalData;
       delete tagData.__originalHTML;
-      if (tagElm && tagData[this.settings.tagTextProp]) {
+
+      // some scenarrios like in the one in the demos page with textarea that has 2 whitelists, one of the whitelist might be
+      // an array of objects with a property defined the same as the `tagTextProp` setting (if used) but another whitelist
+      // might be simpler - just an array of primitives.
+      function veryfyTagTextProp() {
+        var tagTextProp = tagData[_s.tagTextProp];
+        if (tagTextProp) {
+          return tagTextProp.trim() ? tagTextProp : false;
+        }
+        if (!(_s.tagTextProp in tagData)) return tagData.value;
+      }
+      if (tagElm && veryfyTagTextProp()) {
         tagElm = this.replaceTag(tagElm, tagData);
         this.editTagToggleValidity(tagElm, tagData);
-        if (this.settings.a11y.focusableTags) tagElm.focus();else
+        if (_s.a11y.focusableTags) tagElm.focus();else
           // place caret after edited tag
           placeCaretAfterNode(tagElm);
       } else if (tagElm) this.removeTags(tagElm);
@@ -2819,7 +2849,7 @@
         return isValid;
       },
       // remove any child DOM elements that aren't of type TEXT (like <br>)
-      normalize(node) {
+      normalize(node, options) {
         var clone = node || this.DOM.input,
           //.cloneNode(true),
           v = [];
@@ -2834,7 +2864,7 @@
         } catch (err) {}
         v = v.replace(/\s/g, ' '); // replace NBSPs with spaces characters
 
-        return this.trim(v);
+        return options?.trim ? this.trim(v) : v;
       },
       /**
        * suggest the rest of the input's value (via CSS "::after" using "content:attr(...)")
