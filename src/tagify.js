@@ -713,7 +713,7 @@ Tagify.prototype = {
         },
 
         // remove any child DOM elements that aren't of type TEXT (like <br>)
-        normalize( node ){
+        normalize( node, options ){
             var clone = node || this.DOM.input, //.cloneNode(true),
                 v = [];
 
@@ -730,7 +730,7 @@ Tagify.prototype = {
 
             v = v.replace(/\s/g, ' ')  // replace NBSPs with spaces characters
 
-            return this.trim(v)
+            return options?.trim ? this.trim(v) : v
         },
 
         /**

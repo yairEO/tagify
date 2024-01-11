@@ -506,7 +506,7 @@ export default {
             if( _s.mode == 'mix' )
                 return this.events.callbacks.onMixTagsInput.call(this, e);
 
-            var value = this.input.normalize.call(this),
+            var value = this.input.normalize.call(this, undefined, {trim: false}),
                 showSuggestions = value.length >= _s.dropdown.enabled,
                 eventData = {value, inputElm:this.DOM.input},
                 validation = this.validateTag({value});
@@ -517,6 +517,7 @@ export default {
 
             eventData.isValid = validation;
 
+            console.log(this.state.inputText , value)
             // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
             // and so many keys do not change the input, and for those do not continue.
             if( this.state.inputText == value ) return;
