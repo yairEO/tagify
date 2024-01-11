@@ -439,6 +439,8 @@ export default {
                         return true
                     }
 
+                    var isManualDropdown = _s.dropdown.position == 'manual';
+
                     switch( e.key ){
                         case 'Backspace' :
                             if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length)
@@ -483,14 +485,14 @@ export default {
 
                         case 'Enter' :
                             // manual suggestion boxes are assumed to always be visible
-                            if( this.state.dropdown.visible && _s.dropdown.position != 'manual' ) return
+                            if( this.state.dropdown.visible && !isManualDropdown ) return
                             e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                             // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
                             // know if an option was just selected from the dropdown menu. If an option was selected,
                             // the dropdown events should handle adding the tag
 
                             setTimeout(()=>{
-                                if( !this.state.dropdown.visible && !this.state.actions.selectOption && _s.addTagOn.includes(e.key.toLowerCase()) )
+                                if( (!this.state.dropdown.visible || isManualDropdown) && !this.state.actions.selectOption && _s.addTagOn.includes(e.key.toLowerCase()) )
                                     this.addTags(s, true)
                             })
                     }
