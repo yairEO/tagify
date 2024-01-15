@@ -224,8 +224,8 @@ function onInput( e ){
   controller && controller.abort()
   controller = new AbortController()
 
-  // show loading animation and hide the suggestions dropdown
-  tagify.loading(true).dropdown.hide()
+  // show loading animation.
+  tagify.loading(true)
 
   fetch('http://get_suggestions.com?value=' + value, {signal:controller.signal})
     .then(RES => RES.json())
