@@ -432,9 +432,9 @@ export default {
                                 if( this.state.actions.ArrowLeft )
                                     return
                             case 'Tab' : {
-                                let shouldAutocompleteOnKey = !_s.autoComplete.rightKey || !_s.autoComplete.tabKey
+                                let shouldAutocompleteOnKey = _s.autoComplete.rightKey || _s.autoComplete.tabKey
 
-                                // in mix-mode, treat arrowRight like Enter key, so a tag will be created
+                                // in mix-mode, treat arrowRight and Tab like Enter key, so a tag will be created
                                 if( !isMixMode && selectedElm && shouldAutocompleteOnKey && !this.state.editing ){
                                     e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
                                     var value = this.dropdown.getMappedValue(selectedElmData)
