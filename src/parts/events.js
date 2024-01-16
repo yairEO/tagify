@@ -519,7 +519,7 @@ export default {
 
             eventData.isValid = validation;
 
-            console.log(this.state.inputText , value)
+            // console.log(this.state.inputText , value)
             // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
             // and so many keys do not change the input, and for those do not continue.
             if( this.state.inputText == value ) return;
