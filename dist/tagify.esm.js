@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.18.2) - tags input component
+ * Tagify (v 4.18.3) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -1779,7 +1779,7 @@ var events = {
         this.toggleScopeValidation(validation);
       }
       eventData.isValid = validation;
-      console.log(this.state.inputText, value);
+
       // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
       // and so many keys do not change the input, and for those do not continue.
       if (this.state.inputText == value) return;
@@ -2154,9 +2154,11 @@ var events = {
         case 'Escape':
           {
             this.state.editing = false;
-            // revert the tag to how it was before editing
-            // replace current tag with original one (pre-edited one)
-            tagElm.parentNode.replaceChild(tagElm.__tagifyTagData.__originalHTML, tagElm);
+            var hasValueToRevertTo = !!tagElm.__tagifyTagData.__originalData.value;
+            if (hasValueToRevertTo)
+              // revert the tag to how it was before editing
+              // replace current tag with original one (pre-edited one)
+              tagElm.parentNode.replaceChild(tagElm.__tagifyTagData.__originalHTML, tagElm);else tagElm.remove();
             break;
           }
         case 'Enter':
@@ -2316,6 +2318,7 @@ function Tagify(input, settings) {
 }
 Tagify.prototype = {
   _dropdown,
+  placeCaretAfterNode,
   getSetTagData,
   helpers: {
     sameStr,
