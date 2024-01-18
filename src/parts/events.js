@@ -941,11 +941,17 @@ export default {
             switch( e.key ){
                 case 'Esc' :
                 case 'Escape' : {
-                    this.state.editing = false;
-                    // revert the tag to how it was before editing
-                    // replace current tag with original one (pre-edited one)
-                    tagElm.parentNode.replaceChild(tagElm.__tagifyTagData.__originalHTML, tagElm)
-                    break;
+                    this.state.editing = false
+                    var hasValueToRevertTo = !!tagElm.__tagifyTagData.__originalData.value
+
+                    if( hasValueToRevertTo )
+                        // revert the tag to how it was before editing
+                        // replace current tag with original one (pre-edited one)
+                        tagElm.parentNode.replaceChild(tagElm.__tagifyTagData.__originalHTML, tagElm)
+                    else
+                        tagElm.remove()
+
+                    break
                 }
                 case 'Enter' :
                 case 'Tab' :
