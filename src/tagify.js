@@ -67,7 +67,7 @@ function Tagify( input, settings ){
 
 Tagify.prototype = {
     _dropdown,
-
+    placeCaretAfterNode,
     getSetTagData,
     helpers: {sameStr, removeCollectionProp, omit, isObject, parseHTML, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag},
 
