@@ -531,6 +531,8 @@ Tagify.prototype = {
         editableElm.focus()
         this.setRangeAtStartEnd(false, editableElm) // place the caret at the END of the editable tag text
 
+        _s.dropdown.enabled === 0 && this.dropdown.show()
+
         return this
     },
 
