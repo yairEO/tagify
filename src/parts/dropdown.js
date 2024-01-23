@@ -756,7 +756,7 @@ export default {
             isDuplicate = !_sd.includeSelectedTags && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
 
             // match for the value within each "whitelist" item
-            if( valueIsInWhitelist && !isDuplicate )
+            if( valueIsInWhitelist && (!isDuplicate || _s.duplicates))
                 if( exactMatch && startsWithMatch)
                     exactMatchesList.push(whitelistItem)
                 else if( _sd.sortby == 'startsWith' && startsWithMatch )
