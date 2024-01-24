@@ -193,12 +193,18 @@ export default {
         this.dropdown[this.state.dropdown.visible && !show ? 'hide' : 'show']()
     },
 
+    getAppendTarget() {
+        var _sd = this.settings.dropdown;
+        return typeof _sd.appendTarget === 'function' ? _sd.appendTarget() : _sd.appendTarget;
+    },
+
     render(){
         // let the element render in the DOM first, to accurately measure it.
         // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
         var ddHeight = getNodeHeight(this.DOM.dropdown),
             _s = this.settings,
-            enabled = typeof _s.dropdown.enabled == 'number' && _s.dropdown.enabled >= 0;
+            enabled = typeof _s.dropdown.enabled == 'number' && _s.dropdown.enabled >= 0,
+            appendTarget = this.dropdown.getAppendTarget();
 
         if( !enabled ) return this;
 
@@ -209,7 +215,7 @@ export default {
         if( !document.body.contains(this.DOM.dropdown) ){
             this.DOM.dropdown.classList.add( _s.classNames.dropdownInital )
             this.dropdown.position(ddHeight)
-            _s.dropdown.appendTarget.appendChild(this.DOM.dropdown)
+            appendTarget.appendChild(this.DOM.dropdown)
 
             setTimeout(() =>
                 this.DOM.dropdown.classList.remove( _s.classNames.dropdownInital )
@@ -267,17 +273,19 @@ export default {
     },
 
     position( ddHeight ){
-        var _sd = this.settings.dropdown;
+        var _sd = this.settings.dropdown,
+            appendTarget = this.dropdown.getAppendTarget();
 
-        if( _sd.position == 'manual' ) return
+        if( _sd.position == 'manual' || !appendTarget) return
 
         var rect, top, bottom, left, width, ancestorsOffsets,
             isPlacedAbove,
             cssTop, cssLeft,
             ddElm = this.DOM.dropdown,
             isRTL = _sd.RTL,
-            isDefaultAppendTarget = _sd.appendTarget === document.body,
-            appendTargetScrollTop = isDefaultAppendTarget ? window.pageYOffset : _sd.appendTarget.scrollTop,
+            isDefaultAppendTarget = appendTarget === document.body,
+            isSelfAppended = appendTarget === this.DOM.scope,
+            appendTargetScrollTop = isDefaultAppendTarget ? window.pageYOffset : appendTarget.scrollTop,
             root = document.fullscreenElement || document.webkitFullscreenElement || document.documentElement,
             viewportHeight = root.clientHeight,
             viewportWidth = Math.max(root.clientWidth || 0, window.innerWidth || 0),
@@ -288,6 +296,8 @@ export default {
 
         function getAncestorsOffsets(p){
             var top = 0, left = 0;
+
+            p = p.parentNode;
 
             // when in element-fullscreen mode, do not go above the fullscreened-element
             while(p && p != root){
@@ -322,11 +332,11 @@ export default {
         }
 
         else{
-            ancestorsOffsets = getAncestorsOffsets(_sd.appendTarget)
+            ancestorsOffsets = getAncestorsOffsets(appendTarget)
             rect   = ddTarget.getBoundingClientRect()
-            top    = rect.top - ancestorsOffsets.top
-            bottom = rect.bottom - 1 - ancestorsOffsets.top
-            left   = rect.left - ancestorsOffsets.left
+            top    = isSelfAppended ? -1 : rect.top - ancestorsOffsets.top
+            bottom = (isSelfAppended ? rect.height : rect.bottom - ancestorsOffsets.top) - 1
+            left   = isSelfAppended ? -1 : rect.left - ancestorsOffsets.left
             width  = rect.width + 'px'
         }
 
@@ -344,6 +354,8 @@ export default {
 
         // flip vertically if there is no space for the dropdown below the input
         cssTop = (isPlacedAbove ? top : bottom) + appendTargetScrollTop;
+
+        console.log({appendTargetScrollTop, top, bottom, ancestorsOffsets, rect})
 
         // "pageXOffset" property is an alias for "scrollX"
         cssLeft = `left: ${(left + (isRTL ? (rect.width || 0) : 0) + window.pageXOffset)}px;`
