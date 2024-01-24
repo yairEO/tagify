@@ -701,6 +701,7 @@
             outline: none;
             max-height: 60px;
             max-width: 100%;
+            line-height: normal;
 
             &--active{
                 background: var(--tagify-dd-color-primary);
