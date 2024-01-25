@@ -1220,6 +1220,7 @@ Tagify.prototype = {
         // add the tag to the component's DOM
         this.appendTag(tagElm)
         this.editTag(tagElm, {skipValidation:true})
+        this.toggleFocusClass(true)
     },
 
     /**
