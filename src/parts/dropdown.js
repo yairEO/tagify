@@ -355,8 +355,6 @@ export default {
         // flip vertically if there is no space for the dropdown below the input
         cssTop = (isPlacedAbove ? top : bottom) + appendTargetScrollTop;
 
-        console.log({appendTargetScrollTop, top, bottom, ancestorsOffsets, rect})
-
         // "pageXOffset" property is an alias for "scrollX"
         cssLeft = `left: ${(left + (isRTL ? (rect.width || 0) : 0) + window.pageXOffset)}px;`
 
