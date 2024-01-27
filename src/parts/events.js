@@ -97,7 +97,7 @@ export default {
 
         if( !this.listeners || (!unbind  && this.listeners.global) ) return; // do not re-bind
 
-        // these events are global event should never be unbinded, unless the instance is destroyed:
+        // these events are global and should never be unbinded, unless the instance is destroyed:
         this.listeners.global = this.listeners.global || [
             {
                 type: this.isIE ? 'keydown' : 'input',  // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
@@ -142,7 +142,6 @@ export default {
                 eventData = {relatedTarget:e.relatedTarget},
                 isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
                 isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
-                isRelatedTargetX = e.relatedTarget && isNodeTag.call(this, e.relatedTarget) && this.DOM.scope.contains(e.relatedTarget),
                 shouldAddTags;
 
             if( type == 'blur' ){
@@ -182,7 +181,7 @@ export default {
             if( type == "focus" ){
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
-                if( _s.dropdown.enabled === 0 || !_s.userInput ){  // && _s.mode != "select"
+                if( (_s.dropdown.enabled === 0 || !_s.userInput) && !this.state.dropdown.visible ){  // && _s.mode != "select"
                     this.dropdown.show(this.value.length ? '' : undefined)
                 }
                 return
@@ -195,11 +194,6 @@ export default {
                 // when clicking the X button of a selected tag, it is unwanted for it to be added back
                 // again in a few more lines of code (shouldAddTags && addTags)
                 if( _s.mode == 'select' ) {
-                    if( isRelatedTargetX ) {
-                        this.removeTags()
-                        text = '';
-                    }
-
                     // if nothing has changed (same display value), do not add a tag
                     if( currentDisplayValue === text )
                         text = ''
@@ -713,10 +707,10 @@ export default {
                 return
             }
 
-            else if( tagElm ){
+            else if( tagElm && !this.state.editing ){
                 this.trigger("click", { tag:tagElm, index:this.getNodeIndex(tagElm), data:getSetTagData(tagElm), event:e })
 
-                if( _s.editTags === 1 || _s.editTags.clicks === 1 )
+                if( _s.editTags === 1 || _s.editTags.clicks === 1 || _s.mode == 'select' )
                     this.events.callbacks.onDoubleClickScope.call(this, e)
 
                 return
@@ -839,6 +833,10 @@ export default {
             this.setRangeAtStartEnd(false, newNode)
         },
 
+        onEditTagClick( tagElm, e) {
+            this.events.callbacks.onClickScope.call(this, e)
+        },
+
         onEditTagFocus( tagElm ){
             this.state.editing = {
                 scope: tagElm,
@@ -846,7 +844,17 @@ export default {
             }
         },
 
-        onEditTagBlur( editableElm ){
+        onEditTagBlur( editableElm, e ){
+            // if "relatedTarget" is the tag then do not continue as this should not be considered a "blur" event
+            var isRelatedTargetNodeTag = isNodeTag.call(this, e.relatedTarget)
+
+            // in "select-mode" when editing the tag's template to include more nodes other than the editable "span",
+            // clicking those elements should not be considered a blur event
+            if( isRelatedTargetNodeTag && e.relatedTarget.contains(e.target) ) {
+                this.dropdown.hide()
+                return
+            }
+
             // is "ESC" key was pressed then the "editing" state should be `false` and if so, logic should not continue
             // because "ESC" reverts the edited tag back to how it was (replace the node) before editing
             if( !this.state.editing )
@@ -954,9 +962,16 @@ export default {
                     break
                 }
                 case 'Enter' :
-                case 'Tab' :
+                case 'Tab' : {
                     e.preventDefault()
-                    e.target.blur()
+
+                    var EDITED_TAG_BLUR_DELAY = 100;
+
+                    // a setTimeout is used so when editing (in "select" mode) while the dropdown is shown and a suggestion is highlighted
+                    // and ENTER key is pressed down - the `dropdown.hide` method won't be invoked immediately and unbind the dropdown's
+                    // KEYDOWN "ENTER" before it has time to call the handler and select the suggestion.
+                    setTimeout(e.target.blur, EDITED_TAG_BLUR_DELAY)
+                }
             }
         },
 
@@ -972,11 +987,13 @@ export default {
             isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing)
             isReadyOnlyTag = tagElm.hasAttribute('readonly')
 
-            if( _s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags )
+            if( !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags )
                 this.editTag(tagElm)
 
             this.toggleFocusClass(true)
-            this.trigger('dblclick', { tag:tagElm, index:this.getNodeIndex(tagElm), data:getSetTagData(tagElm) })
+
+            if( _s.mode != 'select' )
+                this.trigger('dblclick', { tag:tagElm, index:this.getNodeIndex(tagElm), data:getSetTagData(tagElm) })
         },
 
         /**

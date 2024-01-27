@@ -398,6 +398,7 @@ Tagify.prototype = {
 
     toggleFocusClass( force ){
         this.toggleClass(this.settings.classNames.focus, !!force)
+        this.state.hasFocus = !!force
     },
 
     triggerChangeEvent,
@@ -513,13 +514,14 @@ Tagify.prototype = {
         editableElm.setAttribute('contenteditable', true)
         tagElm.classList.add( _s.classNames.tagEditing )
 
-        editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm))
-        editableElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, this.getTagTextNode(tagElm)))
-        editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm))
-        editableElm.addEventListener('paste', _CB.onEditTagPaste.bind(this, editableElm))
-        editableElm.addEventListener('keydown', e => _CB.onEditTagkeydown.call(this, e, tagElm))
-        editableElm.addEventListener('compositionstart', _CB.onCompositionStart.bind(this))
-        editableElm.addEventListener('compositionend', _CB.onCompositionEnd.bind(this))
+        editableElm.addEventListener('click'            , _CB.onEditTagClick.bind(this, tagElm))
+        editableElm.addEventListener('focus'            , _CB.onEditTagFocus.bind(this, tagElm))
+        editableElm.addEventListener('blur'             , _CB.onEditTagBlur.bind(this, this.getTagTextNode(tagElm)))
+        editableElm.addEventListener('input'            , _CB.onEditTagInput.bind(this, editableElm))
+        editableElm.addEventListener('paste'            , _CB.onEditTagPaste.bind(this, editableElm))
+        editableElm.addEventListener('keydown'          , e => _CB.onEditTagkeydown.call(this, e, tagElm))
+        editableElm.addEventListener('compositionstart' , _CB.onCompositionStart.bind(this))
+        editableElm.addEventListener('compositionend'   , _CB.onCompositionEnd.bind(this))
 
         if( !opts.skipValidation )
             isValid = this.editTagToggleValidity(tagElm)
@@ -593,15 +595,15 @@ Tagify.prototype = {
         function veryfyTagTextProp() {
             var tagTextProp = tagData[_s.tagTextProp];
 
-            if( tagTextProp ) {
-                return tagTextProp.trim() ? tagTextProp : false;
+            if( tagTextProp !== '' ) {
+                return tagTextProp.trim?.()
             }
 
             if( !(_s.tagTextProp in tagData) )
                 return tagData.value
         }
 
-        if( tagElm && veryfyTagTextProp() ){
+        if( tagElm && veryfyTagTextProp() !== '' ){
             tagElm = this.replaceTag(tagElm, tagData)
             this.editTagToggleValidity(tagElm, tagData)
 
@@ -629,7 +631,7 @@ Tagify.prototype = {
      * @param {Object} tagData [data to create new tag from]
      */
     replaceTag(tagElm, tagData){
-        if( !tagData || !tagData.value )
+        if( !tagData || tagData.value === '' || tagData.value === undefined )
             tagData = tagElm.__tagifyTagData
 
         // if tag is invalid, make the according changes in the newly created element
@@ -1185,7 +1187,7 @@ Tagify.prototype = {
         if( _s.enforceWhitelist && !this.isTagWhitelisted(tagData.value) )
             return
 
-        this.input.set.call(this, tagData[_s.tagTextProp] || tagData.value, true)
+        // this.input.set.call(this, tagData[_s.tagTextProp] || tagData.value, true)
 
         // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
         if( this.state.actions.selectOption )

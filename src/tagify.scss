@@ -217,6 +217,7 @@
         transition : .13s ease-out;
 
         > div{  // :not([contenteditable])
+            flex           : 1;
             vertical-align : top;
             box-sizing     : border-box;
             max-width      : 100%;
@@ -247,6 +248,10 @@
                     margin: -2px;
                     padding: 2px;
                     max-width: 350px;
+                }
+
+                &:only-child{
+                    width: 100%;
                 }
             }
 
@@ -544,6 +549,8 @@
     }
 
     &--select{
+        cursor: default;
+
         &::after{
             $size: 16px;
 
@@ -568,18 +575,20 @@
         }
 
         #{$self}__tag{
-            position: absolute;
-            top: 0;
-            right: 1.8em;
-            bottom: 0;
+            flex: 1;
+            max-width: none;
+            margin-inline-end: 2em;
+            cursor: text;
 
             div{
+                &::before {
+                    display: none;
+                }
+            }
+
+            + #{$self}__input{
                 display: none;
             }
-        }
-
-        #{$self}__input{
-            width: 100%;
         }
     }
 

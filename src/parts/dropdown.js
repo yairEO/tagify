@@ -411,6 +411,7 @@ export default {
 
                 _s.hooks.beforeKeyDown(e, {tagify:this})
                     .then(result => {
+                        console.log(e.key);
                         switch( e.key ){
                             case 'ArrowDown' :
                             case 'ArrowUp' :
