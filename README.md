@@ -39,7 +39,8 @@
 - [Installation](#installation)
   - [Option 1 - import from CDN:](#option-1---import-from-cdn)
   - [option 2 - import as a *Node module*:](#option-2---import-as-a-node-module)
-    - [Usage (in your bundle):](#usage-in-your-bundle)
+- [Basic Usage Examples](#basic-usage-examples)
+  - [⚠️ Important:](#️-important)
 - [Features](#features)
 - [Building the project](#building-the-project)
 - [Adding tags dynamically](#adding-tags-dynamically)
@@ -93,20 +94,41 @@ To load specific version use `@` - for example: `unpkg.com/@yaireo/tagify@3.1.0`
 npm i @yaireo/tagify --save
 ```
 
-#### Usage (in your bundle):
+## Basic Usage Examples
 
-[live demo using Parcel as bundler](https://codesandbox.io/s/simple-tagify-setup-6pfi2)
+- Many demos with code examples can be [seen here](yaireo.github.io/tagify/)
+- [CodeSandbox live demo](https://codesandbox.io/s/simple-tagify-setup-6pfi2)
+
+
 
 ```js
 import Tagify from '@yaireo/tagify'
 
-var tagify = new Tagify(...)
+var inputElem = document.querySelector('input') // the 'input' element which will be transformed into a Tagify component
+var tagify = new Tagify(inputElem, {
+  // A list of possible tags. This setting is optional if you want to allow
+  // any possible tag to be added without suggesting any to the user.
+  whitelist: ['foo', 'bar', 'and baz', 0, 1, 2]
+})
 ```
 
-> Don't forget to **include `tagify.css`** file in your project.
-> CSS location: `@yaireo/tagify/dist/tagify.css`
-> SCSS location: `@yaireo/tagify/src/tagify.scss`
-> [See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
+The above example shows the most basic `whitelist` array setting possible, with a mix
+of *Strings* and *Numbers* but the array also support Objects whic a must-have property of `value`:
+
+```js
+whitelist: [{value: 'foo', id: '123', email: 'foo@whatever.com'}, ...]
+```
+
+The `value` property is what will be used when actually defining the `value` property of the original input element (`inputElem` in the example above) which was transformed
+into a *Tagify* component, and so when the form data is sent to the server, it will contain all the values (which are the selected tags in the component).
+
+For selected tags to show a different text than what is defined in `value` for a whitelist item, see the `tagTextProp` [setting](#settings)
+
+### ⚠️ Important:
+Don't forget to **include `tagify.css`** file in your project.
+CSS location: `@yaireo/tagify/dist/tagify.css`
+SCSS location: `@yaireo/tagify/src/tagify.scss`
+[See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
 
 ## Features
 * Can be applied to input & textarea elements
