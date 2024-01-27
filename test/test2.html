@@ -17,7 +17,7 @@
 
             form > section{ margin-bottom: 2em; }
 
-            .tagify+input, .tagify+textarea {
+            /* .tagify+input, .tagify+textarea {
                 position: initial !important;
                 left: 0 !important;
                 transform: none !important;
@@ -26,53 +26,38 @@
                 min-height: 11ch;
                 background: powderblue;
                 font-family: "Fira Code";
-            }
+            } */
 
             .tagify{
                 margin: .2em;
                 min-width: 400px;
+                /* margin-top: 95vh; */
             }
         </style>
     </head>
 
     <body>
     <section>
-        <input value="aric.wolf@example.org" placeholder="type tags">
+        <input >
     </section>
 
 <script>
-    window.xxx = new Tagify(document.querySelector('input'),{
-        tagTextProp: 'name',
-        dropdown: {
-            highlightFirst: true,
-            enabled: 0,
-            searchKeys: ['name', 'email'],
-        },
-        transformTag(tagData) {
-            console.log(999, tagData)
-        },
-
-        whitelist: [
-            {
-                "userId": 54,
-                "value": 54,
-                "name": "Aric Wolf",
-                "email": "aric.wolf@example.org"
-            },
-            {
-                "userId": 89,
-                "value": 89,
-                "name": "Carlos Bartell",
-                "email": "carlos.bartell.v@example.org"
-            },
-            {
-                "userId": 38,
-                "value": 38,
-                "name": "Carmen Abernathy",
-                "email": "carmen.abernathy@example.org"
-            }
-        ]
+    // generate random whilist items (for the demo)
+var input = document.querySelector('input'),
+    button = input.nextElementSibling,  // "add new tag" action-button
+    tagify = new Tagify(input, {
+      whitelist: ['a', 'b', 'c'],
+      dropdown : {
+        enabled: 0,
+        appendTarget() {
+            return tagify?.DOM?.scope
+        }
+      }
     });
+
+setTimeout(() => {
+  tagify.addEmptyTag()
+}, 1000)
 </script>
 </body>
 </html>
