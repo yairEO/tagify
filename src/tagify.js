@@ -398,7 +398,6 @@ Tagify.prototype = {
 
     toggleFocusClass( force ){
         this.toggleClass(this.settings.classNames.focus, !!force)
-        this.state.hasFocus = !!force
     },
 
     triggerChangeEvent,
@@ -534,6 +533,7 @@ Tagify.prototype = {
         this.setRangeAtStartEnd(false, editableElm) // place the caret at the END of the editable tag text
 
         _s.dropdown.enabled === 0 && this.dropdown.show()
+        this.state.hasFocus = true
 
         return this
     },
