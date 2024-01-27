@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.18.3) - tags input component
+ * Tagify (v 4.19.0) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -627,12 +627,17 @@ var _dropdown = {
   toggle(show) {
     this.dropdown[this.state.dropdown.visible && !show ? 'hide' : 'show']();
   },
+  getAppendTarget() {
+    var _sd = this.settings.dropdown;
+    return typeof _sd.appendTarget === 'function' ? _sd.appendTarget() : _sd.appendTarget;
+  },
   render() {
     // let the element render in the DOM first, to accurately measure it.
     // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
     var ddHeight = getNodeHeight(this.DOM.dropdown),
       _s = this.settings,
-      enabled = typeof _s.dropdown.enabled == 'number' && _s.dropdown.enabled >= 0;
+      enabled = typeof _s.dropdown.enabled == 'number' && _s.dropdown.enabled >= 0,
+      appendTarget = this.dropdown.getAppendTarget();
     if (!enabled) return this;
     this.DOM.scope.setAttribute("aria-expanded", true);
 
@@ -641,7 +646,7 @@ var _dropdown = {
     if (!document.body.contains(this.DOM.dropdown)) {
       this.DOM.dropdown.classList.add(_s.classNames.dropdownInital);
       this.dropdown.position(ddHeight);
-      _s.dropdown.appendTarget.appendChild(this.DOM.dropdown);
+      appendTarget.appendChild(this.DOM.dropdown);
       setTimeout(() => this.DOM.dropdown.classList.remove(_s.classNames.dropdownInital));
     }
     return this;
@@ -682,8 +687,9 @@ var _dropdown = {
     this.trigger("dropdown:updated", this.DOM.dropdown);
   },
   position(ddHeight) {
-    var _sd = this.settings.dropdown;
-    if (_sd.position == 'manual') return;
+    var _sd = this.settings.dropdown,
+      appendTarget = this.dropdown.getAppendTarget();
+    if (_sd.position == 'manual' || !appendTarget) return;
     var rect,
       top,
       bottom,
@@ -695,8 +701,9 @@ var _dropdown = {
       cssLeft,
       ddElm = this.DOM.dropdown,
       isRTL = _sd.RTL,
-      isDefaultAppendTarget = _sd.appendTarget === document.body,
-      appendTargetScrollTop = isDefaultAppendTarget ? window.pageYOffset : _sd.appendTarget.scrollTop,
+      isDefaultAppendTarget = appendTarget === document.body,
+      isSelfAppended = appendTarget === this.DOM.scope,
+      appendTargetScrollTop = isDefaultAppendTarget ? window.pageYOffset : appendTarget.scrollTop,
       root = document.fullscreenElement || document.webkitFullscreenElement || document.documentElement,
       viewportHeight = root.clientHeight,
       viewportWidth = Math.max(root.clientWidth || 0, window.innerWidth || 0),
@@ -706,6 +713,7 @@ var _dropdown = {
     function getAncestorsOffsets(p) {
       var top = 0,
         left = 0;
+      p = p.parentNode;
 
       // when in element-fullscreen mode, do not go above the fullscreened-element
       while (p && p != root) {
@@ -735,11 +743,11 @@ var _dropdown = {
       left = rect.left;
       width = 'auto';
     } else {
-      ancestorsOffsets = getAncestorsOffsets(_sd.appendTarget);
+      ancestorsOffsets = getAncestorsOffsets(appendTarget);
       rect = ddTarget.getBoundingClientRect();
-      top = rect.top - ancestorsOffsets.top;
-      bottom = rect.bottom - 1 - ancestorsOffsets.top;
-      left = rect.left - ancestorsOffsets.left;
+      top = isSelfAppended ? -1 : rect.top - ancestorsOffsets.top;
+      bottom = (isSelfAppended ? rect.height : rect.bottom - ancestorsOffsets.top) - 1;
+      left = isSelfAppended ? -1 : rect.left - ancestorsOffsets.left;
       width = rect.width + 'px';
     }
 
@@ -807,6 +815,7 @@ var _dropdown = {
         _s.hooks.beforeKeyDown(e, {
           tagify: this
         }).then(result => {
+          console.log(e.key);
           switch (e.key) {
             case 'ArrowDown':
             case 'ArrowUp':
@@ -1413,7 +1422,7 @@ var events = {
       e;
     if (!this.listeners || !unbind && this.listeners.global) return; // do not re-bind
 
-    // these events are global event should never be unbinded, unless the instance is destroyed:
+    // these events are global and should never be unbinded, unless the instance is destroyed:
     this.listeners.global = this.listeners.global || [{
       type: this.isIE ? 'keydown' : 'input',
       // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
@@ -1453,7 +1462,6 @@ var events = {
         },
         isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
         isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
-        isRelatedTargetX = e.relatedTarget && isNodeTag.call(this, e.relatedTarget) && this.DOM.scope.contains(e.relatedTarget),
         shouldAddTags;
       if (type == 'blur') {
         if (e.relatedTarget === this.DOM.scope) {
@@ -1483,7 +1491,7 @@ var events = {
       if (type == "focus") {
         this.trigger("focus", eventData);
         //  e.target.classList.remove('placeholder');
-        if (_s.dropdown.enabled === 0 || !_s.userInput) {
+        if ((_s.dropdown.enabled === 0 || !_s.userInput) && !this.state.dropdown.visible) {
           // && _s.mode != "select"
           this.dropdown.show(this.value.length ? '' : undefined);
         }
@@ -1495,11 +1503,6 @@ var events = {
         // when clicking the X button of a selected tag, it is unwanted for it to be added back
         // again in a few more lines of code (shouldAddTags && addTags)
         if (_s.mode == 'select') {
-          if (isRelatedTargetX) {
-            this.removeTags();
-            text = '';
-          }
-
           // if nothing has changed (same display value), do not add a tag
           if (currentDisplayValue === text) text = '';
         }
@@ -1954,14 +1957,14 @@ var events = {
       } else if (e.target.classList.contains(_s.classNames.tagX)) {
         this.removeTags(e.target.parentNode);
         return;
-      } else if (tagElm) {
+      } else if (tagElm && !this.state.editing) {
         this.trigger("click", {
           tag: tagElm,
           index: this.getNodeIndex(tagElm),
           data: getSetTagData(tagElm),
           event: e
         });
-        if (_s.editTags === 1 || _s.editTags.clicks === 1) this.events.callbacks.onDoubleClickScope.call(this, e);
+        if (_s.editTags === 1 || _s.editTags.clicks === 1 || _s.mode == 'select') this.events.callbacks.onDoubleClickScope.call(this, e);
         return;
       }
 
@@ -2059,13 +2062,26 @@ var events = {
       var newNode = injectAtCaret(pastedText);
       this.setRangeAtStartEnd(false, newNode);
     },
+    onEditTagClick(tagElm, e) {
+      this.events.callbacks.onClickScope.call(this, e);
+    },
     onEditTagFocus(tagElm) {
       this.state.editing = {
         scope: tagElm,
         input: tagElm.querySelector("[contenteditable]")
       };
     },
-    onEditTagBlur(editableElm) {
+    onEditTagBlur(editableElm, e) {
+      // if "relatedTarget" is the tag then do not continue as this should not be considered a "blur" event
+      var isRelatedTargetNodeTag = isNodeTag.call(this, e.relatedTarget);
+
+      // in "select-mode" when editing the tag's template to include more nodes other than the editable "span",
+      // clicking those elements should not be considered a blur event
+      if (isRelatedTargetNodeTag && e.relatedTarget.contains(e.target)) {
+        this.dropdown.hide();
+        return;
+      }
+
       // is "ESC" key was pressed then the "editing" state should be `false` and if so, logic should not continue
       // because "ESC" reverts the edited tag back to how it was (replace the node) before editing
       if (!this.state.editing) return;
@@ -2163,8 +2179,15 @@ var events = {
           }
         case 'Enter':
         case 'Tab':
-          e.preventDefault();
-          e.target.blur();
+          {
+            e.preventDefault();
+            var EDITED_TAG_BLUR_DELAY = 100;
+
+            // a setTimeout is used so when editing (in "select" mode) while the dropdown is shown and a suggestion is highlighted
+            // and ENTER key is pressed down - the `dropdown.hide` method won't be invoked immediately and unbind the dropdown's
+            // KEYDOWN "ENTER" before it has time to call the handler and select the suggestion.
+            setTimeout(e.target.blur, EDITED_TAG_BLUR_DELAY);
+          }
       }
     },
     onDoubleClickScope(e) {
@@ -2176,9 +2199,9 @@ var events = {
       if (!tagElm || !_s.userInput || tagData.editable === false) return;
       isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing);
       isReadyOnlyTag = tagElm.hasAttribute('readonly');
-      if (_s.mode != 'select' && !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags) this.editTag(tagElm);
+      if (!_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags) this.editTag(tagElm);
       this.toggleFocusClass(true);
-      this.trigger('dblclick', {
+      if (_s.mode != 'select') this.trigger('dblclick', {
         tag: tagElm,
         index: this.getNodeIndex(tagElm),
         data: getSetTagData(tagElm)
@@ -2686,6 +2709,7 @@ Tagify.prototype = {
     getSetTagData(tagData.__originalHTML, tagData.__originalData);
     editableElm.setAttribute('contenteditable', true);
     tagElm.classList.add(_s.classNames.tagEditing);
+    editableElm.addEventListener('click', _CB.onEditTagClick.bind(this, tagElm));
     editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm));
     editableElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, this.getTagTextNode(tagElm)));
     editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
@@ -2704,6 +2728,8 @@ Tagify.prototype = {
     editableElm.focus();
     this.setRangeAtStartEnd(false, editableElm); // place the caret at the END of the editable tag text
 
+    _s.dropdown.enabled === 0 && this.dropdown.show();
+    this.state.hasFocus = true;
     return this;
   },
   /**
@@ -2753,12 +2779,12 @@ Tagify.prototype = {
     // might be simpler - just an array of primitives.
     function veryfyTagTextProp() {
       var tagTextProp = tagData[_s.tagTextProp];
-      if (tagTextProp) {
-        return tagTextProp.trim() ? tagTextProp : false;
+      if (tagTextProp !== '') {
+        return tagTextProp.trim?.();
       }
       if (!(_s.tagTextProp in tagData)) return tagData.value;
     }
-    if (tagElm && veryfyTagTextProp()) {
+    if (tagElm && veryfyTagTextProp() !== '') {
       tagElm = this.replaceTag(tagElm, tagData);
       this.editTagToggleValidity(tagElm, tagData);
       if (_s.a11y.focusableTags) tagElm.focus();else
@@ -2777,7 +2803,7 @@ Tagify.prototype = {
    * @param {Object} tagData [data to create new tag from]
    */
   replaceTag(tagElm, tagData) {
-    if (!tagData || !tagData.value) tagData = tagElm.__tagifyTagData;
+    if (!tagData || tagData.value === '' || tagData.value === undefined) tagData = tagElm.__tagifyTagData;
 
     // if tag is invalid, make the according changes in the newly created element
     if (tagData.__isValid && tagData.__isValid != true) extend(tagData, this.getInvalidTagAttrs(tagData, tagData.__isValid));
@@ -3245,7 +3271,8 @@ Tagify.prototype = {
   selectTag(tagElm, tagData) {
     var _s = this.settings;
     if (_s.enforceWhitelist && !this.isTagWhitelisted(tagData.value)) return;
-    this.input.set.call(this, tagData[_s.tagTextProp] || tagData.value, true);
+
+    // this.input.set.call(this, tagData[_s.tagTextProp] || tagData.value, true)
 
     // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
     if (this.state.actions.selectOption) setTimeout(() => this.setRangeAtStartEnd(false, this.DOM.input));
@@ -3278,6 +3305,7 @@ Tagify.prototype = {
     this.editTag(tagElm, {
       skipValidation: true
     });
+    this.toggleFocusClass(true);
   },
   /**
    * add a "tag" element to the "tags" component
