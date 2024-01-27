@@ -935,6 +935,11 @@
                         "avatar email";
 }
 
+.tagify__dropdown.users-list header.tagify__dropdown__item{
+    grid-template-areas: "add remove-tags"
+                        "remaning .";
+}
+
 .tagify__dropdown.users-list .tagify__dropdown__item:hover .tagify__dropdown__item__avatar-wrap{
     transform: scale(1.2);
 }
@@ -974,7 +979,8 @@
 }
 
 .tagify__dropdown.users-list .remove-all-tags{
-    float: right;
+    grid-area: remove-tags;
+    justify-self: self-end;
     font-size: .8em;
     padding: .2em .3em;
     border-radius: 3px;
@@ -1900,11 +1906,9 @@ function suggestionItemTemplate(tagData){
 function dropdownHeaderTemplate(suggestions){
     return `
         <header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownItem} ${this.settings.classNames.dropdownItem}__addAll">
-            <div>
-                <strong>${this.value.length ? `Add Remaning` : 'Add All'}</strong>
-                <a class='remove-all-tags'>Remove all</a>
-            </div>
-            <span>${suggestions.length} members</span>
+            <strong style='grid-area: add'>${this.value.length ? `Add Remaning` : 'Add All'}</strong>
+            <span style='grid-area: remaning'>${suggestions.length} members</span>
+            <a class='remove-all-tags'>Remove all</a>
         </header>
     `
 }
