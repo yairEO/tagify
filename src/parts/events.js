@@ -965,12 +965,12 @@ export default {
                 case 'Tab' : {
                     e.preventDefault()
 
-                    var EDITED_TAG_BLUR_DELAY = 100;
+                    var EDITED_TAG_BLUR_DELAY = 0;
 
                     // a setTimeout is used so when editing (in "select" mode) while the dropdown is shown and a suggestion is highlighted
                     // and ENTER key is pressed down - the `dropdown.hide` method won't be invoked immediately and unbind the dropdown's
                     // KEYDOWN "ENTER" before it has time to call the handler and select the suggestion.
-                    setTimeout(e.target.blur, EDITED_TAG_BLUR_DELAY)
+                    setTimeout(() => e.target.blur(), EDITED_TAG_BLUR_DELAY)
                 }
             }
         },
