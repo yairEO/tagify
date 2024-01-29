@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.19.0) - tags input component
+ * Tagify (v 4.19.1) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -2187,12 +2187,12 @@
           case 'Tab':
             {
               e.preventDefault();
-              var EDITED_TAG_BLUR_DELAY = 100;
+              var EDITED_TAG_BLUR_DELAY = 0;
 
               // a setTimeout is used so when editing (in "select" mode) while the dropdown is shown and a suggestion is highlighted
               // and ENTER key is pressed down - the `dropdown.hide` method won't be invoked immediately and unbind the dropdown's
               // KEYDOWN "ENTER" before it has time to call the handler and select the suggestion.
-              setTimeout(e.target.blur, EDITED_TAG_BLUR_DELAY);
+              setTimeout(() => e.target.blur(), EDITED_TAG_BLUR_DELAY);
             }
         }
       },
@@ -2785,12 +2785,12 @@
       // might be simpler - just an array of primitives.
       function veryfyTagTextProp() {
         var tagTextProp = tagData[_s.tagTextProp];
-        if (tagTextProp !== '') {
-          return tagTextProp.trim?.();
+        if (tagTextProp) {
+          return !!tagTextProp.trim?.();
         }
-        if (!(_s.tagTextProp in tagData)) return tagData.value;
+        if (!(_s.tagTextProp in tagData)) return !!tagData.value;
       }
-      if (tagElm && veryfyTagTextProp() !== '') {
+      if (tagElm && veryfyTagTextProp()) {
         tagElm = this.replaceTag(tagElm, tagData);
         this.editTagToggleValidity(tagElm, tagData);
         if (_s.a11y.focusableTags) tagElm.focus();else
