@@ -595,15 +595,15 @@ Tagify.prototype = {
         function veryfyTagTextProp() {
             var tagTextProp = tagData[_s.tagTextProp];
 
-            if( tagTextProp !== '' ) {
-                return tagTextProp.trim?.()
+            if( tagTextProp ) {
+                return !!tagTextProp.trim?.()
             }
 
             if( !(_s.tagTextProp in tagData) )
-                return tagData.value
+                return !!tagData.value
         }
 
-        if( tagElm && veryfyTagTextProp() !== '' ){
+        if( tagElm && veryfyTagTextProp() ){
             tagElm = this.replaceTag(tagElm, tagData)
             this.editTagToggleValidity(tagElm, tagData)
 
