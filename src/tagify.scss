@@ -578,6 +578,8 @@
             flex: 1;
             max-width: none;
             margin-inline-end: 2em;
+            margin-block: 0;
+            padding-block: $tagMargin;
             cursor: text;
 
             div{
