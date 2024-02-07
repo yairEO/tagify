@@ -38,7 +38,8 @@ export default {
     },
 
     binding( bindUnbind = true ){
-        var _CB = this.events.callbacks,
+        var _s = this.settings,
+            _CB = this.events.callbacks,
             _CBR,
             action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
@@ -62,7 +63,7 @@ export default {
             focus            : ['input', _CB.onFocusBlur.bind(this)],
             keydown          : ['input', _CB.onKeydown.bind(this)],
             click            : ['scope', _CB.onClickScope.bind(this)],
-            dblclick         : ['scope', _CB.onDoubleClickScope.bind(this)],
+            dblclick         : _s.mode != 'select' && ['scope', _CB.onDoubleClickScope.bind(this)],
             paste            : ['input', _CB.onPaste.bind(this)],
             drop             : ['input', _CB.onDrop.bind(this)],
             compositionstart : ['input', _CB.onCompositionStart.bind(this)],
@@ -70,8 +71,9 @@ export default {
         })
 
         for( var eventName in _CBR ){
-            this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
+            _CBR[eventName] && this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
         }
+
 
         // listen to original input changes (unfortunetly this is the best way...)
         // https://stackoverflow.com/a/1949416/104380
@@ -85,7 +87,7 @@ export default {
         inputMutationObserver.disconnect()
 
         // observe stuff
-        if( this.settings.mode == 'mix' ) {
+        if( _s.mode == 'mix' ) {
             inputMutationObserver.observe(this.DOM.input, {childList:true})
         }
     },
@@ -694,9 +696,10 @@ export default {
         onClickScope(e){
             var _s = this.settings,
                 tagElm = e.target.closest('.' + _s.classNames.tag),
+                isScope = e.target === this.DOM.scope,
                 timeDiffFocus = +new Date() - this.state.hasFocus;
 
-            if( e.target == this.DOM.scope ){
+            if( isScope && _s.mode != 'select' ){
                 // if( !this.state.hasFocus )
                     this.DOM.input.focus()
                 return
@@ -733,8 +736,9 @@ export default {
                 }
             }
 
-            if( _s.mode == 'select' && _s.dropdown.enabled === 0 && !this.state.dropdown.visible)
-                this.dropdown.show()
+            if( _s.mode == 'select' && _s.dropdown.enabled === 0 && !this.state.dropdown.visible) {
+                this.events.callbacks.onDoubleClickScope.call(this, {...e, target: this.getTagElms()[0]})
+            }
         },
 
         // special proccess is needed for pasted content in order to "clean" it
