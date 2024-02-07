@@ -691,7 +691,7 @@ required          | <pre lang=html>`<input required>`</pre> | Adds a `required` 
 
 
 ## Caveats
-- `<input>` wrapped in a `<label>` doesn't work - [#1219](https://github.com/yairEO/tagify/issues/1219)
+- `<input>` wrapped in a `<label>` doesn't work - [#1219](https://github.com/yairEO/tagify/issues/1219) and so Tagify internally sets the label's `for` attribute to an empty string, so clicking the Tagify component will not blur it and re-focus on the hidden input/textarea element Tagify is "connected" to
 
 ## FAQ
 List of questions & scenarios which might come up during development with Tagify:

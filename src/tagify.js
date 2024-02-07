@@ -263,7 +263,8 @@ Tagify.prototype = {
      * @param  {Object} input [DOM element which would be "transformed" into "Tags"]
      */
     build( input ){
-        var DOM  = this.DOM;
+        var DOM  = this.DOM,
+            labelWrapper = input.closest('label');
 
         if( this.settings.mixMode.integrated ){
             DOM.originalInput = null;
@@ -279,6 +280,10 @@ Tagify.prototype = {
             input.parentNode.insertBefore(DOM.scope, input)
             input.tabIndex = -1; // do not allow focus or typing directly, once tagified
         }
+
+        // fixes tagify nested inside a <label> tag from getting focus when clicked on
+        if( labelWrapper )
+            labelWrapper.setAttribute('for', '')
     },
 
     /**
@@ -287,6 +292,9 @@ Tagify.prototype = {
     destroy(){
         this.events.unbindGlobal.call(this)
         this.DOM.scope.parentNode.removeChild(this.DOM.scope)
+
+
+
         this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex
         delete this.DOM.originalInput.__tagify
         this.dropdown.hide(true)
