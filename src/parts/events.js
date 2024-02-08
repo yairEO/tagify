@@ -119,12 +119,13 @@ export default {
             {
                 type: 'click',
                 target: document,
-                cb: _CB.onClickAnywhere.bind(this)
+                cb: _CB.onClickAnywhere.bind(this),
+                useCapture: true
             },
         ]
 
         for( e of this.listeners.global )
-            e.target[action](e.type, e.cb);
+            e.target[action](e.type, e.cb, !!e.useCapture);
     },
 
     unbindGlobal() {
