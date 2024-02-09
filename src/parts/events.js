@@ -691,6 +691,7 @@ export default {
             if (e.target != this.DOM.scope && !this.DOM.scope.contains(e.target)) {
                 this.toggleFocusClass(false)
                 this.state.hasFocus = false
+                !this.settings.userInput && this.dropdown.hide()
             }
         },
 
@@ -739,6 +740,8 @@ export default {
 
             if( _s.mode == 'select' && _s.dropdown.enabled === 0 && !this.state.dropdown.visible) {
                 this.events.callbacks.onDoubleClickScope.call(this, {...e, target: this.getTagElms()[0]})
+
+                !_s.userInput && this.dropdown.show()
             }
         },
 
@@ -987,12 +990,12 @@ export default {
                 isEditingTag,
                 isReadyOnlyTag;
 
-            if( !tagElm || !_s.userInput || tagData.editable === false ) return
+            if( !tagElm || tagData.editable === false ) return
 
             isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing)
             isReadyOnlyTag = tagElm.hasAttribute('readonly')
 
-            if( !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags )
+            if( !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags && _s.userInput )
                 this.editTag(tagElm)
 
             this.toggleFocusClass(true)
