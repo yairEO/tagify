@@ -3,9 +3,10 @@ var gulp = require('gulp'),
         'sass': 'xsass' // map to some other name because 'gulp-sass' already loads "sass", so avoid collusion
     } }),
     terser = require("rollup-plugin-terser").terser,
-    rollupBanner = require("rollup-plugin-banner").default,
+    rollupBanner = require("rollup-plugin-banner2"),
     babel = require("@rollup/plugin-babel").babel,
     fs = require('fs'),
+    buffer = require('vinyl-buffer'),
     rollupStream = require("@rollup/stream"),
     pkg = require('./package.json'),
     sass = require('gulp-sass')(require('sass')),
@@ -19,10 +20,14 @@ const LICENSE = fs.readFileSync("./LICENSE", "utf8");
 
 var rollupCache = {};
 
-var banner = `Tagify (v ${process.env.npm_package_version}) - tags input component
-By ${pkg.author.name}
+var banner = `/*
+Tagify v${process.env.npm_package_version} - tags input component
+By: ${pkg.author}
 ${pkg.homepage}
-${LICENSE}`;
+
+${LICENSE}
+*/
+`;
 
 var jQueryPluginWrap = [`;(function($){
     // just a jQuery wrapper for the vanilla version of this component
@@ -143,14 +148,14 @@ function rollup({ entry, outputName, dest, plugins=[], babelConf={}, format='umd
         ...plugins
     ]
 
-    plugins.push( rollupBanner(banner) )
+    plugins.push( rollupBanner(() => banner) )
 
     return rollupStream({
         input: entry,
         plugins,
-        // sourcemap: true,
         cache: rollupCache[entry],
         output: {
+            sourcemap: true,
             name: 'Tagify',
             format: format,
         }
@@ -161,7 +166,10 @@ function rollup({ entry, outputName, dest, plugins=[], babelConf={}, format='umd
 
         // give the file the name you want to output with
         .pipe( $.vinylSourceStream(outputName))
+        .pipe(buffer())
         // .on('error', handleError)
+        .pipe($.sourcemaps.init({ loadMaps: true }))
+        .pipe($.sourcemaps.write('./'))
         .pipe(gulp.dest('./dist'));
 }
 
