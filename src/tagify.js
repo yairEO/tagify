@@ -754,20 +754,17 @@ Tagify.prototype = {
                 if( !this.settings.autoComplete.enabled ) return;
 
                 data = data || {value:''}
-
-                if( typeof data == 'string' )
-                    data = {value:data}
+                if (typeof data !== 'object') data = { value: data };
 
                 var suggestedText = this.dropdown.getMappedValue(data);
 
-                if( typeof suggestedText === 'number' )
-                    return
+                if( typeof suggestedText === 'number' ) return
 
-                var suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(),
+                var inputText = this.state.inputText.toLowerCase(),
+                    suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(),
                     suggestionTrimmed = suggestedText.substring(this.state.inputText.length);
 
-
-                    if( !suggestedText || !this.state.inputText || suggestionStart != this.state.inputText.toLowerCase() ){
+                if( !suggestedText || !this.state.inputText || suggestionStart != inputText ){
                     this.DOM.input.removeAttribute("data-suggest");
                     delete this.state.inputSuggestion
                 }
