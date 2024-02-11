@@ -71,7 +71,7 @@ Tagify.prototype = {
     getSetTagData,
     helpers: {sameStr, removeCollectionProp, omit, isObject, parseHTML, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag},
 
-    customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:beforeUpdate', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch', 'dropdown:scroll'],
+    customEventsList : ['change', 'add', 'remove', 'invalid', 'input', 'paste', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:beforeUpdate', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch', 'dropdown:scroll'],
     dataProps: ['__isValid', '__removed', '__originalData', '__originalHTML', '__tagId'], // internal-uasge props
 
     trim(text){

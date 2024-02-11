@@ -990,6 +990,7 @@ add                | A tag has been added
 remove             | A tag has been removed ([use `removeTag`](https://github.com/yairEO/tagify/issues/222) instead with *jQuery*)
 invalid            | A tag has been added but did not pass validation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
 input              | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes `value`, `inputElm` & `isValid`
+paste              | Text pasted (not while editing a tag). The pasted text might or might not have been converted into tags, depneding if `pasteAsTags` setting is set to `false`
 click              | Clicking a tag. Exposes the tag element, its index & data
 dblclick           | Double-clicking a tag
 keydown            | When Tagify input has focus and a key was pressed

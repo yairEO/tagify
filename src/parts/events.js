@@ -662,7 +662,7 @@ export default {
             // dynamically change the whitelist.
             setTimeout(()=>{
                 this.update({withoutChangeEvent:true})
-                this.trigger("input", extend({}, this.state.tag, {textContent:this.DOM.input.textContent}))
+                this.trigger('input', extend({}, this.state.tag, {textContent:this.DOM.input.textContent}))
 
                 if( this.state.tag )
                     this.dropdown[showSuggestions ? "show" : "hide"](this.state.tag.value);
@@ -749,7 +749,8 @@ export default {
         onPaste(e){
             e.preventDefault()
 
-            var _s = this.settings,
+            var tagsElems,
+                _s = this.settings,
                 selectModeWithoutInput =_s.mode == 'select' && _s.enforceWhitelist;
 
             if( selectModeWithoutInput || !_s.userInput ){
@@ -777,7 +778,7 @@ export default {
                         }
 
                         else if( this.settings.pasteAsTags ){
-                            this.addTags(this.state.inputText + result, true)
+                            tagsElems = this.addTags(this.state.inputText + result, true)
                         }
 
                         else {
@@ -785,6 +786,8 @@ export default {
                             this.dropdown.show(result)
                         }
                     }
+
+                    this.trigger('paste', {event: e, pastedText, clipboardData, tagsElems})
                 })
                 .catch(err => err)
         },
