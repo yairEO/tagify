@@ -1,5 +1,5 @@
 /**
- * Tagify (v 4.19.1) - tags input component
+ * Tagify (v 4.20.0) - tags input component
  * By undefined
  * https://github.com/yairEO/tagify
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -815,7 +815,6 @@ var _dropdown = {
         _s.hooks.beforeKeyDown(e, {
           tagify: this
         }).then(result => {
-          console.log(e.key);
           switch (e.key) {
             case 'ArrowDown':
             case 'ArrowUp':
@@ -1367,7 +1366,8 @@ var events = {
   },
   binding() {
     let bindUnbind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-    var _CB = this.events.callbacks,
+    var _s = this.settings,
+      _CB = this.events.callbacks,
       _CBR,
       action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
@@ -1388,14 +1388,14 @@ var events = {
       focus: ['input', _CB.onFocusBlur.bind(this)],
       keydown: ['input', _CB.onKeydown.bind(this)],
       click: ['scope', _CB.onClickScope.bind(this)],
-      dblclick: ['scope', _CB.onDoubleClickScope.bind(this)],
+      dblclick: _s.mode != 'select' && ['scope', _CB.onDoubleClickScope.bind(this)],
       paste: ['input', _CB.onPaste.bind(this)],
       drop: ['input', _CB.onDrop.bind(this)],
       compositionstart: ['input', _CB.onCompositionStart.bind(this)],
       compositionend: ['input', _CB.onCompositionEnd.bind(this)]
     };
     for (var eventName in _CBR) {
-      this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
+      _CBR[eventName] && this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
     }
 
     // listen to original input changes (unfortunetly this is the best way...)
@@ -1410,7 +1410,7 @@ var events = {
     inputMutationObserver.disconnect();
 
     // observe stuff
-    if (this.settings.mode == 'mix') {
+    if (_s.mode == 'mix') {
       inputMutationObserver.observe(this.DOM.input, {
         childList: true
       });
@@ -1439,9 +1439,10 @@ var events = {
     }, {
       type: 'click',
       target: document,
-      cb: _CB.onClickAnywhere.bind(this)
+      cb: _CB.onClickAnywhere.bind(this),
+      useCapture: true
     }];
-    for (e of this.listeners.global) e.target[action](e.type, e.cb);
+    for (e of this.listeners.global) e.target[action](e.type, e.cb, !!e.useCapture);
   },
   unbindGlobal() {
     this.events.bindGlobal.call(this, true);
@@ -1919,7 +1920,7 @@ var events = {
         this.update({
           withoutChangeEvent: true
         });
-        this.trigger("input", extend({}, this.state.tag, {
+        this.trigger('input', extend({}, this.state.tag, {
           textContent: this.DOM.input.textContent
         }));
         if (this.state.tag) this.dropdown[showSuggestions ? "show" : "hide"](this.state.tag.value);
@@ -1944,13 +1945,15 @@ var events = {
       if (e.target != this.DOM.scope && !this.DOM.scope.contains(e.target)) {
         this.toggleFocusClass(false);
         this.state.hasFocus = false;
+        !this.settings.userInput && this.dropdown.hide();
       }
     },
     onClickScope(e) {
       var _s = this.settings,
         tagElm = e.target.closest('.' + _s.classNames.tag),
+        isScope = e.target === this.DOM.scope,
         timeDiffFocus = +new Date() - this.state.hasFocus;
-      if (e.target == this.DOM.scope) {
+      if (isScope && _s.mode != 'select') {
         // if( !this.state.hasFocus )
         this.DOM.input.focus();
         return;
@@ -1980,12 +1983,18 @@ var events = {
           return;
         }
       }
-      if (_s.mode == 'select' && _s.dropdown.enabled === 0 && !this.state.dropdown.visible) this.dropdown.show();
+      if (_s.mode == 'select' && _s.dropdown.enabled === 0 && !this.state.dropdown.visible) {
+        this.events.callbacks.onDoubleClickScope.call(this, _objectSpread2(_objectSpread2({}, e), {}, {
+          target: this.getTagElms()[0]
+        }));
+        !_s.userInput && this.dropdown.show();
+      }
     },
     // special proccess is needed for pasted content in order to "clean" it
     onPaste(e) {
       e.preventDefault();
-      var _s = this.settings,
+      var tagsElems,
+        _s = this.settings,
         selectModeWithoutInput = _s.mode == 'select' && _s.enforceWhitelist;
       if (selectModeWithoutInput || !_s.userInput) {
         return false;
@@ -2007,12 +2016,18 @@ var events = {
           if (this.settings.mode == 'mix') {
             this.events.callbacks.onMixTagsInput.call(this, e);
           } else if (this.settings.pasteAsTags) {
-            this.addTags(this.state.inputText + result, true);
+            tagsElems = this.addTags(this.state.inputText + result, true);
           } else {
             this.state.inputText = result;
             this.dropdown.show(result);
           }
         }
+        this.trigger('paste', {
+          event: e,
+          pastedText,
+          clipboardData,
+          tagsElems
+        });
       }).catch(err => err);
     },
     onDrop(e) {
@@ -2196,10 +2211,10 @@ var events = {
         _s = this.settings,
         isEditingTag,
         isReadyOnlyTag;
-      if (!tagElm || !_s.userInput || tagData.editable === false) return;
+      if (!tagElm || tagData.editable === false) return;
       isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing);
       isReadyOnlyTag = tagElm.hasAttribute('readonly');
-      if (!_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags) this.editTag(tagElm);
+      if (!_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags && _s.userInput) this.editTag(tagElm);
       this.toggleFocusClass(true);
       if (_s.mode != 'select') this.trigger('dblclick', {
         tag: tagElm,
@@ -2355,7 +2370,7 @@ Tagify.prototype = {
     getUID,
     isNodeTag
   },
-  customEventsList: ['change', 'add', 'remove', 'invalid', 'input', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:beforeUpdate', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch', 'dropdown:scroll'],
+  customEventsList: ['change', 'add', 'remove', 'invalid', 'input', 'paste', 'click', 'keydown', 'focus', 'blur', 'edit:input', 'edit:beforeUpdate', 'edit:updated', 'edit:start', 'edit:keydown', 'dropdown:show', 'dropdown:hide', 'dropdown:select', 'dropdown:updated', 'dropdown:noMatch', 'dropdown:scroll'],
   dataProps: ['__isValid', '__removed', '__originalData', '__originalHTML', '__tagId'],
   // internal-uasge props
 
@@ -2517,7 +2532,8 @@ Tagify.prototype = {
    * @param  {Object} input [DOM element which would be "transformed" into "Tags"]
    */
   build(input) {
-    var DOM = this.DOM;
+    var DOM = this.DOM,
+      labelWrapper = input.closest('label');
     if (this.settings.mixMode.integrated) {
       DOM.originalInput = null;
       DOM.scope = input;
@@ -2530,8 +2546,10 @@ Tagify.prototype = {
       input.parentNode.insertBefore(DOM.scope, input);
       input.tabIndex = -1; // do not allow focus or typing directly, once tagified
     }
-  },
 
+    // fixes tagify nested inside a <label> tag from getting focus when clicked on
+    if (labelWrapper) labelWrapper.setAttribute('for', '');
+  },
   /**
    * revert any changes made by this component
    */
@@ -2899,14 +2917,15 @@ Tagify.prototype = {
         data = data || {
           value: ''
         };
-        if (typeof data == 'string') data = {
+        if (typeof data !== 'object') data = {
           value: data
         };
         var suggestedText = this.dropdown.getMappedValue(data);
         if (typeof suggestedText === 'number') return;
-        var suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(),
+        var inputText = this.state.inputText.toLowerCase(),
+          suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(),
           suggestionTrimmed = suggestedText.substring(this.state.inputText.length);
-        if (!suggestedText || !this.state.inputText || suggestionStart != this.state.inputText.toLowerCase()) {
+        if (!suggestedText || !this.state.inputText || suggestionStart != inputText) {
           this.DOM.input.removeAttribute("data-suggest");
           delete this.state.inputSuggestion;
         } else {
