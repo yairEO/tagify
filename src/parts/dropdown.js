@@ -472,7 +472,7 @@ export default {
                                         if( !isMixMode )
                                             this.addTags(this.state.inputText.trim(), true)
                                     })
-                                    .catch(err => err)
+                                    .catch(err => console.warn(err))
 
                                 break;
                             }
@@ -614,6 +614,7 @@ export default {
 
         var value = elm.getAttribute('value'),
             isNoMatch = value == 'noMatch',
+            isMixMode = _s.mode == 'mix',
             tagData = this.suggestedListItems.find(item => (item.value ?? item) == value)
 
         // The below event must be triggered, regardless of anything else which might go wrong
@@ -633,11 +634,10 @@ export default {
         }
         // Tagify instances should re-focus to the input element once an option was selected, to allow continuous typing
         else {
-            this[_s.mode == 'mix' ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect)
+            this[isMixMode ? "addMixTags" : "addTags"]([tagData || this.input.raw.call(this)], clearOnSelect)
         }
 
-        // todo: consider not doing this on mix-mode
-        if( !this.DOM.input.parentNode )
+        if( !isMixMode && !this.DOM.input.parentNode )
             return
 
         setTimeout(() => {
