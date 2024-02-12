@@ -20,13 +20,12 @@ const LICENSE = fs.readFileSync("./LICENSE", "utf8");
 
 var rollupCache = {};
 
-var banner = `/*
+var banner = `
 Tagify v${process.env.npm_package_version} - tags input component
 By: ${pkg.author}
 ${pkg.homepage}
 
 ${LICENSE}
-*/
 `;
 
 var jQueryPluginWrap = [`;(function($){
@@ -148,7 +147,7 @@ function rollup({ entry, outputName, dest, plugins=[], babelConf={}, format='umd
         ...plugins
     ]
 
-    plugins.push( rollupBanner(() => banner) )
+    plugins.push( rollupBanner(() => `/*${banner}*/\n\n`) )
 
     return rollupStream({
         input: entry,
