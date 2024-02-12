@@ -1,5 +1,5 @@
 /*
-Tagify v4.21.0 - tags input component
+Tagify v4.21.1 - tags input component
 By: Yair Even-Or <vsync.design@gmail.com>
 https://github.com/yairEO/tagify
 
@@ -3293,6 +3293,12 @@ Tagify.prototype = {
 
     return true;
   },
+  /**
+   * Validate a tag's data and create a new tag node
+   * @param {*} tagData
+   * @param {*} options
+   * @returns Object
+   */
   prepareNewTagNode(tagData, options) {
     options = options || {};
     var tagElm,
@@ -3337,6 +3343,36 @@ Tagify.prototype = {
       aggregatedInvalidInput
     };
   },
+  /**
+   * Logic to happen once a tag has just been injected into the DOM
+   * @param {Node} tagElm
+   * @param {Object} tagData
+   */
+  postProcessNewTagNode(tagElm, tagData) {
+    var _s = this.settings,
+      isValid = tagData.__isValid;
+    if (isValid && isValid === true) {
+      // update state
+      this.value.push(tagData);
+      this.trigger('add', {
+        tag: tagElm,
+        index: this.value.length - 1,
+        data: tagData
+      });
+    } else {
+      this.trigger('invalid', {
+        data: tagData,
+        index: this.value.length,
+        tag: tagElm,
+        message: isValid
+      });
+      if (!_s.keepInvalidTags)
+        // remove invalid tags (if "keepInvalidTags" is set to "false")
+        setTimeout(() => this.removeTags(tagElm, true), 1000);
+    }
+    this.dropdown.position(); // reposition the dropdown because the just-added tag might cause a new-line
+  },
+
   /**
    * For selecting a single option (not used for multiple tags, but for "mode:select" only)
    * @param {Object} tagElm   Tag DOM node
@@ -3426,28 +3462,8 @@ Tagify.prototype = {
       // add the tag to the component's DOM
       // this.appendTag(tagElm)
       frag.appendChild(tagElm);
-      if (tagData.__isValid && tagData.__isValid === true) {
-        // update state
-        this.value.push(tagData);
-        this.trigger('add', {
-          tag: tagElm,
-          index: this.value.length - 1,
-          data: tagData
-        });
-      } else {
-        this.trigger("invalid", {
-          data: tagData,
-          index: this.value.length,
-          tag: tagElm,
-          message: tagData.__isValid
-        });
-        if (!_s.keepInvalidTags)
-          // remove invalid tags (if "keepInvalidTags" is set to "false")
-          setTimeout(() => this.removeTags(tagElm, true), 1000);
-      }
-      this.dropdown.position(); // reposition the dropdown because the just-added tag might cause a new-line
+      this.postProcessNewTagNode(tagElm, tagData);
     });
-
     this.appendTag(frag);
     this.update();
     if (tagsItems.length && clearInput) {
@@ -3472,6 +3488,7 @@ Tagify.prototype = {
     tagsData.forEach(tagData => {
       const newTagNode = this.prepareNewTagNode(tagData);
       frag.appendChild(newTagNode.tagElm);
+      this.postProcessNewTagNode(tagElm, newTagNode.tagData);
     });
     this.appendMixTags(frag);
     return frag;
@@ -3503,9 +3520,11 @@ Tagify.prototype = {
   prefixedTextToTag(tagData) {
     var _s = this.settings,
       tagElm,
+      newTag,
       createdFromDelimiters = this.state.tag?.delimiters;
     tagData.prefix = tagData.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source || _s.pattern)[0];
-    tagElm = this.prepareNewTagNode(tagData).tagElm;
+    newTag = this.prepareNewTagNode(tagData);
+    tagElm = newTag.tagElm;
 
     // tries to replace a taged textNode with a tagElm, and if not able,
     // insert the new tag to the END if "addTags" was called from outside
@@ -3513,7 +3532,7 @@ Tagify.prototype = {
       this.DOM.input.appendChild(tagElm);
     }
     setTimeout(() => tagElm.classList.add(this.settings.classNames.tagNoAnimation), 300);
-    this.value.push(tagData);
+    this.value.push(newTag.tagData);
     this.update();
     if (!createdFromDelimiters) {
       var elm = this.insertAfterTag(tagElm) || tagElm;
@@ -3523,11 +3542,7 @@ Tagify.prototype = {
       setTimeout(placeCaretAfterNode, 0, elm);
     }
     this.state.tag = null;
-    this.trigger('add', extend({}, {
-      tag: tagElm
-    }, {
-      data: tagData
-    }));
+    this.postProcessNewTagNode(tagElm, newTag.tagData);
     return tagElm;
   },
   /**
