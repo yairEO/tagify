@@ -1225,7 +1225,7 @@ Tagify.prototype = {
         // Create tag HTML element
         tagElm = this.createTagElem(tagData, tagElmParams)
 
-        return {tagElm, aggregatedInvalidInput}
+        return {tagElm, tagData, aggregatedInvalidInput}
     },
 
     /**
@@ -1311,7 +1311,8 @@ Tagify.prototype = {
             const newTagNode = this.prepareNewTagNode(tagData, {skipInvalid: skipInvalid || _s.skipInvalid}),
                 tagElm = newTagNode.tagElm;
 
-                aggregatedInvalidInput = newTagNode.aggregatedInvalidInput
+            tagData = newTagNode.tagData
+            aggregatedInvalidInput = newTagNode.aggregatedInvalidInput
 
             tagElems.push(tagElm)
 
