@@ -757,6 +757,9 @@
                         that in mind when populating a textarea with server data and expecting tags to "magically" appear. Whitelist <strong><em>must</em></strong> exist because not
                         everything that starts with <code>@</code> or <code>#</code> (or whatever was defined as <code>pattern</code>) is meant to be rendered as a tag.
                     </p>
+                    <p>
+                        This example also validates the tags using the <code>validate</code> setting with a function as a value.
+                    </p>
                     <h4>Creating new tags:</h4>
                     <p>
                         To create new tags (ones not included in your <code>whitelist</code> collection), simply make sure
@@ -1713,6 +1716,12 @@ var input = document.querySelector('[name=mix]'),
         whitelist: whitelist_1.concat(whitelist_2).map(function(item){
             return typeof item == 'string' ? {value:item} : item
         }),
+
+        // custom validation - no special characters
+        validate(data){
+            return !/[^a-zA-Z0-9 ]/.test(data.value)
+        },
+
         dropdown : {
             enabled: 1,
             position: 'text', // <-- render the suggestions list next to the typed text ("caret")
