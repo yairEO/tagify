@@ -1,7 +1,8 @@
 /**
- * Tagify (v 4.20.0) - tags input component
- * By undefined
+ * Tagify v4.21.0 - tags input component
+ * By: Yair Even-Or <vsync.design@gmail.com>
  * https://github.com/yairEO/tagify
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
