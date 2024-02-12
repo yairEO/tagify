@@ -1181,6 +1181,53 @@ Tagify.prototype = {
         return true;
     },
 
+    prepareNewTagNode(tagData, options) {
+        options = options || {}
+
+        var tagElm,
+            _s = this.settings,
+            aggregatedInvalidInput = [],
+            tagElmParams = {},
+            originalData = Object.assign({}, tagData, {value:tagData.value+""});
+
+        // shallow-clone tagData so later modifications will not apply to the source
+        tagData = Object.assign({}, originalData)
+        _s.transformTag.call(this, tagData)
+
+        tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData)
+
+        if( tagData.__isValid !== true ){
+            if( options.skipInvalid )
+                return
+
+            // originalData is kept because it might be that this tag is invalid because it is a duplicate of another,
+            // and if that other tags is edited/deleted, this one should be re-validated and if is no more a duplicate - restored
+            extend(tagElmParams, this.getInvalidTagAttrs(tagData, tagData.__isValid), {__preInvalidData:originalData})
+
+            if( tagData.__isValid == this.TEXTS.duplicate )
+                // mark, for a brief moment, the tag (this this one) which THIS CURRENT tag is a duplcate of
+                this.flashTag( this.getTagElmByValue(tagData.value) )
+
+            if( !_s.createInvalidTags ){
+                aggregatedInvalidInput.push(tagData.value)
+                return
+            }
+        }
+
+        if( 'readonly' in tagData ){
+            if( tagData.readonly )
+                tagElmParams["aria-readonly"] = true
+            // if "readonly" is "false", remove it from the tagData so it won't be added as an attribute in the template
+            else
+                delete tagData.readonly
+        }
+
+        // Create tag HTML element
+        tagElm = this.createTagElem(tagData, tagElmParams)
+
+        return {tagElm, aggregatedInvalidInput}
+    },
+
     /**
      * For selecting a single option (not used for multiple tags, but for "mode:select" only)
      * @param {Object} tagElm   Tag DOM node
@@ -1240,10 +1287,8 @@ Tagify.prototype = {
     addTags( tagsItems, clearInput, skipInvalid ){
         var tagElems = [],
             _s = this.settings,
-            aggregatedinvalidInput = [],
+            aggregatedInvalidInput = [],
             frag = document.createDocumentFragment()
-
-        skipInvalid = skipInvalid || _s.skipInvalid;
 
         if( !tagsItems || tagsItems.length == 0 ){
             return tagElems
@@ -1263,44 +1308,11 @@ Tagify.prototype = {
         this.DOM.input.removeAttribute('style')
 
         tagsItems.forEach(tagData => {
-            var tagElm,
-                tagElmParams = {},
-                originalData = Object.assign({}, tagData, {value:tagData.value+""});
+            const newTagNode = this.prepareNewTagNode(tagData, {skipInvalid: skipInvalid || _s.skipInvalid}),
+                tagElm = newTagNode.tagElm;
 
-            // shallow-clone tagData so later modifications will not apply to the source
-            tagData = Object.assign({}, originalData)
-            _s.transformTag.call(this, tagData)
+                aggregatedInvalidInput = newTagNode.aggregatedInvalidInput
 
-            tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData)
-
-            if( tagData.__isValid !== true ){
-                if( skipInvalid )
-                    return
-
-                // originalData is kept because it might be that this tag is invalid because it is a duplicate of another,
-                // and if that other tags is edited/deleted, this one should be re-validated and if is no more a duplicate - restored
-                extend(tagElmParams, this.getInvalidTagAttrs(tagData, tagData.__isValid), {__preInvalidData:originalData})
-
-                if( tagData.__isValid == this.TEXTS.duplicate )
-                    // mark, for a brief moment, the tag (this this one) which THIS CURRENT tag is a duplcate of
-                    this.flashTag( this.getTagElmByValue(tagData.value) )
-
-                if( !_s.createInvalidTags ){
-                    aggregatedinvalidInput.push(tagData.value)
-                    return
-                }
-            }
-
-            if( 'readonly' in tagData ){
-                if( tagData.readonly )
-                    tagElmParams["aria-readonly"] = true
-                // if "readonly" is "false", remove it from the tagData so it won't be added as an attribute in the template
-                else
-                    delete tagData.readonly
-            }
-
-            // Create tag HTML element
-            tagElm = this.createTagElem(tagData, tagElmParams)
             tagElems.push(tagElm)
 
             // mode-select overrides
@@ -1331,7 +1343,7 @@ Tagify.prototype = {
         this.update()
 
         if( tagsItems.length && clearInput ){
-            this.input.set.call(this, _s.createInvalidTags ? '' : aggregatedinvalidInput.join(_s._delimiters))
+            this.input.set.call(this, _s.createInvalidTags ? '' : aggregatedInvalidInput.join(_s._delimiters))
             this.setRangeAtStartEnd(false, this.DOM.input)
         }
 
@@ -1346,6 +1358,7 @@ Tagify.prototype = {
     addMixTags( tagsData ){
         tagsData = this.normalizeTags(tagsData);
 
+        // flow for creating custom tags which aren't a part of the whitelist
         if( tagsData[0].prefix || this.state.tag ){
             return this.prefixedTextToTag(tagsData[0])
         }
@@ -1353,8 +1366,8 @@ Tagify.prototype = {
         var frag = document.createDocumentFragment()
 
         tagsData.forEach(tagData => {
-            var tagElm = this.createTagElem(tagData)
-            frag.appendChild(tagElm)
+            const newTagNode = this.prepareNewTagNode(tagData)
+            frag.appendChild(newTagNode.tagElm)
         })
 
         this.appendMixTags(frag)
@@ -1385,19 +1398,16 @@ Tagify.prototype = {
 
     /**
      * Adds a tag which was activly typed by the user
-     * @param {String/Array} tagItem   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
+     * @param {String/Array} tagData   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
      */
-    prefixedTextToTag( tagItem ){
+    prefixedTextToTag( tagData ){
         var _s = this.settings,
             tagElm,
-            createdFromDelimiters = this.state.tag.delimiters;
+            createdFromDelimiters = this.state.tag?.delimiters;
 
-        _s.transformTag.call(this, tagItem)
+        tagData.prefix = tagData.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0];
 
-        tagItem.prefix = tagItem.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0];
-
-        // TODO: should check if the tag is valid
-        tagElm = this.createTagElem(tagItem)
+        tagElm = this.prepareNewTagNode(tagData).tagElm
 
         // tries to replace a taged textNode with a tagElm, and if not able,
         // insert the new tag to the END if "addTags" was called from outside
@@ -1407,7 +1417,7 @@ Tagify.prototype = {
 
         setTimeout(()=> tagElm.classList.add(this.settings.classNames.tagNoAnimation), 300)
 
-        this.value.push(tagItem)
+        this.value.push(tagData)
         this.update()
 
         if( !createdFromDelimiters ) {
@@ -1419,7 +1429,7 @@ Tagify.prototype = {
         }
 
         this.state.tag = null
-        this.trigger('add', extend({}, {tag:tagElm}, {data:tagItem}))
+        this.trigger('add', extend({}, {tag:tagElm}, {data:tagData}))
 
         return tagElm
     },
