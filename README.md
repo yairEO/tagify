@@ -43,6 +43,7 @@
   - [⚠️ Important:](#️-important)
 - [Features](#features)
 - [Building the project](#building-the-project)
+  - [Output files:](#output-files)
 - [Adding tags dynamically](#adding-tags-dynamically)
 - [Output value](#output-value)
   - [Modify original input value format](#modify-original-input-value-format)
@@ -161,7 +162,18 @@ Source files are this path: `/src/`
 
 Output files, which are automatically generated using Gulp, are in: `/dist/`
 
-The rest of the files are most likely irrelevant.
+### Output files:
+
+Filename                  | Info
+------------------------- | -----------------------------------------------------------
+`tagify.esm.js`           | ESM version. [see jsbin demo](https://jsbin.com/sulijap/edit?html,output)
+`tagify.js`               | *unminified* UMD version, including its souremaps
+`tagify.min.js`           | *minified* UMD version, including its souremaps. This is the **main** file the package exports.
+`tagify.polyfills.min.js` | Used for old Internet Explorer browser support
+`react.tagify.js`         | Wrapper-only for React. [Read more](#react)
+`jQuery.tagify.min.js`    | jQuery wrapper - same as `tagify.min.js`. might be removed in the future.
+`tagify.css`              |
+
 
 ## Adding tags dynamically
 ```javascript
