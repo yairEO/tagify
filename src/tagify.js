@@ -1181,6 +1181,12 @@ Tagify.prototype = {
         return true;
     },
 
+    /**
+     * Validate a tag's data and create a new tag node
+     * @param {*} tagData
+     * @param {*} options
+     * @returns Object
+     */
     prepareNewTagNode(tagData, options) {
         options = options || {}
 
@@ -1226,6 +1232,30 @@ Tagify.prototype = {
         tagElm = this.createTagElem(tagData, tagElmParams)
 
         return {tagElm, tagData, aggregatedInvalidInput}
+    },
+
+    /**
+     * Logic to happen once a tag has just been injected into the DOM
+     * @param {Node} tagElm
+     * @param {Object} tagData
+     */
+    postProcessNewTagNode(tagElm, tagData) {
+        var _s = this.settings,
+            isValid = tagData.__isValid;
+
+        if( isValid && isValid === true ){
+            // update state
+            this.value.push(tagData)
+            this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
+        }
+        else{
+            this.trigger('invalid', {data:tagData, index:this.value.length, tag:tagElm, message:isValid})
+            if( !_s.keepInvalidTags )
+                // remove invalid tags (if "keepInvalidTags" is set to "false")
+                setTimeout(() => this.removeTags(tagElm, true), 1000)
+        }
+
+        this.dropdown.position() // reposition the dropdown because the just-added tag might cause a new-line
     },
 
     /**
@@ -1325,19 +1355,7 @@ Tagify.prototype = {
             // this.appendTag(tagElm)
             frag.appendChild(tagElm)
 
-            if( tagData.__isValid && tagData.__isValid === true ){
-                // update state
-                this.value.push(tagData)
-                this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
-            }
-            else{
-                this.trigger("invalid", {data:tagData, index:this.value.length, tag:tagElm, message:tagData.__isValid})
-                if( !_s.keepInvalidTags )
-                    // remove invalid tags (if "keepInvalidTags" is set to "false")
-                    setTimeout(() => this.removeTags(tagElm, true), 1000)
-            }
-
-            this.dropdown.position() // reposition the dropdown because the just-added tag might cause a new-line
+            this.postProcessNewTagNode(tagElm, tagData)
         })
 
         this.appendTag(frag)
@@ -1369,6 +1387,7 @@ Tagify.prototype = {
         tagsData.forEach(tagData => {
             const newTagNode = this.prepareNewTagNode(tagData)
             frag.appendChild(newTagNode.tagElm)
+            this.postProcessNewTagNode(tagElm, newTagNode.tagData)
         })
 
         this.appendMixTags(frag)
@@ -1404,11 +1423,13 @@ Tagify.prototype = {
     prefixedTextToTag( tagData ){
         var _s = this.settings,
             tagElm,
+            newTag,
             createdFromDelimiters = this.state.tag?.delimiters;
 
         tagData.prefix = tagData.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source||_s.pattern)[0];
 
-        tagElm = this.prepareNewTagNode(tagData).tagElm
+        newTag = this.prepareNewTagNode(tagData)
+        tagElm = newTag.tagElm
 
         // tries to replace a taged textNode with a tagElm, and if not able,
         // insert the new tag to the END if "addTags" was called from outside
@@ -1418,7 +1439,7 @@ Tagify.prototype = {
 
         setTimeout(()=> tagElm.classList.add(this.settings.classNames.tagNoAnimation), 300)
 
-        this.value.push(tagData)
+        this.value.push(newTag.tagData)
         this.update()
 
         if( !createdFromDelimiters ) {
@@ -1430,7 +1451,8 @@ Tagify.prototype = {
         }
 
         this.state.tag = null
-        this.trigger('add', extend({}, {tag:tagElm}, {data:tagData}))
+
+        this.postProcessNewTagNode(tagElm, newTag.tagData)
 
         return tagElm
     },
