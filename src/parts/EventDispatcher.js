@@ -55,7 +55,7 @@ export default function EventDispatcher( instance ){
 
                     e = new CustomEvent(eventName, {"detail":eventData})
                 }
-                catch(err){ console.warn(err) }
+                catch(err){ Tagify.logger.warn(err) }
 
                 target.dispatchEvent(e);
             }

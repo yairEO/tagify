@@ -40,7 +40,7 @@
   - [Option 1 - import from CDN:](#option-1---import-from-cdn)
   - [option 2 - import as a *Node module*:](#option-2---import-as-a-node-module)
 - [Basic Usage Examples](#basic-usage-examples)
-  - [⚠️ Important:](#️-important)
+  - [Debugging](#debugging)
 - [Features](#features)
 - [Building the project](#building-the-project)
   - [Output files:](#output-files)
@@ -125,11 +125,22 @@ into a *Tagify* component, and so when the form data is sent to the server, it w
 
 For selected tags to show a different text than what is defined in `value` for a whitelist item, see the `tagTextProp` [setting](#settings)
 
-### ⚠️ Important:
+⚠️ Important:
 Don't forget to **include `tagify.css`** file in your project.
 CSS location: `@yaireo/tagify/dist/tagify.css`
 SCSS location: `@yaireo/tagify/src/tagify.scss`
 [See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
+
+### Debugging
+There are several places in the source code which emits `console.warn` logs to help identify issues,
+and those will only work if `Tagify.logger.enabled` flag is set to `true`, before Tagify instances are created:
+
+```js
+Tagify.logger.enabled = true
+
+var tagify = new Tagify(...)
+```
+
 
 ## Features
 * Can be applied to input & textarea elements

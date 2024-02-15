@@ -113,7 +113,7 @@ export default {
                                         if( !isMixMode )
                                             this.addTags(this.state.inputText.trim(), true)
                                     })
-                                    .catch(err => console.warn(err))
+                                    .catch(err => Tagify.logger.warn(err))
 
                                 break;
                             }
@@ -161,7 +161,7 @@ export default {
                         else
                             this.dropdown.hide()
                     })
-                    .catch(err => console.warn(err))
+                    .catch(err => Tagify.logger.warn(err))
             },
 
             onScroll(e){

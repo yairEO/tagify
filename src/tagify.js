@@ -14,7 +14,7 @@ import events, { triggerChangeEvent } from './parts/events'
  */
 function Tagify( input, settings ){
     if( !input ){
-        console.warn('Tagify:', 'input element not found', input)
+        Tagify.logger.warn('input element not found', input)
         // return an empty mock of all methods, so the code using tagify will not break
         // because it might be calling methods even though the input element does not exist
         const mockInstance = new Proxy(this, { get(){ return () => mockInstance } })
@@ -22,7 +22,7 @@ function Tagify( input, settings ){
     }
 
     if( input.__tagify ){
-        console.warn('Tagify: ', 'input element is already Tagified - Same instance is returned.', input)
+        Tagify.logger.warn('input element is already Tagified - Same instance is returned.', input)
         return input.__tagify
     }
 
@@ -446,7 +446,7 @@ Tagify.prototype = {
                 )
             }
         } catch(err){
-            console.warn("Tagify: ", err)
+            console.warn(err)
         }
     },
 
@@ -503,7 +503,7 @@ Tagify.prototype = {
             isValid = true
 
         if( !editableElm ){
-            console.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
+            Tagify.logger.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
             return;
         }
 
@@ -557,7 +557,7 @@ Tagify.prototype = {
             isValid;
 
         if( !tagData ){
-            console.warn("tag has no data: ", tagElm, tagData)
+            Tagify.logger.warn("tag has no data: ", tagElm, tagData)
             return;
         }
 
@@ -1802,5 +1802,11 @@ Tagify.prototype = {
 
 // legacy support for changed methods names
 Tagify.prototype.removeTag = Tagify.prototype.removeTags
+
+Tagify.logger = {
+    enabled: false,
+    log(...args){ this.enabled && console.log('[Tagify]:', ...args) },
+    warn(...args) { this.enabled && console.warn('[Tagify]:', ...args) }
+}
 
 export default Tagify

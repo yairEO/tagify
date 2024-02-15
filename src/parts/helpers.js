@@ -266,7 +266,7 @@ export function injectAtCaret(content, range){
  */
 export function getSetTagData(tagElm, data, override){
     if( !tagElm ){
-        console.warn("tag element doesn't exist",tagElm, data)
+        Tagify.logger.warn("tag element doesn't exist",{tagElm, data})
         return data
     }
 
