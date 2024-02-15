@@ -35,13 +35,12 @@
         </style>
     </head>
     <body>
-
-
         <input name='tags-select-mode' class='selectMode' placeholder="Please select" value="1" />
-
         <input name='tags-select-mode' class='selectMode' placeholder="Please select" value="1" />
 
 <script>
+Tagify.logger.enabled = true;
+
 var input = document.querySelector('input[name=tags-select-mode]'),
     tagify = new Tagify(input, {
         mode : "select",
