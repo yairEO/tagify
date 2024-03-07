@@ -1,5 +1,5 @@
 /*
-Tagify v4.21.1 - tags input component
+Tagify v4.21.2 - tags input component
 By: Yair Even-Or <vsync.design@gmail.com>
 https://github.com/yairEO/tagify
 
@@ -302,7 +302,10 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
    */
   function getSetTagData(tagElm, data, override) {
     if (!tagElm) {
-      console.warn("tag element doesn't exist", tagElm, data);
+      Tagify.logger.warn("tag element doesn't exist", {
+        tagElm,
+        data
+      });
       return data;
     }
     if (data) tagElm.__tagifyTagData = override ? data : extend({}, tagElm.__tagifyTagData || {}, data);
@@ -574,7 +577,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
                       return;
                     } else this.dropdown.hide();
                     if (!isMixMode) this.addTags(this.state.inputText.trim(), true);
-                  }).catch(err => console.warn(err));
+                  }).catch(err => Tagify.logger.warn(err));
                   break;
                 }
               case 'Backspace':
@@ -612,7 +615,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
             suggestionElm: selectedElm
           }).then(() => {
             if (selectedElm) this.dropdown.selectOption(selectedElm, e);else this.dropdown.hide();
-          }).catch(err => console.warn(err));
+          }).catch(err => Tagify.logger.warn(err));
         },
         onScroll(e) {
           var elm = e.target,
@@ -1341,7 +1344,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
               "detail": eventData
             });
           } catch (err) {
-            console.warn(err);
+            Tagify.logger.warn(err);
           }
           target.dispatchEvent(e);
         }
@@ -2320,9 +2323,9 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
    * @param {Object} input    DOM element
    * @param {Object} settings settings object
    */
-  function Tagify(input, settings) {
+  function Tagify$1(input, settings) {
     if (!input) {
-      console.warn('Tagify:', 'input element not found', input);
+      Tagify$1.logger.warn('input element not found', input);
       // return an empty mock of all methods, so the code using tagify will not break
       // because it might be calling methods even though the input element does not exist
       const mockInstance = new Proxy(this, {
@@ -2333,7 +2336,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
       return mockInstance;
     }
     if (input.__tagify) {
-      console.warn('Tagify: ', 'input element is already Tagified - Same instance is returned.', input);
+      Tagify$1.logger.warn('input element is already Tagified - Same instance is returned.', input);
       return input.__tagify;
     }
     extend(this, EventDispatcher(this));
@@ -2371,7 +2374,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
     input.autofocus && this.DOM.input.focus();
     input.__tagify = this;
   }
-  Tagify.prototype = {
+  Tagify$1.prototype = {
     _dropdown,
     placeCaretAfterNode,
     getSetTagData,
@@ -2689,7 +2692,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
           ['Start', 'End'].forEach(pos => sel.getRangeAt(0)["set" + pos](node, start ? start : node.length));
         }
       } catch (err) {
-        console.warn("Tagify: ", err);
+        console.warn(err);
       }
     },
     insertAfterTag(tagElm, newNode) {
@@ -2730,7 +2733,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
         _CB = this.events.callbacks,
         isValid = true;
       if (!editableElm) {
-        console.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
+        Tagify$1.logger.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
         return;
       }
       if (tagData instanceof Object && "editable" in tagData && !tagData.editable) return;
@@ -2777,7 +2780,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
       var tagData = tagData || getSetTagData(tagElm),
         isValid;
       if (!tagData) {
-        console.warn("tag has no data: ", tagElm, tagData);
+        Tagify$1.logger.warn("tag has no data: ", tagElm, tagData);
         return;
       }
       isValid = !("__isValid" in tagData) || tagData.__isValid === true;
@@ -3453,9 +3456,10 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
       this.DOM.input.removeAttribute('style');
       tagsItems.forEach(tagData => {
         const newTagNode = this.prepareNewTagNode(tagData, {
-            skipInvalid: skipInvalid || _s.skipInvalid
-          }),
-          tagElm = newTagNode.tagElm;
+          skipInvalid: skipInvalid || _s.skipInvalid
+        });
+        if (!newTagNode) return;
+        const tagElm = newTagNode.tagElm;
         tagData = newTagNode.tagData;
         aggregatedInvalidInput = newTagNode.aggregatedInvalidInput;
         tagElems.push(tagElm);
@@ -3821,9 +3825,24 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
   };
 
   // legacy support for changed methods names
-  Tagify.prototype.removeTag = Tagify.prototype.removeTags;
+  Tagify$1.prototype.removeTag = Tagify$1.prototype.removeTags;
+  Tagify$1.logger = {
+    enabled: false,
+    log() {
+      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+      this.enabled && console.log('[Tagify]:', ...args);
+    },
+    warn() {
+      for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
+      }
+      this.enabled && console.warn('[Tagify]:', ...args);
+    }
+  };
 
-  return Tagify;
+  return Tagify$1;
 
 }));
 //# sourceMappingURL=tagify.js.map
