@@ -1338,8 +1338,11 @@ Tagify.prototype = {
         this.DOM.input.removeAttribute('style')
 
         tagsItems.forEach(tagData => {
-            const newTagNode = this.prepareNewTagNode(tagData, {skipInvalid: skipInvalid || _s.skipInvalid}),
-                tagElm = newTagNode.tagElm;
+            const newTagNode = this.prepareNewTagNode(tagData, {skipInvalid: skipInvalid || _s.skipInvalid});
+
+            if( !newTagNode) return;
+
+            const tagElm = newTagNode.tagElm;
 
             tagData = newTagNode.tagData
             aggregatedInvalidInput = newTagNode.aggregatedInvalidInput
