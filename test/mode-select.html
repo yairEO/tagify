@@ -35,8 +35,9 @@
         </style>
     </head>
     <body>
+        <input/>
         <input name='tags-select-mode' class='selectMode' placeholder="Please select" value="1" />
-        <input name='tags-select-mode' class='selectMode' placeholder="Please select" value="1" />
+        <input/>
 
 <script>
 Tagify.logger.enabled = true;
@@ -49,6 +50,9 @@ var input = document.querySelector('input[name=tags-select-mode]'),
         enforceWhitelist: false,
         keepInvalidTags: false,
         maxTags: 1,
+        a11y: {
+            focusableTags: true
+        },
         whitelist: [
             { value:0, title: 'interger value 0' },
             { value:1, title: 'interger value 1' },
