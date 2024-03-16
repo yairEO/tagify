@@ -209,6 +209,10 @@ export function isNodeTag(node){
     return node && node.classList && node.classList.contains(this.settings.classNames.tag)
 }
 
+export function isWithinNodeTag(node){
+    return node && node.closest(this.settings.classNames.tagSelector)
+}
+
 /**
 * Get the caret position relative to the viewport
 * https://stackoverflow.com/q/58985076/104380
