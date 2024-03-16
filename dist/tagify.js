@@ -1,5 +1,5 @@
 /*
-Tagify v4.21.2 - tags input component
+Tagify v4.22.0 - tags input component
 By: Yair Even-Or <vsync.design@gmail.com>
 https://github.com/yairEO/tagify
 
@@ -21,7 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
+This Software may not be rebranded and sold as a library under any other name
+other than "Tagify" (by owner) or as part of another library.
 */
 
 (function (global, factory) {
@@ -245,6 +246,9 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
   }
   function isNodeTag(node) {
     return node && node.classList && node.classList.contains(this.settings.classNames.tag);
+  }
+  function isWithinNodeTag(node) {
+    return node && node.closest(this.settings.classNames.tagSelector);
   }
 
   /**
@@ -515,7 +519,8 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
           var _s = this.settings,
             selectedElm = this.DOM.dropdown.querySelector(_s.classNames.dropdownItemActiveSelector),
             selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm),
-            isMixMode = _s.mode == 'mix';
+            isMixMode = _s.mode == 'mix',
+            isSelectMode = _s.mode == 'select';
           _s.hooks.beforeKeyDown(e, {
             tagify: this
           }).then(result => {
@@ -553,7 +558,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
                   let shouldAutocompleteOnKey = !_s.autoComplete.rightKey || !_s.autoComplete.tabKey;
 
                   // in mix-mode, treat arrowRight like Enter key, so a tag will be created
-                  if (!isMixMode && selectedElm && shouldAutocompleteOnKey && !this.state.editing) {
+                  if (!isMixMode && !isSelectMode && selectedElm && shouldAutocompleteOnKey && !this.state.editing) {
                     e.preventDefault(); // prevents blur so the autocomplete suggestion will not become a tag
                     var value = this.dropdown.getMappedValue(selectedElmData);
                     this.input.autocomplete.set.call(this, value);
@@ -903,6 +908,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
      * @param {String} value [optional, filter the whitelist by this value]
      */
     show(value) {
+      if (this.state.dropdown.visible) return;
       var _s = this.settings,
         firstListItem,
         firstListItemValue,
@@ -1088,8 +1094,8 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
         newFooterElem = this.parseTemplate('dropdownFooter', [suggestions]),
         headerRef = this.dropdown.getHeaderRef(),
         footerRef = this.dropdown.getFooterRef();
-      newHeaderElem && headerRef?.parentNode.replaceChild(newHeaderElem, headerRef);
-      newFooterElem && footerRef?.parentNode.replaceChild(newFooterElem, footerRef);
+      newHeaderElem && (headerRef === null || headerRef === void 0 ? void 0 : headerRef.parentNode.replaceChild(newHeaderElem, headerRef));
+      newFooterElem && (footerRef === null || footerRef === void 0 ? void 0 : footerRef.parentNode.replaceChild(newFooterElem, footerRef));
     },
     /**
      * dropdown positioning logic
@@ -1260,9 +1266,9 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
                     tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
                     class="${_s.classNames.tag} ${tagData.class || ""}"
                     ${this.getAttributes(tagData)}>
-            <x title='' class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
+            <x title='' tabIndex="${_s.a11y.focusableTags ? 0 : -1}" class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
             <div>
-                <span class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
+                <span ${_s.mode === 'select' ? "contenteditable='true'" : ''} class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
             </div>
         </tag>`;
     },
@@ -1403,9 +1409,10 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
         if (this.settings.isJQueryPlugin) jQuery(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this));
       }
 
+      // TODO: bind bubblable "focusin" and "focusout" events on the Tagify scope itself and not the input
+
       // setup callback references so events could be removed later
       _CBR = this.listeners.main = this.listeners.main || {
-        focus: ['input', _CB.onFocusBlur.bind(this)],
         keydown: ['input', _CB.onKeydown.bind(this)],
         click: ['scope', _CB.onClickScope.bind(this)],
         dblclick: _s.mode != 'select' && ['scope', _CB.onDoubleClickScope.bind(this)],
@@ -1453,8 +1460,12 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
         target: window,
         cb: _CB.onWindowKeyDown.bind(this)
       }, {
-        type: 'blur',
-        target: this.DOM.input,
+        type: 'focusin',
+        target: this.DOM.scope,
+        cb: _CB.onFocusBlur.bind(this)
+      }, {
+        type: 'focusout',
+        target: this.DOM.scope,
         cb: _CB.onFocusBlur.bind(this)
       }, {
         type: 'click',
@@ -1472,10 +1483,26 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
      */
     callbacks: {
       onFocusBlur(e) {
+        var _e$target, _this$value, _this$value$;
+        // when focusing within a tag which is in edit-mode
+        var nodeTag = isWithinNodeTag.call(this, e.target),
+          targetIsTagNode = isNodeTag.call(this, e.target);
+
+        // when focusing within a tag which is in edit-mode, only and specifically on the text-part of the tag node
+        // and not the X button or any other custom element thatmight be there
+        var tagTextNode = (_e$target = e.target) === null || _e$target === void 0 ? void 0 : _e$target.closest(this.settings.classNames.tagTextSelector);
+        if (nodeTag && e.type == 'focusin' && !targetIsTagNode) {
+          this.toggleFocusClass(this.state.hasFocus = +new Date());
+
+          // only if focused within a tag's text node should the `onEditTagFocus` function be called.
+          // if clicked anywhere else inside a tag, which had triggered an `focusin` event,
+          // the onFocusBlur should be aborted. This part was spcifically written for `select` mode.
+          return tagTextNode ? this.events.callbacks.onEditTagFocus.call(this, nodeTag) : undefined;
+        }
         var _s = this.settings,
           text = e.target ? this.trim(e.target.textContent) : '',
           // a string
-          currentDisplayValue = this.value?.[0]?.[_s.tagTextProp],
+          currentDisplayValue = (_this$value = this.value) === null || _this$value === void 0 ? void 0 : (_this$value$ = _this$value[0]) === null || _this$value$ === void 0 ? void 0 : _this$value$[_s.tagTextProp],
           type = e.type,
           ddEnabled = _s.dropdown.enabled >= 0,
           eventData = {
@@ -1484,22 +1511,23 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
           isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
           isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
           shouldAddTags;
-        if (type == 'blur') {
+        if (type == 'focusout') {
           if (e.relatedTarget === this.DOM.scope) {
             this.dropdown.hide();
             this.DOM.input.focus();
             return;
           }
           this.postUpdate();
-          _s.onChangeAfterBlur && this.triggerChangeEvent();
+          // _s.onChangeAfterBlur && this.triggerChangeEvent()
         }
+
         if (isTargetSelectOption || isTargetAddNewBtn) return;
-        this.state.hasFocus = type == "focus" ? +new Date() : false;
+        this.state.hasFocus = type == 'focusin' ? +new Date() : false;
         this.toggleFocusClass(this.state.hasFocus);
         if (_s.mode == 'mix') {
           if (type == "focus") {
             this.trigger("focus", eventData);
-          } else if (e.type == "blur") {
+          } else if (e.type == "focusout") {
             this.trigger("blur", eventData);
             this.loading(false);
             this.dropdown.hide();
@@ -1509,7 +1537,8 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
           }
           return;
         }
-        if (type == "focus") {
+        if (type == "focusin") {
+          this.toggleFocusClass(true);
           this.trigger("focus", eventData);
           //  e.target.classList.remove('placeholder');
           if ((_s.dropdown.enabled === 0 || !_s.userInput) && !this.state.dropdown.visible) {
@@ -1517,13 +1546,18 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
             this.dropdown.show(this.value.length ? '' : undefined);
           }
           return;
-        } else if (type == "blur") {
+        } else if (type == "focusout" && !targetIsTagNode) {
           this.trigger("blur", eventData);
           this.loading(false);
 
           // when clicking the X button of a selected tag, it is unwanted for it to be added back
           // again in a few more lines of code (shouldAddTags && addTags)
           if (_s.mode == 'select') {
+            if (this.value.length) {
+              let firstTagNode = this.getTagElms()[0];
+              text = this.trim(firstTagNode.textContent);
+            }
+
             // if nothing has changed (same display value), do not add a tag
             if (currentDisplayValue === text) text = '';
           }
@@ -2117,7 +2151,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
           return;
         }
 
-        // is "ESC" key was pressed then the "editing" state should be `false` and if so, logic should not continue
+        // if "ESC" key was pressed then the "editing" state should be `false` and if so, logic should not continue
         // because "ESC" reverts the edited tag back to how it was (replace the node) before editing
         if (!this.state.editing) return;
         if (!this.state.hasFocus) this.toggleFocusClass();
@@ -2269,7 +2303,8 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
 
             // if this is a tag
             else if (isNodeTag.call(this, addedNode)) {
-              if (addedNode.previousSibling?.nodeType == 3 && !addedNode.previousSibling.textContent) addedNode.previousSibling.remove();
+              var _addedNode$previousSi;
+              if (((_addedNode$previousSi = addedNode.previousSibling) === null || _addedNode$previousSi === void 0 ? void 0 : _addedNode$previousSi.nodeType) == 3 && !addedNode.previousSibling.textContent) addedNode.previousSibling.remove();
 
               // and it is the first node in a new line
               if (addedNode.previousSibling && addedNode.previousSibling.nodeName == 'BR') {
@@ -2423,6 +2458,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
       }
     },
     applySettings(input, settings) {
+      var _settings$dropdown, _settings$dropdown2;
       DEFAULTS.templates = this.templates;
       var mixModeDefaults = {
         dropdown: {
@@ -2477,10 +2513,10 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
       this.TEXTS = _objectSpread2(_objectSpread2({}, TEXTS), _s.texts || {});
 
       // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
-      if (_s.mode == 'select' && !settings.dropdown?.enabled || !_s.userInput) {
+      if (_s.mode == 'select' && !((_settings$dropdown = settings.dropdown) !== null && _settings$dropdown !== void 0 && _settings$dropdown.enabled) || !_s.userInput) {
         _s.dropdown.enabled = 0;
       }
-      _s.dropdown.appendTarget = settings.dropdown?.appendTarget || document.body;
+      _s.dropdown.appendTarget = ((_settings$dropdown2 = settings.dropdown) === null || _settings$dropdown2 === void 0 ? void 0 : _settings$dropdown2.appendTarget) || document.body;
 
       // get & merge persisted data with current data
       let persistedWhitelist = this.getPersistedData('whitelist');
@@ -2725,13 +2761,16 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
     editTag(tagElm, opts) {
       tagElm = tagElm || this.getLastTag();
       opts = opts || {};
-      this.dropdown.hide();
       var _s = this.settings,
         editableElm = this.getTagTextNode(tagElm),
         tagIdx = this.getNodeIndex(tagElm),
         tagData = getSetTagData(tagElm),
         _CB = this.events.callbacks,
         isValid = true;
+
+      // select mode is a bit different as clicking the tagify's content once will get into edit-mode if a value
+      // is already selected, and there cannot be a dropdown already open at this point.
+      _s.mode != 'select' && this.dropdown.hide();
       if (!editableElm) {
         Tagify$1.logger.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
         return;
@@ -2748,7 +2787,6 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
       editableElm.setAttribute('contenteditable', true);
       tagElm.classList.add(_s.classNames.tagEditing);
       editableElm.addEventListener('click', _CB.onEditTagClick.bind(this, tagElm));
-      editableElm.addEventListener('focus', _CB.onEditTagFocus.bind(this, tagElm));
       editableElm.addEventListener('blur', _CB.onEditTagBlur.bind(this, this.getTagTextNode(tagElm)));
       editableElm.addEventListener('input', _CB.onEditTagInput.bind(this, editableElm));
       editableElm.addEventListener('paste', _CB.onEditTagPaste.bind(this, editableElm));
@@ -2818,7 +2856,8 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
       function veryfyTagTextProp() {
         var tagTextProp = tagData[_s.tagTextProp];
         if (tagTextProp) {
-          return !!tagTextProp.trim?.();
+          var _tagTextProp$trim;
+          return !!((_tagTextProp$trim = tagTextProp.trim) !== null && _tagTextProp$trim !== void 0 && _tagTextProp$trim.call(tagTextProp));
         }
         if (!(_s.tagTextProp in tagData)) return !!tagData.value;
       }
@@ -2869,7 +2908,8 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
      * @param {Object} selection [optional range Object. must have "anchorNode" & "anchorOffset"]
      */
     injectAtCaret(injectedNode, range) {
-      range = range || this.state.selection?.range;
+      var _this$state$selection;
+      range = range || ((_this$state$selection = this.state.selection) === null || _this$state$selection === void 0 ? void 0 : _this$state$selection.range);
       if (!range && injectedNode) {
         this.appendMixTags(injectedNode);
         return this;
@@ -2925,7 +2965,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
         } catch (err) {}
         v = v.replace(/\s/g, ' '); // replace NBSPs with spaces characters
 
-        return options?.trim ? this.trim(v) : v;
+        return options !== null && options !== void 0 && options.trim ? this.trim(v) : v;
       },
       /**
        * suggest the rest of the input's value (via CSS "::after" using "content:attr(...)")
@@ -3528,10 +3568,11 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
      * @param {String/Array} tagData   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
      */
     prefixedTextToTag(tagData) {
+      var _this$state$tag;
       var _s = this.settings,
         tagElm,
         newTag,
-        createdFromDelimiters = this.state.tag?.delimiters;
+        createdFromDelimiters = (_this$state$tag = this.state.tag) === null || _this$state$tag === void 0 ? void 0 : _this$state$tag.delimiters;
       tagData.prefix = tagData.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source || _s.pattern)[0];
       newTag = this.prepareNewTagNode(tagData);
       tagElm = newTag.tagElm;
@@ -3714,7 +3755,7 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
       }).catch(reason => {});
     },
     removeTagsFromDOM() {
-      [].slice.call(this.getTagElms()).forEach(elm => elm.parentNode.removeChild(elm));
+      this.getTagElms().forEach(node => node.remove());
     },
     /**
      * @param {Array/Node} tags to be removed from the this.value array
@@ -3759,7 +3800,8 @@ THE SOFTWARE IS NOT PERMISSIBLE TO BE SOLD.
 
       // specifically the "select mode" might have the "invalid" classname set when the field is changed, so it must be toggled on add/remove/edit
       if (_s.mode == 'select') {
-        this.toggleScopeValidation(this.value?.[0]?.__isValid);
+        var _this$value, _this$value$;
+        this.toggleScopeValidation((_this$value = this.value) === null || _this$value === void 0 ? void 0 : (_this$value$ = _this$value[0]) === null || _this$value$ === void 0 ? void 0 : _this$value$.__isValid);
       }
     },
     setOriginalInputValue(v) {
