@@ -493,14 +493,16 @@ Tagify.prototype = {
         tagElm = tagElm || this.getLastTag()
         opts = opts || {}
 
-        this.dropdown.hide()
-
         var _s = this.settings,
             editableElm = this.getTagTextNode(tagElm),
             tagIdx = this.getNodeIndex(tagElm),
             tagData = getSetTagData(tagElm),
             _CB = this.events.callbacks,
             isValid = true
+
+        // select mode is a bit different as clicking the tagify's content once will get into edit-mode if a value
+        // is already selected, and there cannot be a dropdown already open at this point.
+        _s.mode != 'select' && this.dropdown.hide()
 
         if( !editableElm ){
             Tagify.logger.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
@@ -522,7 +524,6 @@ Tagify.prototype = {
         tagElm.classList.add( _s.classNames.tagEditing )
 
         editableElm.addEventListener('click'            , _CB.onEditTagClick.bind(this, tagElm))
-        editableElm.addEventListener('focus'            , _CB.onEditTagFocus.bind(this, tagElm))
         editableElm.addEventListener('blur'             , _CB.onEditTagBlur.bind(this, this.getTagTextNode(tagElm)))
         editableElm.addEventListener('input'            , _CB.onEditTagInput.bind(this, editableElm))
         editableElm.addEventListener('paste'            , _CB.onEditTagPaste.bind(this, editableElm))
@@ -1642,7 +1643,7 @@ Tagify.prototype = {
     },
 
     removeTagsFromDOM(){
-        [].slice.call(this.getTagElms()).forEach(elm => elm.parentNode.removeChild(elm))
+        this.getTagElms().forEach(node => node.remove())
     },
 
     /**
