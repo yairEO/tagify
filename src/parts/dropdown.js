@@ -38,6 +38,8 @@ export default {
      * @param {String} value [optional, filter the whitelist by this value]
      */
     show( value ){
+        if( this.state.dropdown.visible ) return;
+
         var _s = this.settings,
             firstListItem,
             firstListItemValue,
