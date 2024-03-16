@@ -11,7 +11,7 @@ dependencies:
 
 devDependencies:
   '@babel/core':
-    specifier: ^7.20.2
+    specifier: ^7.20.5
     version: 7.20.5
   '@babel/preset-env':
     specifier: ^7.20.2
@@ -20,7 +20,7 @@ devDependencies:
     specifier: ^7.18.6
     version: 7.18.6(@babel/core@7.20.5)
   '@rollup/plugin-babel':
-    specifier: ^6.0.2
+    specifier: ^6.0.3
     version: 6.0.3(@babel/core@7.20.5)(rollup@2.79.1)
   '@rollup/stream':
     specifier: git+https://github.com/andremacola/stream.git
@@ -101,7 +101,7 @@ devDependencies:
     specifier: ^0.12.7
     version: 0.12.7
   rollup:
-    specifier: ^2.75.5
+    specifier: ^2.79.1
     version: 2.79.1
   rollup-plugin-banner2:
     specifier: ^1.2.2
@@ -113,7 +113,7 @@ devDependencies:
     specifier: ^2.2.1
     version: 2.2.1
   sass:
-    specifier: ^1.39.0
+    specifier: ^1.56.1
     version: 1.56.1
   semver:
     specifier: ^7.3.8
@@ -1744,7 +1744,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.21.4
-      caniuse-lite: 1.0.30001436
+      caniuse-lite: 1.0.30001597
       fraction.js: 4.2.0
       normalize-range: 0.1.2
       picocolors: 1.0.0
@@ -1906,7 +1906,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001436
+      caniuse-lite: 1.0.30001597
       electron-to-chromium: 1.4.284
       node-releases: 2.0.6
       update-browserslist-db: 1.0.10(browserslist@4.21.4)
@@ -1968,8 +1968,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /caniuse-lite@1.0.30001436:
-    resolution: {integrity: sha512-ZmWkKsnC2ifEPoWUvSAIGyOYwT+keAaaWPHiQ9DfMqS1t6tfuyFYoWR78TeZtznkEQ64+vGXH9cZrElwR2Mrxg==}
+  /caniuse-lite@1.0.30001597:
+    resolution: {integrity: sha512-7LjJvmQU6Sj7bL0j5b5WY/3n7utXUJvAe1lxhsHDbLmwX9mdL86Yjtr+5SRCyf8qME4M7pU2hswj0FpyBVCv9w==}
     dev: true
 
   /chalk@0.5.1:
@@ -2036,7 +2036,7 @@ packages:
       normalize-path: 3.0.0
       readdirp: 3.6.0
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: true
 
   /class-utils@0.3.6:
@@ -2759,12 +2759,12 @@ packages:
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
-      nan: 2.17.0
+      nan: 2.19.0
     dev: true
     optional: true
 
-  /fsevents@2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+  /fsevents@2.3.3:
+    resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     requiresBuild: true
@@ -4210,8 +4210,8 @@ packages:
     engines: {node: '>= 0.10'}
     dev: true
 
-  /nan@2.17.0:
-    resolution: {integrity: sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==}
+  /nan@2.19.0:
+    resolution: {integrity: sha512-nO1xXxfh/RWNxfd/XPfbIfFk5vgLsAxUR9y5O0cHMJu/AW9U95JLXqthYHjEp+8gQ5p96K9jUp8nbVOxCdRbtw==}
     requiresBuild: true
     dev: true
     optional: true
@@ -4950,7 +4950,7 @@ packages:
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: true
 
   /run-sequence@2.2.1:
