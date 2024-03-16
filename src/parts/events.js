@@ -1,4 +1,4 @@
-import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, injectAtCaret, getSetTagData, fixCaretBetweenTags, placeCaretAfterNode } from './helpers'
+import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, isWithinNodeTag, injectAtCaret, getSetTagData, fixCaretBetweenTags, placeCaretAfterNode } from './helpers'
 import {ZERO_WIDTH_CHAR} from './constants'
 
 var deleteBackspaceTimeout;
@@ -58,9 +58,12 @@ export default {
                 jQuery(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
         }
 
+
+        // TODO: bind bubblable "focusin" and "focusout" events on the Tagify scope itself and not the input
+
+
         // setup callback references so events could be removed later
         _CBR = (this.listeners.main = this.listeners.main || {
-            focus            : ['input', _CB.onFocusBlur.bind(this)],
             keydown          : ['input', _CB.onKeydown.bind(this)],
             click            : ['scope', _CB.onClickScope.bind(this)],
             dblclick         : _s.mode != 'select' && ['scope', _CB.onDoubleClickScope.bind(this)],
@@ -73,7 +76,6 @@ export default {
         for( var eventName in _CBR ){
             _CBR[eventName] && this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
         }
-
 
         // listen to original input changes (unfortunetly this is the best way...)
         // https://stackoverflow.com/a/1949416/104380
@@ -112,8 +114,13 @@ export default {
                 cb: _CB.onWindowKeyDown.bind(this)
             },
             {
-                type: 'blur',
-                target: this.DOM.input,
+                type: 'focusin',
+                target: this.DOM.scope,
+                cb: _CB.onFocusBlur.bind(this)
+            },
+            {
+                type: 'focusout',
+                target: this.DOM.scope,
                 cb: _CB.onFocusBlur.bind(this)
             },
             {
@@ -137,6 +144,25 @@ export default {
      */
     callbacks : {
         onFocusBlur(e){
+            // when focusing within a tag which is in edit-mode
+            var nodeTag = isWithinNodeTag.call(this, e.target),
+                targetIsTagNode = isNodeTag.call(this, e.target)
+
+            // when focusing within a tag which is in edit-mode, only and specifically on the text-part of the tag node
+            // and not the X button or any other custom element thatmight be there
+            var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
+
+            if( nodeTag && e.type == 'focusin' && !targetIsTagNode) {
+                this.toggleFocusClass(this.state.hasFocus = +new Date())
+
+                // only if focused within a tag's text node should the `onEditTagFocus` function be called.
+                // if clicked anywhere else inside a tag, which had triggered an `focusin` event,
+                // the onFocusBlur should be aborted. This part was spcifically written for `select` mode.
+                return tagTextNode
+                    ? this.events.callbacks.onEditTagFocus.call(this, nodeTag)
+                    : undefined
+            }
+
             var _s = this.settings,
                 text = e.target ? this.trim(e.target.textContent) : '', // a string
                 currentDisplayValue = this.value?.[0]?.[_s.tagTextProp],
@@ -147,7 +173,7 @@ export default {
                 isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
                 shouldAddTags;
 
-            if( type == 'blur' ){
+            if( type == 'focusout' ){
                 if( e.relatedTarget === this.DOM.scope ){
                     this.dropdown.hide()
                     this.DOM.input.focus()
@@ -155,13 +181,13 @@ export default {
                 }
 
                 this.postUpdate()
-                _s.onChangeAfterBlur && this.triggerChangeEvent()
+                // _s.onChangeAfterBlur && this.triggerChangeEvent()
             }
 
             if( isTargetSelectOption || isTargetAddNewBtn )
                 return;
 
-            this.state.hasFocus = type == "focus" ? +new Date() : false
+            this.state.hasFocus = type == 'focusin' ? +new Date() : false
             this.toggleFocusClass(this.state.hasFocus)
 
             if( _s.mode == 'mix' ){
@@ -169,7 +195,7 @@ export default {
                     this.trigger("focus", eventData)
                 }
 
-                else if( e.type == "blur" ){
+                else if( e.type == "focusout" ){
                     this.trigger("blur", eventData)
                     this.loading(false)
                     this.dropdown.hide()
@@ -181,7 +207,8 @@ export default {
                 return
             }
 
-            if( type == "focus" ){
+            if( type == "focusin" ){
+                this.toggleFocusClass(true);
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
                 if( (_s.dropdown.enabled === 0 || !_s.userInput) && !this.state.dropdown.visible ){  // && _s.mode != "select"
@@ -190,13 +217,18 @@ export default {
                 return
             }
 
-            else if( type == "blur" ){
+            else if( type == "focusout" && !targetIsTagNode){
                 this.trigger("blur", eventData)
                 this.loading(false)
 
                 // when clicking the X button of a selected tag, it is unwanted for it to be added back
                 // again in a few more lines of code (shouldAddTags && addTags)
                 if( _s.mode == 'select' ) {
+                    if( this.value.length ) {
+                        let firstTagNode = this.getTagElms()[0];
+                        text = this.trim(firstTagNode.textContent)
+                    }
+
                     // if nothing has changed (same display value), do not add a tag
                     if( currentDisplayValue === text )
                         text = ''
@@ -866,7 +898,7 @@ export default {
                 return
             }
 
-            // is "ESC" key was pressed then the "editing" state should be `false` and if so, logic should not continue
+            // if "ESC" key was pressed then the "editing" state should be `false` and if so, logic should not continue
             // because "ESC" reverts the edited tag back to how it was (replace the node) before editing
             if( !this.state.editing )
                 return;
