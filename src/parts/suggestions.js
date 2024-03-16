@@ -48,7 +48,8 @@ export default {
                 var _s = this.settings,
                     selectedElm = this.DOM.dropdown.querySelector(_s.classNames.dropdownItemActiveSelector),
                     selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm),
-                    isMixMode = _s.mode == 'mix';
+                    isMixMode = _s.mode == 'mix',
+                    isSelectMode = _s.mode == 'select';
 
                 _s.hooks.beforeKeyDown(e, {tagify:this})
                     .then(result => {
@@ -86,7 +87,7 @@ export default {
                                 let shouldAutocompleteOnKey = !_s.autoComplete.rightKey || !_s.autoComplete.tabKey
 
                                 // in mix-mode, treat arrowRight like Enter key, so a tag will be created
-                                if( !isMixMode && selectedElm && shouldAutocompleteOnKey && !this.state.editing ){
+                                if( !isMixMode && !isSelectMode && selectedElm && shouldAutocompleteOnKey && !this.state.editing ){
                                     e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
                                     var value = this.dropdown.getMappedValue(selectedElmData)
 
