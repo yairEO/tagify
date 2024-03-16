@@ -27,9 +27,9 @@ export default {
                     tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
                     class="${_s.classNames.tag} ${tagData.class || ""}"
                     ${this.getAttributes(tagData)}>
-            <x title='' class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
+            <x title='' tabIndex="${_s.a11y.focusableTags ? 0 : -1}" class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
             <div>
-                <span class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
+                <span ${_s.mode === 'select' ? "contenteditable='true'" : ''} class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
             </div>
         </tag>`
     },
