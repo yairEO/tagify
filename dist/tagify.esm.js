@@ -1,5 +1,5 @@
 /*
-Tagify v4.22.0 - tags input component
+Tagify v4.22.1 - tags input component
 By: Yair Even-Or <vsync.design@gmail.com>
 https://github.com/yairEO/tagify
 
@@ -902,7 +902,6 @@ var _dropdown = _objectSpread2(_objectSpread2({}, suggestionsMethods), {}, {
    * @param {String} value [optional, filter the whitelist by this value]
    */
   show(value) {
-    if (this.state.dropdown.visible) return;
     var _s = this.settings,
       firstListItem,
       firstListItemValue,
@@ -3532,10 +3531,11 @@ Tagify$1.prototype = {
     tagsData.forEach(tagData => {
       const newTagNode = this.prepareNewTagNode(tagData);
       frag.appendChild(newTagNode.tagElm);
-      this.postProcessNewTagNode(tagElm, newTagNode.tagData);
+      this.insertAfterTag(newTagNode.tagElm);
+      this.postProcessNewTagNode(newTagNode.tagElm, newTagNode.tagData);
     });
     this.appendMixTags(frag);
-    return frag;
+    return frag.children;
   },
   appendMixTags(node) {
     var selection = !!this.state.selection;
