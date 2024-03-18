@@ -1391,12 +1391,13 @@ Tagify.prototype = {
         tagsData.forEach(tagData => {
             const newTagNode = this.prepareNewTagNode(tagData)
             frag.appendChild(newTagNode.tagElm)
-            this.postProcessNewTagNode(tagElm, newTagNode.tagData)
+            this.insertAfterTag(newTagNode.tagElm)
+            this.postProcessNewTagNode(newTagNode.tagElm, newTagNode.tagData)
         })
 
         this.appendMixTags(frag)
 
-        return frag
+        return frag.children
     },
 
     appendMixTags( node ) {
