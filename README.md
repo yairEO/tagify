@@ -610,6 +610,8 @@ const App = () => {
 To gain full access to Tagify's (instance) inner methods, A custom `ref` can be used:
 
 ```jsx
+import Tags, {MixedTags} from "@yaireo/tagify/dist/react.tagify";
+
 ...
 const tagifyRef = useRef()
 ...
