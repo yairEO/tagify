@@ -37,7 +37,8 @@
 
     <body>
         <form>
-            <button type='button'>Inject tag (in second Tagify)</button>
+            <button type='button' id='addTagsBtn1'>tags injection with <code>addMixTags(["aaa", "bbb"])</code></button>
+            <button type='button' id='addTagsBtn2'>Manual tag injection (in second Tagify)</button>
             <br><br>
             <textarea name='mix1' placeholder="type something">    mixed-mode #example [[example]] with [[{"value":"tags"}]].   </textarea>
 
@@ -159,7 +160,7 @@ var input = document.querySelector('[name=mix2]'),
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
         tagTextProp      : 'text',
-        //enforceWhitelist : true, // <-- see below post-init change
+        enforceWhitelist : true, // <-- see below post-init change
         mode             : 'mix',  // <--  Enable mixed-content
         pattern          : /@|#/,  // <--  Tag words which start with @ or # (can be a String instead of Regex)
         duplicates       : false,
@@ -178,7 +179,7 @@ var input = document.querySelector('[name=mix2]'),
     })
 
     // POST-INIT change:
-    tagify.settings.enforceWhitelist = true
+    tagify.settings.enforceWhitelist = false
 
     // A good place to pull server suggestion list according to the prefix/value
     tagify.on('input', async function(e){
@@ -210,7 +211,11 @@ var input = document.querySelector('[name=mix2]'),
 
     })
 
-    document.querySelector("button").addEventListener('click', ()=> {
+    addTagsBtn1.addEventListener('click', ()=> {
+        const insertedNode = tagify.addMixTags(['aaa', 'bbb'])
+    })
+
+    addTagsBtn2.addEventListener('click', ()=> {
         var tagElm = tagify.createTagElem({ value:"my tag" })
         tagify.injectAtCaret(tagElm)
         // A timeout is needed until the node is Acutally in the DOM and focus has been applied
