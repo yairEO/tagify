@@ -1,5 +1,5 @@
 /*
-Tagify v4.22.1 - tags input component
+Tagify v4.22.2 - tags input component
 By: Yair Even-Or <vsync.design@gmail.com>
 https://github.com/yairEO/tagify
 
@@ -1493,7 +1493,7 @@ var events = {
         return tagTextNode ? this.events.callbacks.onEditTagFocus.call(this, nodeTag) : undefined;
       }
       var _s = this.settings,
-        text = e.target ? this.trim(e.target.textContent) : '',
+        text = e.target ? this.trim(this.DOM.input.textContent) : '',
         // a string
         currentDisplayValue = (_this$value = this.value) === null || _this$value === void 0 ? void 0 : (_this$value$ = _this$value[0]) === null || _this$value$ === void 0 ? void 0 : _this$value$[_s.tagTextProp],
         type = e.type,
