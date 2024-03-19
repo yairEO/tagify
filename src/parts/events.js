@@ -164,7 +164,7 @@ export default {
             }
 
             var _s = this.settings,
-                text = e.target ? this.trim(e.target.textContent) : '', // a string
+                text = e.target ? this.trim(this.DOM.input.textContent) : '', // a string
                 currentDisplayValue = this.value?.[0]?.[_s.tagTextProp],
                 type = e.type,
                 ddEnabled = _s.dropdown.enabled >= 0,
