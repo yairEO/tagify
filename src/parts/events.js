@@ -191,7 +191,7 @@ export default {
             this.toggleFocusClass(this.state.hasFocus)
 
             if( _s.mode == 'mix' ){
-                if( type == "focus" ){
+                if( type == "focusin" ){
                     this.trigger("focus", eventData)
                 }
 
