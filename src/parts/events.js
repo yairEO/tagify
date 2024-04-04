@@ -146,13 +146,15 @@ export default {
         onFocusBlur(e){
             // when focusing within a tag which is in edit-mode
             var nodeTag = isWithinNodeTag.call(this, e.target),
-                targetIsTagNode = isNodeTag.call(this, e.target)
+                targetIsTagNode = isNodeTag.call(this, e.target),
+                isFocused = e.type == 'focusin',
+                lostFocus = e.type == 'focusout';
 
             // when focusing within a tag which is in edit-mode, only and specifically on the text-part of the tag node
             // and not the X button or any other custom element thatmight be there
             var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
 
-            if( nodeTag && e.type == 'focusin' && !targetIsTagNode) {
+            if( nodeTag && isFocused && !targetIsTagNode) {
                 this.toggleFocusClass(this.state.hasFocus = +new Date())
 
                 // only if focused within a tag's text node should the `onEditTagFocus` function be called.
@@ -166,14 +168,13 @@ export default {
             var _s = this.settings,
                 text = e.target ? this.trim(this.DOM.input.textContent) : '', // a string
                 currentDisplayValue = this.value?.[0]?.[_s.tagTextProp],
-                type = e.type,
                 ddEnabled = _s.dropdown.enabled >= 0,
                 eventData = {relatedTarget:e.relatedTarget},
                 isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect),
                 isTargetAddNewBtn = this.state.actions.addNew && ddEnabled,
                 shouldAddTags;
 
-            if( type == 'focusout' ){
+            if( lostFocus ){
                 if( e.relatedTarget === this.DOM.scope ){
                     this.dropdown.hide()
                     this.DOM.input.focus()
@@ -187,15 +188,15 @@ export default {
             if( isTargetSelectOption || isTargetAddNewBtn )
                 return;
 
-            this.state.hasFocus = type == 'focusin' ? +new Date() : false
+            this.state.hasFocus = isFocused ? +new Date() : false
             this.toggleFocusClass(this.state.hasFocus)
 
             if( _s.mode == 'mix' ){
-                if( type == "focus" ){
+                if( isFocused ){
                     this.trigger("focus", eventData)
                 }
 
-                else if( e.type == "focusout" ){
+                else if( lostFocus ){
                     this.trigger("blur", eventData)
                     this.loading(false)
                     this.dropdown.hide()
@@ -207,7 +208,7 @@ export default {
                 return
             }
 
-            if( type == "focusin" ){
+            if( isFocused ){
                 this.toggleFocusClass(true);
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
@@ -217,7 +218,7 @@ export default {
                 return
             }
 
-            else if( type == "focusout" && !targetIsTagNode){
+            else if( lostFocus && !targetIsTagNode){
                 this.trigger("blur", eventData)
                 this.loading(false)
 

@@ -92,7 +92,8 @@ var settings = {
 var simpleMixTagify = new Tagify(simpleMixInput, settings);
 //   simpleMixTagify.on('keydown', e => console.log(e.detail))
 simpleMixTagify.on('input', console.log )
-
+simpleMixTagify.on('focus', (e) => console.log('focus', e) )
+simpleMixTagify.on('blur', (e) => console.log('blur', e) )
 </script>
 
 
