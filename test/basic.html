@@ -60,8 +60,6 @@
 
 
 <script>
-Tagify.logger.enabled = true;
-
 (() => {
 var inputElm = document.querySelector('input[name=tags-regular]')
 
@@ -113,6 +111,9 @@ setTimeout(() => {
     tagify.setDisabled(false)
 }, 500);
 
+function updatePlaceholder() {
+
+}
 
 })()
 </script>
