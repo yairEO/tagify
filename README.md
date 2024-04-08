@@ -64,6 +64,7 @@
   - [Update regarding `onChange` prop:](#update-regarding-onchange-prop)
     - [Updating the component's state](#updating-the-components-state)
 - [jQuery version](#jquery-version)
+    - [`jQuery.tagify.js`](#jquerytagifyjs)
 - [HTML input \& textarea attributes](#html-input--textarea-attributes)
 - [Caveats](#caveats)
 - [FAQ](#faq)
@@ -132,11 +133,13 @@ SCSS location: `@yaireo/tagify/src/tagify.scss`
 [See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
 
 ### Debugging
-There are several places in the source code which emits `console.warn` logs to help identify issues,
-and those will only work if `Tagify.logger.enabled` flag is set to `true`, before Tagify instances are created:
+There are several places in the source code which emits `console.warn` logs to help identify issues.
+<del>Those will only work if `Tagify.logger.enabled` flag is set to `true`</del>.
+To disable the default logging, set the following global variable:
+
 
 ```js
-Tagify.logger.enabled = true
+window.TAGIFY_DEBUG = false
 
 var tagify = new Tagify(...)
 ```
@@ -175,15 +178,15 @@ Output files, which are automatically generated using Gulp, are in: `/dist/`
 
 ### Output files:
 
-Filename                  | Info
-------------------------- | -----------------------------------------------------------
-`tagify.esm.js`           | ESM version. [see jsbin demo](https://jsbin.com/sulijap/edit?html,output)
-`tagify.js`               | *unminified* UMD version, including its souremaps
-`tagify.min.js`           | *minified* UMD version, including its souremaps. This is the **main** file the package exports.
-`tagify.polyfills.min.js` | Used for old Internet Explorer browser support
-`react.tagify.js`         | Wrapper-only for React. [Read more](#react)
-`jQuery.tagify.min.js`    | jQuery wrapper - same as `tagify.min.js`. might be removed in the future.
-`tagify.css`              |
+Filename                             | Info
+------------------------------------ | -----------------------------------------------------------
+`tagify.esm.js`                      | ESM version. [see jsbin demo](https://jsbin.com/sulijap/edit?html,output)
+`tagify.js`                          | *unminified* UMD version, including its souremaps
+`tagify.min.js`                      | *minified* UMD version, including its souremaps. This is the **main** file the package exports.
+`tagify.polyfills.min.js`            | Used for old Internet Explorer browser support
+<del>`react.tagify.js`</del>         | Wrapper-only for React. [Read more](#react) **(Deprecaded as of APR 24', import the file from `/src` instead)**
+<del>`jQuery.tagify.min.js`</del>    | jQuery wrapper - same as `tagify.min.js`. Might be removed in the future. **(Deprecaded as of APR 24')**
+`tagify.css`                         |
 
 
 ## Adding tags dynamically
@@ -582,29 +585,36 @@ There is no more `e.target`, and to access the original DOM input element, do th
 > Also note that you will need to use [*dart-sass*](https://www.npmjs.com/package/sass) and not *node-sass* in order to compile the file.
 
 ```javascript
-import Tags from "@yaireo/tagify/dist/react.tagify" // React-wrapper file
+import { useCallback, useRef } from 'react'
+import Tags from "@yaireo/tagify/src/react.tagify" // React-wrapper file
 import "@yaireo/tagify/dist/tagify.css" // Tagify CSS
 
-// on tag add/edit/remove
-const onChange = useCallback((e) => {
-  console.log("CHANGED:"
-    , e.detail.tagify.value // Array where each tag includes tagify's (needed) extra properties
-    , e.detail.tagify.getCleanValue() // Same as above, without the extra properties
-    , e.detail.value // a string representing the tags
-  )
-}, [])
-
 const App = () => {
-  return (
-    <Tags
-      tagifyRef={tagifyRef} // optional Ref object for the Tagify instance itself, to get access to  inner-methods
-      settings={settings}  // tagify settings object
-      defaultValue="a,b,c"
-      {...tagifyProps}   // dynamic props such as "loading", "showDropdown:'abc'", "value"
-      onChange={onChange}
-    />
-  )
-})
+    // on tag add/edit/remove
+    const onChange = useCallback((e) => {
+        console.log("CHANGED:"
+            , e.detail.tagify.value // Array where each tag includes tagify's (needed) extra properties
+            , e.detail.tagify.getCleanValue() // Same as above, without the extra properties
+            , e.detail.value // a string representing the tags
+        )
+    }, [])
+
+    return (
+        <Tags
+            whitelist={['item 1', 'another item', 'item 3']}
+            placeholder='Add some tags'
+            settings={{
+                blacklist: ["xxx"],
+                maxTags: 4,
+                dropdown: {
+                    enabled: 0 // always show suggestions dropdown
+                }
+            }}
+            defaultValue="a,b,c" // initial value
+            onChange={onChange}
+        />
+    )
+}
 ```
 
 To gain full access to Tagify's (instance) inner methods, A custom `ref` can be used:
@@ -679,7 +689,13 @@ onDropdownUpdated       | <sub>Function</sub>       |           | See [*events* 
 
 ## jQuery version
 
-`jQuery.tagify.js`
+This variant of Tagify code has been **deprecated** because it doesn't really add much in terms of ease-of-use.
+I only made it so it would be possible to use jQuery selectors & chaining but the (jQuery) port really isn't needed
+when implementing Tagify within a jQuery code.
+
+Below is the documentation for previous Tagify packages versions which included support:
+
+#### `jQuery.tagify.js`
 
 A jQuery wrapper version is also available, but I advise not using it because it's basically the exact same as the "normal"
 script (non-jqueryfied) and all the jQuery's wrapper does is allowing to chain the event listeners for ('add', 'remove', 'invalid')
@@ -870,6 +886,7 @@ function onTagifyKeyDown(e){
 * [Add a tag at *caret* position in *mixed mode*](https://github.com/yairEO/tagify/issues/524#issuecomment-699140465)
 * [Change automatic title tooltips for invalid tags](https://github.com/yairEO/tagify/issues/862)
 * [Create a submenu for the suggestions dropdown](https://github.com/yairEO/tagify/issues/1016#issuecomment-1106910803)
+* [Hide placeholder if tags exist](https://github.com/yairEO/tagify/issues/495#issuecomment-620498047)
 
 ## CSS Variables
 

@@ -2,9 +2,10 @@ var gulp = require('gulp'),
     $ = require( "gulp-load-plugins" )({ lazy: true, pattern:['*', 'gulp-'], rename: {
         'sass': 'xsass' // map to some other name because 'gulp-sass' already loads "sass", so avoid collusion
     } }),
-    terser = require("rollup-plugin-terser").terser,
+    rollupTerser = require("@rollup/plugin-terser"),
+    swc = require('gulp-swc'),
+    rollupSwc = require('rollup-plugin-swc3').swc,
     rollupBanner = require("rollup-plugin-banner2"),
-    babel = require("@rollup/plugin-babel").babel,
     fs = require('fs'),
     buffer = require('vinyl-buffer'),
     rollupStream = require("@rollup/stream"),
@@ -19,6 +20,24 @@ var gulp = require('gulp'),
 const LICENSE = fs.readFileSync("./LICENSE", "utf8");
 
 var rollupCache = {};
+
+const swcOptions = {
+    sourceMaps: true,
+    jsc: {
+        parser: {
+            syntax: 'ecmascript',
+            jsx: true, // Enable JSX
+            decorators: true, // Optionally enable decorators
+        },
+        transform: {
+            react: {
+                runtime: 'automatic', // Choose 'automatic' or 'classic'
+                pragma: 'React.createElement',  // Customize if needed
+                pragmaFrag: 'React.Fragment', // Customize if needed
+            }
+        }
+    }
+};
 
 var banner = `
 Tagify v${process.env.npm_package_version} - tags input component
@@ -46,12 +65,6 @@ var jQueryPluginWrap = [`;(function($){
 
 ` , ` })(jQuery); `];
 
-const babelConfig = {
-    presets: ['@babel/env'],
-    plugins: ['@babel/proposal-object-rest-spread', '@babel/plugin-transform-destructuring']
-}
-
-
 ////////////////////////////////////////////////////
 // Compile main app SCSS to CSS
 
@@ -71,35 +84,47 @@ function scss(){
 
 // https://medium.com/recraftrelic/building-a-react-component-as-a-npm-module-18308d4ccde9
 function react(done){
-    const umdConf = {
-        exports: function(file) {
-            return 'exports';
-        }
-    }
+    // return bundle({
+    //     entry: 'src/react.tagify.jsx',
+    //     outputName: `react.tagify.jsx`,
+    //   })
+    //   .on('end', done)
 
-    return gulp.src('src/react.tagify.jsx')
-        .pipe( $.babel({ ...babelConfig, presets:[...babelConfig.presets, '@babel/preset-react'] }))
-        .pipe( $.umd(umdConf) )
-        .pipe(opts.dev ? $.tap(()=>{}) : $.terser())
+
+    // return rollupStream({
+    //     input: 'src/react.tagify.jsx',
+    //     output: {
+    //         sourcemap: true,
+    //         name: 'Tagify',
+    //         format: 'es'
+    //     }
+    // })
+    // .pipe(
+    //     swc(swcOptions)
+    // )
+    // .pipe($.headerComment(banner))
+    //     .pipe($.concat('react.tagify.jsx'))
+    //     .pipe($.sourcemaps.write('.'))
+    //     .pipe( gulp.dest('./dist/') )
+    // .on('end', done);
+
+
+    return gulp.src('src/react.tagify.jsx', { sourcemaps: true })
+        // .pipe($.sourcemaps.init({ loadMaps: true }))
+        .pipe(
+            swc(swcOptions)
+        )
+        // .pipe(opts.dev ? $.tap(()=>{}) : $.terser())
         .pipe($.headerComment(banner))
-        .pipe( gulp.dest('./dist/') )
-}
-
-function js_minified(done){
-    return rollup({
-        entry: 'src/tagify.js',
-        outputName: 'tagify.min.js',
-        plugins: opts.dev ? [] : [terser()]
-    })
-        .on('end', done)
+        .pipe($.concat('react.tagify.jsx'))
+        // .pipe($.sourcemaps.write('.'))
+        .pipe( gulp.dest('./dist/', { sourcemaps: '.' }) )
 }
 
 function js(done){
-    if( opts.dev ) return done();
-
-    return rollup({
+    return bundle({
         entry: 'src/tagify.js',
-        outputName: 'tagify.js'
+        outputName: 'tagify.min.js'
     })
         .on('end', done)
 }
@@ -107,7 +132,7 @@ function js(done){
 function esm(done){
     if( opts.dev ) return done();
 
-    return rollup({
+    return bundle({
         entry: 'src/tagify.js',
         outputName: 'tagify.esm.js',
         format: 'es'
@@ -115,61 +140,72 @@ function esm(done){
         .on('end', done)
 }
 
+/**
+ * DEPRECATED - as of APR 2024, i've deciced it's not worth the efforts of generating this after recent gulpfile changes.
+ * wraps the output of the "js" task with "jQueryPluginWrap"
+ */
 function jquery(){
     // do not proccess jQuery version while developeing
-    if( opts.dev )
-        return Promise.resolve('"dev" does not compile jQuery')
+    // if( opts.dev )
+    //     return Promise.resolve('"dev" does not compile jQuery')
 
     return gulp.src('dist/tagify.min.js')
         .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
         .pipe($.rename('jQuery.tagify.min.js'))
-        .pipe($.terser())
+        .pipe(opts.dev ? $.tap(()=>{}) : $.terser())
         .pipe($.headerComment(banner))
         .pipe(gulp.dest('./dist/'))
 }
 
-function handleError(err) {
-    $.util.log( err.toString() );
-    this.emit('end');
-}
-
 function polyfills(done){
-    return rollup({
+    return bundle({
         entry: 'src/tagify.polyfills.js',
         outputName: 'tagify.polyfills.min.js'
     })
         .on('end', done)
 }
 
-function rollup({ entry, outputName, dest, plugins=[], babelConf={}, format='umd' }){
+function bundle({ entry, outputName, dest, plugins=[], format='umd' }){
     plugins = [
-        babel({...babelConfig, babelHelpers: 'bundled', ...babelConf}),
+        rollupSwc(swcOptions),
         ...plugins
     ]
 
+    if( !opts.dev ) {
+        plugins.push(rollupTerser())
+    }
+
     plugins.push( rollupBanner(() => `/*${banner}*/\n\n`) )
 
+    // https://github.com/rollup/stream
     return rollupStream({
         input: entry,
         plugins,
         cache: rollupCache[entry],
         output: {
             sourcemap: true,
-            name: 'Tagify',
-            format: format,
+            name: 'Tagify',  // used only for UMD: https://rollupjs.org/configuration-options/#output-name
+            format: format
         }
     })
-        .on('bundle', function(bundle) {
-            rollupCache[entry] = bundle;
-        })
+    .on('bundle', function(bundle) {
+        rollupCache[entry] = bundle;
+    })
 
-        // give the file the name you want to output with
-        .pipe( $.vinylSourceStream(outputName))
-        .pipe(buffer())
-        // .on('error', handleError)
-        .pipe($.sourcemaps.init({ loadMaps: true }))
-        .pipe($.sourcemaps.write('./'))
-        .pipe(gulp.dest('./dist'));
+    // give the file the name you want to output with
+    .pipe( $.vinylSourceStream(outputName))
+    .pipe(buffer())
+    .on('error', handleError)
+
+    // NOTE - `$.sourcemaps` only works with Rollup v2. not 3 or 4!!! I've wasted a whole day over this
+    .pipe($.sourcemaps.init({ loadMaps: true }))
+    .pipe($.sourcemaps.write('./'))
+    .pipe(gulp.dest('./dist'));
+}
+
+function handleError(err) {
+    console.log( err.toString() );
+    this.emit('end');
 }
 
 
@@ -218,21 +254,18 @@ ${LICENSE}`;
 
 function watch(){
     gulp.watch('./src/*.scss', scss)
-    gulp.watch(['./src/tagify.js', './src/parts/*.js'], gulp.series([js_minified, jquery]))
-    gulp.watch('./src/react.tagify.jsx', react)
+    gulp.watch(['./src/tagify.js', './src/parts/*.js'], gulp.series([js]))
+    // gulp.watch('./src/react.tagify.jsx', react)
 }
 
 
-// const build = gulp.series(gulp.parallel(build_js, scss, polyfills), build_jquery_version, react)
-const build = gulp.series(gulp.parallel(js, scss, polyfills), js_minified, esm, jquery, react)
+const build = gulp.series(gulp.parallel(js, scss, polyfills), esm) // deprecated the "react" task as i believe it's not needed to consume a pre-bundled version.
 
 exports.default = gulp.parallel(build, watch)
 exports.js = js
-exports.js_minified = js_minified
 exports.esm = esm
 exports.build = build
 exports.react = react
-exports.jquery = jquery
 exports.patch = gulp.series(inc('patch'), addBanner, gitTag)    // () => inc('patch')
 exports.feature = gulp.series(inc('minor'), addBanner, gitTag)  // () => inc('minor')
 exports.release = gulp.series(inc('major'), addBanner, gitTag)  // () => inc('major')
