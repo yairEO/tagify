@@ -157,13 +157,10 @@
                 }
             }(document)
         </script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script src="dist/jQuery.tagify.min.js"></script>
+        <script src="dist/tagify.min.js"></script>
         <script src="https://unpkg.com/@yaireo/dragsort"></script>
 
         <script>
-            Tagify.logger.enabled = true;
-
             var isIE = !document.currentScript;
 
             function renderPRE(currentScript, codeScriptName){
@@ -1358,36 +1355,6 @@
                     <input name='tags-select-mode' class='selectMode' placeholder="Please select" />
                 </aside>
             </section>
-
-
-            <section id='section-jquery'>
-                <aside class='leftSide'>
-                    <header>
-                        <h2><a href='#section-jquery'>jQuery plugin version</a></h2>
-                    </header>
-                    <p>
-                        Tagify can also be used as a jQuery plugin
-                    </p>
-                    <details>
-                      <summary></summary>
-                    <h3>HTML</h3>
-                    <pre class="language-markup"><code>&lt;input name='tags-jquery' value='try, adding, a tag'>
-&lt;button class='tags-jquery--removeAllBtn' type='button'>Remove all tags&lt;/button></code></pre>
-                    <h3>JAVASCRIPT</h3>
-                    <script>renderPRE(document.currentScript, "jQuery")</script>
-                    </details>
-                </aside>
-                <aside class='rightSide'>
-                    <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/abNOmWz'>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
-                            <use class="logo-use" xlink:href="#codepen-logo"/>
-                        </svg>
-                    </a>
-                    <input name='tags-jquery' value='try, adding, a tag'>
-                    <br>
-                    <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
-                </aside>
-            </section>
         </form>
 
 
@@ -2502,31 +2469,6 @@ function onSelectFocus(e){
 })()
 </script>
 
-
-
-
-<script data-name='jQuery'>
-(function(){
-var $input = $('input[name=tags-jquery]')
-    .tagify({
-            whitelist : [
-                {"id":1, "value":"some string"}
-            ]
-        })
-        .on('add', function(e, tagName){
-            console.log('JQEURY EVENT: ', 'added', tagName)
-        })
-        .on("invalid", function(e, tagName) {
-            console.log('JQEURY EVENT: ',"invalid", e, ' ', tagName);
-        });
-
-// get the Tagify instance assigned for this jQuery input object so its methods could be accessed
-var jqTagify = $input.data('tagify');
-
-// bind the "click" event on the "remove all tags" button
-$('.tags-jquery--removeAllBtn').on('click', jqTagify.removeAllTags.bind(jqTagify))
-})()
-</script>
     <script>
         window.Prism = window.Prism || {};
         window.Prism.manual = true;
