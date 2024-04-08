@@ -31,7 +31,7 @@ export default {
                     ${this.getAttributes(tagData)}>
             <x title='' tabIndex="${_s.a11y.focusableTags ? 0 : -1}" class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
             <div>
-                <span ${_s.mode === 'select' ? "contenteditable='true'" : ''} class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
+                <span ${_s.mode === 'select' && _s.userInput ? "contenteditable='true'" : ''} class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
             </div>
         </tag>`
     },

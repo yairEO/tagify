@@ -1652,7 +1652,7 @@ Tagify.prototype = {
                     this.removeTagsFromValue(tagsToRemove.map(tag => tag.node))
                     this.update() // update the original input with the current value
 
-                    if( _s.mode == 'select' )
+                    if( _s.mode == 'select' && _s.userInput )
                         this.setContentEditable(true);
                 }
             })
@@ -1699,7 +1699,7 @@ Tagify.prototype = {
 
         if( this.settings.mode == 'select' ){
             this.input.set.call(this)
-            this.setContentEditable(true)
+            this.settings.userInput && this.setContentEditable(true)
         }
 
         // technically for now only "withoutChangeEvent" exists in the opts.
