@@ -408,6 +408,14 @@ Tagify.prototype = {
         this.toggleClass(this.settings.classNames.focus, !!force)
     },
 
+    /**
+     * Sets the templates placeholder after initialization
+     * @param {String} str
+     */
+    setPlaceholder(str) {
+        ['data', 'aria'].forEach(p => this.DOM.input.setAttribute(`${p}-placeholder`, str))
+    },
+
     triggerChangeEvent,
 
     events,

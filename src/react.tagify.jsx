@@ -175,6 +175,12 @@ const TagifyWrapper = ({
     }, [disabled])
 
     useEffect(() => {
+        if (mountedRef.current) {
+            tagify.current.setPlaceholder(placeholder)
+        }
+    }, [placeholder])
+
+    useEffect(() => {
         const t = tagify.current
 
         if (mountedRef.current) {

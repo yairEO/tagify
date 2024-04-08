@@ -64,8 +64,8 @@
 var inputElm = document.querySelector('input[name=tags-regular]')
 
 const mockAjax = (timeout => (RES, duration) => {
-  clearTimeout(timeout); // abort last request
-  return new Promise((resolve, reject) => timeout = setTimeout(resolve, duration || 0, RES))
+    clearTimeout(timeout); // abort last request
+    return new Promise((resolve, reject) => timeout = setTimeout(resolve, duration || 0, RES))
 })()
 
 let tagify = new Tagify(inputElm, {
@@ -101,6 +101,10 @@ let tagify = new Tagify(inputElm, {
 // tagify.on('edit:start', ({detail}) => tagify.setTagTextNode(detail.tag, detail.data.value))
 tagify.on('edit:updated', ({detail: {tagify}}) => {
     tagify.DOM.input.focus()
+})
+
+tagify.on('change', () => {
+    tagify.setPlaceholder(`${tagify.value.length || 'no'} tags added`)
 });
 
 inputElm && inputElm.addEventListener('change', () => console.log("CHANGED!")  )
@@ -111,9 +115,7 @@ setTimeout(() => {
     tagify.setDisabled(false)
 }, 500);
 
-function updatePlaceholder() {
-
-}
+tagify.setPlaceholder(`${tagify.value.length} tags added`)
 
 })()
 </script>
