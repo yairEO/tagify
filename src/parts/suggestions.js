@@ -1,4 +1,4 @@
-import { isObject, escapeHTML, extend, unaccent } from './helpers'
+import { isObject, escapeHTML, extend, unaccent, logger } from './helpers'
 
 
 /**
@@ -114,7 +114,7 @@ export default {
                                         if( !isMixMode )
                                             this.addTags(this.state.inputText.trim(), true)
                                     })
-                                    .catch(err => Tagify.logger.warn(err))
+                                    .catch(err => logger.warn(err))
 
                                 break;
                             }
@@ -162,7 +162,7 @@ export default {
                         else
                             this.dropdown.hide()
                     })
-                    .catch(err => Tagify.logger.warn(err))
+                    .catch(err => logger.warn(err))
             },
 
             onScroll(e){

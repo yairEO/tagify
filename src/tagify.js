@@ -1,4 +1,4 @@
-import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag, injectAtCaret, placeCaretAfterNode, getSetTagData, fixCaretBetweenTags } from './parts/helpers'
+import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag, injectAtCaret, placeCaretAfterNode, getSetTagData, fixCaretBetweenTags, logger } from './parts/helpers'
 import DEFAULTS from './parts/defaults'
 import _dropdown, { initDropdown } from './parts/dropdown'
 import { getPersistedData, setPersistedData, clearPersistedData } from './parts/persist'
@@ -14,7 +14,7 @@ import events, { triggerChangeEvent } from './parts/events'
  */
 function Tagify( input, settings ){
     if( !input ){
-        Tagify.logger.warn('input element not found', input)
+        logger.warn('input element not found', input)
         // return an empty mock of all methods, so the code using tagify will not break
         // because it might be calling methods even though the input element does not exist
         const mockInstance = new Proxy(this, { get(){ return () => mockInstance } })
@@ -22,7 +22,7 @@ function Tagify( input, settings ){
     }
 
     if( input.__tagify ){
-        Tagify.logger.warn('input element is already Tagified - Same instance is returned.', input)
+        logger.warn('input element is already Tagified - Same instance is returned.', input)
         return input.__tagify
     }
 
@@ -505,7 +505,7 @@ Tagify.prototype = {
         _s.mode != 'select' && this.dropdown.hide()
 
         if( !editableElm ){
-            Tagify.logger.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
+            logger.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
             return;
         }
 
@@ -558,7 +558,7 @@ Tagify.prototype = {
             isValid;
 
         if( !tagData ){
-            Tagify.logger.warn("tag has no data: ", tagElm, tagData)
+            logger.warn("tag has no data: ", tagElm, tagData)
             return;
         }
 
@@ -1807,11 +1807,5 @@ Tagify.prototype = {
 
 // legacy support for changed methods names
 Tagify.prototype.removeTag = Tagify.prototype.removeTags
-
-Tagify.logger = {
-    enabled: false,
-    log(...args){ this.enabled && console.log('[Tagify]:', ...args) },
-    warn(...args) { this.enabled && console.warn('[Tagify]:', ...args) }
-}
 
 export default Tagify

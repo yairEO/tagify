@@ -1,4 +1,4 @@
-import { extend } from './helpers'
+import { extend, logger } from './helpers'
 
 export default function EventDispatcher( instance ){
     // Create a DOM EventTarget object
@@ -55,7 +55,7 @@ export default function EventDispatcher( instance ){
 
                     e = new CustomEvent(eventName, {"detail":eventData})
                 }
-                catch(err){ Tagify.logger.warn(err) }
+                catch(err){ logger.warn(err) }
 
                 target.dispatchEvent(e);
             }

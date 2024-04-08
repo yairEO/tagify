@@ -1,5 +1,11 @@
 import {ZERO_WIDTH_CHAR} from './constants'
 
+export const logger = {
+    isEnabled() { return window.TAGIFY_DEBUG ?? true},
+    log(...args){ this.isEnabled() && console.log('[Tagify]:', ...args) },
+    warn(...args) { this.isEnabled() && console.warn('[Tagify]:', ...args) }
+}
+
 // console.json = console.json || function(argument){
 //     for(var arg=0; arg < arguments.length; ++arg)
 //         console.log(  JSON.stringify(arguments[arg], null, 4)  )
@@ -270,7 +276,7 @@ export function injectAtCaret(content, range){
  */
 export function getSetTagData(tagElm, data, override){
     if( !tagElm ){
-        Tagify.logger.warn("tag element doesn't exist",{tagElm, data})
+        logger.warn("tag element doesn't exist",{tagElm, data})
         return data
     }
 
@@ -313,3 +319,4 @@ export function fixCaretBetweenTags(tags, TagifyHasFocuse) {
         }
     })
 }
+
