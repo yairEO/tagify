@@ -1,3 +1,5 @@
+import {ZERO_WIDTH_UNICODE_CHAR} from './constants'
+
 export default {
     /**
      *
@@ -11,12 +13,12 @@ export default {
                     ${_s.required ? 'required' : ''}
                     ${_s.mode === 'select' ? "spellcheck='false'" : ''}
                     tabIndex="-1">
-            <span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${_s.placeholder || '&#8203;'}" aria-placeholder="${_s.placeholder || ''}"
+            <span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${_s.placeholder || ZERO_WIDTH_UNICODE_CHAR}" aria-placeholder="${_s.placeholder || ''}"
                 class="${_s.classNames.input}"
                 role="textbox"
                 aria-autocomplete="both"
                 aria-multiline="${_s.mode=='mix'?true:false}"></span>
-                &#8203;
+                ${ZERO_WIDTH_UNICODE_CHAR}
         </tags>`
     },
 
