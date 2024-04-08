@@ -48,6 +48,7 @@ const TagifyWrapper = ({
     onDropdownUpdated = noop,
     readOnly,
     disabled,
+    userInput = true,
     children,
     settings = {},
     InputMode = "input",
@@ -81,6 +82,8 @@ const TagifyWrapper = ({
 
     useEffect(() => {
         templatesToString(settings.templates)
+
+        settings.userInput = userInput
 
         if (InputMode == "textarea")
             settings.mode = "mix"
@@ -176,6 +179,12 @@ const TagifyWrapper = ({
 
     useEffect(() => {
         if (mountedRef.current) {
+            tagify.current.userInput = userInput
+        }
+    }, [userInput])
+
+    useEffect(() => {
+        if (mountedRef.current) {
             tagify.current.setPlaceholder(placeholder)
         }
     }, [placeholder])
@@ -213,6 +222,8 @@ TagifyWrapper.propTypes = {
     children: oneOfType([string, array]),
     onChange: func,
     readOnly: bool,
+    disabled: bool,
+    userInput: bool,
     settings: object,
     InputMode: string,
     autoFocus: bool,

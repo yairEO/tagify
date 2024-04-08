@@ -98,6 +98,15 @@ Tagify.prototype = {
         return this.settings.whitelist
     },
 
+    set userInput( state ){
+        this.settings.userInput = !!state
+        this.setContentEditable(!!state)
+    },
+
+    get userInput(){
+        return this.settings.userInput
+    },
+
     generateClassSelectors(classNames){
         for( let name in classNames ) {
             let currentName = name;
@@ -1005,7 +1014,6 @@ Tagify.prototype = {
     },
 
     setContentEditable(state){
-        if( !this.settings.userInput ) return;
         this.DOM.input.contentEditable = state
         this.DOM.input.tabIndex = !!state ? 0 : -1;
     },
