@@ -55,6 +55,16 @@ var input = document.querySelector('input'),
       }
     });
 
+    // test ability to add multiple callbacks for the same event and then remove them all
+    tagify
+        .on('change', () => console.log(111))
+        .on('change', () => console.log(222))
+        .on('change', () => console.log(333))
+
+    // no logs should appear after calling below `off` method
+    tagify.off('change')
+    // tagify.removeAllCustomListeners()
+
 setTimeout(() => {
   tagify.addEmptyTag()
 }, 1000)
