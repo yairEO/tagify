@@ -94,29 +94,6 @@ const TagifyWrapper = ({
 
         const t = new Tagify(inputElmRef.current, settings)
 
-        t.on("input"  , onInput)
-         .on("add"    , onAdd)
-         .on("remove" , onRemove)
-         .on("invalid", onInvalid)
-         .on("keydown", onKeydown)
-         .on("focus"  , onFocus)
-         .on("blur"   , onBlur)
-         .on("click"  , onClick)
-         .on("change" , onChange)
-
-         .on("edit:input"       , onEditInput)
-         .on("edit:beforeUpdate", onEditBeforeUpdate)
-         .on("edit:updated"     , onEditUpdated)
-         .on("edit:start"       , onEditStart)
-         .on("edit:keydown"     , onEditKeydown)
-
-         .on("dropdown:show"   , onDropdownShow)
-         .on("dropdown:hide"   , onDropdownHide)
-         .on("dropdown:select" , onDropdownSelect)
-         .on("dropdown:scroll" , onDropdownScroll)
-         .on("dropdown:noMatch", onDropdownNoMatch)
-         .on("dropdown:updated", onDropdownUpdated)
-
         // Bridge Tagify instance with parent component
         if (tagifyRef) {
             tagifyRef.current = t
@@ -131,6 +108,31 @@ const TagifyWrapper = ({
             t.destroy()
         }
     }, [])
+
+    // event listeners updaters
+    useEffect(() => { tagify.current.off('change').on('change' , onChange) }, [onChange])
+    useEffect(() => { tagify.current.off('input').on('input' , onInput) }, [onInput])
+    useEffect(() => { tagify.current.off('add').on('add' , onAdd) }, [onAdd])
+    useEffect(() => { tagify.current.off('remove').on('remove' , onRemove) }, [onRemove])
+    useEffect(() => { tagify.current.off('invalid').on('invalid' , onInvalid) }, [onInvalid])
+    useEffect(() => { tagify.current.off('keydown').on('keydown' , onKeydown) }, [onKeydown])
+    useEffect(() => { tagify.current.off('focus').on('focus' , onFocus) }, [onFocus])
+    useEffect(() => { tagify.current.off('blur').on('blur' , onBlur) }, [onBlur])
+    useEffect(() => { tagify.current.off('click').on('click' , onClick) }, [onClick])
+
+    useEffect(() => { tagify.current.off('edit:input').on('edit:input' , onEditInput) }, [onEditInput])
+    useEffect(() => { tagify.current.off('edit:beforeUpdate').on('edit:beforeUpdate' , onEditBeforeUpdate) }, [onEditBeforeUpdate])
+    useEffect(() => { tagify.current.off('edit:updated').on('edit:updated' , onEditUpdated) }, [onEditUpdated])
+    useEffect(() => { tagify.current.off('edit:start').on('edit:start' , onEditStart) }, [onEditStart])
+    useEffect(() => { tagify.current.off('edit:keydown').on('edit:keydown' , onEditKeydown) }, [onEditKeydown])
+
+    useEffect(() => { tagify.current.off('dropdown:show').on('dropdown:show' , onDropdownShow) }, [onDropdownShow])
+    useEffect(() => { tagify.current.off('dropdown:hide').on('dropdown:hide' , onDropdownHide) }, [onDropdownHide])
+    useEffect(() => { tagify.current.off('dropdown:select').on('dropdown:select' , onDropdownSelect) }, [onDropdownSelect])
+    useEffect(() => { tagify.current.off('dropdown:scroll').on('dropdown:scroll' , onDropdownScroll) }, [onDropdownScroll])
+    useEffect(() => { tagify.current.off('dropdown:noMatch').on('dropdown:noMatch' , onDropdownNoMatch) }, [onDropdownNoMatch])
+    useEffect(() => { tagify.current.off('dropdown:updated').on('dropdown:updated' , onDropdownUpdated) }, [onDropdownUpdated])
+
 
     useEffect(() => {
         setFocus()
