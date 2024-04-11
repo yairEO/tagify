@@ -207,17 +207,17 @@
     }
 
     &__tag{
-        display    : inline-flex;
-        align-items: center;
-        max-width  : calc(var(--tag--max-width) - #{$tagMargin * 2}) ;
+        display      : inline-flex;
+        align-items  : center;
+        max-width    : var(--tag--max-width);
         margin-inline: $tagMargin 0;
-        margin-block: $tagMargin;
-        position   : relative;
-        z-index    : 1;
-        outline    : none;
-        line-height: normal;
-        cursor     : default;
-        transition : .13s ease-out;
+        margin-block : $tagMargin;
+        position     : relative;
+        z-index      : 1;
+        outline      : none;
+        line-height  : normal;
+        cursor       : default;
+        transition   : .13s ease-out;
 
         > div{  // :not([contenteditable])
             flex           : 1;
