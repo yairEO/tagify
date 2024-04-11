@@ -212,7 +212,7 @@ export default {
                 this.toggleFocusClass(true);
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
-                if( (_s.dropdown.enabled === 0 || !_s.userInput) && !this.state.dropdown.visible ){  // && _s.mode != "select"
+                if( (_s.dropdown.enabled === 0) && !this.state.dropdown.visible ){  // && _s.mode != "select"
                     this.dropdown.show(this.value.length ? '' : undefined)
                 }
                 return
