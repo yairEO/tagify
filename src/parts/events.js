@@ -765,7 +765,7 @@ export default {
                     this.fixFirefoxLastTagNoCaret()
                 }
 
-                if( timeDiffFocus > 500 ){
+                if( timeDiffFocus > 500 || !_s.focusable ){
                     if( this.state.dropdown.visible )
                         this.dropdown.hide()
                     else if( _s.dropdown.enabled === 0 && _s.mode != 'mix' )
