@@ -897,7 +897,7 @@ export default {
 
             // in "select-mode" when editing the tag's template to include more nodes other than the editable "span",
             // clicking those elements should not be considered a blur event
-            if( isRelatedTargetNodeTag && e.relatedTarget.contains(e.target) ) {
+            if( this.settings.mode == 'select' && isRelatedTargetNodeTag && e.relatedTarget.contains(e.target) ) {
                 this.dropdown.hide()
                 return
             }
