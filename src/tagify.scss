@@ -134,11 +134,14 @@
     border        : 1px solid var(--tags-border-color);
     padding       : 0;
     line-height   : 0;
-    cursor        : text;
     outline       : none;
     position      : relative;
     box-sizing    : border-box;
     transition    : .1s;
+
+    &:has([contenteditable='true']) {
+        cursor: text;
+    }
 
     &:hover:not(.tagify--focus):not(.tagify--invalid){
         --tags-border-color : var(--tags-hover-border-color);
