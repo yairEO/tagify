@@ -619,7 +619,9 @@ Tagify.prototype = {
         function veryfyTagTextProp() {
             var tagTextProp = tagData[_s.tagTextProp];
 
-            if( tagTextProp ) {
+            // 'tagTextProp' might also be the number 0 so checking for `undefined` here:
+            if( tagTextProp !== undefined ) {
+                tagTextProp += ''; // cast possible number into a string
                 return !!tagTextProp.trim?.()
             }
 
