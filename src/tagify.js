@@ -936,11 +936,12 @@ Tagify.prototype = {
             whitelist = whitelist || _s.whitelist;
 
         whitelist.some(_wi => {
-            var _wiv = typeof _wi == 'string' ? _wi : (_wi[prop] || _wi.value),
+            // whitelist item value. Can be either a String, Number or an Object (with a `value` property)
+            var _wiv = typeof _wi == 'object' ? (_wi[prop] || _wi.value) : _wi,
                 isSameStr = sameStr(_wiv, value, _s.dropdown.caseSensitive, _s.trim)
 
             if( isSameStr ){
-                result = typeof _wi == 'string' ? {value:_wi} : _wi
+                result = typeof _wi == 'object' ? _wi : {value:_wi}
                 return true
             }
         })
