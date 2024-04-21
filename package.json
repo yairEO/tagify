@@ -39,6 +39,16 @@
     },
     "author": "Yair Even-Or <vsync.design@gmail.com>",
     "main": "./dist/tagify.min.js",
+    "exports": {
+        ".": {
+            "import": "./dist/tagify.esm.js",
+            "require": "./dist/tagify.js"
+        },
+        "./react": "./src/react.tagify",
+        "./react.tagify": "./src/react.tagify",
+        "./dist/react.tagify": "./src/react.tagify",
+        "./dist/react.tagify.jsx": "./src/react.tagify.jsx"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/yairEO/tagify.git"
@@ -50,6 +60,11 @@
         "/dist",
         "/src"
     ],
+    "peerDependencies": {
+        "prop-types": ">15.5.7",
+        "react": "*",
+        "react-dom": "*"
+    },
     "devDependencies": {
         "@rollup/plugin-terser": "^0.4.4",
         "@rollup/stream": "^3.0.1",
