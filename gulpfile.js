@@ -124,7 +124,7 @@ function react(done){
 function js(done){
     return bundle({
         entry: 'src/tagify.js',
-        outputName: 'tagify.min.js'
+        outputName: 'tagify.js'
     })
         .on('end', done)
 }
