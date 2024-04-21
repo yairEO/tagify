@@ -145,10 +145,10 @@ export default {
     callbacks : {
         onFocusBlur(e){
             // when focusing within a tag which is in edit-mode
-            var nodeTag = isWithinNodeTag.call(this, e.target),
-                targetIsTagNode = isNodeTag.call(this, e.target),
-                isFocused = e.type == 'focusin',
-                lostFocus = e.type == 'focusout';
+            var isFocused = e.type == 'focusin',
+                lostFocus = e.type == 'focusout',
+                nodeTag = isWithinNodeTag.call(this, e.target),
+                targetIsTagNode = isNodeTag.call(this, e.target);
 
             // when focusing within a tag which is in edit-mode, only and specifically on the text-part of the tag node
             // and not the X button or any other custom element thatmight be there
@@ -214,14 +214,14 @@ export default {
                 this.toggleFocusClass(true);
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
-                if( (_s.dropdown.enabled === 0) && !this.state.dropdown.visible ){  // && _s.mode != "select"
+                if( (_s.dropdown.enabled === 0) && !this.state.dropdown.visible && !targetIsTagNode ){  // && _s.mode != "select"
                     this.dropdown.show(this.value.length ? '' : undefined)
                 }
 
                 return
             }
 
-            else if( lostFocus && !targetIsTagNode){
+            else if( lostFocus ){
                 this.trigger("blur", eventData)
                 this.loading(false)
 
@@ -244,8 +244,11 @@ export default {
                 shouldAddTags && this.addTags(text, true)
             }
 
-            this.DOM.input.removeAttribute('style')
-            this.dropdown.hide()
+            // when clicking a tag, do not consider this is a "blur" event
+            if ( !nodeTag )  {
+                this.DOM.input.removeAttribute('style')
+                this.dropdown.hide()
+            }
         },
 
         onCompositionStart(e){
