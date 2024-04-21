@@ -181,11 +181,10 @@ Output files, which are automatically generated using Gulp, are in: `/dist/`
 Filename                             | Info
 ------------------------------------ | -----------------------------------------------------------
 `tagify.esm.js`                      | ESM version. [see jsbin demo](https://jsbin.com/sulijap/edit?html,output)
-`tagify.js`                          | *unminified* UMD version, including its souremaps
-`tagify.min.js`                      | *minified* UMD version, including its souremaps. This is the **main** file the package exports.
+`tagify.js`                      | *minified* UMD version, including its souremaps. This is the **main** file the package exports.
 `tagify.polyfills.min.js`            | Used for old Internet Explorer browser support
-<del>`react.tagify.js`</del>         | Wrapper-only for React. [Read more](#react) **(Deprecaded as of APR 24', import the file from `/src` instead)**
-<del>`jQuery.tagify.min.js`</del>    | jQuery wrapper - same as `tagify.min.js`. Might be removed in the future. **(Deprecaded as of APR 24')**
+<del>`react.tagify.js`</del>         | Wrapper-only for React. [Read more](#react) **(Deprecaded as of APR 24', [read here](#react))**
+<del>`jQuery.tagify.min.js`</del>    | jQuery wrapper - same as `tagify.js`. Might be removed in the future. **(Deprecaded as of APR 24')**
 `tagify.css`                         |
 
 
@@ -586,7 +585,7 @@ There is no more `e.target`, and to access the original DOM input element, do th
 
 ```javascript
 import { useCallback, useRef } from 'react'
-import Tags from "@yaireo/tagify/src/react.tagify" // React-wrapper file
+import Tags from "@yaireo/tagify/react" // React-wrapper file
 import "@yaireo/tagify/dist/tagify.css" // Tagify CSS
 
 const App = () => {
@@ -620,7 +619,7 @@ const App = () => {
 To gain full access to Tagify's (instance) inner methods, A custom `ref` can be used:
 
 ```jsx
-import Tags, {MixedTags} from "@yaireo/tagify/src/react.tagify";
+import Tags, {MixedTags} from "@yaireo/tagify/react";
 
 ...
 const tagifyRef = useRef()
