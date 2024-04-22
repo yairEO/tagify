@@ -305,12 +305,16 @@ export default {
 
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
 
-        // hide selected suggestion
+        // execute these tasks once a suggestion has been selected
         elm.addEventListener('transitionend', () => {
             this.dropdown.fillHeaderFooter()
-            setTimeout(() => elm.remove(), 100)
+            setTimeout(() => {
+                elm.remove()
+                this.dropdown.refilter()
+            }, 100)
         }, {once: true})
 
+        // hide selected suggestion
         elm.classList.add(this.settings.classNames.dropdownItemHidden)
     },
 
