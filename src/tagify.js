@@ -513,11 +513,12 @@ Tagify.prototype = {
             tagIdx = this.getNodeIndex(tagElm),
             tagData = getSetTagData(tagElm),
             _CB = this.events.callbacks,
-            isValid = true
+            isValid = true,
+            isSelectMode = _s.mode == 'select'
 
         // select mode is a bit different as clicking the tagify's content once will get into edit-mode if a value
         // is already selected, and there cannot be a dropdown already open at this point.
-        _s.mode != 'select' && this.dropdown.hide()
+        !isSelectMode && this.dropdown.hide()
 
         if( !editableElm ){
             logger.warn('Cannot find element in Tag template: .', _s.classNames.tagTextSelector);
@@ -556,7 +557,7 @@ Tagify.prototype = {
         editableElm.focus()
         this.setRangeAtStartEnd(false, editableElm) // place the caret at the END of the editable tag text
 
-        _s.dropdown.enabled === 0 && this.dropdown.show()
+        _s.dropdown.enabled === 0 && !isSelectMode && this.dropdown.show()
         this.state.hasFocus = true
 
         return this
