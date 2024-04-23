@@ -145,10 +145,10 @@ export default {
     callbacks : {
         onFocusBlur(e){
             // when focusing within a tag which is in edit-mode
-            var isFocused = e.type == 'focusin',
-                lostFocus = e.type == 'focusout',
-                nodeTag = isWithinNodeTag.call(this, e.target),
-                targetIsTagNode = isNodeTag.call(this, e.target);
+            var nodeTag = isWithinNodeTag.call(this, e.target),
+                targetIsTagNode = isNodeTag.call(this, e.target),
+                isFocused = e.type == 'focusin',
+                lostFocus = e.type == 'focusout';
 
             // when focusing within a tag which is in edit-mode, only and specifically on the text-part of the tag node
             // and not the X button or any other custom element thatmight be there
@@ -188,8 +188,14 @@ export default {
             if( isTargetSelectOption || isTargetAddNewBtn )
                 return;
 
-            this.state.hasFocus = isFocused ? +new Date() : false
-            this.toggleFocusClass(this.state.hasFocus)
+            // should only loose focus at this point if the event was not generated from within a tag, within the component
+            if( isFocused || nodeTag ) {
+                this.state.hasFocus = +new Date()
+                this.toggleFocusClass(this.state.hasFocus)
+            }
+            else {
+                this.state.hasFocus = false;
+            }
 
             if( _s.mode == 'mix' ){
                 if( isFocused ){
@@ -211,10 +217,12 @@ export default {
             if( isFocused ){
                 if( !_s.focusable ) return;
 
+                var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible;
+
                 this.toggleFocusClass(true);
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
-                if( (_s.dropdown.enabled === 0) && !this.state.dropdown.visible && !targetIsTagNode ){  // && _s.mode != "select"
+                if( dropdownCanBeShown && (!targetIsTagNode || _s.mode === 'select') ){  // && _s.mode != "select"
                     this.dropdown.show(this.value.length ? '' : undefined)
                 }
 
@@ -267,7 +275,7 @@ export default {
                 isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
                 nextTag;
 
-            if( !isBelong || isReadyOnlyTag ) return;
+            if( !this.state.hasFocus && (!isBelong || isReadyOnlyTag) ) return;
 
             nextTag = focusedElm.nextElementSibling;
 
@@ -292,6 +300,13 @@ export default {
                     }
 
                     setTimeout(this.editTag.bind(this), 0, focusedElm);
+                    break;
+                }
+
+                case 'ArrowDown' : {
+                    // if( _s.mode == 'select' ) // issue #333
+                    if( !this.state.dropdown.visible )
+                        this.dropdown.show()
                     break;
                 }
             }
