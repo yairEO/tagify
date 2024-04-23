@@ -260,20 +260,23 @@ export default {
         },
 
         onWindowKeyDown(e){
-            var focusedElm = document.activeElement,
-                isTag = isNodeTag.call(this, focusedElm),
-                isBelong = isTag && this.DOM.scope.contains(document.activeElement),
+            var _s = this.settings,
+                focusedElm = document.activeElement,
+                withinTag = isWithinNodeTag.call(this, focusedElm),
+                isBelong = withinTag && this.DOM.scope.contains(document.activeElement),
                 isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
                 nextTag;
 
             if( !isBelong || isReadyOnlyTag ) return;
 
-            nextTag = focusedElm.nextElementSibling
+            nextTag = focusedElm.nextElementSibling;
+
+            var targetIsRemoveBtn = e.target.classList.contains(_s.classNames.tagX);
 
             switch( e.key ){
                 // remove tag if has focus
                 case 'Backspace': {
-                    if( !this.settings.readonly ) {
+                    if( !_s.readonly ) {
                         this.removeTags(focusedElm);
                         (nextTag ? nextTag : this.DOM.input).focus()
                     }
@@ -283,6 +286,11 @@ export default {
 
                 // edit tag if has focus
                 case 'Enter': {
+                    if( targetIsRemoveBtn ) {
+                        this.removeTags( e.target.parentNode )
+                        return
+                    }
+
                     setTimeout(this.editTag.bind(this), 0, focusedElm);
                     break;
                 }
