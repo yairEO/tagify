@@ -13,13 +13,20 @@ export default {
                     ${_s.required ? 'required' : ''}
                     ${_s.mode === 'select' ? "spellcheck='false'" : ''}
                     tabIndex="-1">
-            <span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${_s.placeholder || ZERO_WIDTH_UNICODE_CHAR}" aria-placeholder="${_s.placeholder || ''}"
-                class="${_s.classNames.input}"
-                role="textbox"
-                aria-autocomplete="both"
-                aria-multiline="${_s.mode=='mix'?true:false}"></span>
+                    ${this.settings.templates.input.call(this)}
                 ${ZERO_WIDTH_UNICODE_CHAR}
         </tags>`
+    },
+
+    input() {
+        var _s = this.settings,
+            placeholder = _s.placeholder || ZERO_WIDTH_UNICODE_CHAR;
+
+        return `<span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${placeholder}" aria-placeholder="${_s.placeholder || ''}"
+                    class="${_s.classNames.input}"
+                    role="textbox"
+                    aria-autocomplete="both"
+                    aria-multiline="${_s.mode=='mix'?true:false}"></span>`
     },
 
     tag(tagData, {settings: _s}){
