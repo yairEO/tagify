@@ -181,9 +181,9 @@ Output files, which are automatically generated using Gulp, are in: `/dist/`
 Filename                             | Info
 ------------------------------------ | -----------------------------------------------------------
 `tagify.esm.js`                      | ESM version. [see jsbin demo](https://jsbin.com/sulijap/edit?html,output)
-`tagify.js`                      | *minified* UMD version, including its souremaps. This is the **main** file the package exports.
+`tagify.js`                          | *minified* UMD version, including its souremaps. This is the **main** file the package exports.
 `tagify.polyfills.min.js`            | Used for old Internet Explorer browser support
-<del>`react.tagify.js`</del>         | Wrapper-only for React. [Read more](#react) **(Deprecaded as of APR 24', [read here](#react))**
+`react.tagify.js`                    | Wrapper-only for React. [Read more](#react)
 <del>`jQuery.tagify.min.js`</del>    | jQuery wrapper - same as `tagify.js`. Might be removed in the future. **(Deprecaded as of APR 24')**
 `tagify.css`                         |
 
@@ -569,7 +569,10 @@ Similar to native `<Select>` element, but allows typing text as value.
 See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for React integration examples.
 ⚠️ Tagify is **not** a [controlled component](https://github.com/yairEO/tagify/issues/489#issuecomment-629316093).
 
-A Tagify React component is exported from [`react.tagify.jsx`](https://github.com/yairEO/tagify/blob/master/src/react.tagify.jsx):
+A none-minified and raw source-code Tagify React component is exported from [`react.tagify.jsx`](https://github.com/yairEO/tagify/blob/master/src/react.tagify.jsx) and you can import it as seen in the below code example.
+This React port will only work if your bundler can handle raw source-code in ES2015+ which is better for tree-shaking.
+
+If you get bundling errors, import Tagify (*react* port) from the `dist` folder: `@yaireo/tagify/dist/react.tagify`
 
 ---
 ### Update regarding `onChange` prop:
@@ -585,8 +588,8 @@ There is no more `e.target`, and to access the original DOM input element, do th
 
 ```javascript
 import { useCallback, useRef } from 'react'
-import Tags from "@yaireo/tagify/react" // React-wrapper file
-import "@yaireo/tagify/dist/tagify.css" // Tagify CSS
+import Tags from '@yaireo/tagify/react' // React-wrapper file
+import '@yaireo/tagify/dist/tagify.css' // Tagify CSS
 
 const App = () => {
     // on tag add/edit/remove
