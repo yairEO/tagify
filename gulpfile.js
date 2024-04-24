@@ -191,7 +191,7 @@ function bundle({ entry, outputName, dest, plugins=[], format='umd' }){
     })
 
     // give the file the name you want to output with
-    .pipe( $.vinylSourceStream(outputName))
+    .pipe($.vinylSourceStream(outputName))
     .pipe(buffer())
     .on('error', handleError)
 
