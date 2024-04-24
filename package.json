@@ -49,7 +49,8 @@
         "./dist/react.tagify": "./src/react.tagify",
         "./dist/react.tagify.jsx": "./src/react.tagify.jsx",
         "./dist/tagify.min.js": "./dist/tagify.js",
-        "./dist/tagify.min": "./dist/tagify.js"
+        "./dist/tagify.min": "./dist/tagify.js",
+        "./dist/tagify.css": "./dist/tagify.css"
     },
     "repository": {
         "type": "git",
