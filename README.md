@@ -28,8 +28,10 @@
 </p>
 
 <p align="center">
-  <img src="/docs/mix3.gif?sanitize=true" />
-  <img src="/docs/demo.gif?sanitize=true" />
+    <a href="https://yaireo.github.io/tagify">
+        <img src="/docs/mix3.gif?sanitize=true" />
+        <img src="/docs/demo2.apng?sanitize=true" />
+    </a>
 </p>
 
 ## Table of Contents
