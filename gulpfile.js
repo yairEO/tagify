@@ -84,11 +84,11 @@ function scss(){
 
 // https://medium.com/recraftrelic/building-a-react-component-as-a-npm-module-18308d4ccde9
 function react(done){
-    // return bundle({
-    //     entry: 'src/react.tagify.jsx',
-    //     outputName: `react.tagify.jsx`,
-    //   })
-    //   .on('end', done)
+    return bundle({
+        entry: 'src/react.tagify.jsx',
+        outputName: `react.tagify.jsx`,
+      })
+      .on('end', done)
 
 
     // return rollupStream({
@@ -111,9 +111,7 @@ function react(done){
 
     return gulp.src('src/react.tagify.jsx', { sourcemaps: true })
         // .pipe($.sourcemaps.init({ loadMaps: true }))
-        .pipe(
-            swc(swcOptions)
-        )
+        .pipe(swc(swcOptions))
         // .pipe(opts.dev ? $.tap(()=>{}) : $.terser())
         .pipe($.headerComment(banner))
         .pipe($.concat('react.tagify.jsx'))
@@ -255,11 +253,11 @@ ${LICENSE}`;
 function watch(){
     gulp.watch('./src/*.scss', scss)
     gulp.watch(['./src/tagify.js', './src/parts/*.js'], gulp.series([js]))
-    // gulp.watch('./src/react.tagify.jsx', react)
+    gulp.watch('./src/react.tagify.jsx', react)
 }
 
 
-const build = gulp.series(gulp.parallel(js, scss, polyfills), esm) // deprecated the "react" task as i believe it's not needed to consume a pre-bundled version.
+const build = gulp.series(gulp.parallel(js, scss, polyfills), esm, react) // deprecated the "react" task as i believe it's not needed to consume a pre-bundled version.
 
 exports.default = gulp.parallel(build, watch)
 exports.js = js
