@@ -849,8 +849,9 @@ Tagify.prototype = {
      * gets the last non-readonly, not-in-the-proccess-of-removal tag
      */
     getLastTag(){
-        var lastTag = this.DOM.scope.querySelectorAll(`${this.settings.classNames.tagSelector}:not(.${this.settings.classNames.tagHide}):not([readonly])`);
-        return lastTag[lastTag.length - 1];
+        var _sc = this.settings.classNames,
+            tagNodes = this.DOM.scope.querySelectorAll(`${_sc.tagSelector}:not(.${_sc.tagHide}):not([readonly])`);
+        return tagNodes[tagNodes.length - 1];
     },
 
     /**
@@ -1567,7 +1568,7 @@ Tagify.prototype = {
                 ? tagElms
                 : tagElms
                     ? [tagElms]
-                    : [this.getLastTag()]
+                    : [this.getLastTag()].filter(n => n)   // must filter because "this.getLastTag()" might be `undefined` if there are not tags
 
         // normalize tagElms array values:
         // 1. removing invalid items
