@@ -30,7 +30,7 @@
         "start": "gulp --dev",
         "build": "gulp",
         "version": "gulp build && git add .",
-        "prepublishOnly": "pkg-ok",
+        "prepublishOnly": "pjv",
         "test": "echo \"No test specified\"",
         "serve": "npx http-server -o index.html -c-1"
     },
