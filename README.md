@@ -28,9 +28,11 @@
 </p>
 
 <p align="center">
-    <a href="https://yaireo.github.io/tagify">
-        <img src="/docs/mix3.gif?sanitize=true" />
-        <img src="/docs/demo2.apng?sanitize=true" />
+    <a href="https://yaireo.github.io/tagify/#section-mix">
+        <img src="/docs/mix3.gif?sanitize=true" /> 
+    </a>
+   <a href="https://yaireo.github.io/tagify/#users-list"> 
+      <img src="/docs/demo2.apng?sanitize=true" />
     </a>
 </p>
 
