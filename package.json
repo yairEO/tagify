@@ -50,6 +50,9 @@
         "./dist/react.tagify.jsx": "./src/react.tagify.jsx",
         "./dist/tagify.min.js": "./dist/tagify.js",
         "./dist/tagify.min": "./dist/tagify.js",
+        "./dist/tagify.esm.js": "./dist/tagify.esm.js",
+        "./dist/tagify.polyfills.min.js": "./dist/tagify.polyfills.min.js",
+        "./dist/tagify.vue": "./dist/tagify.vue",
         "./dist/tagify.css": "./dist/tagify.css"
     },
     "repository": {
