@@ -1008,7 +1008,7 @@ Tagify.prototype = {
     setReadonly( toggle, attrribute ){
         var _s = this.settings
 
-        document.activeElement.blur() // exit possible edit-mode
+        this.DOM.scope.contains(document.activeElement) && document.activeElement.blur() // exit possible edit-mode
         _s[attrribute || 'readonly'] = toggle
         this.DOM.scope[(toggle ? 'set' : 'remove') + 'Attribute'](attrribute || 'readonly', true)
 
