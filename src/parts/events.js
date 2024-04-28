@@ -274,8 +274,7 @@ export default {
                 isBelong = withinTag && this.DOM.scope.contains(document.activeElement),
                 isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
                 nextTag;
-
-            //if( !isBelong || isReadyOnlyTag ) return;
+            
             if( !isBelong || isReadyOnlyTag ) return;
 
             nextTag = focusedElm.nextElementSibling;

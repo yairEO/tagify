@@ -1787,7 +1787,6 @@ other than "Tagify" (by owner) or as part of another library.
            },
            onWindowKeyDown: function onWindowKeyDown(e) {
                var _s = this.settings, focusedElm = document.activeElement, withinTag = isWithinNodeTag.call(this, focusedElm), isBelong = withinTag && this.DOM.scope.contains(document.activeElement), isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'), nextTag;
-               //if( !isBelong || isReadyOnlyTag ) return;
                if (!isBelong || isReadyOnlyTag) return;
                nextTag = focusedElm.nextElementSibling;
                var targetIsRemoveBtn = e.target.classList.contains(_s.classNames.tagX);
