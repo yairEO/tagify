@@ -250,7 +250,7 @@ ${LICENSE}`;
         .pipe(gulp.dest('./dist/'))
 }
 
-function compileAllExamples() {
+function compileAllExamples(done) {
     // iterate all folders at ".\docs\examples\src"
     fs.readdir('docs/examples/src', { withFileTypes: true }, (err, examples) => {
         const subfolders = examples
@@ -260,6 +260,8 @@ function compileAllExamples() {
         // generate an example html file from each subfolder
         subfolders.forEach(compileExample)
     })
+
+    done && done()
 }
 
 // compiles a specific example demo
