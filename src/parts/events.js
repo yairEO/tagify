@@ -298,7 +298,9 @@ export default {
                         return
                     }
 
-                    setTimeout(this.editTag.bind(this), 0, focusedElm);
+                    if( _s.a11y.focusableTags && isNodeTag.call(this, focusedElm) )
+                        setTimeout(this.editTag.bind(this), 0, focusedElm)
+
                     break;
                 }
 
