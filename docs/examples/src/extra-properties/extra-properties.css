@@ -1,0 +1,26 @@
+.tagify__dropdown.extra-properties .tagify__dropdown__item > img{
+    display: inline-block;
+    vertical-align: middle;
+    height: 20px;
+    transform: scale(.75);
+    margin-right: 5px;
+    border-radius: 2px;
+    transition: .12s ease-out;
+}
+
+.tagify__dropdown.extra-properties .tagify__dropdown__item--active > img,
+.tagify__dropdown.extra-properties .tagify__dropdown__item:hover > img{
+    transform: none;
+    margin-right: 12px;
+}
+
+.tagify.countries .tagify__input{ min-width:175px; }
+
+.tagify.countries tag{ white-space:nowrap; }
+.tagify.countries tag img{
+    display: inline-block;
+    height: 16px;
+    margin-right: 3px;
+    border-radius: 2px;
+    pointer-events: none;
+}

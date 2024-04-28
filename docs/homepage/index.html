@@ -1,0 +1,295 @@
+{% from "homepage/section.njk" import section %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% include "homepage/head.html" %}
+    </head>
+
+    <body>
+        {% include "homepage/header.html" %}
+
+        <!-- SVG codeopen logo template -->
+        <svg style='display:none' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+            <g id='codepen-logo' viewBox="0 0 120 120">
+                <path class="inner-box" d="M97 48v-1a3 3 0 00-1-1L62 23h-4L24 46a3 3 0 00-1 1v26a4 4 0 001 0v1l34 23a3 3 0 004 0l34-23a3 3 0 001-1v-1-23-1zM63 32l25 17-11 7-14-9V32zm-6 0v15l-14 9-11-7 25-17zM29 55l8 5-8 5V55zm28 33L32 71l11-7 14 9v15zm3-20l-11-8 11-8 11 8-11 8zm3 20V73l14-9 11 7-25 17zm28-23l-8-5 8-5v10z"/>
+            </g>
+        </svg>
+        <!-- template end -->
+
+        <form>
+            <!----------- SECTION -------------->
+            {% call section("basic", "PoNqYVY") %}
+                <p>
+                    Passing the input element as a parameter to <em>Tagify</em> will transform it into a tags-component.
+                    Without any settings, the user will be allowed to create any tags they want, without a count limit.
+                </p>
+                <p>
+                    If the input element has a pre-defined <code>value</code> attribute, tags will be created from it.
+                </p>
+                <p>
+                    (<strong>Try <em>Double-clicking</em> a tag to edit it</strong>)
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("input", "OJNVyQR", {title: "Text Input"}) %}
+                <h3>In this example:</h3>
+                <ul>
+                    <li>Tagify instance with initial <em>settings</em> Object</li>
+                    <li>Only allow tags from the whitelist to exist</li>
+                    <li>Manually create initial <em>whitelist</em> from the original input's value</li>
+                    <li>Simulate fetching <em>whitelist</em> (from a server) as the user is typing</li>
+                    <li><em>"Remove all tags"</em> by an external button</li>
+                    <li>Listen to various Tagify <a href='https://github.com/yairEO/tagify#events'>events</a></li>
+                    <li>Un-listen to specific event (see <code>onAddTag</code> function)</li>
+                </ul>
+                <h3>Intro:</h3>
+                <p>
+                    The input element is pre-ocupied with <strong>4</strong> tags. The <em>last</em> tag, <em>"CSS"</em>,
+                    has the same value as the <em>first</em> tag, and will be <em>removed</em>, because the <code>duplicates</code>
+                    setting is set to <code>true</code>.
+                </p>
+                <p>
+                    Note that <code>whitelist</code> & <code>blacklist</code> may also be set on to <i>Tagify</i> as <code>data-</code>
+                    attributes on the input tag itself as a list of tags seperated by the same delimeter defined in the Tagify's configuration.
+                    Default is comma (<code>,</code>)
+                </p>
+                <p>
+                    As text is typed, the <code>onInput</code> Tagify event is fired, on each key stroke.
+                    Reseting the current whitelist and fetching a new one (from <code>mockAjax()</code>)
+                </p>
+                <p>
+                    In real-life scenarios, a developer might wish to use different <em>whitelists</em> suggested to the user,
+                    according to the typed text, asusming the possibilities are too large to load at-once as the inital <em>whitelist</em>.
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("input-suggestions-styled-as-tags", "bGpdVMW", {noHeader: true, withCSS: true}) %}
+                <header>
+                    <h3>Same using custom suggestions:</h3>
+                </header>
+                <p>The dropdown will appear immediately when Tagify has focus.</p>
+                <p>The suggestions are styled as tags this time. Clicking on a suggested it, it will be added to <em>Tagify</em></p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("textarea", "dyMoYKb") %}
+                <p>
+                    In this example, the field is pre-ocupied with 3 tags, and last tag is <strong>not included</strong> in the whitelist,
+                    and will be <em>removed</em> because the <code>enforceWhitelist</code> <em>setting flag</em> is set to <code>true</code>
+                </p>
+                <p>
+                    🚩 This example is very interesting because it shows another layer of complexity - Films' names might include commas (<code>,</code>),
+                    and therefore it is <strong>very important</strong> to load initial values as Object <em>Collection</em> (Array of Objects)
+                    where each Object is proper JSON as shown in the example below, or else initial tags will not get parsed well if they include commas.
+                </p>
+                <p>
+                    🚩 <strong>Another important</strong> thing to keep in mind is that the default <code>delimiters</code>
+                    setting of Tagify is to split tags by commas, and when tags (might) contain commas inside them,
+                    this setting should be changed to <code>null</code>, so when a user is typing, for example,
+                    a movie name which contains commans, a tag will <em>not</em> be created as soon as comma was inputed.
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("RTL", "VwReGKL", {title: "RTL & uncapped dropdown width", withCSS: true}) %}
+                <p>
+                    In this example, the <em>Tagify</em> field is inside a container which has <code>dir='rtl'</code> attribute and
+                    also the Tagify <code>RTL</code> setting for the <code>dropdown</code> is set accordingly
+                    (because it's better not infer it from the HTML but defined explicitly)
+                </p>
+                <p>
+                    This example also showcases the ability to have the suggestions dropdown's maximum <code>width</code>
+                    as wide as the longest item in the suggestions list, but still not less wide than the Taigy field
+                    for which the dropdown "belongs".
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("different-look", "wvGaKxd", {title: "Easy to customize", withCSS: true}) %}
+                <p>
+                    The easiest way to customize styles <em>(colors, borders, spacing, radii, etc.)</em> is by using <a href='https://github.com/yairEO/tagify#css-variables'>CSS variables</a>.
+                </p>
+                <p>
+                    No placeholder, and no way of adding tags from within the component, but only
+                    by clicking the (+) button, which is not related to Tagify in anyway, but in this example
+                    it is shown how combining a few simple things make customization easy.
+                </p>
+                <p>
+                    (This example also shows how to implement minimum-allowed tags)
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("mix", "KKzpdxQ", {title: "Mix text & tags"}) %}
+                <p>
+                    It is possible to configure Tagify to supoprt mixed content.
+                    A common example would be <em>tagging</em> people while writing a comment on a social website.
+                </p>
+                <p>
+                    To allow mix content, simply pass the setting <code>mode : 'mix'</code>
+                </p>
+                <p>
+                    In this example, there are a few <em>Southpark</em> character names and a few <em>Simpsons</em> ones.
+                    when <code>@</code> is typed, following 1 more character, suggestions dropdown will show <em>Southpark</em>-only items,
+                    and when starting with <code>#</code>, <i>Simpsons</i> items list.
+                </p>
+                <p>
+                    Note that the two whitelists are very different from eachother in teams of structure. The first is quite complex,
+                    as it uses numeric IDs as <code>value</code> ("value" prop is always unique), and the rendered text is placed in a custom
+                    property named "text". <br>
+                    The other whitelist, <em>Simpsons</em> is very basic, just a flat array of strings.
+                </p>
+                <p>
+                    Note that "homer simpson" tag is set to <code>readonly</code> in this example. If tried to select all text and delete
+                    everything, <em>readonly</em> tags will remain.
+                </p>
+                <p>
+                    When a <code>textarea</code> already has mixed-content and it wasn't pre-configured using a whitelist, the tags will ignored, so keep
+                    that in mind when populating a textarea with server data and expecting tags to "magically" appear. Whitelist <strong><em>must</em></strong> exist because not
+                    everything that starts with <code>@</code> or <code>#</code> (or whatever was defined as <code>pattern</code>) is meant to be rendered as a tag.
+                </p>
+                <p>
+                    This example also validates the tags using the <code>validate</code> setting with a function as a value.
+                </p>
+                <h4>Creating new tags:</h4>
+                <p>
+                    To create new tags (ones not included in your <code>whitelist</code> collection), simply make sure
+                    to keep the <code>enforceWhitelist</code> setting as <code>false</code>, which is the <em>default</em>.
+                    After a new tags has been added, you should listen to the <code>add</code> and probably update your local state (Ex. server request).
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("outside-of-the-box", "oNxXjav", {withCSS: true}) %}
+                <p>
+                    Some designs might require showing the tags outside of the input box, so to set this up
+                    some manual CSS changes has to be made, and also the <code>dropdown.position</code> <em>setting</em>
+                    should be set to <code>"input"</code> so the suggestions dropdown will be rendered right next to <em>input</em>
+                    element and not relative to the whole component (which is the default)
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("manual-suggestions", "QWNbjZO", {title: "Render suggestions list manually", withCSS: true}) %}
+                <p>
+                    Renders the suggestions list <strong>manually</strong> - useful for situations where it is wished showing the suggestions list
+                    inside a modal or your own popup implementaion, or even always show it. In this example the list is always shown.
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("disabled-user-input", "PomMMwp") %}
+                <p>
+                    User <strong>cannot type</strong> or paste any input not edit already-exiting tags.<br>
+                    Tags can only be selected from the suggestions list (<em>whitelist</em>) dropdown.
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("users-list", "qBZdOJe", {withCSS: true}) %}
+                <p>
+                    This example shows how to customize <em>Tagify</em> further. It also includes an <code>Add All</code> option as the first
+                    item in the suggestions dropdown list.
+                </p>
+                <p>
+                    <code>tagTextProp</code> is very interesting in this example as it allows inputing both a <code>value</code>
+                    or a <code>name</code> and have them both match against the whitelist items. First the "value" is looked for,
+                    and if failed, then <em>prop</em> which was defined by the <code>tagTextProp</code> setting.
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("advance-options", "bGpdVOr", {withCSS: true}) %}
+                <p>
+                    In this example, the <code>dropdown.enabled</code> <em>setting</em> is set (minimum charactes typed to show the dropdown) to <code>3</code>.
+                    <br>
+                    Maximum number of tags is set to <code>6</code>
+                </p>
+                <p>
+                    Each (valid) tag gets a random color, via the <code>transformTag</code> callback which modifies the tag's data object before creating the tag element.
+                    Another way of giving colors to tags is <a href='https://github.com/yairEO/tagify/issues/644'>discussed here</a>.
+                    Clicking a tag <strong>once</strong> will change its color.
+                </p>
+                <p>
+                    HTML5 <code>pattern</code> attribute is automatically used to validate tags.<br>
+                    Also, the <code>delimiters</code> <em>setting</em> using both <code>comma</code> or <code>space</code> as tags seperators.
+                </p>
+                <p>
+                    The <code>keepInvalidTags</code> <em>setting</em> flag is switched <em>on</em> to <code>true</code> so invaild tags are not removed but are only marked.
+                </p>
+                <p>
+                    If there is no match for the typed text, a special dropdown item will be renderd using the optional <em>settings</em>: <code>templates.dropdownItemNoMatch</code>
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("extra-properties", "ExKjVJJ", {title: "Tags with properties", withCSS: true}) %}
+                <p>
+                    Some cases requires more control per-tag, for example, sending a different value to the server than the textual value
+                    the user sees/entered.
+                    <br/><br/>
+                    Another example, would be different colors for different tags or tags' groups.
+                    <br/><br/>
+                    It's possible to add any number of properties for a tag. The only constant is the <code>value</code> property which
+                    must be unique and declared per-tag, and by default that will be the rendered text, unless specified otherwise using the settings.
+                </p>
+                <p>
+                    The properties shown in the example below, declared in the <code>allowedTags</code> Array, will be transformed into
+                    HTML attributes for each tag element rendered from the allowed <code>whitelist</code> settings, so naturally
+                    some attributes are in the specs and the made-up ones should technically be prefixed with <code>data-</code>.
+                </p>
+                <p>
+                    💡 In this example, some countries have an extra property <code>searchBy</code> which is used for smarter suggestions matching when the user types something.
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("readonly", "RwaPWmR") %}
+                <p>
+                    If the original input field has a <code>readonly</code> attribute, then, via CSS, Tagify blocks interactions with <code>pointer-events: none;</code>
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("readonly-mixed", "KKzpdLR") %}
+                <p>
+                    Tags that are read-only mixed with removable tags
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("disabled", "dyWYJbX") %}
+                <p>
+                    If the original input field has a <code>disabled</code> attribute, then, via CSS, Tagify blocks interactions with <code>pointer-events: none;</code>
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("drag-sort", "jOqYOVJ", {title: "Drag & Sort"}) %}
+                <p>
+                    To be able to sort tags by draging, a 3rd-party script is needed. In this example I will be using my own -
+                    lightweight & simple native HTML5 <a href='https://www.npmjs.com/package/@yaireo/dragsort' target='_blank'><em>dragsort</em></a> script.
+                </p>
+                <p>
+                    Any <em>drag & drop</em> script would do that is able to also sort the elements. The only requirement is that when
+                    the sorting it done, <code>tagify.updateValueByDOMTags()</code> must be called to sync Tagify with the change.
+                </p>
+            {% endcall %}
+
+            <!----------- SECTION -------------->
+            {% call section("mode-select", "yLONYdx", {title: "single-value select"}) %}
+                <p>
+                    Similar to native <code>&lt;Select&gt;</code> element, but allows free text as value.
+                </p>
+                <p>
+                    If the `enforceWhitelist` setting is set to `true` and a tag is currently selected,
+                    user text input will be disabled, so altering the currently selected tag is forbidden.
+                </p>
+            {% endcall %}
+        </form>
+
+        {% include "homepage/scripts.html" %}
+    </body>
+</html>

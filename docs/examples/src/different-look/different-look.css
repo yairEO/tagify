@@ -1,0 +1,71 @@
+.customLook {
+    --tag-bg                  : #0052BF;
+    --tag-hover               : #CE0078;
+    --tag-text-color          : #FFF;
+    --tags-border-color       : silver;
+    --tag-text-color--edit    : #111;
+    --tag-remove-bg           : var(--tag-hover);
+    --tag-pad                 : .6em 1em;
+    --tag-inset-shadow-size   : 1.4em; /* compensate for the larger --tag-pad value */
+    --tag-remove-btn-color    : white;
+    --tag-remove-btn-bg--hover: black;
+
+    display: inline-block;
+    min-width: 0;
+    border: none;
+}
+
+.customLook .tagify__tag {
+    margin-top: 0;
+}
+
+.customLook .tagify__tag>div {
+    border-radius: 25px;
+}
+
+.customLook .tagify__tag:not(:only-of-type):not(.tagify__tag--editable):hover .tagify__tag-text {
+    margin-inline-end: -1px;
+}
+
+/* Do not show the "remove tag" (x) button when only a single tag remains */
+.customLook .tagify__tag:only-of-type .tagify__tag__removeBtn {
+    display: none;
+}
+
+.customLook .tagify__tag__removeBtn {
+    opacity: 0;
+    transform: translateX(-100%) scale(.5);
+    margin-inline: -20px 6px;
+    /* very specific on purpose  */
+    text-align: right;
+    transition: .12s;
+}
+
+.customLook .tagify__tag:not(.tagify__tag--editable):hover .tagify__tag__removeBtn {
+    transform: none;
+    opacity: 1;
+}
+
+.customLook+button {
+    color: #0052BF;
+    font: bold 1.4em/1.65 Arial;
+    border: 0;
+    background: none;
+    box-shadow: 0 0 0 2px inset currentColor;
+    border-radius: 50%;
+    width: 1.65em;
+    height: 1.65em;
+    cursor: pointer;
+    outline: none;
+    transition: .1s ease-out;
+    margin: 0 0 0 5px;
+    vertical-align: top;
+}
+
+.customLook+button:hover {
+    box-shadow: 0 0 0 5px inset currentColor;
+}
+
+.customLook .tagify__input {
+    display: none;
+}

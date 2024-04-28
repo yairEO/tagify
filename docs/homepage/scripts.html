@@ -1,0 +1,207 @@
+<script>
+    document.forms[0].reset();
+
+    // get the sticky element
+    const stickyElm = document.querySelector('header')
+
+    const observer = new IntersectionObserver(
+        ([e]) => e.target.classList.toggle('isSticky', e.intersectionRatio < 1),
+        {threshold: [1]}
+    );
+
+    observer.observe(stickyElm)
+</script>
+
+<script>
+    window.Prism = window.Prism || {};
+    window.Prism.manual = true;
+    setTimeout(function(){
+        Prism.highlightAll();
+    }, 500)
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+<script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js'></script>
+
+<script src='https://unpkg.com/@yaireo/knobs'></script>
+<script>
+ (function(){
+    var settings = {
+        theme: {
+            flow: "compact"
+        },
+        live: false,
+        // 0 - starts as hidden, 1 - starts as visible, 2 - always visible
+        visible: 1,
+        CSSVarTarget: document.querySelectorAll('.tagify'),
+        knobs: [
+            {
+                label: 'Show Original Input Element',
+                type: 'checkbox',
+                checked: false,
+                onChange(e){
+                    document.body.classList[e.target.checked ? 'add' : 'remove']('showOriginal')
+                }
+            },
+            "Dynamic values",
+            {
+                cssVar: ['tag-pad', 'em'],
+                label: 'tag-pad',
+                type: 'range',
+                value: .5, min: 0, max: 1.5, step: 0.01,
+            },
+            {
+                cssVar: ['tag-border-radius', 'px'],
+                label: 'tag-border-radius',
+                type: 'range',
+                value: 3, min: 0, max: 25
+            },
+            {
+                cssVar: ['tag-inset-shadow-size', 'em'],
+                label: 'tag-inset-shadow-size',
+                type: 'range',
+                min: 0, max: 2 , step:.1,
+            },
+            {
+                cssVar: ['tag--min-width', 'ch'],
+                label: 'tag--min-width',
+                type: 'range',
+                value: 1, min: 0, max: 20,
+            },
+            {
+                cssVar: ['tag--max-width', 'ch'],
+                label: 'tag--max-width',
+                type: 'range',
+                value: '100%', min: 1, max: 20,
+            },
+            {
+                cssVar: ['loader-size', 'em'],
+                label: 'loader-size',
+                type: 'range',
+                value: 'auto', min:.1, max: 1.4, step: 0.05
+            },
+            {
+                cssVar: ['tagify-dd-item--hidden-duration', 'ms', document.documentElement],
+                label: 'tagify-dd-item--hidden-duration',
+                type: 'range',
+                value: '300', min: 0, max: 3000, step: 50
+            },
+            {
+                cssVar: ['tagify-dd-item-pad', 'em', document.documentElement],
+                label: 'tagify-dd-item-pad',
+                type: 'range',
+                value: .3, min: 0, max: 1.5, step: 0.01,
+            },
+
+            "Colors",
+            {
+                cssVar: ['tag-bg'],
+                label: 'tag-bg',
+                type: 'color',
+                value: '#E5E5E5',
+            },
+            {
+                cssVar: ['tag-hover'],
+                label: 'tag-hover',
+                type: 'color',
+                value: '#D3E2E2',
+            },
+            {
+                cssVar: ['tags-border-color'],
+                label: 'tags-border-color',
+                type: 'color',
+                value: '#E5E5E5',
+            },
+            {
+                cssVar: ['tags-hover-border-color'],
+                label: 'tags-hover-border-color',
+                type: 'color',
+                value: '#CCCCCC',
+            },
+            {
+                cssVar: ['tags-focus-border-color'],
+                label: 'tags-focus-border-color',
+                type: 'color',
+                value: '#85C8EA',
+                onChange(e, knobData) {
+                    // those should match:
+                    document.documentElement.style.setProperty('--tagify-dd-color-primary', knobData.value)
+                }
+            },
+
+            {
+                cssVar: ['tagify-dd-bg-color', null, document.documentElement],
+                label: 'tagify-dd-bg-color',
+                type: 'color',
+            },
+
+            {
+                cssVar: ['tag-text-color'],
+                label: 'tag-text-color',
+                type: 'color',
+                value: '#000000',
+            },
+            {
+                cssVar: ['tag-text-color--edit'],
+                label: 'tag-text-color--edit',
+                type: 'color',
+                value: '#000000',
+            },
+            {
+                cssVar: ['tag-remove-bg'],
+                label: 'tag-remove-bg',
+                type: 'color',
+                value: '#D39494',
+            },
+            {
+                cssVar: ['tag-remove-btn-bg'],
+                label: 'tag-remove-btn-bg',
+                type: 'color',
+                value: 'none',
+            },
+            {
+                cssVar: ['tag-remove-btn-bg--hover'],
+                label: 'tag-remove-btn-bg--hover',
+                type: 'color',
+                value: '#C77777',
+            },
+            {
+                cssVar: ['tag-invalid-color'],
+                label: 'tag-invalid-color',
+                type: 'color',
+                value: '#D39494',
+            },
+            {
+                cssVar: ['tag-invalid-bg'],
+                label: 'tag-invalid-bg',
+                type: 'color',
+                value: '#D39494',
+            },
+            {
+                cssVar: ['placeholder-color'],
+                label: 'placeholder-color',
+                type: 'color',
+                value: 'rgba(0,0,0,.4)',
+            },
+            {
+                cssVar: ['placeholder-color-focus'],
+                label: 'placeholder-color-focus',
+                type: 'color',
+                value: 'rgba(0,0,0,.25)',
+            },
+            {
+                cssVar: ['input-color'],
+                label: 'input-color',
+                type: 'color',
+                value: '#000000',
+            },
+        ]
+    }
+
+    var knobs = new Knobs(settings)
+
+    knobs.settings.live = true
+
+    setTimeout(knobs.toggle.bind(knobs, false), 2000)
+ })()
+</script>

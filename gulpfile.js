@@ -7,6 +7,7 @@ var gulp = require('gulp'),
     rollupSwc = require('rollup-plugin-swc3').swc,
     rollupBanner = require("rollup-plugin-banner2"),
     fs = require('fs'),
+    path = require('path'),
     buffer = require('vinyl-buffer'),
     rollupStream = require("@rollup/stream"),
     pkg = require('./package.json'),
@@ -249,6 +250,57 @@ ${LICENSE}`;
         .pipe(gulp.dest('./dist/'))
 }
 
+function compileAllExamples() {
+    // iterate all folders at ".\docs\examples\src"
+    fs.readdir('docs/examples/src', { withFileTypes: true }, (err, examples) => {
+        const subfolders = examples
+            .filter(file => file.isDirectory())
+            .map(folder => folder.name);
+
+        // generate an example html file from each subfolder
+        subfolders.forEach(compileExample)
+    })
+}
+
+// compiles a specific example demo
+function compileExample(exampleName) {
+    gulp.src('docs/examples/src/example-template.html')
+        .pipe($.replace('{{NAME}}', '📌 ' + exampleName))
+        .pipe($.replace(/<!--\s*include:(.*?)\s*-->/g, (match, type) => {
+            try {
+                // Read the contents of the file specified in the comment
+                const fileContent = fs.readFileSync(`docs/examples/src/${exampleName}/${exampleName.replace(' ', '-')}.${type}`, 'utf8')
+                return fileContent;
+            } catch (err) {
+                return ''
+            }
+        }))
+        .pipe($.rename(exampleName + '.html'))
+        .pipe(gulp.dest('docs/examples/dist/'))
+}
+
+function onExampleFileChange(path) {
+    const normalizedPath = path.replace(/\\/g, '/')
+    const lastFolderName = normalizedPath.match(/\/([^\/]+)\/[^\/]+$/)[1]
+
+    compileExample(lastFolderName)
+}
+
+// creates the main `index.html` page which showcases all the examples
+async function compileHomepage() {
+    const { nunjucksCompile } = await import('gulp-nunjucks');
+
+    // https://github.com/sindresorhus/gulp-nunjucks/issues/14
+    return gulp.src('./docs/homepage/index.html', {base: './docs'})
+		.pipe(nunjucksCompile())  // null, {path: [path.join(__dirname, '..')]}
+        .pipe($.rename('index.html'))
+		.pipe(gulp.dest('.'))
+}
+
+function watchExamples() {
+    gulp.watch(['./docs/examples/src/**/*.*', '!./docs/examples/src/*.*']).on('change', onExampleFileChange)
+    gulp.watch(['./docs/examples/src/*.*']).on('change', compileAllExamples)
+}
 
 function watch(){
     gulp.watch('./src/*.scss', scss)
@@ -257,9 +309,9 @@ function watch(){
 }
 
 
-const build = gulp.series(gulp.parallel(js, scss, polyfills), esm, react) // deprecated the "react" task as i believe it's not needed to consume a pre-bundled version.
+const build = gulp.series(gulp.parallel(js, scss, polyfills), esm, react, compileAllExamples, compileHomepage) // deprecated the "react" task as i believe it's not needed to consume a pre-bundled version.
 
-exports.default = gulp.parallel(build, watch)
+exports.default = gulp.parallel(build, watch, watchExamples)
 exports.js = js
 exports.esm = esm
 exports.build = build
@@ -267,3 +319,4 @@ exports.react = react
 exports.patch = gulp.series(inc('patch'), addBanner, gitTag)    // () => inc('patch')
 exports.feature = gulp.series(inc('minor'), addBanner, gitTag)  // () => inc('minor')
 exports.release = gulp.series(inc('major'), addBanner, gitTag)  // () => inc('major')
+exports.compileAllExamples = compileAllExamples

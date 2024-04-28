@@ -1,0 +1,42 @@
+{% macro section(name, codepen, opts) %}
+{% set assetPath = 'examples/src/' + name + '/' + name %}
+
+<section id='section-{{ name | lower }}'>
+    <aside class='leftSide'>
+        {% if not opts.noHeader %}
+        <header>
+            <h2><a href='#section-{{ name | lower }}'>{{ opts.title | default(name) }}</a></h2>
+        </header>
+        {% endif %}
+
+        {{ caller() }}
+
+        <details>
+            <summary>Code</summary>
+            <h3>HTML</h3>
+            <pre class="language-markup"><code>{% filter escape %}{% include assetPath + '.html' %}{% endfilter %}</code></pre>
+            <h3>JAVASCRIPT</h3>
+            <pre class='language-js'><code>{% include assetPath + '.js' %}</code></pre>
+            {% if opts.withCSS %}
+            <h3>CSS</h3>
+            <style contenteditable>{% include assetPath + '.css' %}</style>
+            {% endif %}
+        </details>
+    </aside>
+
+    <aside class='rightSide'>
+        <a class='demoLink' title='View in Codepen' target='_blank' href='https://codepen.io/vsync/pen/{{ codepen }}'>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+                <use class="logo-use" xlink:href="#codepen-logo"/>
+            </svg>
+        </a>
+        {% include assetPath + '.html' %}
+    </aside>
+
+    <script>
+        (function(){
+        {% include assetPath + '.js' %}
+        })()
+    </script>
+</section>
+{% endmacro %}

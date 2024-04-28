@@ -1,0 +1,312 @@
+<meta charset="utf-8">
+<title>Tagify - Tags input Component</title>
+<meta name="description" content="Converts HTML input/textarea into Tags component">
+<meta name="author" content="Yair Even-Or">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="keywords" content="tag, tags, tagging, tagify, javascript, component, web">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔖</text></svg>">
+<link rel="stylesheet" href="dist/tagify.css">
+<link rel="stylesheet" href="https://unpkg.com/@yaireo/dragsort/dist/dragsort.css" media="print" onload="this.media='all'">
+<style>
+  html, body{ min-height:100%; scroll-behavior: smooth; }
+  body{
+    font:14px Arial;
+    margin:0;
+    overflow-x:hidden;
+  } /* display:flex; flex-flow: column nowrap; align-items:center; justify-content:center; */
+
+  .forkLink{ position:fixed; z-index:100; border:0; top:0; width:70px; right:0; opacity:.8; transition:.15s ease-out; }
+  .forkLink:hover{ opacity:1; }
+  .forkLink img{ width:100%; }
+
+  section{ display:flex; }
+  aside{ padding:4rem; box-sizing:border-box; width:50%; }
+  section > .leftSide{
+    max-width: 700px;
+    border-right: 1px solid #CDE6FF;
+    background:#F5FAFF;
+    font-size: 1.1em;
+  }
+  section > .rightSide{  }
+
+  .leftSide style {
+    display: block;
+    background: #333;
+    color: white;
+    font: 13px/1.8 Monaco, monospace;
+    padding: 1.1em;
+    margin-right: -2rem;
+    white-space: pre;
+    position:relative;
+    border-radius: 5px;
+  }
+
+  style[contenteditable]::before{
+    content: "Editable";
+    position: absolute;
+    top: 2px;
+    right: 8px;
+    color: salmon;
+  }
+
+  .leftSide{ padding-top:0; }
+  .leftSide > header{ padding-top:4rem; position:relative; }
+  .leftSide .demoLink{ float:right; width:38px; transform:translateX(calc(4rem + 50%)) translateY(-1px); position:relative; z-index:5; }
+  .leftSide .demoLink svg{ box-shadow: 0 0 0 3px black inset; border-radius:50%; transition:.12s ease-out; }
+  .leftSide .demoLink:hover svg{ box-shadow: 0 0 0 0 black inset; transform:scale(1.2); }
+  .leftSide > header > h3{ margin-top:.5rem; }
+  .leftSide h2{ color:salmon; text-transform:capitalize; font-size:1.6em; font-size:calc(1.3em + .5vw); line-height:1.2; margin-top:0; margin-bottom:0; }
+  .leftSide h2 > a{
+     color:inherit;
+     text-decoration: none;
+  }
+  .leftSide h2 > a::before{
+      content: '#';
+      position:absolute; color:inherit; opacity:0; font-weight:normal;
+      transform: translatex(-75%);
+      transition: .1s ease-out;
+  }
+  .leftSide h2 > a:hover::before{ opacity:.6; transform:translateX(-150%); }
+
+  .rightSide > .demoLink{
+    position: absolute;
+    left: 0;
+    width: 38px;
+    transform: translateX(-50%);
+  }
+
+  .rightSide .demoLink svg{ box-shadow: 0 0 0 3px black inset; border-radius:50%; transition:.12s ease-out; }
+  .rightSide .demoLink:hover svg{ box-shadow: 0 0 0 0 black inset; transform:scale(1.2); }
+
+  h3{ color:#388ffe; font-size:1.2em; margin:2rem 0 .5em; text-transform:capitalize; }
+  h3:first-child{ margin-top:4.3rem; }
+  xmp, pre{ white-space:normal; padding:8px; background:white; color:navy; border-radius:8px; }
+  pre{ white-space:pre; overflow:auto; border:1px solid #eef5fa; box-shadow:0 8px 15px #388ffe25; }
+
+
+  p{ line-height:1.4; }
+  code{ padding:2px 5px; background:lightyellow; border-radius:8px; }
+  pre code{ background:none; padding:0; }
+
+  body :not(pre)>code[class*=language-], body pre[class*=language-]{ background:white; font-size:12px; margin-right:-2rem; }
+
+  p{ line-height:1.4; }
+  code{ padding:2px 3px; background:lightyellow; }
+  pre code{ background:none; padding:0; }
+  pre[class*=language-]{ max-height:1000px; }
+
+  /* details expander */
+  summary{ outline: none; font-size:1.3em; color: #333; cursor:pointer; margin:1em 0 0 0; user-select:none; transition: .15s ease-out; }
+  details[open] summary{ margin-bottom: 1em; }
+
+  .forkLink{ display:none; position:absolute; top:.7em; right:50%; transform:translateX(50%); }
+  body > header{
+      position: sticky;
+      z-index: 100;
+      top: -1px;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      background:white;
+      border-bottom: 1px solid #DDD;
+      box-shadow: 0 0 6px rgba(0,0,0,.1);
+      padding: .8em 1em .8em 3em;
+  }
+
+  header.isSticky .repoLink{
+    height: 50px;
+    margin: -10px 0 -20px 0;
+    transition: .55s cubic-bezier(.5,0,.5,1.075);
+  }
+
+  header.isSticky .repoLink svg{ filter: none; }
+
+ .repoLink{
+    height: 70px;
+    margin: -10px 0 -30px 0;
+    transform: translateX(calc(50vw - 50%));
+    transition: .2s ease-out;
+ }
+ .repoLink svg{
+    filter: drop-shadow(0px 4px 0px white)
+            drop-shadow(-4px 0px 0px white)
+            drop-shadow(4px 0px 0px white)
+            drop-shadow(0px 3px 1px rgba(0,0,0,.15));
+  }
+  body > header .liveLink{ color:#333; text-decoration:none; font-size:1.4em; position:relative; line-height:1; }
+  body > header .liveLink::before{ content:'✎'; text-decoration:none; transform:translateX(-150%); position:absolute; top:1px; left:0; }
+  body > header .liveLink:hover{ text-decoration: underline; }
+
+  ul > li{
+    margin: .8em 0;
+  }
+</style>
+
+<script>
+    // if IE, add IE tagify's polyfills
+    !function( d ) {
+        if( !d.currentScript ){
+            var s = d.createElement( 'script' );
+            s.src = 'dist/tagify.polyfills.min.js';
+            d.head.appendChild( s );
+        }
+    }(document)
+</script>
+
+<script src="dist/tagify.js"></script>
+<script src="https://unpkg.com/@yaireo/dragsort"></script>
+
+<style>
+    section > .rightSide{
+        position: sticky;
+        top: 0;
+        align-self: start;
+    }
+
+    .tagify{
+        min-width:400px;
+        max-width:600px;
+        margin: 0 0 1em 0;
+    }
+
+    label{ cursor:pointer; }
+    .disabled tags{
+        max-width:none;
+        min-width:0;
+        border:0;
+        display: none;
+    }
+
+    .disabled tags tag,
+    .disabled tags div{ display:none !important; }
+
+    .showOriginal tags + input,
+    .showOriginal tags + textarea{
+        position: initial !important;
+        left: 0 !important;
+        transform: none !important;
+        width:100%; padding:6px; border:2px solid #999;
+        margin-bottom: 1em;
+        border-radius: 5px;
+        background: #F1F1F1;
+    }
+
+    /* .tagify.readonlyMix > tag:not([readonly]) div::before{ background:#d3e2e2; } */
+
+    .tagify__input .borderd-blue > div::before{ border:2px solid #8DAFFA; }
+
+    header label[for="toggle__tagifyStyleSettings"]{
+        margin-left: auto;
+        font-size: 1.5em;
+        line-height: 1;
+        position: relative;
+        animation: 1s settingsIconFrames 3;
+    }
+
+    header label[for="toggle__tagifyStyleSettings"]::before{
+      content: '';
+      position: absolute;
+      z-index: -1;
+      top: -2px;
+      left: 0;
+      width: 100%;
+      height: 120%;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: 1s settingsIconShockwavesFrames 3;
+    }
+
+    @keyframes settingsIconFrames {
+      30%{ transform: scale(1.2);  }
+    }
+
+    @keyframes settingsIconShockwavesFrames {
+      0%{ transform: scale(.6); box-shadow: 0 0 10px 2px red; }
+      90%{ transform: scale(10); box-shadow: 0 0 40px 2px yellow; }
+      100%{ transform: scale(12); opacity:0; }
+    }
+    /*
+    header label[for="toggle__tagifyStyleSettings"]::before{
+      content: "☝";
+      position: absolute;
+      font-size: 3rem;
+      left: -15px;
+      top: .5em;
+      pointer-events: none;
+    }
+    */
+    #toggle__tagifyStyleSettings:checked + .tagifyStyleSettings{
+        transform: none;
+    }
+
+    .tagifyStyleSettings > label[for="toggle__tagifyStyleSettings"]{
+        float: right;
+    }
+
+    .tagifyStyleSettings{
+        position: fixed;
+        z-index: 999;
+        top: 0;
+        right: 0;
+        background: black;
+        padding: 1em;
+        color: white;
+        border-bottom-left-radius: 6px;
+        transform: translatex(100.5%);
+        transition: .45s cubic-bezier(.65,0,.35,1);
+    }
+
+    .tagifyStyleSettings > div{
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+    }
+
+    .tagifyStyleSettings > div > span{
+        flex: 1;
+        margin-right:1em;
+    }
+
+    @media only screen and (max-device-width: 600px){
+        body{
+            font-size: 12px;
+        }
+
+        body > header {
+            position: relative;
+            top: 0;
+            margin-bottom: 3em;
+        }
+
+        section{
+            flex-flow: column-reverse;
+        }
+
+        section > .leftSide{
+            padding: 1.5rem;
+            width: auto;
+        }
+
+        .leftSide > header{
+            padding-top: 0;
+        }
+
+        section > .rightSide{
+            width: 100%;
+            padding: 1.5em;
+            background: white;
+            border-bottom: 1px solid #CDE6FF;
+        }
+
+        .tagify{
+            min-width: auto;
+            width: 100%;
+        }
+
+        .rightSide > .demoLink {
+            display: none;
+        }
+
+    }
+</style>

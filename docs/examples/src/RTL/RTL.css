@@ -1,0 +1,18 @@
+.tagify__dropdown--rtl-example {
+    max-width: none !important;
+}
+
+/* each suggestion item in the dropdown should be rendered as a single line of text */
+.tagify__dropdown--rtl-example .tagify__dropdown__item {
+    white-space: nowrap;
+}
+
+/* just for fun */
+.tagify__dropdown--rtl-example .tagify__dropdown__item > em {
+    font-weight: 700;
+}
+
+/* in this example the tagify itself is narrower than the other examples */
+.tagify--rtl-exmaple {
+    min-width: 300px;
+}
