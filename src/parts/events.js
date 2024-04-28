@@ -275,7 +275,8 @@ export default {
                 isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
                 nextTag;
 
-            if( !this.state.hasFocus && (!isBelong || isReadyOnlyTag) ) return;
+            //if( !isBelong || isReadyOnlyTag ) return;
+            if( !isBelong || isReadyOnlyTag ) return;
 
             nextTag = focusedElm.nextElementSibling;
 
@@ -293,7 +294,7 @@ export default {
                 }
 
                 case 'Enter': {
-                    if( targetIsRemoveBtn ) {
+                    if( targetIsRemoveBtn && this.state.hasFocus) {
                         this.removeTags( e.target.parentNode )
                         return
                     }
