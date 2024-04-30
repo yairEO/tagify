@@ -38,7 +38,7 @@
         "preset": "jest-puppeteer"
     },
     "author": "Yair Even-Or <vsync.design@gmail.com>",
-    "main": "./dist/tagify.min.js",
+    "main": "./dist/tagify.js",
     "exports": {
         ".": {
             "import": "./dist/tagify.esm.js",
