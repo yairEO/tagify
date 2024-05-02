@@ -261,13 +261,13 @@ function compileAllExamples(done) {
         subfolders.forEach(compileExample)
     })
 
-    done && done()
+    typeof done == 'function' && done()
 }
 
 // compiles a specific example demo
 function compileExample(exampleName) {
     gulp.src('docs/examples/src/example-template.html')
-        .pipe($.replace('{{NAME}}', '📌 ' + exampleName))
+        .pipe($.replace('{{NAME}}', exampleName))
         .pipe($.replace(/<!--\s*include:(.*?)\s*-->/g, (match, type) => {
             try {
                 // Read the contents of the file specified in the comment
