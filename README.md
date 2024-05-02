@@ -996,7 +996,7 @@ Name                       | Parameters                                         
 To listen to `tagify` events use the `.on(EVENT_NAME, EVENT_CALLBACK_REFERENCE)` method and stop listening use the `.off(EVENT_NAME, EVENT_CALLBACK_REFERENCE)`
 
 All triggered events return the instance's scope (tagify).<br>
-See `e.detail` for custom event additional data.
+See `e.detail` for custom-event additional data.
 
 <details>
   <summary>Example 1</summary>
