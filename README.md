@@ -29,9 +29,9 @@
 
 <p align="center">
     <a href="https://yaireo.github.io/tagify/#section-mix">
-        <img src="/docs/mix3.gif?sanitize=true" /> 
+        <img src="/docs/mix3.gif?sanitize=true" />
     </a>
-   <a href="https://yaireo.github.io/tagify/#users-list"> 
+   <a href="https://yaireo.github.io/tagify/#users-list">
       <img src="/docs/demo2.apng?sanitize=true" />
     </a>
 </p>
@@ -993,7 +993,7 @@ Name                       | Parameters                                         
 
 ## Events
 
-To listen to `tagify` events use the `.on(EVENT_NAME, EVENT_CALLBACK_REFERENCE)` mehotd and stop listening use the `.off(EVENT_NAME, EVENT_CALLBACK_REFERENCE)`
+To listen to `tagify` events use the `.on(EVENT_NAME, EVENT_CALLBACK_REFERENCE)` method and stop listening use the `.off(EVENT_NAME, EVENT_CALLBACK_REFERENCE)`
 
 All triggered events return the instance's scope (tagify).<br>
 See `e.detail` for custom event additional data.
