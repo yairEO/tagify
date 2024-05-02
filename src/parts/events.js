@@ -306,7 +306,7 @@ export default {
 
                 case 'ArrowDown' : {
                     // if( _s.mode == 'select' ) // issue #333
-                    if( !this.state.dropdown.visible )
+                    if( !this.state.dropdown.visible && _s.mode != 'mix' )
                         this.dropdown.show()
                     break;
                 }
