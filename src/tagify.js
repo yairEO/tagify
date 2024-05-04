@@ -636,7 +636,7 @@ Tagify.prototype = {
 
             if( _s.a11y.focusableTags )
                 tagElm.focus()
-            else
+            else if( _s.mode != 'select' )
                 // place caret after edited tag
                 placeCaretAfterNode(tagElm)
         }
