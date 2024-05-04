@@ -754,7 +754,7 @@ export default {
             if (e.target != this.DOM.scope && !this.DOM.scope.contains(e.target)) {
                 this.toggleFocusClass(false)
                 this.state.hasFocus = false
-                !this.settings.userInput && this.dropdown.hide()
+                this.dropdown.hide()
             }
         },
 
