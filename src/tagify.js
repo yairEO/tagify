@@ -555,7 +555,7 @@ Tagify.prototype = {
         this.trigger("edit:start", { tag:tagElm, index:tagIdx, data:tagData, isValid })
 
         editableElm.focus()
-        this.setRangeAtStartEnd(false, editableElm) // place the caret at the END of the editable tag text
+        !isSelectMode && this.setRangeAtStartEnd(false, editableElm) // place the caret at the END of the editable tag text
 
         _s.dropdown.enabled === 0 && !isSelectMode && this.dropdown.show()
         this.state.hasFocus = true
