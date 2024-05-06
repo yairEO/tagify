@@ -1058,7 +1058,9 @@ Tagify.prototype = {
                     var itemCopy = extend({}, item)
                     itemCopy[tagTextProp] = this.trim(itemCopy[tagTextProp])
 
-                    acc.push(itemCopy) // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
+                    // discard empty tags
+                    if( itemCopy[tagTextProp] )
+                        acc.push(itemCopy) // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
                 }
 
                 else {
