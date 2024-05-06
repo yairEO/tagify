@@ -1759,6 +1759,7 @@ Tagify.prototype = {
         const UPDATE_DELAY = 100
         clearTimeout(this.debouncedUpdateTimeout)
         this.debouncedUpdateTimeout = setTimeout(reallyUpdate.bind(this), UPDATE_DELAY)
+        this.events.bindOriginaInputListener.call(this, UPDATE_DELAY)
 
         function reallyUpdate() {
             var inputValue = this.getInputValue();

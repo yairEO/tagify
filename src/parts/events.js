@@ -77,11 +77,6 @@ export default {
             _CBR[eventName] && this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
         }
 
-        // listen to original input changes (unfortunetly this is the best way...)
-        // https://stackoverflow.com/a/1949416/104380
-        clearInterval(this.listeners.main.originalInputValueObserverInterval)
-        this.listeners.main.originalInputValueObserverInterval = setInterval(_CB.observeOriginalInputValue.bind(this), 500)
-
         // observers
         var inputMutationObserver = this.listeners.main.inputMutationObserver || new MutationObserver(_CB.onInputDOMChange.bind(this));
 
@@ -92,6 +87,18 @@ export default {
         if( _s.mode == 'mix' ) {
             inputMutationObserver.observe(this.DOM.input, {childList:true})
         }
+
+        this.events.bindOriginaInputListener.call(this)
+    },
+
+    bindOriginaInputListener(delay) {
+        const DELAY = (delay||0) + 500
+
+        if(!this.listeners.main) return
+        // listen to original input changes (unfortunetly this is the best way...)
+        // https://stackoverflow.com/a/1949416/104380
+        clearInterval(this.listeners.main.originalInputValueObserverInterval)
+        this.listeners.main.originalInputValueObserverInterval = setInterval(this.events.callbacks.observeOriginalInputValue.bind(this), DELAY)
     },
 
     bindGlobal( unbind ) {
