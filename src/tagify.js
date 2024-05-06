@@ -1053,10 +1053,20 @@ Tagify.prototype = {
         // if is an Array of Strings, convert to an Array of Objects
         else if( isArray ){
             // flatten the 2D array
-            tagsItems = [].concat(...tagsItems.filter(n => n).map(item => item.value != undefined
-                ? item // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
-                : mapStringToCollection(item)
-            ))
+            tagsItems = tagsItems.reduce((acc, item) => {
+                if('value' in item) {
+                    var itemCopy = extend({}, item)
+                    itemCopy[tagTextProp] = this.trim(itemCopy[tagTextProp])
+
+                    acc.push(itemCopy) // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
+                }
+
+                else {
+                    acc.push( mapStringToCollection(item) )
+                }
+
+                return acc
+            }, [])
         }
 
         // search if the tag exists in the whitelist as an Object (has props),
