@@ -1037,7 +1037,7 @@ Tagify.prototype = {
             // checks if this is a "collection", meanning an Array of Objects
             isArray = Array.isArray(tagsItems),
             isCollection = isArray && tagsItems[0].value,
-            mapStringToCollection = s => (s+"").split(delimiters).filter(n => n).map(v => ({ [tagTextProp]:this.trim(v), value:this.trim(v) }))
+            mapStringToCollection = s => (s+"").split(delimiters).map(v => ({ [tagTextProp]:this.trim(v), value:this.trim(v) }))
 
         if( typeof tagsItems == 'number' )
             tagsItems = tagsItems.toString()
@@ -1053,7 +1053,7 @@ Tagify.prototype = {
         // if is an Array of Strings, convert to an Array of Objects
         else if( isArray ){
             // flatten the 2D array
-            tagsItems = [].concat(...tagsItems.map(item => item.value != undefined
+            tagsItems = [].concat(...tagsItems.filter(n => n).map(item => item.value != undefined
                 ? item // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
                 : mapStringToCollection(item)
             ))
