@@ -1054,7 +1054,7 @@ Tagify.prototype = {
         else if( isArray ){
             // flatten the 2D array
             tagsItems = tagsItems.reduce((acc, item) => {
-                if('value' in item) {
+                if(item.value) {
                     var itemCopy = extend({}, item)
                     itemCopy[tagTextProp] = this.trim(itemCopy[tagTextProp])
 
@@ -1063,7 +1063,7 @@ Tagify.prototype = {
                         acc.push(itemCopy) // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
                 }
 
-                else {
+                else if(item) {
                     acc.push( mapStringToCollection(item) )
                 }
 
