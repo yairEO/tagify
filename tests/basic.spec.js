@@ -28,12 +28,6 @@ const getPageDOM = async (page) => {
     DOM.origInput = await page.locator('input[value]')
 }
 
-test.beforeEach(async ({ page }) => {
-    await page.goto('file:///C:/Users/vsync/projects/tagify/docs/examples/src/example-template.html')
-    await loadHTML_basic(page)
-    await getPageDOM(page)
-})
-
 //////////////////////////////////////////////////////////////////////
 // tests helpers
 
@@ -58,6 +52,12 @@ async function assertHasTags(page, ...expectedTags) {
 // actual tests
 
 test.describe('basic', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('file:///C:/Users/vsync/projects/tagify/docs/examples/src/example-template.html')
+        await loadHTML_basic(page)
+        await getPageDOM(page)
+    })
+
     test('should recieve focus via `autofocus` input attribute', async ({ page }) => {
         // Assertion 2: Check 'autofocus' presence
         await expect(DOM.origInput).toHaveAttribute('autofocus', '')
