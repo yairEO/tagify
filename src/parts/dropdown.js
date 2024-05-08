@@ -11,6 +11,7 @@ export function initDropdown(){
             : this._dropdown[p]
 
     this.dropdown.refs()
+    this.DOM.dropdown.__tagify = this
 }
 
 export default {
