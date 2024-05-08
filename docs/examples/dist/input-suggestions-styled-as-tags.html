@@ -20,16 +20,25 @@
         <style>
           html, body{ min-height:100%; scroll-behavior: smooth; }
           body{
-            font:14px Arial;
-            margin:0;
-            overflow-x:hidden;
+            font: 14px Arial;
+            margin: 0;
+            overflow-x: hidden;
+            height: 100vh;
+            display: grid;
+            place-items: center;
           }
 
-          tags + input, tags + textarea {
-            position: initial !important;
-            left: 0 !important;
+          .tagify {
+            min-width: 300px;
+            max-width: 500px;
+          }
+
+          .tagify + input, .tagify + textarea {
+            position: fixed !important;
+            bottom: 10px;
+            left: 10px !important;
+            right: 10px;
             transform: none !important;
-            width: 100%;
             padding: 6px;
             border: 2px solid #999;
             margin-bottom: 1em;
