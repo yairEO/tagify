@@ -161,15 +161,13 @@ export default {
             // and not the X button or any other custom element thatmight be there
             var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
 
-            if( nodeTag && isFocused && !targetIsTagNode) {
+            if( nodeTag && isFocused && (!targetIsTagNode)) {
                 this.toggleFocusClass(this.state.hasFocus = +new Date())
 
                 // only if focused within a tag's text node should the `onEditTagFocus` function be called.
                 // if clicked anywhere else inside a tag, which had triggered an `focusin` event,
                 // the onFocusBlur should be aborted. This part was spcifically written for `select` mode.
-                return tagTextNode
-                    ? this.events.callbacks.onEditTagFocus.call(this, nodeTag)
-                    : undefined
+                // tagTextNode && this.events.callbacks.onEditTagFocus.call(this, nodeTag)
             }
 
             var _s = this.settings,
@@ -1068,8 +1066,10 @@ export default {
             isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing)
             isReadyOnlyTag = tagElm.hasAttribute('readonly')
 
-            if( !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags && _s.userInput )
+            if( !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags && _s.userInput ) {
+                this.events.callbacks.onEditTagFocus.call(this, tagElm)
                 this.editTag(tagElm)
+            }
 
             this.toggleFocusClass(true)
 
