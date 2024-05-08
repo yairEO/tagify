@@ -244,6 +244,7 @@
 
 
                 &[contenteditable]{
+                    display: block; // solves similar issue to this: https://stackoverflow.com/q/34354085/104380 (but with <span> because of its default `inline-block` display)
                     outline: none;
                     user-select: text;
                     cursor: text;
