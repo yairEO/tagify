@@ -1054,8 +1054,7 @@ Tagify.prototype = {
         else if( isArray ){
             // flatten the 2D array
             tagsItems = tagsItems.reduce((acc, item) => {
-                // if "item.value" exists and is a string (which means item is an object)
-                if(typeof item.value == 'string') {
+                if( isObject(item) ) {
                     var itemCopy = extend({}, item)
                     itemCopy[tagTextProp] = this.trim(itemCopy[tagTextProp])
 
