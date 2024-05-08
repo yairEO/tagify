@@ -759,7 +759,10 @@ export default {
             if (e.target != this.DOM.scope && !this.DOM.scope.contains(e.target)) {
                 this.toggleFocusClass(false)
                 this.state.hasFocus = false
-                this.dropdown.hide()
+
+                // do not hide the dropdown if a click was initiated within it and that dropdown belongs to this Tagify instance
+                if( e.target.closest('.tagify__dropdown') && e.target.closest('.tagify__dropdown').__tagify != this )
+                    this.dropdown.hide()
             }
         },
 
