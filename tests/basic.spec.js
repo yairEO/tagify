@@ -32,7 +32,7 @@ const getPageDOM = async (page) => {
 // tests helpers
 
 async function assertHasTags(page, ...expectedTags) {
-    const tagChildren = page.locator('tags > tag');
+    const tagChildren = await page.locator('tags > tag');
 
     // Assert total tag count
     await expect(tagChildren).toHaveCount(expectedTags.length);
@@ -92,6 +92,14 @@ test.describe('basic', () => {
             await assertHasTags(page, 'tag1', 'tag2', newTagValue)
         })
 
+
+        test('should add multiple tags by typeing and pressing ENTER key', async ({ page }) => {
+            await DOM.tagify.getByRole('textbox').click()
+            await DOM.tagify.getByRole('textbox').fill('foo, bar')
+
+            await assertHasTags(page, 'tag1', 'tag2', 'foo', 'bar')
+        })
+
         test('should add tag by typeing and blur out', async ({ page }) => {
             const newTagValue = 'foo'
 
@@ -100,6 +108,30 @@ test.describe('basic', () => {
             await DOM.tagify.getByRole('textbox').blur()
 
             await assertHasTags(page, 'tag1', 'tag2', newTagValue)
+        })
+
+        test('should trim text input when creating a tag', async ({ page }) => {
+            await DOM.tagify.getByRole('textbox').click()
+            await DOM.tagify.getByRole('textbox').fill(' foo   ')
+            await page.keyboard.press('Enter')
+
+            await assertHasTags(page, 'tag1', 'tag2', 'foo')
+        })
+
+        test('should not add tags if delimiters key was clicked in an empty input', async ({ page }) => {
+            await DOM.tagify.getByRole('textbox').click()
+            await DOM.tagify.getByRole('textbox').fill(',')
+            await page.keyboard.press('Enter')
+
+            await assertHasTags(page, 'tag1', 'tag2')
+        })
+
+        test('should not add tags if delimiters key was clicked in an input with whitespaces', async ({ page }) => {
+            await DOM.tagify.getByRole('textbox').click()
+            await DOM.tagify.getByRole('textbox').fill('   ,')
+            await page.keyboard.press('Enter')
+
+            await assertHasTags(page, 'tag1', 'tag2')
         })
 
         test.describe('addTags()', () => {
