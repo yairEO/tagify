@@ -1037,7 +1037,11 @@ Tagify.prototype = {
             // checks if this is a "collection", meanning an Array of Objects
             isArray = Array.isArray(tagsItems),
             isCollection = isArray && tagsItems[0].value,
-            mapStringToCollection = s => (s+"").split(delimiters).map(v => ({ [tagTextProp]:this.trim(v), value:this.trim(v) }))
+            mapStringToCollection = s => (s+"").split(delimiters).reduce((acc, v) => {
+                const trimmed = this.trim(v)
+                trimmed && acc.push({ [tagTextProp]:trimmed, value:trimmed })
+                return acc
+            }, [])
 
         if( typeof tagsItems == 'number' )
             tagsItems = tagsItems.toString()
