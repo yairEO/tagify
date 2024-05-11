@@ -440,10 +440,6 @@
               // disabled the below rule for the above reason:
               //  display: flex; // https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
             }
-
-            &::before{
-                position: static;
-            }
         }
 
         &:focus{
@@ -602,6 +598,7 @@
         #{ $self }__input{
             &::before{
                 @include placeholder;
+                // position: static;
                 display: inline-block;
                 width: auto;
 
