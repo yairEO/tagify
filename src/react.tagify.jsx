@@ -1,3 +1,5 @@
+'use client';
+
 import React, {useMemo, useEffect, useRef, useCallback} from "react"
 import {renderToStaticMarkup} from "react-dom/server"
 import {string, array, func, bool, object, oneOfType} from "prop-types"
