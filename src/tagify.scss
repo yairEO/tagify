@@ -220,6 +220,7 @@
         transition   : .13s ease-out;
 
         > div{  // :not([contenteditable])
+            display        : flex;
             flex           : 1;
             vertical-align : top;
             box-sizing     : border-box;
@@ -481,7 +482,6 @@
         &::before{
             content: attr(data-placeholder);
             height: 1em;
-            line-height: 1em;
             margin: auto 0;
             z-index: 1;
             color: var(--placeholder-color);
