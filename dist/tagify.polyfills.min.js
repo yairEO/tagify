@@ -1,5 +1,5 @@
 /*
-Tagify v4.26.4 - tags input component
+Tagify v4.26.5 - tags input component
 By: Yair Even-Or <vsync.design@gmail.com>
 https://github.com/yairEO/tagify
 
