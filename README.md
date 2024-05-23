@@ -102,7 +102,7 @@ npm i @yaireo/tagify --save
 
 ## Basic Usage Examples
 
-- Many demos with code examples can be [seen here](yaireo.github.io/tagify/)
+- Many demos with code examples can be [seen here](https://yaireo.github.io/tagify/)
 - [CodeSandbox live demo](https://codesandbox.io/s/simple-tagify-setup-6pfi2)
 
 
