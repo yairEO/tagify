@@ -87,7 +87,7 @@ export default {
                                 let shouldAutocompleteOnKey = !_s.autoComplete.rightKey || !_s.autoComplete.tabKey
 
                                 // in mix-mode, treat arrowRight like Enter key, so a tag will be created
-                                if( !isMixMode && !isSelectMode && selectedElm && shouldAutocompleteOnKey && !this.state.editing ){
+                                if( !isMixMode && !isSelectMode && selectedElm && shouldAutocompleteOnKey && !this.state.editing && selectedElmData ){
                                     e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
                                     var value = this.dropdown.getMappedValue(selectedElmData)
 
@@ -196,8 +196,14 @@ export default {
      * @returns Object
      */
     getSuggestionDataByNode( tagElm ){
-        var value = tagElm && tagElm.getAttribute('value')
-        return this.suggestedListItems.find(item => item.value == value) || null
+        var item, value = tagElm && tagElm.getAttribute('value')
+
+        for(var i = this.suggestedListItems.length; i--; ) {
+            item = this.suggestedListItems[i]
+            if( isObject(item) && item.value == value ) return item
+            // for primitive whitelist items:
+            else if( item == value ) return {value: item}
+        }
     },
 
     getNextOrPrevOption(selected, next = true) {
