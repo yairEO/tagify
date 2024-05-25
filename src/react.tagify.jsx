@@ -24,6 +24,18 @@ function templatesToString(templates) {
     }
 }
 
+// used for `className` prop changes
+function compareStrings(str1, str2) {
+    if( typeof str1 != typeof str2) return;
+    const words1 = str1.split(' ');
+    const words2 = str2.split(' ');
+
+    const added = words2.filter(word => !words1.includes(word));
+    const removed = words1.filter(word => !words2.includes(word));
+
+    return { added, removed };
+  }
+
 const TagifyWrapper = ({
     name,
     value,
@@ -65,6 +77,7 @@ const TagifyWrapper = ({
     const mountedRef = useRef()
     const inputElmRef = useRef()
     const tagify = useRef()
+    const lastClassNameRef = useRef()
     const _value = defaultValue || value
 
     const inputAttrs = useMemo(() => ({
@@ -159,8 +172,16 @@ const TagifyWrapper = ({
 
     useEffect(() => {
         if (mountedRef.current) {
-            tagify.current.toggleClass(className)
+            // compare last `className` prop with current `className` prop and find
+            // which clases should be added and which should be removed:
+            const { added, removed } = compareStrings(lastClassNameRef.current, className);
+
+            added.filter(String).forEach(cls => tagify.current.toggleClass(cls, true))
+            removed.filter(String).forEach(cls => tagify.current.toggleClass(cls, false))
+
         }
+        // save current `className` prop for next change iteration
+        lastClassNameRef.current = className
     }, [className])
 
     useEffect(() => {
