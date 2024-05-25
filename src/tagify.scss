@@ -434,6 +434,7 @@
         white-space: pre-wrap; // #160 Line break (\n) as delimeter
         color: var(--input-color);
         box-sizing: inherit;
+        overflow: hidden;
 
         &:empty{
             @include firefox {
@@ -481,14 +482,18 @@
 
         &::before{
             content: attr(data-placeholder);
-            height: 1em;
+            width: 100%;
+            height: 100%;
             margin: auto 0;
             z-index: 1;
             color: var(--placeholder-color);
             white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
             pointer-events: none;
             opacity: 0;
             position: absolute;
+
         }
         /* Seems firefox newer versions don't need this any more
         @supports ( -moz-appearance:none ){
