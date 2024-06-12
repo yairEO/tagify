@@ -1287,7 +1287,12 @@ Tagify.prototype = {
         if( isValid && isValid === true ){
             // update state
             this.value.push(tagData)
-            this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
+
+            // adding a timeout because the tag node is yet to be injected into the DOM and the `add` callback should only be calloned once the node is in the DOM.
+            // the reason is that the tag nodes are first places inside a fragment and once iteration is done, that fragment is placed in the DOM
+            setTimeout(() => {
+                this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
+            });
         }
         else{
             this.trigger('invalid', {data:tagData, index:this.value.length, tag:tagElm, message:isValid})
