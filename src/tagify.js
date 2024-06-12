@@ -714,18 +714,23 @@ Tagify.prototype = {
      * @type {Object}
      */
     input : {
-        set( s = '', updateDOM = true ){
-            var hideDropdown = this.settings.dropdown.closeOnSelect
-            this.state.inputText = s
+        set( value = '', updateDOM = true ){
+            var _s = this.settings,
+                hideDropdown = _s.dropdown.closeOnSelect
 
-            if( updateDOM )
-                this.DOM.input.innerHTML = escapeHTML(""+s);
+            this.state.inputText = value
 
-            if( !s && hideDropdown )
+            if( updateDOM ) {
+                this.DOM.input.innerHTML = escapeHTML(""+value);
+                value && this.toggleClass(_s.classNames.empty, !this.DOM.input.innerHTML) // remove the "empty" (is exists) class only if a value was added
+            }
+
+            if( !value && hideDropdown )
                 this.dropdown.hide.bind(this)
 
             this.input.autocomplete.suggest.call(this);
             this.input.validate.call(this);
+
         },
 
         raw(){
