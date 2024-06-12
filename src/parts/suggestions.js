@@ -374,7 +374,7 @@ export default {
             : value);
 
         if( !value || !searchKeys.length ){
-            list = _sd.includeSelectedTags
+            list = _sd.includeSelectedTags || _s.mode == 'select'
                 ? whitelist
                 : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
 
