@@ -28,6 +28,14 @@ var input = document.querySelector('input.advance-options'),
         }
     })
 
+tagify.on('change', updatePlaceholderByTagsCount);
+
+function updatePlaceholderByTagsCount() {
+    tagify.setPlaceholder(`${tagify.value.length || 'no'} tags added`)
+}
+
+updatePlaceholderByTagsCount()
+
 // generate a random color (in HSL format, which I like to use)
 function getRandomColor(){
     function rand(min, max) {
