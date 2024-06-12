@@ -81,7 +81,9 @@ export default {
                                 break;
 
                             case 'ArrowRight' :
-                                if( this.state.actions.ArrowLeft )
+                                // do not continue if the left arrow key was pressed while typing, because assuming the user wants to bypass any of the below logic and edit the content without intervention.
+                                // also do not procceed if a tag should be created when the setting `autoComplete.rightKey` is set to `true`
+                                if( this.state.actions.ArrowLeft || _s.autoComplete.rightKey )
                                     return
                             case 'Tab' : {
                                 let shouldAutocompleteOnKey = !_s.autoComplete.rightKey || !_s.autoComplete.tabKey
