@@ -1060,6 +1060,11 @@ Tagify.prototype = {
             tagsItems = tagsItems.reduce((acc, item) => {
                 if( isObject(item) ) {
                     var itemCopy = extend({}, item)
+
+                    // iuf 'tagTextProp' property does not exist in the item, use `value` instead
+                    if(!(tagTextProp in itemCopy))
+                        tagTextProp = 'value'
+
                     itemCopy[tagTextProp] = this.trim(itemCopy[tagTextProp])
 
                     // discard empty tags
