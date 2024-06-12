@@ -159,7 +159,7 @@ export default {
 
             // when focusing within a tag which is in edit-mode, only and specifically on the text-part of the tag node
             // and not the X button or any other custom element thatmight be there
-            var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
+            // var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
 
             if( nodeTag && isFocused && (!targetIsTagNode)) {
                 this.toggleFocusClass(this.state.hasFocus = +new Date())
@@ -187,7 +187,7 @@ export default {
                 }
 
                 this.postUpdate()
-                // _s.onChangeAfterBlur && this.triggerChangeEvent()
+                _s.onChangeAfterBlur && this.triggerChangeEvent()
             }
 
             if( isTargetSelectOption || isTargetAddNewBtn )
