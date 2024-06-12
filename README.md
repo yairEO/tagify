@@ -976,7 +976,8 @@ Name                       | Parameters                                         
 `tagLoading`               | `HTMLElement`, `Boolean`                                                                | same as above but for a specific tag element
 `createTagElem`            | `Object` <sub>(`tagData`)</sub>                                                         | Returns a tag element from the supplied tag data
 `injectAtCaret`            | `HTMLElement` <sub>(`injectedNode`)</sub>, `Object` <sub>(`range`)</sub>                | Injects text or HTML node at last caret position. `range` parameter is *optional*
-`placeCaretAfterNode`      | `HTMLElement`                                                             | Places the caret after a given node
+`placeCaretAfterNode`      | `HTMLElement`                                                                           | Places the caret after a given node
+`setRangeAtStartEnd`       | `Boolean`, `HTMLElement`                                                                | Places the caret at the start or the end of a node.
 `insertAfterTag`           | `HTMLElement` <sub>(tag element)</sub>, `HTMLElement`/`String` <sub>(whatever to insert after)</sub> |
 `toggleClass`              | `Boolean`                                                                               | Toggles `class` on the main *tagify* container (`scope`)
 `dropdown.selectAll`       |                                                                                         | Add **all** whitelist items as tags and close the suggestion dropdown
@@ -990,6 +991,7 @@ Name                       | Parameters                                         
 `getPersistedData`         | `String`                                                                                | Get data for the specific instance by parameter
 `setPersistedData`         | `*`, `String`                                                                           | Set data for the specific instance. Must supply a second parameter which will be the key to save the data in the localstorage (under the tagify namespace)
 `clearPersistedData`       | `String`                                                                                | Clears data for the specific instance, by parameter. If the parameter is ommited, clears all persisted data related to this instance (by its `id` which was set in the instance's settings)
+`setPlaceholder`           | `String`                                                                                | Sets the placeholder's value. [See demo](https://yaireo.github.io/tagify/#section-advance-options)
 
 ## Events
 
