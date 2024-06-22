@@ -67,7 +67,7 @@ export default {
 
     dropdownItem(item){
         return `<div ${this.getAttributes(item)}
-                    class='${this.settings.classNames.dropdownItem} ${item.class || ""}'
+                    class='${this.settings.classNames.dropdownItem} ${this.isTagDuplicate(item.value) ? this.settings.classNames.dropdownItemSelected: ""} ${item.class || ""}'
                     tabindex="0"
                     role="option">${item.mappedValue || item.value}</div>`
     },

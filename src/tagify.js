@@ -870,12 +870,7 @@ Tagify.prototype = {
      * @return {Number}
      */
     isTagDuplicate( value, caseSensitive, tagId ){
-        var dupsCount = 0,
-            _s = this.settings;
-
-        // duplications are irrelevant for this scenario
-        if( _s.mode == 'select' )
-            return false
+        var dupsCount = 0;
 
         for( let item of this.value ) {
             let isSameStr = sameStr( this.trim(""+value), item.value, caseSensitive );
@@ -1424,8 +1419,8 @@ Tagify.prototype = {
             this.setRangeAtStartEnd(false, this.DOM.input)
         }
 
-        // refilter only if the dropdown is currently visible to hydrate the list
-        _s.dropdown.enabled && this.dropdown.refilter()
+        // refilter hydrate the list
+        this.dropdown.refilter()
         return tagElems
     },
 
