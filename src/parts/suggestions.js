@@ -361,6 +361,7 @@ export default {
             exactMatchesList = [],
             whitelist = _s.whitelist,
             suggestionsCount = _sd.maxItems >= 0 ? _sd.maxItems : Infinity,
+            includeSelectedTags = _sd.includeSelectedTags || _s.mode == 'select',
             searchKeys = _sd.searchKeys,
             whitelistItem,
             valueIsInWhitelist,
@@ -374,7 +375,7 @@ export default {
             : value);
 
         if( !value || !searchKeys.length ){
-            list = _sd.includeSelectedTags || _s.mode == 'select'
+            list = includeSelectedTags
                 ? whitelist
                 : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
 
