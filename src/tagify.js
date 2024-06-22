@@ -1424,6 +1424,7 @@ Tagify.prototype = {
             this.setRangeAtStartEnd(false, this.DOM.input)
         }
 
+        // refilter only if the dropdown is currently visible to hydrate the list
         _s.dropdown.enabled && this.dropdown.refilter()
         return tagElems
     },
