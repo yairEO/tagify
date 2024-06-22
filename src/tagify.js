@@ -679,8 +679,12 @@ Tagify.prototype = {
     updateValueByDOMTags(){
         this.value.length = 0;
 
+        var clsNames = this.settings.classNames,
+            tagNotAllowedClassName = clsNames.tagNotAllowed.split(' ')[0],
+            skipNodesWithClassNames = [tagNotAllowedClassName, clsNames.tagHide];
+
         [].forEach.call(this.getTagElms(), node => {
-            if( node.classList.contains(this.settings.classNames.tagNotAllowed.split(' ')[0]) ) return
+            if ([...node.classList].some(cls => skipNodesWithClassNames.includes(cls))) return;
             this.value.push( getSetTagData(node) )
         })
 
