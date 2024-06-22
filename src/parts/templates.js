@@ -25,6 +25,9 @@ export default {
         return `<span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${placeholder}" aria-placeholder="${_s.placeholder || ''}"
                     class="${_s.classNames.input}"
                     role="textbox"
+                    autocapitalize="false"
+                    autocorrect="off"
+                    spellcheck="false"
                     aria-autocomplete="both"
                     aria-multiline="${_s.mode=='mix'?true:false}"></span>`
     },
@@ -32,6 +35,8 @@ export default {
     tag(tagData, {settings: _s}){
         return `<tag title="${(tagData.title || tagData.value)}"
                     contenteditable='false'
+                    autocapitalize="false"
+                    autocorrect="off"
                     spellcheck='false'
                     tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
                     class="${_s.classNames.tag} ${tagData.class || ""}"
