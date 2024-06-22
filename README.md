@@ -938,8 +938,9 @@ should be appiled on the `:root {...}` selector
 
 Name                              | Info
 --------------------------------- | --------------------------------
---tagify-dd-color-primary         | The suggestion's dropdown background color
---tagify-dd-bg-color              | Sugegstion's background color on hover
+--tagify-dd-color-primary         | Sugegstion's background color on hover
+--tagify-dd-text-color            | Sugegstion's text color
+--tagify-dd-bg-color              | The suggestion's dropdown background color
 --tagify-dd-item--hidden-duration | When selecting a suggestion, this is the duration for it to become hidden (shrink)
 --tagify-dd-item-pad              | Suggestion item padding
 --tagify-dd-max-height            | Maximum height of the suggestions dropdown (`300px` by default)

@@ -2,7 +2,9 @@
 
 // The suggestions list (dropdown) is appended to the document's body so the CSS variables should be defined at root-level
 :root {
+
     --tagify-dd-color-primary: rgb(53,149,246); // should be same as "$tags-focus-border-color"
+    --tagify-dd-text-color: black;
     --tagify-dd-bg-color: white;
     --tagify-dd-item-pad: .3em .5em; // should be same as $tag-pad (below)
     --tagify-dd-max-height: 300px;
@@ -664,6 +666,7 @@
             max-height: var(--tagify-dd-max-height);
             overflow: hidden;
             overflow-x: hidden;
+            color: var(--tagify-dd-text-color);
             background: var(--tagify-dd-bg-color);
             border: 1px solid;
             border-color: var(--tagify-dd-color-primary);
@@ -719,6 +722,7 @@
             max-height: 60px;
             max-width: 100%;
             line-height: normal;
+            position: relative;
 
             &--active{
                 background: var(--tagify-dd-color-primary);
@@ -745,6 +749,21 @@
                     transition: inherit;
                 }
             }
+
+            &--selected{
+                &::before{
+                    content: "✓"; // checkmark
+                    font-family: monospace;
+                    position: absolute;
+                    inset-inline-start: 6px;
+                    text-indent: 0;
+                    line-height: 1.1;
+                }
+            }
+        }
+
+        &:has(.tagify__dropdown__item--selected) .tagify__dropdown__item {
+            text-indent: 1em;
         }
     }
 }
