@@ -152,8 +152,10 @@ export default {
     callbacks : {
         onFocusBlur(e){
             // when focusing within a tag which is in edit-mode
-            var nodeTag = isWithinNodeTag.call(this, e.target),
+            var _s = this.settings,
+                nodeTag = isWithinNodeTag.call(this, e.target),
                 targetIsTagNode = isNodeTag.call(this, e.target),
+                isTargetXBtn = e.target.classList.contains(_s.classNames.tagX),
                 isFocused = e.type == 'focusin',
                 lostFocus = e.type == 'focusout';
 
@@ -161,7 +163,7 @@ export default {
             // and not the X button or any other custom element thatmight be there
             // var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
 
-            if( nodeTag && isFocused && (!targetIsTagNode)) {
+            if( nodeTag && isFocused && (!targetIsTagNode) && !isTargetXBtn) {
                 this.toggleFocusClass(this.state.hasFocus = +new Date())
 
                 // only if focused within a tag's text node should the `onEditTagFocus` function be called.
@@ -170,8 +172,7 @@ export default {
                 // tagTextNode && this.events.callbacks.onEditTagFocus.call(this, nodeTag)
             }
 
-            var _s = this.settings,
-                text = e.target ? this.trim(this.DOM.input.textContent) : '', // a string
+            var text = e.target ? this.trim(this.DOM.input.textContent) : '', // a string
                 currentDisplayValue = this.value?.[0]?.[_s.tagTextProp],
                 ddEnabled = _s.dropdown.enabled >= 0,
                 eventData = {relatedTarget:e.relatedTarget},
@@ -190,7 +191,7 @@ export default {
                 _s.onChangeAfterBlur && this.triggerChangeEvent()
             }
 
-            if( isTargetSelectOption || isTargetAddNewBtn )
+            if( isTargetSelectOption || isTargetAddNewBtn || isTargetXBtn )
                 return;
 
             // should only loose focus at this point if the event was not generated from within a tag, within the component
