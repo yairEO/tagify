@@ -207,10 +207,9 @@ export default {
         // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
         var ddHeight = getNodeHeight(this.DOM.dropdown),
             _s = this.settings,
-            enabled = typeof _s.dropdown.enabled == 'number' && _s.dropdown.enabled >= 0,
             appendTarget = this.dropdown.getAppendTarget();
 
-        if( !enabled ) return this;
+        if( !_s.dropdown.enabled ) return this;
 
         this.DOM.scope.setAttribute("aria-expanded", true)
 
