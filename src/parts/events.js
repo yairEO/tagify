@@ -1,8 +1,6 @@
 import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, isWithinNodeTag, injectAtCaret, getSetTagData, fixCaretBetweenTags, placeCaretAfterNode } from './helpers'
 import {ZERO_WIDTH_CHAR} from './constants'
 
-var deleteBackspaceTimeout;
-
 export function triggerChangeEvent(){
     if( this.settings.mixMode.integrated ) return;
 
@@ -452,49 +450,6 @@ export default {
                                 }
                                 */
 
-                                clearTimeout(deleteBackspaceTimeout)
-                                // a minimum delay is needed before the node actually gets detached from the document (don't know why),
-                                // to know exactly which tag was deleted. This is the easiest way of knowing besides using MutationObserver
-                                deleteBackspaceTimeout = setTimeout(() => {
-                                    var sel = document.getSelection(),
-                                        currentValue = decode(this.DOM.input.innerHTML),
-                                        prevElm = !deleteKeyTagDetected && sel.anchorNode.previousSibling;
-
-                                    // fixes #384, where the first and only tag will not get removed with backspace
-                                    /*
-                                    * [UPDATE DEC 3, 22] SEEMS BELOEW CODE IS NOT NEEDED ANY MORE
-                                    *
-                                    if( currentValue.length > lastInputValue.length && prevElm ){
-                                        if( isNodeTag.call(this, prevElm) && !prevElm.hasAttribute('readonly') ){
-                                            this.removeTags(prevElm)
-                                            this.fixFirefoxLastTagNoCaret()
-
-                                            // the above "removeTag" methods removes the tag with a transition. Chrome adds a <br> element for some reason at this stage
-                                            if( this.DOM.input.children.length == 2 && this.DOM.input.children[1].tagName == "BR" ){
-                                                this.DOM.input.innerHTML = ""
-                                                this.value.length = 0
-                                                return true
-                                            }
-                                        }
-
-                                        else
-                                            prevElm.remove()
-                                    }
-                                    */
-
-                                    // find out which tag(s) were deleted and trigger "remove" event
-                                    // iterate over the list of tags still in the document and then filter only those from the "this.value" collection
-                                    this.value = [].map.call(lastTagElems, (node, nodeIdx) => {
-                                        var tagData = getSetTagData(node)
-
-                                        // since readonly cannot be removed (it's technically resurrected if removed somehow)
-                                        if( node.parentNode || tagData.readonly )
-                                            return tagData
-                                        else
-                                            this.trigger('remove', { tag:node, index:nodeIdx, data:tagData })
-                                    })
-                                        .filter(n=>n)  // remove empty items in the mapped array
-                                }, 20) // Firefox needs this higher duration for some reason or things get buggy when deleting text from the end
                                 break;
                             }
                             // currently commented to allow new lines in mixed-mode
