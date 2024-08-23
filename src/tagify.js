@@ -702,6 +702,9 @@ Tagify.prototype = {
     injectAtCaret( injectedNode, range ){
         range = range || this.state.selection?.range
 
+        if(typeof injectedNode === 'string')
+            injectedNode = document.createTextNode(injectedNode)
+
         if( !range && injectedNode ) {
             this.appendMixTags(injectedNode)
             return this;
