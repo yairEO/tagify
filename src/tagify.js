@@ -1068,7 +1068,7 @@ Tagify.prototype = {
                 if( isObject(item) ) {
                     var itemCopy = extend({}, item)
 
-                    // iuf 'tagTextProp' property does not exist in the item, use `value` instead
+                    // if 'tagTextProp' property does not exist in the item, use `value` instead
                     if(!(tagTextProp in itemCopy))
                         tagTextProp = 'value'
 
