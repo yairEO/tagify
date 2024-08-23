@@ -46,13 +46,14 @@
     },
     "./react": "./src/react.tagify",
     "./react.tagify": "./src/react.tagify",
-    "./dist/react.tagify": "./dist/react.tagify.jsx",
-    "./dist/react.tagify.jsx": "./dist/react.tagify.jsx",
+    "./dist/react.tagify": "./src/react.tagify",
+    "./dist/react.tagify.jsx": "./src/react.tagify",
     "./dist/tagify.min.js": "./dist/tagify.js",
     "./dist/tagify.min": "./dist/tagify.js",
     "./dist/tagify.esm.js": "./dist/tagify.esm.js",
     "./dist/tagify.polyfills.min.js": "./dist/tagify.polyfills.min.js",
     "./dist/tagify.vue": "./dist/tagify.vue",
+    "./vue": "./dist/tagify.vue",
     "./dist/tagify.css": "./dist/tagify.css"
   },
   "repository": {

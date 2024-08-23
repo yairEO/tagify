@@ -67,6 +67,7 @@
 - [React](#react)
   - [Update regarding `onChange` prop:](#update-regarding-onchange-prop)
     - [Updating the component's state](#updating-the-components-state)
+- [Vue](#vue)
 - [jQuery version](#jquery-version)
     - [`jQuery.tagify.js`](#jquerytagifyjs)
 - [HTML input \& textarea attributes](#html-input--textarea-attributes)
@@ -576,8 +577,6 @@ See [**live demo**](https://codesandbox.io/s/tagify-react-wrapper-oempc) for Rea
 A none-minified and raw source-code Tagify React component is exported from [`react.tagify.jsx`](https://github.com/yairEO/tagify/blob/master/src/react.tagify.jsx) and you can import it as seen in the below code example.
 This React port will only work if your bundler can handle raw source-code in ES2015+ which is better for tree-shaking.
 
-If you get bundling errors, import Tagify (*react* port) from the `dist` folder: `@yaireo/tagify/dist/react.tagify`
-
 ---
 ### Update regarding `onChange` prop:
 
@@ -691,6 +690,11 @@ onDropdownUpdated       | <sub>Function</sub>       |           | See [*events* 
 </details>
 
 ---
+
+## Vue
+
+I don't know *Vue* at all and this thin wrapper was built by a friend who knows.
+To import the [wrapper file](https://github.com/yairEO/tagify/blob/master/dist/tagify.vue), use the import path `@yaireo/tagify/vue`
 
 
 ## jQuery version

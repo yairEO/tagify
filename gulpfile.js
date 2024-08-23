@@ -307,17 +307,17 @@ function watchExamples() {
 function watch(){
     gulp.watch('./src/*.scss', scss)
     gulp.watch(['./src/tagify.js', './src/parts/*.js'], gulp.series([js]))
-    gulp.watch('./src/react.tagify.jsx', react)
+    // gulp.watch('./src/react.tagify.jsx', react)
 }
 
-
-const build = gulp.series(gulp.parallel(js, scss, polyfills), esm, react, compileAllExamples, compileHomepage) // deprecated the "react" task as i believe it's not needed to consume a pre-bundled version.
+// remove the "react" task as it was unneeded because the react-wrapper is served unbundled
+const build = gulp.series(gulp.parallel(js, scss, polyfills), esm, compileAllExamples, compileHomepage) // deprecated the "react" task as i believe it's not needed to consume a pre-bundled version.
 
 exports.default = gulp.parallel(build, watch, watchExamples)
 exports.js = js
 exports.esm = esm
 exports.build = build
-exports.react = react
+// exports.react = react
 exports.patch = gulp.series(inc('patch'), addBanner, gitTag)    // () => inc('patch')
 exports.feature = gulp.series(inc('minor'), addBanner, gitTag)  // () => inc('minor')
 exports.release = gulp.series(inc('major'), addBanner, gitTag)  // () => inc('major')
