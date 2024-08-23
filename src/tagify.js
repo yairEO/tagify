@@ -539,6 +539,9 @@ Tagify.prototype = {
         editableElm.setAttribute('contenteditable', true)
         tagElm.classList.add( _s.classNames.tagEditing )
 
+        // because "editTag" method can be called manually, make sure that "state.editing" is set correctly
+        this.events.callbacks.onEditTagFocus.call(this, tagElm)
+
         editableElm.addEventListener('click'            , _CB.onEditTagClick.bind(this, tagElm))
         editableElm.addEventListener('blur'             , _CB.onEditTagBlur.bind(this, this.getTagTextNode(tagElm)))
         editableElm.addEventListener('input'            , _CB.onEditTagInput.bind(this, editableElm))
