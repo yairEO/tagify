@@ -1299,7 +1299,7 @@ Tagify.prototype = {
             this.value.push(tagData)
 
             // adding a timeout because the tag node is yet to be injected into the DOM and the `add` callback should only be calloned once the node is in the DOM.
-            // the reason is that the tag nodes are first places inside a fragment and once iteration is done, that fragment is placed in the DOM
+            // the reason is that the tag nodes are first placed inside a fragment and once iteration is done, that fragment is placed in the DOM
             setTimeout(() => {
                 this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
             });
