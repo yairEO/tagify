@@ -1074,8 +1074,8 @@ Tagify.prototype = {
 
                     itemCopy[tagTextProp] = this.trim(itemCopy[tagTextProp])
 
-                    // discard empty tags
-                    if( itemCopy[tagTextProp] )
+                    // discard empty tags but allow `0` as a valid value
+                    if( itemCopy[tagTextProp] || itemCopy[tagTextProp] === 0 )
                         acc.push(itemCopy) // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
                 }
 

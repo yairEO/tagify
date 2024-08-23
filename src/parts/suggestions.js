@@ -286,7 +286,7 @@ export default {
         // The below event must be triggered, regardless of anything else which might go wrong
         this.trigger('dropdown:select', {data:tagData, elm, event})
 
-        if( !value || !tagData && !isNoMatch ){
+        if( !tagData && !isNoMatch ){
             closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
             return
         }
