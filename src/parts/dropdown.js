@@ -209,7 +209,7 @@ export default {
             _s = this.settings,
             appendTarget = this.dropdown.getAppendTarget();
 
-        if( !_s.dropdown.enabled ) return this;
+        if( _s.dropdown.enabled === false ) return this;
 
         this.DOM.scope.setAttribute("aria-expanded", true)
 
