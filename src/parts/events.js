@@ -221,12 +221,13 @@ export default {
             if( isFocused ){
                 if( !_s.focusable ) return;
 
-                var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible;
+                var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible,
+                    condition2 = !targetIsTagNode || _s.mode === 'select'
 
                 this.toggleFocusClass(true);
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
-                if( dropdownCanBeShown && (!targetIsTagNode || _s.mode === 'select') ){  // && _s.mode != "select"
+                if( dropdownCanBeShown && condition2 ){  // && _s.mode != "select"
                     this.dropdown.show(this.value.length ? '' : undefined)
                 }
 
