@@ -1297,14 +1297,6 @@ Tagify.prototype = {
         if( isValid && isValid === true ){
             // update state
             this.value.push(tagData)
-
-            // adding a timeout because the tag node is yet to be injected into the DOM and the `add` callback should only be calloned once the node is in the DOM.
-            // the reason is that the tag nodes are first placed inside a fragment and once iteration is done, that fragment is placed in the DOM
-            if( !this.state.blockChangeEvent ) {
-                setTimeout(() => {
-                    this.trigger('add', {tag:tagElm, index:this.value.length - 1, data:tagData})
-                });
-            }
         }
         else{
             this.trigger('invalid', {data:tagData, index:this.value.length, tag:tagElm, message:isValid})
@@ -1376,7 +1368,8 @@ Tagify.prototype = {
         var tagElems = [],
             _s = this.settings,
             aggregatedInvalidInput = [],
-            frag = document.createDocumentFragment()
+            frag = document.createDocumentFragment(),
+            addedTags = []; // all tags, also invalid. this is used for firing the `add` event
 
         if( !tagsItems || tagsItems.length == 0 ){
             return tagElems
@@ -1415,12 +1408,18 @@ Tagify.prototype = {
             // add the tag to the component's DOM
             // this.appendTag(tagElm)
             frag.appendChild(tagElm)
-
             this.postProcessNewTagNode(tagElm, tagData)
+            addedTags.push({tagElm, tagData})
         })
 
         this.appendTag(frag)
+
+        addedTags.forEach(({tagElm, tagData}) =>
+            this.trigger('add', {tag:tagElm, index:this.getTagIdx(tagData), data:tagData})
+        )
+
         this.update()
+
 
         if( tagsItems.length && clearInput ){
             this.input.set.call(this, _s.createInvalidTags ? '' : aggregatedInvalidInput.join(_s._delimiters))
