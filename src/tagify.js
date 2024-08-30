@@ -1501,7 +1501,6 @@ Tagify.prototype = {
 
         setTimeout(()=> tagElm.classList.add(this.settings.classNames.tagNoAnimation), 300)
 
-        this.value.push(newTag.tagData)
         this.update()
 
         if( !createdFromDelimiters ) {
