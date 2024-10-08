@@ -300,7 +300,7 @@ Tagify.prototype = {
      */
     destroy(){
         this.events.unbindGlobal.call(this)
-        this.DOM.scope.parentNode.removeChild(this.DOM.scope)
+        this.DOM.scope.parentNode && this.DOM.scope.parentNode.removeChild(this.DOM.scope)
         this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex
         delete this.DOM.originalInput.__tagify
         this.dropdown.hide(true)
