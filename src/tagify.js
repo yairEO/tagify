@@ -1082,7 +1082,7 @@ Tagify.prototype = {
                         acc.push(itemCopy) // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
                 }
 
-                else if(item) {
+                else if(item != null && item !== '' && item !== undefined) {
                     acc.push( ...mapStringToCollection(item) )
                 }
 
