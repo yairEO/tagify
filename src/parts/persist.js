@@ -2,12 +2,14 @@ const VERSION = 1; // current version of persisted data. if code change breaks p
 const STORE_KEY = '@yaireo/tagify/'
 
 export const getPersistedData = id => key => {
+    if( !id ) return {};
+
     // if "persist" is "false", do not save to localstorage
     let customKey = '/'+key,
         persistedData,
-        versionMatch = localStorage.getItem(STORE_KEY + id + '/v', VERSION) == VERSION
+        currentStorageVersion = localStorage?.getItem(STORE_KEY + id + '/v')
 
-    if( versionMatch ){
+    if( currentStorageVersion === VERSION){
         try{ persistedData = JSON.parse(localStorage[STORE_KEY + id + customKey]) }
         catch(err){}
     }
@@ -19,14 +21,14 @@ export const setPersistedData = id => {
     if( !id ) return () => {};
 
     // for storage invalidation
-    localStorage.setItem(STORE_KEY + id + '/v', VERSION)
+    localStorage?.setItem(STORE_KEY + id + '/v', VERSION)
 
     return (data, key) => {
         let customKey = '/'+key,
             persistedData = JSON.stringify(data)
 
         if( data && key ){
-            localStorage.setItem(STORE_KEY + id + customKey, persistedData)
+            localStorage?.setItem(STORE_KEY + id + customKey, persistedData)
             dispatchEvent( new Event('storage') )
         }
     }
