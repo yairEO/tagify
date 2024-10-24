@@ -5,7 +5,7 @@ let useEffect;
 let useRef;
 let useCallback;
 
-async function initReact() {
+function initReact() {
   try {
     // Try to import React as a namespace (React 18+)
     const ReactModule = await import('react');
@@ -16,7 +16,7 @@ async function initReact() {
   }
 }
 
-await initReact();
+initReact();
 
 function renderToStaticMarkup(element) {
     if (typeof element === 'string') {
