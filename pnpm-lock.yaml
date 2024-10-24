@@ -23,10 +23,10 @@ importers:
         version: 1.43.1
       '@rollup/plugin-terser':
         specifier: ^0.4.4
-        version: 0.4.4(rollup@2.79.1)
+        version: 0.4.4(rollup@2.79.2)
       '@rollup/stream':
         specifier: ^3.0.1
-        version: 3.0.1(rollup@2.79.1)
+        version: 3.0.1(rollup@2.79.2)
       '@swc/core':
         specifier: ^1.4.12
         version: 1.4.12
@@ -112,14 +112,14 @@ importers:
         specifier: ^0.12.7
         version: 0.12.7
       rollup:
-        specifier: 2.79.1
-        version: 2.79.1
+        specifier: 2.79.2
+        version: 2.79.2
       rollup-plugin-banner2:
         specifier: ^1.2.2
         version: 1.2.3
       rollup-plugin-swc3:
         specifier: ^0.11.0
-        version: 0.11.0(@swc/core@1.4.12)(rollup@2.79.1)
+        version: 0.11.0(@swc/core@1.4.12)(rollup@2.79.2)
       run-sequence:
         specifier: ^2.2.1
         version: 2.2.1
@@ -938,7 +938,7 @@ packages:
     resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==}
     engines: {node: '>= 4.0'}
     os: [darwin]
-    deprecated: The v1 package contains DANGEROUS / INSECURE binaries. Upgrade to safe fsevents v2
+    deprecated: Upgrade to fsevents v2 to mitigate potential security issues
 
   fsevents@2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
@@ -996,6 +996,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   global-modules@1.0.0:
     resolution: {integrity: sha512-sKzpEkf11GpOFuw0Zzjzmt4B4UZwjOcG757PPvrfhxcLFbq0wpsgpOqxpxtxFiCG4DtG93M6XRVbF2oGdev7bg==}
@@ -1214,6 +1215,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.3:
     resolution: {integrity: sha512-x00IRNXNy63jwGkJmzPigoySHbaqpNuzKbBOmzK+g2OdZpQ9w+sxCN+VSB3ja7IAge2OP2qpfxTjeNcyjmW1uw==}
@@ -1862,6 +1864,10 @@ packages:
   q@1.5.1:
     resolution: {integrity: sha512-kV/CThkXo6xyFEZUugw/+pIOywXcDbFYgSct5cT3gqlbkBE1SJdwy6UQoZvodiWF/ckQLZyDE/Bu1M6gVu5lVw==}
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
+    deprecated: |-
+      You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
+      (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   queue-tick@1.0.1:
     resolution: {integrity: sha512-kJt5qhMxoszgU/62PLP1CJytzd2NKetjSRnyuj31fDd3Rlcz3fzlFdFLD1SItunPwyqEOkca6GbV612BWfaBag==}
@@ -2014,8 +2020,8 @@ packages:
     peerDependencies:
       rollup: ^2.0.0 || ^3.0.0 || ^4.0.0
 
-  rollup@2.79.1:
-    resolution: {integrity: sha512-uKxbd0IhMZOhjAiD5oAFp7BqvkA4Dv47qpOCtaNvng4HBwdbWtdOh8f5nZNuk2rp51PMGk3bzfWu5oayNEuYnw==}
+  rollup@2.79.2:
+    resolution: {integrity: sha512-fS6iqSPZDs3dr/y7Od6y5nha8dW1YnbgtsyotCVvoFGKbERG++CVRFv1meyGDE1SNItQA8BrnCw7ScdAhRJ3XQ==}
     engines: {node: '>=10.0.0'}
     hasBin: true
 
@@ -2521,25 +2527,25 @@ snapshots:
     dependencies:
       playwright: 1.43.1
 
-  '@rollup/plugin-terser@0.4.4(rollup@2.79.1)':
+  '@rollup/plugin-terser@0.4.4(rollup@2.79.2)':
     dependencies:
       serialize-javascript: 6.0.2
       smob: 1.5.0
       terser: 5.30.3
     optionalDependencies:
-      rollup: 2.79.1
+      rollup: 2.79.2
 
-  '@rollup/pluginutils@5.1.0(rollup@2.79.1)':
+  '@rollup/pluginutils@5.1.0(rollup@2.79.2)':
     dependencies:
       '@types/estree': 1.0.5
       estree-walker: 2.0.2
       picomatch: 2.3.1
     optionalDependencies:
-      rollup: 2.79.1
+      rollup: 2.79.2
 
-  '@rollup/stream@3.0.1(rollup@2.79.1)':
+  '@rollup/stream@3.0.1(rollup@2.79.2)':
     dependencies:
-      rollup: 2.79.1
+      rollup: 2.79.2
 
   '@swc/core-darwin-arm64@1.4.12':
     optional: true
@@ -4536,21 +4542,21 @@ snapshots:
     dependencies:
       magic-string: 0.25.9
 
-  rollup-plugin-swc3@0.11.0(@swc/core@1.4.12)(rollup@2.79.1):
+  rollup-plugin-swc3@0.11.0(@swc/core@1.4.12)(rollup@2.79.2):
     dependencies:
       '@fastify/deepmerge': 1.3.0
-      '@rollup/pluginutils': 5.1.0(rollup@2.79.1)
+      '@rollup/pluginutils': 5.1.0(rollup@2.79.2)
       '@swc/core': 1.4.12
       get-tsconfig: 4.7.3
-      rollup: 2.79.1
-      rollup-preserve-directives: 1.1.1(rollup@2.79.1)
+      rollup: 2.79.2
+      rollup-preserve-directives: 1.1.1(rollup@2.79.2)
 
-  rollup-preserve-directives@1.1.1(rollup@2.79.1):
+  rollup-preserve-directives@1.1.1(rollup@2.79.2):
     dependencies:
       magic-string: 0.30.9
-      rollup: 2.79.1
+      rollup: 2.79.2
 
-  rollup@2.79.1:
+  rollup@2.79.2:
     optionalDependencies:
       fsevents: 2.3.3
 
