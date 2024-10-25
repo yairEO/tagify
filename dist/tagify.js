@@ -2770,8 +2770,9 @@ other than "Tagify" (by owner) or as part of another library.
        /**
         * revert any changes made by this component
         */ destroy: function destroy() {
+           var _this_DOM_scope_parentNode;
            this.events.unbindGlobal.call(this);
-           this.DOM.scope.parentNode.removeChild(this.DOM.scope);
+           (_this_DOM_scope_parentNode = this.DOM.scope.parentNode) === null || _this_DOM_scope_parentNode === void 0 ? void 0 : _this_DOM_scope_parentNode.removeChild(this.DOM.scope);
            this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex;
            delete this.DOM.originalInput.__tagify;
            this.dropdown.hide(true);
