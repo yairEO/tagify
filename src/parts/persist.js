@@ -2,7 +2,7 @@ const VERSION = 1; // current version of persisted data. if code change breaks p
 const STORE_KEY = '@yaireo/tagify/'
 
 export const getPersistedData = id => key => {
-    if( !id ) return {};
+    if( !id ) return;
 
     // if "persist" is "false", do not save to localstorage
     let customKey = '/'+key,
