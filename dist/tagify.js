@@ -25,5 +25,3968 @@ This Software may not be rebranded and sold as a library under any other name
 other than "Tagify" (by owner) or as part of another library.
 */
 
-!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t="undefined"!=typeof globalThis?globalThis:t||self).Tagify=e()}(this,(function(){"use strict";var t="&#8203;";function e(t,e){(null==e||e>t.length)&&(e=t.length);for(var i=0,n=new Array(e);i<e;i++)n[i]=t[i];return n}function i(t){return function(t){if(Array.isArray(t))return e(t)}(t)||function(t){if("undefined"!=typeof Symbol&&null!=t[Symbol.iterator]||null!=t["@@iterator"])return Array.from(t)}(t)||function(t,i){if(!t)return;if("string"==typeof t)return e(t,i);var n=Object.prototype.toString.call(t).slice(8,-1);"Object"===n&&t.constructor&&(n=t.constructor.name);if("Map"===n||"Set"===n)return Array.from(n);if("Arguments"===n||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))return e(t,i)}(t)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}()}var n={isEnabled:function(){var t;return null===(t=window.TAGIFY_DEBUG)||void 0===t||t},log:function(){for(var t=arguments.length,e=new Array(t),n=0;n<t;n++)e[n]=arguments[n];var s;this.isEnabled()&&(s=console).log.apply(s,["[Tagify]:"].concat(i(e)))},warn:function(){for(var t=arguments.length,e=new Array(t),n=0;n<t;n++)e[n]=arguments[n];var s;this.isEnabled()&&(s=console).warn.apply(s,["[Tagify]:"].concat(i(e)))}},s=function(t,e,i,n){return t=""+t,e=""+e,n&&(t=t.trim(),e=e.trim()),i?t==e:t.toLowerCase()==e.toLowerCase()},a=function(t,e){return t&&Array.isArray(t)&&t.map((function(t){return o(t,e)}))};function o(t,e){var i,n={};for(i in t)e.indexOf(i)<0&&(n[i]=t[i]);return n}function r(t){return(new DOMParser).parseFromString(t.trim(),"text/html").body.firstElementChild}function l(t,e){for(e=e||"previous";t=t[e+"Sibling"];)if(3==t.nodeType)return t}function d(t){return"string"==typeof t?t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/`|'/g,"&#039;"):t}function c(t){var e=Object.prototype.toString.call(t).split(" ")[1].slice(0,-1);return t===Object(t)&&"Array"!=e&&"Function"!=e&&"RegExp"!=e&&"HTMLUnknownElement"!=e}function u(t,e,i){var n,s;function a(t,e){for(var i in e)if(e.hasOwnProperty(i)){if(c(e[i])){c(t[i])?a(t[i],e[i]):t[i]=Object.assign({},e[i]);continue}if(Array.isArray(e[i])){t[i]=Object.assign([],e[i]);continue}t[i]=e[i]}}return n=t,(null!=(s=Object)&&"undefined"!=typeof Symbol&&s[Symbol.hasInstance]?s[Symbol.hasInstance](n):n instanceof s)||(t={}),a(t,e),i&&a(t,i),t}function g(){var t=[],e={},i=!0,n=!1,s=void 0;try{for(var a,o=arguments[Symbol.iterator]();!(i=(a=o.next()).done);i=!0){var r=a.value,l=!0,d=!1,u=void 0;try{for(var g,h=r[Symbol.iterator]();!(l=(g=h.next()).done);l=!0){var p=g.value;c(p)?e[p.value]||(t.push(p),e[p.value]=1):t.includes(p)||t.push(p)}}catch(t){d=!0,u=t}finally{try{l||null==h.return||h.return()}finally{if(d)throw u}}}}catch(t){n=!0,s=t}finally{try{i||null==o.return||o.return()}finally{if(n)throw s}}return t}function h(t){return String.prototype.normalize?"string"==typeof t?t.normalize("NFD").replace(/[\u0300-\u036f]/g,""):void 0:t}var p=function(){return/(?=.*chrome)(?=.*android)/i.test(navigator.userAgent)};function f(){return([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,(function(t){return(t^crypto.getRandomValues(new Uint8Array(1))[0]&15>>t/4).toString(16)}))}function m(t){return t&&t.classList&&t.classList.contains(this.settings.classNames.tag)}function v(t){return t&&t.closest(this.settings.classNames.tagSelector)}function b(t,e){var i=window.getSelection();return e=e||i.getRangeAt(0),"string"==typeof t&&(t=document.createTextNode(t)),e&&(e.deleteContents(),e.insertNode(t)),t}function y(t,e,i){return t?(e&&(t.__tagifyTagData=i?e:u({},t.__tagifyTagData||{},e)),t.__tagifyTagData):(n.warn("tag element doesn't exist",{tagElm:t,data:e}),e)}function w(t){if(t&&t.parentNode){var e=t,i=window.getSelection(),n=i.getRangeAt(0);i.rangeCount&&(n.setStartAfter(e),n.collapse(!0),i.removeAllRanges(),i.addRange(n))}}function T(t,e){t.forEach((function(t){if(y(t.previousSibling)||!t.previousSibling){var i=document.createTextNode("​");t.before(i),e&&w(i)}}))}var O={delimiters:",",pattern:null,tagTextProp:"value",maxTags:1/0,callbacks:{},addTagOnBlur:!0,addTagOn:["blur","tab","enter"],onChangeAfterBlur:!0,duplicates:!1,whitelist:[],blacklist:[],enforceWhitelist:!1,userInput:!0,focusable:!0,keepInvalidTags:!1,createInvalidTags:!0,mixTagsAllowedAfter:/,|\.|\:|\s/,mixTagsInterpolator:["[[","]]"],backspace:!0,skipInvalid:!1,pasteAsTags:!0,editTags:{clicks:2,keepInvalid:!0},transformTag:function(){},trim:!0,a11y:{focusableTags:!1},mixMode:{insertAfterTag:" "},autoComplete:{enabled:!0,rightKey:!1,tabKey:!1},classNames:{namespace:"tagify",mixMode:"tagify--mix",selectMode:"tagify--select",input:"tagify__input",focus:"tagify--focus",tagNoAnimation:"tagify--noAnim",tagInvalid:"tagify--invalid",tagNotAllowed:"tagify--notAllowed",scopeLoading:"tagify--loading",hasMaxTags:"tagify--hasMaxTags",hasNoTags:"tagify--noTags",empty:"tagify--empty",inputInvalid:"tagify__input--invalid",dropdown:"tagify__dropdown",dropdownWrapper:"tagify__dropdown__wrapper",dropdownHeader:"tagify__dropdown__header",dropdownFooter:"tagify__dropdown__footer",dropdownItem:"tagify__dropdown__item",dropdownItemActive:"tagify__dropdown__item--active",dropdownItemHidden:"tagify__dropdown__item--hidden",dropdownItemSelected:"tagify__dropdown__item--selected",dropdownInital:"tagify__dropdown--initial",tag:"tagify__tag",tagText:"tagify__tag-text",tagX:"tagify__tag__removeBtn",tagLoading:"tagify__tag--loading",tagEditing:"tagify__tag--editable",tagFlash:"tagify__tag--flash",tagHide:"tagify__tag--hide"},dropdown:{classname:"",enabled:2,maxItems:10,searchKeys:["value","searchBy"],fuzzySearch:!0,caseSensitive:!1,accentedSearch:!0,includeSelectedTags:!1,escapeHTML:!0,highlightFirst:!0,closeOnSelect:!0,clearOnSelect:!0,position:"all",appendTarget:null},hooks:{beforeRemoveTag:function(){return Promise.resolve()},beforePaste:function(){return Promise.resolve()},suggestionClick:function(){return Promise.resolve()},beforeKeyDown:function(){return Promise.resolve()}}};function x(t,e,i){return e in t?Object.defineProperty(t,e,{value:i,enumerable:!0,configurable:!0,writable:!0}):t[e]=i,t}function D(t){for(var e=1;e<arguments.length;e++){var i=null!=arguments[e]?arguments[e]:{},n=Object.keys(i);"function"==typeof Object.getOwnPropertySymbols&&(n=n.concat(Object.getOwnPropertySymbols(i).filter((function(t){return Object.getOwnPropertyDescriptor(i,t).enumerable})))),n.forEach((function(e){x(t,e,i[e])}))}return t}function I(t,e){return e=null!=e?e:{},Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(e)):function(t,e){var i=Object.keys(t);if(Object.getOwnPropertySymbols){var n=Object.getOwnPropertySymbols(t);e&&(n=n.filter((function(e){return Object.getOwnPropertyDescriptor(t,e).enumerable}))),i.push.apply(i,n)}return i}(Object(e)).forEach((function(i){Object.defineProperty(t,i,Object.getOwnPropertyDescriptor(e,i))})),t}var S={events:{binding:function(){var t=!(arguments.length>0&&void 0!==arguments[0])||arguments[0],e=this.dropdown.events.callbacks,i=this.listeners.dropdown=this.listeners.dropdown||{position:this.dropdown.position.bind(this,null),onKeyDown:e.onKeyDown.bind(this),onMouseOver:e.onMouseOver.bind(this),onMouseLeave:e.onMouseLeave.bind(this),onClick:e.onClick.bind(this),onScroll:e.onScroll.bind(this)},n=t?"addEventListener":"removeEventListener";"manual"!=this.settings.dropdown.position&&(document[n]("scroll",i.position,!0),window[n]("resize",i.position),window[n]("keydown",i.onKeyDown)),this.DOM.dropdown[n]("mouseover",i.onMouseOver),this.DOM.dropdown[n]("mouseleave",i.onMouseLeave),this.DOM.dropdown[n]("mousedown",i.onClick),this.DOM.dropdown.content[n]("scroll",i.onScroll)},callbacks:{onKeyDown:function(t){var e=this;if(this.state.hasFocus&&!this.state.composing){var i=this.settings,s=this.DOM.dropdown.querySelector(i.classNames.dropdownItemActiveSelector),a=this.dropdown.getSuggestionDataByNode(s),o="mix"==i.mode,r="select"==i.mode;i.hooks.beforeKeyDown(t,{tagify:this}).then((function(l){switch(t.key){case"ArrowDown":case"ArrowUp":case"Down":case"Up":t.preventDefault();var d=e.dropdown.getAllSuggestionsRefs(),c="ArrowUp"==t.key||"Up"==t.key;s&&(s=e.dropdown.getNextOrPrevOption(s,!c)),s&&s.matches(i.classNames.dropdownItemSelector)||(s=d[c?d.length-1:0]),e.dropdown.highlightOption(s,!0);break;case"Escape":case"Esc":e.dropdown.hide();break;case"ArrowRight":if(e.state.actions.ArrowLeft||i.autoComplete.rightKey)return;case"Tab":var u=!i.autoComplete.rightKey||!i.autoComplete.tabKey;if(!o&&!r&&s&&u&&!e.state.editing&&a){t.preventDefault();var g=e.dropdown.getMappedValue(a);return e.input.autocomplete.set.call(e,g),!1}return!0;case"Enter":t.preventDefault(),i.hooks.suggestionClick(t,{tagify:e,tagData:a,suggestionElm:s}).then((function(){if(s)return e.dropdown.selectOption(s),s=e.dropdown.getNextOrPrevOption(s,!c),void e.dropdown.highlightOption(s);e.dropdown.hide(),o||e.addTags(e.state.inputText.trim(),!0)})).catch((function(t){return n.warn(t)}));break;case"Backspace":if(o||e.state.editing.scope)return;var h=e.input.raw.call(e);""!=h&&8203!=h.charCodeAt(0)||(!0===i.backspace?e.removeTags():"edit"==i.backspace&&setTimeout(e.editTag.bind(e),0))}}))}},onMouseOver:function(t){var e=t.target.closest(this.settings.classNames.dropdownItemSelector);this.dropdown.highlightOption(e)},onMouseLeave:function(t){this.dropdown.highlightOption()},onClick:function(t){var e=this;if(0==t.button&&t.target!=this.DOM.dropdown&&t.target!=this.DOM.dropdown.content){var i=t.target.closest(this.settings.classNames.dropdownItemSelector),s=this.dropdown.getSuggestionDataByNode(i);this.state.actions.selectOption=!0,setTimeout((function(){return e.state.actions.selectOption=!1}),50),this.settings.hooks.suggestionClick(t,{tagify:this,tagData:s,suggestionElm:i}).then((function(){i?e.dropdown.selectOption(i,t):e.dropdown.hide()})).catch((function(t){return n.warn(t)}))}},onScroll:function(t){var e=t.target,i=e.scrollTop/(e.scrollHeight-e.parentNode.clientHeight)*100;this.trigger("dropdown:scroll",{percentage:Math.round(i)})}}},refilter:function(t){t=t||this.state.dropdown.query||"",this.suggestedListItems=this.dropdown.filterListItems(t),this.dropdown.fill(),this.suggestedListItems.length||this.dropdown.hide(),this.trigger("dropdown:updated",this.DOM.dropdown)},getSuggestionDataByNode:function(t){for(var e,i=t&&t.getAttribute("value"),n=this.suggestedListItems.length;n--;){if(c(e=this.suggestedListItems[n])&&e.value==i)return e;if(e==i)return{value:e}}},getNextOrPrevOption:function(t){var e=!(arguments.length>1&&void 0!==arguments[1])||arguments[1],i=this.dropdown.getAllSuggestionsRefs(),n=i.findIndex((function(e){return e===t}));return e?i[n+1]:i[n-1]},highlightOption:function(t,e){var i,n=this.settings.classNames.dropdownItemActive;if(this.state.ddItemElm&&(this.state.ddItemElm.classList.remove(n),this.state.ddItemElm.removeAttribute("aria-selected")),!t)return this.state.ddItemData=null,this.state.ddItemElm=null,void this.input.autocomplete.suggest.call(this);i=this.dropdown.getSuggestionDataByNode(t),this.state.ddItemData=i,this.state.ddItemElm=t,t.classList.add(n),t.setAttribute("aria-selected",!0),e&&(t.parentNode.scrollTop=t.clientHeight+t.offsetTop-t.parentNode.clientHeight),this.settings.autoComplete&&(this.input.autocomplete.suggest.call(this,i),this.dropdown.position())},selectOption:function(t,e){var i=this,n=this.settings,s=n.dropdown,a=s.clearOnSelect,o=s.closeOnSelect;if(!t)return this.addTags(this.state.inputText,!0),void(o&&this.dropdown.hide());e=e||{};var r=t.getAttribute("value"),l="noMatch"==r,d="mix"==n.mode,c=this.suggestedListItems.find((function(t){var e;return(null!==(e=t.value)&&void 0!==e?e:t)==r}));if(this.trigger("dropdown:select",{data:c,elm:t,event:e}),c||l){if(this.state.editing){var g=this.normalizeTags([c])[0];c=n.transformTag.call(this,g)||g,this.onEditTagDone(null,u({__isValid:!0},c))}else this[d?"addMixTags":"addTags"]([c||this.input.raw.call(this)],a);(d||this.DOM.input.parentNode)&&(setTimeout((function(){i.DOM.input.focus(),i.toggleFocusClass(!0)})),o&&setTimeout(this.dropdown.hide.bind(this)),t.addEventListener("transitionend",(function(){i.dropdown.fillHeaderFooter(),setTimeout((function(){t.remove(),i.dropdown.refilter()}),100)}),{once:!0}),t.classList.add(this.settings.classNames.dropdownItemHidden))}else o&&setTimeout(this.dropdown.hide.bind(this))},selectAll:function(t){this.suggestedListItems.length=0,this.dropdown.hide(),this.dropdown.filterListItems("");var e=this.dropdown.filterListItems("");return t||(e=this.state.dropdown.suggestions),this.addTags(e,!0),this},filterListItems:function(t,e){var i,n,s,a,o,r,l=function(){var t,l,d=void 0,u=void 0;t=m[w],n=(null!=(l=Object)&&"undefined"!=typeof Symbol&&l[Symbol.hasInstance]?l[Symbol.hasInstance](t):t instanceof l)?m[w]:{value:m[w]};var v,b=!Object.keys(n).some((function(t){return y.includes(t)}))?["value"]:y;g.fuzzySearch&&!e.exact?(a=b.reduce((function(t,e){return t+" "+(n[e]||"")}),"").toLowerCase().trim(),g.accentedSearch&&(a=h(a),r=h(r)),d=0==a.indexOf(r),u=a===r,v=a,s=r.toLowerCase().split(" ").every((function(t){return v.includes(t.toLowerCase())}))):(d=!0,s=b.some((function(t){var i=""+(n[t]||"");return g.accentedSearch&&(i=h(i),r=h(r)),g.caseSensitive||(i=i.toLowerCase()),u=i===r,e.exact?i===r:0==i.indexOf(r)}))),o=!g.includeSelectedTags&&i.isTagDuplicate(c(n)?n.value:n),s&&!o&&(u&&d?f.push(n):"startsWith"==g.sortby&&d?p.unshift(n):p.push(n))},d=this,u=this.settings,g=u.dropdown,p=(e=e||{},[]),f=[],m=u.whitelist,v=g.maxItems>=0?g.maxItems:1/0,b=g.includeSelectedTags||"select"==u.mode,y=g.searchKeys,w=0;if(!(t="select"==u.mode&&this.value.length&&this.value[0][u.tagTextProp]==t?"":t)||!y.length)return p=b?m:m.filter((function(t){return!d.isTagDuplicate(c(t)?t.value:t)})),this.state.dropdown.suggestions=p,p.slice(0,v);for(r=g.caseSensitive?""+t:(""+t).toLowerCase();w<m.length;w++)i=this,l();return this.state.dropdown.suggestions=f.concat(p),"function"==typeof g.sortby?g.sortby(f.concat(p),r):f.concat(p).slice(0,v)},getMappedValue:function(t){var e=this.settings.dropdown.mapValueTo;return e?"function"==typeof e?e(t):t[e]||t.value:t.value},createListHTML:function(t){var e=this;return u([],t).map((function(t,i){"string"!=typeof t&&"number"!=typeof t||(t={value:t});var n=e.dropdown.getMappedValue(t);return n="string"==typeof n&&e.settings.dropdown.escapeHTML?d(n):n,e.settings.templates.dropdownItem.apply(e,[I(D({},t),{mappedValue:n}),e])})).join("")}};function E(t,e){(null==e||e>t.length)&&(e=t.length);for(var i=0,n=new Array(e);i<e;i++)n[i]=t[i];return n}function M(t,e,i){return e in t?Object.defineProperty(t,e,{value:i,enumerable:!0,configurable:!0,writable:!0}):t[e]=i,t}function N(t){return function(t){if(Array.isArray(t))return E(t)}(t)||function(t){if("undefined"!=typeof Symbol&&null!=t[Symbol.iterator]||null!=t["@@iterator"])return Array.from(t)}(t)||function(t,e){if(!t)return;if("string"==typeof t)return E(t,e);var i=Object.prototype.toString.call(t).slice(8,-1);"Object"===i&&t.constructor&&(i=t.constructor.name);if("Map"===i||"Set"===i)return Array.from(i);if("Arguments"===i||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(i))return E(t,e)}(t)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}()}function _(){for(var t in this.dropdown={},this._dropdown)this.dropdown[t]="function"==typeof this._dropdown[t]?this._dropdown[t].bind(this):this._dropdown[t];this.dropdown.refs(),this.DOM.dropdown.__tagify=this}var A,C,k=(A=function(t){for(var e=1;e<arguments.length;e++){var i=null!=arguments[e]?arguments[e]:{},n=Object.keys(i);"function"==typeof Object.getOwnPropertySymbols&&(n=n.concat(Object.getOwnPropertySymbols(i).filter((function(t){return Object.getOwnPropertyDescriptor(i,t).enumerable})))),n.forEach((function(e){M(t,e,i[e])}))}return t}({},S),C=null!=(C={refs:function(){this.DOM.dropdown=this.parseTemplate("dropdown",[this.settings]),this.DOM.dropdown.content=this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-wrapper']")},getHeaderRef:function(){return this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-header']")},getFooterRef:function(){return this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-footer']")},getAllSuggestionsRefs:function(){return N(this.DOM.dropdown.content.querySelectorAll(this.settings.classNames.dropdownItemSelector))},show:function(t){var e,i,n,a=this,o=this.settings,r="mix"==o.mode&&!o.enforceWhitelist,l=!o.whitelist||!o.whitelist.length,d="manual"==o.dropdown.position;if(t=void 0===t?this.state.inputText:t,!(l&&!r&&!o.templates.dropdownItemNoMatch||!1===o.dropdown.enabled||this.state.isLoading||this.settings.readonly)){if(clearTimeout(this.dropdownHide__bindEventsTimeout),this.suggestedListItems=this.dropdown.filterListItems(t),t&&!this.suggestedListItems.length&&(this.trigger("dropdown:noMatch",t),o.templates.dropdownItemNoMatch&&(n=o.templates.dropdownItemNoMatch.call(this,{value:t}))),!n){if(this.suggestedListItems.length)t&&r&&!this.state.editing.scope&&!s(this.suggestedListItems[0].value,t)&&this.suggestedListItems.unshift({value:t});else{if(!t||!r||this.state.editing.scope)return this.input.autocomplete.suggest.call(this),void this.dropdown.hide();this.suggestedListItems=[{value:t}]}i=""+(c(e=this.suggestedListItems[0])?e.value:e),o.autoComplete&&i&&0==i.indexOf(t)&&this.input.autocomplete.suggest.call(this,e)}this.dropdown.fill(n),o.dropdown.highlightFirst&&this.dropdown.highlightOption(this.DOM.dropdown.content.querySelector(o.classNames.dropdownItemSelector)),this.state.dropdown.visible||setTimeout(this.dropdown.events.binding.bind(this)),this.state.dropdown.visible=t||!0,this.state.dropdown.query=t,this.setStateSelection(),d||setTimeout((function(){a.dropdown.position(),a.dropdown.render()})),setTimeout((function(){a.trigger("dropdown:show",a.DOM.dropdown)}))}},hide:function(t){var e=this,i=this.DOM,n=i.scope,s=i.dropdown,a="manual"==this.settings.dropdown.position&&!t;if(s&&document.body.contains(s)&&!a)return window.removeEventListener("resize",this.dropdown.position),this.dropdown.events.binding.call(this,!1),n.setAttribute("aria-expanded",!1),s.parentNode.removeChild(s),setTimeout((function(){e.state.dropdown.visible=!1}),100),this.state.dropdown.query=this.state.ddItemData=this.state.ddItemElm=this.state.selection=null,this.state.tag&&this.state.tag.value.length&&(this.state.flaggedTags[this.state.tag.baseOffset]=this.state.tag),this.trigger("dropdown:hide",s),this},toggle:function(t){this.dropdown[this.state.dropdown.visible&&!t?"hide":"show"]()},getAppendTarget:function(){var t=this.settings.dropdown;return"function"==typeof t.appendTarget?t.appendTarget():t.appendTarget},render:function(){var t,e,i,n=this,s=(t=this.DOM.dropdown,(i=t.cloneNode(!0)).style.cssText="position:fixed; top:-9999px; opacity:0",document.body.appendChild(i),e=i.clientHeight,i.parentNode.removeChild(i),e),a=this.settings,o=this.dropdown.getAppendTarget();return!1===a.dropdown.enabled||(this.DOM.scope.setAttribute("aria-expanded",!0),document.body.contains(this.DOM.dropdown)||(this.DOM.dropdown.classList.add(a.classNames.dropdownInital),this.dropdown.position(s),o.appendChild(this.DOM.dropdown),setTimeout((function(){return n.DOM.dropdown.classList.remove(a.classNames.dropdownInital)})))),this},fill:function(t){t="string"==typeof t?t:this.dropdown.createListHTML(t||this.suggestedListItems);var e,i=this.settings.templates.dropdownContent.call(this,t);this.DOM.dropdown.content.innerHTML=(e=i)?e.replace(/\>[\r\n ]+\</g,"><").split(/>\s+</).join("><").trim():""},fillHeaderFooter:function(){var t=this.dropdown.filterListItems(this.state.dropdown.query),e=this.parseTemplate("dropdownHeader",[t]),i=this.parseTemplate("dropdownFooter",[t]),n=this.dropdown.getHeaderRef(),s=this.dropdown.getFooterRef();e&&(null==n||n.parentNode.replaceChild(e,n)),i&&(null==s||s.parentNode.replaceChild(i,s))},position:function(t){var e=this.settings.dropdown,i=this.dropdown.getAppendTarget();if("manual"!=e.position&&i){var n,s,a,o,r,l,d,c,u,g=this.DOM.dropdown,h=e.RTL,p=i===document.body,f=i===this.DOM.scope,m=p?window.pageYOffset:i.scrollTop,v=document.fullscreenElement||document.webkitFullscreenElement||document.documentElement,b=v.clientHeight,y=Math.max(v.clientWidth||0,window.innerWidth||0)>480?e.position:"all",w=this.DOM["input"==y?"input":"scope"];if(t=t||g.clientHeight,this.state.dropdown.visible){if("text"==y?(a=(n=function(){var t=document.getSelection();if(t.rangeCount){var e,i,n=t.getRangeAt(0),s=n.startContainer,a=n.startOffset;if(a>0)return(i=document.createRange()).setStart(s,a-1),i.setEnd(s,a),{left:(e=i.getBoundingClientRect()).right,top:e.top,bottom:e.bottom};if(s.getBoundingClientRect)return s.getBoundingClientRect()}return{left:-9999,top:-9999}}()).bottom,s=n.top,o=n.left,r="auto"):(l=function(t){var e=0,i=0;for(t=t.parentNode;t&&t!=v;)e+=t.offsetTop||0,i+=t.offsetLeft||0,t=t.parentNode;return{top:e,left:i}}(i),n=w.getBoundingClientRect(),s=f?-1:n.top-l.top,a=(f?n.height:n.bottom-l.top)-1,o=f?-1:n.left-l.left,r=n.width+"px"),!p){var T=function(){for(var t=0,i=e.appendTarget.parentNode;i;)t+=i.scrollTop||0,i=i.parentNode;return t}();s+=T,a+=T}var O;s=Math.floor(s),a=Math.ceil(a),c=((d=null!==(O=e.placeAbove)&&void 0!==O?O:b-n.bottom<t)?s:a)+m,u="left: ".concat(o+(h&&n.width||0)+window.pageXOffset,"px;"),g.style.cssText="".concat(u,"; top: ").concat(c,"px; min-width: ").concat(r,"; max-width: ").concat(r),g.setAttribute("placement",d?"top":"bottom"),g.setAttribute("position",y)}}}})?C:{},Object.getOwnPropertyDescriptors?Object.defineProperties(A,Object.getOwnPropertyDescriptors(C)):function(t,e){var i=Object.keys(t);if(Object.getOwnPropertySymbols){var n=Object.getOwnPropertySymbols(t);e&&(n=n.filter((function(e){return Object.getOwnPropertyDescriptor(t,e).enumerable}))),i.push.apply(i,n)}return i}(Object(C)).forEach((function(t){Object.defineProperty(A,t,Object.getOwnPropertyDescriptor(C,t))})),A),L="@yaireo/tagify/",j={empty:"empty",exceed:"number of tags exceeded",pattern:"pattern mismatch",duplicate:"already exists",notAllowed:"not allowed"},P={wrapper:function(e,i){return'<tags class="'.concat(i.classNames.namespace," ").concat(i.mode?"".concat(i.classNames[i.mode+"Mode"]):""," ").concat(e.className,'"\n                    ').concat(i.readonly?"readonly":"","\n                    ").concat(i.disabled?"disabled":"","\n                    ").concat(i.required?"required":"","\n                    ").concat("select"===i.mode?"spellcheck='false'":"",'\n                    tabIndex="-1">\n                    ').concat(this.settings.templates.input.call(this),"\n                ").concat(t,"\n        </tags>")},input:function(){var e=this.settings,i=e.placeholder||t;return"<span ".concat(!e.readonly&&e.userInput?"contenteditable":"",' tabIndex="0" data-placeholder="').concat(i,'" aria-placeholder="').concat(e.placeholder||"",'"\n                    class="').concat(e.classNames.input,'"\n                    role="textbox"\n                    autocapitalize="false"\n                    autocorrect="off"\n                    aria-autocomplete="both"\n                    aria-multiline="').concat("mix"==e.mode,'"></span>')},tag:function(t,e){var i=e.settings;return'<tag title="'.concat(t.title||t.value,"\"\n                    contenteditable='false'\n                    tabIndex=\"").concat(i.a11y.focusableTags?0:-1,'"\n                    class="').concat(i.classNames.tag," ").concat(t.class||"",'"\n                    ').concat(this.getAttributes(t),">\n            <x title='' tabIndex=\"").concat(i.a11y.focusableTags?0:-1,'" class="').concat(i.classNames.tagX,"\" role='button' aria-label='remove tag'></x>\n            <div>\n                <span ").concat("select"===i.mode&&i.userInput?"contenteditable='true'":"",' autocapitalize="false" autocorrect="off" spellcheck=\'false\' class="').concat(i.classNames.tagText,'">').concat(t[i.tagTextProp]||t.value,"</span>\n            </div>\n        </tag>")},dropdown:function(t){var e=t.dropdown,i="manual"==e.position;return'<div class="'.concat(i?"":t.classNames.dropdown," ").concat(e.classname,'" role="listbox" aria-labelledby="dropdown" dir="').concat(e.RTL?"rtl":"","\">\n                    <div data-selector='tagify-suggestions-wrapper' class=\"").concat(t.classNames.dropdownWrapper,'"></div>\n                </div>')},dropdownContent:function(t){var e=this.settings.templates,i=this.state.dropdown.suggestions;return"\n            ".concat(e.dropdownHeader.call(this,i),"\n            ").concat(t,"\n            ").concat(e.dropdownFooter.call(this,i),"\n        ")},dropdownItem:function(t){return"<div ".concat(this.getAttributes(t),"\n                    class='").concat(this.settings.classNames.dropdownItem," ").concat(this.isTagDuplicate(t.value)?this.settings.classNames.dropdownItemSelected:""," ").concat(t.class||"",'\'\n                    tabindex="0"\n                    role="option">').concat(t.mappedValue||t.value,"</div>")},dropdownHeader:function(t){return"<header data-selector='tagify-suggestions-header' class=\"".concat(this.settings.classNames.dropdownHeader,'"></header>')},dropdownFooter:function(t){var e=t.length-this.settings.dropdown.maxItems;return e>0?"<footer data-selector='tagify-suggestions-footer' class=\"".concat(this.settings.classNames.dropdownFooter,'">\n                ').concat(e," more items. Refine your search.\n            </footer>"):""},dropdownItemNoMatch:null};function V(t,e){(null==e||e>t.length)&&(e=t.length);for(var i=0,n=new Array(e);i<e;i++)n[i]=t[i];return n}function F(t,e){return null!=e&&"undefined"!=typeof Symbol&&e[Symbol.hasInstance]?!!e[Symbol.hasInstance](t):t instanceof e}function R(t,e){return function(t){if(Array.isArray(t))return t}(t)||function(t,e){var i=null==t?null:"undefined"!=typeof Symbol&&t[Symbol.iterator]||t["@@iterator"];if(null!=i){var n,s,a=[],o=!0,r=!1;try{for(i=i.call(t);!(o=(n=i.next()).done)&&(a.push(n.value),!e||a.length!==e);o=!0);}catch(t){r=!0,s=t}finally{try{o||null==i.return||i.return()}finally{if(r)throw s}}return a}}(t,e)||function(t,e){if(!t)return;if("string"==typeof t)return V(t,e);var i=Object.prototype.toString.call(t).slice(8,-1);"Object"===i&&t.constructor&&(i=t.constructor.name);if("Map"===i||"Set"===i)return Array.from(i);if("Arguments"===i||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(i))return V(t,e)}(t,e)||function(){throw new TypeError("Invalid attempt to destructure non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}()}function H(t,e){(null==e||e>t.length)&&(e=t.length);for(var i=0,n=new Array(e);i<e;i++)n[i]=t[i];return n}function B(t,e,i){return e in t?Object.defineProperty(t,e,{value:i,enumerable:!0,configurable:!0,writable:!0}):t[e]=i,t}function W(t,e){return null!=e&&"undefined"!=typeof Symbol&&e[Symbol.hasInstance]?!!e[Symbol.hasInstance](t):t instanceof e}function K(t,e){return e=null!=e?e:{},Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(e)):function(t,e){var i=Object.keys(t);if(Object.getOwnPropertySymbols){var n=Object.getOwnPropertySymbols(t);e&&(n=n.filter((function(e){return Object.getOwnPropertyDescriptor(t,e).enumerable}))),i.push.apply(i,n)}return i}(Object(e)).forEach((function(i){Object.defineProperty(t,i,Object.getOwnPropertyDescriptor(e,i))})),t}function U(t){return function(t){if(Array.isArray(t))return H(t)}(t)||function(t){if("undefined"!=typeof Symbol&&null!=t[Symbol.iterator]||null!=t["@@iterator"])return Array.from(t)}(t)||function(t,e){if(!t)return;if("string"==typeof t)return H(t,e);var i=Object.prototype.toString.call(t).slice(8,-1);"Object"===i&&t.constructor&&(i=t.constructor.name);if("Map"===i||"Set"===i)return Array.from(i);if("Arguments"===i||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(i))return H(t,e)}(t)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}()}var q={customBinding:function(){var t=this;this.customEventsList.forEach((function(e){t.on(e,t.settings.callbacks[e])}))},binding:function(){var t,e=!(arguments.length>0&&void 0!==arguments[0])||arguments[0],i=this.settings,n=this.events.callbacks,s=e?"addEventListener":"removeEventListener";if(!this.state.mainEvents||!e){for(var a in this.state.mainEvents=e,e&&!this.listeners.main&&(this.events.bindGlobal.call(this),this.settings.isJQueryPlugin&&jQuery(this.DOM.originalInput).on("tagify.removeAllTags",this.removeAllTags.bind(this))),t=this.listeners.main=this.listeners.main||{keydown:["input",n.onKeydown.bind(this)],click:["scope",n.onClickScope.bind(this)],dblclick:"select"!=i.mode&&["scope",n.onDoubleClickScope.bind(this)],paste:["input",n.onPaste.bind(this)],drop:["input",n.onDrop.bind(this)],compositionstart:["input",n.onCompositionStart.bind(this)],compositionend:["input",n.onCompositionEnd.bind(this)]})t[a]&&this.DOM[t[a][0]][s](a,t[a][1]);var o=this.listeners.main.inputMutationObserver||new MutationObserver(n.onInputDOMChange.bind(this));o.disconnect(),"mix"==i.mode&&o.observe(this.DOM.input,{childList:!0}),this.events.bindOriginaInputListener.call(this)}},bindOriginaInputListener:function(t){var e=(t||0)+500;this.listeners.main&&(clearInterval(this.listeners.main.originalInputValueObserverInterval),this.listeners.main.originalInputValueObserverInterval=setInterval(this.events.callbacks.observeOriginalInputValue.bind(this),e))},bindGlobal:function(t){var e,i=this.events.callbacks,n=t?"removeEventListener":"addEventListener";if(this.listeners&&(t||!this.listeners.global)){this.listeners.global=this.listeners.global||[{type:this.isIE?"keydown":"input",target:this.DOM.input,cb:i[this.isIE?"onInputIE":"onInput"].bind(this)},{type:"keydown",target:window,cb:i.onWindowKeyDown.bind(this)},{type:"focusin",target:this.DOM.scope,cb:i.onFocusBlur.bind(this)},{type:"focusout",target:this.DOM.scope,cb:i.onFocusBlur.bind(this)},{type:"click",target:document,cb:i.onClickAnywhere.bind(this),useCapture:!0}];var s=!0,a=!1,o=void 0;try{for(var r,l=this.listeners.global[Symbol.iterator]();!(s=(r=l.next()).done);s=!0)(e=r.value).target[n](e.type,e.cb,!!e.useCapture)}catch(t){a=!0,o=t}finally{try{s||null==l.return||l.return()}finally{if(a)throw o}}}},unbindGlobal:function(){this.events.bindGlobal.call(this,!0)},callbacks:{onFocusBlur:function(t){var e,i,n=this.settings,s=v.call(this,t.target),a=m.call(this,t.target),o=t.target.classList.contains(n.classNames.tagX),r="focusin"==t.type,l="focusout"==t.type;s&&r&&!a&&!o&&this.toggleFocusClass(this.state.hasFocus=+new Date);var d=t.target?this.trim(this.DOM.input.textContent):"",c=null===(i=this.value)||void 0===i||null===(e=i[0])||void 0===e?void 0:e[n.tagTextProp],u=n.dropdown.enabled>=0,g={relatedTarget:t.relatedTarget},h=this.state.actions.selectOption&&(u||!n.dropdown.closeOnSelect),p=this.state.actions.addNew&&u;if(l){if(t.relatedTarget===this.DOM.scope)return this.dropdown.hide(),void this.DOM.input.focus();this.postUpdate(),n.onChangeAfterBlur&&this.triggerChangeEvent()}if(!(h||p||o))if(r||s?(this.state.hasFocus=+new Date,this.toggleFocusClass(this.state.hasFocus)):this.state.hasFocus=!1,"mix"!=n.mode){if(r){if(!n.focusable)return;var f=0===n.dropdown.enabled&&!this.state.dropdown.visible,b=!a||"select"===n.mode;return this.toggleFocusClass(!0),this.trigger("focus",g),void(f&&b&&this.dropdown.show(this.value.length?"":void 0))}if(l){if(this.trigger("blur",g),this.loading(!1),"select"==n.mode){if(this.value.length){var y=this.getTagElms()[0];d=this.trim(y.textContent)}c===d&&(d="")}d&&!this.state.actions.selectOption&&n.addTagOnBlur&&n.addTagOn.includes("blur")&&this.addTags(d,!0)}s||(this.DOM.input.removeAttribute("style"),this.dropdown.hide())}else r?this.trigger("focus",g):l&&(this.trigger("blur",g),this.loading(!1),this.dropdown.hide(),this.state.dropdown.visible=void 0,this.setStateSelection())},onCompositionStart:function(t){this.state.composing=!0},onCompositionEnd:function(t){this.state.composing=!1},onWindowKeyDown:function(t){var e,i=this.settings,n=document.activeElement,s=v.call(this,n)&&this.DOM.scope.contains(document.activeElement),a=s&&n.hasAttribute("readonly");if(this.state.hasFocus||s&&!a){e=n.nextElementSibling;var o=t.target.classList.contains(i.classNames.tagX);switch(t.key){case"Backspace":i.readonly||this.state.editing||(this.removeTags(n),(e||this.DOM.input).focus());break;case"Enter":if(o)return void this.removeTags(t.target.parentNode);i.a11y.focusableTags&&m.call(this,n)&&setTimeout(this.editTag.bind(this),0,n);break;case"ArrowDown":this.state.dropdown.visible||"mix"==i.mode||this.dropdown.show()}}},onKeydown:function(t){var e=this,i=this.settings;if(!this.state.composing&&i.userInput){"select"==i.mode&&i.enforceWhitelist&&this.value.length&&"Tab"!=t.key&&t.preventDefault();var n=this.trim(t.target.textContent);this.trigger("keydown",{event:t}),i.hooks.beforeKeyDown(t,{tagify:this}).then((function(s){if("mix"==i.mode){switch(t.key){case"Left":case"ArrowLeft":e.state.actions.ArrowLeft=!0;break;case"Delete":case"Backspace":if(e.state.editing)return;var a=document.getSelection(),o="Delete"==t.key&&a.anchorOffset==(a.anchorNode.length||0),r=a.anchorNode.previousSibling,d=1==a.anchorNode.nodeType||!a.anchorOffset&&r&&1==r.nodeType&&a.anchorNode.previousSibling;!function(t){var e=document.createElement("div");t.replace(/\&#?[0-9a-z]+;/gi,(function(t){return e.innerHTML=t,e.innerText}))}(e.DOM.input.innerHTML);var c,u,g,h=e.getTagElms(),f=1===a.anchorNode.length&&a.anchorNode.nodeValue==String.fromCharCode(8203);if("edit"==i.backspace&&d)return c=1==a.anchorNode.nodeType?null:a.anchorNode.previousElementSibling,setTimeout(e.editTag.bind(e),0,c),void t.preventDefault();if(p()&&W(d,Element))return g=l(d),d.hasAttribute("readonly")||d.remove(),e.DOM.input.focus(),void setTimeout((function(){w(g),e.DOM.input.click()}));if("BR"==a.anchorNode.nodeName)return;if((o||d)&&1==a.anchorNode.nodeType?u=0==a.anchorOffset?o?h[0]:null:h[Math.min(h.length,a.anchorOffset)-1]:o?u=a.anchorNode.nextElementSibling:W(d,Element)&&(u=d),3==a.anchorNode.nodeType&&!a.anchorNode.nodeValue&&a.anchorNode.previousElementSibling&&t.preventDefault(),(d||o)&&!i.backspace)return void t.preventDefault();if("Range"!=a.type&&!a.anchorOffset&&a.anchorNode==e.DOM.input&&"Delete"!=t.key)return void t.preventDefault();if("Range"!=a.type&&u&&u.hasAttribute("readonly"))return void w(l(u));"Delete"==t.key&&f&&y(a.anchorNode.nextSibling)&&e.removeTags(a.anchorNode.nextSibling)}return!0}var m="manual"==i.dropdown.position;switch(t.key){case"Backspace":"select"==i.mode&&i.enforceWhitelist&&e.value.length?e.removeTags():e.state.dropdown.visible&&"manual"!=i.dropdown.position||""!=t.target.textContent&&8203!=n.charCodeAt(0)||(!0===i.backspace?e.removeTags():"edit"==i.backspace&&setTimeout(e.editTag.bind(e),0));break;case"Esc":case"Escape":if(e.state.dropdown.visible)return;t.target.blur();break;case"Down":case"ArrowDown":e.state.dropdown.visible||e.dropdown.show();break;case"ArrowRight":var v=e.state.inputSuggestion||e.state.ddItemData;if(v&&i.autoComplete.rightKey)return void e.addTags([v],!0);break;case"Tab":var b="select"==i.mode;if(!n||b)return!0;t.preventDefault();case"Enter":if(e.state.dropdown.visible&&!m)return;t.preventDefault(),setTimeout((function(){e.state.dropdown.visible&&!m||e.state.actions.selectOption||!i.addTagOn.includes(t.key.toLowerCase())||e.addTags(n,!0)}))}})).catch((function(t){return t}))}},onInput:function(t){this.postUpdate();var e=this.settings;if("mix"==e.mode)return this.events.callbacks.onMixTagsInput.call(this,t);var i=this.input.normalize.call(this,void 0,{trim:!1}),n=i.length>=e.dropdown.enabled,s={value:i,inputElm:this.DOM.input},a=this.validateTag({value:i});"select"==e.mode&&this.toggleScopeValidation(a),s.isValid=a,this.state.inputText!=i&&(this.input.set.call(this,i,!1),-1!=i.search(e.delimiters)?this.addTags(i)&&this.input.set.call(this):e.dropdown.enabled>=0&&this.dropdown[n?"show":"hide"](i),this.trigger("input",s))},onMixTagsInput:function(t){var e,i,n,s,a,o,r,l,d=this,c=this.settings,g=this.value.length,h=this.getTagElms(),f=document.createDocumentFragment(),m=window.getSelection().getRangeAt(0),v=[].map.call(h,(function(t){return y(t).value}));if("deleteContentBackward"==t.inputType&&p()&&this.events.callbacks.onKeydown.call(this,{target:t.target,key:"Backspace"}),T(this.getTagElms()),this.value.slice().forEach((function(t){t.readonly&&!v.includes(t.value)&&f.appendChild(d.createTagElem(t))})),f.childNodes.length&&(m.insertNode(f),this.setRangeAtStartEnd(!1,f.lastChild)),h.length!=g)return this.value=[].map.call(this.getTagElms(),(function(t){return y(t)})),void this.update({withoutChangeEvent:!0});if(this.hasMaxTags())return!0;if(window.getSelection&&(o=window.getSelection()).rangeCount>0&&3==o.anchorNode.nodeType){if((m=o.getRangeAt(0).cloneRange()).collapse(!0),m.setStart(o.focusNode,0),n=(e=m.toString().slice(0,m.endOffset)).split(c.pattern).length-1,(i=e.match(c.pattern))&&(s=e.slice(e.lastIndexOf(i[i.length-1]))),s){if(this.state.actions.ArrowLeft=!1,this.state.tag={prefix:s.match(c.pattern)[0],value:s.replace(c.pattern,"")},this.state.tag.baseOffset=o.baseOffset-this.state.tag.value.length,l=this.state.tag.value.match(c.delimiters))return this.state.tag.value=this.state.tag.value.replace(c.delimiters,""),this.state.tag.delimiters=l[0],this.addTags(this.state.tag.value,c.dropdown.clearOnSelect),void this.dropdown.hide();a=this.state.tag.value.length>=c.dropdown.enabled;try{r=(r=this.state.flaggedTags[this.state.tag.baseOffset]).prefix==this.state.tag.prefix&&r.value[0]==this.state.tag.value[0],this.state.flaggedTags[this.state.tag.baseOffset]&&!this.state.tag.value&&delete this.state.flaggedTags[this.state.tag.baseOffset]}catch(t){}(r||n<this.state.mixMode.matchedPatternCount)&&(a=!1)}else this.state.flaggedTags={};this.state.mixMode.matchedPatternCount=n}setTimeout((function(){d.update({withoutChangeEvent:!0}),d.trigger("input",u({},d.state.tag,{textContent:d.DOM.input.textContent})),d.state.tag&&d.dropdown[a?"show":"hide"](d.state.tag.value)}),10)},onInputIE:function(t){var e=this;setTimeout((function(){e.events.callbacks.onInput.call(e,t)}))},observeOriginalInputValue:function(){this.DOM.originalInput.parentNode||this.destroy(),this.DOM.originalInput.value!=this.DOM.originalInput.tagifyValue&&this.loadOriginalValues()},onClickAnywhere:function(t){t.target==this.DOM.scope||this.DOM.scope.contains(t.target)||(this.toggleFocusClass(!1),this.state.hasFocus=!1,t.target.closest(".tagify__dropdown")&&t.target.closest(".tagify__dropdown").__tagify!=this&&this.dropdown.hide())},onClickScope:function(t){var e=this.settings,i=t.target.closest("."+e.classNames.tag),n=t.target===this.DOM.scope,s=+new Date-this.state.hasFocus;if(n&&"select"!=e.mode)this.DOM.input.focus();else{if(!t.target.classList.contains(e.classNames.tagX))return i&&!this.state.editing?(this.trigger("click",{tag:i,index:this.getNodeIndex(i),data:y(i),event:t}),void(1!==e.editTags&&1!==e.editTags.clicks&&"select"!=e.mode||this.events.callbacks.onDoubleClickScope.call(this,t))):void(t.target==this.DOM.input&&("mix"==e.mode&&this.fixFirefoxLastTagNoCaret(),s>500||!e.focusable)?this.state.dropdown.visible?this.dropdown.hide():0===e.dropdown.enabled&&"mix"!=e.mode&&this.dropdown.show(this.value.length?"":void 0):"select"!=e.mode||0!==e.dropdown.enabled||this.state.dropdown.visible||(this.events.callbacks.onDoubleClickScope.call(this,K(function(t){for(var e=1;e<arguments.length;e++){var i=null!=arguments[e]?arguments[e]:{},n=Object.keys(i);"function"==typeof Object.getOwnPropertySymbols&&(n=n.concat(Object.getOwnPropertySymbols(i).filter((function(t){return Object.getOwnPropertyDescriptor(i,t).enumerable})))),n.forEach((function(e){B(t,e,i[e])}))}return t}({},t),{target:this.getTagElms()[0]})),!e.userInput&&this.dropdown.show()));this.removeTags(t.target.parentNode)}},onPaste:function(t){var e=this;t.preventDefault();var i,n,s,a=this.settings;if("select"==a.mode&&a.enforceWhitelist||!a.userInput)return!1;a.readonly||(n=t.clipboardData||window.clipboardData,s=n.getData("Text"),a.hooks.beforePaste(t,{tagify:this,pastedText:s,clipboardData:n}).then((function(a){void 0===a&&(a=s),a&&(e.injectAtCaret(a,window.getSelection().getRangeAt(0)),"mix"==e.settings.mode?e.events.callbacks.onMixTagsInput.call(e,t):e.settings.pasteAsTags?i=e.addTags(e.state.inputText+a,!0):(e.state.inputText=a,e.dropdown.show(a))),e.trigger("paste",{event:t,pastedText:s,clipboardData:n,tagsElems:i})})).catch((function(t){return t})))},onDrop:function(t){t.preventDefault()},onEditTagInput:function(t,e){var i,n=t.closest("."+this.settings.classNames.tag),s=this.getNodeIndex(n),a=y(n),o=this.input.normalize.call(this,t),r=(B(i={},this.settings.tagTextProp,o),B(i,"__tagId",a.__tagId),i),l=this.validateTag(r);this.editTagChangeDetected(u(a,r))||!0!==t.originalIsValid||(l=!0),n.classList.toggle(this.settings.classNames.tagInvalid,!0!==l),a.__isValid=l,n.title=!0===l?a.title||a.value:l,o.length>=this.settings.dropdown.enabled&&(this.state.editing&&(this.state.editing.value=o),this.dropdown.show(o)),this.trigger("edit:input",{tag:n,index:s,data:u({},this.value[s],{newValue:o}),event:e})},onEditTagPaste:function(t,e){var i=(e.clipboardData||window.clipboardData).getData("Text");e.preventDefault();var n=b(i);this.setRangeAtStartEnd(!1,n)},onEditTagClick:function(t,e){this.events.callbacks.onClickScope.call(this,e)},onEditTagFocus:function(t){this.state.editing={scope:t,input:t.querySelector("[contenteditable]")}},onEditTagBlur:function(t,e){var i=m.call(this,e.relatedTarget);if("select"==this.settings.mode&&i&&e.relatedTarget.contains(e.target))this.dropdown.hide();else if(this.state.editing&&(this.state.hasFocus||this.toggleFocusClass(),this.DOM.scope.contains(t))){var n,s,a,o=this.settings,r=t.closest("."+o.classNames.tag),l=y(r),d=this.input.normalize.call(this,t),c=(B(n={},o.tagTextProp,d),B(n,"__tagId",l.__tagId),n),g=l.__originalData,h=this.editTagChangeDetected(u(l,c)),p=this.validateTag(c);if(d)if(h){var f;if(s=this.hasMaxTags(),a=u({},g,(B(f={},o.tagTextProp,this.trim(d)),B(f,"__isValid",p),f)),o.transformTag.call(this,a,g),!0!==(p=(!s||!0===g.__isValid)&&this.validateTag(a))){if(this.trigger("invalid",{data:a,tag:r,message:p}),o.editTags.keepInvalid)return;o.keepInvalidTags?a.__isValid=p:a=g}else o.keepInvalidTags&&(delete a.title,delete a["aria-invalid"],delete a.class);this.onEditTagDone(r,a)}else this.onEditTagDone(r,g);else this.onEditTagDone(r)}},onEditTagkeydown:function(t,e){if(!this.state.composing)switch(this.trigger("edit:keydown",{event:t}),t.key){case"Esc":case"Escape":this.state.editing=!1,!!e.__tagifyTagData.__originalData.value?e.parentNode.replaceChild(e.__tagifyTagData.__originalHTML,e):e.remove();break;case"Enter":case"Tab":t.preventDefault();setTimeout((function(){return t.target.blur()}),0)}},onDoubleClickScope:function(t){var e,i,n=t.target.closest("."+this.settings.classNames.tag),s=y(n),a=this.settings;n&&!1!==s.editable&&(e=n.classList.contains(this.settings.classNames.tagEditing),i=n.hasAttribute("readonly"),a.readonly||e||i||!this.settings.editTags||!a.userInput||(this.events.callbacks.onEditTagFocus.call(this,n),this.editTag(n)),this.toggleFocusClass(!0),"select"!=a.mode&&this.trigger("dblclick",{tag:n,index:this.getNodeIndex(n),data:y(n)}))},onInputDOMChange:function(t){var e=this;t.forEach((function(t){t.addedNodes.forEach((function(t){if("<div><br></div>"==t.outerHTML)t.replaceWith(document.createElement("br"));else if(1==t.nodeType&&t.querySelector(e.settings.classNames.tagSelector)){var i,n=document.createTextNode("");3==t.childNodes[0].nodeType&&"BR"!=t.previousSibling.nodeName&&(n=document.createTextNode("\n")),(i=t).replaceWith.apply(i,U([n].concat(U(U(t.childNodes).slice(0,-1))))),w(n)}else if(m.call(e,t)){var s;if(3!=(null===(s=t.previousSibling)||void 0===s?void 0:s.nodeType)||t.previousSibling.textContent||t.previousSibling.remove(),t.previousSibling&&"BR"==t.previousSibling.nodeName){t.previousSibling.replaceWith("\n​");for(var a=t.nextSibling,o="";a;)o+=a.textContent,a=a.nextSibling;o.trim()&&w(t.previousSibling)}else t.previousSibling&&!y(t.previousSibling)||t.before("​")}})),t.removedNodes.forEach((function(t){t&&"BR"==t.nodeName&&m.call(e,i)&&(e.removeTags(i),e.fixFirefoxLastTagNoCaret())}))}));var i=this.DOM.input.lastChild;i&&""==i.nodeValue&&i.remove(),i&&"BR"==i.nodeName||this.DOM.input.appendChild(document.createElement("br"))}}};function z(t,e){(null==e||e>t.length)&&(e=t.length);for(var i=0,n=new Array(e);i<e;i++)n[i]=t[i];return n}function X(t,e,i){return e in t?Object.defineProperty(t,e,{value:i,enumerable:!0,configurable:!0,writable:!0}):t[e]=i,t}function J(t,e){return null!=e&&"undefined"!=typeof Symbol&&e[Symbol.hasInstance]?!!e[Symbol.hasInstance](t):t instanceof e}function G(t){for(var e=1;e<arguments.length;e++){var i=null!=arguments[e]?arguments[e]:{},n=Object.keys(i);"function"==typeof Object.getOwnPropertySymbols&&(n=n.concat(Object.getOwnPropertySymbols(i).filter((function(t){return Object.getOwnPropertyDescriptor(i,t).enumerable})))),n.forEach((function(e){X(t,e,i[e])}))}return t}function $(t){return function(t){if(Array.isArray(t))return z(t)}(t)||function(t){if("undefined"!=typeof Symbol&&null!=t[Symbol.iterator]||null!=t["@@iterator"])return Array.from(t)}(t)||function(t,e){if(!t)return;if("string"==typeof t)return z(t,e);var i=Object.prototype.toString.call(t).slice(8,-1);"Object"===i&&t.constructor&&(i=t.constructor.name);if("Map"===i||"Set"===i)return Array.from(i);if("Arguments"===i||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(i))return z(t,e)}(t)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}()}function Q(t,e){if(!t){n.warn("input element not found",t);var i=new Proxy(this,{get:function(){return function(){return i}}});return i}if(t.__tagify)return n.warn("input element is already Tagified - Same instance is returned.",t),t.__tagify;var s;u(this,function(t){var e=document.createTextNode(""),i={};function s(t,i,n){n&&i.split(/\s+/g).forEach((function(i){return e[t+"EventListener"].call(e,i,n)}))}return{removeAllCustomListeners:function(){Object.entries(i).forEach((function(t){var e=R(t,2),i=e[0];e[1].forEach((function(t){return s("remove",i,t)}))})),i={}},off:function(t,e){return t&&(e?s("remove",t,e):t.split(/\s+/g).forEach((function(t){var e;null===(e=i[t])||void 0===e||e.forEach((function(e){return s("remove",t,e)})),delete i[t]}))),this},on:function(t,e){return e&&"function"==typeof e&&(t.split(/\s+/g).forEach((function(t){Array.isArray(i[t])?i[t].push(e):i[t]=[e]})),s("add",t,e)),this},trigger:function(i,s,a){var o;if(a=a||{cloneData:!0},i)if(t.settings.isJQueryPlugin)"remove"==i&&(i="removeTag"),jQuery(t.DOM.originalInput).triggerHandler(i,[s]);else{try{var r="object"==typeof s?s:{value:s};if((r=a.cloneData?u({},r):r).tagify=this,s.event&&(r.event=this.cloneEvent(s.event)),F(s,Object))for(var l in s)F(s[l],HTMLElement)&&(r[l]=s[l]);o=new CustomEvent(i,{detail:r})}catch(t){n.warn(t)}e.dispatchEvent(o)}}}}(this)),this.isFirefox=/firefox|fxios/i.test(navigator.userAgent)&&!/seamonkey/i.test(navigator.userAgent),this.isIE=window.document.documentMode,e=e||{},this.getPersistedData=(s=e.id,function(t){var e;if(!s)return{};var i,n="/"+t;if(1===(null===(e=localStorage)||void 0===e?void 0:e.getItem(L+s+"/v")))try{i=JSON.parse(localStorage[L+s+n])}catch(t){}return i}),this.setPersistedData=function(t){var e;return t?(null===(e=localStorage)||void 0===e||e.setItem(L+t+"/v",1),function(e,i){var n,s="/"+i,a=JSON.stringify(e);e&&i&&(null===(n=localStorage)||void 0===n||n.setItem(L+t+s,a),dispatchEvent(new Event("storage")))}):function(){}}(e.id),this.clearPersistedData=function(t){return function(e){var i=L+"/"+t+"/";if(e)localStorage.removeItem(i+e);else for(var n in localStorage)n.includes(i)&&localStorage.removeItem(n)}}(e.id),this.applySettings(t,e),this.state={inputText:"",editing:!1,composing:!1,actions:{},mixMode:{},dropdown:{},flaggedTags:{}},this.value=[],this.listeners={},this.DOM={},this.build(t),_.call(this),this.getCSSVars(),this.loadOriginalValues(),this.events.customBinding.call(this),this.events.binding.call(this),t.autofocus&&this.DOM.input.focus(),t.__tagify=this}return Q.prototype={_dropdown:k,placeCaretAfterNode:w,getSetTagData:y,helpers:{sameStr:s,removeCollectionProp:a,omit:o,isObject:c,parseHTML:r,escapeHTML:d,extend:u,concatWithoutDups:g,getUID:f,isNodeTag:m},customEventsList:["change","add","remove","invalid","input","paste","click","keydown","focus","blur","edit:input","edit:beforeUpdate","edit:updated","edit:start","edit:keydown","dropdown:show","dropdown:hide","dropdown:select","dropdown:updated","dropdown:noMatch","dropdown:scroll"],dataProps:["__isValid","__removed","__originalData","__originalHTML","__tagId"],trim:function(t){return this.settings.trim&&t&&"string"==typeof t?t.trim():t},parseHTML:r,templates:P,parseTemplate:function(t,e){return r((t=this.settings.templates[t]||t).apply(this,e))},set whitelist(t){var e=t&&Array.isArray(t);this.settings.whitelist=e?t:[],this.setPersistedData(e?t:[],"whitelist")},get whitelist(){return this.settings.whitelist},set userInput(t){this.settings.userInput=!!t,this.setContentEditable(!!t)},get userInput(){return this.settings.userInput},generateClassSelectors:function(t){var e=function(e){var i=e;Object.defineProperty(t,i+"Selector",{get:function(){return"."+this[i].split(" ")[0]}})};for(var i in t)e(i)},applySettings:function(t,e){var i,n;O.templates=this.templates;var s=u({},O,"mix"==e.mode?{dropdown:{position:"text"}}:{}),a=this.settings=u({},s,e);if(a.disabled=t.hasAttribute("disabled"),a.readonly=a.readonly||t.hasAttribute("readonly"),a.placeholder=d(t.getAttribute("placeholder")||a.placeholder||""),a.required=t.hasAttribute("required"),this.generateClassSelectors(a.classNames),void 0===a.dropdown.includeSelectedTags&&(a.dropdown.includeSelectedTags=a.duplicates),this.isIE&&(a.autoComplete=!1),["whitelist","blacklist"].forEach((function(e){var i=t.getAttribute("data-"+e);i&&J(i=i.split(a.delimiters),Array)&&(a[e]=i)})),"autoComplete"in e&&!c(e.autoComplete)&&(a.autoComplete=O.autoComplete,a.autoComplete.enabled=e.autoComplete),"mix"==a.mode&&(a.pattern=a.pattern||/@/,a.autoComplete.rightKey=!0,a.delimiters=e.delimiters||null,a.tagTextProp&&!a.dropdown.searchKeys.includes(a.tagTextProp)&&a.dropdown.searchKeys.push(a.tagTextProp)),t.pattern)try{a.pattern=new RegExp(t.pattern)}catch(t){}if(a.delimiters){a._delimiters=a.delimiters;try{a.delimiters=new RegExp(this.settings.delimiters,"g")}catch(t){}}a.disabled&&(a.userInput=!1),this.TEXTS=G({},j,a.texts||{}),("select"!=a.mode||(null===(i=e.dropdown)||void 0===i?void 0:i.enabled))&&a.userInput||(a.dropdown.enabled=0),a.dropdown.appendTarget=(null===(n=e.dropdown)||void 0===n?void 0:n.appendTarget)||document.body;var o=this.getPersistedData("whitelist");Array.isArray(o)&&(this.whitelist=Array.isArray(a.whitelist)?g(a.whitelist,o):o)},getAttributes:function(t){var e,i=this.getCustomAttributes(t),n="";for(e in i)n+=" "+e+(void 0!==t[e]?'="'.concat(i[e],'"'):"");return n},getCustomAttributes:function(t){if(!c(t))return"";var e,i={};for(e in t)"__"!=e.slice(0,2)&&"class"!=e&&t.hasOwnProperty(e)&&void 0!==t[e]&&(i[e]=d(t[e]));return i},setStateSelection:function(){var t=window.getSelection(),e={anchorOffset:t.anchorOffset,anchorNode:t.anchorNode,range:t.getRangeAt&&t.rangeCount&&t.getRangeAt(0)};return this.state.selection=e,e},getCSSVars:function(){var t,e,i,n=getComputedStyle(this.DOM.scope,null);this.CSSVars={tagHideTransition:(t=function(t){if(!t)return{};var e=(t=t.trim().split(" ")[0]).split(/\d+/g).filter((function(t){return t})).pop().trim();return{value:+t.split(e).filter((function(t){return t}))[0].trim(),unit:e}}((i="tag-hide-transition",n.getPropertyValue("--"+i))),e=t.value,"s"==t.unit?1e3*e:e)}},build:function(t){var e=this.DOM,i=t.closest("label");this.settings.mixMode.integrated?(e.originalInput=null,e.scope=t,e.input=t):(e.originalInput=t,e.originalInput_tabIndex=t.tabIndex,e.scope=this.parseTemplate("wrapper",[t,this.settings]),e.input=e.scope.querySelector(this.settings.classNames.inputSelector),t.parentNode.insertBefore(e.scope,t),t.tabIndex=-1),i&&i.setAttribute("for","")},destroy:function(){this.events.unbindGlobal.call(this),this.DOM.scope.parentNode.removeChild(this.DOM.scope),this.DOM.originalInput.tabIndex=this.DOM.originalInput_tabIndex,delete this.DOM.originalInput.__tagify,this.dropdown.hide(!0),this.removeAllCustomListeners(),clearTimeout(this.dropdownHide__bindEventsTimeout),clearInterval(this.listeners.main.originalInputValueObserverInterval)},loadOriginalValues:function(t){var e,i=this.settings;if(this.state.blockChangeEvent=!0,void 0===t){var n=this.getPersistedData("value");t=n&&!this.DOM.originalInput.value?n:i.mixMode.integrated?this.DOM.input.textContent:this.DOM.originalInput.value}if(this.removeAllTags(),t)if("mix"==i.mode)this.parseMixTags(t),(e=this.DOM.input.lastChild)&&"BR"==e.tagName||this.DOM.input.insertAdjacentHTML("beforeend","<br>");else{try{J(JSON.parse(t),Array)&&(t=JSON.parse(t))}catch(t){}this.addTags(t,!0).forEach((function(t){return t&&t.classList.add(i.classNames.tagNoAnimation)}))}else this.postUpdate();this.state.lastOriginalValueReported=i.mixMode.integrated?"":this.DOM.originalInput.value},cloneEvent:function(t){var e={};for(var i in t)"path"!=i&&(e[i]=t[i]);return e},loading:function(t){return this.state.isLoading=t,this.DOM.scope.classList[t?"add":"remove"](this.settings.classNames.scopeLoading),this},tagLoading:function(t,e){return t&&t.classList[e?"add":"remove"](this.settings.classNames.tagLoading),this},toggleClass:function(t,e){"string"==typeof t&&this.DOM.scope.classList.toggle(t,e)},toggleScopeValidation:function(t){var e=!0===t||void 0===t;!this.settings.required&&t&&t===this.TEXTS.empty&&(e=!0),this.toggleClass(this.settings.classNames.tagInvalid,!e),this.DOM.scope.title=e?"":t},toggleFocusClass:function(t){this.toggleClass(this.settings.classNames.focus,!!t)},setPlaceholder:function(t){var e=this;["data","aria"].forEach((function(i){return e.DOM.input.setAttribute("".concat(i,"-placeholder"),t)}))},triggerChangeEvent:function(){if(!this.settings.mixMode.integrated){var t=this.DOM.originalInput,e=this.state.lastOriginalValueReported!==t.value,i=new CustomEvent("change",{bubbles:!0});e&&(this.state.lastOriginalValueReported=t.value,i.simulated=!0,t._valueTracker&&t._valueTracker.setValue(Math.random()),t.dispatchEvent(i),this.trigger("change",this.state.lastOriginalValueReported),t.value=this.state.lastOriginalValueReported)}},events:q,fixFirefoxLastTagNoCaret:function(){},setRangeAtStartEnd:function(t,e){if(e){t="number"==typeof t?t:!!t,e=e.lastChild||e;var i=document.getSelection();if(J(i.focusNode,Element)&&!this.DOM.input.contains(i.focusNode))return!0;try{i.rangeCount>=1&&["Start","End"].forEach((function(n){return i.getRangeAt(0)["set"+n](e,t||e.length)}))}catch(t){console.warn(t)}}},insertAfterTag:function(t,e){if(e=e||this.settings.mixMode.insertAfterTag,t&&t.parentNode&&e)return e="string"==typeof e?document.createTextNode(e):e,t.parentNode.insertBefore(e,t.nextSibling),e},editTagChangeDetected:function(t){var e=t.__originalData;for(var i in e)if(!this.dataProps.includes(i)&&t[i]!=e[i])return!0;return!1},getTagTextNode:function(t){return t.querySelector(this.settings.classNames.tagTextSelector)},setTagTextNode:function(t,e){this.getTagTextNode(t).innerHTML=d(e)},editTag:function(t,e){var i=this;t=t||this.getLastTag(),e=e||{};var s=this.settings,a=this.getTagTextNode(t),o=this.getNodeIndex(t),r=y(t),l=this.events.callbacks,d=!0,c="select"==s.mode;if(!c&&this.dropdown.hide(),a){if(!J(r,Object)||!("editable"in r)||r.editable)return r=y(t,{__originalData:u({},r),__originalHTML:t.cloneNode(!0)}),y(r.__originalHTML,r.__originalData),a.setAttribute("contenteditable",!0),t.classList.add(s.classNames.tagEditing),this.events.callbacks.onEditTagFocus.call(this,t),a.addEventListener("click",l.onEditTagClick.bind(this,t)),a.addEventListener("blur",l.onEditTagBlur.bind(this,this.getTagTextNode(t))),a.addEventListener("input",l.onEditTagInput.bind(this,a)),a.addEventListener("paste",l.onEditTagPaste.bind(this,a)),a.addEventListener("keydown",(function(e){return l.onEditTagkeydown.call(i,e,t)})),a.addEventListener("compositionstart",l.onCompositionStart.bind(this)),a.addEventListener("compositionend",l.onCompositionEnd.bind(this)),e.skipValidation||(d=this.editTagToggleValidity(t)),a.originalIsValid=d,this.trigger("edit:start",{tag:t,index:o,data:r,isValid:d}),a.focus(),!c&&this.setRangeAtStartEnd(!1,a),0===s.dropdown.enabled&&!c&&this.dropdown.show(),this.state.hasFocus=!0,this}else n.warn("Cannot find element in Tag template: .",s.classNames.tagTextSelector)},editTagToggleValidity:function(t,e){var i;if(e=e||y(t))return(i=!("__isValid"in e)||!0===e.__isValid)||this.removeTagsFromValue(t),this.update(),t.classList.toggle(this.settings.classNames.tagNotAllowed,!i),e.__isValid=i,e.__isValid;n.warn("tag has no data: ",t,e)},onEditTagDone:function(t,e){t=t||this.state.editing.scope,e=e||{};var i,n,s={tag:t,index:this.getNodeIndex(t),previousData:y(t),data:e},a=this.settings;this.trigger("edit:beforeUpdate",s,{cloneData:!1}),this.state.editing=!1,delete e.__originalData,delete e.__originalHTML,t&&(void 0!==(n=e[a.tagTextProp])?null===(i=(n+="").trim)||void 0===i?void 0:i.call(n):a.tagTextProp in e?void 0:e.value)?(t=this.replaceTag(t,e),this.editTagToggleValidity(t,e),a.a11y.focusableTags?t.focus():"select"!=a.mode&&w(t)):t&&this.removeTags(t),this.trigger("edit:updated",s),this.dropdown.hide(),this.settings.keepInvalidTags&&this.reCheckInvalidTags()},replaceTag:function(t,e){e&&""!==e.value&&void 0!==e.value||(e=t.__tagifyTagData),e.__isValid&&1!=e.__isValid&&u(e,this.getInvalidTagAttrs(e,e.__isValid));var i=this.createTagElem(e);return t.parentNode.replaceChild(i,t),this.updateValueByDOMTags(),i},updateValueByDOMTags:function(){var t=this;this.value.length=0;var e=this.settings.classNames,i=[e.tagNotAllowed.split(" ")[0],e.tagHide];[].forEach.call(this.getTagElms(),(function(e){$(e.classList).some((function(t){return i.includes(t)}))||t.value.push(y(e))})),this.update()},injectAtCaret:function(t,e){var i;if(e=e||(null===(i=this.state.selection)||void 0===i?void 0:i.range),"string"==typeof t&&(t=document.createTextNode(t)),!e&&t)return this.appendMixTags(t),this;var n=b(t,e);return this.setRangeAtStartEnd(!1,n),this.updateValueByDOMTags(),this.update(),this},input:{set:function(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"",e=!(arguments.length>1&&void 0!==arguments[1])||arguments[1],i=this.settings,n=i.dropdown.closeOnSelect;this.state.inputText=t,e&&(this.DOM.input.innerHTML=d(""+t),t&&this.toggleClass(i.classNames.empty,!this.DOM.input.innerHTML)),!t&&n&&this.dropdown.hide.bind(this),this.input.autocomplete.suggest.call(this),this.input.validate.call(this)},raw:function(){return this.DOM.input.textContent},validate:function(){var t=!this.state.inputText||!0===this.validateTag({value:this.state.inputText});return this.DOM.input.classList.toggle(this.settings.classNames.inputInvalid,!t),t},normalize:function(t,e){var i=t||this.DOM.input,n=[];i.childNodes.forEach((function(t){return 3==t.nodeType&&n.push(t.nodeValue)})),n=n.join("\n");try{n=n.replace(/(?:\r\n|\r|\n)/g,this.settings.delimiters.source.charAt(0))}catch(t){}return n=n.replace(/\s/g," "),(null==e?void 0:e.trim)?this.trim(n):n},autocomplete:{suggest:function(t){if(this.settings.autoComplete.enabled){"object"!=typeof(t=t||{value:""})&&(t={value:t});var e=this.dropdown.getMappedValue(t);if("number"!=typeof e){var i=this.state.inputText.toLowerCase(),n=e.substr(0,this.state.inputText.length).toLowerCase(),s=e.substring(this.state.inputText.length);e&&this.state.inputText&&n==i?(this.DOM.input.setAttribute("data-suggest",s),this.state.inputSuggestion=t):(this.DOM.input.removeAttribute("data-suggest"),delete this.state.inputSuggestion)}}},set:function(t){var e=this.DOM.input.getAttribute("data-suggest"),i=t||(e?this.state.inputText+e:null);return!!i&&("mix"==this.settings.mode?this.replaceTextWithNode(document.createTextNode(this.state.tag.prefix+i)):(this.input.set.call(this,i),this.setRangeAtStartEnd(!1,this.DOM.input)),this.input.autocomplete.suggest.call(this),this.dropdown.hide(),!0)}}},getTagIdx:function(t){return this.value.findIndex((function(e){return e.__tagId==(t||{}).__tagId}))},getNodeIndex:function(t){var e=0;if(t)for(;t=t.previousElementSibling;)e++;return e},getTagElms:function(){for(var t=arguments.length,e=new Array(t),i=0;i<t;i++)e[i]=arguments[i];var n="."+$(this.settings.classNames.tag.split(" ")).concat($(e)).join(".");return[].slice.call(this.DOM.scope.querySelectorAll(n))},getLastTag:function(){var t=this.settings.classNames,e=this.DOM.scope.querySelectorAll("".concat(t.tagSelector,":not(.").concat(t.tagHide,"):not([readonly])"));return e[e.length-1]},isTagDuplicate:function(t,e,i){var n=0,a=!0,o=!1,r=void 0;try{for(var l,d=this.value[Symbol.iterator]();!(a=(l=d.next()).done);a=!0){var c=l.value;s(this.trim(""+t),c.value,e)&&i!=c.__tagId&&n++}}catch(t){o=!0,r=t}finally{try{a||null==d.return||d.return()}finally{if(o)throw r}}return n},getTagIndexByValue:function(t){var e=this,i=[],n=this.settings.dropdown.caseSensitive;return this.getTagElms().forEach((function(a,o){a.__tagifyTagData&&s(e.trim(a.__tagifyTagData.value),t,n)&&i.push(o)})),i},getTagElmByValue:function(t){var e=this.getTagIndexByValue(t)[0];return this.getTagElms()[e]},flashTag:function(t){var e=this;t&&(t.classList.add(this.settings.classNames.tagFlash),setTimeout((function(){t.classList.remove(e.settings.classNames.tagFlash)}),100))},isTagBlacklisted:function(t){return t=this.trim(t.toLowerCase()),this.settings.blacklist.filter((function(e){return(""+e).toLowerCase()==t})).length},isTagWhitelisted:function(t){return!!this.getWhitelistItem(t)},getWhitelistItem:function(t,e,i){e=e||"value";var n,a=this.settings;return(i=i||a.whitelist).some((function(i){var o="object"==typeof i?i[e]||i.value:i;if(s(o,t,a.dropdown.caseSensitive,a.trim))return n="object"==typeof i?i:{value:i},!0})),n||"value"!=e||"value"==a.tagTextProp||(n=this.getWhitelistItem(t,a.tagTextProp,i)),n},validateTag:function(t){var e=this.settings,i="value"in t?"value":e.tagTextProp,n=this.trim(t[i]+"");return(t[i]+"").trim()?"mix"!=e.mode&&e.pattern&&J(e.pattern,RegExp)&&!e.pattern.test(n)?this.TEXTS.pattern:!e.duplicates&&this.isTagDuplicate(n,e.dropdown.caseSensitive,t.__tagId)?this.TEXTS.duplicate:this.isTagBlacklisted(n)||e.enforceWhitelist&&!this.isTagWhitelisted(n)?this.TEXTS.notAllowed:!e.validate||e.validate(t):this.TEXTS.empty},getInvalidTagAttrs:function(t,e){return{"aria-invalid":!0,class:"".concat(t.class||""," ").concat(this.settings.classNames.tagNotAllowed).trim(),title:e}},hasMaxTags:function(){return this.value.length>=this.settings.maxTags&&this.TEXTS.exceed},setReadonly:function(t,e){var i=this.settings;this.DOM.scope.contains(document.activeElement)&&document.activeElement.blur(),i[e||"readonly"]=t,this.DOM.scope[(t?"set":"remove")+"Attribute"](e||"readonly",!0),this.settings.userInput=!0,this.setContentEditable(!t)},setContentEditable:function(t){this.DOM.input.contentEditable=t,this.DOM.input.tabIndex=t?0:-1},setDisabled:function(t){this.setReadonly(t,"disabled")},normalizeTags:function(t){var e=this,i=this.settings,n=i.whitelist,s=i.delimiters,a=i.mode,o=i.tagTextProp,r=[],l=!!n&&J(n[0],Object),d=Array.isArray(t),g=d&&t[0].value,h=function(t){return(t+"").split(s).reduce((function(t,i){var n,s=e.trim(i);return s&&t.push((X(n={},o,s),X(n,"value",s),n)),t}),[])};if("number"==typeof t&&(t=t.toString()),"string"==typeof t){if(!t.trim())return[];t=h(t)}else d&&(t=t.reduce((function(t,i){if(c(i)){var n=u({},i);o in n||(o="value"),n[o]=e.trim(n[o]),(n[o]||0===n[o])&&t.push(n)}else if(null!=i&&""!==i&&void 0!==i){var s;(s=t).push.apply(s,$(h(i)))}return t}),[]));return l&&!g&&(t.forEach((function(t){var i=r.map((function(t){return t.value})),n=e.dropdown.filterListItems.call(e,t[o],{exact:!0});e.settings.duplicates||(n=n.filter((function(t){return!i.includes(t.value)})));var s=n.length>1?e.getWhitelistItem(t[o],o,n):n[0];s&&J(s,Object)?r.push(s):"mix"!=a&&(null==t.value&&(t.value=t[o]),r.push(t))})),r.length&&(t=r)),t},parseMixTags:function(t){var e=this,i=this.settings,n=i.mixTagsInterpolator,s=i.duplicates,a=i.transformTag,o=i.enforceWhitelist,r=i.maxTags,l=i.tagTextProp,d=[];t=t.split(n[0]).map((function(t,i){var c,u,g,h=t.split(n[1]),p=h[0],f=d.length==r;try{if(p==+p)throw Error;u=JSON.parse(p)}catch(t){u=e.normalizeTags(p)[0]||{value:p}}if(a.call(e,u),f||!(h.length>1)||o&&!e.isTagWhitelisted(u.value)||!s&&e.isTagDuplicate(u.value)){if(t)return i?n[0]+t:t}else u[c=u[l]?l:"value"]=e.trim(u[c]),g=e.createTagElem(u),d.push(u),g.classList.add(e.settings.classNames.tagNoAnimation),h[0]=g.outerHTML,e.value.push(u);return h.join("")})).join(""),this.DOM.input.innerHTML=t,this.DOM.input.appendChild(document.createTextNode("")),this.DOM.input.normalize();var c=this.getTagElms();return c.forEach((function(t,e){return y(t,d[e])})),this.update({withoutChangeEvent:!0}),T(c,this.state.hasFocus),t},replaceTextWithNode:function(t,e){if(this.state.tag||e){e=e||this.state.tag.prefix+this.state.tag.value;var i,n,s=this.state.selection||window.getSelection(),a=s.anchorNode,o=this.state.tag.delimiters?this.state.tag.delimiters.length:0;return a.splitText(s.anchorOffset-o),-1==(i=a.nodeValue.lastIndexOf(e))?!0:(n=a.splitText(i),t&&a.parentNode.replaceChild(t,n),!0)}},prepareNewTagNode:function(t,e){e=e||{};var i=this.settings,n=[],s={},a=Object.assign({},t,{value:t.value+""});if(t=Object.assign({},a),i.transformTag.call(this,t),t.__isValid=this.hasMaxTags()||this.validateTag(t),!0!==t.__isValid){if(e.skipInvalid)return;if(u(s,this.getInvalidTagAttrs(t,t.__isValid),{__preInvalidData:a}),t.__isValid==this.TEXTS.duplicate&&this.flashTag(this.getTagElmByValue(t.value)),!i.createInvalidTags)return void n.push(t.value)}return"readonly"in t&&(t.readonly?s["aria-readonly"]=!0:delete t.readonly),{tagElm:this.createTagElem(t,s),tagData:t,aggregatedInvalidInput:n}},postProcessNewTagNode:function(t,e){var i=this,n=this.settings,s=e.__isValid;s&&!0===s?this.value.push(e):(this.trigger("invalid",{data:e,index:this.value.length,tag:t,message:s}),n.keepInvalidTags||setTimeout((function(){return i.removeTags(t,!0)}),1e3)),this.dropdown.position()},selectTag:function(t,e){var i=this;if(!this.settings.enforceWhitelist||this.isTagWhitelisted(e.value)){this.state.actions.selectOption&&setTimeout((function(){return i.setRangeAtStartEnd(!1,i.DOM.input)}));var n=this.getLastTag();return n?this.replaceTag(n,e):this.appendTag(t),this.value[0]=e,this.update(),this.trigger("add",{tag:t,data:e}),[t]}},addEmptyTag:function(t){var e=u({value:""},t||{}),i=this.createTagElem(e);y(i,e),this.appendTag(i),this.editTag(i,{skipValidation:!0}),this.toggleFocusClass(!0)},addTags:function(t,e,i){var n=this,s=[],a=this.settings,o=[],r=document.createDocumentFragment(),l=[];if(!t||0==t.length)return s;switch(t=this.normalizeTags(t),a.mode){case"mix":return this.addMixTags(t);case"select":e=!1,this.removeAllTags()}return this.DOM.input.removeAttribute("style"),t.forEach((function(t){var e=n.prepareNewTagNode(t,{skipInvalid:i||a.skipInvalid});if(e){var d=e.tagElm;if(t=e.tagData,o=e.aggregatedInvalidInput,s.push(d),"select"==a.mode)return n.selectTag(d,t);r.appendChild(d),n.postProcessNewTagNode(d,t),l.push({tagElm:d,tagData:t})}})),this.appendTag(r),l.forEach((function(t){var e=t.tagElm,i=t.tagData;return n.trigger("add",{tag:e,index:n.getTagIdx(i),data:i})})),this.update(),t.length&&e&&(this.input.set.call(this,a.createInvalidTags?"":o.join(a._delimiters)),this.setRangeAtStartEnd(!1,this.DOM.input)),this.dropdown.refilter(),s},addMixTags:function(t){var e=this;if((t=this.normalizeTags(t))[0].prefix||this.state.tag)return this.prefixedTextToTag(t[0]);var i=document.createDocumentFragment();return t.forEach((function(t){var n=e.prepareNewTagNode(t);i.appendChild(n.tagElm),e.insertAfterTag(n.tagElm),e.postProcessNewTagNode(n.tagElm,n.tagData)})),this.appendMixTags(i),i.children},appendMixTags:function(t){var e=!!this.state.selection;e?this.injectAtCaret(t):(this.DOM.input.focus(),(e=this.setStateSelection()).range.setStart(this.DOM.input,e.range.endOffset),e.range.setEnd(this.DOM.input,e.range.endOffset),this.DOM.input.appendChild(t),this.updateValueByDOMTags(),this.update())},prefixedTextToTag:function(t){var e,i,n,s=this,a=this.settings,o=null===(e=this.state.tag)||void 0===e?void 0:e.delimiters;if(t.prefix=t.prefix||this.state.tag?this.state.tag.prefix:(a.pattern.source||a.pattern)[0],n=this.prepareNewTagNode(t),i=n.tagElm,this.replaceTextWithNode(i)||this.DOM.input.appendChild(i),setTimeout((function(){return i.classList.add(s.settings.classNames.tagNoAnimation)}),300),this.update(),!o){var r=this.insertAfterTag(i)||i;setTimeout(w,0,r)}return this.state.tag=null,this.postProcessNewTagNode(i,n.tagData),i},appendTag:function(t){var e=this.DOM,i=e.input;e.scope.insertBefore(t,i)},createTagElem:function(t,e){t.__tagId=f();var i,n=u({},t,G({value:d(t.value+"")},e));return function(t){for(var e,i=document.createNodeIterator(t,NodeFilter.SHOW_TEXT,null,!1);e=i.nextNode();)e.textContent.trim()||e.parentNode.removeChild(e)}(i=this.parseTemplate("tag",[n,this])),y(i,t),i},reCheckInvalidTags:function(){var t=this,e=this.settings;this.getTagElms(e.classNames.tagNotAllowed).forEach((function(i,n){var s=y(i),a=t.hasMaxTags(),o=t.validateTag(s),r=!0===o&&!a;if("select"==e.mode&&t.toggleScopeValidation(o),r)return s=s.__preInvalidData?s.__preInvalidData:{value:s.value},t.replaceTag(i,s);i.title=a||o}))},removeTags:function(t,e,i){var n,s=this,a=this.settings;if(t=t&&J(t,HTMLElement)?[t]:J(t,Array)?t:t?[t]:[this.getLastTag()].filter((function(t){return t})),n=t.reduce((function(t,e){e&&"string"==typeof e&&(e=s.getTagElmByValue(e));var i=y(e);return e&&i&&!i.readonly&&t.push({node:e,idx:s.getTagIdx(i),data:y(e,{__removed:!0})}),t}),[]),i="number"==typeof i?i:this.CSSVars.tagHideTransition,"select"==a.mode&&(i=0,this.input.set.call(this)),1==n.length&&"select"!=a.mode&&n[0].node.classList.contains(a.classNames.tagNotAllowed)&&(e=!0),n.length)return a.hooks.beforeRemoveTag(n,{tagify:this}).then((function(){var t=function(t){t.node.parentNode&&(t.node.parentNode.removeChild(t.node),e?a.keepInvalidTags&&this.trigger("remove",{tag:t.node,index:t.idx}):(this.trigger("remove",{tag:t.node,index:t.idx,data:t.data}),this.dropdown.refilter(),this.dropdown.position(),this.DOM.input.normalize(),a.keepInvalidTags&&this.reCheckInvalidTags()))};i&&i>10&&1==n.length?function(e){e.node.style.width=parseFloat(window.getComputedStyle(e.node).width)+"px",document.body.clientTop,e.node.classList.add(a.classNames.tagHide),setTimeout(t.bind(this),i,e)}.call(s,n[0]):n.forEach(t.bind(s)),e||(s.removeTagsFromValue(n.map((function(t){return t.node}))),s.update(),"select"==a.mode&&a.userInput&&s.setContentEditable(!0))})).catch((function(t){}))},removeTagsFromDOM:function(){this.getTagElms().forEach((function(t){return t.remove()}))},removeTagsFromValue:function(t){var e=this;(t=Array.isArray(t)?t:[t]).forEach((function(t){var i=y(t),n=e.getTagIdx(i);n>-1&&e.value.splice(n,1)}))},removeAllTags:function(t){var e=this;t=t||{},this.value=[],"mix"==this.settings.mode?this.DOM.input.innerHTML="":this.removeTagsFromDOM(),this.dropdown.refilter(),this.dropdown.position(),this.state.dropdown.visible&&setTimeout((function(){e.DOM.input.focus()})),"select"==this.settings.mode&&(this.input.set.call(this),this.settings.userInput&&this.setContentEditable(!0)),this.update(t)},postUpdate:function(){this.state.blockChangeEvent=!1;var t,e,i=this.settings,n=i.classNames,s="mix"==i.mode?i.mixMode.integrated?this.DOM.input.textContent:this.DOM.originalInput.value.trim():this.value.length+this.input.raw.call(this).length;(this.toggleClass(n.hasMaxTags,this.value.length>=i.maxTags),this.toggleClass(n.hasNoTags,!this.value.length),this.toggleClass(n.empty,!s),"select"==i.mode)&&this.toggleScopeValidation(null===(e=this.value)||void 0===e||null===(t=e[0])||void 0===t?void 0:t.__isValid)},setOriginalInputValue:function(t){var e=this.DOM.originalInput;this.settings.mixMode.integrated||(e.value=t,e.tagifyValue=e.value,this.setPersistedData(t,"value"))},update:function(t){clearTimeout(this.debouncedUpdateTimeout),this.debouncedUpdateTimeout=setTimeout(function(){var e=this.getInputValue();this.setOriginalInputValue(e),this.settings.onChangeAfterBlur&&(t||{}).withoutChangeEvent||this.state.blockChangeEvent||this.triggerChangeEvent();this.postUpdate()}.bind(this),100),this.events.bindOriginaInputListener.call(this,100)},getInputValue:function(){var t=this.getCleanValue();return"mix"==this.settings.mode?this.getMixedTagsAsString(t):t.length?this.settings.originalInputValueFormat?this.settings.originalInputValueFormat(t):JSON.stringify(t):""},getCleanValue:function(t){return a(t||this.value,this.dataProps)},getMixedTagsAsString:function(){var t="",e=this,i=this.settings,n=i.originalInputValueFormat||JSON.stringify,s=i.mixTagsInterpolator;return function i(a){a.childNodes.forEach((function(a){if(1==a.nodeType){var r=y(a);if("BR"==a.tagName&&(t+="\r\n"),r&&m.call(e,a)){if(r.__removed)return;t+=s[0]+n(o(r,e.dataProps))+s[1]}else a.getAttribute("style")||["B","I","U"].includes(a.tagName)?t+=a.textContent:"DIV"!=a.tagName&&"P"!=a.tagName||(t+="\r\n",i(a))}else t+=a.textContent}))}(this.DOM.input),t}},Q.prototype.removeTag=Q.prototype.removeTags,Q}));
+(function (global, factory) {
+   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+   typeof define === 'function' && define.amd ? define(factory) :
+   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Tagify = factory());
+})(this, (function () { 'use strict';
+
+   var ZERO_WIDTH_CHAR = "​";
+   var ZERO_WIDTH_UNICODE_CHAR = "&#8203;";
+
+   function _array_like_to_array$4(arr, len) {
+       if (len == null || len > arr.length) len = arr.length;
+       for(var i = 0, arr2 = new Array(len); i < len; i++)arr2[i] = arr[i];
+       return arr2;
+   }
+   function _array_without_holes$3(arr) {
+       if (Array.isArray(arr)) return _array_like_to_array$4(arr);
+   }
+   function _instanceof$4(left, right) {
+       if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+           return !!right[Symbol.hasInstance](left);
+       } else {
+           return left instanceof right;
+       }
+   }
+   function _iterable_to_array$3(iter) {
+       if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+   }
+   function _non_iterable_spread$3() {
+       throw new TypeError("Invalid attempt to spread non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+   }
+   function _to_consumable_array$3(arr) {
+       return _array_without_holes$3(arr) || _iterable_to_array$3(arr) || _unsupported_iterable_to_array$4(arr) || _non_iterable_spread$3();
+   }
+   function _unsupported_iterable_to_array$4(o, minLen) {
+       if (!o) return;
+       if (typeof o === "string") return _array_like_to_array$4(o, minLen);
+       var n = Object.prototype.toString.call(o).slice(8, -1);
+       if (n === "Object" && o.constructor) n = o.constructor.name;
+       if (n === "Map" || n === "Set") return Array.from(n);
+       if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$4(o, minLen);
+   }
+   var logger = {
+       isEnabled: function isEnabled() {
+           var _window_TAGIFY_DEBUG;
+           return (_window_TAGIFY_DEBUG = window.TAGIFY_DEBUG) !== null && _window_TAGIFY_DEBUG !== void 0 ? _window_TAGIFY_DEBUG : true;
+       },
+       log: function log() {
+           for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++){
+               args[_key] = arguments[_key];
+           }
+           var _console;
+           this.isEnabled() && (_console = console).log.apply(_console, [
+               "[Tagify]:"
+           ].concat(_to_consumable_array$3(args)));
+       },
+       warn: function warn() {
+           for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++){
+               args[_key] = arguments[_key];
+           }
+           var _console;
+           this.isEnabled() && (_console = console).warn.apply(_console, [
+               "[Tagify]:"
+           ].concat(_to_consumable_array$3(args)));
+       }
+   };
+   // console.json = console.json || function(argument){
+   //     for(var arg=0; arg < arguments.length; ++arg)
+   //         console.log(  JSON.stringify(arguments[arg], null, 4)  )
+   // }
+   // const isEdge = /Edge/.test(navigator.userAgent)
+   var sameStr = function(s1, s2, caseSensitive, trim) {
+       // cast to String
+       s1 = "" + s1;
+       s2 = "" + s2;
+       if (trim) {
+           s1 = s1.trim();
+           s2 = s2.trim();
+       }
+       return caseSensitive ? s1 == s2 : s1.toLowerCase() == s2.toLowerCase();
+   };
+   // const getUID = () => (new Date().getTime() + Math.floor((Math.random()*10000)+1)).toString(16)
+   var removeCollectionProp = function(collection, unwantedProps) {
+       return collection && Array.isArray(collection) && collection.map(function(v) {
+           return omit(v, unwantedProps);
+       });
+   };
+   function omit(obj, props) {
+       var newObj = {}, p;
+       for(p in obj)if (props.indexOf(p) < 0) newObj[p] = obj[p];
+       return newObj;
+   }
+   function decode(s) {
+       var el = document.createElement("div");
+       return s.replace(/\&#?[0-9a-z]+;/gi, function(enc) {
+           el.innerHTML = enc;
+           return el.innerText;
+       });
+   }
+   /**
+    * utility method
+    * https://stackoverflow.com/a/35385518/104380
+    * @param  {String} s [HTML string]
+    * @return {Object}   [DOM node]
+    */ function parseHTML(s) {
+       var parser = new DOMParser(), node = parser.parseFromString(s.trim(), "text/html");
+       return node.body.firstElementChild;
+   }
+   /**
+    * Removed new lines and irrelevant spaces which might affect layout, and are better gone
+    * @param {string} s [HTML string]
+    */ function minify(s) {
+       return s ? s.replace(/\>[\r\n ]+\</g, "><").split(/>\s+</).join("><").trim() : "";
+   }
+   function removeTextChildNodes(elm) {
+       var iter = document.createNodeIterator(elm, NodeFilter.SHOW_TEXT, null, false), textnode;
+       // print all text nodes
+       while(textnode = iter.nextNode()){
+           if (!textnode.textContent.trim()) textnode.parentNode.removeChild(textnode);
+       }
+   }
+   function getfirstTextNode(elm, action) {
+       action = action || "previous";
+       while(elm = elm[action + "Sibling"])if (elm.nodeType == 3) return elm;
+   }
+   /**
+    * utility method
+    * https://stackoverflow.com/a/6234804/104380
+    */ function escapeHTML(s) {
+       return typeof s == "string" ? s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/`|'/g, "&#039;") : s;
+   }
+   /**
+    * Checks if an argument is a javascript Object
+    */ function isObject(obj) {
+       var type = Object.prototype.toString.call(obj).split(" ")[1].slice(0, -1);
+       return obj === Object(obj) && type != "Array" && type != "Function" && type != "RegExp" && type != "HTMLUnknownElement";
+   }
+   /**
+    * merge objects into a single new one
+    * TEST: extend({}, {a:{foo:1}, b:[]}, {a:{bar:2}, b:[1], c:()=>{}})
+    */ function extend(o, o1, o2) {
+       if (!_instanceof$4(o, Object)) o = {};
+       copy(o, o1);
+       if (o2) copy(o, o2);
+       function copy(a, b) {
+           // copy o2 to o
+           for(var key in b)if (b.hasOwnProperty(key)) {
+               if (isObject(b[key])) {
+                   if (!isObject(a[key])) a[key] = Object.assign({}, b[key]);
+                   else copy(a[key], b[key]);
+                   continue;
+               }
+               if (Array.isArray(b[key])) {
+                   a[key] = Object.assign([], b[key]);
+                   continue;
+               }
+               a[key] = b[key];
+           }
+       }
+       return o;
+   }
+   /**
+    * concatenates N arrays without dups.
+    * If an array's item is an Object, compare by `value`
+    */ function concatWithoutDups() {
+       var newArr = [], existingObj = {};
+       var _iteratorNormalCompletion = true, _didIteratorError = false, _iteratorError = undefined;
+       try {
+           for(var _iterator = arguments[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true){
+               var arr = _step.value;
+               var _iteratorNormalCompletion1 = true, _didIteratorError1 = false, _iteratorError1 = undefined;
+               try {
+                   for(var _iterator1 = arr[Symbol.iterator](), _step1; !(_iteratorNormalCompletion1 = (_step1 = _iterator1.next()).done); _iteratorNormalCompletion1 = true){
+                       var item = _step1.value;
+                       // if current item is an object which has yet to be added to the new array
+                       if (isObject(item)) {
+                           if (!existingObj[item.value]) {
+                               newArr.push(item);
+                               existingObj[item.value] = 1;
+                           }
+                       } else if (!newArr.includes(item)) newArr.push(item);
+                   }
+               } catch (err) {
+                   _didIteratorError1 = true;
+                   _iteratorError1 = err;
+               } finally{
+                   try {
+                       if (!_iteratorNormalCompletion1 && _iterator1.return != null) {
+                           _iterator1.return();
+                       }
+                   } finally{
+                       if (_didIteratorError1) {
+                           throw _iteratorError1;
+                       }
+                   }
+               }
+           }
+       } catch (err) {
+           _didIteratorError = true;
+           _iteratorError = err;
+       } finally{
+           try {
+               if (!_iteratorNormalCompletion && _iterator.return != null) {
+                   _iterator.return();
+               }
+           } finally{
+               if (_didIteratorError) {
+                   throw _iteratorError;
+               }
+           }
+       }
+       return newArr;
+   }
+   /**
+    *  Extracted from: https://stackoverflow.com/a/37511463/104380
+    * @param {String} s
+    */ function unaccent(s) {
+       // if not supported, do not continue.
+       // developers should use a polyfill:
+       // https://github.com/walling/unorm
+       if (!String.prototype.normalize) return s;
+       if (typeof s === "string") return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+   }
+   /**
+    * Meassures an element's height, which might yet have been added DOM
+    * https://stackoverflow.com/q/5944038/104380
+    * @param {DOM} node
+    */ function getNodeHeight(node) {
+       var height, clone = node.cloneNode(true);
+       clone.style.cssText = "position:fixed; top:-9999px; opacity:0";
+       document.body.appendChild(clone);
+       height = clone.clientHeight;
+       clone.parentNode.removeChild(clone);
+       return height;
+   }
+   var isChromeAndroidBrowser = function() {
+       return /(?=.*chrome)(?=.*android)/i.test(navigator.userAgent);
+   };
+   function getUID() {
+       return ([
+           1e7
+       ] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, function(c) {
+           return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16);
+       });
+   }
+   function isNodeTag(node) {
+       return node && node.classList && node.classList.contains(this.settings.classNames.tag);
+   }
+   function isWithinNodeTag(node) {
+       return node && node.closest(this.settings.classNames.tagSelector);
+   }
+   /**
+   * Get the caret position relative to the viewport
+   * https://stackoverflow.com/q/58985076/104380
+   *
+   * @returns {object} left, top distance in pixels
+   */ function getCaretGlobalPosition() {
+       var sel = document.getSelection();
+       if (sel.rangeCount) {
+           var r = sel.getRangeAt(0);
+           var node = r.startContainer;
+           var offset = r.startOffset;
+           var rect, r2;
+           if (offset > 0) {
+               r2 = document.createRange();
+               r2.setStart(node, offset - 1);
+               r2.setEnd(node, offset);
+               rect = r2.getBoundingClientRect();
+               return {
+                   left: rect.right,
+                   top: rect.top,
+                   bottom: rect.bottom
+               };
+           }
+           if (node.getBoundingClientRect) return node.getBoundingClientRect();
+       }
+       return {
+           left: -9999,
+           top: -9999
+       };
+   }
+   /**
+    * Injects content (either string or node) at the current the current (or specificed) caret position
+    * @param {content} string/node
+    * @param {range} Object (optional, a range other than the current window selection)
+    */ function injectAtCaret(content, range) {
+       var selection = window.getSelection();
+       range = range || selection.getRangeAt(0);
+       if (typeof content == "string") content = document.createTextNode(content);
+       if (range) {
+           range.deleteContents();
+           range.insertNode(content);
+       }
+       return content;
+   }
+   /** Setter/Getter
+    * Each tag DOM node contains a custom property called "__tagifyTagData" which hosts its data
+    * @param {Node}   tagElm
+    * @param {Object} data
+    */ function getSetTagData(tagElm, data, override) {
+       if (!tagElm) {
+           logger.warn("tag element doesn't exist", {
+               tagElm: tagElm,
+               data: data
+           });
+           return data;
+       }
+       if (data) tagElm.__tagifyTagData = override ? data : extend({}, tagElm.__tagifyTagData || {}, data);
+       return tagElm.__tagifyTagData;
+   }
+   function placeCaretAfterNode(node) {
+       if (!node || !node.parentNode) return;
+       var nextSibling = node, sel = window.getSelection(), range = sel.getRangeAt(0);
+       if (sel.rangeCount) {
+           range.setStartAfter(nextSibling);
+           range.collapse(true);
+           // range.setEndBefore(nextSibling || node);
+           sel.removeAllRanges();
+           sel.addRange(range);
+       }
+   }
+   /**
+    * iterate all tags, checking if multiple ones are close-siblings and if so, add a zero-space width character between them,
+    * which forces the caret to be rendered when the selection is between tags.
+    * Also do that if the tag is the first node.
+    * @param {Array} tags
+    */ function fixCaretBetweenTags(tags, TagifyHasFocuse) {
+       tags.forEach(function(tag) {
+           if (getSetTagData(tag.previousSibling) || !tag.previousSibling) {
+               var textNode = document.createTextNode(ZERO_WIDTH_CHAR);
+               tag.before(textNode);
+               TagifyHasFocuse && placeCaretAfterNode(textNode);
+           }
+       });
+   }
+
+   var DEFAULTS = {
+       delimiters: ",",
+       pattern: null,
+       tagTextProp: "value",
+       maxTags: Infinity,
+       callbacks: {},
+       addTagOnBlur: true,
+       addTagOn: [
+           "blur",
+           "tab",
+           "enter"
+       ],
+       onChangeAfterBlur: true,
+       duplicates: false,
+       whitelist: [],
+       blacklist: [],
+       enforceWhitelist: false,
+       userInput: true,
+       focusable: true,
+       keepInvalidTags: false,
+       createInvalidTags: true,
+       mixTagsAllowedAfter: /,|\.|\:|\s/,
+       mixTagsInterpolator: [
+           "[[",
+           "]]"
+       ],
+       backspace: true,
+       skipInvalid: false,
+       pasteAsTags: true,
+       editTags: {
+           clicks: 2,
+           keepInvalid: true // keeps invalid edits as-is until `esc` is pressed while in focus
+       },
+       transformTag: function() {},
+       trim: true,
+       a11y: {
+           focusableTags: false
+       },
+       mixMode: {
+           insertAfterTag: "\xa0"
+       },
+       autoComplete: {
+           enabled: true,
+           rightKey: false,
+           tabKey: false
+       },
+       classNames: {
+           namespace: "tagify",
+           mixMode: "tagify--mix",
+           selectMode: "tagify--select",
+           input: "tagify__input",
+           focus: "tagify--focus",
+           tagNoAnimation: "tagify--noAnim",
+           tagInvalid: "tagify--invalid",
+           tagNotAllowed: "tagify--notAllowed",
+           scopeLoading: "tagify--loading",
+           hasMaxTags: "tagify--hasMaxTags",
+           hasNoTags: "tagify--noTags",
+           empty: "tagify--empty",
+           inputInvalid: "tagify__input--invalid",
+           dropdown: "tagify__dropdown",
+           dropdownWrapper: "tagify__dropdown__wrapper",
+           dropdownHeader: "tagify__dropdown__header",
+           dropdownFooter: "tagify__dropdown__footer",
+           dropdownItem: "tagify__dropdown__item",
+           dropdownItemActive: "tagify__dropdown__item--active",
+           dropdownItemHidden: "tagify__dropdown__item--hidden",
+           dropdownItemSelected: "tagify__dropdown__item--selected",
+           dropdownInital: "tagify__dropdown--initial",
+           tag: "tagify__tag",
+           tagText: "tagify__tag-text",
+           tagX: "tagify__tag__removeBtn",
+           tagLoading: "tagify__tag--loading",
+           tagEditing: "tagify__tag--editable",
+           tagFlash: "tagify__tag--flash",
+           tagHide: "tagify__tag--hide"
+       },
+       dropdown: {
+           classname: "",
+           enabled: 2,
+           maxItems: 10,
+           searchKeys: [
+               "value",
+               "searchBy"
+           ],
+           fuzzySearch: true,
+           caseSensitive: false,
+           accentedSearch: true,
+           includeSelectedTags: false,
+           escapeHTML: true,
+           highlightFirst: true,
+           closeOnSelect: true,
+           clearOnSelect: true,
+           position: "all",
+           appendTarget: null // defaults to document.body once DOM has been loaded
+       },
+       hooks: {
+           beforeRemoveTag: function() {
+               return Promise.resolve();
+           },
+           beforePaste: function() {
+               return Promise.resolve();
+           },
+           suggestionClick: function() {
+               return Promise.resolve();
+           },
+           beforeKeyDown: function() {
+               return Promise.resolve();
+           }
+       }
+   };
+
+   function _define_property$3(obj, key, value) {
+       if (key in obj) {
+           Object.defineProperty(obj, key, {
+               value: value,
+               enumerable: true,
+               configurable: true,
+               writable: true
+           });
+       } else {
+           obj[key] = value;
+       }
+       return obj;
+   }
+   function _instanceof$3(left, right) {
+       if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+           return !!right[Symbol.hasInstance](left);
+       } else {
+           return left instanceof right;
+       }
+   }
+   function _object_spread$3(target) {
+       for(var i = 1; i < arguments.length; i++){
+           var source = arguments[i] != null ? arguments[i] : {};
+           var ownKeys = Object.keys(source);
+           if (typeof Object.getOwnPropertySymbols === "function") {
+               ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function(sym) {
+                   return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+               }));
+           }
+           ownKeys.forEach(function(key) {
+               _define_property$3(target, key, source[key]);
+           });
+       }
+       return target;
+   }
+   function ownKeys$2(object, enumerableOnly) {
+       var keys = Object.keys(object);
+       if (Object.getOwnPropertySymbols) {
+           var symbols = Object.getOwnPropertySymbols(object);
+           if (enumerableOnly) {
+               symbols = symbols.filter(function(sym) {
+                   return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+               });
+           }
+           keys.push.apply(keys, symbols);
+       }
+       return keys;
+   }
+   function _object_spread_props$2(target, source) {
+       source = source != null ? source : {};
+       if (Object.getOwnPropertyDescriptors) {
+           Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+       } else {
+           ownKeys$2(Object(source)).forEach(function(key) {
+               Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+           });
+       }
+       return target;
+   }
+   /**
+    * Tagify's dropdown suggestions-related logic
+    */ var suggestionsMethods = {
+       events: {
+           /**
+            * Events should only be binded when the dropdown is rendered and removed when isn't
+            * because there might be multiple Tagify instances on a certain page
+            * @param  {Boolean} bindUnbind [optional. true when wanting to unbind all the events]
+            */ binding: function binding() {
+               var bindUnbind = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : true;
+               // references to the ".bind()" methods must be saved so they could be unbinded later
+               var _CB = this.dropdown.events.callbacks, // callback-refs
+               _CBR = this.listeners.dropdown = this.listeners.dropdown || {
+                   position: this.dropdown.position.bind(this, null),
+                   onKeyDown: _CB.onKeyDown.bind(this),
+                   onMouseOver: _CB.onMouseOver.bind(this),
+                   onMouseLeave: _CB.onMouseLeave.bind(this),
+                   onClick: _CB.onClick.bind(this),
+                   onScroll: _CB.onScroll.bind(this)
+               }, action = bindUnbind ? "addEventListener" : "removeEventListener";
+               if (this.settings.dropdown.position != "manual") {
+                   document[action]("scroll", _CBR.position, true);
+                   window[action]("resize", _CBR.position);
+                   window[action]("keydown", _CBR.onKeyDown);
+               }
+               this.DOM.dropdown[action]("mouseover", _CBR.onMouseOver);
+               this.DOM.dropdown[action]("mouseleave", _CBR.onMouseLeave);
+               this.DOM.dropdown[action]("mousedown", _CBR.onClick);
+               this.DOM.dropdown.content[action]("scroll", _CBR.onScroll);
+           },
+           callbacks: {
+               onKeyDown: function onKeyDown(e) {
+                   var _this = this;
+                   // ignore keys during IME composition
+                   if (!this.state.hasFocus || this.state.composing) return;
+                   // get the "active" element, and if there was none (yet) active, use first child
+                   var _s = this.settings, selectedElm = this.DOM.dropdown.querySelector(_s.classNames.dropdownItemActiveSelector), selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm), isMixMode = _s.mode == "mix", isSelectMode = _s.mode == "select";
+                   _s.hooks.beforeKeyDown(e, {
+                       tagify: this
+                   }).then(function(result) {
+                       switch(e.key){
+                           case "ArrowDown":
+                           case "ArrowUp":
+                           case "Down":
+                           case "Up":
+                               {
+                                   e.preventDefault();
+                                   var dropdownItems = _this.dropdown.getAllSuggestionsRefs(), actionUp = e.key == "ArrowUp" || e.key == "Up";
+                                   if (selectedElm) {
+                                       selectedElm = _this.dropdown.getNextOrPrevOption(selectedElm, !actionUp);
+                                   }
+                                   // if no element was found OR current item is not a "real" item, loop
+                                   if (!selectedElm || !selectedElm.matches(_s.classNames.dropdownItemSelector)) {
+                                       selectedElm = dropdownItems[actionUp ? dropdownItems.length - 1 : 0];
+                                   }
+                                   _this.dropdown.highlightOption(selectedElm, true);
+                                   break;
+                               }
+                           case "Escape":
+                           case "Esc":
+                               _this.dropdown.hide();
+                               break;
+                           case "ArrowRight":
+                               // do not continue if the left arrow key was pressed while typing, because assuming the user wants to bypass any of the below logic and edit the content without intervention.
+                               // also do not procceed if a tag should be created when the setting `autoComplete.rightKey` is set to `true`
+                               if (_this.state.actions.ArrowLeft || _s.autoComplete.rightKey) return;
+                           case "Tab":
+                               {
+                                   var shouldAutocompleteOnKey = !_s.autoComplete.rightKey || !_s.autoComplete.tabKey;
+                                   // in mix-mode, treat arrowRight like Enter key, so a tag will be created
+                                   if (!isMixMode && !isSelectMode && selectedElm && shouldAutocompleteOnKey && !_this.state.editing && selectedElmData) {
+                                       e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
+                                       ;
+                                       var value = _this.dropdown.getMappedValue(selectedElmData);
+                                       _this.input.autocomplete.set.call(_this, value);
+                                       return false;
+                                   }
+                                   return true;
+                               }
+                           case "Enter":
+                               {
+                                   e.preventDefault();
+                                   _s.hooks.suggestionClick(e, {
+                                       tagify: _this,
+                                       tagData: selectedElmData,
+                                       suggestionElm: selectedElm
+                                   }).then(function() {
+                                       if (selectedElm) {
+                                           _this.dropdown.selectOption(selectedElm);
+                                           // highlight next option
+                                           selectedElm = _this.dropdown.getNextOrPrevOption(selectedElm, !actionUp);
+                                           _this.dropdown.highlightOption(selectedElm);
+                                           return;
+                                       } else _this.dropdown.hide();
+                                       if (!isMixMode) _this.addTags(_this.state.inputText.trim(), true);
+                                   }).catch(function(err) {
+                                       return logger.warn(err);
+                                   });
+                                   break;
+                               }
+                           case "Backspace":
+                               {
+                                   if (isMixMode || _this.state.editing.scope) return;
+                                   var value1 = _this.input.raw.call(_this);
+                                   if (value1 == "" || value1.charCodeAt(0) == 8203) {
+                                       if (_s.backspace === true) _this.removeTags();
+                                       else if (_s.backspace == "edit") setTimeout(_this.editTag.bind(_this), 0);
+                                   }
+                               }
+                       }
+                   });
+               },
+               onMouseOver: function onMouseOver(e) {
+                   var ddItem = e.target.closest(this.settings.classNames.dropdownItemSelector);
+                   // event delegation check
+                   this.dropdown.highlightOption(ddItem);
+               },
+               onMouseLeave: function onMouseLeave(e) {
+                   // de-highlight any previously highlighted option
+                   this.dropdown.highlightOption();
+               },
+               onClick: function onClick(e) {
+                   var _this = this;
+                   if (e.button != 0 || e.target == this.DOM.dropdown || e.target == this.DOM.dropdown.content) return; // allow only mouse left-clicks
+                   var selectedElm = e.target.closest(this.settings.classNames.dropdownItemSelector), selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm);
+                   // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
+                   this.state.actions.selectOption = true;
+                   setTimeout(function() {
+                       return _this.state.actions.selectOption = false;
+                   }, 50);
+                   this.settings.hooks.suggestionClick(e, {
+                       tagify: this,
+                       tagData: selectedElmData,
+                       suggestionElm: selectedElm
+                   }).then(function() {
+                       if (selectedElm) _this.dropdown.selectOption(selectedElm, e);
+                       else _this.dropdown.hide();
+                   }).catch(function(err) {
+                       return logger.warn(err);
+                   });
+               },
+               onScroll: function onScroll(e) {
+                   var elm = e.target, pos = elm.scrollTop / (elm.scrollHeight - elm.parentNode.clientHeight) * 100;
+                   this.trigger("dropdown:scroll", {
+                       percentage: Math.round(pos)
+                   });
+               }
+           }
+       },
+       /**
+        * fill data into the suggestions list
+        * (mainly used to update the list when removing tags while the suggestions dropdown is visible, so they will be re-added to the list. not efficient)
+        */ refilter: function refilter(value) {
+           value = value || this.state.dropdown.query || "";
+           this.suggestedListItems = this.dropdown.filterListItems(value);
+           this.dropdown.fill();
+           if (!this.suggestedListItems.length) this.dropdown.hide();
+           this.trigger("dropdown:updated", this.DOM.dropdown);
+       },
+       /**
+        * Given a suggestion-item, return the data associated with it
+        * @param {HTMLElement} tagElm
+        * @returns Object
+        */ getSuggestionDataByNode: function getSuggestionDataByNode(tagElm) {
+           var item, value = tagElm && tagElm.getAttribute("value");
+           for(var i = this.suggestedListItems.length; i--;){
+               item = this.suggestedListItems[i];
+               if (isObject(item) && item.value == value) return item;
+               else if (item == value) return {
+                   value: item
+               };
+           }
+       },
+       getNextOrPrevOption: function getNextOrPrevOption(selected) {
+           var next = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : true;
+           var dropdownItems = this.dropdown.getAllSuggestionsRefs(), selectedIdx = dropdownItems.findIndex(function(item) {
+               return item === selected;
+           });
+           return next ? dropdownItems[selectedIdx + 1] : dropdownItems[selectedIdx - 1];
+       },
+       /**
+        * mark the currently active suggestion option
+        * @param {Object}  elm            option DOM node
+        * @param {Boolean} adjustScroll   when navigation with keyboard arrows (up/down), aut-scroll to always show the highlighted element
+        */ highlightOption: function highlightOption(elm, adjustScroll) {
+           var className = this.settings.classNames.dropdownItemActive, itemData;
+           // focus casues a bug in Firefox with the placeholder been shown on the input element
+           // if( this.settings.dropdown.position != 'manual' )
+           //     elm.focus();
+           if (this.state.ddItemElm) {
+               this.state.ddItemElm.classList.remove(className);
+               this.state.ddItemElm.removeAttribute("aria-selected");
+           }
+           if (!elm) {
+               this.state.ddItemData = null;
+               this.state.ddItemElm = null;
+               this.input.autocomplete.suggest.call(this);
+               return;
+           }
+           itemData = this.dropdown.getSuggestionDataByNode(elm);
+           this.state.ddItemData = itemData;
+           this.state.ddItemElm = elm;
+           // this.DOM.dropdown.querySelectorAll("." + this.settings.classNames.dropdownItemActive).forEach(activeElm => activeElm.classList.remove(className));
+           elm.classList.add(className);
+           elm.setAttribute("aria-selected", true);
+           if (adjustScroll) elm.parentNode.scrollTop = elm.clientHeight + elm.offsetTop - elm.parentNode.clientHeight;
+           // Try to autocomplete the typed value with the currently highlighted dropdown item
+           if (this.settings.autoComplete) {
+               this.input.autocomplete.suggest.call(this, itemData);
+               this.dropdown.position() // suggestions might alter the height of the tagify wrapper because of unkown suggested term length that could drop to the next line
+               ;
+           }
+       },
+       /**
+        * Create a tag from the currently active suggestion option
+        * @param {Object} elm  DOM node to select
+        * @param {Object} event The original Click event, if available (since keyboard ENTER key also triggers this method)
+        */ selectOption: function selectOption(elm, event) {
+           var _this = this;
+           var _s = this.settings, _s_dropdown = _s.dropdown, clearOnSelect = _s_dropdown.clearOnSelect, closeOnSelect = _s_dropdown.closeOnSelect;
+           if (!elm) {
+               this.addTags(this.state.inputText, true);
+               closeOnSelect && this.dropdown.hide();
+               return;
+           }
+           event = event || {};
+           // if in edit-mode, do not continue but instead replace the tag's text.
+           // the scenario is that "addTags" was called from a dropdown suggested option selected while editing
+           var value = elm.getAttribute("value"), isNoMatch = value == "noMatch", isMixMode = _s.mode == "mix", tagData = this.suggestedListItems.find(function(item) {
+               var _item_value;
+               return ((_item_value = item.value) !== null && _item_value !== void 0 ? _item_value : item) == value;
+           });
+           // The below event must be triggered, regardless of anything else which might go wrong
+           this.trigger("dropdown:select", {
+               data: tagData,
+               elm: elm,
+               event: event
+           });
+           if (!tagData && !isNoMatch) {
+               closeOnSelect && setTimeout(this.dropdown.hide.bind(this));
+               return;
+           }
+           if (this.state.editing) {
+               var normalizedTagData = this.normalizeTags([
+                   tagData
+               ])[0];
+               tagData = _s.transformTag.call(this, normalizedTagData) || normalizedTagData;
+               // normalizing value, because "tagData" might be a string, and therefore will not be able to extend the object
+               this.onEditTagDone(null, extend({
+                   __isValid: true
+               }, tagData));
+           } else {
+               this[isMixMode ? "addMixTags" : "addTags"]([
+                   tagData || this.input.raw.call(this)
+               ], clearOnSelect);
+           }
+           if (!isMixMode && !this.DOM.input.parentNode) return;
+           setTimeout(function() {
+               _this.DOM.input.focus();
+               _this.toggleFocusClass(true);
+           });
+           closeOnSelect && setTimeout(this.dropdown.hide.bind(this));
+           // execute these tasks once a suggestion has been selected
+           elm.addEventListener("transitionend", function() {
+               _this.dropdown.fillHeaderFooter();
+               setTimeout(function() {
+                   elm.remove();
+                   _this.dropdown.refilter();
+               }, 100);
+           }, {
+               once: true
+           });
+           // hide selected suggestion
+           elm.classList.add(this.settings.classNames.dropdownItemHidden);
+       },
+       // adds all the suggested items, including the ones which are not currently rendered,
+       // unless specified otherwise (by the "onlyRendered" argument)
+       selectAll: function selectAll(onlyRendered) {
+           // having suggestedListItems with items messes with "normalizeTags" when wanting
+           // to add all tags
+           this.suggestedListItems.length = 0;
+           this.dropdown.hide();
+           this.dropdown.filterListItems("");
+           var tagsToAdd = this.dropdown.filterListItems("");
+           if (!onlyRendered) tagsToAdd = this.state.dropdown.suggestions;
+           // some whitelist items might have already been added as tags so when addings all of them,
+           // skip adding already-added ones, so best to use "filterListItems" method over "settings.whitelist"
+           this.addTags(tagsToAdd, true);
+           return this;
+       },
+       /**
+        * returns an HTML string of the suggestions' list items
+        * @param {String} value string to filter the whitelist by
+        * @param {Object} options "exact" - for exact complete match
+        * @return {Array} list of filtered whitelist items according to the settings provided and current value
+        */ filterListItems: function filterListItems(value, options) {
+           var _this, _loop = function() {
+               var startsWithMatch = void 0, exactMatch = void 0;
+               whitelistItem = _instanceof$3(whitelist[i], Object) ? whitelist[i] : {
+                   value: whitelist[i]
+               } //normalize value as an Object
+               ;
+               var itemWithoutSearchKeys = !Object.keys(whitelistItem).some(function(k) {
+                   return searchKeys.includes(k);
+               }), _searchKeys = itemWithoutSearchKeys ? [
+                   "value"
+               ] : searchKeys;
+               if (_sd.fuzzySearch && !options.exact) {
+                   searchBy = _searchKeys.reduce(function(values, k) {
+                       return values + " " + (whitelistItem[k] || "");
+                   }, "").toLowerCase().trim();
+                   if (_sd.accentedSearch) {
+                       searchBy = unaccent(searchBy);
+                       niddle = unaccent(niddle);
+                   }
+                   startsWithMatch = searchBy.indexOf(niddle) == 0;
+                   exactMatch = searchBy === niddle;
+                   valueIsInWhitelist = stringHasAll(searchBy, niddle);
+               } else {
+                   startsWithMatch = true;
+                   valueIsInWhitelist = _searchKeys.some(function(k) {
+                       var v = "" + (whitelistItem[k] || "" // if key exists, cast to type String
+                       );
+                       if (_sd.accentedSearch) {
+                           v = unaccent(v);
+                           niddle = unaccent(niddle);
+                       }
+                       if (!_sd.caseSensitive) v = v.toLowerCase();
+                       exactMatch = v === niddle;
+                       return options.exact ? v === niddle : v.indexOf(niddle) == 0;
+                   });
+               }
+               isDuplicate = !_sd.includeSelectedTags && _this.isTagDuplicate(isObject(whitelistItem) ? whitelistItem.value : whitelistItem);
+               // match for the value within each "whitelist" item
+               if (valueIsInWhitelist && !isDuplicate) if (exactMatch && startsWithMatch) exactMatchesList.push(whitelistItem);
+               else if (_sd.sortby == "startsWith" && startsWithMatch) list.unshift(whitelistItem);
+               else list.push(whitelistItem);
+           };
+           var _this1 = this;
+           var _s = this.settings, _sd = _s.dropdown, options = options || {}, list = [], exactMatchesList = [], whitelist = _s.whitelist, suggestionsCount = _sd.maxItems >= 0 ? _sd.maxItems : Infinity, includeSelectedTags = _sd.includeSelectedTags || _s.mode == "select", searchKeys = _sd.searchKeys, whitelistItem, valueIsInWhitelist, searchBy, isDuplicate, niddle, i = 0;
+           value = _s.mode == "select" && this.value.length && this.value[0][_s.tagTextProp] == value ? "" // do not filter if the tag, which is already selecetd in "select" mode, is the same as the typed text
+            : value;
+           if (!value || !searchKeys.length) {
+               list = includeSelectedTags ? whitelist : whitelist.filter(function(item) {
+                   return !_this1.isTagDuplicate(isObject(item) ? item.value : item);
+               }) // don't include tags which have already been added.
+               ;
+               this.state.dropdown.suggestions = list;
+               return list.slice(0, suggestionsCount); // respect "maxItems" dropdown setting
+           }
+           niddle = _sd.caseSensitive ? "" + value : ("" + value).toLowerCase();
+           // checks if ALL of the words in the search query exists in the current whitelist item, regardless of their order
+           function stringHasAll(s, query) {
+               return query.toLowerCase().split(" ").every(function(q) {
+                   return s.includes(q.toLowerCase());
+               });
+           }
+           for(; i < whitelist.length; i++)_this = this, _loop();
+           this.state.dropdown.suggestions = exactMatchesList.concat(list);
+           // custom sorting function
+           return typeof _sd.sortby == "function" ? _sd.sortby(exactMatchesList.concat(list), niddle) : exactMatchesList.concat(list).slice(0, suggestionsCount);
+       },
+       /**
+        * Returns the final value of a tag data (object) with regards to the "mapValueTo" dropdown setting
+        * @param {Object} tagData
+        * @returns
+        */ getMappedValue: function getMappedValue(tagData) {
+           var mapValueTo = this.settings.dropdown.mapValueTo, value = mapValueTo ? typeof mapValueTo == "function" ? mapValueTo(tagData) : tagData[mapValueTo] || tagData.value : tagData.value;
+           return value;
+       },
+       /**
+        * Creates the dropdown items' HTML
+        * @param  {Array} sugegstionsList  [Array of Objects]
+        * @return {String}
+        */ createListHTML: function createListHTML(sugegstionsList) {
+           var _this = this;
+           return extend([], sugegstionsList).map(function(suggestion, idx) {
+               if (typeof suggestion == "string" || typeof suggestion == "number") suggestion = {
+                   value: suggestion
+               };
+               var mappedValue = _this.dropdown.getMappedValue(suggestion);
+               mappedValue = typeof mappedValue == "string" && _this.settings.dropdown.escapeHTML ? escapeHTML(mappedValue) : mappedValue;
+               return _this.settings.templates.dropdownItem.apply(_this, [
+                   _object_spread_props$2(_object_spread$3({}, suggestion), {
+                       mappedValue: mappedValue
+                   }),
+                   _this
+               ]);
+           }).join("");
+       }
+   };
+
+   function _array_like_to_array$3(arr, len) {
+       if (len == null || len > arr.length) len = arr.length;
+       for(var i = 0, arr2 = new Array(len); i < len; i++)arr2[i] = arr[i];
+       return arr2;
+   }
+   function _array_without_holes$2(arr) {
+       if (Array.isArray(arr)) return _array_like_to_array$3(arr);
+   }
+   function _define_property$2(obj, key, value) {
+       if (key in obj) {
+           Object.defineProperty(obj, key, {
+               value: value,
+               enumerable: true,
+               configurable: true,
+               writable: true
+           });
+       } else {
+           obj[key] = value;
+       }
+       return obj;
+   }
+   function _iterable_to_array$2(iter) {
+       if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+   }
+   function _non_iterable_spread$2() {
+       throw new TypeError("Invalid attempt to spread non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+   }
+   function _object_spread$2(target) {
+       for(var i = 1; i < arguments.length; i++){
+           var source = arguments[i] != null ? arguments[i] : {};
+           var ownKeys = Object.keys(source);
+           if (typeof Object.getOwnPropertySymbols === "function") {
+               ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function(sym) {
+                   return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+               }));
+           }
+           ownKeys.forEach(function(key) {
+               _define_property$2(target, key, source[key]);
+           });
+       }
+       return target;
+   }
+   function ownKeys$1(object, enumerableOnly) {
+       var keys = Object.keys(object);
+       if (Object.getOwnPropertySymbols) {
+           var symbols = Object.getOwnPropertySymbols(object);
+           if (enumerableOnly) {
+               symbols = symbols.filter(function(sym) {
+                   return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+               });
+           }
+           keys.push.apply(keys, symbols);
+       }
+       return keys;
+   }
+   function _object_spread_props$1(target, source) {
+       source = source != null ? source : {};
+       if (Object.getOwnPropertyDescriptors) {
+           Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+       } else {
+           ownKeys$1(Object(source)).forEach(function(key) {
+               Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+           });
+       }
+       return target;
+   }
+   function _to_consumable_array$2(arr) {
+       return _array_without_holes$2(arr) || _iterable_to_array$2(arr) || _unsupported_iterable_to_array$3(arr) || _non_iterable_spread$2();
+   }
+   function _unsupported_iterable_to_array$3(o, minLen) {
+       if (!o) return;
+       if (typeof o === "string") return _array_like_to_array$3(o, minLen);
+       var n = Object.prototype.toString.call(o).slice(8, -1);
+       if (n === "Object" && o.constructor) n = o.constructor.name;
+       if (n === "Map" || n === "Set") return Array.from(n);
+       if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$3(o, minLen);
+   }
+   function initDropdown() {
+       this.dropdown = {};
+       // auto-bind "this" to all the dropdown methods
+       for(var p in this._dropdown)this.dropdown[p] = typeof this._dropdown[p] === "function" ? this._dropdown[p].bind(this) : this._dropdown[p];
+       this.dropdown.refs();
+       this.DOM.dropdown.__tagify = this;
+   }
+   var _dropdown = _object_spread_props$1(_object_spread$2({}, suggestionsMethods), {
+       refs: function refs() {
+           this.DOM.dropdown = this.parseTemplate("dropdown", [
+               this.settings
+           ]);
+           this.DOM.dropdown.content = this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-wrapper']");
+       },
+       getHeaderRef: function getHeaderRef() {
+           return this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-header']");
+       },
+       getFooterRef: function getFooterRef() {
+           return this.DOM.dropdown.querySelector("[data-selector='tagify-suggestions-footer']");
+       },
+       getAllSuggestionsRefs: function getAllSuggestionsRefs() {
+           return _to_consumable_array$2(this.DOM.dropdown.content.querySelectorAll(this.settings.classNames.dropdownItemSelector));
+       },
+       /**
+        * shows the suggestions select box
+        * @param {String} value [optional, filter the whitelist by this value]
+        */ show: function show(value) {
+           var _this = this;
+           var _s = this.settings, firstListItem, firstListItemValue, allowNewTags = _s.mode == "mix" && !_s.enforceWhitelist, noWhitelist = !_s.whitelist || !_s.whitelist.length, noMatchListItem, isManual = _s.dropdown.position == "manual";
+           // if text still exists in the input, and `show` method has no argument, then the input's text should be used
+           value = value === undefined ? this.state.inputText : value;
+           // ⚠️ Do not render suggestions list  if:
+           // 1. there's no whitelist (can happen while async loading) AND new tags arn't allowed
+           // 2. dropdown is disabled
+           // 3. loader is showing (controlled outside of this code)
+           if (noWhitelist && !allowNewTags && !_s.templates.dropdownItemNoMatch || _s.dropdown.enabled === false || this.state.isLoading || this.settings.readonly) return;
+           clearTimeout(this.dropdownHide__bindEventsTimeout);
+           // if no value was supplied, show all the "whitelist" items in the dropdown
+           // @type [Array] listItems
+           this.suggestedListItems = this.dropdown.filterListItems(value);
+           // trigger at this exact point to let the developer the chance to manually set "this.suggestedListItems"
+           if (value && !this.suggestedListItems.length) {
+               this.trigger("dropdown:noMatch", value);
+               if (_s.templates.dropdownItemNoMatch) noMatchListItem = _s.templates.dropdownItemNoMatch.call(this, {
+                   value: value
+               });
+           }
+           // if "dropdownItemNoMatch" was not defined, procceed regular flow.
+           //
+           if (!noMatchListItem) {
+               // in mix-mode, if the value isn't included in the whilelist & "enforceWhitelist" setting is "false",
+               // then add a custom suggestion item to the dropdown
+               if (this.suggestedListItems.length) {
+                   if (value && allowNewTags && !this.state.editing.scope && !sameStr(this.suggestedListItems[0].value, value)) this.suggestedListItems.unshift({
+                       value: value
+                   });
+               } else {
+                   if (value && allowNewTags && !this.state.editing.scope) {
+                       this.suggestedListItems = [
+                           {
+                               value: value
+                           }
+                       ];
+                   } else {
+                       this.input.autocomplete.suggest.call(this);
+                       this.dropdown.hide();
+                       return;
+                   }
+               }
+               firstListItem = this.suggestedListItems[0];
+               firstListItemValue = "" + (isObject(firstListItem) ? firstListItem.value : firstListItem);
+               if (_s.autoComplete && firstListItemValue) {
+                   // only fill the sugegstion if the value of the first list item STARTS with the input value (regardless of "fuzzysearch" setting)
+                   if (firstListItemValue.indexOf(value) == 0) this.input.autocomplete.suggest.call(this, firstListItem);
+               }
+           }
+           this.dropdown.fill(noMatchListItem);
+           if (_s.dropdown.highlightFirst) {
+               this.dropdown.highlightOption(this.DOM.dropdown.content.querySelector(_s.classNames.dropdownItemSelector));
+           }
+           // bind events, exactly at this stage of the code. "dropdown.show" method is allowed to be
+           // called multiple times, regardless if the dropdown is currently visible, but the events-binding
+           // should only be called if the dropdown wasn't previously visible.
+           if (!this.state.dropdown.visible) // timeout is needed for when pressing arrow down to show the dropdown,
+           // so the key event won't get registered in the dropdown events listeners
+           setTimeout(this.dropdown.events.binding.bind(this));
+           // set the dropdown visible state to be the same as the searched value.
+           // MUST be set *before* position() is called
+           this.state.dropdown.visible = value || true;
+           this.state.dropdown.query = value;
+           this.setStateSelection();
+           // try to positioning the dropdown (it might not yet be on the page, doesn't matter, next code handles this)
+           if (!isManual) {
+               // a slight delay is needed if the dropdown "position" setting is "text", and nothing was typed in the input,
+               // so sadly the "getCaretGlobalPosition" method doesn't recognize the caret position without this delay
+               setTimeout(function() {
+                   _this.dropdown.position();
+                   _this.dropdown.render();
+               });
+           }
+           // a delay is needed because of the previous delay reason.
+           // this event must be fired after the dropdown was rendered & positioned
+           setTimeout(function() {
+               _this.trigger("dropdown:show", _this.DOM.dropdown);
+           });
+       },
+       /**
+        * Hides the dropdown (if it's not managed manually by the developer)
+        * @param {Boolean} overrideManual
+        */ hide: function hide(overrideManual) {
+           var _this = this;
+           var _this_DOM = this.DOM, scope = _this_DOM.scope, dropdown = _this_DOM.dropdown, isManual = this.settings.dropdown.position == "manual" && !overrideManual;
+           // if there's no dropdown, this means the dropdown events aren't binded
+           if (!dropdown || !document.body.contains(dropdown) || isManual) return;
+           window.removeEventListener("resize", this.dropdown.position);
+           this.dropdown.events.binding.call(this, false) // unbind all events
+           ;
+           // if the dropdown is open, and the input (scope) is clicked,
+           // the dropdown should be now "close", and the next click (on the scope)
+           // should re-open it, and without a timeout, clicking to close will re-open immediately
+           //  clearTimeout(this.dropdownHide__bindEventsTimeout)
+           //  this.dropdownHide__bindEventsTimeout = setTimeout(this.events.binding.bind(this), 250)  // re-bind main events
+           scope.setAttribute("aria-expanded", false);
+           dropdown.parentNode.removeChild(dropdown);
+           // scenario: clicking the scope to show the dropdown, clicking again to hide -> calls dropdown.hide() and then re-focuses the input
+           // which casues another onFocus event, which checked "this.state.dropdown.visible" and see it as "false" and re-open the dropdown
+           setTimeout(function() {
+               _this.state.dropdown.visible = false;
+           }, 100);
+           this.state.dropdown.query = this.state.ddItemData = this.state.ddItemElm = this.state.selection = null;
+           // if the user closed the dropdown (in mix-mode) while a potential tag was detected, flag the current tag
+           // so the dropdown won't be shown on following user input for that "tag"
+           if (this.state.tag && this.state.tag.value.length) {
+               this.state.flaggedTags[this.state.tag.baseOffset] = this.state.tag;
+           }
+           this.trigger("dropdown:hide", dropdown);
+           return this;
+       },
+       /**
+        * Toggles dropdown show/hide
+        * @param {Boolean} show forces the dropdown to show
+        */ toggle: function toggle(show) {
+           this.dropdown[this.state.dropdown.visible && !show ? "hide" : "show"]();
+       },
+       getAppendTarget: function getAppendTarget() {
+           var _sd = this.settings.dropdown;
+           return typeof _sd.appendTarget === "function" ? _sd.appendTarget() : _sd.appendTarget;
+       },
+       render: function render() {
+           var _this = this;
+           // let the element render in the DOM first, to accurately measure it.
+           // this.DOM.dropdown.style.cssText = "left:-9999px; top:-9999px;";
+           var ddHeight = getNodeHeight(this.DOM.dropdown), _s = this.settings, appendTarget = this.dropdown.getAppendTarget();
+           if (_s.dropdown.enabled === false) return this;
+           this.DOM.scope.setAttribute("aria-expanded", true);
+           // if the dropdown has yet to be appended to the DOM,
+           // append the dropdown to the body element & handle events
+           if (!document.body.contains(this.DOM.dropdown)) {
+               this.DOM.dropdown.classList.add(_s.classNames.dropdownInital);
+               this.dropdown.position(ddHeight);
+               appendTarget.appendChild(this.DOM.dropdown);
+               setTimeout(function() {
+                   return _this.DOM.dropdown.classList.remove(_s.classNames.dropdownInital);
+               });
+           }
+           return this;
+       },
+       /**
+        * re-renders the dropdown content element (see "dropdownContent" in templates file)
+        * @param {String/Array} HTMLContent - optional
+        */ fill: function fill(HTMLContent) {
+           HTMLContent = typeof HTMLContent == "string" ? HTMLContent : this.dropdown.createListHTML(HTMLContent || this.suggestedListItems);
+           var dropdownContent = this.settings.templates.dropdownContent.call(this, HTMLContent);
+           this.DOM.dropdown.content.innerHTML = minify(dropdownContent);
+       },
+       /**
+        * Re-renders only the header & footer.
+        * Used when selecting a suggestion and it is wanted that the suggestions dropdown stays open.
+        * Since the list of sugegstions is not being re-rendered completely every time a suggestion is selected (the item is transitioned-out)
+        * then the header & footer should be kept in sync with the suggestions data change
+        */ fillHeaderFooter: function fillHeaderFooter() {
+           var suggestions = this.dropdown.filterListItems(this.state.dropdown.query), newHeaderElem = this.parseTemplate("dropdownHeader", [
+               suggestions
+           ]), newFooterElem = this.parseTemplate("dropdownFooter", [
+               suggestions
+           ]), headerRef = this.dropdown.getHeaderRef(), footerRef = this.dropdown.getFooterRef();
+           newHeaderElem && (headerRef === null || headerRef === void 0 ? void 0 : headerRef.parentNode.replaceChild(newHeaderElem, headerRef));
+           newFooterElem && (footerRef === null || footerRef === void 0 ? void 0 : footerRef.parentNode.replaceChild(newFooterElem, footerRef));
+       },
+       /**
+        * dropdown positioning logic
+        * (shown above/below or next to typed text for mix-mode)
+        */ position: function position(ddHeight) {
+           var _sd = this.settings.dropdown, appendTarget = this.dropdown.getAppendTarget();
+           if (_sd.position == "manual" || !appendTarget) return;
+           var rect, top, bottom, left, width, ancestorsOffsets, isPlacedAbove, cssTop, cssLeft, ddElm = this.DOM.dropdown, isRTL = _sd.RTL, isDefaultAppendTarget = appendTarget === document.body, isSelfAppended = appendTarget === this.DOM.scope, appendTargetScrollTop = isDefaultAppendTarget ? window.pageYOffset : appendTarget.scrollTop, root = document.fullscreenElement || document.webkitFullscreenElement || document.documentElement, viewportHeight = root.clientHeight, viewportWidth = Math.max(root.clientWidth || 0, window.innerWidth || 0), positionTo = viewportWidth > 480 ? _sd.position : "all", ddTarget = this.DOM[positionTo == "input" ? "input" : "scope"];
+           ddHeight = ddHeight || ddElm.clientHeight;
+           function getAncestorsOffsets(p) {
+               var top = 0, left = 0;
+               p = p.parentNode;
+               // when in element-fullscreen mode, do not go above the fullscreened-element
+               while(p && p != root){
+                   top += p.offsetTop || 0;
+                   left += p.offsetLeft || 0;
+                   p = p.parentNode;
+               }
+               return {
+                   top: top,
+                   left: left
+               };
+           }
+           function getAccumulatedAncestorsScrollTop() {
+               var scrollTop = 0, p = _sd.appendTarget.parentNode;
+               while(p){
+                   scrollTop += p.scrollTop || 0;
+                   p = p.parentNode;
+               }
+               return scrollTop;
+           }
+           if (!this.state.dropdown.visible) return;
+           if (positionTo == "text") {
+               rect = getCaretGlobalPosition();
+               bottom = rect.bottom;
+               top = rect.top;
+               left = rect.left;
+               width = "auto";
+           } else {
+               ancestorsOffsets = getAncestorsOffsets(appendTarget);
+               rect = ddTarget.getBoundingClientRect();
+               top = isSelfAppended ? -1 : rect.top - ancestorsOffsets.top;
+               bottom = (isSelfAppended ? rect.height : rect.bottom - ancestorsOffsets.top) - 1;
+               left = isSelfAppended ? -1 : rect.left - ancestorsOffsets.left;
+               width = rect.width + "px";
+           }
+           // if the "append target" isn't the default, correct the `top` variable by ignoring any scrollTop of the target's Ancestors
+           if (!isDefaultAppendTarget) {
+               var accumulatedAncestorsScrollTop = getAccumulatedAncestorsScrollTop();
+               top += accumulatedAncestorsScrollTop;
+               bottom += accumulatedAncestorsScrollTop;
+           }
+           top = Math.floor(top);
+           bottom = Math.ceil(bottom);
+           var _sd_placeAbove;
+           isPlacedAbove = (_sd_placeAbove = _sd.placeAbove) !== null && _sd_placeAbove !== void 0 ? _sd_placeAbove : viewportHeight - rect.bottom < ddHeight;
+           // flip vertically if there is no space for the dropdown below the input
+           cssTop = (isPlacedAbove ? top : bottom) + appendTargetScrollTop;
+           // "pageXOffset" property is an alias for "scrollX"
+           cssLeft = "left: ".concat(left + (isRTL ? rect.width || 0 : 0) + window.pageXOffset, "px;");
+           // rtl = rtl ?? viewportWidth -
+           ddElm.style.cssText = "".concat(cssLeft, "; top: ").concat(cssTop, "px; min-width: ").concat(width, "; max-width: ").concat(width);
+           ddElm.setAttribute("placement", isPlacedAbove ? "top" : "bottom");
+           ddElm.setAttribute("position", positionTo);
+       }
+   });
+
+   var VERSION = 1; // current version of persisted data. if code change breaks persisted data, verison number should be bumped.
+   var STORE_KEY = "@yaireo/tagify/";
+   var getPersistedData = function(id) {
+       return function(key) {
+           var _localStorage;
+           if (!id) return;
+           // if "persist" is "false", do not save to localstorage
+           var customKey = "/" + key, persistedData, currentStorageVersion = (_localStorage = localStorage) === null || _localStorage === void 0 ? void 0 : _localStorage.getItem(STORE_KEY + id + "/v");
+           if (currentStorageVersion === VERSION) {
+               try {
+                   persistedData = JSON.parse(localStorage[STORE_KEY + id + customKey]);
+               } catch (err) {}
+           }
+           return persistedData;
+       };
+   };
+   var setPersistedData = function(id) {
+       var // for storage invalidation
+       _localStorage;
+       if (!id) return function() {};
+       (_localStorage = localStorage) === null || _localStorage === void 0 ? void 0 : _localStorage.setItem(STORE_KEY + id + "/v", VERSION);
+       return function(data, key) {
+           var customKey = "/" + key, persistedData = JSON.stringify(data);
+           if (data && key) {
+               var _localStorage;
+               (_localStorage = localStorage) === null || _localStorage === void 0 ? void 0 : _localStorage.setItem(STORE_KEY + id + customKey, persistedData);
+               dispatchEvent(new Event("storage"));
+           }
+       };
+   };
+   var clearPersistedData = function(id) {
+       return function(key) {
+           var base = STORE_KEY + "/" + id + "/";
+           // delete specific key in the storage
+           if (key) localStorage.removeItem(base + key);
+           else {
+               for(var k in localStorage)if (k.includes(base)) localStorage.removeItem(k);
+           }
+       };
+   };
+
+   var TEXTS = {
+       empty: "empty",
+       exceed: "number of tags exceeded",
+       pattern: "pattern mismatch",
+       duplicate: "already exists",
+       notAllowed: "not allowed"
+   };
+
+   var templates = {
+       /**
+        *
+        * @param {DOM Object} input     Original input DOm element
+        * @param {Object}     settings  Tagify instance settings Object
+        */ wrapper: function wrapper(input, _s) {
+           return '<tags class="'.concat(_s.classNames.namespace, " ").concat(_s.mode ? "".concat(_s.classNames[_s.mode + "Mode"]) : "", " ").concat(input.className, '"\n                    ').concat(_s.readonly ? "readonly" : "", "\n                    ").concat(_s.disabled ? "disabled" : "", "\n                    ").concat(_s.required ? "required" : "", "\n                    ").concat(_s.mode === "select" ? "spellcheck='false'" : "", '\n                    tabIndex="-1">\n                    ').concat(this.settings.templates.input.call(this), "\n                ").concat(ZERO_WIDTH_UNICODE_CHAR, "\n        </tags>");
+       },
+       input: function input() {
+           var _s = this.settings, placeholder = _s.placeholder || ZERO_WIDTH_UNICODE_CHAR;
+           return "<span ".concat(!_s.readonly && _s.userInput ? "contenteditable" : "", ' tabIndex="0" data-placeholder="').concat(placeholder, '" aria-placeholder="').concat(_s.placeholder || "", '"\n                    class="').concat(_s.classNames.input, '"\n                    role="textbox"\n                    autocapitalize="false"\n                    autocorrect="off"\n                    aria-autocomplete="both"\n                    aria-multiline="').concat(_s.mode == "mix" ? true : false, '"></span>');
+       },
+       tag: function tag(tagData, param) {
+           var _s = param.settings;
+           return '<tag title="'.concat(tagData.title || tagData.value, "\"\n                    contenteditable='false'\n                    tabIndex=\"").concat(_s.a11y.focusableTags ? 0 : -1, '"\n                    class="').concat(_s.classNames.tag, " ").concat(tagData.class || "", '"\n                    ').concat(this.getAttributes(tagData), ">\n            <x title='' tabIndex=\"").concat(_s.a11y.focusableTags ? 0 : -1, '" class="').concat(_s.classNames.tagX, "\" role='button' aria-label='remove tag'></x>\n            <div>\n                <span ").concat(_s.mode === "select" && _s.userInput ? "contenteditable='true'" : "", ' autocapitalize="false" autocorrect="off" spellcheck=\'false\' class="').concat(_s.classNames.tagText, '">').concat(tagData[_s.tagTextProp] || tagData.value, "</span>\n            </div>\n        </tag>");
+       },
+       dropdown: function dropdown(settings) {
+           var _sd = settings.dropdown, isManual = _sd.position == "manual";
+           return '<div class="'.concat(isManual ? "" : settings.classNames.dropdown, " ").concat(_sd.classname, '" role="listbox" aria-labelledby="dropdown" dir="').concat(_sd.RTL ? "rtl" : "", "\">\n                    <div data-selector='tagify-suggestions-wrapper' class=\"").concat(settings.classNames.dropdownWrapper, '"></div>\n                </div>');
+       },
+       dropdownContent: function dropdownContent(HTMLContent) {
+           var _t = this.settings.templates, suggestions = this.state.dropdown.suggestions;
+           return "\n            ".concat(_t.dropdownHeader.call(this, suggestions), "\n            ").concat(HTMLContent, "\n            ").concat(_t.dropdownFooter.call(this, suggestions), "\n        ");
+       },
+       dropdownItem: function dropdownItem(item) {
+           return "<div ".concat(this.getAttributes(item), "\n                    class='").concat(this.settings.classNames.dropdownItem, " ").concat(this.isTagDuplicate(item.value) ? this.settings.classNames.dropdownItemSelected : "", " ").concat(item.class || "", '\'\n                    tabindex="0"\n                    role="option">').concat(item.mappedValue || item.value, "</div>");
+       },
+       /**
+        * @param {Array} suggestions An array of all the matched suggested items, including those which were sliced away due to the "dropdown.maxItems" setting
+        */ dropdownHeader: function dropdownHeader(suggestions) {
+           return "<header data-selector='tagify-suggestions-header' class=\"".concat(this.settings.classNames.dropdownHeader, '"></header>');
+       },
+       dropdownFooter: function dropdownFooter(suggestions) {
+           var hasMore = suggestions.length - this.settings.dropdown.maxItems;
+           return hasMore > 0 ? "<footer data-selector='tagify-suggestions-footer' class=\"".concat(this.settings.classNames.dropdownFooter, '">\n                ').concat(hasMore, " more items. Refine your search.\n            </footer>") : "";
+       },
+       dropdownItemNoMatch: null
+   };
+
+   function _array_like_to_array$2(arr, len) {
+       if (len == null || len > arr.length) len = arr.length;
+       for(var i = 0, arr2 = new Array(len); i < len; i++)arr2[i] = arr[i];
+       return arr2;
+   }
+   function _array_with_holes(arr) {
+       if (Array.isArray(arr)) return arr;
+   }
+   function _instanceof$2(left, right) {
+       if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+           return !!right[Symbol.hasInstance](left);
+       } else {
+           return left instanceof right;
+       }
+   }
+   function _iterable_to_array_limit(arr, i) {
+       var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+       if (_i == null) return;
+       var _arr = [];
+       var _n = true;
+       var _d = false;
+       var _s, _e;
+       try {
+           for(_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true){
+               _arr.push(_s.value);
+               if (i && _arr.length === i) break;
+           }
+       } catch (err) {
+           _d = true;
+           _e = err;
+       } finally{
+           try {
+               if (!_n && _i["return"] != null) _i["return"]();
+           } finally{
+               if (_d) throw _e;
+           }
+       }
+       return _arr;
+   }
+   function _non_iterable_rest() {
+       throw new TypeError("Invalid attempt to destructure non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+   }
+   function _sliced_to_array(arr, i) {
+       return _array_with_holes(arr) || _iterable_to_array_limit(arr, i) || _unsupported_iterable_to_array$2(arr, i) || _non_iterable_rest();
+   }
+   function _unsupported_iterable_to_array$2(o, minLen) {
+       if (!o) return;
+       if (typeof o === "string") return _array_like_to_array$2(o, minLen);
+       var n = Object.prototype.toString.call(o).slice(8, -1);
+       if (n === "Object" && o.constructor) n = o.constructor.name;
+       if (n === "Map" || n === "Set") return Array.from(n);
+       if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$2(o, minLen);
+   }
+   function EventDispatcher(instance) {
+       // Create a DOM EventTarget object
+       var target = document.createTextNode(""), // keep track of all binded events & their callbacks to be able to completely remove all listeners of a speicific type
+       callbacksPerType = {};
+       function addRemove(op, events, cb) {
+           if (cb) events.split(/\s+/g).forEach(function(ev) {
+               return target[op + "EventListener"].call(target, ev, cb);
+           });
+       }
+       // Pass EventTarget interface calls to DOM EventTarget object
+       return {
+           // unbinds all events
+           removeAllCustomListeners: function removeAllCustomListeners() {
+               Object.entries(callbacksPerType).forEach(function(param) {
+                   var _param = _sliced_to_array(param, 2), ev = _param[0], cbArr = _param[1];
+                   cbArr.forEach(function(cb) {
+                       return addRemove("remove", ev, cb);
+                   });
+               });
+               callbacksPerType = {};
+           },
+           off: function off(events, cb) {
+               if (events) {
+                   if (cb) addRemove("remove", events, cb);
+                   else // if `cb` argument was not specified then remove all listeners for the given event(s) types
+                   events.split(/\s+/g).forEach(function(ev) {
+                       var _callbacksPerType_ev;
+                       (_callbacksPerType_ev = callbacksPerType[ev]) === null || _callbacksPerType_ev === void 0 ? void 0 : _callbacksPerType_ev.forEach(function(cb) {
+                           return addRemove("remove", ev, cb);
+                       });
+                       delete callbacksPerType[ev];
+                   });
+               }
+               return this;
+           },
+           on: function on(events, cb) {
+               if (cb && typeof cb == "function") {
+                   //track events callbacks to be able to remove them altogehter
+                   events.split(/\s+/g).forEach(function(ev) {
+                       if (Array.isArray(callbacksPerType[ev])) callbacksPerType[ev].push(cb);
+                       else callbacksPerType[ev] = [
+                           cb
+                       ];
+                   });
+                   addRemove("add", events, cb);
+               }
+               return this;
+           },
+           trigger: function trigger(eventName, data, opts) {
+               var e;
+               opts = opts || {
+                   cloneData: true
+               };
+               if (!eventName) return;
+               if (instance.settings.isJQueryPlugin) {
+                   if (eventName == "remove") eventName = "removeTag" // issue #222
+                   ;
+                   jQuery(instance.DOM.originalInput).triggerHandler(eventName, [
+                       data
+                   ]);
+               } else {
+                   try {
+                       var eventData = typeof data === "object" ? data : {
+                           value: data
+                       };
+                       eventData = opts.cloneData ? extend({}, eventData) : eventData;
+                       eventData.tagify = this;
+                       if (data.event) eventData.event = this.cloneEvent(data.event);
+                       // TODO: move the below to the "extend" function
+                       if (_instanceof$2(data, Object)) {
+                           for(var prop in data)if (_instanceof$2(data[prop], HTMLElement)) eventData[prop] = data[prop];
+                       }
+                       e = new CustomEvent(eventName, {
+                           "detail": eventData
+                       });
+                   } catch (err) {
+                       logger.warn(err);
+                   }
+                   target.dispatchEvent(e);
+               }
+           }
+       };
+   }
+
+   function _array_like_to_array$1(arr, len) {
+       if (len == null || len > arr.length) len = arr.length;
+       for(var i = 0, arr2 = new Array(len); i < len; i++)arr2[i] = arr[i];
+       return arr2;
+   }
+   function _array_without_holes$1(arr) {
+       if (Array.isArray(arr)) return _array_like_to_array$1(arr);
+   }
+   function _define_property$1(obj, key, value) {
+       if (key in obj) {
+           Object.defineProperty(obj, key, {
+               value: value,
+               enumerable: true,
+               configurable: true,
+               writable: true
+           });
+       } else {
+           obj[key] = value;
+       }
+       return obj;
+   }
+   function _instanceof$1(left, right) {
+       if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+           return !!right[Symbol.hasInstance](left);
+       } else {
+           return left instanceof right;
+       }
+   }
+   function _iterable_to_array$1(iter) {
+       if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+   }
+   function _non_iterable_spread$1() {
+       throw new TypeError("Invalid attempt to spread non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+   }
+   function _object_spread$1(target) {
+       for(var i = 1; i < arguments.length; i++){
+           var source = arguments[i] != null ? arguments[i] : {};
+           var ownKeys = Object.keys(source);
+           if (typeof Object.getOwnPropertySymbols === "function") {
+               ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function(sym) {
+                   return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+               }));
+           }
+           ownKeys.forEach(function(key) {
+               _define_property$1(target, key, source[key]);
+           });
+       }
+       return target;
+   }
+   function ownKeys(object, enumerableOnly) {
+       var keys = Object.keys(object);
+       if (Object.getOwnPropertySymbols) {
+           var symbols = Object.getOwnPropertySymbols(object);
+           if (enumerableOnly) {
+               symbols = symbols.filter(function(sym) {
+                   return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+               });
+           }
+           keys.push.apply(keys, symbols);
+       }
+       return keys;
+   }
+   function _object_spread_props(target, source) {
+       source = source != null ? source : {};
+       if (Object.getOwnPropertyDescriptors) {
+           Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+       } else {
+           ownKeys(Object(source)).forEach(function(key) {
+               Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+           });
+       }
+       return target;
+   }
+   function _to_consumable_array$1(arr) {
+       return _array_without_holes$1(arr) || _iterable_to_array$1(arr) || _unsupported_iterable_to_array$1(arr) || _non_iterable_spread$1();
+   }
+   function _unsupported_iterable_to_array$1(o, minLen) {
+       if (!o) return;
+       if (typeof o === "string") return _array_like_to_array$1(o, minLen);
+       var n = Object.prototype.toString.call(o).slice(8, -1);
+       if (n === "Object" && o.constructor) n = o.constructor.name;
+       if (n === "Map" || n === "Set") return Array.from(n);
+       if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$1(o, minLen);
+   }
+   function triggerChangeEvent() {
+       if (this.settings.mixMode.integrated) return;
+       var inputElm = this.DOM.originalInput, changed = this.state.lastOriginalValueReported !== inputElm.value, event = new CustomEvent("change", {
+           bubbles: true
+       }); // must use "CustomEvent" and not "Event" to support IE
+       if (!changed) return;
+       // must apply this BEFORE triggering the simulated event
+       this.state.lastOriginalValueReported = inputElm.value;
+       // React hack: https://github.com/facebook/react/issues/11488
+       event.simulated = true;
+       if (inputElm._valueTracker) inputElm._valueTracker.setValue(Math.random());
+       inputElm.dispatchEvent(event);
+       // also trigger a Tagify event
+       this.trigger("change", this.state.lastOriginalValueReported);
+       // React, for some reason, clears the input's value after "dispatchEvent" is fired
+       inputElm.value = this.state.lastOriginalValueReported;
+   }
+   var events = {
+       // bind custom events which were passed in the settings
+       customBinding: function customBinding() {
+           var _this = this;
+           this.customEventsList.forEach(function(name) {
+               _this.on(name, _this.settings.callbacks[name]);
+           });
+       },
+       binding: function binding() {
+           var bindUnbind = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : true;
+           var _s = this.settings, _CB = this.events.callbacks, _CBR, action = bindUnbind ? "addEventListener" : "removeEventListener";
+           // do not allow the main events to be bound more than once
+           if (this.state.mainEvents && bindUnbind) return;
+           // set the binding state of the main events, so they will not be bound more than once
+           this.state.mainEvents = bindUnbind;
+           // everything inside gets executed only once-per instance
+           if (bindUnbind && !this.listeners.main) {
+               this.events.bindGlobal.call(this);
+               if (this.settings.isJQueryPlugin) jQuery(this.DOM.originalInput).on("tagify.removeAllTags", this.removeAllTags.bind(this));
+           }
+           // TODO: bind bubblable "focusin" and "focusout" events on the Tagify scope itself and not the input
+           // setup callback references so events could be removed later
+           _CBR = this.listeners.main = this.listeners.main || {
+               keydown: [
+                   "input",
+                   _CB.onKeydown.bind(this)
+               ],
+               click: [
+                   "scope",
+                   _CB.onClickScope.bind(this)
+               ],
+               dblclick: _s.mode != "select" && [
+                   "scope",
+                   _CB.onDoubleClickScope.bind(this)
+               ],
+               paste: [
+                   "input",
+                   _CB.onPaste.bind(this)
+               ],
+               drop: [
+                   "input",
+                   _CB.onDrop.bind(this)
+               ],
+               compositionstart: [
+                   "input",
+                   _CB.onCompositionStart.bind(this)
+               ],
+               compositionend: [
+                   "input",
+                   _CB.onCompositionEnd.bind(this)
+               ]
+           };
+           for(var eventName in _CBR){
+               _CBR[eventName] && this.DOM[_CBR[eventName][0]][action](eventName, _CBR[eventName][1]);
+           }
+           // observers
+           var inputMutationObserver = this.listeners.main.inputMutationObserver || new MutationObserver(_CB.onInputDOMChange.bind(this));
+           // cleaup just-in-case
+           inputMutationObserver.disconnect();
+           // observe stuff
+           if (_s.mode == "mix") {
+               inputMutationObserver.observe(this.DOM.input, {
+                   childList: true
+               });
+           }
+           this.events.bindOriginaInputListener.call(this);
+       },
+       bindOriginaInputListener: function bindOriginaInputListener(delay) {
+           var DELAY = (delay || 0) + 500;
+           if (!this.listeners.main) return;
+           // listen to original input changes (unfortunetly this is the best way...)
+           // https://stackoverflow.com/a/1949416/104380
+           clearInterval(this.listeners.main.originalInputValueObserverInterval);
+           this.listeners.main.originalInputValueObserverInterval = setInterval(this.events.callbacks.observeOriginalInputValue.bind(this), DELAY);
+       },
+       bindGlobal: function bindGlobal(unbind) {
+           var _CB = this.events.callbacks, action = unbind ? "removeEventListener" : "addEventListener", e;
+           if (!this.listeners || !unbind && this.listeners.global) return; // do not re-bind
+           // these events are global and should never be unbinded, unless the instance is destroyed:
+           this.listeners.global = this.listeners.global || [
+               {
+                   type: this.isIE ? "keydown" : "input",
+                   target: this.DOM.input,
+                   cb: _CB[this.isIE ? "onInputIE" : "onInput"].bind(this)
+               },
+               {
+                   type: "keydown",
+                   target: window,
+                   cb: _CB.onWindowKeyDown.bind(this)
+               },
+               {
+                   type: "focusin",
+                   target: this.DOM.scope,
+                   cb: _CB.onFocusBlur.bind(this)
+               },
+               {
+                   type: "focusout",
+                   target: this.DOM.scope,
+                   cb: _CB.onFocusBlur.bind(this)
+               },
+               {
+                   type: "click",
+                   target: document,
+                   cb: _CB.onClickAnywhere.bind(this),
+                   useCapture: true
+               }
+           ];
+           var _iteratorNormalCompletion = true, _didIteratorError = false, _iteratorError = undefined;
+           try {
+               for(var _iterator = this.listeners.global[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true){
+                   e = _step.value;
+                   e.target[action](e.type, e.cb, !!e.useCapture);
+               }
+           } catch (err) {
+               _didIteratorError = true;
+               _iteratorError = err;
+           } finally{
+               try {
+                   if (!_iteratorNormalCompletion && _iterator.return != null) {
+                       _iterator.return();
+                   }
+               } finally{
+                   if (_didIteratorError) {
+                       throw _iteratorError;
+                   }
+               }
+           }
+       },
+       unbindGlobal: function unbindGlobal() {
+           this.events.bindGlobal.call(this, true);
+       },
+       /**
+        * DOM events callbacks
+        */ callbacks: {
+           onFocusBlur: function onFocusBlur(e) {
+               var _this_value_, _this_value;
+               // when focusing within a tag which is in edit-mode
+               var _s = this.settings, nodeTag = isWithinNodeTag.call(this, e.target), targetIsTagNode = isNodeTag.call(this, e.target), isTargetXBtn = e.target.classList.contains(_s.classNames.tagX), isFocused = e.type == "focusin", lostFocus = e.type == "focusout";
+               // when focusing within a tag which is in edit-mode, only and specifically on the text-part of the tag node
+               // and not the X button or any other custom element thatmight be there
+               // var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
+               if (nodeTag && isFocused && !targetIsTagNode && !isTargetXBtn) {
+                   this.toggleFocusClass(this.state.hasFocus = +new Date());
+               // only if focused within a tag's text node should the `onEditTagFocus` function be called.
+               // if clicked anywhere else inside a tag, which had triggered an `focusin` event,
+               // the onFocusBlur should be aborted. This part was spcifically written for `select` mode.
+               // tagTextNode && this.events.callbacks.onEditTagFocus.call(this, nodeTag)
+               }
+               var text = e.target ? this.trim(this.DOM.input.textContent) : "", currentDisplayValue = (_this_value = this.value) === null || _this_value === void 0 ? void 0 : (_this_value_ = _this_value[0]) === null || _this_value_ === void 0 ? void 0 : _this_value_[_s.tagTextProp], ddEnabled = _s.dropdown.enabled >= 0, eventData = {
+                   relatedTarget: e.relatedTarget
+               }, isTargetSelectOption = this.state.actions.selectOption && (ddEnabled || !_s.dropdown.closeOnSelect), isTargetAddNewBtn = this.state.actions.addNew && ddEnabled, shouldAddTags;
+               if (lostFocus) {
+                   if (e.relatedTarget === this.DOM.scope) {
+                       this.dropdown.hide();
+                       this.DOM.input.focus();
+                       return;
+                   }
+                   this.postUpdate();
+                   _s.onChangeAfterBlur && this.triggerChangeEvent();
+               }
+               if (isTargetSelectOption || isTargetAddNewBtn || isTargetXBtn) return;
+               // should only loose focus at this point if the event was not generated from within a tag, within the component
+               if (isFocused || nodeTag) {
+                   this.state.hasFocus = +new Date();
+                   this.toggleFocusClass(this.state.hasFocus);
+               } else {
+                   this.state.hasFocus = false;
+               }
+               if (_s.mode == "mix") {
+                   if (isFocused) {
+                       this.trigger("focus", eventData);
+                   } else if (lostFocus) {
+                       this.trigger("blur", eventData);
+                       this.loading(false);
+                       this.dropdown.hide();
+                       // reset state which needs reseting
+                       this.state.dropdown.visible = undefined;
+                       this.setStateSelection();
+                   }
+                   return;
+               }
+               if (isFocused) {
+                   if (!_s.focusable) return;
+                   var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible, condition2 = !targetIsTagNode || _s.mode === "select";
+                   this.toggleFocusClass(true);
+                   this.trigger("focus", eventData);
+                   //  e.target.classList.remove('placeholder');
+                   if (dropdownCanBeShown && condition2) {
+                       this.dropdown.show(this.value.length ? "" : undefined);
+                   }
+                   return;
+               } else if (lostFocus) {
+                   this.trigger("blur", eventData);
+                   this.loading(false);
+                   // when clicking the X button of a selected tag, it is unwanted for it to be added back
+                   // again in a few more lines of code (shouldAddTags && addTags)
+                   if (_s.mode == "select") {
+                       if (this.value.length) {
+                           var firstTagNode = this.getTagElms()[0];
+                           text = this.trim(firstTagNode.textContent);
+                       }
+                       // if nothing has changed (same display value), do not add a tag
+                       if (currentDisplayValue === text) text = "";
+                   }
+                   shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur && _s.addTagOn.includes("blur");
+                   // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
+                   shouldAddTags && this.addTags(text, true);
+               }
+               // when clicking a tag, do not consider this is a "blur" event
+               if (!nodeTag) {
+                   this.DOM.input.removeAttribute("style");
+                   this.dropdown.hide();
+               }
+           },
+           onCompositionStart: function onCompositionStart(e) {
+               this.state.composing = true;
+           },
+           onCompositionEnd: function onCompositionEnd(e) {
+               this.state.composing = false;
+           },
+           onWindowKeyDown: function onWindowKeyDown(e) {
+               var _s = this.settings, focusedElm = document.activeElement, withinTag = isWithinNodeTag.call(this, focusedElm), isBelong = withinTag && this.DOM.scope.contains(document.activeElement), isReadyOnlyTag = isBelong && focusedElm.hasAttribute("readonly"), nextTag;
+               if (!this.state.hasFocus && (!isBelong || isReadyOnlyTag)) return;
+               nextTag = focusedElm.nextElementSibling;
+               var targetIsRemoveBtn = e.target.classList.contains(_s.classNames.tagX);
+               switch(e.key){
+                   // remove tag if has focus
+                   case "Backspace":
+                       {
+                           if (!_s.readonly && !this.state.editing) {
+                               this.removeTags(focusedElm);
+                               (nextTag ? nextTag : this.DOM.input).focus();
+                           }
+                           break;
+                       }
+                   case "Enter":
+                       {
+                           if (targetIsRemoveBtn) {
+                               this.removeTags(e.target.parentNode);
+                               return;
+                           }
+                           if (_s.a11y.focusableTags && isNodeTag.call(this, focusedElm)) setTimeout(this.editTag.bind(this), 0, focusedElm);
+                           break;
+                       }
+                   case "ArrowDown":
+                       {
+                           // if( _s.mode == 'select' ) // issue #333
+                           if (!this.state.dropdown.visible && _s.mode != "mix") this.dropdown.show();
+                           break;
+                       }
+               }
+           },
+           onKeydown: function onKeydown(e) {
+               var _this = this;
+               var _s = this.settings;
+               // ignore keys during IME composition or when user input is not allowed
+               if (this.state.composing || !_s.userInput) return;
+               if (_s.mode == "select" && _s.enforceWhitelist && this.value.length && e.key != "Tab") {
+                   e.preventDefault();
+               }
+               var s = this.trim(e.target.textContent);
+               this.trigger("keydown", {
+                   event: e
+               });
+               _s.hooks.beforeKeyDown(e, {
+                   tagify: this
+               }).then(function(result) {
+                   /**
+                        * ONLY FOR MIX-MODE:
+                        */ if (_s.mode == "mix") {
+                       switch(e.key){
+                           case "Left":
+                           case "ArrowLeft":
+                               {
+                                   // when left arrow was pressed, set a flag so when the dropdown is shown, right-arrow will be ignored
+                                   // because it seems likely the user wishes to use the arrows to move the caret
+                                   _this.state.actions.ArrowLeft = true;
+                                   break;
+                               }
+                           case "Delete":
+                           case "Backspace":
+                               {
+                                   if (_this.state.editing) return;
+                                   var sel = document.getSelection(), deleteKeyTagDetected = e.key == "Delete" && sel.anchorOffset == (sel.anchorNode.length || 0), prevAnchorSibling = sel.anchorNode.previousSibling, isCaretAfterTag = sel.anchorNode.nodeType == 1 || !sel.anchorOffset && prevAnchorSibling && prevAnchorSibling.nodeType == 1 && sel.anchorNode.previousSibling; decode(_this.DOM.input.innerHTML); var lastTagElems = _this.getTagElms(), isZWS = sel.anchorNode.length === 1 && sel.anchorNode.nodeValue == String.fromCharCode(8203), //  isCaretInsideTag = sel.anchorNode.parentNode('.' + _s.classNames.tag),
+                                   tagBeforeCaret, tagElmToBeDeleted, firstTextNodeBeforeTag;
+                                   if (_s.backspace == "edit" && isCaretAfterTag) {
+                                       tagBeforeCaret = sel.anchorNode.nodeType == 1 ? null : sel.anchorNode.previousElementSibling;
+                                       setTimeout(_this.editTag.bind(_this), 0, tagBeforeCaret); // timeout is needed to the last cahacrter in the edited tag won't get deleted
+                                       e.preventDefault() // needed so the tag elm won't get deleted
+                                       ;
+                                       return;
+                                   }
+                                   if (isChromeAndroidBrowser() && _instanceof$1(isCaretAfterTag, Element)) {
+                                       firstTextNodeBeforeTag = getfirstTextNode(isCaretAfterTag);
+                                       if (!isCaretAfterTag.hasAttribute("readonly")) isCaretAfterTag.remove() // since this is Chrome, can safetly use this "new" DOM API
+                                       ;
+                                       // Android-Chrome wrongly hides the keyboard, and loses focus,
+                                       // so this hack below is needed to regain focus at the correct place:
+                                       _this.DOM.input.focus();
+                                       setTimeout(function() {
+                                           placeCaretAfterNode(firstTextNodeBeforeTag);
+                                           _this.DOM.input.click();
+                                       });
+                                       return;
+                                   }
+                                   if (sel.anchorNode.nodeName == "BR") return;
+                                   if ((deleteKeyTagDetected || isCaretAfterTag) && sel.anchorNode.nodeType == 1) if (sel.anchorOffset == 0) tagElmToBeDeleted = deleteKeyTagDetected // delete key pressed
+                                    ? lastTagElems[0] : null;
+                                   else tagElmToBeDeleted = lastTagElems[Math.min(lastTagElems.length, sel.anchorOffset) - 1];
+                                   else if (deleteKeyTagDetected) tagElmToBeDeleted = sel.anchorNode.nextElementSibling;
+                                   else if (_instanceof$1(isCaretAfterTag, Element)) tagElmToBeDeleted = isCaretAfterTag;
+                                   // tagElm.hasAttribute('readonly')
+                                   if (sel.anchorNode.nodeType == 3 && // node at caret location is a Text node
+                                   !sel.anchorNode.nodeValue && // has some text
+                                   sel.anchorNode.previousElementSibling) e.preventDefault();
+                                   // if backspace not allowed, do nothing
+                                   // TODO: a better way to detect if nodes were deleted is to simply check the "this.value" before & after
+                                   if ((isCaretAfterTag || deleteKeyTagDetected) && !_s.backspace) {
+                                       e.preventDefault();
+                                       return;
+                                   }
+                                   if (sel.type != "Range" && !sel.anchorOffset && sel.anchorNode == _this.DOM.input && e.key != "Delete") {
+                                       e.preventDefault();
+                                       return;
+                                   }
+                                   if (sel.type != "Range" && tagElmToBeDeleted && tagElmToBeDeleted.hasAttribute("readonly")) {
+                                       // allows the continuation of deletion by placing the caret on the first previous textNode.
+                                       // since a few readonly-tags might be one after the other, iteration is needed:
+                                       placeCaretAfterNode(getfirstTextNode(tagElmToBeDeleted));
+                                       return;
+                                   }
+                                   if (e.key == "Delete" && isZWS && getSetTagData(sel.anchorNode.nextSibling)) {
+                                       _this.removeTags(sel.anchorNode.nextSibling);
+                                   }
+                                   break;
+                               }
+                       }
+                       return true;
+                   }
+                   var isManualDropdown = _s.dropdown.position == "manual";
+                   switch(e.key){
+                       case "Backspace":
+                           if (_s.mode == "select" && _s.enforceWhitelist && _this.value.length) _this.removeTags();
+                           else if (!_this.state.dropdown.visible || _s.dropdown.position == "manual") {
+                               if (e.target.textContent == "" || s.charCodeAt(0) == 8203) {
+                                   if (_s.backspace === true) _this.removeTags();
+                                   else if (_s.backspace == "edit") setTimeout(_this.editTag.bind(_this), 0) // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
+                                   ;
+                               }
+                           }
+                           break;
+                       case "Esc":
+                       case "Escape":
+                           if (_this.state.dropdown.visible) return;
+                           e.target.blur();
+                           break;
+                       case "Down":
+                       case "ArrowDown":
+                           // if( _s.mode == 'select' ) // issue #333
+                           if (!_this.state.dropdown.visible) _this.dropdown.show();
+                           break;
+                       case "ArrowRight":
+                           {
+                               var tagData = _this.state.inputSuggestion || _this.state.ddItemData;
+                               if (tagData && _s.autoComplete.rightKey) {
+                                   _this.addTags([
+                                       tagData
+                                   ], true);
+                                   return;
+                               }
+                               break;
+                           }
+                       case "Tab":
+                           {
+                               var selectMode = _s.mode == "select";
+                               if (s && !selectMode) e.preventDefault();
+                               else return true;
+                           }
+                       case "Enter":
+                           // manual suggestion boxes are assumed to always be visible
+                           if (_this.state.dropdown.visible && !isManualDropdown) return;
+                           e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+                           // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
+                           // know if an option was just selected from the dropdown menu. If an option was selected,
+                           // the dropdown events should handle adding the tag
+                           setTimeout(function() {
+                               if ((!_this.state.dropdown.visible || isManualDropdown) && !_this.state.actions.selectOption && _s.addTagOn.includes(e.key.toLowerCase())) _this.addTags(s, true);
+                           });
+                   }
+               }).catch(function(err) {
+                   return err;
+               });
+           },
+           onInput: function onInput(e) {
+               this.postUpdate() // toggles "tagify--empty" class
+               ;
+               var _s = this.settings;
+               if (_s.mode == "mix") return this.events.callbacks.onMixTagsInput.call(this, e);
+               var value = this.input.normalize.call(this, undefined, {
+                   trim: false
+               }), showSuggestions = value.length >= _s.dropdown.enabled, eventData = {
+                   value: value,
+                   inputElm: this.DOM.input
+               }, validation = this.validateTag({
+                   value: value
+               });
+               if (_s.mode == "select") {
+                   this.toggleScopeValidation(validation);
+               }
+               eventData.isValid = validation;
+               // for IE; since IE doesn't have an "input" event so "keyDown" is used instead to trigger the "onInput" callback,
+               // and so many keys do not change the input, and for those do not continue.
+               if (this.state.inputText == value) return;
+               // save the value on the input's State object
+               this.input.set.call(this, value, false); // update the input with the normalized value and run validations
+               // this.setRangeAtStartEnd(false, this.DOM.input); // fix caret position
+               // if delimiters detected, add tags
+               if (value.search(_s.delimiters) != -1) {
+                   if (this.addTags(value)) {
+                       this.input.set.call(this); // clear the input field's value
+                   }
+               } else if (_s.dropdown.enabled >= 0) {
+                   this.dropdown[showSuggestions ? "show" : "hide"](value);
+               }
+               this.trigger("input", eventData) // "input" event must be triggered at this point, before the dropdown is shown
+               ;
+           },
+           onMixTagsInput: function onMixTagsInput(e) {
+               var _this = this;
+               var rangeText, match, matchedPatternCount, tag, showSuggestions, selection, _s = this.settings, lastTagsCount = this.value.length, matchFlaggedTag, matchDelimiters, tagsElems = this.getTagElms(), fragment = document.createDocumentFragment(), range = window.getSelection().getRangeAt(0), remainingTagsValues = [].map.call(tagsElems, function(node) {
+                   return getSetTagData(node).value;
+               });
+               // Android Chrome "keydown" event argument does not report the correct "key".
+               // this workaround is needed to manually call "onKeydown" method with a synthesized event object
+               if (e.inputType == "deleteContentBackward" && isChromeAndroidBrowser()) {
+                   this.events.callbacks.onKeydown.call(this, {
+                       target: e.target,
+                       key: "Backspace"
+                   });
+               }
+               // if there's a tag as the first child of the input, always make sure it has a zero-width character before it
+               // or if two tags are next to each-other, add a zero-space width character (For the caret to appear)
+               fixCaretBetweenTags(this.getTagElms());
+               // re-add "readonly" tags which might have been removed
+               this.value.slice().forEach(function(item) {
+                   if (item.readonly && !remainingTagsValues.includes(item.value)) fragment.appendChild(_this.createTagElem(item));
+               });
+               if (fragment.childNodes.length) {
+                   range.insertNode(fragment);
+                   this.setRangeAtStartEnd(false, fragment.lastChild);
+               }
+               // check if tags were "magically" added/removed (browser redo/undo or CTRL-A -> delete)
+               if (tagsElems.length != lastTagsCount) {
+                   this.value = [].map.call(this.getTagElms(), function(node) {
+                       return getSetTagData(node);
+                   });
+                   this.update({
+                       withoutChangeEvent: true
+                   });
+                   return;
+               }
+               if (this.hasMaxTags()) return true;
+               if (window.getSelection) {
+                   selection = window.getSelection();
+                   // only detect tags if selection is inside a textNode (not somehow on already-existing tag)
+                   if (selection.rangeCount > 0 && selection.anchorNode.nodeType == 3) {
+                       range = selection.getRangeAt(0).cloneRange();
+                       range.collapse(true);
+                       range.setStart(selection.focusNode, 0);
+                       rangeText = range.toString().slice(0, range.endOffset) // slice the range so everything AFTER the caret will be trimmed
+                       ;
+                       // split = range.toString().split(_s.mixTagsAllowedAfter)  // ["foo", "bar", "@baz"]
+                       matchedPatternCount = rangeText.split(_s.pattern).length - 1;
+                       match = rangeText.match(_s.pattern);
+                       if (match) // tag string, example: "@aaa ccc"
+                       tag = rangeText.slice(rangeText.lastIndexOf(match[match.length - 1]));
+                       if (tag) {
+                           this.state.actions.ArrowLeft = false // start fresh, assuming the user did not (yet) used any arrow to move the caret
+                           ;
+                           this.state.tag = {
+                               prefix: tag.match(_s.pattern)[0],
+                               value: tag.replace(_s.pattern, "")
+                           };
+                           this.state.tag.baseOffset = selection.baseOffset - this.state.tag.value.length;
+                           matchDelimiters = this.state.tag.value.match(_s.delimiters);
+                           // if a delimeter exists, add the value as tag (exluding the delimiter)
+                           if (matchDelimiters) {
+                               this.state.tag.value = this.state.tag.value.replace(_s.delimiters, "");
+                               this.state.tag.delimiters = matchDelimiters[0];
+                               this.addTags(this.state.tag.value, _s.dropdown.clearOnSelect);
+                               this.dropdown.hide();
+                               return;
+                           }
+                           showSuggestions = this.state.tag.value.length >= _s.dropdown.enabled;
+                           // When writing something that might look like a tag (an email address) but isn't one - it is unwanted
+                           // the suggestions dropdown be shown, so the user can close it (in any way), and while continue typing,
+                           // dropdown should stay closed until another tag is typed.
+                           // if( this.state.tag.value.length && this.state.dropdown.visible === false )
+                           //     showSuggestions = false
+                           // test for similar flagged tags to the current tag
+                           try {
+                               matchFlaggedTag = this.state.flaggedTags[this.state.tag.baseOffset];
+                               matchFlaggedTag = matchFlaggedTag.prefix == this.state.tag.prefix && matchFlaggedTag.value[0] == this.state.tag.value[0];
+                               // reset
+                               if (this.state.flaggedTags[this.state.tag.baseOffset] && !this.state.tag.value) delete this.state.flaggedTags[this.state.tag.baseOffset];
+                           } catch (err) {}
+                           // scenario: (do not show suggestions of another matched tag, if more than one detected)
+                           // (2 tags exist)                          " a@a.com and @"
+                           // (second tag is removed by backspace)    " a@a.com and "
+                           if (matchFlaggedTag || matchedPatternCount < this.state.mixMode.matchedPatternCount) showSuggestions = false;
+                       } else {
+                           this.state.flaggedTags = {};
+                       }
+                       this.state.mixMode.matchedPatternCount = matchedPatternCount;
+                   }
+               }
+               // wait until the "this.value" has been updated (see "onKeydown" method for "mix-mode")
+               // the dropdown must be shown only after this event has been triggered, so an implementer could
+               // dynamically change the whitelist.
+               setTimeout(function() {
+                   _this.update({
+                       withoutChangeEvent: true
+                   });
+                   _this.trigger("input", extend({}, _this.state.tag, {
+                       textContent: _this.DOM.input.textContent
+                   }));
+                   if (_this.state.tag) _this.dropdown[showSuggestions ? "show" : "hide"](_this.state.tag.value);
+               }, 10);
+           },
+           onInputIE: function onInputIE(e) {
+               var _this = this;
+               // for the "e.target.textContent" to be changed, the browser requires a small delay
+               setTimeout(function() {
+                   _this.events.callbacks.onInput.call(_this, e);
+               });
+           },
+           observeOriginalInputValue: function observeOriginalInputValue() {
+               // if, for some reason, the Tagified element is no longer in the DOM,
+               // call the "destroy" method to kill all references to timeouts/intervals
+               if (!this.DOM.originalInput.parentNode) this.destroy();
+               // if original input value changed for some reason (for exmaple a form reset)
+               if (this.DOM.originalInput.value != this.DOM.originalInput.tagifyValue) this.loadOriginalValues();
+           },
+           onClickAnywhere: function onClickAnywhere(e) {
+               if (e.target != this.DOM.scope && !this.DOM.scope.contains(e.target)) {
+                   this.toggleFocusClass(false);
+                   this.state.hasFocus = false;
+                   // do not hide the dropdown if a click was initiated within it and that dropdown belongs to this Tagify instance
+                   if (e.target.closest(".tagify__dropdown") && e.target.closest(".tagify__dropdown").__tagify != this) this.dropdown.hide();
+               }
+           },
+           onClickScope: function onClickScope(e) {
+               var _s = this.settings, tagElm = e.target.closest("." + _s.classNames.tag), isScope = e.target === this.DOM.scope, timeDiffFocus = +new Date() - this.state.hasFocus;
+               if (isScope && _s.mode != "select") {
+                   // if( !this.state.hasFocus )
+                   this.DOM.input.focus();
+                   return;
+               } else if (e.target.classList.contains(_s.classNames.tagX)) {
+                   this.removeTags(e.target.parentNode);
+                   return;
+               } else if (tagElm && !this.state.editing) {
+                   this.trigger("click", {
+                       tag: tagElm,
+                       index: this.getNodeIndex(tagElm),
+                       data: getSetTagData(tagElm),
+                       event: e
+                   });
+                   if (_s.editTags === 1 || _s.editTags.clicks === 1 || _s.mode == "select") this.events.callbacks.onDoubleClickScope.call(this, e);
+                   return;
+               } else if (e.target == this.DOM.input) {
+                   if (_s.mode == "mix") {
+                       // firefox won't show caret if last element is a tag (and not a textNode),
+                       // so an empty textnode should be added
+                       this.fixFirefoxLastTagNoCaret();
+                   }
+                   if (timeDiffFocus > 500 || !_s.focusable) {
+                       if (this.state.dropdown.visible) this.dropdown.hide();
+                       else if (_s.dropdown.enabled === 0 && _s.mode != "mix") this.dropdown.show(this.value.length ? "" : undefined);
+                       return;
+                   }
+               }
+               if (_s.mode == "select" && _s.dropdown.enabled === 0 && !this.state.dropdown.visible) {
+                   this.events.callbacks.onDoubleClickScope.call(this, _object_spread_props(_object_spread$1({}, e), {
+                       target: this.getTagElms()[0]
+                   }));
+                   !_s.userInput && this.dropdown.show();
+               }
+           },
+           // special proccess is needed for pasted content in order to "clean" it
+           onPaste: function onPaste(e) {
+               var _this = this;
+               e.preventDefault();
+               var tagsElems, _s = this.settings, selectModeWithoutInput = _s.mode == "select" && _s.enforceWhitelist;
+               if (selectModeWithoutInput || !_s.userInput) {
+                   return false;
+               }
+               var clipboardData, pastedText;
+               if (_s.readonly) return;
+               // Get pasted data via clipboard API
+               clipboardData = e.clipboardData || window.clipboardData;
+               pastedText = clipboardData.getData("Text");
+               _s.hooks.beforePaste(e, {
+                   tagify: this,
+                   pastedText: pastedText,
+                   clipboardData: clipboardData
+               }).then(function(result) {
+                   if (result === undefined) result = pastedText;
+                   if (result) {
+                       _this.injectAtCaret(result, window.getSelection().getRangeAt(0));
+                       if (_this.settings.mode == "mix") {
+                           _this.events.callbacks.onMixTagsInput.call(_this, e);
+                       } else if (_this.settings.pasteAsTags) {
+                           tagsElems = _this.addTags(_this.state.inputText + result, true);
+                       } else {
+                           _this.state.inputText = result;
+                           _this.dropdown.show(result);
+                       }
+                   }
+                   _this.trigger("paste", {
+                       event: e,
+                       pastedText: pastedText,
+                       clipboardData: clipboardData,
+                       tagsElems: tagsElems
+                   });
+               }).catch(function(err) {
+                   return err;
+               });
+           },
+           onDrop: function onDrop(e) {
+               e.preventDefault();
+           },
+           onEditTagInput: function onEditTagInput(editableElm, e) {
+               var _obj;
+               var tagElm = editableElm.closest("." + this.settings.classNames.tag), tagElmIdx = this.getNodeIndex(tagElm), tagData = getSetTagData(tagElm), textValue = this.input.normalize.call(this, editableElm), dataForChangedProp = (_obj = {}, _define_property$1(_obj, this.settings.tagTextProp, textValue), _define_property$1(_obj, "__tagId", tagData.__tagId), _obj), isValid = this.validateTag(dataForChangedProp), hasChanged = this.editTagChangeDetected(extend(tagData, dataForChangedProp));
+               // if the value is same as before-editing and the tag was valid before as well, ignore the  current "isValid" result, which is false-positive
+               if (!hasChanged && editableElm.originalIsValid === true) isValid = true;
+               tagElm.classList.toggle(this.settings.classNames.tagInvalid, isValid !== true);
+               tagData.__isValid = isValid;
+               tagElm.title = isValid === true ? tagData.title || tagData.value : isValid // change the tag's title to indicate why is the tag invalid (if it's so)
+               ;
+               // show dropdown if typed text is equal or more than the "enabled" dropdown setting
+               if (textValue.length >= this.settings.dropdown.enabled) {
+                   // this check is needed apparently because doing browser "undo" will fire
+                   //  "onEditTagInput" but "this.state.editing" will be "false"
+                   if (this.state.editing) this.state.editing.value = textValue;
+                   this.dropdown.show(textValue);
+               }
+               this.trigger("edit:input", {
+                   tag: tagElm,
+                   index: tagElmIdx,
+                   data: extend({}, this.value[tagElmIdx], {
+                       newValue: textValue
+                   }),
+                   event: e
+               });
+           },
+           onEditTagPaste: function onEditTagPaste(tagElm, e) {
+               // Get pasted data via clipboard API
+               var clipboardData = e.clipboardData || window.clipboardData, pastedText = clipboardData.getData("Text");
+               e.preventDefault();
+               var newNode = injectAtCaret(pastedText);
+               this.setRangeAtStartEnd(false, newNode);
+           },
+           onEditTagClick: function onEditTagClick(tagElm, e) {
+               this.events.callbacks.onClickScope.call(this, e);
+           },
+           onEditTagFocus: function onEditTagFocus(tagElm) {
+               this.state.editing = {
+                   scope: tagElm,
+                   input: tagElm.querySelector("[contenteditable]")
+               };
+           },
+           onEditTagBlur: function onEditTagBlur(editableElm, e) {
+               // if "relatedTarget" is the tag then do not continue as this should not be considered a "blur" event
+               var isRelatedTargetNodeTag = isNodeTag.call(this, e.relatedTarget);
+               // in "select-mode" when editing the tag's template to include more nodes other than the editable "span",
+               // clicking those elements should not be considered a blur event
+               if (this.settings.mode == "select" && isRelatedTargetNodeTag && e.relatedTarget.contains(e.target)) {
+                   this.dropdown.hide();
+                   return;
+               }
+               // if "ESC" key was pressed then the "editing" state should be `false` and if so, logic should not continue
+               // because "ESC" reverts the edited tag back to how it was (replace the node) before editing
+               if (!this.state.editing) return;
+               if (!this.state.hasFocus) this.toggleFocusClass();
+               // one scenario is when selecting a suggestion from the dropdown, when editing, and by selecting it
+               // the "onEditTagDone" is called directly, already replacing the tag, so the argument "editableElm"
+               // node isn't in the DOM anynmore because it has been replaced.
+               if (!this.DOM.scope.contains(editableElm)) return;
+               var _obj;
+               var _s = this.settings, tagElm = editableElm.closest("." + _s.classNames.tag), tagData = getSetTagData(tagElm), textValue = this.input.normalize.call(this, editableElm), dataForChangedProp = (_obj = {}, _define_property$1(_obj, _s.tagTextProp, textValue), _define_property$1(_obj, "__tagId", tagData.__tagId), _obj), originalData = tagData.__originalData, hasChanged = this.editTagChangeDetected(extend(tagData, dataForChangedProp)), isValid = this.validateTag(dataForChangedProp), hasMaxTags, newTagData;
+               if (!textValue) {
+                   this.onEditTagDone(tagElm);
+                   return;
+               }
+               // if nothing changed revert back to how it was before editing
+               if (!hasChanged) {
+                   this.onEditTagDone(tagElm, originalData);
+                   return;
+               }
+               // need to know this because if "keepInvalidTags" setting is "true" and an invalid tag is edited as a valid one,
+               // but the maximum number of tags have alreay been reached, so it should not allow saving the new valid value.
+               // only if the tag was already valid before editing, ignore this check (see a few lines below)
+               hasMaxTags = this.hasMaxTags();
+               var _obj1;
+               newTagData = extend({}, originalData, (_obj1 = {}, _define_property$1(_obj1, _s.tagTextProp, this.trim(textValue)), _define_property$1(_obj1, "__isValid", isValid), _obj1));
+               // pass through optional transformer defined in settings
+               _s.transformTag.call(this, newTagData, originalData);
+               // MUST re-validate after tag transformation
+               // only validate the "tagTextProp" because is the only thing that metters for validating an edited tag.
+               // -- Scenarios: --
+               // 1. max 3 tags allowd. there are 4 tags, one has invalid input and is edited to a valid one, and now should be marked as "not allowed" because limit of tags has reached
+               // 2. max 3 tags allowed. there are 3 tags, one is edited, and so max-tags vaildation should be OK
+               isValid = (!hasMaxTags || originalData.__isValid === true) && this.validateTag(newTagData);
+               if (isValid !== true) {
+                   this.trigger("invalid", {
+                       data: newTagData,
+                       tag: tagElm,
+                       message: isValid
+                   });
+                   // do nothing if invalid, stay in edit-mode until corrected or reverted by presssing esc
+                   if (_s.editTags.keepInvalid) return;
+                   if (_s.keepInvalidTags) newTagData.__isValid = isValid;
+                   else // revert back if not specified to keep
+                   newTagData = originalData;
+               } else if (_s.keepInvalidTags) {
+                   // cleaup any previous leftovers if the tag was invalid
+                   delete newTagData.title;
+                   delete newTagData["aria-invalid"];
+                   delete newTagData.class;
+               }
+               // tagElm.classList.toggle(_s.classNames.tagInvalid, true)
+               this.onEditTagDone(tagElm, newTagData);
+           },
+           onEditTagkeydown: function onEditTagkeydown(e, tagElm) {
+               // ignore keys during IME composition
+               if (this.state.composing) return;
+               this.trigger("edit:keydown", {
+                   event: e
+               });
+               switch(e.key){
+                   case "Esc":
+                   case "Escape":
+                       {
+                           this.state.editing = false;
+                           var hasValueToRevertTo = !!tagElm.__tagifyTagData.__originalData.value;
+                           if (hasValueToRevertTo) // revert the tag to how it was before editing
+                           // replace current tag with original one (pre-edited one)
+                           tagElm.parentNode.replaceChild(tagElm.__tagifyTagData.__originalHTML, tagElm);
+                           else tagElm.remove();
+                           break;
+                       }
+                   case "Enter":
+                   case "Tab":
+                       {
+                           e.preventDefault();
+                           var EDITED_TAG_BLUR_DELAY = 0;
+                           // a setTimeout is used so when editing (in "select" mode) while the dropdown is shown and a suggestion is highlighted
+                           // and ENTER key is pressed down - the `dropdown.hide` method won't be invoked immediately and unbind the dropdown's
+                           // KEYDOWN "ENTER" before it has time to call the handler and select the suggestion.
+                           setTimeout(function() {
+                               return e.target.blur();
+                           }, EDITED_TAG_BLUR_DELAY);
+                       }
+               }
+           },
+           onDoubleClickScope: function onDoubleClickScope(e) {
+               var tagElm = e.target.closest("." + this.settings.classNames.tag), tagData = getSetTagData(tagElm), _s = this.settings, isEditingTag, isReadyOnlyTag;
+               if (!tagElm || tagData.editable === false) return;
+               isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing);
+               isReadyOnlyTag = tagElm.hasAttribute("readonly");
+               if (!_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags && _s.userInput) {
+                   this.events.callbacks.onEditTagFocus.call(this, tagElm);
+                   this.editTag(tagElm);
+               }
+               this.toggleFocusClass(true);
+               if (_s.mode != "select") this.trigger("dblclick", {
+                   tag: tagElm,
+                   index: this.getNodeIndex(tagElm),
+                   data: getSetTagData(tagElm)
+               });
+           },
+           /**
+            *
+            * @param {Object} m an object representing the observed DOM changes
+            */ onInputDOMChange: function onInputDOMChange(m) {
+               var _this = this;
+               // iterate all DOM mutation
+               m.forEach(function(record) {
+                   // only the ADDED nodes
+                   record.addedNodes.forEach(function(addedNode) {
+                       // fix chrome's placing '<div><br></div>' everytime ENTER key is pressed, and replace with just `<br'
+                       if (addedNode.outerHTML == "<div><br></div>") {
+                           addedNode.replaceWith(document.createElement("br"));
+                       } else if (addedNode.nodeType == 1 && addedNode.querySelector(_this.settings.classNames.tagSelector)) {
+                           var // unwrap the useless div
+                           // chrome adds a BR at the end which should be removed
+                           _addedNode;
+                           var newlineText = document.createTextNode("");
+                           if (addedNode.childNodes[0].nodeType == 3 && addedNode.previousSibling.nodeName != "BR") newlineText = document.createTextNode("\n");
+                           (_addedNode = addedNode).replaceWith.apply(_addedNode, _to_consumable_array$1([
+                               newlineText
+                           ].concat(_to_consumable_array$1(_to_consumable_array$1(addedNode.childNodes).slice(0, -1)))));
+                           placeCaretAfterNode(newlineText);
+                       } else if (isNodeTag.call(_this, addedNode)) {
+                           var _addedNode_previousSibling;
+                           if (((_addedNode_previousSibling = addedNode.previousSibling) === null || _addedNode_previousSibling === void 0 ? void 0 : _addedNode_previousSibling.nodeType) == 3 && !addedNode.previousSibling.textContent) addedNode.previousSibling.remove();
+                           // and it is the first node in a new line
+                           if (addedNode.previousSibling && addedNode.previousSibling.nodeName == "BR") {
+                               // allows placing the caret just before the tag, when the tag is the first node in that line
+                               addedNode.previousSibling.replaceWith("\n" + ZERO_WIDTH_CHAR);
+                               var nextNode = addedNode.nextSibling, anythingAfterNode = "";
+                               while(nextNode){
+                                   anythingAfterNode += nextNode.textContent;
+                                   nextNode = nextNode.nextSibling;
+                               }
+                               // when hitting ENTER for new line just before an existing tag, but skip below logic when a tag has been addded
+                               anythingAfterNode.trim() && placeCaretAfterNode(addedNode.previousSibling);
+                           } else if (!addedNode.previousSibling || getSetTagData(addedNode.previousSibling)) {
+                               addedNode.before(ZERO_WIDTH_CHAR);
+                           }
+                       }
+                   });
+                   record.removedNodes.forEach(function(removedNode) {
+                       // when trying to delete a tag which is in a new line and there's nothing else there (caret is after the tag)
+                       if (removedNode && removedNode.nodeName == "BR" && isNodeTag.call(_this, lastInputChild)) {
+                           _this.removeTags(lastInputChild);
+                           _this.fixFirefoxLastTagNoCaret();
+                       }
+                   });
+               });
+               // get the last child only after the above DOM modifications
+               // check these scenarios:
+               // 1. after a single line, press ENTER once - should add only 1 BR
+               // 2. presss ENTER right before a tag
+               // 3. press enter within a text node before a tag
+               var lastInputChild = this.DOM.input.lastChild;
+               if (lastInputChild && lastInputChild.nodeValue == "") lastInputChild.remove();
+               // make sure the last element is always a BR
+               if (!lastInputChild || lastInputChild.nodeName != "BR") {
+                   this.DOM.input.appendChild(document.createElement("br"));
+               }
+           }
+       }
+   };
+
+   function _array_like_to_array(arr1, len) {
+       if (len == null || len > arr1.length) len = arr1.length;
+       for(var i = 0, arr2 = new Array(len); i < len; i++)arr2[i] = arr1[i];
+       return arr2;
+   }
+   function _array_without_holes(arr1) {
+       if (Array.isArray(arr1)) return _array_like_to_array(arr1);
+   }
+   function _define_property(obj, key, value) {
+       if (key in obj) {
+           Object.defineProperty(obj, key, {
+               value: value,
+               enumerable: true,
+               configurable: true,
+               writable: true
+           });
+       } else {
+           obj[key] = value;
+       }
+       return obj;
+   }
+   function _instanceof(left, right) {
+       if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+           return !!right[Symbol.hasInstance](left);
+       } else {
+           return left instanceof right;
+       }
+   }
+   function _iterable_to_array(iter) {
+       if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+   }
+   function _non_iterable_spread() {
+       throw new TypeError("Invalid attempt to spread non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+   }
+   function _object_spread(target) {
+       for(var i = 1; i < arguments.length; i++){
+           var source = arguments[i] != null ? arguments[i] : {};
+           var ownKeys = Object.keys(source);
+           if (typeof Object.getOwnPropertySymbols === "function") {
+               ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function(sym) {
+                   return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+               }));
+           }
+           ownKeys.forEach(function(key) {
+               _define_property(target, key, source[key]);
+           });
+       }
+       return target;
+   }
+   function _to_consumable_array(arr1) {
+       return _array_without_holes(arr1) || _iterable_to_array(arr1) || _unsupported_iterable_to_array(arr1) || _non_iterable_spread();
+   }
+   function _unsupported_iterable_to_array(o, minLen) {
+       if (!o) return;
+       if (typeof o === "string") return _array_like_to_array(o, minLen);
+       var n = Object.prototype.toString.call(o).slice(8, -1);
+       if (n === "Object" && o.constructor) n = o.constructor.name;
+       if (n === "Map" || n === "Set") return Array.from(n);
+       if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array(o, minLen);
+   }
+   /**
+    * @constructor
+    * @param {Object} input    DOM element
+    * @param {Object} settings settings object
+    */ function Tagify(input, settings) {
+       if (!input) {
+           logger.warn("input element not found", input);
+           // return an empty mock of all methods, so the code using tagify will not break
+           // because it might be calling methods even though the input element does not exist
+           var mockInstance = new Proxy(this, {
+               get: function get() {
+                   return function() {
+                       return mockInstance;
+                   };
+               }
+           });
+           return mockInstance;
+       }
+       if (input.__tagify) {
+           logger.warn("input element is already Tagified - Same instance is returned.", input);
+           return input.__tagify;
+       }
+       extend(this, EventDispatcher(this));
+       this.isFirefox = /firefox|fxios/i.test(navigator.userAgent) && !/seamonkey/i.test(navigator.userAgent);
+       this.isIE = window.document.documentMode; // https://developer.mozilla.org/en-US/docs/Web/API/Document/compatMode#Browser_compatibility
+       settings = settings || {};
+       this.getPersistedData = getPersistedData(settings.id);
+       this.setPersistedData = setPersistedData(settings.id);
+       this.clearPersistedData = clearPersistedData(settings.id);
+       this.applySettings(input, settings);
+       this.state = {
+           inputText: "",
+           editing: false,
+           composing: false,
+           actions: {},
+           mixMode: {},
+           dropdown: {},
+           flaggedTags: {} // in mix-mode, when a string is detetced as potential tag, and the user has chocen to close the suggestions dropdown, keep the record of the tasg here
+       };
+       this.value = [] // tags' data
+       ;
+       // events' callbacks references will be stores here, so events could be unbinded
+       this.listeners = {};
+       this.DOM = {} // Store all relevant DOM elements in an Object
+       ;
+       this.build(input);
+       initDropdown.call(this);
+       this.getCSSVars();
+       this.loadOriginalValues();
+       this.events.customBinding.call(this);
+       this.events.binding.call(this);
+       input.autofocus && this.DOM.input.focus();
+       input.__tagify = this;
+   }
+   Tagify.prototype = {
+       _dropdown: _dropdown,
+       placeCaretAfterNode: placeCaretAfterNode,
+       getSetTagData: getSetTagData,
+       helpers: {
+           sameStr: sameStr,
+           removeCollectionProp: removeCollectionProp,
+           omit: omit,
+           isObject: isObject,
+           parseHTML: parseHTML,
+           escapeHTML: escapeHTML,
+           extend: extend,
+           concatWithoutDups: concatWithoutDups,
+           getUID: getUID,
+           isNodeTag: isNodeTag
+       },
+       customEventsList: [
+           "change",
+           "add",
+           "remove",
+           "invalid",
+           "input",
+           "paste",
+           "click",
+           "keydown",
+           "focus",
+           "blur",
+           "edit:input",
+           "edit:beforeUpdate",
+           "edit:updated",
+           "edit:start",
+           "edit:keydown",
+           "dropdown:show",
+           "dropdown:hide",
+           "dropdown:select",
+           "dropdown:updated",
+           "dropdown:noMatch",
+           "dropdown:scroll"
+       ],
+       dataProps: [
+           "__isValid",
+           "__removed",
+           "__originalData",
+           "__originalHTML",
+           "__tagId"
+       ],
+       trim: function trim(text) {
+           return this.settings.trim && text && typeof text == "string" ? text.trim() : text;
+       },
+       // expose this handy utility function
+       parseHTML: parseHTML,
+       templates: templates,
+       parseTemplate: function parseTemplate(template, data) {
+           template = this.settings.templates[template] || template;
+           return parseHTML(template.apply(this, data));
+       },
+       set whitelist (arr){
+           var isArray = arr && Array.isArray(arr);
+           this.settings.whitelist = isArray ? arr : [];
+           this.setPersistedData(isArray ? arr : [], "whitelist");
+       },
+       get whitelist () {
+           return this.settings.whitelist;
+       },
+       set userInput (state){
+           this.settings.userInput = !!state;
+           this.setContentEditable(!!state);
+       },
+       get userInput () {
+           return this.settings.userInput;
+       },
+       generateClassSelectors: function generateClassSelectors(classNames) {
+           var _loop = function(name) {
+               var currentName = name;
+               Object.defineProperty(classNames, currentName + "Selector", {
+                   get: function get() {
+                       return "." + this[currentName].split(" ")[0];
+                   }
+               });
+           };
+           for(var name in classNames)_loop(name);
+       },
+       applySettings: function applySettings(input, settings) {
+           var _settings_dropdown, _settings_dropdown1;
+           DEFAULTS.templates = this.templates;
+           var mixModeDefaults = {
+               dropdown: {
+                   position: "text"
+               }
+           };
+           var mergedDefaults = extend({}, DEFAULTS, settings.mode == "mix" ? mixModeDefaults : {});
+           var _s = this.settings = extend({}, mergedDefaults, settings);
+           _s.disabled = input.hasAttribute("disabled");
+           _s.readonly = _s.readonly || input.hasAttribute("readonly");
+           _s.placeholder = escapeHTML(input.getAttribute("placeholder") || _s.placeholder || "");
+           _s.required = input.hasAttribute("required");
+           this.generateClassSelectors(_s.classNames);
+           if (_s.dropdown.includeSelectedTags === undefined) _s.dropdown.includeSelectedTags = _s.duplicates;
+           if (this.isIE) _s.autoComplete = false; // IE goes crazy if this isn't false
+           [
+               "whitelist",
+               "blacklist"
+           ].forEach(function(name) {
+               var attrVal = input.getAttribute("data-" + name);
+               if (attrVal) {
+                   attrVal = attrVal.split(_s.delimiters);
+                   if (_instanceof(attrVal, Array)) _s[name] = attrVal;
+               }
+           });
+           // backward-compatibility for old version of "autoComplete" setting:
+           if ("autoComplete" in settings && !isObject(settings.autoComplete)) {
+               _s.autoComplete = DEFAULTS.autoComplete;
+               _s.autoComplete.enabled = settings.autoComplete;
+           }
+           if (_s.mode == "mix") {
+               _s.pattern = _s.pattern || /@/;
+               _s.autoComplete.rightKey = true;
+               _s.delimiters = settings.delimiters || null // default dlimiters in mix-mode must be NULL
+               ;
+               // needed for "filterListItems". This assumes the user might have forgotten to manually
+               // define the same term in "dropdown.searchKeys" as defined in "tagTextProp" setting, so
+               // by automatically adding it, tagify is "helping" out, guessing the intesntions of the developer.
+               if (_s.tagTextProp && !_s.dropdown.searchKeys.includes(_s.tagTextProp)) _s.dropdown.searchKeys.push(_s.tagTextProp);
+           }
+           if (input.pattern) try {
+               _s.pattern = new RegExp(input.pattern);
+           } catch (e) {}
+           // Convert the "delimiters" setting into a REGEX object
+           if (_s.delimiters) {
+               _s._delimiters = _s.delimiters;
+               try {
+                   _s.delimiters = new RegExp(this.settings.delimiters, "g");
+               } catch (e) {}
+           }
+           if (_s.disabled) _s.userInput = false;
+           this.TEXTS = _object_spread({}, TEXTS, _s.texts || {});
+           // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
+           if (_s.mode == "select" && !((_settings_dropdown = settings.dropdown) === null || _settings_dropdown === void 0 ? void 0 : _settings_dropdown.enabled) || !_s.userInput) {
+               _s.dropdown.enabled = 0;
+           }
+           _s.dropdown.appendTarget = ((_settings_dropdown1 = settings.dropdown) === null || _settings_dropdown1 === void 0 ? void 0 : _settings_dropdown1.appendTarget) || document.body;
+           // get & merge persisted data with current data
+           var persistedWhitelist = this.getPersistedData("whitelist");
+           if (Array.isArray(persistedWhitelist)) this.whitelist = Array.isArray(_s.whitelist) ? concatWithoutDups(_s.whitelist, persistedWhitelist) : persistedWhitelist;
+       },
+       /**
+        * Returns a string of HTML element attributes
+        * @param {Object} data [Tag data]
+        */ getAttributes: function getAttributes(data) {
+           var attrs = this.getCustomAttributes(data), s = "", k;
+           for(k in attrs)s += " " + k + (data[k] !== undefined ? '="'.concat(attrs[k], '"') : "");
+           return s;
+       },
+       /**
+        * Returns an object of attributes to be used for the templates
+        */ getCustomAttributes: function getCustomAttributes(data) {
+           // only items which are objects have properties which can be used as attributes
+           if (!isObject(data)) return "";
+           var output = {}, propName;
+           for(propName in data){
+               if (propName.slice(0, 2) != "__" && propName != "class" && data.hasOwnProperty(propName) && data[propName] !== undefined) output[propName] = escapeHTML(data[propName]);
+           }
+           return output;
+       },
+       setStateSelection: function setStateSelection() {
+           var selection = window.getSelection();
+           // save last selection place to be able to inject anything from outside to that specific place
+           var sel = {
+               anchorOffset: selection.anchorOffset,
+               anchorNode: selection.anchorNode,
+               range: selection.getRangeAt && selection.rangeCount && selection.getRangeAt(0)
+           };
+           this.state.selection = sel;
+           return sel;
+       },
+       /**
+        * Get specific CSS variables which are relevant to this script and parse them as needed.
+        * The result is saved on the instance in "this.CSSVars"
+        */ getCSSVars: function getCSSVars() {
+           var compStyle = getComputedStyle(this.DOM.scope, null);
+           var getProp = function(name) {
+               return compStyle.getPropertyValue("--" + name);
+           };
+           function seprateUnitFromValue(a) {
+               if (!a) return {};
+               a = a.trim().split(" ")[0];
+               var unit = a.split(/\d+/g).filter(function(n) {
+                   return n;
+               }).pop().trim(), value = +a.split(unit).filter(function(n) {
+                   return n;
+               })[0].trim();
+               return {
+                   value: value,
+                   unit: unit
+               };
+           }
+           this.CSSVars = {
+               tagHideTransition: function(param) {
+                   var value = param.value, unit = param.unit;
+                   return unit == "s" ? value * 1000 : value;
+               }(seprateUnitFromValue(getProp("tag-hide-transition")))
+           };
+       },
+       /**
+        * builds the HTML of this component
+        * @param  {Object} input [DOM element which would be "transformed" into "Tags"]
+        */ build: function build(input) {
+           var DOM = this.DOM, labelWrapper = input.closest("label");
+           if (this.settings.mixMode.integrated) {
+               DOM.originalInput = null;
+               DOM.scope = input;
+               DOM.input = input;
+           } else {
+               DOM.originalInput = input;
+               DOM.originalInput_tabIndex = input.tabIndex;
+               DOM.scope = this.parseTemplate("wrapper", [
+                   input,
+                   this.settings
+               ]);
+               DOM.input = DOM.scope.querySelector(this.settings.classNames.inputSelector);
+               input.parentNode.insertBefore(DOM.scope, input);
+               input.tabIndex = -1; // do not allow focus or typing directly, once tagified
+           }
+           // fixes tagify nested inside a <label> tag from getting focus when clicked on
+           if (labelWrapper) labelWrapper.setAttribute("for", "");
+       },
+       /**
+        * revert any changes made by this component
+        */ destroy: function destroy() {
+           this.events.unbindGlobal.call(this);
+           this.DOM.scope.parentNode.removeChild(this.DOM.scope);
+           this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex;
+           delete this.DOM.originalInput.__tagify;
+           this.dropdown.hide(true);
+           this.removeAllCustomListeners();
+           clearTimeout(this.dropdownHide__bindEventsTimeout);
+           clearInterval(this.listeners.main.originalInputValueObserverInterval);
+       },
+       /**
+        * if the original input has any values, add them as tags
+        */ loadOriginalValues: function loadOriginalValues(value) {
+           var lastChild, _s = this.settings;
+           // temporarily block firing the "change" event on the original input until
+           // this method finish removing current value and adding a new one
+           this.state.blockChangeEvent = true;
+           if (value === undefined) {
+               var persistedOriginalValue = this.getPersistedData("value");
+               // if the field already has a field, trust its the desired
+               // one to be rendered and do not use the persisted one
+               if (persistedOriginalValue && !this.DOM.originalInput.value) value = persistedOriginalValue;
+               else value = _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value;
+           }
+           this.removeAllTags();
+           if (value) {
+               if (_s.mode == "mix") {
+                   this.parseMixTags(value);
+                   lastChild = this.DOM.input.lastChild;
+                   // fixes a Chrome bug, when the last node in `mix-mode` is a tag, the caret appears at the far-top-top, outside the field
+                   if (!lastChild || lastChild.tagName != "BR") this.DOM.input.insertAdjacentHTML("beforeend", "<br>");
+               } else {
+                   try {
+                       if (_instanceof(JSON.parse(value), Array)) value = JSON.parse(value);
+                   } catch (err) {}
+                   this.addTags(value, true).forEach(function(tag) {
+                       return tag && tag.classList.add(_s.classNames.tagNoAnimation);
+                   });
+               }
+           } else this.postUpdate();
+           this.state.lastOriginalValueReported = _s.mixMode.integrated ? "" : this.DOM.originalInput.value;
+       },
+       cloneEvent: function cloneEvent(e) {
+           var clonedEvent = {};
+           for(var v in e)if (v != "path") clonedEvent[v] = e[v];
+           return clonedEvent;
+       },
+       /**
+        * Toogle global loading state on/off
+        * Useful when fetching async whitelist while user is typing
+        * @param {Boolean} isLoading
+        */ loading: function loading(isLoading) {
+           this.state.isLoading = isLoading;
+           // IE11 doesn't support toggle with second parameter
+           this.DOM.scope.classList[isLoading ? "add" : "remove"](this.settings.classNames.scopeLoading);
+           return this;
+       },
+       /**
+        * Toogle a tag loading state on/off
+        * @param {Boolean} isLoading
+        */ tagLoading: function tagLoading(tagElm, isLoading) {
+           if (tagElm) // IE11 doesn't support toggle with second parameter
+           tagElm.classList[isLoading ? "add" : "remove"](this.settings.classNames.tagLoading);
+           return this;
+       },
+       /**
+        * Toggles class on the main tagify container ("scope")
+        * @param {String} className
+        * @param {Boolean} force
+        */ toggleClass: function toggleClass(className, force) {
+           if (typeof className == "string") this.DOM.scope.classList.toggle(className, force);
+       },
+       toggleScopeValidation: function toggleScopeValidation(validation) {
+           var isValid = validation === true || validation === undefined; // initially it is undefined
+           if (!this.settings.required && validation && validation === this.TEXTS.empty) isValid = true;
+           this.toggleClass(this.settings.classNames.tagInvalid, !isValid);
+           this.DOM.scope.title = isValid ? "" : validation;
+       },
+       toggleFocusClass: function toggleFocusClass(force) {
+           this.toggleClass(this.settings.classNames.focus, !!force);
+       },
+       /**
+        * Sets the templates placeholder after initialization
+        * @param {String} str
+        */ setPlaceholder: function setPlaceholder(str) {
+           var _this = this;
+           [
+               "data",
+               "aria"
+           ].forEach(function(p) {
+               return _this.DOM.input.setAttribute("".concat(p, "-placeholder"), str);
+           });
+       },
+       triggerChangeEvent: triggerChangeEvent,
+       events: events,
+       fixFirefoxLastTagNoCaret: function fixFirefoxLastTagNoCaret() {
+           return; // seems to be fixed in newer version of FF, so retiring below code (for now)
+       // var inputElm = this.DOM.input
+       // if( this.isFirefox && inputElm.childNodes.length && inputElm.lastChild.nodeType == 1 ){
+       //     inputElm.appendChild(document.createTextNode("\u200b"))
+       //     this.setRangeAtStartEnd(true, inputElm)
+       //     return true
+       // }
+       },
+       /** https://stackoverflow.com/a/59156872/104380
+        * @param {Boolean} start indicating where to place it (start or end of the node)
+        * @param {Object}  node  DOM node to place the caret at
+        */ setRangeAtStartEnd: function setRangeAtStartEnd(start, node) {
+           if (!node) return;
+           start = typeof start == "number" ? start : !!start;
+           node = node.lastChild || node;
+           var sel = document.getSelection();
+           // do not force caret placement if the current selection (focus) is on another element (not this tagify instance)
+           if (_instanceof(sel.focusNode, Element) && !this.DOM.input.contains(sel.focusNode)) {
+               return true;
+           }
+           try {
+               if (sel.rangeCount >= 1) {
+                   [
+                       "Start",
+                       "End"
+                   ].forEach(function(pos) {
+                       return sel.getRangeAt(0)["set" + pos](node, start ? start : node.length);
+                   });
+               }
+           } catch (err) {
+               console.warn(err);
+           }
+       },
+       insertAfterTag: function insertAfterTag(tagElm, newNode) {
+           newNode = newNode || this.settings.mixMode.insertAfterTag;
+           if (!tagElm || !tagElm.parentNode || !newNode) return;
+           newNode = typeof newNode == "string" ? document.createTextNode(newNode) : newNode;
+           tagElm.parentNode.insertBefore(newNode, tagElm.nextSibling);
+           return newNode;
+       },
+       // compares all "__originalData" property values with the current "tagData" properties
+       // and returns "true" if something changed.
+       editTagChangeDetected: function editTagChangeDetected(tagData) {
+           var originalData = tagData.__originalData;
+           for(var prop in originalData)if (!this.dataProps.includes(prop) && tagData[prop] != originalData[prop]) return true;
+           return false; // not changed
+       },
+       // returns the node which has the actual tag's content
+       getTagTextNode: function getTagTextNode(tagElm) {
+           return tagElm.querySelector(this.settings.classNames.tagTextSelector);
+       },
+       // sets the text of a tag
+       setTagTextNode: function setTagTextNode(tagElm, HTML) {
+           this.getTagTextNode(tagElm).innerHTML = escapeHTML(HTML);
+       },
+       /**
+        * Enters a tag into "edit" mode
+        * @param {Node} tagElm the tag element to edit. if nothing specified, use last last
+        */ editTag: function editTag(tagElm, opts) {
+           var _this = this;
+           tagElm = tagElm || this.getLastTag();
+           opts = opts || {};
+           var _s = this.settings, editableElm = this.getTagTextNode(tagElm), tagIdx = this.getNodeIndex(tagElm), tagData = getSetTagData(tagElm), _CB = this.events.callbacks, isValid = true, isSelectMode = _s.mode == "select";
+           // select mode is a bit different as clicking the tagify's content once will get into edit-mode if a value
+           // is already selected, and there cannot be a dropdown already open at this point.
+           !isSelectMode && this.dropdown.hide();
+           if (!editableElm) {
+               logger.warn("Cannot find element in Tag template: .", _s.classNames.tagTextSelector);
+               return;
+           }
+           if (_instanceof(tagData, Object) && "editable" in tagData && !tagData.editable) return;
+           // cache the original data, on the DOM node, before any modification ocurs, for possible revert
+           tagData = getSetTagData(tagElm, {
+               __originalData: extend({}, tagData),
+               __originalHTML: tagElm.cloneNode(true)
+           });
+           // re-set the tagify custom-prop on the clones element (because cloning removed it)
+           getSetTagData(tagData.__originalHTML, tagData.__originalData);
+           editableElm.setAttribute("contenteditable", true);
+           tagElm.classList.add(_s.classNames.tagEditing);
+           // because "editTag" method can be called manually, make sure that "state.editing" is set correctly
+           this.events.callbacks.onEditTagFocus.call(this, tagElm);
+           editableElm.addEventListener("click", _CB.onEditTagClick.bind(this, tagElm));
+           editableElm.addEventListener("blur", _CB.onEditTagBlur.bind(this, this.getTagTextNode(tagElm)));
+           editableElm.addEventListener("input", _CB.onEditTagInput.bind(this, editableElm));
+           editableElm.addEventListener("paste", _CB.onEditTagPaste.bind(this, editableElm));
+           editableElm.addEventListener("keydown", function(e) {
+               return _CB.onEditTagkeydown.call(_this, e, tagElm);
+           });
+           editableElm.addEventListener("compositionstart", _CB.onCompositionStart.bind(this));
+           editableElm.addEventListener("compositionend", _CB.onCompositionEnd.bind(this));
+           if (!opts.skipValidation) isValid = this.editTagToggleValidity(tagElm);
+           editableElm.originalIsValid = isValid;
+           this.trigger("edit:start", {
+               tag: tagElm,
+               index: tagIdx,
+               data: tagData,
+               isValid: isValid
+           });
+           editableElm.focus();
+           !isSelectMode && this.setRangeAtStartEnd(false, editableElm) // place the caret at the END of the editable tag text
+           ;
+           _s.dropdown.enabled === 0 && !isSelectMode && this.dropdown.show();
+           this.state.hasFocus = true;
+           return this;
+       },
+       /**
+        * If a tag is invalid, for any reason, set its class to "not allowed" (see defaults file)
+        * @param {Node} tagElm required
+        * @param {Object} tagData optional
+        * @returns true if valid, a string (reason) if not
+        */ editTagToggleValidity: function editTagToggleValidity(tagElm, tagData) {
+           var tagData = tagData || getSetTagData(tagElm), isValid;
+           if (!tagData) {
+               logger.warn("tag has no data: ", tagElm, tagData);
+               return;
+           }
+           isValid = !("__isValid" in tagData) || tagData.__isValid === true;
+           if (!isValid) {
+               this.removeTagsFromValue(tagElm);
+           }
+           this.update();
+           //this.validateTag(tagData);
+           tagElm.classList.toggle(this.settings.classNames.tagNotAllowed, !isValid);
+           tagData.__isValid = isValid;
+           return tagData.__isValid;
+       },
+       onEditTagDone: function onEditTagDone(tagElm, tagData) {
+           tagElm = tagElm || this.state.editing.scope;
+           tagData = tagData || {};
+           var eventData = {
+               tag: tagElm,
+               index: this.getNodeIndex(tagElm),
+               previousData: getSetTagData(tagElm),
+               data: tagData
+           };
+           var _s = this.settings;
+           this.trigger("edit:beforeUpdate", eventData, {
+               cloneData: false
+           });
+           this.state.editing = false;
+           delete tagData.__originalData;
+           delete tagData.__originalHTML;
+           // some scenarrios like in the one in the demos page with textarea that has 2 whitelists, one of the whitelist might be
+           // an array of objects with a property defined the same as the `tagTextProp` setting (if used) but another whitelist
+           // might be simpler - just an array of primitives.
+           function veryfyTagTextProp() {
+               var tagTextProp = tagData[_s.tagTextProp];
+               // 'tagTextProp' might also be the number 0 so checking for `undefined` here:
+               if (tagTextProp !== undefined) {
+                   var _tagTextProp_trim;
+                   tagTextProp += ""; // cast possible number into a string
+                   return !!((_tagTextProp_trim = tagTextProp.trim) === null || _tagTextProp_trim === void 0 ? void 0 : _tagTextProp_trim.call(tagTextProp));
+               }
+               if (!(_s.tagTextProp in tagData)) return !!tagData.value;
+           }
+           if (tagElm && veryfyTagTextProp()) {
+               tagElm = this.replaceTag(tagElm, tagData);
+               this.editTagToggleValidity(tagElm, tagData);
+               if (_s.a11y.focusableTags) tagElm.focus();
+               else if (_s.mode != "select") // place caret after edited tag
+               placeCaretAfterNode(tagElm);
+           } else if (tagElm) this.removeTags(tagElm);
+           this.trigger("edit:updated", eventData);
+           this.dropdown.hide();
+           // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
+           if (this.settings.keepInvalidTags) this.reCheckInvalidTags();
+       },
+       /**
+        * Replaces an exisitng tag with a new one. Used for updating a tag's data
+        * @param {Object} tagElm  [DOM node to replace]
+        * @param {Object} tagData [data to create new tag from]
+        */ replaceTag: function replaceTag(tagElm, tagData) {
+           if (!tagData || tagData.value === "" || tagData.value === undefined) tagData = tagElm.__tagifyTagData;
+           // if tag is invalid, make the according changes in the newly created element
+           if (tagData.__isValid && tagData.__isValid != true) extend(tagData, this.getInvalidTagAttrs(tagData, tagData.__isValid));
+           var newTagElm = this.createTagElem(tagData);
+           // update DOM
+           tagElm.parentNode.replaceChild(newTagElm, tagElm);
+           this.updateValueByDOMTags();
+           return newTagElm;
+       },
+       /**
+        * update "value" (Array of Objects) by traversing all valid tags
+        */ updateValueByDOMTags: function updateValueByDOMTags() {
+           var _this = this;
+           this.value.length = 0;
+           var clsNames = this.settings.classNames, tagNotAllowedClassName = clsNames.tagNotAllowed.split(" ")[0], skipNodesWithClassNames = [
+               tagNotAllowedClassName,
+               clsNames.tagHide
+           ];
+           [].forEach.call(this.getTagElms(), function(node) {
+               if (_to_consumable_array(node.classList).some(function(cls) {
+                   return skipNodesWithClassNames.includes(cls);
+               })) return;
+               _this.value.push(getSetTagData(node));
+           });
+           this.update();
+       },
+       /**
+        * injects nodes/text at caret position, which is saved on the "state" when "blur" event gets triggered
+        * @param {Node} injectedNode [the node to inject at the caret position]
+        * @param {Object} selection [optional range Object. must have "anchorNode" & "anchorOffset"]
+        */ injectAtCaret: function injectAtCaret1(injectedNode, range) {
+           var _this_state_selection;
+           range = range || ((_this_state_selection = this.state.selection) === null || _this_state_selection === void 0 ? void 0 : _this_state_selection.range);
+           if (typeof injectedNode === "string") injectedNode = document.createTextNode(injectedNode);
+           if (!range && injectedNode) {
+               this.appendMixTags(injectedNode);
+               return this;
+           }
+           var node = injectAtCaret(injectedNode, range);
+           this.setRangeAtStartEnd(false, node);
+           this.updateValueByDOMTags() // updates internal "this.value"
+           ;
+           this.update() // updates original input/textarea
+           ;
+           return this;
+       },
+       /**
+        * input bridge for accessing & setting
+        * @type {Object}
+        */ input: {
+           set: function set() {
+               var value = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "", updateDOM = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : true;
+               var _s = this.settings, hideDropdown = _s.dropdown.closeOnSelect;
+               this.state.inputText = value;
+               if (updateDOM) {
+                   this.DOM.input.innerHTML = escapeHTML("" + value);
+                   value && this.toggleClass(_s.classNames.empty, !this.DOM.input.innerHTML) // remove the "empty" (is exists) class only if a value was added
+                   ;
+               }
+               if (!value && hideDropdown) this.dropdown.hide.bind(this);
+               this.input.autocomplete.suggest.call(this);
+               this.input.validate.call(this);
+           },
+           raw: function raw() {
+               return this.DOM.input.textContent;
+           },
+           /**
+            * Marks the tagify's input as "invalid" if the value did not pass "validateTag()"
+            */ validate: function validate() {
+               var isValid = !this.state.inputText || this.validateTag({
+                   value: this.state.inputText
+               }) === true;
+               this.DOM.input.classList.toggle(this.settings.classNames.inputInvalid, !isValid);
+               return isValid;
+           },
+           // remove any child DOM elements that aren't of type TEXT (like <br>)
+           normalize: function normalize(node, options) {
+               var clone = node || this.DOM.input, v = [];
+               // when a text was pasted in FF, the "this.DOM.input" element will have <br> but no newline symbols (\n), and this will
+               // result in tags not being properly created if one wishes to create a separate tag per newline.
+               clone.childNodes.forEach(function(n) {
+                   return n.nodeType == 3 && v.push(n.nodeValue);
+               });
+               v = v.join("\n");
+               try {
+                   // "delimiters" might be of a non-regex value, where this will fail ("Tags With Properties" example in demo page):
+                   v = v.replace(/(?:\r\n|\r|\n)/g, this.settings.delimiters.source.charAt(0));
+               } catch (err) {}
+               v = v.replace(/\s/g, " ") // replace NBSPs with spaces characters
+               ;
+               return (options === null || options === void 0 ? void 0 : options.trim) ? this.trim(v) : v;
+           },
+           /**
+            * suggest the rest of the input's value (via CSS "::after" using "content:attr(...)")
+            * @param  {String} s [description]
+            */ autocomplete: {
+               suggest: function suggest(data) {
+                   if (!this.settings.autoComplete.enabled) return;
+                   data = data || {
+                       value: ""
+                   };
+                   if (typeof data !== "object") data = {
+                       value: data
+                   };
+                   var suggestedText = this.dropdown.getMappedValue(data);
+                   if (typeof suggestedText === "number") return;
+                   var inputText = this.state.inputText.toLowerCase(), suggestionStart = suggestedText.substr(0, this.state.inputText.length).toLowerCase(), suggestionTrimmed = suggestedText.substring(this.state.inputText.length);
+                   if (!suggestedText || !this.state.inputText || suggestionStart != inputText) {
+                       this.DOM.input.removeAttribute("data-suggest");
+                       delete this.state.inputSuggestion;
+                   } else {
+                       this.DOM.input.setAttribute("data-suggest", suggestionTrimmed);
+                       this.state.inputSuggestion = data;
+                   }
+               },
+               /**
+                * sets the suggested text as the input's value & cleanup the suggestion autocomplete.
+                * @param {String} s [text]
+                */ set: function set(s) {
+                   var dataSuggest = this.DOM.input.getAttribute("data-suggest"), suggestion = s || (dataSuggest ? this.state.inputText + dataSuggest : null);
+                   if (suggestion) {
+                       if (this.settings.mode == "mix") {
+                           this.replaceTextWithNode(document.createTextNode(this.state.tag.prefix + suggestion));
+                       } else {
+                           this.input.set.call(this, suggestion);
+                           this.setRangeAtStartEnd(false, this.DOM.input);
+                       }
+                       this.input.autocomplete.suggest.call(this);
+                       this.dropdown.hide();
+                       return true;
+                   }
+                   return false;
+               }
+           }
+       },
+       /**
+        * returns the index of the the tagData within the "this.value" array collection.
+        * since values should be unique, it is suffice to only search by "value" property
+        * @param {Object} tagData
+        */ getTagIdx: function getTagIdx(tagData) {
+           return this.value.findIndex(function(item) {
+               return item.__tagId == (tagData || {}).__tagId;
+           });
+       },
+       getNodeIndex: function getNodeIndex(node) {
+           var index = 0;
+           if (node) while(node = node.previousElementSibling)index++;
+           return index;
+       },
+       getTagElms: function getTagElms() {
+           for(var _len = arguments.length, classess = new Array(_len), _key = 0; _key < _len; _key++){
+               classess[_key] = arguments[_key];
+           }
+           var classname = "." + _to_consumable_array(this.settings.classNames.tag.split(" ")).concat(_to_consumable_array(classess)).join(".");
+           return [].slice.call(this.DOM.scope.querySelectorAll(classname)) // convert nodeList to Array - https://stackoverflow.com/a/3199627/104380
+           ;
+       },
+       /**
+        * gets the last non-readonly, not-in-the-proccess-of-removal tag
+        */ getLastTag: function getLastTag() {
+           var _sc = this.settings.classNames, tagNodes = this.DOM.scope.querySelectorAll("".concat(_sc.tagSelector, ":not(.").concat(_sc.tagHide, "):not([readonly])"));
+           return tagNodes[tagNodes.length - 1];
+       },
+       /**
+        * Searches if any tag with a certain value already exis
+        * @param  {String/Object} value [text value / tag data object]
+        * @param  {Boolean} caseSensitive
+        * @return {Number}
+        */ isTagDuplicate: function isTagDuplicate(value, caseSensitive, tagId) {
+           var dupsCount = 0;
+           var _iteratorNormalCompletion = true, _didIteratorError = false, _iteratorError = undefined;
+           try {
+               for(var _iterator = this.value[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true){
+                   var item = _step.value;
+                   var isSameStr = sameStr(this.trim("" + value), item.value, caseSensitive);
+                   if (isSameStr && tagId != item.__tagId) dupsCount++;
+               }
+           } catch (err) {
+               _didIteratorError = true;
+               _iteratorError = err;
+           } finally{
+               try {
+                   if (!_iteratorNormalCompletion && _iterator.return != null) {
+                       _iterator.return();
+                   }
+               } finally{
+                   if (_didIteratorError) {
+                       throw _iteratorError;
+                   }
+               }
+           }
+           return dupsCount;
+       },
+       getTagIndexByValue: function getTagIndexByValue(value) {
+           var _this = this;
+           var indices = [], isCaseSensitive = this.settings.dropdown.caseSensitive;
+           this.getTagElms().forEach(function(tagElm, i) {
+               if (tagElm.__tagifyTagData && sameStr(_this.trim(tagElm.__tagifyTagData.value), value, isCaseSensitive)) indices.push(i);
+           });
+           return indices;
+       },
+       getTagElmByValue: function getTagElmByValue(value) {
+           var tagIdx = this.getTagIndexByValue(value)[0];
+           return this.getTagElms()[tagIdx];
+       },
+       /**
+        * Temporarily marks a tag element (by value or Node argument)
+        * @param  {Object} tagElm [a specific "tag" element to compare to the other tag elements siblings]
+        */ flashTag: function flashTag(tagElm) {
+           var _this = this;
+           if (tagElm) {
+               tagElm.classList.add(this.settings.classNames.tagFlash);
+               setTimeout(function() {
+                   tagElm.classList.remove(_this.settings.classNames.tagFlash);
+               }, 100);
+           }
+       },
+       /**
+        * checks if text is in the blacklist
+        */ isTagBlacklisted: function isTagBlacklisted(v) {
+           v = this.trim(v.toLowerCase());
+           return this.settings.blacklist.filter(function(x) {
+               return ("" + x).toLowerCase() == v;
+           }).length;
+       },
+       /**
+        * checks if text is in the whitelist
+        */ isTagWhitelisted: function isTagWhitelisted(v) {
+           return !!this.getWhitelistItem(v);
+       /*
+           return this.settings.whitelist.some(item =>
+               typeof v == 'string'
+                   ? sameStr(this.trim(v), (item.value || item))
+                   : sameStr(JSON.stringify(item), JSON.stringify(v))
+           )
+           */ },
+       /**
+        * Returns the first whitelist item matched, by value (if match found)
+        * @param {String} value [text to match by]
+        */ getWhitelistItem: function getWhitelistItem(value, prop, whitelist) {
+           var result, prop = prop || "value", _s = this.settings, whitelist = whitelist || _s.whitelist;
+           whitelist.some(function(_wi) {
+               // whitelist item value. Can be either a String, Number or an Object (with a `value` property)
+               var _wiv = typeof _wi == "object" ? _wi[prop] || _wi.value : _wi, isSameStr = sameStr(_wiv, value, _s.dropdown.caseSensitive, _s.trim);
+               if (isSameStr) {
+                   result = typeof _wi == "object" ? _wi : {
+                       value: _wi
+                   };
+                   return true;
+               }
+           });
+           // first iterate the whitelist, try find matches by "value" and if that fails
+           // and a "tagTextProp" is set to be other than "value", try that also
+           if (!result && prop == "value" && _s.tagTextProp != "value") {
+               // if found, adds the first which matches
+               result = this.getWhitelistItem(value, _s.tagTextProp, whitelist);
+           }
+           return result;
+       },
+       /**
+        * validate a tag object BEFORE the actual tag will be created & appeneded
+        * @param  {String} s
+        * @param  {String} uid      [unique ID, to not inclue own tag when cheking for duplicates]
+        * @return {Boolean/String}  ["true" if validation has passed, String for a fail]
+        */ validateTag: function validateTag(tagData) {
+           var _s = this.settings, // when validating a tag in edit-mode, need to take "tagTextProp" into consideration
+           prop = "value" in tagData ? "value" : _s.tagTextProp, v = this.trim(tagData[prop] + "");
+           // check for definitive empty value
+           if (!(tagData[prop] + "").trim()) return this.TEXTS.empty;
+           // check if pattern should be used and if so, use it to test the value
+           if (_s.mode != "mix" && _s.pattern && _instanceof(_s.pattern, RegExp) && !_s.pattern.test(v)) return this.TEXTS.pattern;
+           // check for duplicates
+           if (!_s.duplicates && this.isTagDuplicate(v, _s.dropdown.caseSensitive, tagData.__tagId)) return this.TEXTS.duplicate;
+           if (this.isTagBlacklisted(v) || _s.enforceWhitelist && !this.isTagWhitelisted(v)) return this.TEXTS.notAllowed;
+           if (_s.validate) return _s.validate(tagData);
+           return true;
+       },
+       getInvalidTagAttrs: function getInvalidTagAttrs(tagData, validation) {
+           return {
+               "aria-invalid": true,
+               "class": "".concat(tagData.class || "", " ").concat(this.settings.classNames.tagNotAllowed).trim(),
+               "title": validation
+           };
+       },
+       hasMaxTags: function hasMaxTags() {
+           return this.value.length >= this.settings.maxTags ? this.TEXTS.exceed : false;
+       },
+       setReadonly: function setReadonly(toggle, attrribute) {
+           var _s = this.settings;
+           this.DOM.scope.contains(document.activeElement) && document.activeElement.blur() // exit possible edit-mode
+           ;
+           _s[attrribute || "readonly"] = toggle;
+           this.DOM.scope[(toggle ? "set" : "remove") + "Attribute"](attrribute || "readonly", true);
+           this.settings.userInput = true;
+           this.setContentEditable(!toggle);
+       },
+       setContentEditable: function setContentEditable(state1) {
+           this.DOM.input.contentEditable = state1;
+           this.DOM.input.tabIndex = !!state1 ? 0 : -1;
+       },
+       setDisabled: function setDisabled(isDisabled) {
+           this.setReadonly(isDisabled, "disabled");
+       },
+       /**
+        * pre-proccess the tagsItems, which can be a complex tagsItems like an Array of Objects or a string comprised of multiple words
+        * so each item should be iterated on and a tag created for.
+        * @return {Array} [Array of Objects]
+        */ normalizeTags: function normalizeTags(tagsItems) {
+           var _this = this;
+           var _this_settings = this.settings, whitelist = _this_settings.whitelist, delimiters = _this_settings.delimiters, mode = _this_settings.mode, tagTextProp = _this_settings.tagTextProp, whitelistMatches = [], whitelistWithProps = whitelist ? _instanceof(whitelist[0], Object) : false, // checks if this is a "collection", meanning an Array of Objects
+           isArray = Array.isArray(tagsItems), isCollection = isArray && tagsItems[0].value, mapStringToCollection = function(s) {
+               return (s + "").split(delimiters).reduce(function(acc, v) {
+                   var trimmed = _this.trim(v);
+                   var _obj;
+                   trimmed && acc.push((_obj = {}, _define_property(_obj, tagTextProp, trimmed), _define_property(_obj, "value", trimmed), _obj));
+                   return acc;
+               }, []);
+           };
+           if (typeof tagsItems == "number") tagsItems = tagsItems.toString();
+           // if the argument is a "simple" String, ex: "aaa, bbb, ccc"
+           if (typeof tagsItems == "string") {
+               if (!tagsItems.trim()) return [];
+               // go over each tag and add it (if there were multiple ones)
+               tagsItems = mapStringToCollection(tagsItems);
+           } else if (isArray) {
+               // flatten the 2D array
+               tagsItems = tagsItems.reduce(function(acc, item) {
+                   if (isObject(item)) {
+                       var itemCopy = extend({}, item);
+                       // if 'tagTextProp' property does not exist in the item, use `value` instead
+                       if (!(tagTextProp in itemCopy)) tagTextProp = "value";
+                       itemCopy[tagTextProp] = _this.trim(itemCopy[tagTextProp]);
+                       // discard empty tags but allow `0` as a valid value
+                       if (itemCopy[tagTextProp] || itemCopy[tagTextProp] === 0) acc.push(itemCopy) // mapStringToCollection(item.value).map(newItem => ({...item,...newItem}))
+                       ;
+                   } else if (item != null && item !== "" && item !== undefined) {
+                       var _acc;
+                       (_acc = acc).push.apply(_acc, _to_consumable_array(mapStringToCollection(item)));
+                   }
+                   return acc;
+               }, []);
+           }
+           // search if the tag exists in the whitelist as an Object (has props),
+           // to be able to use its properties.
+           // skip matching collections with whitelist items as they are considered "whole"
+           if (whitelistWithProps && !isCollection) {
+               tagsItems.forEach(function(item) {
+                   var whitelistMatchesValues = whitelistMatches.map(function(a) {
+                       return a.value;
+                   });
+                   // if suggestions are shown, they are already filtered, so it's easier to use them,
+                   // because the whitelist might also include items which have already been added
+                   var filteredList = _this.dropdown.filterListItems.call(_this, item[tagTextProp], {
+                       exact: true
+                   });
+                   if (!_this.settings.duplicates) // also filter out items which have already been matched in previous iterations
+                   filteredList = filteredList.filter(function(filteredItem) {
+                       return !whitelistMatchesValues.includes(filteredItem.value);
+                   });
+                   // get the best match out of list of possible matches.
+                   // if there was a single item in the filtered list, use that one
+                   var matchObj = filteredList.length > 1 ? _this.getWhitelistItem(item[tagTextProp], tagTextProp, filteredList) : filteredList[0];
+                   if (matchObj && _instanceof(matchObj, Object)) {
+                       whitelistMatches.push(matchObj) // set the Array (with the found Object) as the new value
+                       ;
+                   } else if (mode != "mix") {
+                       if (item.value == undefined) item.value = item[tagTextProp];
+                       whitelistMatches.push(item);
+                   }
+               });
+               if (whitelistMatches.length) tagsItems = whitelistMatches;
+           }
+           return tagsItems;
+       },
+       /**
+        * Parse the initial value of a textarea (or input) element and generate mixed text w/ tags
+        * https://stackoverflow.com/a/57598892/104380
+        * @param {String} s
+        */ parseMixTags: function parseMixTags(s) {
+           var _this = this;
+           var _this_settings = this.settings, mixTagsInterpolator = _this_settings.mixTagsInterpolator, duplicates = _this_settings.duplicates, transformTag = _this_settings.transformTag, enforceWhitelist = _this_settings.enforceWhitelist, maxTags = _this_settings.maxTags, tagTextProp = _this_settings.tagTextProp, tagsDataSet = [];
+           s = s.split(mixTagsInterpolator[0]).map(function(s1, i) {
+               var s2 = s1.split(mixTagsInterpolator[1]), preInterpolated = s2[0], maxTagsReached = tagsDataSet.length == maxTags, textProp, tagData, tagElm;
+               try {
+                   // skip numbers and go straight to the "catch" statement
+                   if (preInterpolated == +preInterpolated) throw Error;
+                   tagData = JSON.parse(preInterpolated);
+               } catch (err) {
+                   tagData = _this.normalizeTags(preInterpolated)[0] || {
+                       value: preInterpolated
+                   };
+               }
+               transformTag.call(_this, tagData);
+               if (!maxTagsReached && s2.length > 1 && (!enforceWhitelist || _this.isTagWhitelisted(tagData.value)) && !(!duplicates && _this.isTagDuplicate(tagData.value))) {
+                   // in case "tagTextProp" setting is set to other than "value" and this tag does not have this prop
+                   textProp = tagData[tagTextProp] ? tagTextProp : "value";
+                   tagData[textProp] = _this.trim(tagData[textProp]);
+                   tagElm = _this.createTagElem(tagData);
+                   tagsDataSet.push(tagData);
+                   tagElm.classList.add(_this.settings.classNames.tagNoAnimation);
+                   s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
+                   ;
+                   _this.value.push(tagData);
+               } else if (s1) return i ? mixTagsInterpolator[0] + s1 : s1;
+               return s2.join("");
+           }).join("");
+           this.DOM.input.innerHTML = s;
+           this.DOM.input.appendChild(document.createTextNode(""));
+           this.DOM.input.normalize();
+           var tagNodes = this.getTagElms();
+           tagNodes.forEach(function(elm, idx) {
+               return getSetTagData(elm, tagsDataSet[idx]);
+           });
+           this.update({
+               withoutChangeEvent: true
+           });
+           fixCaretBetweenTags(tagNodes, this.state.hasFocus);
+           return s;
+       },
+       /**
+        * For mixed-mode: replaces a text starting with a prefix with a wrapper element (tag or something)
+        * First there *has* to be a "this.state.tag" which is a string that was just typed and is staring with a prefix
+        */ replaceTextWithNode: function replaceTextWithNode(newWrapperNode, strToReplace) {
+           if (!this.state.tag && !strToReplace) return;
+           strToReplace = strToReplace || this.state.tag.prefix + this.state.tag.value;
+           var idx, nodeToReplace, selection = this.state.selection || window.getSelection(), nodeAtCaret = selection.anchorNode, firstSplitOffset = this.state.tag.delimiters ? this.state.tag.delimiters.length : 0;
+           // STEP 1: ex. replace #ba with the tag "bart" where "|" is where the caret is:
+           // CURRENT STATE: "foo #ba #ba| #ba"
+           // split the text node at the index of the caret
+           nodeAtCaret.splitText(selection.anchorOffset - firstSplitOffset);
+           // node 0: "foo #ba #ba|"
+           // node 1: " #ba"
+           // get index of LAST occurence of "#ba"
+           idx = nodeAtCaret.nodeValue.lastIndexOf(strToReplace);
+           if (idx == -1) return true;
+           nodeToReplace = nodeAtCaret.splitText(idx);
+           // node 0: "foo #ba "
+           // node 1: "#ba"    <- nodeToReplace
+           newWrapperNode && nodeAtCaret.parentNode.replaceChild(newWrapperNode, nodeToReplace);
+           // must NOT normalize contenteditable or it will cause unwanted issues:
+           // https://monosnap.com/file/ZDVmRvq5upYkidiFedvrwzSswegWk7
+           // nodeAtCaret.parentNode.normalize()
+           return true;
+       },
+       /**
+        * Validate a tag's data and create a new tag node
+        * @param {*} tagData
+        * @param {*} options
+        * @returns Object
+        */ prepareNewTagNode: function prepareNewTagNode(tagData, options) {
+           options = options || {};
+           var tagElm, _s = this.settings, aggregatedInvalidInput = [], tagElmParams = {}, originalData = Object.assign({}, tagData, {
+               value: tagData.value + ""
+           });
+           // shallow-clone tagData so later modifications will not apply to the source
+           tagData = Object.assign({}, originalData);
+           _s.transformTag.call(this, tagData);
+           tagData.__isValid = this.hasMaxTags() || this.validateTag(tagData);
+           if (tagData.__isValid !== true) {
+               if (options.skipInvalid) return;
+               // originalData is kept because it might be that this tag is invalid because it is a duplicate of another,
+               // and if that other tags is edited/deleted, this one should be re-validated and if is no more a duplicate - restored
+               extend(tagElmParams, this.getInvalidTagAttrs(tagData, tagData.__isValid), {
+                   __preInvalidData: originalData
+               });
+               if (tagData.__isValid == this.TEXTS.duplicate) // mark, for a brief moment, the tag (this this one) which THIS CURRENT tag is a duplcate of
+               this.flashTag(this.getTagElmByValue(tagData.value));
+               if (!_s.createInvalidTags) {
+                   aggregatedInvalidInput.push(tagData.value);
+                   return;
+               }
+           }
+           if ("readonly" in tagData) {
+               if (tagData.readonly) tagElmParams["aria-readonly"] = true;
+               else delete tagData.readonly;
+           }
+           // Create tag HTML element
+           tagElm = this.createTagElem(tagData, tagElmParams);
+           return {
+               tagElm: tagElm,
+               tagData: tagData,
+               aggregatedInvalidInput: aggregatedInvalidInput
+           };
+       },
+       /**
+        * Logic to happen once a tag has just been injected into the DOM
+        * @param {Node} tagElm
+        * @param {Object} tagData
+        */ postProcessNewTagNode: function postProcessNewTagNode(tagElm, tagData) {
+           var _this = this;
+           var _s = this.settings, isValid = tagData.__isValid;
+           if (isValid && isValid === true) {
+               // update state
+               this.value.push(tagData);
+           } else {
+               this.trigger("invalid", {
+                   data: tagData,
+                   index: this.value.length,
+                   tag: tagElm,
+                   message: isValid
+               });
+               if (!_s.keepInvalidTags) // remove invalid tags (if "keepInvalidTags" is set to "false")
+               setTimeout(function() {
+                   return _this.removeTags(tagElm, true);
+               }, 1000);
+           }
+           this.dropdown.position() // reposition the dropdown because the just-added tag might cause a new-line
+           ;
+       },
+       /**
+        * For selecting a single option (not used for multiple tags, but for "mode:select" only)
+        * @param {Object} tagElm   Tag DOM node
+        * @param {Object} tagData  Tag data
+        */ selectTag: function selectTag(tagElm, tagData) {
+           var _this = this;
+           var _s = this.settings;
+           if (_s.enforceWhitelist && !this.isTagWhitelisted(tagData.value)) return;
+           // this.input.set.call(this, tagData[_s.tagTextProp] || tagData.value, true)
+           // place the caret at the end of the input, only if a dropdown option was selected (and not by manually typing another value and clicking "TAB")
+           if (this.state.actions.selectOption) setTimeout(function() {
+               return _this.setRangeAtStartEnd(false, _this.DOM.input);
+           });
+           var lastTagElm = this.getLastTag();
+           if (lastTagElm) this.replaceTag(lastTagElm, tagData);
+           else this.appendTag(tagElm);
+           // if( _s.enforceWhitelist )
+           //     this.setContentEditable(false);
+           this.value[0] = tagData;
+           this.update();
+           this.trigger("add", {
+               tag: tagElm,
+               data: tagData
+           });
+           return [
+               tagElm
+           ];
+       },
+       /**
+        * add an empty "tag" element in an editable state
+        */ addEmptyTag: function addEmptyTag(initialData) {
+           var tagData = extend({
+               value: ""
+           }, initialData || {}), tagElm = this.createTagElem(tagData);
+           getSetTagData(tagElm, tagData);
+           // add the tag to the component's DOM
+           this.appendTag(tagElm);
+           this.editTag(tagElm, {
+               skipValidation: true
+           });
+           this.toggleFocusClass(true);
+       },
+       /**
+        * add a "tag" element to the "tags" component
+        * @param {String/Array} tagsItems   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
+        * @param {Boolean}      clearInput  [flag if the input's value should be cleared after adding tags]
+        * @param {Boolean}      skipInvalid [do not add, mark & remove invalid tags]
+        * @return {Array} Array of DOM elements (tags)
+        */ addTags: function addTags(tagsItems, clearInput, skipInvalid) {
+           var _this = this;
+           var tagElems = [], _s = this.settings, aggregatedInvalidInput = [], frag = document.createDocumentFragment(), addedTags = []; // all tags, also invalid. this is used for firing the `add` event
+           if (!tagsItems || tagsItems.length == 0) {
+               return tagElems;
+           }
+           // converts Array/String/Object to an Array of Objects
+           tagsItems = this.normalizeTags(tagsItems);
+           switch(_s.mode){
+               case "mix":
+                   return this.addMixTags(tagsItems);
+               case "select":
+                   {
+                       clearInput = false;
+                       this.removeAllTags();
+                   }
+           }
+           this.DOM.input.removeAttribute("style");
+           tagsItems.forEach(function(tagData) {
+               var newTagNode = _this.prepareNewTagNode(tagData, {
+                   skipInvalid: skipInvalid || _s.skipInvalid
+               });
+               if (!newTagNode) return;
+               var tagElm = newTagNode.tagElm;
+               tagData = newTagNode.tagData;
+               aggregatedInvalidInput = newTagNode.aggregatedInvalidInput;
+               tagElems.push(tagElm);
+               // mode-select overrides
+               if (_s.mode == "select") {
+                   return _this.selectTag(tagElm, tagData);
+               }
+               // add the tag to the component's DOM
+               // this.appendTag(tagElm)
+               frag.appendChild(tagElm);
+               _this.postProcessNewTagNode(tagElm, tagData);
+               addedTags.push({
+                   tagElm: tagElm,
+                   tagData: tagData
+               });
+           });
+           this.appendTag(frag);
+           addedTags.forEach(function(param) {
+               var tagElm = param.tagElm, tagData = param.tagData;
+               return _this.trigger("add", {
+                   tag: tagElm,
+                   index: _this.getTagIdx(tagData),
+                   data: tagData
+               });
+           });
+           this.update();
+           if (tagsItems.length && clearInput) {
+               this.input.set.call(this, _s.createInvalidTags ? "" : aggregatedInvalidInput.join(_s._delimiters));
+               this.setRangeAtStartEnd(false, this.DOM.input);
+           }
+           // refilter hydrate the list
+           this.dropdown.refilter();
+           return tagElems;
+       },
+       /**
+        * Adds a mix-content tag
+        * @param {String/Array} tagData    A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings
+        */ addMixTags: function addMixTags(tagsData) {
+           var _this = this;
+           tagsData = this.normalizeTags(tagsData);
+           // flow for creating custom tags which aren't a part of the whitelist
+           if (tagsData[0].prefix || this.state.tag) {
+               return this.prefixedTextToTag(tagsData[0]);
+           }
+           var frag = document.createDocumentFragment();
+           tagsData.forEach(function(tagData) {
+               var newTagNode = _this.prepareNewTagNode(tagData);
+               frag.appendChild(newTagNode.tagElm);
+               _this.insertAfterTag(newTagNode.tagElm);
+               _this.postProcessNewTagNode(newTagNode.tagElm, newTagNode.tagData);
+           });
+           this.appendMixTags(frag);
+           return frag.children;
+       },
+       appendMixTags: function appendMixTags(node) {
+           var selection = !!this.state.selection;
+           // if "selection" exists, assumes intention of inecting the new tag at the last
+           // saved location of the caret inside "this.DOM.input"
+           if (selection) {
+               this.injectAtCaret(node);
+           } else {
+               this.DOM.input.focus();
+               selection = this.setStateSelection();
+               selection.range.setStart(this.DOM.input, selection.range.endOffset);
+               selection.range.setEnd(this.DOM.input, selection.range.endOffset);
+               this.DOM.input.appendChild(node);
+               this.updateValueByDOMTags() // updates internal "this.value"
+               ;
+               this.update() // updates original input/textarea
+               ;
+           }
+       },
+       /**
+        * Adds a tag which was activly typed by the user
+        * @param {String/Array} tagData   [A string (single or multiple values with a delimiter), or an Array of Objects or just Array of Strings]
+        */ prefixedTextToTag: function prefixedTextToTag(tagData) {
+           var _this = this;
+           var _this_state_tag;
+           var _s = this.settings, tagElm, newTag, createdFromDelimiters = (_this_state_tag = this.state.tag) === null || _this_state_tag === void 0 ? void 0 : _this_state_tag.delimiters;
+           tagData.prefix = tagData.prefix || this.state.tag ? this.state.tag.prefix : (_s.pattern.source || _s.pattern)[0];
+           newTag = this.prepareNewTagNode(tagData);
+           tagElm = newTag.tagElm;
+           // tries to replace a taged textNode with a tagElm, and if not able,
+           // insert the new tag to the END if "addTags" was called from outside
+           if (!this.replaceTextWithNode(tagElm)) {
+               this.DOM.input.appendChild(tagElm);
+           }
+           setTimeout(function() {
+               return tagElm.classList.add(_this.settings.classNames.tagNoAnimation);
+           }, 300);
+           this.update();
+           if (!createdFromDelimiters) {
+               var elm = this.insertAfterTag(tagElm) || tagElm;
+               // a timeout is needed when selecting a tag from the suggestions via mouse.
+               // Without it, it seems the caret is placed right after the tag and not after the
+               // node which was inserted after the tag (whitespace by default)
+               setTimeout(placeCaretAfterNode, 0, elm);
+           }
+           this.state.tag = null;
+           this.postProcessNewTagNode(tagElm, newTag.tagData);
+           return tagElm;
+       },
+       /**
+        * appened (validated) tag to the component's DOM scope
+        */ appendTag: function appendTag(tagElm) {
+           var DOM = this.DOM, insertBeforeNode = DOM.input;
+           //if( insertBeforeNode === DOM.input )
+           DOM.scope.insertBefore(tagElm, insertBeforeNode);
+       //else
+       //    DOM.scope.appendChild(tagElm)
+       },
+       /**
+        * creates a DOM tag element and injects it into the component (this.DOM.scope)
+        * @param  {Object}  tagData [text value & properties for the created tag]
+        * @param  {Object}  extraData [properties which are for the HTML template only]
+        * @return {Object} [DOM element]
+        */ createTagElem: function createTagElem(tagData, extraData) {
+           tagData.__tagId = getUID();
+           var tagElm, templateData = extend({}, tagData, _object_spread({
+               value: escapeHTML(tagData.value + "")
+           }, extraData));
+           // if( this.settings.readonly )
+           //     tagData.readonly = true
+           tagElm = this.parseTemplate("tag", [
+               templateData,
+               this
+           ]);
+           // crucial for proper caret placement when deleting content. if textNodes are allowed as children of a tag element,
+           // a browser bug casues the caret to be misplaced inside the tag element (especially affects "readonly" tags)
+           removeTextChildNodes(tagElm);
+           // while( tagElm.lastChild.nodeType == 3 )
+           //     tagElm.lastChild.parentNode.removeChild(tagElm.lastChild)
+           getSetTagData(tagElm, tagData);
+           return tagElm;
+       },
+       /**
+        * re-check all invalid tags.
+        * called after a tag was edited or removed
+        */ reCheckInvalidTags: function reCheckInvalidTags() {
+           var _this = this;
+           var _s = this.settings;
+           this.getTagElms(_s.classNames.tagNotAllowed).forEach(function(tagElm, i) {
+               var tagData = getSetTagData(tagElm), hasMaxTags = _this.hasMaxTags(), tagValidation = _this.validateTag(tagData), isValid = tagValidation === true && !hasMaxTags;
+               if (_s.mode == "select") _this.toggleScopeValidation(tagValidation);
+               // if the tag has become valid
+               if (isValid) {
+                   tagData = tagData.__preInvalidData ? tagData.__preInvalidData : {
+                       value: tagData.value
+                   };
+                   return _this.replaceTag(tagElm, tagData);
+               }
+               // if the tag is still invaild, set its title as such (reson of invalid might have changed)
+               tagElm.title = hasMaxTags || tagValidation;
+           });
+       },
+       /**
+        * Removes a tag
+        * @param  {Array|Node|String}  tagElms         [DOM element(s) or a String value. if undefined or null, remove last added tag]
+        * @param  {Boolean}            silent          [A flag, which when turned on, does not remove any value and does not update the original input value but simply removes the tag from tagify]
+        * @param  {Number}             tranDuration    [Transition duration in MS]
+        * TODO: Allow multiple tags to be removed at-once
+        */ removeTags: function removeTags(tagElms, silent, tranDuration) {
+           var _this = this;
+           var tagsToRemove, _s = this.settings;
+           tagElms = tagElms && _instanceof(tagElms, HTMLElement) ? [
+               tagElms
+           ] : _instanceof(tagElms, Array) ? tagElms : tagElms ? [
+               tagElms
+           ] : [
+               this.getLastTag()
+           ].filter(function(n) {
+               return n;
+           }) // must filter because "this.getLastTag()" might be `undefined` if there are not tags
+           ;
+           // normalize tagElms array values:
+           // 1. removing invalid items
+           // 2, if an item is String try to get the matching Tag HTML node
+           // 3. get the tag data
+           // 4. return a collection of Objects
+           tagsToRemove = tagElms.reduce(function(elms, tagElm) {
+               if (tagElm && typeof tagElm == "string") tagElm = _this.getTagElmByValue(tagElm);
+               var tagData = getSetTagData(tagElm);
+               if (tagElm && tagData && !tagData.readonly) // because the DOM node might be removed by async animation, the state will be updated while
+               // the node might still be in the DOM, so the "update" method should know which nodes to ignore
+               elms.push({
+                   node: tagElm,
+                   idx: _this.getTagIdx(tagData),
+                   data: getSetTagData(tagElm, {
+                       "__removed": true
+                   })
+               });
+               return elms;
+           }, []);
+           tranDuration = typeof tranDuration == "number" ? tranDuration : this.CSSVars.tagHideTransition;
+           if (_s.mode == "select") {
+               tranDuration = 0;
+               this.input.set.call(this);
+           }
+           // if only a single tag is to be removed.
+           // skip "select" mode because invalid tags are actually set to `this.value`
+           if (tagsToRemove.length == 1 && _s.mode != "select") {
+               if (tagsToRemove[0].node.classList.contains(_s.classNames.tagNotAllowed)) silent = true;
+           }
+           if (!tagsToRemove.length) return;
+           return _s.hooks.beforeRemoveTag(tagsToRemove, {
+               tagify: this
+           }).then(function() {
+               var removeNode = function removeNode(tag) {
+                   if (!tag.node.parentNode) return;
+                   tag.node.parentNode.removeChild(tag.node);
+                   if (!silent) {
+                       // this.removeValueById(tagData.__uid)
+                       this.trigger("remove", {
+                           tag: tag.node,
+                           index: tag.idx,
+                           data: tag.data
+                       });
+                       this.dropdown.refilter();
+                       this.dropdown.position();
+                       this.DOM.input.normalize() // best-practice when in mix-mode (safe to do always anyways)
+                       ;
+                       // check if any of the current tags which might have been marked as "duplicate" should be un-marked
+                       if (_s.keepInvalidTags) this.reCheckInvalidTags();
+                   // below code is unfinished. it should iterate all currently invalid edited tags, which their edits have not
+                   // changed the value yet, and should re-trigger the check, but since nothing has changed, it does not work...
+                   // this.getTagElms(_s.classNames.tagEditing).forEach( this.events.callbacks.onEditTagBlur.bind )
+                   } else if (_s.keepInvalidTags) this.trigger("remove", {
+                       tag: tag.node,
+                       index: tag.idx
+                   });
+               };
+               var animation = function animation(tag) {
+                   tag.node.style.width = parseFloat(window.getComputedStyle(tag.node).width) + "px";
+                   document.body.clientTop // force repaint for the width to take affect before the "hide" class below
+                   ;
+                   tag.node.classList.add(_s.classNames.tagHide);
+                   // manual timeout (hack, since transitionend cannot be used because of hover)
+                   setTimeout(removeNode.bind(this), tranDuration, tag);
+               };
+               if (tranDuration && tranDuration > 10 && tagsToRemove.length == 1) animation.call(_this, tagsToRemove[0]);
+               else tagsToRemove.forEach(removeNode.bind(_this));
+               // update state regardless of animation
+               if (!silent) {
+                   _this.removeTagsFromValue(tagsToRemove.map(function(tag) {
+                       return tag.node;
+                   }));
+                   _this.update() // update the original input with the current value
+                   ;
+                   if (_s.mode == "select" && _s.userInput) _this.setContentEditable(true);
+               }
+           }).catch(function(reason) {});
+       },
+       removeTagsFromDOM: function removeTagsFromDOM() {
+           this.getTagElms().forEach(function(node) {
+               return node.remove();
+           });
+       },
+       /**
+        * @param {Array/Node} tags to be removed from the this.value array
+        */ removeTagsFromValue: function removeTagsFromValue(tags) {
+           var _this = this;
+           tags = Array.isArray(tags) ? tags : [
+               tags
+           ];
+           tags.forEach(function(tag) {
+               var tagData = getSetTagData(tag), tagIdx = _this.getTagIdx(tagData);
+               //  delete tagData.__removed
+               if (tagIdx > -1) _this.value.splice(tagIdx, 1);
+           });
+       },
+       removeAllTags: function removeAllTags(opts) {
+           var _this = this;
+           opts = opts || {};
+           this.value = [];
+           if (this.settings.mode == "mix") this.DOM.input.innerHTML = "";
+           else this.removeTagsFromDOM();
+           this.dropdown.refilter();
+           this.dropdown.position();
+           if (this.state.dropdown.visible) setTimeout(function() {
+               _this.DOM.input.focus();
+           });
+           if (this.settings.mode == "select") {
+               this.input.set.call(this);
+               this.settings.userInput && this.setContentEditable(true);
+           }
+           // technically for now only "withoutChangeEvent" exists in the opts.
+           // if more properties will be added later, only pass what's needed to "update"
+           this.update(opts);
+       },
+       postUpdate: function postUpdate() {
+           this.state.blockChangeEvent = false;
+           var _s = this.settings, classNames = _s.classNames, hasValue = _s.mode == "mix" ? _s.mixMode.integrated ? this.DOM.input.textContent : this.DOM.originalInput.value.trim() : this.value.length + this.input.raw.call(this).length;
+           this.toggleClass(classNames.hasMaxTags, this.value.length >= _s.maxTags);
+           this.toggleClass(classNames.hasNoTags, !this.value.length);
+           this.toggleClass(classNames.empty, !hasValue);
+           // specifically the "select mode" might have the "invalid" classname set when the field is changed, so it must be toggled on add/remove/edit
+           if (_s.mode == "select") {
+               var _this_value_, _this_value;
+               this.toggleScopeValidation((_this_value = this.value) === null || _this_value === void 0 ? void 0 : (_this_value_ = _this_value[0]) === null || _this_value_ === void 0 ? void 0 : _this_value_.__isValid);
+           }
+       },
+       setOriginalInputValue: function setOriginalInputValue(v) {
+           var inputElm = this.DOM.originalInput;
+           if (!this.settings.mixMode.integrated) {
+               inputElm.value = v;
+               inputElm.tagifyValue = inputElm.value // must set to "inputElm.value" and not again to "inputValue" because for some reason the browser changes the string afterwards a bit.
+               ;
+               this.setPersistedData(v, "value");
+           }
+       },
+       /**
+        * update the origianl (hidden) input field's value
+        * see - https://stackoverflow.com/q/50957841/104380
+        */ update: function update(args) {
+           var UPDATE_DELAY = 100;
+           clearTimeout(this.debouncedUpdateTimeout);
+           this.debouncedUpdateTimeout = setTimeout(reallyUpdate.bind(this), UPDATE_DELAY);
+           this.events.bindOriginaInputListener.call(this, UPDATE_DELAY);
+           function reallyUpdate() {
+               var inputValue = this.getInputValue();
+               this.setOriginalInputValue(inputValue);
+               if ((!this.settings.onChangeAfterBlur || !(args || {}).withoutChangeEvent) && !this.state.blockChangeEvent) this.triggerChangeEvent();
+               this.postUpdate();
+           }
+       },
+       getInputValue: function getInputValue() {
+           var value = this.getCleanValue();
+           return this.settings.mode == "mix" ? this.getMixedTagsAsString(value) : value.length ? this.settings.originalInputValueFormat ? this.settings.originalInputValueFormat(value) : JSON.stringify(value) : "";
+       },
+       /**
+        * removes properties from `this.value` which are only used internally
+        */ getCleanValue: function getCleanValue(v) {
+           return removeCollectionProp(v || this.value, this.dataProps);
+       },
+       getMixedTagsAsString: function getMixedTagsAsString() {
+           var result = "", that = this, _s = this.settings, originalInputValueFormat = _s.originalInputValueFormat || JSON.stringify, _interpolator = _s.mixTagsInterpolator;
+           function iterateChildren(rootNode) {
+               rootNode.childNodes.forEach(function(node) {
+                   if (node.nodeType == 1) {
+                       var tagData = getSetTagData(node);
+                       if (node.tagName == "BR") {
+                           result += "\r\n";
+                       }
+                       if (tagData && isNodeTag.call(that, node)) {
+                           if (tagData.__removed) return;
+                           else result += _interpolator[0] + originalInputValueFormat(omit(tagData, that.dataProps)) + _interpolator[1];
+                       } else if (node.getAttribute("style") || [
+                           "B",
+                           "I",
+                           "U"
+                       ].includes(node.tagName)) result += node.textContent;
+                       else if (node.tagName == "DIV" || node.tagName == "P") {
+                           result += "\r\n";
+                           //  if( !node.children.length && node.textContent )
+                           //  result += node.textContent;
+                           iterateChildren(node);
+                       }
+                   } else result += node.textContent;
+               });
+           }
+           iterateChildren(this.DOM.input);
+           return result;
+       }
+   };
+   // legacy support for changed methods names
+   Tagify.prototype.removeTag = Tagify.prototype.removeTags;
+
+   return Tagify;
+
+}));
 //# sourceMappingURL=tagify.js.map
