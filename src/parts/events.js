@@ -513,9 +513,13 @@ export default {
                             // know if an option was just selected from the dropdown menu. If an option was selected,
                             // the dropdown events should handle adding the tag
 
+                            var thingToAdd = this.state.autoCompleteData || s;
+
                             setTimeout(()=>{
-                                if( (!this.state.dropdown.visible || isManualDropdown) && !this.state.actions.selectOption && _s.addTagOn.includes(e.key.toLowerCase()) )
-                                    this.addTags(s, true)
+                                if( (!this.state.dropdown.visible || isManualDropdown) && !this.state.actions.selectOption && _s.addTagOn.includes(e.key.toLowerCase()) ) {
+                                    this.addTags([thingToAdd], true)
+                                    this.state.autoCompleteData = null
+                                }
                             })
                     }
                 })

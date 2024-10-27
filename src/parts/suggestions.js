@@ -93,6 +93,7 @@ export default {
                                     e.preventDefault() // prevents blur so the autocomplete suggestion will not become a tag
                                     var value = this.dropdown.getMappedValue(selectedElmData)
 
+                                    this.state.autoCompleteData = selectedElmData;
                                     this.input.autocomplete.set.call(this, value)
                                     return false
                                 }
