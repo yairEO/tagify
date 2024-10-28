@@ -1,10 +1,10 @@
 <template v-once>
-  <textarea v-if="mode === 'textarea'" v-model="value"/>
+  <textarea v-if="mode === 'textarea'" v-bind="value"/>
   <input v-else :value="value" v-on:change="onChange">
 </template>
 
 <script>
-import Tagify from "./tagify.min.js"
+import Tagify from "./tagify.js"
 import "./tagify.css"
 
 export default {
