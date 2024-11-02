@@ -393,58 +393,70 @@ export default {
             return query.toLowerCase().split(' ').every(q => s.includes(q.toLowerCase()))
         }
 
-        for( ; i < whitelist.length; i++ ){
-            let startsWithMatch, exactMatch;
+        if ( _sd.customSearch && typeof _sd.customSearch === "function" ) {
+            let source = includeSelectedTags
+            ? whitelist
+            : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item ));
+            let matched = _sd.customSearch(source.map(item => 
+                typeof item === 'object' ? item : { value: item }
+            ));
 
-            whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
-
-            let itemWithoutSearchKeys = !Object.keys(whitelistItem).some(k => searchKeys.includes(k) ),
-                _searchKeys = itemWithoutSearchKeys ? ["value"] : searchKeys
-
-            if( _sd.fuzzySearch && !options.exact ){
-                searchBy = _searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase().trim()
-
-                if( _sd.accentedSearch ){
-                    searchBy = unaccent(searchBy)
-                    niddle = unaccent(niddle)
-                }
-
-                startsWithMatch = searchBy.indexOf(niddle) == 0
-                exactMatch = searchBy === niddle
-                valueIsInWhitelist = stringHasAll(searchBy, niddle)
-            }
-
-            else {
-                startsWithMatch = true;
-                valueIsInWhitelist = _searchKeys.some(k => {
-                    var v = '' + (whitelistItem[k] || '') // if key exists, cast to type String
-
+            Array.prototype.push.apply(list, matched);
+        }
+        else {
+            for( ; i < whitelist.length; i++ ){
+                let startsWithMatch, exactMatch;
+    
+                whitelistItem = whitelist[i] instanceof Object ? whitelist[i] : { value:whitelist[i] } //normalize value as an Object
+    
+                let itemWithoutSearchKeys = !Object.keys(whitelistItem).some(k => searchKeys.includes(k) ),
+                    _searchKeys = itemWithoutSearchKeys ? ["value"] : searchKeys
+    
+                if( _sd.fuzzySearch && !options.exact ){
+                    searchBy = _searchKeys.reduce((values, k) => values + " " + (whitelistItem[k]||""), "").toLowerCase().trim()
+    
                     if( _sd.accentedSearch ){
-                        v = unaccent(v)
+                        searchBy = unaccent(searchBy)
                         niddle = unaccent(niddle)
                     }
-
-                    if( !_sd.caseSensitive )
-                        v = v.toLowerCase()
-
-                    exactMatch = v === niddle
-
-                    return options.exact
-                        ? v === niddle
-                        : v.indexOf(niddle) == 0
-                })
+    
+                    startsWithMatch = searchBy.indexOf(niddle) == 0
+                    exactMatch = searchBy === niddle
+                    valueIsInWhitelist = stringHasAll(searchBy, niddle)
+                }
+    
+                else {
+                    startsWithMatch = true;
+                    valueIsInWhitelist = _searchKeys.some(k => {
+                        var v = '' + (whitelistItem[k] || '') // if key exists, cast to type String
+    
+                        if( _sd.accentedSearch ){
+                            v = unaccent(v)
+                            niddle = unaccent(niddle)
+                        }
+    
+                        if( !_sd.caseSensitive )
+                            v = v.toLowerCase()
+    
+                        exactMatch = v === niddle
+    
+                        return options.exact
+                            ? v === niddle
+                            : v.indexOf(niddle) == 0
+                    })
+                }
+    
+                isDuplicate = !_sd.includeSelectedTags && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
+    
+                // match for the value within each "whitelist" item
+                if( valueIsInWhitelist && !isDuplicate )
+                    if( exactMatch && startsWithMatch)
+                        exactMatchesList.push(whitelistItem)
+                    else if( _sd.sortby == 'startsWith' && startsWithMatch )
+                        list.unshift(whitelistItem)
+                    else
+                        list.push(whitelistItem)
             }
-
-            isDuplicate = !_sd.includeSelectedTags && this.isTagDuplicate( isObject(whitelistItem) ? whitelistItem.value : whitelistItem )
-
-            // match for the value within each "whitelist" item
-            if( valueIsInWhitelist && !isDuplicate )
-                if( exactMatch && startsWithMatch)
-                    exactMatchesList.push(whitelistItem)
-                else if( _sd.sortby == 'startsWith' && startsWithMatch )
-                    list.unshift(whitelistItem)
-                else
-                    list.push(whitelistItem)
         }
 
         this.state.dropdown.suggestions = exactMatchesList.concat(list);
