@@ -1170,6 +1170,7 @@ Tagify.prototype = {
                 tagElm.classList.add(this.settings.classNames.tagNoAnimation)
 
                 s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
+                s2[1] = escapeHTML(s2[1])
                 this.value.push(tagData)
             }
             else if(s1)
