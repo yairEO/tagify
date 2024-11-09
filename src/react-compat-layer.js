@@ -5,7 +5,7 @@ let useEffect;
 let useRef;
 let useCallback;
 
-function initReact() {
+async function initReact() {
   try {
     // Try to import React as a namespace (React 18+)
     const ReactModule = await import('react');
