@@ -56,10 +56,6 @@ export default {
                 jQuery(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
         }
 
-
-        // TODO: bind bubblable "focusin" and "focusout" events on the Tagify scope itself and not the input
-
-
         // setup callback references so events could be removed later
         _CBR = (this.listeners.main = this.listeners.main || {
             keydown          : ['input', _CB.onKeydown.bind(this)],
@@ -189,10 +185,11 @@ export default {
                 _s.onChangeAfterBlur && this.triggerChangeEvent()
             }
 
-            if( isTargetSelectOption || isTargetAddNewBtn || isTargetXBtn )
+            if( isTargetSelectOption || isTargetAddNewBtn || isTargetXBtn ) {
                 return;
+            }
 
-            // should only loose focus at this point if the event was not generated from within a tag, within the component
+            // should only loose focus at this point if the event was not generated from within a tag
             if( isFocused || nodeTag ) {
                 this.state.hasFocus = +new Date()
                 this.toggleFocusClass(this.state.hasFocus)
@@ -719,6 +716,7 @@ export default {
         onClickAnywhere(e){
             if (e.target != this.DOM.scope && !this.DOM.scope.contains(e.target)) {
                 this.toggleFocusClass(false)
+
                 this.state.hasFocus = false
 
                 // do not hide the dropdown if a click was initiated within it and that dropdown belongs to this Tagify instance
@@ -905,6 +903,10 @@ export default {
 
             if( !this.state.hasFocus )
                 this.toggleFocusClass()
+
+            if(!this.DOM.scope.contains(document.activeElement)) {
+                this.trigger("blur", {})
+            }
 
             // one scenario is when selecting a suggestion from the dropdown, when editing, and by selecting it
             // the "onEditTagDone" is called directly, already replacing the tag, so the argument "editableElm"
