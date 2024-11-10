@@ -154,9 +154,10 @@ export default {
                 var selectedElm = e.target.closest(this.settings.classNames.dropdownItemSelector),
                     selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
 
-                // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
+                // temporary set the "actions" state to indicate to the main "blur" event it shouldn't execute any if its logic.
+                // a `100ms` is a good-enough timeout after some testing
                 this.state.actions.selectOption = true;
-                setTimeout(()=> this.state.actions.selectOption = false, 50)
+                setTimeout(()=> this.state.actions.selectOption = false, 100)
 
                 this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                     .then(() => {
@@ -294,7 +295,7 @@ export default {
 
         if( this.state.editing ) {
             let normalizedTagData = this.normalizeTags([tagData])[0]
-            tagData =  _s.transformTag.call(this, normalizedTagData) || normalizedTagData
+            tagData = _s.transformTag.call(this, normalizedTagData) || normalizedTagData
 
             // normalizing value, because "tagData" might be a string, and therefore will not be able to extend the object
             this.onEditTagDone(null, extend({__isValid: true}, tagData))
