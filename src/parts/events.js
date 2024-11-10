@@ -252,7 +252,6 @@ export default {
                 }
 
                 shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur && _s.addTagOn.includes('blur');
-
                 // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
                 shouldAddTags && this.addTags(text, true)
             }
@@ -276,11 +275,12 @@ export default {
             var _s = this.settings,
                 focusedElm = document.activeElement,
                 withinTag = isWithinNodeTag.call(this, focusedElm),
-                isBelong = withinTag && this.DOM.scope.contains(document.activeElement),
+                isBelong = withinTag && this.DOM.scope.contains(focusedElm),
+                isInputNode = focusedElm === this.DOM.input,
                 isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
                 nextTag;
 
-            if( !this.state.hasFocus && (!isBelong || isReadyOnlyTag) ) return;
+            if( !this.state.hasFocus && (!isBelong || isReadyOnlyTag) || isInputNode ) return;
 
             nextTag = focusedElm.nextElementSibling;
 
