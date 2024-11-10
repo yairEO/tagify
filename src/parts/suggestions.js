@@ -102,6 +102,11 @@ export default {
                             case 'Enter' : {
                                 e.preventDefault()
 
+                                // temporary set the "actions" state to indicate to the main "blur" event it shouldn't execute any if its logic.
+                                // a `100ms` is a good-enough timeout after some testing
+                                this.state.actions.selectOption = true;
+                                setTimeout(()=> this.state.actions.selectOption = false, 100)
+
                                 _s.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                                     .then(() => {
                                         if( selectedElm ){
