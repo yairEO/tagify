@@ -190,13 +190,12 @@ export default {
             }
 
             // should only loose focus at this point if the event was not generated from within a tag
-            if( isFocused || nodeTag ) {
+            if( isFocused || nodeTag )
                 this.state.hasFocus = +new Date()
-                this.toggleFocusClass(this.state.hasFocus)
-            }
-            else {
+            else
                 this.state.hasFocus = false;
-            }
+            
+            this.toggleFocusClass(this.state.hasFocus)
 
             if( _s.mode == 'mix' ){
                 if( isFocused ){
