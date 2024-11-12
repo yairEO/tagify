@@ -190,7 +190,8 @@ export default {
             }
 
             // should only loose focus at this point if the event was not generated from within a tag
-            if( isFocused || nodeTag )
+            // select mode always generates events within a tag, so exclude it
+            if( isFocused || nodeTag && _s.mode != 'select')
                 this.state.hasFocus = +new Date()
             else
                 this.state.hasFocus = false;
