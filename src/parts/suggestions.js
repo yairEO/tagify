@@ -97,6 +97,10 @@ export default {
                                     this.input.autocomplete.set.call(this, value)
                                     return false
                                 }
+                                
+                                //the user is escaping from the input in select mode
+                                isSelectMode && this.dropdown.hide()
+
                                 return true
                             }
                             case 'Enter' : {
