@@ -292,7 +292,7 @@ export default {
 
         // select mode: after the tag has been removed and focus is lost, trying to click a suggestion (after focusing again) will fail because it tries to replace an inexistent tag
         // catch and use addTags() instead. This happens only once
-        if(_s.mode == 'select' && !this.state.composing) {
+        if(_s.mode == 'select' && !this.state.composing && this.userInput) {
             this.addTags(value, true)
             closeOnSelect && this.dropdown.hide()
             return;
