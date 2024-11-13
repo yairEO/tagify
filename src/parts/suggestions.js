@@ -290,6 +290,14 @@ export default {
             isMixMode = _s.mode == 'mix',
             tagData = this.suggestedListItems.find(item => (item.value ?? item) == value)
 
+        // select mode: after the tag has been removed and focus is lost, trying to click a suggestion (after focusing again) will fail because it tries to replace an inexistent tag
+        // catch and use addTags() instead. This happens only once
+        if(_s.mode == 'select' && !this.state.composing) {
+            this.addTags(value, true)
+            closeOnSelect && this.dropdown.hide()
+            return;
+        }
+
         // The below event must be triggered, regardless of anything else which might go wrong
         this.trigger('dropdown:select', {data:tagData, elm, event})
 
