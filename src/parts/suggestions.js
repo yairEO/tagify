@@ -96,7 +96,11 @@ export default {
                                     this.state.autoCompleteData = selectedElmData;
                                     this.input.autocomplete.set.call(this, value)
                                     return false
+                                } else if(isSelectMode && _s.userInput && !_s.autoComplete.tabKey) { // do not forget to hide the dropdown in select mode!
+                                    this.dropdown.hide()
+                                    return false
                                 }
+                                
                                 return true
                             }
                             case 'Enter' : {
@@ -295,6 +299,7 @@ export default {
         if(_s.mode == 'select' && !this.state.composing && this.userInput) {
             this.addTags(value, true)
             closeOnSelect && this.dropdown.hide()
+            setTimeout(()=> this.DOM.scope.querySelector('.' + _s.classNames.tagText).focus(), 0) //set the focus back to input on each select to ensure consistent behavior
             return;
         }
 
