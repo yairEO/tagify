@@ -1720,6 +1720,9 @@ Tagify.prototype = {
         //refilter here and not inside removeTags() to correctly remove the checkmark
         this.dropdown.refilter()
         this.dropdown.position()
+
+        //set the focus back to input to ensure consistent behavior
+        setTimeout(()=> this.DOM.input.focus(), 0)
     },
 
     removeAllTags( opts ){
