@@ -1657,8 +1657,6 @@ Tagify.prototype = {
                     if( !silent ){
                         // this.removeValueById(tagData.__uid)
                         this.trigger('remove', { tag:tag.node, index:tag.idx, data:tag.data })
-                        this.dropdown.refilter()
-                        this.dropdown.position()
                         this.DOM.input.normalize() // best-practice when in mix-mode (safe to do always anyways)
 
                         // check if any of the current tags which might have been marked as "duplicate" should be un-marked
@@ -1718,6 +1716,10 @@ Tagify.prototype = {
             if( tagIdx > -1 )
                 this.value.splice(tagIdx, 1)
         })
+
+        //refilter here and not inside removeTags() to correctly remove the checkmark
+        this.dropdown.refilter()
+        this.dropdown.position()
     },
 
     removeAllTags( opts ){
