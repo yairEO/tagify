@@ -125,7 +125,13 @@ export default {
                 cb: _CB.onFocusBlur.bind(this)
             },
             {
-                type: 'click',
+                type: 'mousedown',
+                target: document,
+                cb: _CB.onClickAnywhere.bind(this),
+                useCapture: true
+            },
+            {
+                type: 'mouseup',
                 target: document,
                 cb: _CB.onClickAnywhere.bind(this),
                 useCapture: true
@@ -720,7 +726,7 @@ export default {
                 this.state.hasFocus = false
 
                 // do not hide the dropdown if a click was initiated within it and that dropdown belongs to this Tagify instance
-                if( e.target.closest('.tagify__dropdown') && e.target.closest('.tagify__dropdown').__tagify != this )
+                if( e.type != 'mouseup' && (e.target.closest('.tagify__dropdown') && e.target.closest('.tagify__dropdown').__tagify != this) )
                     this.dropdown.hide()
             }
         },
