@@ -276,7 +276,8 @@ export default {
      */
     selectOption( elm, event ){
         var _s = this.settings,
-            {clearOnSelect, closeOnSelect} = _s.dropdown;
+            {clearOnSelect, closeOnSelect} = _s.dropdown,
+            includeSelectedTags = _s.dropdown.includeSelectedTags || _s.mode == 'select';
 
         if( !elm ) {
             this.addTags(this.state.inputText, true)
@@ -293,6 +294,9 @@ export default {
             isNoMatch = value == 'noMatch',
             isMixMode = _s.mode == 'mix',
             tagData = this.suggestedListItems.find(item => (item.value ?? item) == value)
+
+        // select mode: reset the dropdown to show all options again to the user
+        _s.mode == 'select' && setTimeout(() => this.dropdown.show(), 0)
 
         // select mode: after the tag has been removed and focus is lost, trying to click a suggestion (after focusing again) will fail because it tries to replace an inexistent tag
         // catch and use addTags() instead. This happens only once
@@ -334,7 +338,7 @@ export default {
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
 
         // execute these tasks once a suggestion has been selected
-        elm.addEventListener('transitionend', () => {
+        !includeSelectedTags && elm.addEventListener('transitionend', () => {
             this.dropdown.fillHeaderFooter()
             setTimeout(() => {
                 elm.remove()
@@ -343,7 +347,7 @@ export default {
         }, {once: true})
 
         // hide selected suggestion
-        elm.classList.add(this.settings.classNames.dropdownItemHidden)
+        !includeSelectedTags && elm.classList.add(this.settings.classNames.dropdownItemHidden)
     },
 
     // adds all the suggested items, including the ones which are not currently rendered,
