@@ -116,7 +116,7 @@ export default {
                                         if( selectedElm ){
                                             this.dropdown.selectOption(selectedElm)
                                             // highlight next option
-                                            selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
+                                            if(!isSelectMode) selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
                                             this.dropdown.highlightOption(selectedElm)
                                             return
                                         }
