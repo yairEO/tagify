@@ -302,8 +302,10 @@ export default {
         // catch and use addTags() instead. This happens only once
         if(_s.mode == 'select' && !this.state.composing && this.userInput) {
             this.addTags(value, true)
-            closeOnSelect && this.dropdown.hide()
-            setTimeout(()=> this.DOM.scope.querySelector('.' + _s.classNames.tagText).focus(), 0) //set the focus back to input on each select to ensure consistent behavior
+            setTimeout(() => {
+                closeOnSelect && this.dropdown.hide()
+                this.DOM.scope.querySelector('.' + _s.classNames.tagText).focus() //set the focus back to input on each select to ensure consistent behavior
+            }, 0)
             return;
         }
 
