@@ -387,11 +387,13 @@ export default {
                 ? whitelist
                 : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
 
-            this.state.dropdown.suggestions = list;
-
-            return hasCustomSort
+            var filteredList = hasCustomSort
                 ? _sd.sortby(list, niddle)
                 : list.slice(0, suggestionsCount); // respect "maxItems" dropdown setting
+
+            this.state.dropdown.suggestions = filteredList;
+
+            return filteredList;
         }
 
         niddle = _sd.caseSensitive
@@ -460,9 +462,12 @@ export default {
         this.state.dropdown.suggestions = exactMatchesList.concat(list);
 
         // custom sorting function
-        return hasCustomSort
+        var filteredList = hasCustomSort
             ? _sd.sortby(exactMatchesList.concat(list), niddle)
             : exactMatchesList.concat(list).slice(0, suggestionsCount)
+
+        this.state.dropdown.suggestions = filteredList;
+        return filteredList
     },
 
     /**
