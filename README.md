@@ -875,7 +875,7 @@ function onTagifyKeyDown(e){
 </details>
 
 ---
-
+* [Disable the automatic whitelist (suggestions) filtering](https://github.com/yairEO/tagify/issues/1114)
 * [Double-click tag fires both "edit" & "click" custom events](https://github.com/yairEO/tagify/issues/247)
 * [Manualy open the suggestions dropdown](https://github.com/yairEO/tagify/issues/254)
 * [Render your own suggestions dropdown](https://github.com/yairEO/tagify/issues/244)
