@@ -369,6 +369,7 @@ export default {
             whitelist = _s.whitelist,
             suggestionsCount = _sd.maxItems >= 0 ? _sd.maxItems : Infinity,
             includeSelectedTags = _sd.includeSelectedTags || _s.mode == 'select',
+            hasCustomSort = typeof _sd.sortby == 'function',
             searchKeys = _sd.searchKeys,
             whitelistItem,
             valueIsInWhitelist,
@@ -387,7 +388,10 @@ export default {
                 : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
 
             this.state.dropdown.suggestions = list;
-            return list.slice(0, suggestionsCount); // respect "maxItems" dropdown setting
+
+            return hasCustomSort
+                ? _sd.sortby(list, niddle)
+                : list.slice(0, suggestionsCount); // respect "maxItems" dropdown setting
         }
 
         niddle = _sd.caseSensitive
@@ -456,7 +460,7 @@ export default {
         this.state.dropdown.suggestions = exactMatchesList.concat(list);
 
         // custom sorting function
-        return typeof _sd.sortby == 'function'
+        return hasCustomSort
             ? _sd.sortby(exactMatchesList.concat(list), niddle)
             : exactMatchesList.concat(list).slice(0, suggestionsCount)
     },
