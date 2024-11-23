@@ -863,9 +863,9 @@ var formElm = document.forms[0]; // just an example
 tagify.on('keydown', onTagifyKeyDown)
 
 function onTagifyKeyDown(e){
-  if( e.key == 'Enter' &&         // "enter" key pressed
-      !tagify.state.inputText &&  // assuming user is not in the middle or adding a tag
-      !tagify.state.editing       // user not editing a tag
+  if( e.detail.event.key == 'Enter' &&  // "enter" key pressed
+      !tagify.state.inputText &&        // assuming user is not in the middle or adding a tag
+      !tagify.state.editing             // user not editing a tag
     ){
     setTimeout(() => formElm.submit())  // put some buffer to make sure tagify has done with whatever, to be on the safe-side
   }
