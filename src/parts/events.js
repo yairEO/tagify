@@ -221,7 +221,6 @@ export default {
                 var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible,
                     condition2 = !targetIsTagNode || _s.mode === 'select'
 
-                this.toggleFocusClass(true);
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
                 if( dropdownCanBeShown && condition2 ){  // && _s.mode != "select"
@@ -496,10 +495,9 @@ export default {
                             }
                             break
                         }
+
                         case 'Tab' : {
-                            let selectMode = _s.mode == 'select'
-                            if(s && !selectMode) e.preventDefault()
-                            else return true;
+                            return true;
                         }
 
                         case 'Enter' :
