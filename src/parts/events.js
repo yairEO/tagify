@@ -168,9 +168,6 @@ export default {
                 // if clicked anywhere else inside a tag, which had triggered an `focusin` event,
                 // the onFocusBlur should be aborted. This part was spcifically written for `select` mode.
                 // tagTextNode && this.events.callbacks.onEditTagFocus.call(this, nodeTag)
-
-                // this fixes select mode input focus lost, to trigger: Tab into it, delete (backspace) without moving caret
-                _s.mode == 'select' && this.events.callbacks.onEditTagFocus.call(this, nodeTag)
             }
 
             var text = e.target ? this.trim(this.DOM.input.textContent) : '', // a string
@@ -253,8 +250,6 @@ export default {
                     // if nothing has changed (same display value), do not add a tag
                     if( currentDisplayValue === text )
                         text = ''
-                    else //the input is empty, we should now remove the tag
-                        this.removeTags()
                 }
 
                 shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur && _s.addTagOn.includes('blur');

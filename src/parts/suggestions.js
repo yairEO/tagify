@@ -296,14 +296,9 @@ export default {
             tagData = this.suggestedListItems.find(item => (item.value ?? item) == value)
 
         // select mode: reset the dropdown to show all options again to the user
-        _s.mode == 'select' && setTimeout(() => this.dropdown.show(), 0)
-
-        // select mode: after the tag has been removed and focus is lost, trying to click a suggestion (after focusing again) will fail because it tries to replace an inexistent tag
-        // catch and use addTags() instead. This happens only once
         if(_s.mode == 'select' && !this.state.composing && this.userInput) {
-            this.addTags(value, true)
             setTimeout(() => {
-                closeOnSelect && this.dropdown.hide()
+                setTimeout(() => closeOnSelect ? this.dropdown.hide() : this.dropdown.show(), 0)
                 this.DOM.scope.querySelector('.' + _s.classNames.tagText).focus() //set the focus back to input on each select to ensure consistent behavior
             }, 0)
             return;
