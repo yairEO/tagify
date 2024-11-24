@@ -147,8 +147,8 @@ export default {
         onFocusBlur(e){
             // when focusing within a tag which is in edit-mode
             var _s = this.settings,
-                nodeTag = isWithinNodeTag.call(this, e.target),
-                targetIsTagNode = isNodeTag.call(this, e.target),
+                nodeTag = isWithinNodeTag.call(this, e.relatedTarget),
+                targetIsTagNode = isNodeTag.call(this, e.relatedTarget),
                 isTargetXBtn = e.target.classList.contains(_s.classNames.tagX),
                 isFocused = e.type == 'focusin',
                 lostFocus = e.type == 'focusout';
@@ -156,6 +156,10 @@ export default {
             // when focusing within a tag which is in edit-mode, only and specifically on the text-part of the tag node
             // and not the X button or any other custom element thatmight be there
             // var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
+
+            if(isTargetXBtn && _s.mode != 'mix') {
+                this.DOM.input.focus()
+            }
 
             if( nodeTag && isFocused && (!targetIsTagNode) && !isTargetXBtn) {
                 this.toggleFocusClass(this.state.hasFocus = +new Date())
@@ -195,11 +199,12 @@ export default {
             // should only loose focus at this point if the event was not generated from within a tag
             if( isFocused || nodeTag ) {
                 this.state.hasFocus = +new Date()
-                this.toggleFocusClass(this.state.hasFocus)
             }
             else {
                 this.state.hasFocus = false;
             }
+
+            this.toggleFocusClass(this.state.hasFocus)
 
             if( _s.mode == 'mix' ){
                 if( isFocused ){
@@ -224,7 +229,6 @@ export default {
                 var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible,
                     condition2 = !targetIsTagNode || _s.mode === 'select'
 
-                this.toggleFocusClass(true);
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
                 if( dropdownCanBeShown && condition2 ){  // && _s.mode != "select"
@@ -501,10 +505,9 @@ export default {
                             }
                             break
                         }
+
                         case 'Tab' : {
-                            let selectMode = _s.mode == 'select'
-                            if(s && !selectMode) e.preventDefault()
-                            else return true;
+                            return true;
                         }
 
                         case 'Enter' :

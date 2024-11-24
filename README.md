@@ -863,9 +863,9 @@ var formElm = document.forms[0]; // just an example
 tagify.on('keydown', onTagifyKeyDown)
 
 function onTagifyKeyDown(e){
-  if( e.key == 'Enter' &&         // "enter" key pressed
-      !tagify.state.inputText &&  // assuming user is not in the middle or adding a tag
-      !tagify.state.editing       // user not editing a tag
+  if( e.detail.event.key == 'Enter' &&  // "enter" key pressed
+      !tagify.state.inputText &&        // assuming user is not in the middle or adding a tag
+      !tagify.state.editing             // user not editing a tag
     ){
     setTimeout(() => formElm.submit())  // put some buffer to make sure tagify has done with whatever, to be on the safe-side
   }
@@ -1148,9 +1148,9 @@ dropdown.*caseSensitive*       | <sub>Boolean</sub>           | false           
 dropdown.*maxItems*            | <sub>Number</sub>            | 10                                          | Maximum items to show in the suggestions list
 dropdown.*classname*           | <sub>String</sub>            | `""`                                        | Custom *classname* for the dropdown suggestions list
 dropdown.*fuzzySearch*         | <sub>Boolean</sub>           | true                                        | Enables filtering dropdown items values' by string *containing* and not only *beginning*
-dropdown.*sortby*              | <sub>String/Function</sub>   |                                             | If set as `startsWith` string, the suggestions list will be sorted with matched items which starts with the query shown first, and *exact* matches shown before all.<br><br> If this setting is defined as a `function`, it recieves two arguments: the array of filtered items and the query and it must return an Array.<br><br>(*default sorting order is same as the whitelist's*)
+dropdown.*sortby*              | <sub>String/Function</sub>   |                                             | If set as `startsWith` string, the suggestions list will be sorted with matched items which starts with the query shown first, and *exact* matches shown before all.<br><br> If this setting is defined as a `function`, it receives two arguments: the array of filtered items and the query and it must return an Array.<br><br>(*default sorting order is same as the whitelist's*)
 dropdown.*accentedSearch*      | <sub>Boolean</sub>           | true                                        | Enable searching for <em>accented</em> items in the whitelist without typing exact match (#491)
-dropdown.*includeSelectedTags* | <sub>Boolean</sub>           | false                                       | Should the suggestions list Include already-selected tags (after filtering)
+dropdown.*includeSelectedTags* | <sub>Boolean</sub>           | false                                       | Should the suggestions list Include already-selected tags (after filtering), which will be marked with a checkmark `✓`
 dropdown.*escapeHTML*          | <sub>Boolean</sub>           | true                                        | Escapes HTML entities in the suggestions' rendered text
 dropdown.*position*            | <sub>String</sub>            | `"all"`                                     | <ul><li>`manual` - will not render the dropdown, and you would need to do it yourself. [See demo](https://yaireo.github.io/tagify/#section-manual-suggestions)</li><li>`text` - places the dropdown next to the caret</li><li>`input` - places the dropdown next to the input (useful in rare situations)</li><li>`all` - normal, full-width design</li></ul>
 dropdown.*RTL*                 | <sub>Boolean</sub>           | false                                       | Dictates the dropdown's horizontal starting position. By default it would be aligned with the left side of the *Tagify* component.
