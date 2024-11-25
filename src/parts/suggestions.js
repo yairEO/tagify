@@ -295,15 +295,6 @@ export default {
             isMixMode = _s.mode == 'mix',
             tagData = this.suggestedListItems.find(item => (item.value ?? item) == value)
 
-        // select mode: reset the dropdown to show all options again to the user
-        if(_s.mode == 'select' && !this.state.composing && this.userInput) {
-            setTimeout(() => {
-                setTimeout(() => closeOnSelect ? this.dropdown.hide() : this.dropdown.show(), 0)
-                this.DOM.scope.querySelector('.' + _s.classNames.tagText).focus() //set the focus back to input on each select to ensure consistent behavior
-            }, 0)
-            return;
-        }
-
         // The below event must be triggered, regardless of anything else which might go wrong
         this.trigger('dropdown:select', {data:tagData, elm, event})
 
@@ -331,6 +322,10 @@ export default {
             this.DOM.input.focus()
             this.toggleFocusClass(true)
         })
+
+        // select mode: reset the dropdown to show all options again to the user
+        if(_s.mode == 'select' && !this.state.composing && this.userInput)
+            setTimeout(() => this.DOM.scope.querySelector('.' + _s.classNames.tagText).focus(), 0) //set the focus back to input on each select to ensure consistent behavior 
 
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
 
