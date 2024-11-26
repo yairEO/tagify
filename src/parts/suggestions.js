@@ -96,7 +96,7 @@ export default {
                                     this.state.autoCompleteData = selectedElmData;
                                     this.input.autocomplete.set.call(this, value)
                                     return false
-                                } else if(isSelectMode && _s.userInput && !_s.autoComplete.tabKey) { // do not forget to hide the dropdown in select mode!
+                                } else if( e.key == 'Tab' && !_s.autoComplete.tabKey && isSelectMode && _s.userInput ) { // do not forget to hide the dropdown in select mode if Tab is pressed
                                     this.dropdown.hide()
                                     return false
                                 }
