@@ -626,7 +626,7 @@
     }
 
     // Since the dropdown is an external element, which is positioned directly on the body element
-    // it cannot ingerit the CSS variables applied on the ".Tagify" element
+    // it cannot inherit the CSS variables applied on the ".Tagify" element
     &__dropdown{
         $dropdown: &;
         $trans: .3s;
@@ -663,6 +663,7 @@
         }
 
         &__wrapper{
+            scroll-behavior: auto; // keep up/down arrow pressed to see the effect without this
             max-height: var(--tagify-dd-max-height);
             overflow: hidden;
             overflow-x: hidden;
