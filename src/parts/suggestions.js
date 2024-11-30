@@ -111,9 +111,24 @@ export default {
                                     .then(() => {
                                         if( selectedElm ){
                                             this.dropdown.selectOption(selectedElm)
-                                            // highlight next option
-                                            selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
-                                            this.dropdown.highlightOption(selectedElm)
+
+                                            if (!isSelectMode) { // highlight next option
+                                                selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
+                                                this.dropdown.highlightOption(selectedElm)
+                                            } else { // in select mode this never worked. It is also better to keep the highlight in the same spot after selection
+                                                setTimeout(() => {
+                                                    let refs = this.dropdown.getAllSuggestionsRefs()
+                                                    let selectedElm = null
+                                                    refs.forEach(elem => {
+                                                        if (elem.getAttribute('value') == selectedElmData.value) {
+                                                            selectedElm = elem
+                                                            return
+                                                        }
+                                                    })
+
+                                                    selectedElm != null && this.dropdown.highlightOption(selectedElm, true)
+                                                }, 0, selectedElmData) //wait for the dropdown to be redrawn
+                                            }
                                             return
                                         }
                                         else
