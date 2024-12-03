@@ -288,16 +288,6 @@ export default {
             var targetIsRemoveBtn = e.target.classList.contains(_s.classNames.tagX);
 
             switch( e.key ){
-                // remove tag if has focus
-                case 'Backspace': {
-                    if( !_s.readonly && !this.state.editing ) {
-                        this.removeTags(focusedElm);
-                        (nextTag ? nextTag : this.DOM.input).focus()
-                    }
-
-                    break;
-                }
-
                 case 'Enter': {
                     if( targetIsRemoveBtn ) {
                         this.removeTags( e.target.parentNode )
@@ -315,6 +305,25 @@ export default {
                     if( !this.state.dropdown.visible && _s.mode != 'mix' )
                         this.dropdown.show()
                     break;
+                }
+
+                case 'Tab': //prevent Tab from falling into default case
+                    break;
+
+                // remove tag if has focus
+                case 'Backspace': {
+                    if( !_s.readonly && !this.state.editing ) {
+                        this.removeTags(focusedElm);
+                        (nextTag ? nextTag : this.DOM.input).focus()
+                    }
+                }
+
+                default: {
+                    //let the suggestions flow when onInput doesn't trigger because the focus is on tagText
+                    if( !_s.readonly && e.target !== null && this.DOM.scope.querySelector('.' + this.settings.classNames.tagText) === e.target ){
+                        this.state.inputText = t.target.innerText //this must be updated manually 
+                        setTimeout(() => this.events.callbacks.onInput.call(this, e), 0)
+                    }
                 }
             }
         },
@@ -534,7 +543,7 @@ export default {
             if( _s.mode == 'mix' )
                 return this.events.callbacks.onMixTagsInput.call(this, e);
 
-            var value = this.input.normalize.call(this, undefined, {trim: false}),
+            var value = this.input.normalize.call(this, e.target, {trim: false}), //use e.target (which could be undefined) instead of undefined directly to handle onWindowKeyDown calls
                 showSuggestions = value.length >= _s.dropdown.enabled,
                 eventData = {value, inputElm:this.DOM.input},
                 validation = this.validateTag({value});
