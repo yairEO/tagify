@@ -96,7 +96,11 @@ export default {
                                     this.state.autoCompleteData = selectedElmData;
                                     this.input.autocomplete.set.call(this, value)
                                     return false
+                                } else if( e.key == 'Tab' && !_s.autoComplete.tabKey && isSelectMode && _s.userInput ) { // do not forget to hide the dropdown in select mode if Tab is pressed
+                                    this.dropdown.hide()
+                                    return false
                                 }
+                                
                                 return true
                             }
                             case 'Enter' : {
@@ -112,7 +116,7 @@ export default {
                                         if( selectedElm ){
                                             this.dropdown.selectOption(selectedElm)
                                             // highlight next option
-                                            selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
+                                            if(!isSelectMode) selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
                                             this.dropdown.highlightOption(selectedElm)
                                             return
                                         }
@@ -272,7 +276,8 @@ export default {
      */
     selectOption( elm, event ){
         var _s = this.settings,
-            {clearOnSelect, closeOnSelect} = _s.dropdown;
+            {clearOnSelect, closeOnSelect} = _s.dropdown,
+            includeSelectedTags = _s.dropdown.includeSelectedTags || _s.mode == 'select';
 
         if( !elm ) {
             this.addTags(this.state.inputText, true)
@@ -288,7 +293,8 @@ export default {
         var value = elm.getAttribute('value'),
             isNoMatch = value == 'noMatch',
             isMixMode = _s.mode == 'mix',
-            tagData = this.suggestedListItems.find(item => (item.value ?? item) == value)
+            tagData = this.suggestedListItems.find(item => (item.value ?? item) == value),
+            tagTextElem = this.DOM.scope.querySelector('.' + _s.classNames.tagText)
 
         // The below event must be triggered, regardless of anything else which might go wrong
         this.trigger('dropdown:select', {data:tagData, elm, event})
@@ -318,10 +324,14 @@ export default {
             this.toggleFocusClass(true)
         })
 
+        // select mode: reset the dropdown to show all options again to the user
+        if(_s.mode == 'select' && !this.state.composing && this.userInput)
+            setTimeout(() => tagTextElem && tagTextElem.focus(), 0) //set the focus back to input on each select to ensure consistent behavior 
+
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
 
         // execute these tasks once a suggestion has been selected
-        elm.addEventListener('transitionend', () => {
+        !includeSelectedTags && elm.addEventListener('transitionend', () => {
             this.dropdown.fillHeaderFooter()
             setTimeout(() => {
                 elm.remove()
@@ -330,7 +340,7 @@ export default {
         }, {once: true})
 
         // hide selected suggestion
-        elm.classList.add(this.settings.classNames.dropdownItemHidden)
+        !includeSelectedTags && elm.classList.add(this.settings.classNames.dropdownItemHidden)
     },
 
     // adds all the suggested items, including the ones which are not currently rendered,
