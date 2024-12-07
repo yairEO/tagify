@@ -357,11 +357,8 @@
 
             > #{$self}__tag__removeBtn{
                 pointer-events: none;
-
-                &::after{
-                    opacity: 0;
-                    transform: translateX(100%) translateX(5px);
-                }
+                opacity: 0;
+                transform: translateX(100%) translateX(5px);
             }
 
             &.tagify--invalid{
@@ -578,6 +575,12 @@
         &[aria-expanded=true]{
             &::after{
                 transform: translate(-150%, -50%) rotate(270deg) scaleY(1.2);
+            }
+
+            #{$self}__tag__removeBtn{
+                pointer-events: none;
+                opacity: 0;
+                transform: translateX(100%) translateX(5px);
             }
         }
 
