@@ -75,6 +75,34 @@ export default {
                                 // selectedElm.scrollIntoView({inline: 'nearest', behavior: 'smooth'})
                                 break;
                             }
+                            case 'PageUp':
+                            case 'PageDown': {
+                                e.preventDefault()
+                                const dropdownItems = this.dropdown.getAllSuggestionsRefs()
+                                const itemsPerPage = Math.floor(this.DOM.dropdown.content.clientHeight / dropdownItems[0]?.offsetHeight) || 1
+                                const isPageUp = e.key === 'PageUp'
+
+                                if (selectedElm) {
+                                    const currentIndex = dropdownItems.indexOf(selectedElm)
+                                    const targetIndex = isPageUp
+                                        ? Math.max(0, currentIndex - itemsPerPage)
+                                        : Math.min(dropdownItems.length - 1, currentIndex + itemsPerPage)
+                                    selectedElm = dropdownItems[targetIndex]
+                                } else {
+                                    selectedElm = dropdownItems[0]
+                                }
+
+                                this.dropdown.highlightOption(selectedElm, true)
+                                break;
+                            }
+                            case 'Home':
+                            case 'End': {
+                                e.preventDefault()
+                                const dropdownItems = this.dropdown.getAllSuggestionsRefs()
+                                selectedElm = dropdownItems[e.key === 'Home' ? 0 : dropdownItems.length - 1]
+                                this.dropdown.highlightOption(selectedElm, true)
+                                break;
+                            }
                             case 'Escape' :
                             case 'Esc': // IE11
                                 this.dropdown.hide();
