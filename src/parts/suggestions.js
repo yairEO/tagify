@@ -120,7 +120,7 @@ export default {
                                                     let refs = this.dropdown.getAllSuggestionsRefs()
                                                     let selectedElm = null
                                                     refs.forEach(elem => {
-                                                        if (elem.getAttribute('value') == selectedElmData.value) {
+                                                        if (selectedElmData && elem.getAttribute('value') == selectedElmData.value) {
                                                             selectedElm = elem
                                                             return
                                                         }
