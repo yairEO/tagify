@@ -212,11 +212,16 @@ export function getUID() {
 }
 
 export function isNodeTag(node){
-    return node && node.classList && node.classList.contains(this.settings.classNames.tag)
+    return isNodeBelongsToThisTagifyInstance.call(this, node) && node?.classList?.contains(this.settings.classNames.tag)
 }
 
 export function isWithinNodeTag(node){
-    return node && node.closest(this.settings.classNames.tagSelector)
+    return isNodeBelongsToThisTagifyInstance.call(this, node) && node?.closest(this.settings.classNames.tagSelector)
+}
+
+function isNodeBelongsToThisTagifyInstance(node) {
+    let closestTagifyNode = node?.closest(this.settings.classNames.namespaceSelector)
+    return closestTagifyNode === this.DOM.scope
 }
 
 /**

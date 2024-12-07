@@ -719,11 +719,12 @@ export default {
         onClickAnywhere(e){
             if (e.target != this.DOM.scope && !this.DOM.scope.contains(e.target)) {
                 this.toggleFocusClass(false)
-
                 this.state.hasFocus = false
 
+                let closestTagifyDropdownElem = e.target.closest(this.settings.classNames.dropdownSelector);
+
                 // do not hide the dropdown if a click was initiated within it and that dropdown belongs to this Tagify instance
-                if( e.target.closest('.tagify__dropdown') && e.target.closest('.tagify__dropdown').__tagify != this )
+                if( closestTagifyDropdownElem?.__tagify != this )
                     this.dropdown.hide()
             }
         },
