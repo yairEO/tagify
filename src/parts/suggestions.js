@@ -293,7 +293,8 @@ export default {
         var value = elm.getAttribute('value'),
             isNoMatch = value == 'noMatch',
             isMixMode = _s.mode == 'mix',
-            tagData = this.suggestedListItems.find(item => (item.value ?? item) == value)
+            tagData = this.suggestedListItems.find(item => (item.value ?? item) == value),
+            tagTextElem = this.DOM.scope.querySelector('.' + _s.classNames.tagText)
 
         // The below event must be triggered, regardless of anything else which might go wrong
         this.trigger('dropdown:select', {data:tagData, elm, event})
@@ -325,7 +326,7 @@ export default {
 
         // select mode: reset the dropdown to show all options again to the user
         if(_s.mode == 'select' && !this.state.composing && this.userInput)
-            setTimeout(() => this.DOM.scope.querySelector('.' + _s.classNames.tagText).focus(), 0) //set the focus back to input on each select to ensure consistent behavior 
+            setTimeout(() => tagTextElem && tagTextElem.focus(), 0) //set the focus back to input on each select to ensure consistent behavior 
 
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
 
