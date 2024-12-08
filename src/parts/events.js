@@ -723,7 +723,7 @@ export default {
                 this.state.hasFocus = false
 
                 // do not hide the dropdown if a click was initiated within it and that dropdown belongs to this Tagify instance
-                if( e.target.closest('.tagify__dropdown') == null || e.target.closest('.tagify__dropdown').__tagify != this )
+                if( e.target.closest('.tagify__dropdown') && e.target.closest('.tagify__dropdown').__tagify != this )
                     this.dropdown.hide()
             }
         },
