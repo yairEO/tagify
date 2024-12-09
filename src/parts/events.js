@@ -321,7 +321,7 @@ export default {
                 default: {
                     //let the suggestions flow when onInput doesn't trigger because the focus is on tagText
                     if( !_s.readonly && e.target !== null && this.DOM.scope.querySelector('.' + this.settings.classNames.tagText) === e.target ){
-                        this.state.inputText = t.target.innerText //this must be updated manually 
+                        this.state.inputText = e.target.innerText //this must be updated manually 
                         setTimeout(() => this.events.callbacks.onInput.call(this, e), 0)
                     }
                 }
