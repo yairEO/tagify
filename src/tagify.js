@@ -634,6 +634,9 @@ Tagify.prototype = {
         }
 
         if( tagElm && veryfyTagTextProp() ){
+            if(!tagElm.parentNode)
+                return;
+
             tagElm = this.replaceTag(tagElm, tagData)
             this.editTagToggleValidity(tagElm, tagData)
 
