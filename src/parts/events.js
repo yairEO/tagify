@@ -279,9 +279,10 @@ export default {
                 isBelong = withinTag && this.DOM.scope.contains(focusedElm),
                 isInputNode = focusedElm === this.DOM.input,
                 isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
+                tagText = this.DOM.scope.querySelector('.' + this.settings.classNames.tagText),
                 nextTag;
 
-            if( !this.state.hasFocus && (!isBelong || isReadyOnlyTag) || isInputNode ) return;
+            if( !(e.key === 'Tab' && this.state.dropdown.visible) && !this.state.hasFocus && (!isBelong || isReadyOnlyTag) || isInputNode ) return;
 
             nextTag = focusedElm.nextElementSibling;
 
@@ -314,6 +315,11 @@ export default {
                     // if( _s.mode == 'select' ) // issue #333
                     if( !this.state.dropdown.visible && _s.mode != 'mix' )
                         this.dropdown.show()
+                    break;
+                }
+
+                case 'Tab': {
+                    tagText?.focus();
                     break;
                 }
             }
