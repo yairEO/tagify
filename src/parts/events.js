@@ -279,6 +279,7 @@ export default {
                 isBelong = withinTag && this.DOM.scope.contains(focusedElm),
                 isInputNode = focusedElm === this.DOM.input,
                 isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
+                tagText = this.DOM.scope.querySelector('.' + this.settings.classNames.tagText),
                 nextTag;
 
             if( !this.state.hasFocus && (!isBelong || isReadyOnlyTag) || isInputNode ) return;
@@ -320,7 +321,7 @@ export default {
 
                 default: {
                     //let the suggestions flow when onInput doesn't trigger because the focus is on tagText
-                    if( !_s.readonly && e.target !== null && this.DOM.scope.querySelector('.' + this.settings.classNames.tagText) === e.target ){
+                    if( !_s.readonly && e.target !== null && tagText === e.target ){
                         this.state.inputText = e.target.innerText //this must be updated manually 
                         setTimeout(() => this.events.callbacks.onInput.call(this, e), 0)
                     }
