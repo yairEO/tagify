@@ -1,6 +1,7 @@
 'use client';
 
-import React, {memo, useMemo, useEffect, useRef, useCallback, renderToStaticMarkup} from './react-compat-layer'
+import {memo, useMemo, useEffect, useRef, useCallback} from 'react';
+import {renderToStaticMarkup} from './react-compat-layer'
 // import {renderToStaticMarkup} from "react-dom/server"
 // import {string, array, func, bool, object, oneOfType} from "prop-types"
 import Tagify from "./tagify.js"

@@ -1,23 +1,3 @@
-let React;
-let memo;
-let useMemo;
-let useEffect;
-let useRef;
-let useCallback;
-
-async function initReact() {
-  try {
-    // Try to import React as a namespace (React 18+)
-    const ReactModule = await import('react');
-    React = ReactModule.default || ReactModule;
-    ({ memo, useMemo, useEffect, useRef, useCallback } = ReactModule);
-  } catch (e) {
-    console.error('Failed to import React:', e);
-  }
-}
-
-initReact();
-
 function renderToStaticMarkup(element) {
     if (typeof element === 'string') {
       return element;
@@ -51,4 +31,4 @@ function renderToStaticMarkup(element) {
     return '';
 }
 
-export { React as default, memo, useMemo, useEffect, useRef, useCallback, renderToStaticMarkup };
+export { renderToStaticMarkup };
