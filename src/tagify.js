@@ -633,19 +633,21 @@ Tagify.prototype = {
                 return !!tagData.value
         }
 
-        if( tagElm && veryfyTagTextProp() ){
-            tagElm = this.replaceTag(tagElm, tagData)
-            this.editTagToggleValidity(tagElm, tagData)
+        if( tagElm && tagElm.parentNode ){
+            if( veryfyTagTextProp() ){
+                tagElm = this.replaceTag(tagElm, tagData)
+                this.editTagToggleValidity(tagElm, tagData)
 
-            if( _s.a11y.focusableTags )
-                tagElm.focus()
-            else if( _s.mode != 'select' )
-                // place caret after edited tag
-                placeCaretAfterNode(tagElm)
+                if( _s.a11y.focusableTags )
+                    tagElm.focus()
+                else if( _s.mode != 'select' )
+                    // place caret after edited tag
+                    placeCaretAfterNode(tagElm)
+            }
+
+            else
+                this.removeTags(tagElm)
         }
-
-        else if(tagElm)
-            this.removeTags(tagElm)
 
         this.trigger("edit:updated", eventData)
         this.dropdown.hide()
