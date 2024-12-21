@@ -46,6 +46,7 @@ export default {
 
                 // get the "active" element, and if there was none (yet) active, use first child
                 var _s = this.settings,
+                    includeSelectedTags = _s.dropdown.includeSelectedTags,
                     selectedElm = this.DOM.dropdown.querySelector(_s.classNames.dropdownItemActiveSelector),
                     selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm),
                     isMixMode = _s.mode == 'mix',
@@ -138,10 +139,15 @@ export default {
                                 _s.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                                     .then(() => {
                                         if( selectedElm ){
-                                            this.dropdown.selectOption(selectedElm)
-                                            // highlight next option
-                                            selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
-                                            this.dropdown.highlightOption(selectedElm)
+                                            var nextOrPrevOption = includeSelectedTags ? selectedElm : this.dropdown.getNextOrPrevOption(selectedElm, !actionUp),
+                                                nextOrPrevOptionValue = nextOrPrevOption.getAttribute('value')
+
+                                            this.dropdown.selectOption(selectedElm, e, () => {
+                                                // highlight next option
+                                                nextOrPrevOption = this.dropdown.getSuggestionNodeByValue(nextOrPrevOptionValue)
+                                                this.dropdown.highlightOption(nextOrPrevOption)
+                                            })
+
                                             return
                                         }
                                         else
@@ -243,6 +249,11 @@ export default {
         }
     },
 
+    getSuggestionNodeByValue( value ){
+        var dropdownItems = this.dropdown.getAllSuggestionsRefs()
+        return dropdownItems.find(item => item.getAttribute('value') === value);
+    },
+
     getNextOrPrevOption(selected, next = true) {
         var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
             selectedIdx = dropdownItems.findIndex(item => item === selected);
@@ -253,7 +264,7 @@ export default {
     /**
      * mark the currently active suggestion option
      * @param {Object}  elm            option DOM node
-     * @param {Boolean} adjustScroll   when navigation with keyboard arrows (up/down), aut-scroll to always show the highlighted element
+     * @param {Boolean} adjustScroll   when navigation with keyboard arrows (up/down), auto-scroll to always show the highlighted element
      */
     highlightOption( elm, adjustScroll ){
         var className = this.settings.classNames.dropdownItemActive,
@@ -298,8 +309,9 @@ export default {
      * @param {Object} elm  DOM node to select
      * @param {Object} event The original Click event, if available (since keyboard ENTER key also triggers this method)
      */
-    selectOption( elm, event ){
+    selectOption( elm, event, onSelect ){
         var _s = this.settings,
+            includeSelectedTags = _s.dropdown.includeSelectedTags,
             {clearOnSelect, closeOnSelect} = _s.dropdown;
 
         if( !elm ) {
@@ -349,16 +361,25 @@ export default {
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
 
         // execute these tasks once a suggestion has been selected
-        elm.addEventListener('transitionend', () => {
-            this.dropdown.fillHeaderFooter()
-            setTimeout(() => {
-                elm.remove()
-                this.dropdown.refilter()
-            }, 100)
-        }, {once: true})
+        if(includeSelectedTags) {
+            onSelect && onSelect()
+        }
 
-        // hide selected suggestion
-        elm.classList.add(this.settings.classNames.dropdownItemHidden)
+        // if the selected suggestion is removed after being selected, more things things needs to be done:
+        else {
+            elm.addEventListener('transitionend', () => {
+                this.dropdown.fillHeaderFooter()
+
+                setTimeout(() => {
+                    elm.remove()
+                    this.dropdown.refilter()
+                    onSelect && onSelect()
+                }, 100)
+            }, {once: true})
+
+            // hide selected suggestion
+            elm.classList.add(this.settings.classNames.dropdownItemHidden)
+        }
     },
 
     // adds all the suggested items, including the ones which are not currently rendered,
@@ -384,7 +405,8 @@ export default {
 
     /**
      * returns an HTML string of the suggestions' list items
-     * @param {String} value string to filter the whitelist by
+     * @param {String} value string t
+     * o filter the whitelist by
      * @param {Object} options "exact" - for exact complete match
      * @return {Array} list of filtered whitelist items according to the settings provided and current value
      */
@@ -396,7 +418,7 @@ export default {
             exactMatchesList = [],
             whitelist = _s.whitelist,
             suggestionsCount = _sd.maxItems >= 0 ? _sd.maxItems : Infinity,
-            includeSelectedTags = _sd.includeSelectedTags || _s.mode == 'select',
+            includeSelectedTags = _sd.includeSelectedTags,
             hasCustomSort = typeof _sd.sortby == 'function',
             searchKeys = _sd.searchKeys,
             whitelistItem,

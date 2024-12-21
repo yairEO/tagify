@@ -135,9 +135,6 @@ Tagify.prototype = {
 
         this.generateClassSelectors(_s.classNames)
 
-        if ( _s.dropdown.includeSelectedTags === undefined )
-            _s.dropdown.includeSelectedTags = _s.duplicates;
-
         if( this.isIE )
             _s.autoComplete = false; // IE goes crazy if this isn't false
 
@@ -184,6 +181,11 @@ Tagify.prototype = {
 
         this.TEXTS = {...TEXTS, ...(_s.texts || {})}
 
+        // it makes sense to enable "includeSelectedTags" in "select-mode"
+        if( _s.mode == 'select' ){
+            _s.dropdown.includeSelectedTags = true
+        }
+
         // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
         if( (_s.mode == 'select' && !settings.dropdown?.enabled) || !_s.userInput ){
             _s.dropdown.enabled = 0
@@ -191,6 +193,8 @@ Tagify.prototype = {
 
         _s.dropdown.appendTarget = settings.dropdown?.appendTarget || document.body;
 
+        if ( _s.dropdown.includeSelectedTags === undefined )
+            _s.dropdown.includeSelectedTags = _s.duplicates;
 
         // get & merge persisted data with current data
         let persistedWhitelist = this.getPersistedData('whitelist');
@@ -601,14 +605,13 @@ Tagify.prototype = {
         tagElm = tagElm || this.state.editing.scope
         tagData = tagData || {}
 
-        var eventData = {
-            tag         : tagElm,
-            index       : this.getNodeIndex(tagElm),
-            previousData: getSetTagData(tagElm),
-            data        : tagData
-        }
-
-        var _s = this.settings
+        var _s = this.settings,
+            eventData = {
+                tag         : tagElm,
+                index       : this.getNodeIndex(tagElm),
+                previousData: getSetTagData(tagElm),
+                data        : tagData
+            }
 
         this.trigger("edit:beforeUpdate", eventData, {cloneData:false})
 
@@ -694,6 +697,7 @@ Tagify.prototype = {
         })
 
         this.update()
+        this.dropdown.refilter()
     },
 
     /**
@@ -1428,7 +1432,7 @@ Tagify.prototype = {
             this.setRangeAtStartEnd(false, this.DOM.input)
         }
 
-        // refilter hydrate the list
+        // hydrate the suggestions list
         this.dropdown.refilter()
         return tagElems
     },
