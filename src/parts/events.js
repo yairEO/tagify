@@ -224,12 +224,15 @@ export default {
                 if( !_s.focusable ) return;
 
                 var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible,
-                    condition2 = !targetIsTagNode || _s.mode === 'select'
+                    condition2 = !targetIsTagNode || _s.mode === 'select',
+                    tagText = this.DOM.scope.querySelector(this.settings.classNames.tagTextSelector)
 
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
                 if( dropdownCanBeShown && condition2 ){  // && _s.mode != "select"
                     this.dropdown.show(this.value.length ? '' : undefined)
+                    tagText?.focus()
+                    this.setRangeAtStartEnd(false, tagText)
                 }
 
                 return
@@ -279,10 +282,11 @@ export default {
                 isBelong = withinTag && this.DOM.scope.contains(focusedElm),
                 isInputNode = focusedElm === this.DOM.input,
                 isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
-                tagText = this.DOM.scope.querySelector('.' + this.settings.classNames.tagText),
+                tagText = this.DOM.scope.querySelector(this.settings.classNames.tagTextSelector),
+                isDropdownVisible = this.state.dropdown.visible,
                 nextTag;
 
-            if( !(e.key === 'Tab' && this.state.dropdown.visible) && !this.state.hasFocus && (!isBelong || isReadyOnlyTag) || isInputNode ) return;
+            if( !(e.key === 'Tab' && isDropdownVisible) && !this.state.hasFocus && (!isBelong || isReadyOnlyTag) || isInputNode ) return;
 
             nextTag = focusedElm.nextElementSibling;
 
