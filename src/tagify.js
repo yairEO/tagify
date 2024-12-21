@@ -650,7 +650,7 @@ Tagify.prototype = {
         }
 
         this.trigger("edit:updated", eventData)
-        this.dropdown.hide()
+        _s.dropdown.closeOnSelect && this.dropdown.hide()
 
         // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
         if( this.settings.keepInvalidTags )
