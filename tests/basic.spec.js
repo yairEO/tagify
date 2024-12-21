@@ -53,7 +53,7 @@ async function assertHasTags(page, ...expectedTags) {
 
 test.describe('basic', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('file:///C:/Users/vsync/projects/tagify/docs/examples/src/example-template.html')
+        await page.goto('file:///C:/projects/tagify/docs/examples/src/example-template.html')
         await loadHTML_basic(page)
         await getPageDOM(page)
     })
