@@ -293,7 +293,7 @@ export default {
                 case 'Backspace': {
                     if( !_s.readonly && !this.state.editing ) {
                         this.removeTags(focusedElm);
-                        (nextTag ? nextTag : this.DOM.input).focus()
+                        setTimeout(() => (nextTag ? nextTag : this.DOM.input).focus(), 0)
                     }
 
                     break;
