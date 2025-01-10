@@ -1036,13 +1036,16 @@ export default {
         },
 
         onDoubleClickScope(e){
-            var tagElm = e.target.closest('.' + this.settings.classNames.tag),
-                tagData = getSetTagData(tagElm),
+            var tagElm = e.target.closest('.' + this.settings.classNames.tag);
+
+            if( !tagElm ) return
+
+            var tagData = getSetTagData(tagElm),
                 _s = this.settings,
                 isEditingTag,
                 isReadyOnlyTag;
 
-            if( !tagElm || tagData.editable === false ) return
+            if( tagData?.editable === false ) return
 
             isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing)
             isReadyOnlyTag = tagElm.hasAttribute('readonly')
