@@ -270,7 +270,7 @@ export default {
         if( _sd.position == 'manual' || !appendTarget) return
 
         var rect, top, bottom, left, width, ancestorsOffsets,
-            isPlacedAbove,
+            isPlacedAbove, hasSpaceOnRight,
             cssTop, cssLeft,
             ddElm = this.DOM.dropdown,
             isRTL = _sd.RTL,
@@ -281,7 +281,8 @@ export default {
             viewportHeight = root.clientHeight,
             viewportWidth = Math.max(root.clientWidth || 0, window.innerWidth || 0),
             positionTo = viewportWidth > 480 ? _sd.position : 'all',
-            ddTarget = this.DOM[positionTo == 'input' ? 'input' : 'scope'];
+            ddTarget = this.DOM[positionTo == 'input' ? 'input' : 'scope'],
+            MIN_DISTANCE_FROM_VIEWPORT_H_EDGE = 120;
 
         ddHeight = ddHeight || ddElm.clientHeight
 
@@ -342,15 +343,25 @@ export default {
         bottom = Math.ceil(bottom)
 
         isPlacedAbove = _sd.placeAbove ?? viewportHeight - rect.bottom < ddHeight
+        hasSpaceOnRight = viewportWidth - left < MIN_DISTANCE_FROM_VIEWPORT_H_EDGE;
 
         // flip vertically if there is no space for the dropdown below the input
         cssTop = (isPlacedAbove ? top : bottom) + appendTargetScrollTop;
 
         // "pageXOffset" property is an alias for "scrollX"
-        cssLeft = `left: ${(left + (isRTL ? (rect.width || 0) : 0) + window.pageXOffset)}px;`
+        cssLeft = (left + (isRTL ? (rect.width || 0) : 0) + window.pageXOffset);
 
-       // rtl = rtl ?? viewportWidth -
-        ddElm.style.cssText = `${cssLeft}; top: ${cssTop}px; min-width: ${width}; max-width: ${width}`;
+        // check if there's enough space on the right-side of the viewport,
+        // because the element is positioned to the right of the caret, which might need to be changed.
+        if( positionTo == 'text' && hasSpaceOnRight ) {
+            cssLeft = `right: 0;`;
+        }
+        else {
+            cssLeft = `left: ${cssLeft}px;`;
+        }
+
+        // rtl = rtl ?? viewportWidth -
+        ddElm.style.cssText = `${cssLeft} top: ${cssTop}px; min-width: ${width}; max-width: ${width}`;
 
         ddElm.setAttribute('placement', isPlacedAbove ? 'top' : 'bottom')
         ddElm.setAttribute('position', positionTo)
