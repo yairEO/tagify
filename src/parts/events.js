@@ -793,10 +793,9 @@ export default {
             e.preventDefault()
 
             var tagsElems,
-                _s = this.settings,
-                selectModeWithoutInput =_s.mode == 'select' && _s.enforceWhitelist;
+                _s = this.settings;
 
-            if( selectModeWithoutInput || !_s.userInput ){
+            if( !_s.userInput ){
                 return false;
             }
 
@@ -815,6 +814,7 @@ export default {
 
                     if( result ){
                         this.injectAtCaret(result, window.getSelection().getRangeAt(0))
+                        return
 
                         if( this.settings.mode == 'mix' ){
                             this.events.callbacks.onMixTagsInput.call(this, e);
