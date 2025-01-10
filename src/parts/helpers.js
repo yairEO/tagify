@@ -220,7 +220,7 @@ export function isWithinNodeTag(node){
 }
 
 function isNodeBelongsToThisTagifyInstance(node) {
-    let closestTagifyNode = node?.closest(this.settings.classNames.namespaceSelector)
+    let closestTagifyNode = node?.closest?.(this.settings.classNames.namespaceSelector)
     return closestTagifyNode === this.DOM.scope
 }
 
