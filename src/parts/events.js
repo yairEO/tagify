@@ -231,8 +231,6 @@ export default {
                 //  e.target.classList.remove('placeholder');
                 if( dropdownCanBeShown && condition2 ){  // && _s.mode != "select"
                     this.dropdown.show(this.value.length ? '' : undefined)
-
-                    this.events.callbacks.onDoubleClickScope.call(this, e)
                     this.setRangeAtStartEnd(false, tagText)
                 }
 
