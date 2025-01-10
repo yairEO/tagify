@@ -139,13 +139,15 @@ export default {
                                 _s.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                                     .then(() => {
                                         if( selectedElm ){
-                                            var nextOrPrevOption = includeSelectedTags ? selectedElm : this.dropdown.getNextOrPrevOption(selectedElm, !actionUp),
-                                                nextOrPrevOptionValue = nextOrPrevOption.getAttribute('value')
+                                            var nextOrPrevOption = includeSelectedTags ? selectedElm : this.dropdown.getNextOrPrevOption(selectedElm, !actionUp);
 
                                             this.dropdown.selectOption(selectedElm, e, () => {
                                                 // highlight next option
-                                                nextOrPrevOption = this.dropdown.getSuggestionNodeByValue(nextOrPrevOptionValue)
-                                                this.dropdown.highlightOption(nextOrPrevOption)
+                                                if(nextOrPrevOption) {
+                                                    var nextOrPrevOptionValue = nextOrPrevOption.getAttribute('value')
+                                                    nextOrPrevOption = this.dropdown.getSuggestionNodeByValue(nextOrPrevOptionValue)
+                                                    this.dropdown.highlightOption(nextOrPrevOption)
+                                                }
                                             })
 
                                             return
