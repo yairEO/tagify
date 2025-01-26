@@ -54,7 +54,8 @@
     "./dist/tagify.polyfills.min.js": "./dist/tagify.polyfills.min.js",
     "./dist/tagify.vue": "./dist/tagify.vue",
     "./vue": "./dist/tagify.vue",
-    "./dist/tagify.css": "./dist/tagify.css"
+    "./dist/tagify.css": "./dist/tagify.css",
+    "./src/tagify.scss": "./src/tagify.scss"
   },
   "repository": {
     "type": "git",
