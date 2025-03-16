@@ -925,7 +925,7 @@ Name                            | Info
 --tag-inset-shadow-size         | This is the inner shadow size, which dictates the color of the Tags.<br>It's important the size fits *exactly* to the tag.<br>Change this if you change the `--tag-pad` or fontsize.
 --tag-invalid-color             | For border color of edited tags with invalid value being typed into them
 --tag-invalid-bg                | Background color for invalid Tags.
---tag-remove-bg                 | Tag background color when hovering the `×` button.
+--tag-remove-btn-bg                 | Tag background color when hovering the `×` button.
 --tag-remove-btn-color          | Remove (`×`) button text color
 --tag-remove-btn-bg             | Remove (`×`) button background color
 --tag-remove-btn-bg--hover      | Remove (`×`) button hover background color
