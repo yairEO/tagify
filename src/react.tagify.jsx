@@ -27,7 +27,7 @@ function templatesToString(templates) {
 
 // used for `className` prop changes
 function compareStrings(str1, str2) {
-    if( typeof str1 != typeof str2) return;
+    if(typeof str1 != 'string' || typeof str2 != 'string') return;
     const words1 = str1.split(' ');
     const words2 = str2.split(' ');
 
