@@ -132,6 +132,7 @@
 
     display       : inline-flex;
     align-items   : flex-start;
+    align-content : baseline;
     flex-wrap     : wrap;
     border        : 1px solid var(--tags-border-color);
     padding       : 0;
