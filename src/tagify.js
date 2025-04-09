@@ -1033,8 +1033,10 @@ Tagify.prototype = {
     },
 
     setContentEditable(state){
-        this.DOM.input.contentEditable = state
-        this.DOM.input.tabIndex = !!state ? 0 : -1;
+        this.DOM.scope.querySelectorAll("[contenteditable]").forEach(elm => {
+            elm.contentEditable = state
+            elm.tabIndex = !!state ? 0 : -1;
+        })
     },
 
     setDisabled( isDisabled ){
