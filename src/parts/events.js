@@ -157,6 +157,8 @@ export default {
             // and not the X button or any other custom element thatmight be there
             // var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
 
+
+
             if(isTargetXBtn && _s.mode != 'mix') {
                 this.DOM.input.focus()
             }
@@ -223,15 +225,21 @@ export default {
             if( isFocused ){
                 if( !_s.focusable ) return;
 
+                if( _s.mode != 'select' ){
+                    this.DOM.input.focus()
+                }
+
                 var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible,
-                    condition2 = !targetIsTagNode || _s.mode === 'select',
                     tagText = this.DOM.scope.querySelector(this.settings.classNames.tagTextSelector)
 
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
-                if( dropdownCanBeShown && condition2 ){  // && _s.mode != "select"
+                if( dropdownCanBeShown && !targetIsTagNode ){  // && _s.mode != "select"
                     this.dropdown.show(this.value.length ? '' : undefined)
-                    this.setRangeAtStartEnd(false, tagText)
+
+                    if(_s.mode === 'select') {
+                        this.setRangeAtStartEnd(false, tagText)
+                    }
                 }
 
                 return
@@ -744,13 +752,7 @@ export default {
                 isScope = e.target === this.DOM.scope,
                 timeDiffFocus = +new Date() - this.state.hasFocus;
 
-            if( isScope && _s.mode != 'select' ){
-                // if( !this.state.hasFocus )
-                    this.DOM.input.focus()
-                return
-            }
-
-            else if( e.target.classList.contains(_s.classNames.tagX) ){
+            if( e.target.classList.contains(_s.classNames.tagX) ){
                 this.removeTags( e.target.parentNode )
                 return
             }
