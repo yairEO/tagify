@@ -13,6 +13,7 @@ export default {
     enforceWhitelist    : false,          // Only allow tags from the whitelist
     userInput           : true,           // disable manually typing/pasting/editing tags (tags may only be added from the whitelist)
     focusable           : true,           // Allow the component as a whole to recieve focus. There are implementations of Tagify without external border and so 'focusability' causes unwanted behaviour
+    focusInputOnRemove  : true,           // Refocus the input when a tag is removed
     keepInvalidTags     : false,          // if true, do not remove tags which did not pass validation
     createInvalidTags   : true,           // if false, do not create invalid tags from invalid user input
     mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content allows a tag to be added after

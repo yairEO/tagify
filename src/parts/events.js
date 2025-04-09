@@ -157,9 +157,7 @@ export default {
             // and not the X button or any other custom element thatmight be there
             // var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
 
-
-
-            if(isTargetXBtn && _s.mode != 'mix') {
+            if(isTargetXBtn && _s.mode != 'mix' && _s.focusInputOnRemove) {
                 this.DOM.input.focus()
             }
 
