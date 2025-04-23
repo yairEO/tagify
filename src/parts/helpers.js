@@ -212,7 +212,9 @@ export function getUID() {
 }
 
 export function isNodeTag(node){
-    return isNodeBelongsToThisTagifyInstance.call(this, node) && node?.classList?.contains(this.settings.classNames.tag)
+    const belongs = isNodeBelongsToThisTagifyInstance.call(this, node);
+    const isTag = node?.classList?.contains(this.settings.classNames.tag)
+    return belongs && isTag
 }
 
 export function isWithinNodeTag(node){
