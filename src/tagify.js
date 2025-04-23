@@ -176,7 +176,7 @@ Tagify.prototype = {
             catch(e){}
         }
 
-        if( _s.disabled )
+        if( _s.disabled || _s.readonly )
             _s.userInput = false;
 
         this.TEXTS = {...TEXTS, ...(_s.texts || {})}
@@ -189,6 +189,11 @@ Tagify.prototype = {
         // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
         if( (_s.mode == 'select' && !settings.dropdown?.enabled) || !_s.userInput ){
             _s.dropdown.enabled = 0
+        }
+
+        // additional override
+        if( _s.disabled ) {
+            _s.dropdown.enabled = false;
         }
 
         _s.dropdown.appendTarget = settings.dropdown?.appendTarget || document.body;

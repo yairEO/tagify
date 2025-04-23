@@ -42,7 +42,7 @@ export default {
             action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
         // do not allow the main events to be bound more than once
-        if( this.state.mainEvents && bindUnbind )
+        if( (this.state.mainEvents && bindUnbind ) || _s.disabled || _s.readonly )
             return;
 
         // set the binding state of the main events, so they will not be bound more than once
@@ -148,7 +148,7 @@ export default {
             // when focusing within a tag which is in edit-mode
             var _s = this.settings,
                 nodeTag = isWithinNodeTag.call(this, e.relatedTarget),
-                targetIsTagNode = isNodeTag.call(this, e.relatedTarget),
+                targetIsTagNode = isNodeTag.call(this, e.target),
                 isTargetXBtn = e.target.classList.contains(_s.classNames.tagX),
                 isFocused = e.type == 'focusin',
                 lostFocus = e.type == 'focusout';
@@ -223,9 +223,9 @@ export default {
             if( isFocused ){
                 if( !_s.focusable ) return;
 
-                if( _s.mode != 'select' ){
-                    this.DOM.input.focus()
-                }
+                // if( !targetIsTagNode && _s.mode != 'select' ){
+                //     this.DOM.input.focus()
+                // }
 
                 var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible,
                     tagText = this.DOM.scope.querySelector(this.settings.classNames.tagTextSelector)
