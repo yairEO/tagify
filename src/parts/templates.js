@@ -22,7 +22,7 @@ export default {
         var _s = this.settings,
             placeholder = _s.placeholder || ZERO_WIDTH_UNICODE_CHAR;
 
-        return `<span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${placeholder}" aria-placeholder="${_s.placeholder || ''}"
+        return `<span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} data-can-editable tabIndex="0" data-placeholder="${placeholder}" aria-placeholder="${_s.placeholder || ''}"
                     class="${_s.classNames.input}"
                     role="textbox"
                     autocapitalize="false"
@@ -34,12 +34,13 @@ export default {
     tag(tagData, {settings: _s}){
         return `<tag title="${(tagData.title || tagData.value)}"
                     contenteditable='false'
+                    data-can-editable
                     tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
                     class="${_s.classNames.tag} ${tagData.class || ""}"
                     ${this.getAttributes(tagData)}>
             <x title='' tabIndex="${_s.a11y.focusableTags ? 0 : -1}" class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
             <div>
-                <span ${_s.mode === 'select' && _s.userInput ? "contenteditable='true'" : ''} autocapitalize="false" autocorrect="off" spellcheck='false' class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
+                <span ${_s.mode === 'select' && _s.userInput ? "contenteditable='true'" : ''} data-can-editable autocapitalize="false" autocorrect="off" spellcheck='false' class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
             </div>
         </tag>`
     },
