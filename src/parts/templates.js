@@ -34,13 +34,12 @@ export default {
     tag(tagData, {settings: _s}){
         return `<tag title="${(tagData.title || tagData.value)}"
                     contenteditable='false'
-                    data-can-editable
                     tabIndex="${_s.a11y.focusableTags ? 0 : -1}"
                     class="${_s.classNames.tag} ${tagData.class || ""}"
                     ${this.getAttributes(tagData)}>
             <x title='' tabIndex="${_s.a11y.focusableTags ? 0 : -1}" class="${_s.classNames.tagX}" role='button' aria-label='remove tag'></x>
             <div>
-                <span ${_s.mode === 'select' && _s.userInput ? "contenteditable='true'" : ''} data-can-editable autocapitalize="false" autocorrect="off" spellcheck='false' class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
+                <span ${_s.mode === 'select' && _s.userInput ? "contenteditable='true'" : ''} autocapitalize="false" autocorrect="off" spellcheck='false' class="${_s.classNames.tagText}">${tagData[_s.tagTextProp] || tagData.value}</span>
             </div>
         </tag>`
     },
