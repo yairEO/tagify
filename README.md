@@ -863,9 +863,9 @@ var formElm = document.forms[0]; // just an example
 tagify.on('keydown', onTagifyKeyDown)
 
 function onTagifyKeyDown(e){
-  if( e.key == 'Enter' &&         // "enter" key pressed
-      !tagify.state.inputText &&  // assuming user is not in the middle or adding a tag
-      !tagify.state.editing       // user not editing a tag
+  if( e.detail.event.key == 'Enter' &&  // "enter" key pressed
+      !tagify.state.inputText &&        // assuming user is not in the middle or adding a tag
+      !tagify.state.editing             // user not editing a tag
     ){
     setTimeout(() => formElm.submit())  // put some buffer to make sure tagify has done with whatever, to be on the safe-side
   }
@@ -875,7 +875,7 @@ function onTagifyKeyDown(e){
 </details>
 
 ---
-
+* [Disable the automatic whitelist (suggestions) filtering](https://github.com/yairEO/tagify/issues/1114)
 * [Double-click tag fires both "edit" & "click" custom events](https://github.com/yairEO/tagify/issues/247)
 * [Manualy open the suggestions dropdown](https://github.com/yairEO/tagify/issues/254)
 * [Render your own suggestions dropdown](https://github.com/yairEO/tagify/issues/244)
@@ -1119,6 +1119,7 @@ trim                           | <sub>Boolean</sub>           | true            
 enforceWhitelist               | <sub>Boolean</sub>           | false                                       | Should ONLY use tags allowed in whitelist.<br>In `mix-mode`, setting it  to `false` will not allow creating new tags.
 userInput                      | <sub>Boolean</sub>           | true                                        | Disable manually typing/pasting/editing tags (tags may only be added from the whitelist). Can also use the `disabled` attribute on the original input element. To update this after initialization use the setter `tagify.userInput`
 focusable                      | <sub>Boolean</sub>           | true                                        | Allow the component as a whole to recieve focus. Implementations of Tagify without an external border should not allow 'focusability' which causes unwanted behaviour. ([use-case example](file:///C:/Users/vsync/projects/tagify/index.html#section-different-look))
+focusInputOnRemove             | <sub>Boolean</sub>           | true                                        | Refocus the input when a tag is removed
 autoComplete.enabled           | <sub>Boolean</sub>           | true                                        | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
 autoComplete.rightKey          | <sub>Boolean</sub>           | false                                       | If `true`, when `→` is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
 autoComplete.tabKey            | <sub>Boolean</sub>           | false                                       | If `true`, pressing `tab` key would only auto-complete (if a suggesiton is highlighted) but will not convert to a tag (like `rightKey` does) also, unless clicked again (considering the `addTagOn` setting).
@@ -1148,9 +1149,9 @@ dropdown.*caseSensitive*       | <sub>Boolean</sub>           | false           
 dropdown.*maxItems*            | <sub>Number</sub>            | 10                                          | Maximum items to show in the suggestions list
 dropdown.*classname*           | <sub>String</sub>            | `""`                                        | Custom *classname* for the dropdown suggestions list
 dropdown.*fuzzySearch*         | <sub>Boolean</sub>           | true                                        | Enables filtering dropdown items values' by string *containing* and not only *beginning*
-dropdown.*sortby*              | <sub>String/Function</sub>   |                                             | If set as `startsWith` string, the suggestions list will be sorted with matched items which starts with the query shown first, and *exact* matches shown before all.<br><br> If this setting is defined as a `function`, it recieves two arguments: the array of filtered items and the query and it must return an Array.<br><br>(*default sorting order is same as the whitelist's*)
+dropdown.*sortby*              | <sub>String/Function</sub>   |                                             | If set as `startsWith` string, the suggestions list will be sorted with matched items which starts with the query shown first, and *exact* matches shown before all.<br><br> If this setting is defined as a `function`, it receives two arguments: the array of filtered items and the query and it must return an Array.<br><br>(*default sorting order is same as the whitelist's*)
 dropdown.*accentedSearch*      | <sub>Boolean</sub>           | true                                        | Enable searching for <em>accented</em> items in the whitelist without typing exact match (#491)
-dropdown.*includeSelectedTags* | <sub>Boolean</sub>           | false                                       | Should the suggestions list Include already-selected tags (after filtering)
+dropdown.*includeSelectedTags* | <sub>Boolean</sub>           | false                                       | Should the suggestions list Include already-selected tags (after filtering), which will be marked with a checkmark `✓`
 dropdown.*escapeHTML*          | <sub>Boolean</sub>           | true                                        | Escapes HTML entities in the suggestions' rendered text
 dropdown.*position*            | <sub>String</sub>            | `"all"`                                     | <ul><li>`manual` - will not render the dropdown, and you would need to do it yourself. [See demo](https://yaireo.github.io/tagify/#section-manual-suggestions)</li><li>`text` - places the dropdown next to the caret</li><li>`input` - places the dropdown next to the input (useful in rare situations)</li><li>`all` - normal, full-width design</li></ul>
 dropdown.*RTL*                 | <sub>Boolean</sub>           | false                                       | Dictates the dropdown's horizontal starting position. By default it would be aligned with the left side of the *Tagify* component.

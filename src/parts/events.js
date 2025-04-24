@@ -42,7 +42,7 @@ export default {
             action = bindUnbind ? 'addEventListener' : 'removeEventListener';
 
         // do not allow the main events to be bound more than once
-        if( this.state.mainEvents && bindUnbind )
+        if( (this.state.mainEvents && bindUnbind ) || _s.disabled || _s.readonly )
             return;
 
         // set the binding state of the main events, so they will not be bound more than once
@@ -55,10 +55,6 @@ export default {
             if( this.settings.isJQueryPlugin )
                 jQuery(this.DOM.originalInput).on('tagify.removeAllTags', this.removeAllTags.bind(this))
         }
-
-
-        // TODO: bind bubblable "focusin" and "focusout" events on the Tagify scope itself and not the input
-
 
         // setup callback references so events could be removed later
         _CBR = (this.listeners.main = this.listeners.main || {
@@ -151,7 +147,7 @@ export default {
         onFocusBlur(e){
             // when focusing within a tag which is in edit-mode
             var _s = this.settings,
-                nodeTag = isWithinNodeTag.call(this, e.target),
+                nodeTag = isWithinNodeTag.call(this, e.relatedTarget),
                 targetIsTagNode = isNodeTag.call(this, e.target),
                 isTargetXBtn = e.target.classList.contains(_s.classNames.tagX),
                 isFocused = e.type == 'focusin',
@@ -160,6 +156,10 @@ export default {
             // when focusing within a tag which is in edit-mode, only and specifically on the text-part of the tag node
             // and not the X button or any other custom element thatmight be there
             // var tagTextNode = e.target?.closest(this.settings.classNames.tagTextSelector)
+
+            if(isTargetXBtn && _s.mode != 'mix' && _s.focusInputOnRemove) {
+                this.DOM.input.focus()
+            }
 
             if( nodeTag && isFocused && (!targetIsTagNode) && !isTargetXBtn) {
                 this.toggleFocusClass(this.state.hasFocus = +new Date())
@@ -189,17 +189,19 @@ export default {
                 _s.onChangeAfterBlur && this.triggerChangeEvent()
             }
 
-            if( isTargetSelectOption || isTargetAddNewBtn || isTargetXBtn )
+            if( isTargetSelectOption || isTargetAddNewBtn || isTargetXBtn ) {
                 return;
+            }
 
-            // should only loose focus at this point if the event was not generated from within a tag, within the component
+            // should only loose focus at this point if the event was not generated from within a tag
             if( isFocused || nodeTag ) {
                 this.state.hasFocus = +new Date()
-                this.toggleFocusClass(this.state.hasFocus)
             }
             else {
                 this.state.hasFocus = false;
             }
+
+            this.toggleFocusClass(this.state.hasFocus)
 
             if( _s.mode == 'mix' ){
                 if( isFocused ){
@@ -221,14 +223,21 @@ export default {
             if( isFocused ){
                 if( !_s.focusable ) return;
 
-                var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible,
-                    condition2 = !targetIsTagNode || _s.mode === 'select'
+                // if( !targetIsTagNode && _s.mode != 'select' ){
+                //     this.DOM.input.focus()
+                // }
 
-                this.toggleFocusClass(true);
+                var dropdownCanBeShown = _s.dropdown.enabled === 0 && !this.state.dropdown.visible,
+                    tagText = this.DOM.scope.querySelector(this.settings.classNames.tagTextSelector)
+
                 this.trigger("focus", eventData)
                 //  e.target.classList.remove('placeholder');
-                if( dropdownCanBeShown && condition2 ){  // && _s.mode != "select"
+                if( dropdownCanBeShown && !targetIsTagNode ){  // && _s.mode != "select"
                     this.dropdown.show(this.value.length ? '' : undefined)
+
+                    if(_s.mode === 'select') {
+                        this.setRangeAtStartEnd(false, tagText)
+                    }
                 }
 
                 return
@@ -252,7 +261,6 @@ export default {
                 }
 
                 shouldAddTags = text && !this.state.actions.selectOption && _s.addTagOnBlur && _s.addTagOn.includes('blur');
-
                 // do not add a tag if "selectOption" action was just fired (this means a tag was just added from the dropdown)
                 shouldAddTags && this.addTags(text, true)
             }
@@ -276,11 +284,14 @@ export default {
             var _s = this.settings,
                 focusedElm = document.activeElement,
                 withinTag = isWithinNodeTag.call(this, focusedElm),
-                isBelong = withinTag && this.DOM.scope.contains(document.activeElement),
+                isBelong = withinTag && this.DOM.scope.contains(focusedElm),
+                isInputNode = focusedElm === this.DOM.input,
                 isReadyOnlyTag = isBelong && focusedElm.hasAttribute('readonly'),
+                tagText = this.DOM.scope.querySelector(this.settings.classNames.tagTextSelector),
+                isDropdownVisible = this.state.dropdown.visible,
                 nextTag;
 
-            if( !this.state.hasFocus && (!isBelong || isReadyOnlyTag) ) return;
+            if( !(e.key === 'Tab' && isDropdownVisible) && !this.state.hasFocus && (!isBelong || isReadyOnlyTag) || isInputNode ) return;
 
             nextTag = focusedElm.nextElementSibling;
 
@@ -313,6 +324,11 @@ export default {
                     // if( _s.mode == 'select' ) // issue #333
                     if( !this.state.dropdown.visible && _s.mode != 'mix' )
                         this.dropdown.show()
+                    break;
+                }
+
+                case 'Tab': {
+                    tagText?.focus();
                     break;
                 }
             }
@@ -499,10 +515,9 @@ export default {
                             }
                             break
                         }
+
                         case 'Tab' : {
-                            let selectMode = _s.mode == 'select'
-                            if(s && !selectMode) e.preventDefault()
-                            else return true;
+                            return true;
                         }
 
                         case 'Enter' :
@@ -721,8 +736,10 @@ export default {
                 this.toggleFocusClass(false)
                 this.state.hasFocus = false
 
+                let closestTagifyDropdownElem = e.target.closest(this.settings.classNames.dropdownSelector);
+
                 // do not hide the dropdown if a click was initiated within it and that dropdown belongs to this Tagify instance
-                if( e.target.closest('.tagify__dropdown') && e.target.closest('.tagify__dropdown').__tagify != this )
+                if( closestTagifyDropdownElem?.__tagify != this )
                     this.dropdown.hide()
             }
         },
@@ -733,13 +750,7 @@ export default {
                 isScope = e.target === this.DOM.scope,
                 timeDiffFocus = +new Date() - this.state.hasFocus;
 
-            if( isScope && _s.mode != 'select' ){
-                // if( !this.state.hasFocus )
-                    this.DOM.input.focus()
-                return
-            }
-
-            else if( e.target.classList.contains(_s.classNames.tagX) ){
+            if( e.target.classList.contains(_s.classNames.tagX) ){
                 this.removeTags( e.target.parentNode )
                 return
             }
@@ -782,10 +793,9 @@ export default {
             e.preventDefault()
 
             var tagsElems,
-                _s = this.settings,
-                selectModeWithoutInput =_s.mode == 'select' && _s.enforceWhitelist;
+                _s = this.settings;
 
-            if( selectModeWithoutInput || !_s.userInput ){
+            if( !_s.userInput ){
                 return false;
             }
 
@@ -906,6 +916,10 @@ export default {
             if( !this.state.hasFocus )
                 this.toggleFocusClass()
 
+            if(!this.DOM.scope.contains(document.activeElement)) {
+                this.trigger("blur", {})
+            }
+
             // one scenario is when selecting a suggestion from the dropdown, when editing, and by selecting it
             // the "onEditTagDone" is called directly, already replacing the tag, so the argument "editableElm"
             // node isn't in the DOM anynmore because it has been replaced.
@@ -1019,13 +1033,16 @@ export default {
         },
 
         onDoubleClickScope(e){
-            var tagElm = e.target.closest('.' + this.settings.classNames.tag),
-                tagData = getSetTagData(tagElm),
+            var tagElm = e.target.closest('.' + this.settings.classNames.tag);
+
+            if( !tagElm ) return
+
+            var tagData = getSetTagData(tagElm),
                 _s = this.settings,
                 isEditingTag,
                 isReadyOnlyTag;
 
-            if( !tagElm || tagData.editable === false ) return
+            if( tagData?.editable === false ) return
 
             isEditingTag = tagElm.classList.contains(this.settings.classNames.tagEditing)
             isReadyOnlyTag = tagElm.hasAttribute('readonly')

@@ -135,9 +135,6 @@ Tagify.prototype = {
 
         this.generateClassSelectors(_s.classNames)
 
-        if ( _s.dropdown.includeSelectedTags === undefined )
-            _s.dropdown.includeSelectedTags = _s.duplicates;
-
         if( this.isIE )
             _s.autoComplete = false; // IE goes crazy if this isn't false
 
@@ -179,18 +176,30 @@ Tagify.prototype = {
             catch(e){}
         }
 
-        if( _s.disabled )
+        if( _s.disabled || _s.readonly )
             _s.userInput = false;
 
         this.TEXTS = {...TEXTS, ...(_s.texts || {})}
+
+        // it makes sense to enable "includeSelectedTags" in "select-mode"
+        if( _s.mode == 'select' ){
+            _s.dropdown.includeSelectedTags = true
+        }
 
         // make sure the dropdown will be shown on "focus" and not only after typing something (in "select" mode)
         if( (_s.mode == 'select' && !settings.dropdown?.enabled) || !_s.userInput ){
             _s.dropdown.enabled = 0
         }
 
+        // additional override
+        if( _s.disabled ) {
+            _s.dropdown.enabled = false;
+        }
+
         _s.dropdown.appendTarget = settings.dropdown?.appendTarget || document.body;
 
+        if ( _s.dropdown.includeSelectedTags === undefined )
+            _s.dropdown.includeSelectedTags = _s.duplicates;
 
         // get & merge persisted data with current data
         let persistedWhitelist = this.getPersistedData('whitelist');
@@ -601,14 +610,13 @@ Tagify.prototype = {
         tagElm = tagElm || this.state.editing.scope
         tagData = tagData || {}
 
-        var eventData = {
-            tag         : tagElm,
-            index       : this.getNodeIndex(tagElm),
-            previousData: getSetTagData(tagElm),
-            data        : tagData
-        }
-
-        var _s = this.settings
+        var _s = this.settings,
+            eventData = {
+                tag         : tagElm,
+                index       : this.getNodeIndex(tagElm),
+                previousData: getSetTagData(tagElm),
+                data        : tagData
+            }
 
         this.trigger("edit:beforeUpdate", eventData, {cloneData:false})
 
@@ -633,22 +641,24 @@ Tagify.prototype = {
                 return !!tagData.value
         }
 
-        if( tagElm && veryfyTagTextProp() ){
-            tagElm = this.replaceTag(tagElm, tagData)
-            this.editTagToggleValidity(tagElm, tagData)
+        if( tagElm && tagElm.parentNode ){
+            if( veryfyTagTextProp() ){
+                tagElm = this.replaceTag(tagElm, tagData)
+                this.editTagToggleValidity(tagElm, tagData)
 
-            if( _s.a11y.focusableTags )
-                tagElm.focus()
-            else if( _s.mode != 'select' )
-                // place caret after edited tag
-                placeCaretAfterNode(tagElm)
+                if( _s.a11y.focusableTags )
+                    tagElm.focus()
+                else if( _s.mode != 'select' )
+                    // place caret after edited tag
+                    placeCaretAfterNode(tagElm)
+            }
+
+            else
+                this.removeTags(tagElm)
         }
 
-        else if(tagElm)
-            this.removeTags(tagElm)
-
         this.trigger("edit:updated", eventData)
-        this.dropdown.hide()
+        _s.dropdown.closeOnSelect && this.dropdown.hide()
 
         // check if any of the current tags which might have been marked as "duplicate" should be now un-marked
         if( this.settings.keepInvalidTags )
@@ -692,6 +702,7 @@ Tagify.prototype = {
         })
 
         this.update()
+        this.dropdown.refilter()
     },
 
     /**
@@ -1027,8 +1038,10 @@ Tagify.prototype = {
     },
 
     setContentEditable(state){
-        this.DOM.input.contentEditable = state
-        this.DOM.input.tabIndex = !!state ? 0 : -1;
+        this.DOM.scope.querySelectorAll("[data-can-editable]").forEach(elm => {
+            elm.contentEditable = state
+            elm.tabIndex = !!state ? 0 : -1;
+        })
     },
 
     setDisabled( isDisabled ){
@@ -1426,7 +1439,7 @@ Tagify.prototype = {
             this.setRangeAtStartEnd(false, this.DOM.input)
         }
 
-        // refilter hydrate the list
+        // hydrate the suggestions list
         this.dropdown.refilter()
         return tagElems
     },

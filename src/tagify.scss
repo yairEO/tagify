@@ -30,7 +30,7 @@
     $tag-remove-btn-bg--hover: darken($tag-remove, 8) !default;
     $tag-invalid-color       : $tag-remove !default;
     $tag-invalid-bg          : rgba($tag-remove, .5) !default;
-    $tag-inset-shadow-size   : 1.1em !default;
+    $tag-inset-shadow-size   : 1.2em !default;
     $tag-hide-transition     : .3s !default;
     $placeholder-color       : rgba($tag-text-color, .4) !default;
     $placeholder-color-focus : rgba($tag-text-color, .25) !default;
@@ -132,6 +132,7 @@
 
     display       : inline-flex;
     align-items   : flex-start;
+    align-content : baseline;
     flex-wrap     : wrap;
     border        : 1px solid var(--tags-border-color);
     padding       : 0;
@@ -154,6 +155,14 @@
         filter: saturate(0);
         opacity: .5;
         pointer-events: none;
+
+        &#{$self}--empty{
+            > #{$self}__input{
+                &::before{
+                    position: relative;
+                }
+            }
+        }
     }
 
     // Global "read-only" mode (no input button)
@@ -162,7 +171,7 @@
             pointer-events: none;
         }
 
-        &:not(#{$self}--mix):not(#{$self}--select){
+        &:not(#{$self}--mix):not(#{$self}--select):not(#{$self}--empty){
             cursor: default;
             > #{$self}__input{
                 visibility: hidden;
@@ -179,7 +188,6 @@
         }
 
         #{ $self }__tag__removeBtn{ display:none; }
-
     }
 
     &--loading{
@@ -357,11 +365,8 @@
 
             > #{$self}__tag__removeBtn{
                 pointer-events: none;
-
-                &::after{
-                    opacity: 0;
-                    transform: translateX(100%) translateX(5px);
-                }
+                opacity: 0;
+                transform: translateX(100%) translateX(5px);
             }
 
             &.tagify--invalid{
@@ -579,6 +584,12 @@
             &::after{
                 transform: translate(-150%, -50%) rotate(270deg) scaleY(1.2);
             }
+
+            #{$self}__tag__removeBtn{
+                pointer-events: none;
+                opacity: 0;
+                transform: translateX(100%) translateX(5px);
+            }
         }
 
         #{$self}__tag{
@@ -626,7 +637,7 @@
     }
 
     // Since the dropdown is an external element, which is positioned directly on the body element
-    // it cannot ingerit the CSS variables applied on the ".Tagify" element
+    // it cannot inherit the CSS variables applied on the ".Tagify" element
     &__dropdown{
         $dropdown: &;
         $trans: .3s;
@@ -663,6 +674,7 @@
         }
 
         &__wrapper{
+            scroll-behavior: auto; // keep up/down arrow pressed to see the effect without this
             max-height: var(--tagify-dd-max-height);
             overflow: hidden;
             overflow-x: hidden;

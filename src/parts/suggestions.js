@@ -46,6 +46,7 @@ export default {
 
                 // get the "active" element, and if there was none (yet) active, use first child
                 var _s = this.settings,
+                    includeSelectedTags = _s.dropdown.includeSelectedTags,
                     selectedElm = this.DOM.dropdown.querySelector(_s.classNames.dropdownItemActiveSelector),
                     selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm),
                     isMixMode = _s.mode == 'mix',
@@ -75,6 +76,34 @@ export default {
                                 // selectedElm.scrollIntoView({inline: 'nearest', behavior: 'smooth'})
                                 break;
                             }
+                            case 'PageUp':
+                            case 'PageDown': {
+                                e.preventDefault()
+                                const dropdownItems = this.dropdown.getAllSuggestionsRefs()
+                                const itemsPerPage = Math.floor(this.DOM.dropdown.content.clientHeight / dropdownItems[0]?.offsetHeight) || 1
+                                const isPageUp = e.key === 'PageUp'
+
+                                if (selectedElm) {
+                                    const currentIndex = dropdownItems.indexOf(selectedElm)
+                                    const targetIndex = isPageUp
+                                        ? Math.max(0, currentIndex - itemsPerPage)
+                                        : Math.min(dropdownItems.length - 1, currentIndex + itemsPerPage)
+                                    selectedElm = dropdownItems[targetIndex]
+                                } else {
+                                    selectedElm = dropdownItems[0]
+                                }
+
+                                this.dropdown.highlightOption(selectedElm, true)
+                                break;
+                            }
+                            case 'Home':
+                            case 'End': {
+                                e.preventDefault()
+                                const dropdownItems = this.dropdown.getAllSuggestionsRefs()
+                                selectedElm = dropdownItems[e.key === 'Home' ? 0 : dropdownItems.length - 1]
+                                this.dropdown.highlightOption(selectedElm, true)
+                                break;
+                            }
                             case 'Escape' :
                             case 'Esc': // IE11
                                 this.dropdown.hide();
@@ -102,13 +131,25 @@ export default {
                             case 'Enter' : {
                                 e.preventDefault()
 
+                                // temporary set the "actions" state to indicate to the main "blur" event it shouldn't execute any if its logic.
+                                // a `100ms` is a good-enough timeout after some testing
+                                this.state.actions.selectOption = true;
+                                setTimeout(()=> this.state.actions.selectOption = false, 100)
+
                                 _s.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                                     .then(() => {
                                         if( selectedElm ){
-                                            this.dropdown.selectOption(selectedElm)
-                                            // highlight next option
-                                            selectedElm = this.dropdown.getNextOrPrevOption(selectedElm, !actionUp)
-                                            this.dropdown.highlightOption(selectedElm)
+                                            var nextOrPrevOption = includeSelectedTags ? selectedElm : this.dropdown.getNextOrPrevOption(selectedElm, !actionUp);
+
+                                            this.dropdown.selectOption(selectedElm, e, () => {
+                                                // highlight next option
+                                                if(nextOrPrevOption) {
+                                                    var nextOrPrevOptionValue = nextOrPrevOption.getAttribute('value')
+                                                    nextOrPrevOption = this.dropdown.getSuggestionNodeByValue(nextOrPrevOptionValue)
+                                                    this.dropdown.highlightOption(nextOrPrevOption)
+                                                }
+                                            })
+
                                             return
                                         }
                                         else
@@ -154,9 +195,10 @@ export default {
                 var selectedElm = e.target.closest(this.settings.classNames.dropdownItemSelector),
                     selectedElmData = this.dropdown.getSuggestionDataByNode(selectedElm)
 
-                // temporary set the "actions" state to indicate to the main "blur" event it shouldn't run
+                // temporary set the "actions" state to indicate to the main "blur" event it shouldn't execute any if its logic.
+                // a `100ms` is a good-enough timeout after some testing
                 this.state.actions.selectOption = true;
-                setTimeout(()=> this.state.actions.selectOption = false, 50)
+                setTimeout(()=> this.state.actions.selectOption = false, 100)
 
                 this.settings.hooks.suggestionClick(e, {tagify:this, tagData:selectedElmData, suggestionElm:selectedElm})
                     .then(() => {
@@ -209,6 +251,11 @@ export default {
         }
     },
 
+    getSuggestionNodeByValue( value ){
+        var dropdownItems = this.dropdown.getAllSuggestionsRefs()
+        return dropdownItems.find(item => item.getAttribute('value') === value);
+    },
+
     getNextOrPrevOption(selected, next = true) {
         var dropdownItems = this.dropdown.getAllSuggestionsRefs(),
             selectedIdx = dropdownItems.findIndex(item => item === selected);
@@ -219,7 +266,7 @@ export default {
     /**
      * mark the currently active suggestion option
      * @param {Object}  elm            option DOM node
-     * @param {Boolean} adjustScroll   when navigation with keyboard arrows (up/down), aut-scroll to always show the highlighted element
+     * @param {Boolean} adjustScroll   when navigation with keyboard arrows (up/down), auto-scroll to always show the highlighted element
      */
     highlightOption( elm, adjustScroll ){
         var className = this.settings.classNames.dropdownItemActive,
@@ -264,8 +311,9 @@ export default {
      * @param {Object} elm  DOM node to select
      * @param {Object} event The original Click event, if available (since keyboard ENTER key also triggers this method)
      */
-    selectOption( elm, event ){
+    selectOption( elm, event, onSelect ){
         var _s = this.settings,
+            includeSelectedTags = _s.dropdown.includeSelectedTags,
             {clearOnSelect, closeOnSelect} = _s.dropdown;
 
         if( !elm ) {
@@ -294,7 +342,7 @@ export default {
 
         if( this.state.editing ) {
             let normalizedTagData = this.normalizeTags([tagData])[0]
-            tagData =  _s.transformTag.call(this, normalizedTagData) || normalizedTagData
+            tagData = _s.transformTag.call(this, normalizedTagData) || normalizedTagData
 
             // normalizing value, because "tagData" might be a string, and therefore will not be able to extend the object
             this.onEditTagDone(null, extend({__isValid: true}, tagData))
@@ -315,16 +363,25 @@ export default {
         closeOnSelect && setTimeout(this.dropdown.hide.bind(this))
 
         // execute these tasks once a suggestion has been selected
-        elm.addEventListener('transitionend', () => {
-            this.dropdown.fillHeaderFooter()
-            setTimeout(() => {
-                elm.remove()
-                this.dropdown.refilter()
-            }, 100)
-        }, {once: true})
+        if(includeSelectedTags) {
+            onSelect && onSelect()
+        }
 
-        // hide selected suggestion
-        elm.classList.add(this.settings.classNames.dropdownItemHidden)
+        // if the selected suggestion is removed after being selected, more things things needs to be done:
+        else {
+            elm.addEventListener('transitionend', () => {
+                this.dropdown.fillHeaderFooter()
+
+                setTimeout(() => {
+                    elm.remove()
+                    this.dropdown.refilter()
+                    onSelect && onSelect()
+                }, 100)
+            }, {once: true})
+
+            // hide selected suggestion
+            elm.classList.add(this.settings.classNames.dropdownItemHidden)
+        }
     },
 
     // adds all the suggested items, including the ones which are not currently rendered,
@@ -350,7 +407,8 @@ export default {
 
     /**
      * returns an HTML string of the suggestions' list items
-     * @param {String} value string to filter the whitelist by
+     * @param {String} value string t
+     * o filter the whitelist by
      * @param {Object} options "exact" - for exact complete match
      * @return {Array} list of filtered whitelist items according to the settings provided and current value
      */
@@ -362,7 +420,8 @@ export default {
             exactMatchesList = [],
             whitelist = _s.whitelist,
             suggestionsCount = _sd.maxItems >= 0 ? _sd.maxItems : Infinity,
-            includeSelectedTags = _sd.includeSelectedTags || _s.mode == 'select',
+            includeSelectedTags = _sd.includeSelectedTags,
+            hasCustomSort = typeof _sd.sortby == 'function',
             searchKeys = _sd.searchKeys,
             whitelistItem,
             valueIsInWhitelist,
@@ -380,8 +439,13 @@ export default {
                 ? whitelist
                 : whitelist.filter(item => !this.isTagDuplicate( isObject(item) ? item.value : item )) // don't include tags which have already been added.
 
-            this.state.dropdown.suggestions = list;
-            return list.slice(0, suggestionsCount); // respect "maxItems" dropdown setting
+            var filteredList = hasCustomSort
+                ? _sd.sortby(list, niddle)
+                : list.slice(0, suggestionsCount); // respect "maxItems" dropdown setting
+
+            this.state.dropdown.suggestions = filteredList;
+
+            return filteredList;
         }
 
         niddle = _sd.caseSensitive
@@ -450,9 +514,12 @@ export default {
         this.state.dropdown.suggestions = exactMatchesList.concat(list);
 
         // custom sorting function
-        return typeof _sd.sortby == 'function'
+        var filteredList = hasCustomSort
             ? _sd.sortby(exactMatchesList.concat(list), niddle)
             : exactMatchesList.concat(list).slice(0, suggestionsCount)
+
+        this.state.dropdown.suggestions = filteredList;
+        return filteredList
     },
 
     /**

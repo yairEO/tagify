@@ -22,7 +22,7 @@ export default {
         var _s = this.settings,
             placeholder = _s.placeholder || ZERO_WIDTH_UNICODE_CHAR;
 
-        return `<span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} tabIndex="0" data-placeholder="${placeholder}" aria-placeholder="${_s.placeholder || ''}"
+        return `<span ${!_s.readonly && _s.userInput ? 'contenteditable' : ''} data-can-editable tabIndex="0" data-placeholder="${placeholder}" aria-placeholder="${_s.placeholder || ''}"
                     class="${_s.classNames.input}"
                     role="textbox"
                     autocapitalize="false"
