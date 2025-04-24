@@ -1141,57 +1141,80 @@ Tagify.prototype = {
         return tagsItems;
     },
 
+
+    /**
+      * Map the initial value of a textarea (or input) element and generate mixed text w/ tags to a object
+      * @param {String} s
+      * @return {Array} [Array of Objects] {type: "tag", value: {Object}, type: "text", value: {String}
+      */
+    mapMixTagsString(inputString) {
+        const startRegex = this.settings.mixTagsInterpolator[0].replace(/./g, '\\$&')
+        const endRegex = this.settings.mixTagsInterpolator[1].replace(/./g, '\\$&')
+        const regex = new RegExp(startRegex + '([^\\]]+)' + endRegex, 'g');
+        const matches = [...inputString.matchAll(regex)];
+        const result = [];
+        let lastIndex = 0;
+
+        for (const match of matches) {
+            const tagIndex = match.index;
+            const tagText = match[1];
+
+            if (tagIndex > lastIndex) {
+                result.push({ type: "text", value: inputString.substring(lastIndex, tagIndex) });
+            }
+
+            try {
+                result.push({ type: "tag", value: JSON.parse(tagText) });
+            } catch(error) {
+                result.push({ type: "tag", value: {value: tagText} });
+            }
+
+            lastIndex = tagIndex + match[0].length;
+        }
+
+        if (lastIndex < inputString.length) {
+            result.push({ type: "text", value: inputString.substring(lastIndex) });
+        }
+
+        return result;
+    },
+
     /**
      * Parse the initial value of a textarea (or input) element and generate mixed text w/ tags
      * https://stackoverflow.com/a/57598892/104380
      * @param {String} s
      */
     parseMixTags( s ){
-        var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist, maxTags, tagTextProp} = this.settings,
-            tagsDataSet = [];
+        const {duplicates, transformTag, enforceWhitelist, maxTags } = this.settings
+        const tagsDataSet = [];
+        const mappedObject = this.mapMixTagsString(s)
 
-        s = s.split(mixTagsInterpolator[0]).map((s1, i) => {
-            var s2 = s1.split(mixTagsInterpolator[1]),
-                preInterpolated = s2[0],
-                maxTagsReached = tagsDataSet.length == maxTags,
-                textProp,
-                tagData,
-                tagElm;
+        const mapOutput = mappedObject.map((item) => {
+            this.value.push(item.value);
 
-            try{
-                // skip numbers and go straight to the "catch" statement
-                if( preInterpolated == +preInterpolated )
-                    throw Error
-                tagData = JSON.parse(preInterpolated)
-            } catch(err){
-                tagData = this.normalizeTags(preInterpolated)[0] || {value:preInterpolated}
+            switch (item.type) {
+                case 'text':
+                    return escapeHTML(item.value)
+
+                case 'tag':
+                    if (tagsDataSet.length >= maxTags) return
+                    if (enforceWhitelist && !this.isTagWhitelisted(item.value)) return
+                    if (!duplicates && this.isTagDuplicate(item.value)) return
+
+                    transformTag.call(this, item.value)
+                    tagsDataSet.push(item.value);
+                    this.value.push(item.value);
+
+                    const tagElm = this.createTagElem(item.value);
+                    tagElm.classList.add(this.settings.classNames.tagNoAnimation);
+                    return tagElm.outerHTML;
+
+                default:
+                    break;
             }
+        }).join('');
 
-            transformTag.call(this, tagData)
-
-            if( !maxTagsReached   &&
-                s2.length > 1   &&
-                (!enforceWhitelist || this.isTagWhitelisted(tagData.value))   &&
-                !(!duplicates && this.isTagDuplicate(tagData.value)) ){
-
-                // in case "tagTextProp" setting is set to other than "value" and this tag does not have this prop
-                textProp = tagData[tagTextProp] ? tagTextProp : 'value'
-                tagData[textProp] = this.trim(tagData[textProp])
-
-                tagElm = this.createTagElem(tagData)
-                tagsDataSet.push( tagData )
-                tagElm.classList.add(this.settings.classNames.tagNoAnimation)
-
-                s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
-                this.value.push(tagData)
-            }
-            else if(s1)
-                return i ? mixTagsInterpolator[0] + s1 : s1
-
-            return s2.join('')
-        }).join('')
-
-        this.DOM.input.innerHTML = s
+        this.DOM.input.innerHTML = mapOutput
         this.DOM.input.appendChild(document.createTextNode(''))
         this.DOM.input.normalize()
 
@@ -1201,7 +1224,7 @@ Tagify.prototype = {
         this.update({withoutChangeEvent:true})
 
         fixCaretBetweenTags(tagNodes, this.state.hasFocus)
-        return s
+        return mapOutput
     },
 
     /**
