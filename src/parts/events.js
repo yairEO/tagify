@@ -1,4 +1,4 @@
-import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, isWithinNodeTag, injectAtCaret, getSetTagData, fixCaretBetweenTags, placeCaretAfterNode } from './helpers'
+import { decode, extend, getfirstTextNode, isChromeAndroidBrowser, isNodeTag, isWithinNodeTag, injectAtCaret, getSetTagData, fixCaretBetweenTags, placeCaretAfterNode, fixCaretBeforeTag } from './helpers'
 import {ZERO_WIDTH_CHAR} from './constants'
 
 export function triggerChangeEvent(){
@@ -343,6 +343,10 @@ export default {
 
             if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length && e.key != 'Tab' ){
                 e.preventDefault()
+            }
+
+            if (_s.mode === 'mix' && e.key === 'Enter') {
+                fixCaretBeforeTag.call(this);
             }
 
             var s = this.trim(e.target.textContent);
