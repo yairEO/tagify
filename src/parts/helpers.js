@@ -327,3 +327,32 @@ export function fixCaretBetweenTags(tags, TagifyHasFocuse) {
     })
 }
 
+/**
+ * Fixes caret positioning before tag elements by inserting a zero-width character.
+ * Prevents the cursor from becoming invisible when positioned directly before tag elements.
+ */
+export function fixCaretBeforeTag() {
+  var sel = window.getSelection();
+  var range = sel.getRangeAt(0);
+
+  if (!sel.rangeCount) return;
+
+  var { endContainer, endOffset } = range;
+  var { nodeType, length, parentNode, nextSibling } = endContainer;
+
+  if (
+    nodeType === 3 &&
+    endOffset === length &&
+    parentNode &&
+    parentNode.classList.contains(this.settings.classNames.input) &&
+    isNodeBelongsToThisTagifyInstance.call(this, nextSibling)
+  ) {
+    var textNode = document.createTextNode(ZERO_WIDTH_CHAR);
+
+    range.setEnd(parentNode.insertBefore(textNode, nextSibling), 0);
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+}
+
