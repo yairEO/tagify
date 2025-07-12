@@ -1758,8 +1758,10 @@ Tagify.prototype = {
 
         // technically for now only "withoutChangeEvent" exists in the opts.
         // if more properties will be added later, only pass what's needed to "update"
-        this.update(opts)
-        this.trigger('remove')
+        this.update(opts, () => {
+            this.trigger('remove', {})
+        })
+
     },
 
     postUpdate(){
@@ -1794,10 +1796,11 @@ Tagify.prototype = {
     },
 
     /**
-     * update the origianl (hidden) input field's value
+     * update the origianl (hidden) input field's value.
+     * uses a debounced timeout to prevent multiple rapid updates
      * see - https://stackoverflow.com/q/50957841/104380
      */
-    update( args ){
+    update( args, cb ){
         clearTimeout(this.debouncedUpdateTimeout)
         this.debouncedUpdateTimeout = setTimeout(reallyUpdate.bind(this), UPDATE_DELAY)
         this.events.bindOriginaInputListener.call(this, UPDATE_DELAY)
@@ -1811,6 +1814,8 @@ Tagify.prototype = {
                 this.triggerChangeEvent()
 
             this.postUpdate()
+
+            cb?.()
         }
     },
 
