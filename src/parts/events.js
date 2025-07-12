@@ -45,6 +45,7 @@ export default {
         if( (this.state.mainEvents && bindUnbind ) || _s.disabled || _s.readonly )
             return;
 
+
         // set the binding state of the main events, so they will not be bound more than once
         this.state.mainEvents = bindUnbind;
 
@@ -83,6 +84,10 @@ export default {
         }
 
         this.events.bindOriginaInputListener.call(this)
+
+        if( bindUnbind ) {
+            this.listeners.main = undefined
+        }
     },
 
     bindOriginaInputListener(delay) {
@@ -134,6 +139,10 @@ export default {
 
         for( e of this.listeners.global )
             e.target[action](e.type, e.cb, !!e.useCapture);
+
+        if( unbind ) {
+            this.listeners.global = undefined
+        }
     },
 
     unbindGlobal() {

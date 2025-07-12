@@ -1036,6 +1036,13 @@ Tagify.prototype = {
 
         this.settings.userInput = true;
         this.setContentEditable(!toggle)
+
+        if( !toggle ) {
+            // first unbind all events
+            this.events.binding.call(this, true)
+            // re-bind all events
+            this.events.binding.call(this)
+        }
     },
 
     setContentEditable(state){
