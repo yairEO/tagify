@@ -479,8 +479,15 @@ export default {
                                 break;
                             }
                             // currently commented to allow new lines in mixed-mode
-                            // case 'Enter' :
-                            //     // e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+                            case 'Enter' : {
+                                e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
+
+                                // https://stackoverflow.com/a/72279112/104380
+                                let selection = window.getSelection();
+                                let range = selection.getRangeAt(0);
+                                range.insertNode(document.createElement('br'));
+                                selection.collapseToEnd();
+                            }
                         }
 
                         return true
