@@ -6,6 +6,7 @@ import TEXTS from './parts/texts'
 import templates from './parts/templates'
 import EventDispatcher from './parts/EventDispatcher'
 import events, { triggerChangeEvent } from './parts/events'
+import { UPDATE_DELAY } from './parts/constants'
 
 /**
  * @constructor
@@ -1758,6 +1759,7 @@ Tagify.prototype = {
         // technically for now only "withoutChangeEvent" exists in the opts.
         // if more properties will be added later, only pass what's needed to "update"
         this.update(opts)
+        this.trigger('remove')
     },
 
     postUpdate(){
@@ -1796,7 +1798,6 @@ Tagify.prototype = {
      * see - https://stackoverflow.com/q/50957841/104380
      */
     update( args ){
-        const UPDATE_DELAY = 100
         clearTimeout(this.debouncedUpdateTimeout)
         this.debouncedUpdateTimeout = setTimeout(reallyUpdate.bind(this), UPDATE_DELAY)
         this.events.bindOriginaInputListener.call(this, UPDATE_DELAY)
