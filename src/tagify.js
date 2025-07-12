@@ -1670,7 +1670,6 @@ Tagify.prototype = {
 
                     if( !silent ){
                         // this.removeValueById(tagData.__uid)
-                        this.trigger('remove', { tag:tag.node, index:tag.idx, data:tag.data })
                         this.dropdown.refilter()
                         this.dropdown.position()
                         this.DOM.input.normalize() // best-practice when in mix-mode (safe to do always anyways)
@@ -1682,9 +1681,15 @@ Tagify.prototype = {
                         // below code is unfinished. it should iterate all currently invalid edited tags, which their edits have not
                         // changed the value yet, and should re-trigger the check, but since nothing has changed, it does not work...
                         // this.getTagElms(_s.classNames.tagEditing).forEach( this.events.callbacks.onEditTagBlur.bind )
+
+                        setTimeout(() => {
+                            this.trigger('remove', { tag:tag.node, index:tag.idx, data:tag.data })
+                        }, UPDATE_DELAY)
                     }
                     else if( _s.keepInvalidTags )
-                        this.trigger('remove', { tag:tag.node, index:tag.idx })
+                        setTimeout(() => {
+                            this.trigger('remove', { tag:tag.node, index:tag.idx })
+                        }, UPDATE_DELAY)
                 }
 
                 function animation( tag ){
