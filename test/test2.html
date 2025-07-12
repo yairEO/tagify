@@ -48,12 +48,20 @@
                 text-indent: -20px;
                 border: 0;
             }
+
+            .tagify {
+                --tag-hide-transition: 0s;
+            }
         </style>
     </head>
 
     <body>
     <section>
-        <input classname='tags-look' value='1,2,3'>
+        <form>
+            <input name="tags" classname='tags-look' value='1,2,3' readonly>
+            <br/><br/>
+            <button type="submit">Submit</button>
+        </form>
     </section>
 
 <script>
@@ -72,6 +80,22 @@
       }
     })
 
+    xxx.setReadonly(false);
+
+
+    document.forms[0].addEventListener('submit', function(e) {
+        e.preventDefault()
+        // FormData allows you to easily get all form values as key-value pairs.
+        // "get" retrieves the value of a specific field by its "name" attribute.
+        // Here, we print all form values as an object:
+        const formData = new FormData(this);
+        const entries = Object.fromEntries(formData.entries());
+        console.log(entries);
+    })
+
+    xxx.on('remove', function(e) {
+        console.log(e.detail.data.value, xxx.value.length );
+    });
 </script>
 </body>
 </html>
