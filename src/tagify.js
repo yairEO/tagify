@@ -1682,14 +1682,10 @@ Tagify.prototype = {
                         // changed the value yet, and should re-trigger the check, but since nothing has changed, it does not work...
                         // this.getTagElms(_s.classNames.tagEditing).forEach( this.events.callbacks.onEditTagBlur.bind )
 
-                        setTimeout(() => {
                             this.trigger('remove', { tag:tag.node, index:tag.idx, data:tag.data })
-                        }, UPDATE_DELAY)
                     }
                     else if( _s.keepInvalidTags )
-                        setTimeout(() => {
                             this.trigger('remove', { tag:tag.node, index:tag.idx })
-                        }, UPDATE_DELAY)
                 }
 
                 function animation( tag ){
@@ -1701,11 +1697,6 @@ Tagify.prototype = {
                     setTimeout(removeNode.bind(this), tranDuration, tag)
                 }
 
-                if( tranDuration && tranDuration > 10 && tagsToRemove.length == 1 )
-                    animation.call(this, tagsToRemove[0])
-                else
-                    tagsToRemove.forEach(removeNode.bind(this))
-
                 // update state regardless of animation
                 if( !silent ){
                     this.removeTagsFromValue(tagsToRemove.map(tag => tag.node))
@@ -1714,6 +1705,13 @@ Tagify.prototype = {
                     if( _s.mode == 'select' && _s.userInput )
                         this.setContentEditable(true);
                 }
+
+                // "removeNode" should be called AFTER "removeTagsFromValue" has been called,
+                // so the "remove" event is triggered after the tag is removed from the DOM
+                if( tranDuration && tranDuration > 10 && tagsToRemove.length == 1 )
+                    animation.call(this, tagsToRemove[0])
+                else
+                    tagsToRemove.forEach(removeNode.bind(this))
             })
             .catch(reason => {})
     },
@@ -1796,7 +1794,6 @@ Tagify.prototype = {
         if( !this.settings.mixMode.integrated ){
             inputElm.value = v
             inputElm.tagifyValue = inputElm.value // must set to "inputElm.value" and not again to "inputValue" because for some reason the browser changes the string afterwards a bit.
-            this.setPersistedData(v, 'value')
         }
     },
 
@@ -1810,10 +1807,11 @@ Tagify.prototype = {
         this.debouncedUpdateTimeout = setTimeout(reallyUpdate.bind(this), UPDATE_DELAY)
         this.events.bindOriginaInputListener.call(this, UPDATE_DELAY)
 
-        function reallyUpdate() {
-            var inputValue = this.getInputValue();
+        var inputValue = this.getInputValue();
+        this.setOriginalInputValue(inputValue)
 
-            this.setOriginalInputValue(inputValue)
+        function reallyUpdate() {
+            this.setPersistedData(inputValue, 'value')
 
             if( (!this.settings.onChangeAfterBlur || !(args||{}).withoutChangeEvent) && !this.state.blockChangeEvent )
                 this.triggerChangeEvent()
