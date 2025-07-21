@@ -316,7 +316,7 @@ Tagify.prototype = {
         this.dropdown.hide(true)
         this.removeAllCustomListeners()
         clearTimeout(this.dropdownHide__bindEventsTimeout)
-        clearInterval(this.listeners.main.originalInputValueObserverInterval)
+        clearInterval(this.listeners?.main?.originalInputValueObserverInterval)
     },
 
     /**
