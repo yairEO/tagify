@@ -722,6 +722,12 @@ Tagify.prototype = {
             return this;
         }
 
+        const isValidInjectionPoint = this.DOM.scope.contains(range?.startContainer)
+
+        if (!isValidInjectionPoint) {
+            return this;
+        }
+
         let node = injectAtCaret(injectedNode, range)
         this.setRangeAtStartEnd(false, node)
 
