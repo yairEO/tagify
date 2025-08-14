@@ -300,9 +300,10 @@ export function placeCaretAfterNode( node ){
 
     var nextSibling = node,
         sel = window.getSelection(),
-        range = sel.getRangeAt(0);
+        range;
 
     if (sel.rangeCount) {
+        range = sel.getRangeAt(0);
         range.setStartAfter(nextSibling);
         range.collapse(true)
         // range.setEndBefore(nextSibling || node);
