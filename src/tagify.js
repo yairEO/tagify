@@ -1470,21 +1470,23 @@ Tagify.prototype = {
             return this.prefixedTextToTag(tagsData[0])
         }
 
-        var frag = document.createDocumentFragment()
+        var frag = document.createDocumentFragment();
+        var addedTags = [];
 
         tagsData.forEach(tagData => {
             const newTagNode = this.prepareNewTagNode(tagData)
             frag.appendChild(newTagNode.tagElm)
             this.insertAfterTag(newTagNode.tagElm)
             this.postProcessNewTagNode(newTagNode.tagElm, newTagNode.tagData)
+            addedTags.push({tagElm: newTagNode.tagElm, tagData: newTagNode.tagData})
         })
 
-        this.appendMixTags(frag)
+        this.appendMixTags(frag, addedTags)
 
         return frag.children
     },
 
-    appendMixTags( node ) {
+    appendMixTags( node, addedTags ) {
         var selection = !!this.state.selection;
 
         // if "selection" exists, assumes intention of inecting the new tag at the last
@@ -1502,6 +1504,8 @@ Tagify.prototype = {
 
             this.updateValueByDOMTags() // updates internal "this.value"
             this.update() // updates original input/textarea
+
+            this.trigger('add', {tags: addedTags || node.children})
         }
     },
 
@@ -1541,6 +1545,8 @@ Tagify.prototype = {
         this.state.tag = null
 
         this.postProcessNewTagNode(tagElm, newTag.tagData)
+
+        this.trigger('add', {tag: newTag, data:tagData})
 
         return tagElm
     },
