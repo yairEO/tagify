@@ -534,10 +534,13 @@ export default {
                         }
 
                         case 'Tab' : {
-                            return true;
+                            const shouldAddTag = _s.addTagOn.includes(e.key.toLowerCase());
+                            if(!shouldAddTag) {
+                                break;
+                            }
                         }
 
-                        case 'Enter' :
+                        case 'Enter' : {
                             // manual suggestion boxes are assumed to always be visible
                             if( this.state.dropdown.visible && !isManualDropdown ) return
                             e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
@@ -553,6 +556,9 @@ export default {
                                     this.state.autoCompleteData = null
                                 }
                             })
+
+                            console.log(111111)
+                        }
                     }
                 })
                 .catch(err => err)
