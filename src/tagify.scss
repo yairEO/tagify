@@ -433,10 +433,11 @@
         $placeholder-width : 110px;
         flex-grow: 1;
         display: inline-block;
-        min-width: $placeholder-width;
         margin: $tagMargin;
         padding: var(--tag-pad);
         line-height: normal;
+        min-width: $placeholder-width;
+        min-height: 1.5lh;
         position: relative;
         white-space: pre-wrap; // #160 Line break (\n) as delimeter
         color: var(--input-color);
