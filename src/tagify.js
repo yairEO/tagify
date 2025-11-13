@@ -714,22 +714,38 @@ Tagify.prototype = {
     injectAtCaret( injectedNode, range ){
         range = range || this.state.selection?.range
 
-        if(typeof injectedNode === 'string')
+        if( typeof injectedNode === 'string' )
             injectedNode = document.createTextNode(injectedNode)
 
-        if( !range && injectedNode ) {
+        if( !injectedNode )
+            return this
+
+        const DOCUMENT_FRAGMENT_NODE = 11
+        const insertedNodes = injectedNode.nodeType === DOCUMENT_FRAGMENT_NODE
+            ? Array.prototype.slice.call(injectedNode.childNodes)
+            : [injectedNode]
+
+        if( !insertedNodes.length )
+            return this
+
+        if( !range ){
             this.appendMixTags(injectedNode)
-            return this;
+            return this
         }
 
         const isValidInjectionPoint = this.DOM.scope.contains(range?.startContainer)
 
-        if (!isValidInjectionPoint) {
-            return this;
-        }
+        if( !isValidInjectionPoint )
+            return this
 
-        let node = injectAtCaret(injectedNode, range)
-        this.setRangeAtStartEnd(false, node)
+        injectAtCaret(injectedNode, range)
+
+        const caretTarget = insertedNodes[insertedNodes.length - 1] || injectedNode
+
+        if( caretTarget?.parentNode )
+            placeCaretAfterNode(caretTarget)
+
+        this.setStateSelection()
 
         this.updateValueByDOMTags() // updates internal "this.value"
         this.update() // updates original input/textarea
@@ -1487,26 +1503,44 @@ Tagify.prototype = {
     },
 
     appendMixTags( node, addedTags ) {
-        var selection = !!this.state.selection;
+        const DOCUMENT_FRAGMENT_NODE = 11
+        const savedRange = this.state.selection?.range
+        const hasSavedSelection = !!savedRange && this.DOM.scope.contains(savedRange.startContainer)
+        const insertedNodes = node
+            ? (node.nodeType === DOCUMENT_FRAGMENT_NODE ? Array.prototype.slice.call(node.childNodes) : [node])
+            : []
 
-        // if "selection" exists, assumes intention of inecting the new tag at the last
-        // saved location of the caret inside "this.DOM.input"
-        if( selection ){
+        if( hasSavedSelection ){
             this.injectAtCaret(node)
         }
-        // else, create a range and inject the new tag as the last child of "this.DOM.input"
         else{
             this.DOM.input.focus()
-            selection = this.setStateSelection()
-            selection.range.setStart(this.DOM.input, selection.range.endOffset)
-            selection.range.setEnd(this.DOM.input, selection.range.endOffset)
+            const selection = this.setStateSelection()
+
+            if( selection?.range ){
+                selection.range.setStart(this.DOM.input, selection.range.endOffset)
+                selection.range.setEnd(this.DOM.input, selection.range.endOffset)
+            }
+
             this.DOM.input.appendChild(node)
 
             this.updateValueByDOMTags() // updates internal "this.value"
             this.update() // updates original input/textarea
 
-            this.trigger('add', {tags: addedTags || node.children})
+            const caretTarget = insertedNodes[insertedNodes.length - 1]
+
+            if( caretTarget?.parentNode )
+                placeCaretAfterNode(caretTarget)
+
+            this.setStateSelection()
         }
+
+        const tagsPayload = addedTags?.length
+            ? addedTags
+            : insertedNodes.filter(node => node.nodeType === 1)
+
+        if( tagsPayload?.length )
+            this.trigger('add', {tags: tagsPayload})
     },
 
     /**
