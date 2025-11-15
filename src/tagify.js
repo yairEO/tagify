@@ -1812,11 +1812,13 @@ Tagify.prototype = {
             this.settings.userInput && this.setContentEditable(true)
         }
 
+        const updateCallback = this.state.blockChangeEvent ? undefined : () => {
+            !this.state.blockChangeEvent && this.trigger('remove', {})
+        }
+
         // technically for now only "withoutChangeEvent" exists in the opts.
         // if more properties will be added later, only pass what's needed to "update"
-        this.update(opts, () => {
-            this.trigger('remove', {})
-        })
+        this.update(opts, updateCallback)
 
     },
 
