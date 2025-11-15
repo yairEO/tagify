@@ -543,12 +543,18 @@ export default {
                         case 'Enter' : {
                             // manual suggestion boxes are assumed to always be visible
                             if( this.state.dropdown.visible && !isManualDropdown ) return
+
+                            var thingToAdd = this.state.autoCompleteData || s;
+
+                            // if nothing to add and tab key was pressed, return true (must be before preventDefault)
+                            if(!thingToAdd && e.key === "Tab") return true
+
                             e.preventDefault(); // solves Chrome bug - http://stackoverflow.com/a/20398191/104380
                             // because the main "keydown" event is bound before the dropdown events, this will fire first and will not *yet*
                             // know if an option was just selected from the dropdown menu. If an option was selected,
                             // the dropdown events should handle adding the tag
 
-                            var thingToAdd = this.state.autoCompleteData || s;
+
 
                             setTimeout(()=>{
                                 if( (!this.state.dropdown.visible || isManualDropdown) && !this.state.actions.selectOption && _s.addTagOn.includes(e.key.toLowerCase()) ) {
