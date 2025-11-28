@@ -27,6 +27,7 @@ export default {
                     role="textbox"
                     autocapitalize="false"
                     autocorrect="off"
+                    aria-label="${_s.label || ''}"
                     aria-autocomplete="both"
                     aria-multiline="${_s.mode=='mix'?true:false}"></span>`
     },
