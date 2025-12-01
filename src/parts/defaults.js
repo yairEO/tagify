@@ -30,7 +30,7 @@ export default {
     trim                : true,           // whether or not the value provided should be trimmed, before being added as a tag
     a11y: {
         focusableTags: false,
-        inputAriaLabel: null,
+        inputAriaLabel: "Tags input field",
     },
 
     mixMode: {
