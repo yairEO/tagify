@@ -27,7 +27,7 @@ export default {
                     role="textbox"
                     autocapitalize="false"
                     autocorrect="off"
-                    ${_s.a11y.inputAriaLabel ? `aria-label="${_s.a11y.inputAriaLabel}"` : ""}
+                    aria-label="${_s.a11y.inputAriaLabel}"
                     aria-autocomplete="both"
                     aria-multiline="${_s.mode=='mix'?true:false}"></span>`
     },
