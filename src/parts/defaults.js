@@ -29,7 +29,8 @@ export default {
     transformTag        : ()=>{},         // Takes a tag input string as argument and returns a transformed value
     trim                : true,           // whether or not the value provided should be trimmed, before being added as a tag
     a11y: {
-        focusableTags: false
+        focusableTags: false,
+        inputAriaLabel: null,
     },
 
     mixMode: {
