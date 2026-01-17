@@ -65,3 +65,6 @@ Temporary Items
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# user files
+.vscode/virtualTab.json
