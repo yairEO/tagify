@@ -1767,7 +1767,12 @@ Tagify.prototype = {
         tagData.__tagId = getUID()
 
         var tagElm,
-            templateData = extend({}, tagData, { value:escapeHTML(tagData.value+""), ...extraData });
+            templateData = extend({}, tagData, {
+                [this.settings.tagTextProp]: escapeHTML((tagData[this.settings.tagTextProp] || tagData.value) + ""),
+                title: escapeHTML((tagData.title || tagData.value) + ""),
+                value: escapeHTML(tagData.value + ""),
+                ...extraData
+            });
 
         // if( this.settings.readonly )
         //     tagData.readonly = true
