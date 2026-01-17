@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href='https://yaireo.github.io/tagify'><img src="/docs/readme-header.svg" width="320" height="160"><a/>
+  <a href='https://yaireo.github.io/tagify'><img src="/docs/readme-header.svg" width="320" height="160"></a>
   <br><br>
   <a href='https://yaireo.github.io/tagify'>Tagify</a> - <em>tags</em> input component
 </h1>
@@ -9,7 +9,7 @@
   with great performance and small code footprint, exploded with features.
   <br>
   <strong>Vanilla</strong> ⚡ <strong>React</strong> ⚡ <strong>Vue</strong> ⚡ <strong>Angular</strong>
-<p>
+</p>
 
 <h3 align="center">
   👉 <a href="https://yaireo.github.io/tagify">See Many Examples</a> 👈
@@ -42,7 +42,7 @@
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
   - [Option 1 - import from CDN:](#option-1---import-from-cdn)
-  - [option 2 - import as a *Node module*:](#option-2---import-as-a-node-module)
+  - [Option 2 - import as a *Node module*:](#option-2---import-as-a-node-module)
 - [Basic Usage Examples](#basic-usage-examples)
   - [Debugging](#debugging)
 - [Features](#features)
@@ -96,7 +96,7 @@ Place these lines before any other code which is (or will be) using *Tagify* ([E
 `Tagify` will then be available globally.
 To load specific version use `@` - for example: `unpkg.com/@yaireo/tagify@3.1.0`
 
-### option 2 - import as a *Node module*:
+### Option 2 - import as a *Node module*:
 ```sh
 npm i @yaireo/tagify --save
 ```
@@ -120,7 +120,7 @@ var tagify = new Tagify(inputElem, {
 ```
 
 The above example shows the most basic `whitelist` array setting possible, with a mix
-of *Strings* and *Numbers* but the array also support Objects whic a must-have property of `value`:
+of *Strings* and *Numbers* but the array also support Objects which has a must-have property of `value`:
 
 ```js
 whitelist: [{value: 'foo', id: '123', email: 'foo@whatever.com'}, ...]
@@ -156,7 +156,7 @@ var tagify = new Tagify(...)
 * Supports [single-value](#single-value) mode (like `<select>`)
 * Supports whitelist/blacklist
 * Customizable HTML templates for the different areas of the component (wrapper, tags, dropdown, dropdown item, dropdown header, dropdown footer)
-* Shows suggestions list (flexiable settings & styling) at *full (component) width* or *next to* the typed texted (caret)
+* Shows suggestions list (flexible settings & styling) at *full (component) width* or *next to* the typed text (caret)
 * Allows setting suggestions' [aliases](#example-for-a-suggestion-item-alias) for easier fuzzy-searching
 * Auto-suggest input as-you-type with the ability to auto-complete
 * Can paste in multiple values: `tag 1, tag 2, tag 3` or even newline-separated tags
@@ -166,7 +166,7 @@ var tagify = new Tagify(...)
 * <del>ARIA accessibility support</del>(Component too generic for any meaningful ARIA)
 * Supports read-only mode to the whole component or per-tag
 * Each tag can have any properties desired (class, data-whatever, readonly...)
-* Automatically disallow duplicate tags (vis "settings" object)
+* Automatically disallow duplicate tags (via "settings" object)
 * Has built-in CSS loader, if needed (Ex. <em>AJAX</em> whitelist pulling)
 * Tags can be trimmed via `hellip` by giving `max-width` to the `tag` element in your `CSS`
 * RTL alignment ([See demo](https://yaireo.github.io/tagify/#section-rtl))
@@ -186,10 +186,10 @@ Output files, which are automatically generated using Gulp, are in: `/dist/`
 Filename                             | Info
 ------------------------------------ | -----------------------------------------------------------
 `tagify.esm.js`                      | ESM version. [see jsbin demo](https://jsbin.com/sulijap/edit?html,output)
-`tagify.js`                          | *minified* UMD version, including its souremaps. This is the **main** file the package exports.
+`tagify.js`                          | *minified* UMD version, including its sourcemaps. This is the **main** file the package exports.
 `tagify.polyfills.min.js`            | Used for old Internet Explorer browser support
 `react.tagify.js`                    | Wrapper-only for React. [Read more](#react)
-<del>`jQuery.tagify.min.js`</del>    | jQuery wrapper - same as `tagify.js`. Might be removed in the future. **(Deprecaded as of APR 24')**
+<del>`jQuery.tagify.min.js`</del>    | jQuery wrapper - same as `tagify.js`. Might be removed in the future. **(Deprecated as of APR 24')**
 `tagify.css`                         |
 
 
@@ -213,7 +213,7 @@ There are two possible ways to get the value of the tags:
 The most common way is to simply listen to the `change` event on the *original input*
 
 ```javascript
-var inputElm = document.querySelector,
+var inputElm = document.querySelector('input'),
     tagify = new Tagify (inputElm);
 
 inputElm.addEventListener('change', onChange)
@@ -234,7 +234,7 @@ I **recommend** keeping this because some situations might have values such as a
 `'[{"value":"Apt. 2A, Jacksonville, FL 39404"}, {"value":"Forrest Ray, 191-103 Integer Rd., Corona New Mexico"}]'`
 
 Another example for complex tags state might be disabled tags, or ones with custom identifier *class*:<br>
-*(tags can be clicked, so delevopers can choose to use this to disable/enable tags)*<br>
+*(tags can be clicked, so developers can choose to use this to disable/enable tags)*<br>
 `'[{"value":"cat", "disabled":true}, {"value":"dog"}, {"value":"bird", "class":"color-green"}]'`
 
 To change the format, assuming your tags have no commas and are fairly simple:
@@ -324,7 +324,7 @@ To do the same but for specific tag(s), set those tags' data with `editable` pro
 For "regular" tags (not *mix-mode* or *select-mode*) the easiest way is to use the `pattern` setting and use a Regex, or
 apply the `pattern` attribute directly on the `input` which will be "transformed" into a *Tagify* component (for vanilla code where the `input` tag is fully accessible to developers).
 
-If the `pattern` setting does not meet your needs, use the [`validate` setting](#settings), which recieves a *tag data object* as an argument and should return `true` if validaiton is passing, or `false`/`string` of not.
+If the `pattern` setting does not meet your needs, use the [`validate` setting](#settings), which receives a *tag data object* as an argument and should return `true` if validation is passing, or `false`/`string` of not.
 A *string* may be returned as the reason of the validation failure so it would be printed as the `title` attribute of the invalid tag.
 
 [Here's an example](https://jsbin.com/rojixul/edit?js,output) for async validation for an added tag. The idea is to listen to `"add"` event,
@@ -412,7 +412,7 @@ templates: {
 
 ### Example of overriding the `tag` template:
 
-Each template function is automatically binded with `this` pointing to the current *Tagify* instance.
+Each template function is automatically bound with `this` pointing to the current *Tagify* instance.
 It is imperative to preserve the class names and also the `this.getAttributes(tagData)` for proper functionality.
 
 ```js
@@ -561,7 +561,7 @@ sure when the Tagify instance is initialized, that it has tags with the correct 
 the same values that appear between `[[` & `]]`.
 
 Applying the setting `dropdown.position:"text"` is encouraged for mixed-content tags, because the suggestions list
-weird when there is already a lot of content on multiple lines.
+looks weird when there is already a lot of content on multiple lines.
 
 If a tag does not exist in the *whitelist*, it may be created by the user and all you should do is listen to the `add` event and update your local/remote state.
 
@@ -656,7 +656,7 @@ Prop                    | Type                      | Updatable | Info
 settings                | <sub>Object</sub>         |           | See [*settings* section](#settings)
 name                    | <sub>String</sub>         | ✔         | `<input>`'s element `name` attribute
 value                   | <sub>String/Array</sub>   | ✔         | Initial value.
-defaultValue            | <sub>String/Array</sub>   |           | Same as `value prop
+defaultValue            | <sub>String/Array</sub>   |           | Same as `value` prop
 placeholder             | <sub>String</sub>         | ✔         | placeholder text for the component
 readOnly                | <sub>Boolean</sub>        | ✔         | Toggles `readonly` state. With capital `O`.
 tagifyRef               | <sub>Object</sub>         |           | `useRef` hook refference for the component inner instance of vanilla *Tagify* (for methods access)
@@ -729,14 +729,14 @@ $('[name=tags]').data('tagify').addTags('aaa, bbb, ccc')
 ## HTML input & textarea attributes
 
 The below list of *attributes* affect *Tagify*.<br>
-These can also be set by Tagify [settings](#settings) Object manually, and not *declerativly* (via attributes).
+These can also be set by Tagify [settings](#settings) Object manually, and not *declaratively* (via attributes).
 
 Attribute         | Example                                               | Info
 ----------------- | ----------------------------------------------------- | --------------------
 [pattern](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern) | <pre lang=html>`<input pattern='^[A-Za-z_✲ ]{1,15}$'>`</pre>               | Tag Regex pattern which tag input is validated by.
 [placeholder](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#htmlattrdefplaceholder) | <pre lang=html>`<input placeholder='please type your tags'>`</pre>        | This attribute's value will be used as a constant placeholder, which is visible unless something is being typed.
 readOnly          | <pre lang=html>`<input readOnly>`</pre> | No user-interaction (add/remove/edit) allowed.
-autofocus         | <pre lang=html>`<input autofocus>`</pre> | Automatically focus the the Tagify component when the component is loaded
+autofocus         | <pre lang=html>`<input autofocus>`</pre> | Automatically focus the Tagify component when the component is loaded
 required          | <pre lang=html>`<input required>`</pre> | Adds a `required` attribute to the Tagify wrapper element. Does nothing more.
 
 
@@ -802,7 +802,7 @@ which Tagify uses to check if a tag already exists, among other things, so make 
 ```
 
 ```javascript
-// ad a simple array of Strings
+// add a simple array of Strings
 ["foo bar"]
 ```
 </details>
@@ -938,12 +938,12 @@ Name                            | Info
 
 ### Suggestions Dropdown CSS variables
 
-should be appiled on the `:root {...}` selector
+should be applied on the `:root {...}` selector
 
 Name                              | Info
 --------------------------------- | --------------------------------
---tagify-dd-color-primary         | Sugegstion's background color on hover
---tagify-dd-text-color            | Sugegstion's text color
+--tagify-dd-color-primary         | Suggestion's background color on hover
+--tagify-dd-text-color            | Suggestion's text color
 --tagify-dd-bg-color              | The suggestion's dropdown background color
 --tagify-dd-item--hidden-duration | When selecting a suggestion, this is the duration for it to become hidden (shrink)
 --tagify-dd-item-pad              | Suggestion item padding
@@ -994,7 +994,7 @@ Name                       | Parameters                                         
 `setDisabled`              | `Boolean`                                                                               | Toggles "disabled" mode on/off
 `getPersistedData`         | `String`                                                                                | Get data for the specific instance by parameter
 `setPersistedData`         | `*`, `String`                                                                           | Set data for the specific instance. Must supply a second parameter which will be the key to save the data in the localstorage (under the tagify namespace)
-`clearPersistedData`       | `String`                                                                                | Clears data for the specific instance, by parameter. If the parameter is ommited, clears all persisted data related to this instance (by its `id` which was set in the instance's settings)
+`clearPersistedData`       | `String`                                                                                | Clears data for the specific instance, by parameter. If the parameter is omitted, clears all persisted data related to this instance (by its `id` which was set in the instance's settings)
 `setPlaceholder`           | `String`                                                                                | Sets the placeholder's value. [See demo](https://yaireo.github.io/tagify/#section-advance-options)
 
 ## Events
@@ -1044,7 +1044,7 @@ add                | A tag has been added
 remove             | A tag has been removed ([use `removeTag`](https://github.com/yairEO/tagify/issues/222) instead with *jQuery*)
 invalid            | A tag has been added but did not pass validation. See [event detail](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
 input              | [Input](https://developer.mozilla.org/en-US/docs/Web/Events/input) event, when a tag is being typed/edited. `e.detail` exposes `value`, `inputElm` & `isValid`
-paste              | Text pasted (not while editing a tag). The pasted text might or might not have been converted into tags, depneding if `pasteAsTags` setting is set to `false`
+paste              | Text pasted (not while editing a tag). The pasted text might or might not have been converted into tags, depending if `pasteAsTags` setting is set to `false`
 click              | Clicking a tag. Exposes the tag element, its index & data
 dblclick           | Double-clicking a tag
 keydown            | When Tagify input has focus and a key was pressed
@@ -1121,7 +1121,7 @@ focusable                      | <sub>Boolean</sub>           | true            
 focusInputOnRemove             | <sub>Boolean</sub>           | true                                        | Refocus the input when a tag is removed
 autoComplete.enabled           | <sub>Boolean</sub>           | true                                        | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
 autoComplete.rightKey          | <sub>Boolean</sub>           | false                                       | If `true`, when `→` is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
-autoComplete.tabKey            | <sub>Boolean</sub>           | false                                       | If `true`, pressing `tab` key would only auto-complete (if a suggesiton is highlighted) but will not convert to a tag (like `rightKey` does) also, unless clicked again (considering the `addTagOn` setting).
+autoComplete.tabKey            | <sub>Boolean</sub>           | false                                       | If `true`, pressing `tab` key would only auto-complete (if a suggestion is highlighted) but will not convert to a tag (like `rightKey` does) also, unless clicked again (considering the `addTagOn` setting).
 whitelist                      | <sub>Array</sub>             | `[]`                                        | An array of allowed tags (*Strings* or *Objects*). When using *Objects* in the *whitelist* array a `value` property is a must & should be unique. <br/>Also, the *whitelist used for auto-completion when `autoCompletion.enabled` is `true`
 blacklist                      | <sub>Array</sub>             | `[]`                                        | An array of tags which aren't allowed
 addTagOnBlur                   | <sub>Boolean</sub>           | true                                        | Automatically adds the text which was inputed as a tag when blur event happens
@@ -1145,7 +1145,7 @@ mixMode.*insertAfterTag*       | <sub>Node/String</sub>       | `\u00A0`        
 a11y.*focusableTags*           | <sub>Boolean</sub>           | false                                       | allows tags to get focus, and also to be deleted via <kbd>Backspace</kbd>
 a11y.*inputAriaLabel*          | <sub>String</sub>            | `Tags input field`                        | Provides an accessible name for Tagify’s internal `contenteditable` input. When set, the value is applied as `aria-label`. Useful for WCAG compliance when the component replaces a native text input.
 dropdown.*enabled*             | <sub>Number</sub>            | 2                                           | Minimum characters input for showing a suggestions list. `false` will not render a suggestions list.
-dropdown.*caseSensitive*       | <sub>Boolean</sub>           | false                                       | if `true`, match **exact** item when a suggestion is selected (from the dropdown) and also more strict matching for dulpicate items. **Ensure** `fuzzySearch` is `false` for this to work.
+dropdown.*caseSensitive*       | <sub>Boolean</sub>           | false                                       | if `true`, match **exact** item when a suggestion is selected (from the dropdown) and also more strict matching for duplicate items. **Ensure** `fuzzySearch` is `false` for this to work.
 dropdown.*maxItems*            | <sub>Number</sub>            | 10                                          | Maximum items to show in the suggestions list
 dropdown.*classname*           | <sub>String</sub>            | `""`                                        | Custom *classname* for the dropdown suggestions list
 dropdown.*fuzzySearch*         | <sub>Boolean</sub>           | true                                        | Enables filtering dropdown items values' by string *containing* and not only *beginning*
