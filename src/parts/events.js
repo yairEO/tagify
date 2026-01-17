@@ -839,22 +839,47 @@ export default {
                     if( result === undefined )
                         result = pastedText;
 
-                    if( result ){
-                        this.injectAtCaret(result, window.getSelection().getRangeAt(0))
+            if( result ){
+                if( this.settings.mode == 'mix' ){
+                    // Auto-convert pasted pattern-prefixed text to tags if pasteAsTags is enabled
+                    if( this.settings.pasteAsTags ){
+                        const interpolatedText = this.convertPastedTextToMixTags(result)
+                        const fragment = this.parseMixTags(interpolatedText, { skipDOM: true })
+                        const tagsData = fragment.__tagifyTagsData || []
 
-                        if( this.settings.mode == 'mix' ){
-                            this.events.callbacks.onMixTagsInput.call(this, e);
-                        }
+                        // Inject the fragment (contains text nodes + tag elements)
+                        this.injectAtCaret(fragment, window.getSelection().getRangeAt(0))
 
-                        else if( this.settings.pasteAsTags ){
-                            tagsElems = this.addTags(this.state.inputText + result, true)
-                        }
+                        // Update internal state with new tags
+                        // Note: duplicates are already filtered out by parseMixTags based on settings
+                        tagsData.forEach(tagData => this.value.push(tagData))
 
-                        else {
-                            this.state.inputText = result
-                            this.dropdown.show(result)
-                        }
+                        // Get the newly added tag elements and set their data
+                        const addedTags = this.getTagElms().slice(-tagsData.length)
+                        addedTags.forEach((elm, idx) => getSetTagData(elm, tagsData[idx]))
+
+                        this.update()
+                        fixCaretBetweenTags(addedTags)
                     }
+                    else {
+                        this.injectAtCaret(result, window.getSelection().getRangeAt(0))
+                    }
+
+                    this.events.callbacks.onMixTagsInput.call(this, e);
+                }
+
+                else {
+                    this.injectAtCaret(result, window.getSelection().getRangeAt(0))
+
+                    if( this.settings.pasteAsTags ){
+                        tagsElems = this.addTags(this.state.inputText + result, true)
+                    }
+                    else {
+                        this.state.inputText = result
+                        this.dropdown.show(result)
+                    }
+                }
+            }
 
                     this.trigger('paste', {event: e, pastedText, clipboardData, tagsElems})
                 })

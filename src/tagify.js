@@ -121,6 +121,7 @@ Tagify.prototype = {
         DEFAULTS.templates = this.templates
 
         var mixModeDefaults = {
+            pasteAsTags: false,
             dropdown: {
                 position: "text"
             }
@@ -1176,8 +1177,17 @@ Tagify.prototype = {
      * https://stackoverflow.com/a/57598892/104380
      * @param {String} s
      */
-    parseMixTags( s ){
+    /**
+     * Parses interpolated text (e.g., "text [[{"value":"tag"}]] more text") into tags
+     * @param {String} s - Text with interpolated tags
+     * @param {Object} [options] - Optional settings
+     * @param {Boolean} [options.skipDOM=false] - If true, returns a DocumentFragment instead of updating DOM
+     * @returns {String|DocumentFragment} - HTML string (default) or DocumentFragment (if skipDOM=true)
+     */
+    parseMixTags( s, options ){
         var {mixTagsInterpolator, duplicates, transformTag, enforceWhitelist, maxTags, tagTextProp} = this.settings,
+            skipDOM = options?.skipDOM,
+            fragment = skipDOM ? document.createDocumentFragment() : null,
             tagsDataSet = [];
 
         s = s.split(mixTagsInterpolator[0]).map((s1, i) => {
@@ -1187,6 +1197,12 @@ Tagify.prototype = {
                 textProp,
                 tagData,
                 tagElm;
+
+            // For fragment mode: handle text before first tag
+            if( skipDOM && i == 0 && s1 ){
+                fragment.appendChild(document.createTextNode(s1))
+                return ''
+            }
 
             try{
                 // skip numbers and go straight to the "catch" statement
@@ -1212,15 +1228,38 @@ Tagify.prototype = {
                 tagsDataSet.push( tagData )
                 tagElm.classList.add(this.settings.classNames.tagNoAnimation)
 
-                s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
-                this.value.push(tagData)
+                if( skipDOM ){
+                    fragment.appendChild(tagElm)
+                    // Add text after tag
+                    if( s2[1] ){
+                        fragment.appendChild(document.createTextNode(s2[1]))
+                    }
+                    return ''
+                }
+                else {
+                    s2[0] = tagElm.outerHTML //+ "&#8288;"  // put a zero-space at the end so the caret won't jump back to the start (when the last input's child element is a tag)
+                    this.value.push(tagData)
+                }
             }
-            else if(s1)
+            else if(s1){
+                if( skipDOM ){
+                    // Invalid tag - add back the interpolator and content as text
+                    fragment.appendChild(document.createTextNode(mixTagsInterpolator[0] + s1))
+                    return ''
+                }
                 return i ? mixTagsInterpolator[0] + s1 : s1
+            }
 
             return s2.join('')
         }).join('')
 
+        // Fragment mode: return the fragment with tags data attached
+        if( skipDOM ){
+            fragment.__tagifyTagsData = tagsDataSet
+            return fragment
+        }
+
+        // DOM mode: update the input element
         this.DOM.input.innerHTML = s
         this.DOM.input.appendChild(document.createTextNode(''))
         this.DOM.input.normalize()
@@ -1232,6 +1271,126 @@ Tagify.prototype = {
 
         fixCaretBetweenTags(tagNodes, this.state.hasFocus)
         return s
+    },
+
+    /**
+     * Converts pasted text in mix-mode into tags by detecting pattern-prefixed text
+     * that matches items in the whitelist
+     * @param {String} text - The pasted text to process
+     * @returns {String} - Text with matched items wrapped in mixTagsInterpolator
+     */
+    convertPastedTextToMixTags( text ){
+        const { pattern, whitelist, mixTagsInterpolator, mixTagsAllowedAfter, tagTextProp } = this.settings
+
+        if( !pattern || !whitelist?.length )
+            return text
+
+        // Extract all possible prefix patterns (e.g., [@, #] from /@|#/)
+        const prefixPatterns = pattern.source ? pattern.source.split('|') : [pattern]
+
+        // Build a mapping of prefix -> whitelist items
+        const prefixWhitelistMap = {}
+
+        prefixPatterns.forEach(prefix => {
+            // Normalize prefix (remove escape chars if any)
+            const normalizedPrefix = prefix.replace(/\\/g, '')
+            prefixWhitelistMap[normalizedPrefix] = whitelist.map(item => {
+                // Get the text to match against - use tagTextProp for objects, or the string itself
+                let textValue
+                if( typeof item === 'string' ) {
+                    textValue = item
+                } else {
+                    // For objects, use tagTextProp (e.g., 'text' or 'value')
+                    textValue = item[tagTextProp] || item.value
+                }
+
+                // Convert to string (in case value is a number or other type)
+                textValue = String(textValue)
+
+                return {
+                    originalItem: item,
+                    value: textValue,
+                    searchValue: textValue.toLowerCase()
+                }
+            })
+            // Sort by length (longest first) for greedy matching
+            .sort((a, b) => b.value.length - a.value.length)
+        })
+
+        // Find all pattern prefix positions
+        const patternRegex = new RegExp(pattern.source, 'g')
+        const replacements = [] // Store replacements to apply in reverse order
+        let match
+
+        while ((match = patternRegex.exec(text)) !== null) {
+            const prefix = match[0]
+            const startIndex = match.index
+            const afterPrefixIndex = startIndex + prefix.length
+
+            // Get text after the prefix
+            const textAfterPrefix = text.slice(afterPrefixIndex)
+
+            // Try to match whitelist items (longest first)
+            const whitelistItems = prefixWhitelistMap[prefix]
+            if( !whitelistItems ) continue
+
+            let matchedItem = null
+            let matchedLength = 0
+
+            // Try each whitelist item starting with longest
+            for( const item of whitelistItems ){
+                const itemValue = item.value
+                const itemLength = itemValue.length
+
+                // Extract the same length from text after prefix (case-insensitive comparison)
+                const textSegment = textAfterPrefix.slice(0, itemLength)
+
+                if( textSegment.toLowerCase() === item.searchValue ){
+                    // Check if this match ends at a valid boundary or end of text
+                    const charAfterMatch = textAfterPrefix[itemLength]
+                    const isValidBoundary = !charAfterMatch || // end of string
+                                           mixTagsAllowedAfter.test(charAfterMatch) // or boundary char
+
+                    if( isValidBoundary ){
+                        matchedItem = item
+                        matchedLength = itemLength
+                        break // Found longest match
+                    }
+                }
+            }
+
+            if( matchedItem ){
+                // Build tag data: full whitelist object + prefix
+                const tagData = typeof matchedItem.originalItem === 'string'
+                    ? { value: matchedItem.value, prefix }
+                    : { ...matchedItem.originalItem, prefix }
+
+                // Validate the tag
+                const isValid = this.validateTag(tagData)
+
+                if( isValid === true ){
+                    // Wrap with interpolator
+                    const replacement = `${mixTagsInterpolator[0]}${JSON.stringify(tagData)}${mixTagsInterpolator[1]}`
+
+                    replacements.push({
+                        start: startIndex,
+                        end: afterPrefixIndex + matchedLength,
+                        replacement
+                    })
+
+                    // Skip ahead past this match to avoid re-processing
+                    patternRegex.lastIndex = afterPrefixIndex + matchedLength
+                }
+            }
+        }
+
+        // Apply replacements in reverse order to maintain indices
+        let result = text
+        replacements.reverse().forEach(({ start, end, replacement }) => {
+            result = result.slice(0, start) + replacement + result.slice(end)
+        })
+
+        return result
     },
 
     /**

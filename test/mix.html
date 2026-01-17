@@ -39,6 +39,7 @@
         <form>
             <button type='button' id='addTagsBtn1'>tags injection with <code>addMixTags(["aaa", "bbb"])</code></button>
             <button type='button' id='addTagsBtn2'>Manual tag injection (in second Tagify)</button>
+            <button type='button' id='testPasteBtn'>Test pasteAsTags: paste "@cartman @Mr. Garrison @invalid"</button>
             <br><br>
             <textarea name='mix1' placeholder="type something">    mixed-mode #example [[example]] with [[{"value":"tags"}]].   </textarea>
 
@@ -64,9 +65,10 @@ var settings = {
     mode: "mix",
     trim: false,
     pattern: /@/,
+    pasteAsTags: true,
     validate(data){
-        // custom validation - no special characters
-        return !/[^a-zA-Z0-9 ]/.test(data.value)
+        // custom validation - allow alphanumeric, spaces, and periods
+        return !/[^a-zA-Z0-9 .]/.test(data.value)
     },
     dropdown: {
         enabled: 0,
@@ -97,6 +99,21 @@ var simpleMixTagify = new Tagify(simpleMixInput, settings);
 simpleMixTagify.on('input', console.log )
 simpleMixTagify.on('focus', (e) => console.log('focus', e) )
 simpleMixTagify.on('blur', (e) => console.log('blur', e) )
+
+// Test button for pasteAsTags
+testPasteBtn.addEventListener('click', () => {
+    const testText = "@cartman @Mr. Garrison @invalid text @butters"
+    console.log('Simulating paste of:', testText)
+
+    // Simulate paste event
+    const pasteEvent = new ClipboardEvent('paste', {
+        clipboardData: new DataTransfer()
+    })
+    pasteEvent.clipboardData.setData('text/plain', testText)
+
+    simpleMixTagify.DOM.input.focus()
+    simpleMixTagify.DOM.input.dispatchEvent(pasteEvent)
+})
 </script>
 
 
