@@ -370,10 +370,10 @@
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input name=&#39;basic&#39; value=&#39;tag1, tag2&#39; autofocus&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input name=&#39;basic&#39; value=&#39;tag1, tag2&#39; autofocus&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>// The DOM element you wish to replace with Tagify
-var input = document.querySelector('input[name=basic]');
+            <pre><code class="language-javascript">// The DOM element you wish to replace with Tagify
+var input = document.querySelector(&#39;input[name=basic]&#39;);
 
 // initialize Tagify on the above input node reference
 new Tagify(input)</code></pre>
@@ -449,38 +449,38 @@ new Tagify(input)
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;!-- https://codepen.io/vsync/pen/PoNqYVY --&gt;
+            <pre><code  class="language-markup">&lt;!-- https://codepen.io/vsync/pen/PoNqYVY --&gt;
 &lt;input name=&#39;input&#39; class=&#39;some_class_name&#39; placeholder=&#39;Type an English letter&#39; value=&#39;css, html, javascript, css&#39; data-blacklist=&#39;.NET, PHP&#39;&gt;
 &lt;br/&gt;
 &lt;button class=&#39;tags--removeAllBtn&#39; type=&#39;button&#39;&gt;Remove all these tags ⬆&lt;/button&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var inputElm = document.querySelector('input[name=input]'),
-    whitelist = ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "Java", "Javascript", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"];
+            <pre><code class="language-javascript">var inputElm = document.querySelector(&#39;input[name=input]&#39;),
+    whitelist = [&quot;A# .NET&quot;, &quot;A# (Axiom)&quot;, &quot;A-0 System&quot;, &quot;A+&quot;, &quot;A++&quot;, &quot;ABAP&quot;, &quot;ABC&quot;, &quot;ABC ALGOL&quot;, &quot;ABSET&quot;, &quot;ABSYS&quot;, &quot;ACC&quot;, &quot;Accent&quot;, &quot;Ace DASL&quot;, &quot;ACL2&quot;, &quot;Avicsoft&quot;, &quot;ACT-III&quot;, &quot;Action!&quot;, &quot;ActionScript&quot;, &quot;Ada&quot;, &quot;Adenine&quot;, &quot;Agda&quot;, &quot;Agilent VEE&quot;, &quot;Agora&quot;, &quot;AIMMS&quot;, &quot;Alef&quot;, &quot;ALF&quot;, &quot;ALGOL 58&quot;, &quot;ALGOL 60&quot;, &quot;ALGOL 68&quot;, &quot;ALGOL W&quot;, &quot;Alice&quot;, &quot;Alma-0&quot;, &quot;AmbientTalk&quot;, &quot;Amiga E&quot;, &quot;AMOS&quot;, &quot;AMPL&quot;, &quot;Apex (Salesforce.com)&quot;, &quot;APL&quot;, &quot;AppleScript&quot;, &quot;Arc&quot;, &quot;ARexx&quot;, &quot;Argus&quot;, &quot;AspectJ&quot;, &quot;Assembly language&quot;, &quot;ATS&quot;, &quot;Ateji PX&quot;, &quot;AutoHotkey&quot;, &quot;Autocoder&quot;, &quot;AutoIt&quot;, &quot;AutoLISP / Visual LISP&quot;, &quot;Averest&quot;, &quot;AWK&quot;, &quot;Axum&quot;, &quot;Active Server Pages&quot;, &quot;ASP.NET&quot;, &quot;B&quot;, &quot;Babbage&quot;, &quot;Bash&quot;, &quot;BASIC&quot;, &quot;bc&quot;, &quot;BCPL&quot;, &quot;BeanShell&quot;, &quot;Batch (Windows/Dos)&quot;, &quot;Bertrand&quot;, &quot;BETA&quot;, &quot;Bigwig&quot;, &quot;Bistro&quot;, &quot;BitC&quot;, &quot;BLISS&quot;, &quot;Blockly&quot;, &quot;BlooP&quot;, &quot;Blue&quot;, &quot;Boo&quot;, &quot;Boomerang&quot;, &quot;Bourne shell (including bash and ksh)&quot;, &quot;BREW&quot;, &quot;BPEL&quot;, &quot;B&quot;, &quot;C--&quot;, &quot;C++ – ISO/IEC 14882&quot;, &quot;C# – ISO/IEC 23270&quot;, &quot;C/AL&quot;, &quot;Caché ObjectScript&quot;, &quot;C Shell&quot;, &quot;Caml&quot;, &quot;Cayenne&quot;, &quot;CDuce&quot;, &quot;Cecil&quot;, &quot;Cesil&quot;, &quot;Céu&quot;, &quot;Ceylon&quot;, &quot;CFEngine&quot;, &quot;CFML&quot;, &quot;Cg&quot;, &quot;Ch&quot;, &quot;Chapel&quot;, &quot;Charity&quot;, &quot;Charm&quot;, &quot;Chef&quot;, &quot;CHILL&quot;, &quot;CHIP-8&quot;, &quot;chomski&quot;, &quot;ChucK&quot;, &quot;CICS&quot;, &quot;Cilk&quot;, &quot;Citrine (programming language)&quot;, &quot;CL (IBM)&quot;, &quot;Claire&quot;, &quot;Clarion&quot;, &quot;Clean&quot;, &quot;Clipper&quot;, &quot;CLIPS&quot;, &quot;CLIST&quot;, &quot;Clojure&quot;, &quot;CLU&quot;, &quot;CMS-2&quot;, &quot;COBOL – ISO/IEC 1989&quot;, &quot;CobolScript – COBOL Scripting language&quot;, &quot;Cobra&quot;, &quot;CODE&quot;, &quot;CoffeeScript&quot;, &quot;ColdFusion&quot;, &quot;COMAL&quot;, &quot;Combined Programming Language (CPL)&quot;, &quot;COMIT&quot;, &quot;Common Intermediate Language (CIL)&quot;, &quot;Common Lisp (also known as CL)&quot;, &quot;COMPASS&quot;, &quot;Component Pascal&quot;, &quot;Constraint Handling Rules (CHR)&quot;, &quot;COMTRAN&quot;, &quot;Converge&quot;, &quot;Cool&quot;, &quot;Coq&quot;, &quot;Coral 66&quot;, &quot;Corn&quot;, &quot;CorVision&quot;, &quot;COWSEL&quot;, &quot;CPL&quot;, &quot;CPL&quot;, &quot;Cryptol&quot;, &quot;csh&quot;, &quot;Csound&quot;, &quot;CSP&quot;, &quot;CUDA&quot;, &quot;Curl&quot;, &quot;Curry&quot;, &quot;Cybil&quot;, &quot;Cyclone&quot;, &quot;Cython&quot;, &quot;Java&quot;, &quot;Javascript&quot;, &quot;M2001&quot;, &quot;M4&quot;, &quot;M#&quot;, &quot;Machine code&quot;, &quot;MAD (Michigan Algorithm Decoder)&quot;, &quot;MAD/I&quot;, &quot;Magik&quot;, &quot;Magma&quot;, &quot;make&quot;, &quot;Maple&quot;, &quot;MAPPER now part of BIS&quot;, &quot;MARK-IV now VISION:BUILDER&quot;, &quot;Mary&quot;, &quot;MASM Microsoft Assembly x86&quot;, &quot;MATH-MATIC&quot;, &quot;Mathematica&quot;, &quot;MATLAB&quot;, &quot;Maxima (see also Macsyma)&quot;, &quot;Max (Max Msp – Graphical Programming Environment)&quot;, &quot;Maya (MEL)&quot;, &quot;MDL&quot;, &quot;Mercury&quot;, &quot;Mesa&quot;, &quot;Metafont&quot;, &quot;Microcode&quot;, &quot;MicroScript&quot;, &quot;MIIS&quot;, &quot;Milk (programming language)&quot;, &quot;MIMIC&quot;, &quot;Mirah&quot;, &quot;Miranda&quot;, &quot;MIVA Script&quot;, &quot;ML&quot;, &quot;Model 204&quot;, &quot;Modelica&quot;, &quot;Modula&quot;, &quot;Modula-2&quot;, &quot;Modula-3&quot;, &quot;Mohol&quot;, &quot;MOO&quot;, &quot;Mortran&quot;, &quot;Mouse&quot;, &quot;MPD&quot;, &quot;Mathcad&quot;, &quot;MSIL – deprecated name for CIL&quot;, &quot;MSL&quot;, &quot;MUMPS&quot;, &quot;Mystic Programming L&quot;];
 
 
 // initialize Tagify on the above input node reference
 var tagify = new Tagify(inputElm, {
     enforceWhitelist: true,
-    whitelist: inputElm.value.trim().split(/\s*,\s*/) // Array of values. stackoverflow.com/a/43375571/104380
+    whitelist: inputElm.value.trim().split(/&#92;s*,&#92;s*/) // Array of values. stackoverflow.com/a/43375571/104380
 })
 
 
 
-// "remove all tags" button event listener
-document.querySelector('.tags--removeAllBtn')
-    .addEventListener('click', tagify.removeAllTags.bind(tagify))
+// &quot;remove all tags&quot; button event listener
+document.querySelector(&#39;.tags--removeAllBtn&#39;)
+    .addEventListener(&#39;click&#39;, tagify.removeAllTags.bind(tagify))
 
 // Chainable event listeners
-tagify.on('add', onAddTag)
-      .on('remove', onRemoveTag)
-      .on('input', onInput)
-      .on('edit', onTagEdit)
-      .on('invalid', onInvalidTag)
-      .on('click', onTagClick)
-      .on('focus', onTagifyFocusBlur)
-      .on('blur', onTagifyFocusBlur)
-      .on('dropdown:hide dropdown:show', e => console.log(e.type))
-      .on('dropdown:select', onDropdownSelect)
+tagify.on(&#39;add&#39;, onAddTag)
+      .on(&#39;remove&#39;, onRemoveTag)
+      .on(&#39;input&#39;, onInput)
+      .on(&#39;edit&#39;, onTagEdit)
+      .on(&#39;invalid&#39;, onInvalidTag)
+      .on(&#39;click&#39;, onTagClick)
+      .on(&#39;focus&#39;, onTagifyFocusBlur)
+      .on(&#39;blur&#39;, onTagifyFocusBlur)
+      .on(&#39;dropdown:hide dropdown:show&#39;, e =&gt; console.log(e.type))
+      .on(&#39;dropdown:select&#39;, onDropdownSelect)
 
 var mockAjax = (function mockAjax(){
     var timeout;
@@ -494,19 +494,19 @@ var mockAjax = (function mockAjax(){
 
 // tag added callback
 function onAddTag(e){
-    console.log("onAddTag: ", e.detail);
-    console.log("original input value: ", inputElm.value)
-    tagify.off('add', onAddTag) // exmaple of removing a custom Tagify event
+    console.log(&quot;onAddTag: &quot;, e.detail);
+    console.log(&quot;original input value: &quot;, inputElm.value)
+    tagify.off(&#39;add&#39;, onAddTag) // exmaple of removing a custom Tagify event
 }
 
 // tag remvoed callback
 function onRemoveTag(e){
-    console.log("onRemoveTag:", e.detail, "tagify instance value:", tagify.value)
+    console.log(&quot;onRemoveTag:&quot;, e.detail, &quot;tagify instance value:&quot;, tagify.value)
 }
 
 // on character(s) added/removed (user is typing/deleting)
 function onInput(e){
-    console.log("onInput: ", e.detail);
+    console.log(&quot;onInput: &quot;, e.detail);
     tagify.whitelist = null; // reset current whitelist
     tagify.loading(true) // show the loader animation
 
@@ -520,30 +520,30 @@ function onInput(e){
                 // render the suggestions dropdown.
                 .dropdown.show(e.detail.value);
         })
-        .catch(err => tagify.dropdown.hide())
+        .catch(err =&gt; tagify.dropdown.hide())
 }
 
 function onTagEdit(e){
-    console.log("onTagEdit: ", e.detail);
+    console.log(&quot;onTagEdit: &quot;, e.detail);
 }
 
 // invalid tag added callback
 function onInvalidTag(e){
-    console.log("onInvalidTag: ", e.detail);
+    console.log(&quot;onInvalidTag: &quot;, e.detail);
 }
 
 // invalid tag added callback
 function onTagClick(e){
     console.log(e.detail);
-    console.log("onTagClick: ", e.detail);
+    console.log(&quot;onTagClick: &quot;, e.detail);
 }
 
 function onTagifyFocusBlur(e){
-    console.log(e.type, "event fired")
+    console.log(e.type, &quot;event fired&quot;)
 }
 
 function onDropdownSelect(e){
-    console.log("onDropdownSelect: ", e.detail)
+    console.log(&quot;onDropdownSelect: &quot;, e.detail)
 }</code></pre>
             
         </details>
@@ -678,18 +678,18 @@ function onDropdownSelect(e){
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input name=&#39;input-custom-dropdown&#39; class=&#39;tagify--custom-dropdown&#39; placeholder=&#39;Type an English letter&#39; value=&#39;css, html, javascript&#39;&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input name=&#39;input-custom-dropdown&#39; class=&#39;tagify--custom-dropdown&#39; placeholder=&#39;Type an English letter&#39; value=&#39;css, html, javascript&#39;&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('input[name="input-custom-dropdown"]'),
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;input[name=&quot;input-custom-dropdown&quot;]&#39;),
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
-        whitelist: ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "Java", "Javascript", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"],
+        whitelist: [&quot;A# .NET&quot;, &quot;A# (Axiom)&quot;, &quot;A-0 System&quot;, &quot;A+&quot;, &quot;A++&quot;, &quot;ABAP&quot;, &quot;ABC&quot;, &quot;ABC ALGOL&quot;, &quot;ABSET&quot;, &quot;ABSYS&quot;, &quot;ACC&quot;, &quot;Accent&quot;, &quot;Ace DASL&quot;, &quot;ACL2&quot;, &quot;Avicsoft&quot;, &quot;ACT-III&quot;, &quot;Action!&quot;, &quot;ActionScript&quot;, &quot;Ada&quot;, &quot;Adenine&quot;, &quot;Agda&quot;, &quot;Agilent VEE&quot;, &quot;Agora&quot;, &quot;AIMMS&quot;, &quot;Alef&quot;, &quot;ALF&quot;, &quot;ALGOL 58&quot;, &quot;ALGOL 60&quot;, &quot;ALGOL 68&quot;, &quot;ALGOL W&quot;, &quot;Alice&quot;, &quot;Alma-0&quot;, &quot;AmbientTalk&quot;, &quot;Amiga E&quot;, &quot;AMOS&quot;, &quot;AMPL&quot;, &quot;Apex (Salesforce.com)&quot;, &quot;APL&quot;, &quot;AppleScript&quot;, &quot;Arc&quot;, &quot;ARexx&quot;, &quot;Argus&quot;, &quot;AspectJ&quot;, &quot;Assembly language&quot;, &quot;ATS&quot;, &quot;Ateji PX&quot;, &quot;AutoHotkey&quot;, &quot;Autocoder&quot;, &quot;AutoIt&quot;, &quot;AutoLISP / Visual LISP&quot;, &quot;Averest&quot;, &quot;AWK&quot;, &quot;Axum&quot;, &quot;Active Server Pages&quot;, &quot;ASP.NET&quot;, &quot;B&quot;, &quot;Babbage&quot;, &quot;Bash&quot;, &quot;BASIC&quot;, &quot;bc&quot;, &quot;BCPL&quot;, &quot;BeanShell&quot;, &quot;Batch (Windows/Dos)&quot;, &quot;Bertrand&quot;, &quot;BETA&quot;, &quot;Bigwig&quot;, &quot;Bistro&quot;, &quot;BitC&quot;, &quot;BLISS&quot;, &quot;Blockly&quot;, &quot;BlooP&quot;, &quot;Blue&quot;, &quot;Boo&quot;, &quot;Boomerang&quot;, &quot;Bourne shell (including bash and ksh)&quot;, &quot;BREW&quot;, &quot;BPEL&quot;, &quot;B&quot;, &quot;C--&quot;, &quot;C++ – ISO/IEC 14882&quot;, &quot;C# – ISO/IEC 23270&quot;, &quot;C/AL&quot;, &quot;Caché ObjectScript&quot;, &quot;C Shell&quot;, &quot;Caml&quot;, &quot;Cayenne&quot;, &quot;CDuce&quot;, &quot;Cecil&quot;, &quot;Cesil&quot;, &quot;Céu&quot;, &quot;Ceylon&quot;, &quot;CFEngine&quot;, &quot;CFML&quot;, &quot;Cg&quot;, &quot;Ch&quot;, &quot;Chapel&quot;, &quot;Charity&quot;, &quot;Charm&quot;, &quot;Chef&quot;, &quot;CHILL&quot;, &quot;CHIP-8&quot;, &quot;chomski&quot;, &quot;ChucK&quot;, &quot;CICS&quot;, &quot;Cilk&quot;, &quot;Citrine (programming language)&quot;, &quot;CL (IBM)&quot;, &quot;Claire&quot;, &quot;Clarion&quot;, &quot;Clean&quot;, &quot;Clipper&quot;, &quot;CLIPS&quot;, &quot;CLIST&quot;, &quot;Clojure&quot;, &quot;CLU&quot;, &quot;CMS-2&quot;, &quot;COBOL – ISO/IEC 1989&quot;, &quot;CobolScript – COBOL Scripting language&quot;, &quot;Cobra&quot;, &quot;CODE&quot;, &quot;CoffeeScript&quot;, &quot;ColdFusion&quot;, &quot;COMAL&quot;, &quot;Combined Programming Language (CPL)&quot;, &quot;COMIT&quot;, &quot;Common Intermediate Language (CIL)&quot;, &quot;Common Lisp (also known as CL)&quot;, &quot;COMPASS&quot;, &quot;Component Pascal&quot;, &quot;Constraint Handling Rules (CHR)&quot;, &quot;COMTRAN&quot;, &quot;Converge&quot;, &quot;Cool&quot;, &quot;Coq&quot;, &quot;Coral 66&quot;, &quot;Corn&quot;, &quot;CorVision&quot;, &quot;COWSEL&quot;, &quot;CPL&quot;, &quot;CPL&quot;, &quot;Cryptol&quot;, &quot;csh&quot;, &quot;Csound&quot;, &quot;CSP&quot;, &quot;CUDA&quot;, &quot;Curl&quot;, &quot;Curry&quot;, &quot;Cybil&quot;, &quot;Cyclone&quot;, &quot;Cython&quot;, &quot;Java&quot;, &quot;Javascript&quot;, &quot;M2001&quot;, &quot;M4&quot;, &quot;M#&quot;, &quot;Machine code&quot;, &quot;MAD (Michigan Algorithm Decoder)&quot;, &quot;MAD/I&quot;, &quot;Magik&quot;, &quot;Magma&quot;, &quot;make&quot;, &quot;Maple&quot;, &quot;MAPPER now part of BIS&quot;, &quot;MARK-IV now VISION:BUILDER&quot;, &quot;Mary&quot;, &quot;MASM Microsoft Assembly x86&quot;, &quot;MATH-MATIC&quot;, &quot;Mathematica&quot;, &quot;MATLAB&quot;, &quot;Maxima (see also Macsyma)&quot;, &quot;Max (Max Msp – Graphical Programming Environment)&quot;, &quot;Maya (MEL)&quot;, &quot;MDL&quot;, &quot;Mercury&quot;, &quot;Mesa&quot;, &quot;Metafont&quot;, &quot;Microcode&quot;, &quot;MicroScript&quot;, &quot;MIIS&quot;, &quot;Milk (programming language)&quot;, &quot;MIMIC&quot;, &quot;Mirah&quot;, &quot;Miranda&quot;, &quot;MIVA Script&quot;, &quot;ML&quot;, &quot;Model 204&quot;, &quot;Modelica&quot;, &quot;Modula&quot;, &quot;Modula-2&quot;, &quot;Modula-3&quot;, &quot;Mohol&quot;, &quot;MOO&quot;, &quot;Mortran&quot;, &quot;Mouse&quot;, &quot;MPD&quot;, &quot;Mathcad&quot;, &quot;MSIL – deprecated name for CIL&quot;, &quot;MSL&quot;, &quot;MUMPS&quot;, &quot;Mystic Programming L&quot;],
         maxTags: 10,
         dropdown: {
-            maxItems: 20,           // <- mixumum allowed rendered suggestions
-            classname: 'tags-look', // <- custom classname for this dropdown, so it could be targeted
-            enabled: 0,             // <- show suggestions on focus
-            closeOnSelect: false    // <- do not hide the suggestions dropdown once an item has been selected
+            maxItems: 20,           // &lt;- mixumum allowed rendered suggestions
+            classname: &#39;tags-look&#39;, // &lt;- custom classname for this dropdown, so it could be targeted
+            enabled: 0,             // &lt;- show suggestions on focus
+            closeOnSelect: false    // &lt;- do not hide the suggestions dropdown once an item has been selected
         }
     })</code></pre>
             
@@ -790,13 +790,13 @@ function onDropdownSelect(e){
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;textarea name=&#39;tags2&#39; placeholder=&#39;Movie names&#39;&gt; [{&quot;value&quot;:&quot;The Good, the Bad and the Ugly&quot;}, {&quot;value&quot;:&quot;The Matrix&quot;}]&lt;/textarea&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;textarea name=&#39;tags2&#39; placeholder=&#39;Movie names&#39;&gt; [{&quot;value&quot;:&quot;The Good, the Bad and the Ugly&quot;}, {&quot;value&quot;:&quot;The Matrix&quot;}]&lt;/textarea&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('textarea[name=tags2]'),
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;textarea[name=tags2]&#39;),
     tagify = new Tagify(input, {
         enforceWhitelist : true,
         delimiters       : null,
-        whitelist        : ["The Shawshank Redemption", "The Godfather", "The Godfather: Part II", "The Dark Knight", "12 Angry Men", "Schindler's List", "Pulp Fiction", "The Lord of the Rings: The Return of the King", "The Good, the Bad and the Ugly", "Fight Club", "The Lord of the Rings: The Fellowship of the Ring", "Star Wars: Episode V - The Empire Strikes Back", "Forrest Gump", "Inception", "The Lord of the Rings: The Two Towers", "One Flew Over the Cuckoo's Nest", "Goodfellas", "The Matrix", "Seven Samurai", "Star Wars: Episode IV - A New Hope", "City of God", "Se7en", "The Silence of the Lambs", "It's a Wonderful Life", "The Usual Suspects", "Life Is Beautiful", "Léon: The Professional", "Spirited Away", "Saving Private Ryan", "La La Land", "Once Upon a Time in the West", "American History X", "Interstellar", "Casablanca", "Psycho", "City Lights", "The Green Mile", "Raiders of the Lost Ark", "The Intouchables", "Modern Times", "Rear Window", "The Pianist", "The Departed", "Terminator 2: Judgment Day", "Back to the Future", "Whiplash", "Gladiator", "Memento", "Apocalypse Now", "The Prestige", "The Lion King", "Alien", "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "Sunset Boulevard", "The Great Dictator", "Cinema Paradiso", "The Lives of Others", "Paths of Glory", "Grave of the Fireflies", "Django Unchained", "The Shining", "WALL·E", "American Beauty", "The Dark Knight Rises", "Princess Mononoke", "Aliens", "Oldboy", "Once Upon a Time in America", "Citizen Kane", "Das Boot", "Witness for the Prosecution", "North by Northwest", "Vertigo", "Star Wars: Episode VI - Return of the Jedi", "Reservoir Dogs", "M", "Braveheart", "Amélie", "Requiem for a Dream", "A Clockwork Orange", "Taxi Driver", "Lawrence of Arabia", "Like Stars on Earth", "Double Indemnity", "To Kill a Mockingbird", "Eternal Sunshine of the Spotless Mind", "Toy Story 3", "Amadeus", "My Father and My Son", "Full Metal Jacket", "The Sting", "2001: A Space Odyssey", "Singin' in the Rain", "Bicycle Thieves", "Toy Story", "Dangal", "The Kid", "Inglourious Basterds", "Snatch", "Monty Python and the Holy Grail", "Hacksaw Ridge", "3 Idiots", "L.A. Confidential", "For a Few Dollars More", "Scarface", "Rashomon", "The Apartment", "The Hunt", "Good Will Hunting", "Indiana Jones and the Last Crusade", "A Separation", "Metropolis", "Yojimbo", "All About Eve", "Batman Begins", "Up", "Some Like It Hot", "The Treasure of the Sierra Madre", "Unforgiven", "Downfall", "Raging Bull", "The Third Man", "Die Hard", "Children of Heaven", "The Great Escape", "Heat", "Chinatown", "Inside Out", "Pan's Labyrinth", "Ikiru", "My Neighbor Totoro", "On the Waterfront", "Room", "Ran", "The Gold Rush", "The Secret in Their Eyes", "The Bridge on the River Kwai", "Blade Runner", "Mr. Smith Goes to Washington", "The Seventh Seal", "Howl's Moving Castle", "Lock, Stock and Two Smoking Barrels", "Judgment at Nuremberg", "Casino", "The Bandit", "Incendies", "A Beautiful Mind", "A Wednesday", "The General", "The Elephant Man", "Wild Strawberries", "Arrival", "V for Vendetta", "Warrior", "The Wolf of Wall Street", "Manchester by the Sea", "Sunrise", "The Passion of Joan of Arc", "Gran Torino", "Rang De Basanti", "Trainspotting", "Dial M for Murder", "The Big Lebowski", "The Deer Hunter", "Tokyo Story", "Gone with the Wind", "Fargo", "Finding Nemo", "The Sixth Sense", "The Thing", "Hera Pheri", "Cool Hand Luke", "Andaz Apna Apna", "Rebecca", "No Country for Old Men", "How to Train Your Dragon", "Munna Bhai M.B.B.S.", "Sholay", "Kill Bill: Vol. 1", "Into the Wild", "Mary and Max", "Gone Girl", "There Will Be Blood", "Come and See", "It Happened One Night", "Life of Brian", "Rush", "Hotel Rwanda", "Platoon", "Shutter Island", "Network", "The Wages of Fear", "Stand by Me", "Wild Tales", "In the Name of the Father", "Spotlight", "Star Wars: The Force Awakens", "The Nights of Cabiria", "The 400 Blows", "Butch Cassidy and the Sundance Kid", "Mad Max: Fury Road", "The Maltese Falcon", "12 Years a Slave", "Ben-Hur", "The Grand Budapest Hotel", "Persona", "Million Dollar Baby", "Amores Perros", "Jurassic Park", "The Princess Bride", "Hachi: A Dog's Tale", "Memories of Murder", "Stalker", "Nausicaä of the Valley of the Wind", "Drishyam", "The Truman Show", "The Grapes of Wrath", "Before Sunrise", "Touch of Evil", "Annie Hall", "The Message", "Rocky", "Gandhi", "Harry Potter and the Deathly Hallows: Part 2", "The Bourne Ultimatum", "Diabolique", "Donnie Darko", "Monsters, Inc.", "Prisoners", "8½", "The Terminator", "The Wizard of Oz", "Catch Me If You Can", "Groundhog Day", "Twelve Monkeys", "Zootopia", "La Haine", "Barry Lyndon", "Jaws", "The Best Years of Our Lives", "Infernal Affairs", "Udaan", "The Battle of Algiers", "Strangers on a Train", "Dog Day Afternoon", "Sin City", "Kind Hearts and Coronets", "Gangs of Wasseypur", "The Help"],
+        whitelist        : [&quot;The Shawshank Redemption&quot;, &quot;The Godfather&quot;, &quot;The Godfather: Part II&quot;, &quot;The Dark Knight&quot;, &quot;12 Angry Men&quot;, &quot;Schindler&#39;s List&quot;, &quot;Pulp Fiction&quot;, &quot;The Lord of the Rings: The Return of the King&quot;, &quot;The Good, the Bad and the Ugly&quot;, &quot;Fight Club&quot;, &quot;The Lord of the Rings: The Fellowship of the Ring&quot;, &quot;Star Wars: Episode V - The Empire Strikes Back&quot;, &quot;Forrest Gump&quot;, &quot;Inception&quot;, &quot;The Lord of the Rings: The Two Towers&quot;, &quot;One Flew Over the Cuckoo&#39;s Nest&quot;, &quot;Goodfellas&quot;, &quot;The Matrix&quot;, &quot;Seven Samurai&quot;, &quot;Star Wars: Episode IV - A New Hope&quot;, &quot;City of God&quot;, &quot;Se7en&quot;, &quot;The Silence of the Lambs&quot;, &quot;It&#39;s a Wonderful Life&quot;, &quot;The Usual Suspects&quot;, &quot;Life Is Beautiful&quot;, &quot;Léon: The Professional&quot;, &quot;Spirited Away&quot;, &quot;Saving Private Ryan&quot;, &quot;La La Land&quot;, &quot;Once Upon a Time in the West&quot;, &quot;American History X&quot;, &quot;Interstellar&quot;, &quot;Casablanca&quot;, &quot;Psycho&quot;, &quot;City Lights&quot;, &quot;The Green Mile&quot;, &quot;Raiders of the Lost Ark&quot;, &quot;The Intouchables&quot;, &quot;Modern Times&quot;, &quot;Rear Window&quot;, &quot;The Pianist&quot;, &quot;The Departed&quot;, &quot;Terminator 2: Judgment Day&quot;, &quot;Back to the Future&quot;, &quot;Whiplash&quot;, &quot;Gladiator&quot;, &quot;Memento&quot;, &quot;Apocalypse Now&quot;, &quot;The Prestige&quot;, &quot;The Lion King&quot;, &quot;Alien&quot;, &quot;Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb&quot;, &quot;Sunset Boulevard&quot;, &quot;The Great Dictator&quot;, &quot;Cinema Paradiso&quot;, &quot;The Lives of Others&quot;, &quot;Paths of Glory&quot;, &quot;Grave of the Fireflies&quot;, &quot;Django Unchained&quot;, &quot;The Shining&quot;, &quot;WALL·E&quot;, &quot;American Beauty&quot;, &quot;The Dark Knight Rises&quot;, &quot;Princess Mononoke&quot;, &quot;Aliens&quot;, &quot;Oldboy&quot;, &quot;Once Upon a Time in America&quot;, &quot;Citizen Kane&quot;, &quot;Das Boot&quot;, &quot;Witness for the Prosecution&quot;, &quot;North by Northwest&quot;, &quot;Vertigo&quot;, &quot;Star Wars: Episode VI - Return of the Jedi&quot;, &quot;Reservoir Dogs&quot;, &quot;M&quot;, &quot;Braveheart&quot;, &quot;Amélie&quot;, &quot;Requiem for a Dream&quot;, &quot;A Clockwork Orange&quot;, &quot;Taxi Driver&quot;, &quot;Lawrence of Arabia&quot;, &quot;Like Stars on Earth&quot;, &quot;Double Indemnity&quot;, &quot;To Kill a Mockingbird&quot;, &quot;Eternal Sunshine of the Spotless Mind&quot;, &quot;Toy Story 3&quot;, &quot;Amadeus&quot;, &quot;My Father and My Son&quot;, &quot;Full Metal Jacket&quot;, &quot;The Sting&quot;, &quot;2001: A Space Odyssey&quot;, &quot;Singin&#39; in the Rain&quot;, &quot;Bicycle Thieves&quot;, &quot;Toy Story&quot;, &quot;Dangal&quot;, &quot;The Kid&quot;, &quot;Inglourious Basterds&quot;, &quot;Snatch&quot;, &quot;Monty Python and the Holy Grail&quot;, &quot;Hacksaw Ridge&quot;, &quot;3 Idiots&quot;, &quot;L.A. Confidential&quot;, &quot;For a Few Dollars More&quot;, &quot;Scarface&quot;, &quot;Rashomon&quot;, &quot;The Apartment&quot;, &quot;The Hunt&quot;, &quot;Good Will Hunting&quot;, &quot;Indiana Jones and the Last Crusade&quot;, &quot;A Separation&quot;, &quot;Metropolis&quot;, &quot;Yojimbo&quot;, &quot;All About Eve&quot;, &quot;Batman Begins&quot;, &quot;Up&quot;, &quot;Some Like It Hot&quot;, &quot;The Treasure of the Sierra Madre&quot;, &quot;Unforgiven&quot;, &quot;Downfall&quot;, &quot;Raging Bull&quot;, &quot;The Third Man&quot;, &quot;Die Hard&quot;, &quot;Children of Heaven&quot;, &quot;The Great Escape&quot;, &quot;Heat&quot;, &quot;Chinatown&quot;, &quot;Inside Out&quot;, &quot;Pan&#39;s Labyrinth&quot;, &quot;Ikiru&quot;, &quot;My Neighbor Totoro&quot;, &quot;On the Waterfront&quot;, &quot;Room&quot;, &quot;Ran&quot;, &quot;The Gold Rush&quot;, &quot;The Secret in Their Eyes&quot;, &quot;The Bridge on the River Kwai&quot;, &quot;Blade Runner&quot;, &quot;Mr. Smith Goes to Washington&quot;, &quot;The Seventh Seal&quot;, &quot;Howl&#39;s Moving Castle&quot;, &quot;Lock, Stock and Two Smoking Barrels&quot;, &quot;Judgment at Nuremberg&quot;, &quot;Casino&quot;, &quot;The Bandit&quot;, &quot;Incendies&quot;, &quot;A Beautiful Mind&quot;, &quot;A Wednesday&quot;, &quot;The General&quot;, &quot;The Elephant Man&quot;, &quot;Wild Strawberries&quot;, &quot;Arrival&quot;, &quot;V for Vendetta&quot;, &quot;Warrior&quot;, &quot;The Wolf of Wall Street&quot;, &quot;Manchester by the Sea&quot;, &quot;Sunrise&quot;, &quot;The Passion of Joan of Arc&quot;, &quot;Gran Torino&quot;, &quot;Rang De Basanti&quot;, &quot;Trainspotting&quot;, &quot;Dial M for Murder&quot;, &quot;The Big Lebowski&quot;, &quot;The Deer Hunter&quot;, &quot;Tokyo Story&quot;, &quot;Gone with the Wind&quot;, &quot;Fargo&quot;, &quot;Finding Nemo&quot;, &quot;The Sixth Sense&quot;, &quot;The Thing&quot;, &quot;Hera Pheri&quot;, &quot;Cool Hand Luke&quot;, &quot;Andaz Apna Apna&quot;, &quot;Rebecca&quot;, &quot;No Country for Old Men&quot;, &quot;How to Train Your Dragon&quot;, &quot;Munna Bhai M.B.B.S.&quot;, &quot;Sholay&quot;, &quot;Kill Bill: Vol. 1&quot;, &quot;Into the Wild&quot;, &quot;Mary and Max&quot;, &quot;Gone Girl&quot;, &quot;There Will Be Blood&quot;, &quot;Come and See&quot;, &quot;It Happened One Night&quot;, &quot;Life of Brian&quot;, &quot;Rush&quot;, &quot;Hotel Rwanda&quot;, &quot;Platoon&quot;, &quot;Shutter Island&quot;, &quot;Network&quot;, &quot;The Wages of Fear&quot;, &quot;Stand by Me&quot;, &quot;Wild Tales&quot;, &quot;In the Name of the Father&quot;, &quot;Spotlight&quot;, &quot;Star Wars: The Force Awakens&quot;, &quot;The Nights of Cabiria&quot;, &quot;The 400 Blows&quot;, &quot;Butch Cassidy and the Sundance Kid&quot;, &quot;Mad Max: Fury Road&quot;, &quot;The Maltese Falcon&quot;, &quot;12 Years a Slave&quot;, &quot;Ben-Hur&quot;, &quot;The Grand Budapest Hotel&quot;, &quot;Persona&quot;, &quot;Million Dollar Baby&quot;, &quot;Amores Perros&quot;, &quot;Jurassic Park&quot;, &quot;The Princess Bride&quot;, &quot;Hachi: A Dog&#39;s Tale&quot;, &quot;Memories of Murder&quot;, &quot;Stalker&quot;, &quot;Nausicaä of the Valley of the Wind&quot;, &quot;Drishyam&quot;, &quot;The Truman Show&quot;, &quot;The Grapes of Wrath&quot;, &quot;Before Sunrise&quot;, &quot;Touch of Evil&quot;, &quot;Annie Hall&quot;, &quot;The Message&quot;, &quot;Rocky&quot;, &quot;Gandhi&quot;, &quot;Harry Potter and the Deathly Hallows: Part 2&quot;, &quot;The Bourne Ultimatum&quot;, &quot;Diabolique&quot;, &quot;Donnie Darko&quot;, &quot;Monsters, Inc.&quot;, &quot;Prisoners&quot;, &quot;8½&quot;, &quot;The Terminator&quot;, &quot;The Wizard of Oz&quot;, &quot;Catch Me If You Can&quot;, &quot;Groundhog Day&quot;, &quot;Twelve Monkeys&quot;, &quot;Zootopia&quot;, &quot;La Haine&quot;, &quot;Barry Lyndon&quot;, &quot;Jaws&quot;, &quot;The Best Years of Our Lives&quot;, &quot;Infernal Affairs&quot;, &quot;Udaan&quot;, &quot;The Battle of Algiers&quot;, &quot;Strangers on a Train&quot;, &quot;Dog Day Afternoon&quot;, &quot;Sin City&quot;, &quot;Kind Hearts and Coronets&quot;, &quot;Gangs of Wasseypur&quot;, &quot;The Help&quot;],
         callbacks        : {
             add    : console.log,  // callback when adding a tag
             remove : console.log   // callback when removing a tag
@@ -860,26 +860,26 @@ function onDropdownSelect(e){
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;div dir=&#39;rtl&#39;&gt;
+            <pre><code  class="language-markup">&lt;div dir=&#39;rtl&#39;&gt;
     &lt;input name=&#39;rtl-example&#39; class=&#39;tagify--rtl-exmaple&#39; placeholder=&#39;לחץ בשדה והוסף ערך&#39;/&gt;
 &lt;/div&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>// The DOM element you wish to replace with Tagify
-var input = document.querySelector('input[name=rtl-example]');
+            <pre><code class="language-javascript">// The DOM element you wish to replace with Tagify
+var input = document.querySelector(&#39;input[name=rtl-example]&#39;);
 
 // initialize Tagify on the above input node reference
 new Tagify(input, {
     whitelist: [
-        { value: "מיכאל כהן", full: "<em>מיכאל כהן</em> - פיתוח תוכנה מתקדם ויישום טכנולוגיות חדשניות בתחום התעשייה והייצור" },
-        { value: "שרה לוי", full: "<em>שרה לוי</em> - ניהול ופיתוח פתרונות אקולוגיים וסביבתיים למתן יתרון תחרותי לעסקים" },
-        { value: "אברהם גולן", full: "<em>אברהם גולן</em> - יישום ופיתוח טכנולוגיות מתקדמות לשיפור פרודוקטיביות ויצירתיות בארגונים" },
-        { value: "רחל רביבו", full: "<em>רחל רביבו</em> - מחקר ופיתוח טכנולוגי בתחום החדשנות והיזמות לקידום עסקים ותעשיות" },
-        { value: "דוד כהן", full: "<em>דוד כהן</em> - פיתוח ויישום טכנולוגיות מתקדמות לשיפור תשתיות מידע עסקיות" },
-        { value: "רבקה אריאל", full: "<em>רבקה אריאל</em> - ייזום ופיתוח מוצרים חדשניים עבור תעשיות יצירתיות ומתקדמות" }
+        { value: &quot;מיכאל כהן&quot;, full: &quot;&lt;em&gt;מיכאל כהן&lt;/em&gt; - פיתוח תוכנה מתקדם ויישום טכנולוגיות חדשניות בתחום התעשייה והייצור&quot; },
+        { value: &quot;שרה לוי&quot;, full: &quot;&lt;em&gt;שרה לוי&lt;/em&gt; - ניהול ופיתוח פתרונות אקולוגיים וסביבתיים למתן יתרון תחרותי לעסקים&quot; },
+        { value: &quot;אברהם גולן&quot;, full: &quot;&lt;em&gt;אברהם גולן&lt;/em&gt; - יישום ופיתוח טכנולוגיות מתקדמות לשיפור פרודוקטיביות ויצירתיות בארגונים&quot; },
+        { value: &quot;רחל רביבו&quot;, full: &quot;&lt;em&gt;רחל רביבו&lt;/em&gt; - מחקר ופיתוח טכנולוגי בתחום החדשנות והיזמות לקידום עסקים ותעשיות&quot; },
+        { value: &quot;דוד כהן&quot;, full: &quot;&lt;em&gt;דוד כהן&lt;/em&gt; - פיתוח ויישום טכנולוגיות מתקדמות לשיפור תשתיות מידע עסקיות&quot; },
+        { value: &quot;רבקה אריאל&quot;, full: &quot;&lt;em&gt;רבקה אריאל&lt;/em&gt; - ייזום ופיתוח מוצרים חדשניים עבור תעשיות יצירתיות ומתקדמות&quot; }
     ],
     dropdown: {
-        mapValueTo: 'full',
-        classname: 'tagify__dropdown--rtl-example',
+        mapValueTo: &#39;full&#39;,
+        classname: &#39;tagify__dropdown--rtl-example&#39;,
         enabled: 0, // shows the suggestiosn dropdown once field is focused
         RTL: true,
         escapeHTML: false // allows HTML inside each suggestion item
@@ -977,41 +977,41 @@ new Tagify(input, {
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input class=&#39;customLook&#39; value=&#39;some.name@website.com&#39;&gt;&lt;button type=&quot;button&quot;&gt;+&lt;/button&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input class=&#39;customLook&#39; value=&#39;some.name@website.com&#39;&gt;&lt;button type=&quot;button&quot;&gt;+&lt;/button&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>// generate random whilist items (for the demo)
+            <pre><code class="language-javascript">// generate random whilist items (for the demo)
 var randomStringsArr = Array.apply(null, Array(100)).map(function () {
     return Array.apply(null, Array(~~(Math.random() * 10 + 3))).map(function () {
         return String.fromCharCode(Math.random() * (123 - 97) + 97)
-    }).join('') + '@gmail.com'
+    }).join(&#39;&#39;) + &#39;@gmail.com&#39;
 })
 
-var input = document.querySelector('.customLook'),
+var input = document.querySelector(&#39;.customLook&#39;),
     button = input.nextElementSibling,
     tagify = new Tagify(input, {
         editTags: {
             keepInvalid: false, // better to auto-remove invalid tags which are in edit-mode (on blur)
         },
         // email address validation (https://stackoverflow.com/a/46181/104380)
-        pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+        pattern: /^(([^&lt;&gt;()&#92;[&#92;]&#92;&#92;.,;:&#92;s@&quot;]+(&#92;.[^&lt;&gt;()&#92;[&#92;]&#92;&#92;.,;:&#92;s@&quot;]+)*)|(&quot;.+&quot;))@((&#92;[[0-9]{1,3}&#92;.[0-9]{1,3}&#92;.[0-9]{1,3}&#92;.[0-9]{1,3}&#92;])|(([a-zA-Z&#92;-0-9]+&#92;.)+[a-zA-Z]{2,}))$/,
         whitelist: randomStringsArr,
         callbacks: {
-            "invalid": onInvalidTag
+            &quot;invalid&quot;: onInvalidTag
         },
         dropdown: {
-            position: 'text',
+            position: &#39;text&#39;,
             enabled: 1 // show suggestions dropdown after 1 typed character
         }
-    });  // "add new tag" action-button
+    });  // &quot;add new tag&quot; action-button
 
-button.addEventListener("click", onAddButtonClick)
+button.addEventListener(&quot;click&quot;, onAddButtonClick)
 
 function onAddButtonClick() {
     tagify.addEmptyTag()
 }
 
 function onInvalidTag(e) {
-    console.log("invalid", e.detail)
+    console.log(&quot;invalid&quot;, e.detail)
 }</code></pre>
             
             <h3>CSS</h3>
@@ -1194,39 +1194,39 @@ function onInvalidTag(e) {
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;textarea name=&#39;mix&#39;&gt;[[{&quot;id&quot;:101, &quot;value&quot;:&quot;cartman&quot;, &quot;title&quot;:&quot;Eric Cartman&quot;}]] and [[kyle]] do not know [[{&quot;value&quot;:&quot;homer simpson&quot;, &quot;readonly&quot;:true}]] because he&#39;s a relic.&lt;/textarea&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;textarea name=&#39;mix&#39;&gt;[[{&quot;id&quot;:101, &quot;value&quot;:&quot;cartman&quot;, &quot;title&quot;:&quot;Eric Cartman&quot;}]] and [[kyle]] do not know [[{&quot;value&quot;:&quot;homer simpson&quot;, &quot;readonly&quot;:true}]] because he&#39;s a relic.&lt;/textarea&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>// Define two types of whitelists, each used for the dropdown suggestions menu,
+            <pre><code class="language-javascript">// Define two types of whitelists, each used for the dropdown suggestions menu,
 // depending on the prefix pattern typed (@/#). See settings below.
 var whitelist_1 = [
-    { value: 100, text: 'kenny', title: 'Kenny McCormick' },
-    { value: 200, text: 'cartman', title: 'Eric Cartman' },
-    { value: 300, text: 'kyle', title: 'Kyle Broflovski' },
-    { value: 400, text: 'token', title: 'Token Black' },
-    { value: 500, text: 'jimmy', title: 'Jimmy Valmer' },
-    { value: 600, text: 'butters', title: 'Butters Stotch' },
-    { value: 700, text: 'stan', title: 'Stan Marsh' },
-    { value: 800, text: 'randy', title: 'Randy Marsh' },
-    { value: 900, text: 'Mr. Garrison', title: 'POTUS' },
-    { value: 1000, text: 'Mr. Mackey', title: "M'Kay" }
+    { value: 100, text: &#39;kenny&#39;, title: &#39;Kenny McCormick&#39; },
+    { value: 200, text: &#39;cartman&#39;, title: &#39;Eric Cartman&#39; },
+    { value: 300, text: &#39;kyle&#39;, title: &#39;Kyle Broflovski&#39; },
+    { value: 400, text: &#39;token&#39;, title: &#39;Token Black&#39; },
+    { value: 500, text: &#39;jimmy&#39;, title: &#39;Jimmy Valmer&#39; },
+    { value: 600, text: &#39;butters&#39;, title: &#39;Butters Stotch&#39; },
+    { value: 700, text: &#39;stan&#39;, title: &#39;Stan Marsh&#39; },
+    { value: 800, text: &#39;randy&#39;, title: &#39;Randy Marsh&#39; },
+    { value: 900, text: &#39;Mr. Garrison&#39;, title: &#39;POTUS&#39; },
+    { value: 1000, text: &#39;Mr. Mackey&#39;, title: &quot;M&#39;Kay&quot; }
   ]
 
-// Second whitelist, which is shown only when starting to type "#".
+// Second whitelist, which is shown only when starting to type &quot;#&quot;.
 // Below whitelist is the simplest possible format.
-var whitelist_2 = ['Homer simpson', 'Marge simpson', 'Bart', 'Lisa', 'Maggie', 'Mr. Burns', 'Ned', 'Milhouse', 'Moe'];
+var whitelist_2 = [&#39;Homer simpson&#39;, &#39;Marge simpson&#39;, &#39;Bart&#39;, &#39;Lisa&#39;, &#39;Maggie&#39;, &#39;Mr. Burns&#39;, &#39;Ned&#39;, &#39;Milhouse&#39;, &#39;Moe&#39;];
 
 
 // initialize Tagify
-var input = document.querySelector('[name=mix]'),
+var input = document.querySelector(&#39;[name=mix]&#39;),
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
-    //  mixTagsInterpolator: [", "],
-        mode: 'mix',  // <--  Enable mixed-content
-        pattern: /@|#/,  // <--  Text starting with @ or # (if single, String can be used here)
-        tagTextProp: 'text',  // <-- the default property (from whitelist item) for the text to be rendered in a tag element.
+    //  mixTagsInterpolator: [&quot;, &quot;],
+        mode: &#39;mix&#39;,  // &lt;--  Enable mixed-content
+        pattern: /@|#/,  // &lt;--  Text starting with @ or # (if single, String can be used here)
+        tagTextProp: &#39;text&#39;,  // &lt;-- the default property (from whitelist item) for the text to be rendered in a tag element.
         // Array for initial interpolation, which allows only these tags to be used
         whitelist: whitelist_1.concat(whitelist_2).map(function(item){
-            return typeof item == 'string' ? {value:item} : item
+            return typeof item == &#39;string&#39; ? {value:item} : item
         }),
 
         // custom validation - no special characters
@@ -1236,8 +1236,8 @@ var input = document.querySelector('[name=mix]'),
 
         dropdown : {
             enabled: 1,
-            position: 'text', // <-- render the suggestions list next to the typed text ("caret")
-            mapValueTo: 'text', // <-- similar to above "tagTextProp" setting, but for the dropdown items
+            position: &#39;text&#39;, // &lt;-- render the suggestions list next to the typed text (&quot;caret&quot;)
+            mapValueTo: &#39;text&#39;, // &lt;-- similar to above &quot;tagTextProp&quot; setting, but for the dropdown items
             highlightFirst: true  // automatically highlights first sugegstion item in the dropdown
         },
         callbacks: {
@@ -1248,7 +1248,7 @@ var input = document.querySelector('[name=mix]'),
 
 
 // A good place to pull server suggestion list accoring to the prefix/value
-tagify.on('input', function(e){
+tagify.on(&#39;input&#39;, function(e){
     var prefix = e.detail.prefix;
 
     // first, clean the whitlist array, because the below code, while not, might be async,
@@ -1256,21 +1256,21 @@ tagify.on('input', function(e){
     // tagify.settings.whitelist.length = 0;
 
     if( prefix ){
-        if( prefix == '@' )
+        if( prefix == &#39;@&#39; )
             tagify.whitelist = whitelist_1;
 
-        if( prefix == '#' )
+        if( prefix == &#39;#&#39; )
             tagify.whitelist = whitelist_2;
 
-        if( e.detail.value.length > 1 )
+        if( e.detail.value.length &gt; 1 )
             tagify.dropdown.show(e.detail.value);
     }
 
     console.log( tagify.value )
-    console.log('mix-mode "input" event value: ', e.detail)
+    console.log(&#39;mix-mode &quot;input&quot; event value: &#39;, e.detail)
 })
 
-tagify.on('add', function(e){
+tagify.on(&#39;add&#39;, function(e){
     console.log(e)
 })</code></pre>
             
@@ -1394,15 +1394,15 @@ tagify.on('add', function(e){
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input name=&#39;tags-outside&#39; class=&#39;tagify--outside&#39; value=&#39;tag1, tag2, tag3&#39; placeholder=&#39;write tags to add below&#39;&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input name=&#39;tags-outside&#39; class=&#39;tagify--outside&#39; value=&#39;tag1, tag2, tag3&#39; placeholder=&#39;write tags to add below&#39;&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('input[name=tags-outside]')
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;input[name=tags-outside]&#39;)
 
 var tagify = new Tagify(input, {
-    whitelist: ['foo', 'bar', 'baz'],
+    whitelist: [&#39;foo&#39;, &#39;bar&#39;, &#39;baz&#39;],
     focusable: false,
     dropdown: {
-        position: 'input',
+        position: &#39;input&#39;,
         enabled: 0 // always opens dropdown when input gets focus
     }
 })</code></pre>
@@ -1480,30 +1480,30 @@ var tagify = new Tagify(input, {
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input name=&#39;tags-manual-suggestions&#39; placeholder=&#39;write some tags&#39;&gt;
+            <pre><code  class="language-markup">&lt;input name=&#39;tags-manual-suggestions&#39; placeholder=&#39;write some tags&#39;&gt;
 &lt;h3&gt;☝ Add items from below list:&lt;/h3&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('input[name=tags-manual-suggestions]'),
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;input[name=tags-manual-suggestions]&#39;),
     // init Tagify script on the above inputs
     tagify = new Tagify(input, {
-        whitelist: ["A# .NET", "A# (Axiom)", "A-0 System", "A+", "A++", "ABAP", "ABC", "ABC ALGOL", "ABSET", "ABSYS", "ACC", "Accent", "Ace DASL", "ACL2", "Avicsoft", "ACT-III", "Action!", "ActionScript", "Ada", "Adenine", "Agda", "Agilent VEE", "Agora", "AIMMS", "Alef", "ALF", "ALGOL 58", "ALGOL 60", "ALGOL 68", "ALGOL W", "Alice", "Alma-0", "AmbientTalk", "Amiga E", "AMOS", "AMPL", "Apex (Salesforce.com)", "APL", "AppleScript", "Arc", "ARexx", "Argus", "AspectJ", "Assembly language", "ATS", "Ateji PX", "AutoHotkey", "Autocoder", "AutoIt", "AutoLISP / Visual LISP", "Averest", "AWK", "Axum", "Active Server Pages", "ASP.NET", "B", "Babbage", "Bash", "BASIC", "bc", "BCPL", "BeanShell", "Batch (Windows/Dos)", "Bertrand", "BETA", "Bigwig", "Bistro", "BitC", "BLISS", "Blockly", "BlooP", "Blue", "Boo", "Boomerang", "Bourne shell (including bash and ksh)", "BREW", "BPEL", "B", "C--", "C++ – ISO/IEC 14882", "C# – ISO/IEC 23270", "C/AL", "Caché ObjectScript", "C Shell", "Caml", "Cayenne", "CDuce", "Cecil", "Cesil", "Céu", "Ceylon", "CFEngine", "CFML", "Cg", "Ch", "Chapel", "Charity", "Charm", "Chef", "CHILL", "CHIP-8", "chomski", "ChucK", "CICS", "Cilk", "Citrine (programming language)", "CL (IBM)", "Claire", "Clarion", "Clean", "Clipper", "CLIPS", "CLIST", "Clojure", "CLU", "CMS-2", "COBOL – ISO/IEC 1989", "CobolScript – COBOL Scripting language", "Cobra", "CODE", "CoffeeScript", "ColdFusion", "COMAL", "Combined Programming Language (CPL)", "COMIT", "Common Intermediate Language (CIL)", "Common Lisp (also known as CL)", "COMPASS", "Component Pascal", "Constraint Handling Rules (CHR)", "COMTRAN", "Converge", "Cool", "Coq", "Coral 66", "Corn", "CorVision", "COWSEL", "CPL", "CPL", "Cryptol", "csh", "Csound", "CSP", "CUDA", "Curl", "Curry", "Cybil", "Cyclone", "Cython", "Java", "Javascript", "M2001", "M4", "M#", "Machine code", "MAD (Michigan Algorithm Decoder)", "MAD/I", "Magik", "Magma", "make", "Maple", "MAPPER now part of BIS", "MARK-IV now VISION:BUILDER", "Mary", "MASM Microsoft Assembly x86", "MATH-MATIC", "Mathematica", "MATLAB", "Maxima (see also Macsyma)", "Max (Max Msp – Graphical Programming Environment)", "Maya (MEL)", "MDL", "Mercury", "Mesa", "Metafont", "Microcode", "MicroScript", "MIIS", "Milk (programming language)", "MIMIC", "Mirah", "Miranda", "MIVA Script", "ML", "Model 204", "Modelica", "Modula", "Modula-2", "Modula-3", "Mohol", "MOO", "Mortran", "Mouse", "MPD", "Mathcad", "MSIL – deprecated name for CIL", "MSL", "MUMPS", "Mystic Programming L"],
+        whitelist: [&quot;A# .NET&quot;, &quot;A# (Axiom)&quot;, &quot;A-0 System&quot;, &quot;A+&quot;, &quot;A++&quot;, &quot;ABAP&quot;, &quot;ABC&quot;, &quot;ABC ALGOL&quot;, &quot;ABSET&quot;, &quot;ABSYS&quot;, &quot;ACC&quot;, &quot;Accent&quot;, &quot;Ace DASL&quot;, &quot;ACL2&quot;, &quot;Avicsoft&quot;, &quot;ACT-III&quot;, &quot;Action!&quot;, &quot;ActionScript&quot;, &quot;Ada&quot;, &quot;Adenine&quot;, &quot;Agda&quot;, &quot;Agilent VEE&quot;, &quot;Agora&quot;, &quot;AIMMS&quot;, &quot;Alef&quot;, &quot;ALF&quot;, &quot;ALGOL 58&quot;, &quot;ALGOL 60&quot;, &quot;ALGOL 68&quot;, &quot;ALGOL W&quot;, &quot;Alice&quot;, &quot;Alma-0&quot;, &quot;AmbientTalk&quot;, &quot;Amiga E&quot;, &quot;AMOS&quot;, &quot;AMPL&quot;, &quot;Apex (Salesforce.com)&quot;, &quot;APL&quot;, &quot;AppleScript&quot;, &quot;Arc&quot;, &quot;ARexx&quot;, &quot;Argus&quot;, &quot;AspectJ&quot;, &quot;Assembly language&quot;, &quot;ATS&quot;, &quot;Ateji PX&quot;, &quot;AutoHotkey&quot;, &quot;Autocoder&quot;, &quot;AutoIt&quot;, &quot;AutoLISP / Visual LISP&quot;, &quot;Averest&quot;, &quot;AWK&quot;, &quot;Axum&quot;, &quot;Active Server Pages&quot;, &quot;ASP.NET&quot;, &quot;B&quot;, &quot;Babbage&quot;, &quot;Bash&quot;, &quot;BASIC&quot;, &quot;bc&quot;, &quot;BCPL&quot;, &quot;BeanShell&quot;, &quot;Batch (Windows/Dos)&quot;, &quot;Bertrand&quot;, &quot;BETA&quot;, &quot;Bigwig&quot;, &quot;Bistro&quot;, &quot;BitC&quot;, &quot;BLISS&quot;, &quot;Blockly&quot;, &quot;BlooP&quot;, &quot;Blue&quot;, &quot;Boo&quot;, &quot;Boomerang&quot;, &quot;Bourne shell (including bash and ksh)&quot;, &quot;BREW&quot;, &quot;BPEL&quot;, &quot;B&quot;, &quot;C--&quot;, &quot;C++ – ISO/IEC 14882&quot;, &quot;C# – ISO/IEC 23270&quot;, &quot;C/AL&quot;, &quot;Caché ObjectScript&quot;, &quot;C Shell&quot;, &quot;Caml&quot;, &quot;Cayenne&quot;, &quot;CDuce&quot;, &quot;Cecil&quot;, &quot;Cesil&quot;, &quot;Céu&quot;, &quot;Ceylon&quot;, &quot;CFEngine&quot;, &quot;CFML&quot;, &quot;Cg&quot;, &quot;Ch&quot;, &quot;Chapel&quot;, &quot;Charity&quot;, &quot;Charm&quot;, &quot;Chef&quot;, &quot;CHILL&quot;, &quot;CHIP-8&quot;, &quot;chomski&quot;, &quot;ChucK&quot;, &quot;CICS&quot;, &quot;Cilk&quot;, &quot;Citrine (programming language)&quot;, &quot;CL (IBM)&quot;, &quot;Claire&quot;, &quot;Clarion&quot;, &quot;Clean&quot;, &quot;Clipper&quot;, &quot;CLIPS&quot;, &quot;CLIST&quot;, &quot;Clojure&quot;, &quot;CLU&quot;, &quot;CMS-2&quot;, &quot;COBOL – ISO/IEC 1989&quot;, &quot;CobolScript – COBOL Scripting language&quot;, &quot;Cobra&quot;, &quot;CODE&quot;, &quot;CoffeeScript&quot;, &quot;ColdFusion&quot;, &quot;COMAL&quot;, &quot;Combined Programming Language (CPL)&quot;, &quot;COMIT&quot;, &quot;Common Intermediate Language (CIL)&quot;, &quot;Common Lisp (also known as CL)&quot;, &quot;COMPASS&quot;, &quot;Component Pascal&quot;, &quot;Constraint Handling Rules (CHR)&quot;, &quot;COMTRAN&quot;, &quot;Converge&quot;, &quot;Cool&quot;, &quot;Coq&quot;, &quot;Coral 66&quot;, &quot;Corn&quot;, &quot;CorVision&quot;, &quot;COWSEL&quot;, &quot;CPL&quot;, &quot;CPL&quot;, &quot;Cryptol&quot;, &quot;csh&quot;, &quot;Csound&quot;, &quot;CSP&quot;, &quot;CUDA&quot;, &quot;Curl&quot;, &quot;Curry&quot;, &quot;Cybil&quot;, &quot;Cyclone&quot;, &quot;Cython&quot;, &quot;Java&quot;, &quot;Javascript&quot;, &quot;M2001&quot;, &quot;M4&quot;, &quot;M#&quot;, &quot;Machine code&quot;, &quot;MAD (Michigan Algorithm Decoder)&quot;, &quot;MAD/I&quot;, &quot;Magik&quot;, &quot;Magma&quot;, &quot;make&quot;, &quot;Maple&quot;, &quot;MAPPER now part of BIS&quot;, &quot;MARK-IV now VISION:BUILDER&quot;, &quot;Mary&quot;, &quot;MASM Microsoft Assembly x86&quot;, &quot;MATH-MATIC&quot;, &quot;Mathematica&quot;, &quot;MATLAB&quot;, &quot;Maxima (see also Macsyma)&quot;, &quot;Max (Max Msp – Graphical Programming Environment)&quot;, &quot;Maya (MEL)&quot;, &quot;MDL&quot;, &quot;Mercury&quot;, &quot;Mesa&quot;, &quot;Metafont&quot;, &quot;Microcode&quot;, &quot;MicroScript&quot;, &quot;MIIS&quot;, &quot;Milk (programming language)&quot;, &quot;MIMIC&quot;, &quot;Mirah&quot;, &quot;Miranda&quot;, &quot;MIVA Script&quot;, &quot;ML&quot;, &quot;Model 204&quot;, &quot;Modelica&quot;, &quot;Modula&quot;, &quot;Modula-2&quot;, &quot;Modula-3&quot;, &quot;Mohol&quot;, &quot;MOO&quot;, &quot;Mortran&quot;, &quot;Mouse&quot;, &quot;MPD&quot;, &quot;Mathcad&quot;, &quot;MSIL – deprecated name for CIL&quot;, &quot;MSL&quot;, &quot;MUMPS&quot;, &quot;Mystic Programming L&quot;],
         dropdown: {
-            position: "manual",
+            position: &quot;manual&quot;,
             maxItems: Infinity,
             enabled: 0,
-            classname: "customSuggestionsList"
+            classname: &quot;customSuggestionsList&quot;
         },
         templates: {
             dropdownItemNoMatch() {
-                return `<div class='empty'>Nothing Found</div>`;
+                return `&lt;div class=&#39;empty&#39;&gt;Nothing Found&lt;/div&gt;`;
             }
         },
         enforceWhitelist: true
     })
 
-tagify.on("dropdown:show", onSuggestionsListUpdate)
-      .on("dropdown:hide", onSuggestionsListHide)
-      .on('dropdown:scroll', onDropdownScroll)
+tagify.on(&quot;dropdown:show&quot;, onSuggestionsListUpdate)
+      .on(&quot;dropdown:hide&quot;, onSuggestionsListHide)
+      .on(&#39;dropdown:scroll&#39;, onDropdownScroll)
 
 renderSuggestionsList()  // defined down below
 
@@ -1513,7 +1513,7 @@ function onSuggestionsListUpdate({ detail: suggestionsElm }) {
 }
 
 function onSuggestionsListHide() {
-    console.log("hide dropdown")
+    console.log(&quot;hide dropdown&quot;)
 }
 
 function onDropdownScroll(e) {
@@ -1625,9 +1625,9 @@ function renderSuggestionsList() {
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input name=&#39;disabled-user-input&#39; placeholder=&#39;Select tags from the list&#39;&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input name=&#39;disabled-user-input&#39; placeholder=&#39;Select tags from the list&#39;&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('input[name=disabled-user-input]'),
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;input[name=disabled-user-input]&#39;),
     tagify = new Tagify(input, {
         whitelist: [1,2,3,4,5],
         userInput: false
@@ -1684,66 +1684,66 @@ function renderSuggestionsList() {
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input name=&#39;users-list-tags&#39; class=&#39;users-list&#39; value=&#39;abatisse2@nih.gov, Justinian Hattersley&#39;&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input name=&#39;users-list-tags&#39; class=&#39;users-list&#39; value=&#39;abatisse2@nih.gov, Justinian Hattersley&#39;&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var inputElm = document.querySelector('input[name=users-list-tags]');
+            <pre><code class="language-javascript">var inputElm = document.querySelector(&#39;input[name=users-list-tags]&#39;);
 
 function tagTemplate(tagData) {
     return `
-        <tag title="${tagData.email}"
-                contenteditable='false'
-                spellcheck='false'
-                tabIndex="-1"
-                class="tagify__tag ${tagData.class ? tagData.class : ""}"
-                ${this.getAttributes(tagData)}>
-            <x title='' class='tagify__tag__removeBtn' role='button' aria-label='remove tag'></x>
-            <div>
-                <div class='tagify__tag__avatar-wrap'>
-                    <img onerror="this.style.visibility='hidden'" src="${tagData.avatar}">
-                </div>
-                <span class='tagify__tag-text'>${tagData.name}</span>
-            </div>
-        </tag>
+        &lt;tag title=&quot;${tagData.email}&quot;
+                contenteditable=&#39;false&#39;
+                spellcheck=&#39;false&#39;
+                tabIndex=&quot;-1&quot;
+                class=&quot;tagify__tag ${tagData.class ? tagData.class : &quot;&quot;}&quot;
+                ${this.getAttributes(tagData)}&gt;
+            &lt;x title=&#39;&#39; class=&#39;tagify__tag__removeBtn&#39; role=&#39;button&#39; aria-label=&#39;remove tag&#39;&gt;&lt;/x&gt;
+            &lt;div&gt;
+                &lt;div class=&#39;tagify__tag__avatar-wrap&#39;&gt;
+                    &lt;img onerror=&quot;this.style.visibility=&#39;hidden&#39;&quot; src=&quot;${tagData.avatar}&quot;&gt;
+                &lt;/div&gt;
+                &lt;span class=&#39;tagify__tag-text&#39;&gt;${tagData.name}&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/tag&gt;
     `
 }
 
 function suggestionItemTemplate(tagData) {
     return `
-        <div ${this.getAttributes(tagData)}
-            class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}'
-            tabindex="0"
-            role="option">
+        &lt;div ${this.getAttributes(tagData)}
+            class=&#39;tagify__dropdown__item ${tagData.class ? tagData.class : &quot;&quot;}&#39;
+            tabindex=&quot;0&quot;
+            role=&quot;option&quot;&gt;
             ${tagData.avatar ? `
-                <div class='tagify__dropdown__item__avatar-wrap'>
-                    <img onerror="this.style.visibility='hidden'" src="${tagData.avatar}">
-                </div>` : ''
+                &lt;div class=&#39;tagify__dropdown__item__avatar-wrap&#39;&gt;
+                    &lt;img onerror=&quot;this.style.visibility=&#39;hidden&#39;&quot; src=&quot;${tagData.avatar}&quot;&gt;
+                &lt;/div&gt;` : &#39;&#39;
         }
-            <strong>${tagData.name}</strong>
-            <span>${tagData.email}</span>
-        </div>
+            &lt;strong&gt;${tagData.name}&lt;/strong&gt;
+            &lt;span&gt;${tagData.email}&lt;/span&gt;
+        &lt;/div&gt;
     `
 }
 
 function dropdownHeaderTemplate(suggestions) {
     return `
-        <header data-selector='tagify-suggestions-header' class="${this.settings.classNames.dropdownItem} ${this.settings.classNames.dropdownItem}__addAll">
-            <strong style='grid-area: add'>${this.value.length ? `Add Remaning` : 'Add All'}</strong>
-            <span style='grid-area: remaning'>${suggestions.length} members</span>
-            <a class='remove-all-tags'>Remove all</a>
-        </header>
+        &lt;header data-selector=&#39;tagify-suggestions-header&#39; class=&quot;${this.settings.classNames.dropdownItem} ${this.settings.classNames.dropdownItem}__addAll&quot;&gt;
+            &lt;strong style=&#39;grid-area: add&#39;&gt;${this.value.length ? `Add Remaning` : &#39;Add All&#39;}&lt;/strong&gt;
+            &lt;span style=&#39;grid-area: remaning&#39;&gt;${suggestions.length} members&lt;/span&gt;
+            &lt;a class=&#39;remove-all-tags&#39;&gt;Remove all&lt;/a&gt;
+        &lt;/header&gt;
     `
 }
 
 // initialize Tagify on the above input node reference
 var tagify = new Tagify(inputElm, {
-    tagTextProp: 'name', // very important since a custom template is used with this property as text
+    tagTextProp: &#39;name&#39;, // very important since a custom template is used with this property as text
     // enforceWhitelist: true,
     skipInvalid: true, // do not remporarily add invalid tags
     dropdown: {
         closeOnSelect: false,
         enabled: 0,
-        classname: 'users-list',
-        searchKeys: ['name', 'email']  // very important to set by which keys to search for suggesttions when typing
+        classname: &#39;users-list&#39;,
+        searchKeys: [&#39;name&#39;, &#39;email&#39;]  // very important to set by which keys to search for suggesttions when typing
     },
     templates: {
         tag: tagTemplate,
@@ -1752,108 +1752,108 @@ var tagify = new Tagify(inputElm, {
     },
     whitelist: [
         {
-            "value": 1,
-            "name": "Justinian Hattersley",
-            "avatar": "https://i.pravatar.cc/80?img=1",
-            "email": "jhattersley0@ucsd.edu",
-            "team": "A"
+            &quot;value&quot;: 1,
+            &quot;name&quot;: &quot;Justinian Hattersley&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=1&quot;,
+            &quot;email&quot;: &quot;jhattersley0@ucsd.edu&quot;,
+            &quot;team&quot;: &quot;A&quot;
         },
         {
-            "value": 2,
-            "name": "Antons Esson",
-            "avatar": "https://i.pravatar.cc/80?img=2",
-            "email": "aesson1@ning.com",
-            "team": "B"
+            &quot;value&quot;: 2,
+            &quot;name&quot;: &quot;Antons Esson&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=2&quot;,
+            &quot;email&quot;: &quot;aesson1@ning.com&quot;,
+            &quot;team&quot;: &quot;B&quot;
 
         },
         {
-            "value": 3,
-            "name": "Ardeen Batisse",
-            "avatar": "https://i.pravatar.cc/80?img=3",
-            "email": "abatisse2@nih.gov",
-            "team": "A"
+            &quot;value&quot;: 3,
+            &quot;name&quot;: &quot;Ardeen Batisse&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=3&quot;,
+            &quot;email&quot;: &quot;abatisse2@nih.gov&quot;,
+            &quot;team&quot;: &quot;A&quot;
         },
         {
-            "value": 4,
-            "name": "Graeme Yellowley",
-            "avatar": "https://i.pravatar.cc/80?img=4",
-            "email": "gyellowley3@behance.net",
-            "team": "C"
+            &quot;value&quot;: 4,
+            &quot;name&quot;: &quot;Graeme Yellowley&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=4&quot;,
+            &quot;email&quot;: &quot;gyellowley3@behance.net&quot;,
+            &quot;team&quot;: &quot;C&quot;
         },
         {
-            "value": 5,
-            "name": "Dido Wilford",
-            "avatar": "https://i.pravatar.cc/80?img=5",
-            "email": "dwilford4@jugem.jp",
-            "team": "A"
+            &quot;value&quot;: 5,
+            &quot;name&quot;: &quot;Dido Wilford&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=5&quot;,
+            &quot;email&quot;: &quot;dwilford4@jugem.jp&quot;,
+            &quot;team&quot;: &quot;A&quot;
         },
         {
-            "value": 6,
-            "name": "Celesta Orwin",
-            "avatar": "https://i.pravatar.cc/80?img=6",
-            "email": "corwin5@meetup.com",
-            "team": "C"
+            &quot;value&quot;: 6,
+            &quot;name&quot;: &quot;Celesta Orwin&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=6&quot;,
+            &quot;email&quot;: &quot;corwin5@meetup.com&quot;,
+            &quot;team&quot;: &quot;C&quot;
         },
         {
-            "value": 7,
-            "name": "Sally Main",
-            "avatar": "https://i.pravatar.cc/80?img=7",
-            "email": "smain6@techcrunch.com",
-            "team": "A"
+            &quot;value&quot;: 7,
+            &quot;name&quot;: &quot;Sally Main&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=7&quot;,
+            &quot;email&quot;: &quot;smain6@techcrunch.com&quot;,
+            &quot;team&quot;: &quot;A&quot;
         },
         {
-            "value": 8,
-            "name": "Grethel Haysman",
-            "avatar": "https://i.pravatar.cc/80?img=8",
-            "email": "ghaysman7@mashable.com",
-            "team": "B"
+            &quot;value&quot;: 8,
+            &quot;name&quot;: &quot;Grethel Haysman&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=8&quot;,
+            &quot;email&quot;: &quot;ghaysman7@mashable.com&quot;,
+            &quot;team&quot;: &quot;B&quot;
         },
         {
-            "value": 9,
-            "name": "Marvin Mandrake",
-            "avatar": "https://i.pravatar.cc/80?img=9",
-            "email": "mmandrake8@sourceforge.net",
-            "team": "B"
+            &quot;value&quot;: 9,
+            &quot;name&quot;: &quot;Marvin Mandrake&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=9&quot;,
+            &quot;email&quot;: &quot;mmandrake8@sourceforge.net&quot;,
+            &quot;team&quot;: &quot;B&quot;
         },
         {
-            "value": 10,
-            "name": "Corrie Tidey",
-            "avatar": "https://i.pravatar.cc/80?img=10",
-            "email": "ctidey9@youtube.com",
-            "team": "A"
+            &quot;value&quot;: 10,
+            &quot;name&quot;: &quot;Corrie Tidey&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=10&quot;,
+            &quot;email&quot;: &quot;ctidey9@youtube.com&quot;,
+            &quot;team&quot;: &quot;A&quot;
         },
         {
-            "value": 11,
-            "name": "foo",
-            "avatar": "https://i.pravatar.cc/80?img=11",
-            "email": "foo@bar.com",
-            "team": "B"
+            &quot;value&quot;: 11,
+            &quot;name&quot;: &quot;foo&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=11&quot;,
+            &quot;email&quot;: &quot;foo@bar.com&quot;,
+            &quot;team&quot;: &quot;B&quot;
         },
         {
-            "value": 12,
-            "name": "foo",
-            "avatar": "https://i.pravatar.cc/80?img=12",
-            "email": "foo.aaa@foo.com",
-            "team": "A"
+            &quot;value&quot;: 12,
+            &quot;name&quot;: &quot;foo&quot;,
+            &quot;avatar&quot;: &quot;https://i.pravatar.cc/80?img=12&quot;,
+            &quot;email&quot;: &quot;foo.aaa@foo.com&quot;,
+            &quot;team&quot;: &quot;A&quot;
         },
     ],
 
-    transformTag: (tagData, originalData) => {
+    transformTag: (tagData, originalData) =&gt; {
         var { name, email } = parseFullValue(tagData.name)
         tagData.name = name
         tagData.email = email || tagData.email
     },
 
     validate({ name, email }) {
-        // when editing a tag, there will only be the "name" property which contains name + email (see 'transformTag' above)
-        if (!email && name) {
+        // when editing a tag, there will only be the &quot;name&quot; property which contains name + email (see &#39;transformTag&#39; above)
+        if (!email &amp;&amp; name) {
             var parsed = parseFullValue(name)
             name = parsed.name
             email = parsed.email
         }
 
-        if (!name) return "Missing name"
-        if (!validateEmail(email)) return "Invalid email"
+        if (!name) return &quot;Missing name&quot;
+        if (!validateEmail(email)) return &quot;Invalid email&quot;
 
         return true
     }
@@ -1862,20 +1862,20 @@ var tagify = new Tagify(inputElm, {
 // The below code is printed as escaped, so please copy this function from:
 // https://github.com/yairEO/tagify/blob/master/src/parts/helpers.js#L89-L97
 function escapeHTML(s) {
-    return typeof s == 'string' ? s
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/`|'/g, "&#039;")
+    return typeof s == &#39;string&#39; ? s
+        .replace(/&amp;/g, &quot;&amp;amp;&quot;)
+        .replace(/&lt;/g, &quot;&amp;lt;&quot;)
+        .replace(/&gt;/g, &quot;&amp;gt;&quot;)
+        .replace(/&quot;/g, &quot;&amp;quot;&quot;)
+        .replace(/`|&#39;/g, &quot;&amp;#039;&quot;)
         : s;
 }
 
 // The below part is only if you want to split the users into groups, when rendering the suggestions list dropdown:
-// (since each user also has a 'team' property)
-tagify.dropdown.createListHTML = sugegstionsList => {
-    const teamsOfUsers = sugegstionsList.reduce((acc, suggestion) => {
-        const team = suggestion.team || 'Not Assigned';
+// (since each user also has a &#39;team&#39; property)
+tagify.dropdown.createListHTML = sugegstionsList =&gt; {
+    const teamsOfUsers = sugegstionsList.reduce((acc, suggestion) =&gt; {
+        const team = suggestion.team || &#39;Not Assigned&#39;;
 
         if (!acc[team])
             acc[team] = [suggestion]
@@ -1885,52 +1885,52 @@ tagify.dropdown.createListHTML = sugegstionsList => {
         return acc
     }, {})
 
-    const getUsersSuggestionsHTML = teamUsers => teamUsers.map((suggestion, idx) => {
-        if (typeof suggestion == 'string' || typeof suggestion == 'number')
+    const getUsersSuggestionsHTML = teamUsers =&gt; teamUsers.map((suggestion, idx) =&gt; {
+        if (typeof suggestion == &#39;string&#39; || typeof suggestion == &#39;number&#39;)
             suggestion = { value: suggestion }
 
         var value = tagify.dropdown.getMappedValue.call(tagify, suggestion)
 
-        suggestion.value = value && typeof value == 'string' ? escapeHTML(value) : value
+        suggestion.value = value &amp;&amp; typeof value == &#39;string&#39; ? escapeHTML(value) : value
 
         return tagify.settings.templates.dropdownItem.apply(tagify, [suggestion]);
-    }).join("")
+    }).join(&quot;&quot;)
 
 
     // assign the user to a group
-    return Object.entries(teamsOfUsers).map(([team, teamUsers]) => {
-        return `<div class="tagify__dropdown__itemsGroup" data-title="Team ${team}:">${getUsersSuggestionsHTML(teamUsers)}</div>`
-    }).join("")
+    return Object.entries(teamsOfUsers).map(([team, teamUsers]) =&gt; {
+        return `&lt;div class=&quot;tagify__dropdown__itemsGroup&quot; data-title=&quot;Team ${team}:&quot;&gt;${getUsersSuggestionsHTML(teamUsers)}&lt;/div&gt;`
+    }).join(&quot;&quot;)
 }
 
 // attach events listeners
-tagify.on('dropdown:select', onSelectSuggestion) // allows selecting all the suggested (whitelist) items
-      .on('edit:start', onEditStart)  // show custom text in the tag while in edit-mode
+tagify.on(&#39;dropdown:select&#39;, onSelectSuggestion) // allows selecting all the suggested (whitelist) items
+      .on(&#39;edit:start&#39;, onEditStart)  // show custom text in the tag while in edit-mode
 
 function onSelectSuggestion(e) {
-    if (e.detail.event.target.matches('.remove-all-tags')) {
+    if (e.detail.event.target.matches(&#39;.remove-all-tags&#39;)) {
         tagify.removeAllTags()
     }
 
-    // custom class from "dropdownHeaderTemplate"
+    // custom class from &quot;dropdownHeaderTemplate&quot;
     else if (e.detail.elm.classList.contains(`${tagify.settings.classNames.dropdownItem}__addAll`))
         tagify.dropdown.selectAll();
 }
 
 function onEditStart({ detail: { tag, data } }) {
-    tagify.setTagTextNode(tag, `${data.name} <${data.email}>`)
+    tagify.setTagTextNode(tag, `${data.name} &lt;${data.email}&gt;`)
 }
 
 // https://stackoverflow.com/a/9204568/104380
 function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    return /^[^&#92;s@]+@[^&#92;s@]+&#92;.[^&#92;s@]+$/.test(email)
 }
 
 function parseFullValue(value) {
     // https://stackoverflow.com/a/11592042/104380
-    var parts = value.split(/<(.*?)>/g),
+    var parts = value.split(/&lt;(.*?)&gt;/g),
         name = parts[0].trim(),
-        email = parts[1]?.replace(/<(.*?)>/g, '').trim();
+        email = parts[1]?.replace(/&lt;(.*?)&gt;/g, &#39;&#39;).trim();
 
     return { name, email }
 }</code></pre>
@@ -2359,13 +2359,13 @@ function parseFullValue(value) {
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input class=&#39;advance-options&#39; value=&#39;[{&quot;value&quot;:&quot;point&quot;}, {&quot;value&quot;:&quot;soft&quot;}]&#39; pattern=&#39;^[A-Za-z_✲ ]{1,15}$&#39;&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input class=&#39;advance-options&#39; value=&#39;[{&quot;value&quot;:&quot;point&quot;}, {&quot;value&quot;:&quot;soft&quot;}]&#39; pattern=&#39;^[A-Za-z_✲ ]{1,15}$&#39;&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('input.advance-options'),
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;input.advance-options&#39;),
     tagify = new Tagify(input, {
-        pattern             : /^.{0,20}$/,  // Validate typed tag(s) by Regex. Here maximum chars length is defined as "20"
-        delimiters          : ",| ",        // add new tags when a comma or a space character is entered
-        trim                : false,        // if "delimiters" setting is using space as a delimeter, then "trim" should be set to "false"
+        pattern             : /^.{0,20}$/,  // Validate typed tag(s) by Regex. Here maximum chars length is defined as &quot;20&quot;
+        delimiters          : &quot;,| &quot;,        // add new tags when a comma or a space character is entered
+        trim                : false,        // if &quot;delimiters&quot; setting is using space as a delimeter, then &quot;trim&quot; should be set to &quot;false&quot;
         keepInvalidTags     : true,         // do not remove invalid tags (but keep them marked as invalid)
         // createInvalidTags: false,
         editTags            : {
@@ -2373,28 +2373,28 @@ function parseFullValue(value) {
             keepInvalid: false      // if after editing, tag is invalid, auto-revert
         },
         maxTags             : 6,
-        blacklist           : ["foo", "bar", "baz"],
-        whitelist           : ["temple","stun","detective","sign","passion","routine","deck","discriminate","relaxation","fraud","attractive","soft","forecast","point","thank","stage","eliminate","effective","flood","passive","skilled","separation","contact","compromise","reality","district","nationalist","leg","porter","conviction","worker","vegetable","commerce","conception","particle","honor","stick","tail","pumpkin","core","mouse","egg","population","unique","behavior","onion","disaster","cute","pipe","sock","dialect","horse","swear","owner","cope","global","improvement","artist","shed","constant","bond","brink","shower","spot","inject","bowel","homosexual","trust","exclude","tough","sickness","prevalence","sister","resolution","cattle","cultural","innocent","burial","bundle","thaw","respectable","thirsty","exposure","team","creed","facade","calendar","filter","utter","dominate","predator","discover","theorist","hospitality","damage","woman","rub","crop","unpleasant","halt","inch","birthday","lack","throne","maximum","pause","digress","fossil","policy","instrument","trunk","frame","measure","hall","support","convenience","house","partnership","inspector","looting","ranch","asset","rally","explicit","leak","monarch","ethics","applied","aviation","dentist","great","ethnic","sodium","truth","constellation","lease","guide","break","conclusion","button","recording","horizon","council","paradox","bride","weigh","like","noble","transition","accumulation","arrow","stitch","academy","glimpse","case","researcher","constitutional","notion","bathroom","revolutionary","soldier","vehicle","betray","gear","pan","quarter","embarrassment","golf","shark","constitution","club","college","duty","eaux","know","collection","burst","fun","animal","expectation","persist","insure","tick","account","initiative","tourist","member","example","plant","river","ratio","view","coast","latest","invite","help","falsify","allocation","degree","feel","resort","means","excuse","injury","pupil","shaft","allow","ton","tube","dress","speaker","double","theater","opposed","holiday","screw","cutting","picture","laborer","conservation","kneel","miracle","brand","nomination","characteristic","referral","carbon","valley","hot","climb","wrestle","motorist","update","loot","mosquito","delivery","eagle","guideline","hurt","feedback","finish","traffic","competence","serve","archive","feeling","hope","seal","ear","oven","vote","ballot","study","negative","declaration","particular","pattern","suburb","intervention","brake","frequency","drink","affair","contemporary","prince","dry","mole","lazy","undermine","radio","legislation","circumstance","bear","left","pony","industry","mastermind","criticism","sheep","failure","chain","depressed","launch","script","green","weave","please","surprise","doctor","revive","banquet","belong","correction","door","image","integrity","intermediate","sense","formal","cane","gloom","toast","pension","exception","prey","random","nose","predict","needle","satisfaction","establish","fit","vigorous","urgency","X-ray","equinox","variety","proclaim","conceive","bulb","vegetarian","available","stake","publicity","strikebreaker","portrait","sink","frog","ruin","studio","match","electron","captain","channel","navy","set","recommend","appoint","liberal","missile","sample","result","poor","efflux","glance","timetable","advertise","personality","aunt","dog"],
+        blacklist           : [&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;],
+        whitelist           : [&quot;temple&quot;,&quot;stun&quot;,&quot;detective&quot;,&quot;sign&quot;,&quot;passion&quot;,&quot;routine&quot;,&quot;deck&quot;,&quot;discriminate&quot;,&quot;relaxation&quot;,&quot;fraud&quot;,&quot;attractive&quot;,&quot;soft&quot;,&quot;forecast&quot;,&quot;point&quot;,&quot;thank&quot;,&quot;stage&quot;,&quot;eliminate&quot;,&quot;effective&quot;,&quot;flood&quot;,&quot;passive&quot;,&quot;skilled&quot;,&quot;separation&quot;,&quot;contact&quot;,&quot;compromise&quot;,&quot;reality&quot;,&quot;district&quot;,&quot;nationalist&quot;,&quot;leg&quot;,&quot;porter&quot;,&quot;conviction&quot;,&quot;worker&quot;,&quot;vegetable&quot;,&quot;commerce&quot;,&quot;conception&quot;,&quot;particle&quot;,&quot;honor&quot;,&quot;stick&quot;,&quot;tail&quot;,&quot;pumpkin&quot;,&quot;core&quot;,&quot;mouse&quot;,&quot;egg&quot;,&quot;population&quot;,&quot;unique&quot;,&quot;behavior&quot;,&quot;onion&quot;,&quot;disaster&quot;,&quot;cute&quot;,&quot;pipe&quot;,&quot;sock&quot;,&quot;dialect&quot;,&quot;horse&quot;,&quot;swear&quot;,&quot;owner&quot;,&quot;cope&quot;,&quot;global&quot;,&quot;improvement&quot;,&quot;artist&quot;,&quot;shed&quot;,&quot;constant&quot;,&quot;bond&quot;,&quot;brink&quot;,&quot;shower&quot;,&quot;spot&quot;,&quot;inject&quot;,&quot;bowel&quot;,&quot;homosexual&quot;,&quot;trust&quot;,&quot;exclude&quot;,&quot;tough&quot;,&quot;sickness&quot;,&quot;prevalence&quot;,&quot;sister&quot;,&quot;resolution&quot;,&quot;cattle&quot;,&quot;cultural&quot;,&quot;innocent&quot;,&quot;burial&quot;,&quot;bundle&quot;,&quot;thaw&quot;,&quot;respectable&quot;,&quot;thirsty&quot;,&quot;exposure&quot;,&quot;team&quot;,&quot;creed&quot;,&quot;facade&quot;,&quot;calendar&quot;,&quot;filter&quot;,&quot;utter&quot;,&quot;dominate&quot;,&quot;predator&quot;,&quot;discover&quot;,&quot;theorist&quot;,&quot;hospitality&quot;,&quot;damage&quot;,&quot;woman&quot;,&quot;rub&quot;,&quot;crop&quot;,&quot;unpleasant&quot;,&quot;halt&quot;,&quot;inch&quot;,&quot;birthday&quot;,&quot;lack&quot;,&quot;throne&quot;,&quot;maximum&quot;,&quot;pause&quot;,&quot;digress&quot;,&quot;fossil&quot;,&quot;policy&quot;,&quot;instrument&quot;,&quot;trunk&quot;,&quot;frame&quot;,&quot;measure&quot;,&quot;hall&quot;,&quot;support&quot;,&quot;convenience&quot;,&quot;house&quot;,&quot;partnership&quot;,&quot;inspector&quot;,&quot;looting&quot;,&quot;ranch&quot;,&quot;asset&quot;,&quot;rally&quot;,&quot;explicit&quot;,&quot;leak&quot;,&quot;monarch&quot;,&quot;ethics&quot;,&quot;applied&quot;,&quot;aviation&quot;,&quot;dentist&quot;,&quot;great&quot;,&quot;ethnic&quot;,&quot;sodium&quot;,&quot;truth&quot;,&quot;constellation&quot;,&quot;lease&quot;,&quot;guide&quot;,&quot;break&quot;,&quot;conclusion&quot;,&quot;button&quot;,&quot;recording&quot;,&quot;horizon&quot;,&quot;council&quot;,&quot;paradox&quot;,&quot;bride&quot;,&quot;weigh&quot;,&quot;like&quot;,&quot;noble&quot;,&quot;transition&quot;,&quot;accumulation&quot;,&quot;arrow&quot;,&quot;stitch&quot;,&quot;academy&quot;,&quot;glimpse&quot;,&quot;case&quot;,&quot;researcher&quot;,&quot;constitutional&quot;,&quot;notion&quot;,&quot;bathroom&quot;,&quot;revolutionary&quot;,&quot;soldier&quot;,&quot;vehicle&quot;,&quot;betray&quot;,&quot;gear&quot;,&quot;pan&quot;,&quot;quarter&quot;,&quot;embarrassment&quot;,&quot;golf&quot;,&quot;shark&quot;,&quot;constitution&quot;,&quot;club&quot;,&quot;college&quot;,&quot;duty&quot;,&quot;eaux&quot;,&quot;know&quot;,&quot;collection&quot;,&quot;burst&quot;,&quot;fun&quot;,&quot;animal&quot;,&quot;expectation&quot;,&quot;persist&quot;,&quot;insure&quot;,&quot;tick&quot;,&quot;account&quot;,&quot;initiative&quot;,&quot;tourist&quot;,&quot;member&quot;,&quot;example&quot;,&quot;plant&quot;,&quot;river&quot;,&quot;ratio&quot;,&quot;view&quot;,&quot;coast&quot;,&quot;latest&quot;,&quot;invite&quot;,&quot;help&quot;,&quot;falsify&quot;,&quot;allocation&quot;,&quot;degree&quot;,&quot;feel&quot;,&quot;resort&quot;,&quot;means&quot;,&quot;excuse&quot;,&quot;injury&quot;,&quot;pupil&quot;,&quot;shaft&quot;,&quot;allow&quot;,&quot;ton&quot;,&quot;tube&quot;,&quot;dress&quot;,&quot;speaker&quot;,&quot;double&quot;,&quot;theater&quot;,&quot;opposed&quot;,&quot;holiday&quot;,&quot;screw&quot;,&quot;cutting&quot;,&quot;picture&quot;,&quot;laborer&quot;,&quot;conservation&quot;,&quot;kneel&quot;,&quot;miracle&quot;,&quot;brand&quot;,&quot;nomination&quot;,&quot;characteristic&quot;,&quot;referral&quot;,&quot;carbon&quot;,&quot;valley&quot;,&quot;hot&quot;,&quot;climb&quot;,&quot;wrestle&quot;,&quot;motorist&quot;,&quot;update&quot;,&quot;loot&quot;,&quot;mosquito&quot;,&quot;delivery&quot;,&quot;eagle&quot;,&quot;guideline&quot;,&quot;hurt&quot;,&quot;feedback&quot;,&quot;finish&quot;,&quot;traffic&quot;,&quot;competence&quot;,&quot;serve&quot;,&quot;archive&quot;,&quot;feeling&quot;,&quot;hope&quot;,&quot;seal&quot;,&quot;ear&quot;,&quot;oven&quot;,&quot;vote&quot;,&quot;ballot&quot;,&quot;study&quot;,&quot;negative&quot;,&quot;declaration&quot;,&quot;particular&quot;,&quot;pattern&quot;,&quot;suburb&quot;,&quot;intervention&quot;,&quot;brake&quot;,&quot;frequency&quot;,&quot;drink&quot;,&quot;affair&quot;,&quot;contemporary&quot;,&quot;prince&quot;,&quot;dry&quot;,&quot;mole&quot;,&quot;lazy&quot;,&quot;undermine&quot;,&quot;radio&quot;,&quot;legislation&quot;,&quot;circumstance&quot;,&quot;bear&quot;,&quot;left&quot;,&quot;pony&quot;,&quot;industry&quot;,&quot;mastermind&quot;,&quot;criticism&quot;,&quot;sheep&quot;,&quot;failure&quot;,&quot;chain&quot;,&quot;depressed&quot;,&quot;launch&quot;,&quot;script&quot;,&quot;green&quot;,&quot;weave&quot;,&quot;please&quot;,&quot;surprise&quot;,&quot;doctor&quot;,&quot;revive&quot;,&quot;banquet&quot;,&quot;belong&quot;,&quot;correction&quot;,&quot;door&quot;,&quot;image&quot;,&quot;integrity&quot;,&quot;intermediate&quot;,&quot;sense&quot;,&quot;formal&quot;,&quot;cane&quot;,&quot;gloom&quot;,&quot;toast&quot;,&quot;pension&quot;,&quot;exception&quot;,&quot;prey&quot;,&quot;random&quot;,&quot;nose&quot;,&quot;predict&quot;,&quot;needle&quot;,&quot;satisfaction&quot;,&quot;establish&quot;,&quot;fit&quot;,&quot;vigorous&quot;,&quot;urgency&quot;,&quot;X-ray&quot;,&quot;equinox&quot;,&quot;variety&quot;,&quot;proclaim&quot;,&quot;conceive&quot;,&quot;bulb&quot;,&quot;vegetarian&quot;,&quot;available&quot;,&quot;stake&quot;,&quot;publicity&quot;,&quot;strikebreaker&quot;,&quot;portrait&quot;,&quot;sink&quot;,&quot;frog&quot;,&quot;ruin&quot;,&quot;studio&quot;,&quot;match&quot;,&quot;electron&quot;,&quot;captain&quot;,&quot;channel&quot;,&quot;navy&quot;,&quot;set&quot;,&quot;recommend&quot;,&quot;appoint&quot;,&quot;liberal&quot;,&quot;missile&quot;,&quot;sample&quot;,&quot;result&quot;,&quot;poor&quot;,&quot;efflux&quot;,&quot;glance&quot;,&quot;timetable&quot;,&quot;advertise&quot;,&quot;personality&quot;,&quot;aunt&quot;,&quot;dog&quot;],
         transformTag        : transformTag,
-        backspace           : "edit",
-        placeholder         : "Type something",
+        backspace           : &quot;edit&quot;,
+        placeholder         : &quot;Type something&quot;,
         dropdown : {
             enabled: 1,            // show suggestion after 1 typed character
             fuzzySearch: false,    // match only suggestions that starts with the typed characters
-            position: 'text',      // position suggestions list next to typed text
+            position: &#39;text&#39;,      // position suggestions list next to typed text
             caseSensitive: true,   // allow adding duplicate items if their case is different
         },
         templates: {
             dropdownItemNoMatch: function(data) {
-                return `<div class='${this.settings.classNames.dropdownItem}' value="noMatch" tabindex="0" role="option">No suggestion found for: <strong>${data.value}</strong></div>`
+                return `&lt;div class=&#39;${this.settings.classNames.dropdownItem}&#39; value=&quot;noMatch&quot; tabindex=&quot;0&quot; role=&quot;option&quot;&gt;No suggestion found for: &lt;strong&gt;${data.value}&lt;/strong&gt;&lt;/div&gt;`
             }
         }
     })
 
-tagify.on('change', updatePlaceholderByTagsCount);
+tagify.on(&#39;change&#39;, updatePlaceholderByTagsCount);
 
 function updatePlaceholderByTagsCount() {
-    tagify.setPlaceholder(`${tagify.value.length || 'no'} tags added`)
+    tagify.setPlaceholder(`${tagify.value.length || &#39;no&#39;} tags added`)
 }
 
 updatePlaceholderByTagsCount()
@@ -2409,42 +2409,42 @@ function getRandomColor(){
         s = rand(40, 70)|0,
         l = rand(65, 72)|0;
 
-    return 'hsl(' + h + ',' + s + '%,' + l + '%)';
+    return &#39;hsl(&#39; + h + &#39;,&#39; + s + &#39;%,&#39; + l + &#39;%)&#39;;
 }
 
 function transformTag( tagData ){
     tagData.color = getRandomColor();
-    tagData.style = "--tag-bg:" + tagData.color;
+    tagData.style = &quot;--tag-bg:&quot; + tagData.color;
 
-    if( tagData.value.toLowerCase() == 'shit' )
-        tagData.value = 's✲✲t'
+    if( tagData.value.toLowerCase() == &#39;shit&#39; )
+        tagData.value = &#39;s✲✲t&#39;
 }
 
-tagify.on('add', function(e){
+tagify.on(&#39;add&#39;, function(e){
     console.log(e.detail)
 })
 
-tagify.on('invalid', function(e){
+tagify.on(&#39;invalid&#39;, function(e){
     console.log(e, e.detail);
 })
 
 var clickDebounce;
 
-tagify.on('click', function(e){
+tagify.on(&#39;click&#39;, function(e){
     const {tag:tagElm, data:tagData} = e.detail;
 
     // a delay is needed to distinguish between regular click and double-click.
     // this allows enough time for a possible double-click, and noly fires if such
     // did not occur.
     clearTimeout(clickDebounce);
-    clickDebounce = setTimeout(() => {
+    clickDebounce = setTimeout(() =&gt; {
         tagData.color = getRandomColor();
-        tagData.style = "--tag-bg:" + tagData.color;
+        tagData.style = &quot;--tag-bg:&quot; + tagData.color;
         tagify.replaceTag(tagElm, tagData);
     }, 200);
 })
 
-tagify.on('dblclick', function(e){
+tagify.on(&#39;dblclick&#39;, function(e){
     // when souble clicking, do not change the color of the tag
     clearTimeout(clickDebounce);
 })</code></pre>
@@ -2595,301 +2595,301 @@ tagify.on('dblclick', function(e){
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input class=&#39;countries&#39; name=&#39;extra-properties&#39; placeholder=&quot;Try adding tags from the list&quot;&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input class=&#39;countries&#39; name=&#39;extra-properties&#39; placeholder=&quot;Try adding tags from the list&quot;&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var tagify = new Tagify(document.querySelector('input[name=extra-properties]'), {
+            <pre><code class="language-javascript">var tagify = new Tagify(document.querySelector(&#39;input[name=extra-properties]&#39;), {
     delimiters: null,
     templates: {
         tag: function (tagData) {
             try {
-                return `<tag title='${tagData.value}' contenteditable='false' spellcheck="false" class='tagify__tag ${tagData.class ? tagData.class : ""}' ${this.getAttributes(tagData)}>
-                        <x title='remove tag' class='tagify__tag__removeBtn'></x>
-                        <div>
+                return `&lt;tag title=&#39;${tagData.value}&#39; contenteditable=&#39;false&#39; spellcheck=&quot;false&quot; class=&#39;tagify__tag ${tagData.class ? tagData.class : &quot;&quot;}&#39; ${this.getAttributes(tagData)}&gt;
+                        &lt;x title=&#39;remove tag&#39; class=&#39;tagify__tag__removeBtn&#39;&gt;&lt;/x&gt;
+                        &lt;div&gt;
                             ${tagData.code ?
-                        `<img onerror="this.style.visibility='hidden'" src='https://flagicons.lipis.dev/flags/4x3/${tagData.code.toLowerCase()}.svg'>` : ''
+                        `&lt;img onerror=&quot;this.style.visibility=&#39;hidden&#39;&quot; src=&#39;https://flagicons.lipis.dev/flags/4x3/${tagData.code.toLowerCase()}.svg&#39;&gt;` : &#39;&#39;
                     }
-                            <span class='tagify__tag-text'>${tagData.value}</span>
-                        </div>
-                    </tag>`
+                            &lt;span class=&#39;tagify__tag-text&#39;&gt;${tagData.value}&lt;/span&gt;
+                        &lt;/div&gt;
+                    &lt;/tag&gt;`
             }
             catch (err) { }
         },
 
         dropdownItem: function (tagData) {
             try {
-                return `<div ${this.getAttributes(tagData)} class='tagify__dropdown__item ${tagData.class ? tagData.class : ""}' >
-                            <img onerror="this.style.visibility = 'hidden'"
-                                src='https://flagicons.lipis.dev/flags/4x3/${tagData.code.toLowerCase()}.svg'>
-                            <span>${tagData.value}</span>
-                        </div>`
+                return `&lt;div ${this.getAttributes(tagData)} class=&#39;tagify__dropdown__item ${tagData.class ? tagData.class : &quot;&quot;}&#39; &gt;
+                            &lt;img onerror=&quot;this.style.visibility = &#39;hidden&#39;&quot;
+                                src=&#39;https://flagicons.lipis.dev/flags/4x3/${tagData.code.toLowerCase()}.svg&#39;&gt;
+                            &lt;span&gt;${tagData.value}&lt;/span&gt;
+                        &lt;/div&gt;`
             }
             catch (err) { console.error(err) }
         }
     },
     enforceWhitelist: true,
     whitelist: [
-        { value: 'Afghanistan', code: 'AF' },
-        { value: 'Åland Islands', code: 'AX' },
-        { value: 'Albania', code: 'AL' },
-        { value: 'Algeria', code: 'DZ' },
-        { value: 'American Samoa', code: 'AS' },
-        { value: 'Andorra', code: 'AD' },
-        { value: 'Angola', code: 'AO' },
-        { value: 'Anguilla', code: 'AI' },
-        { value: 'Antarctica', code: 'AQ' },
-        { value: 'Antigua and Barbuda', code: 'AG' },
-        { value: 'Argentina', code: 'AR' },
-        { value: 'Armenia', code: 'AM' },
-        { value: 'Aruba', code: 'AW' },
-        { value: 'Australia', code: 'AU', searchBy: 'beach, sub-tropical' },
-        { value: 'Austria', code: 'AT' },
-        { value: 'Azerbaijan', code: 'AZ' },
-        { value: 'Bahamas', code: 'BS' },
-        { value: 'Bahrain', code: 'BH' },
-        { value: 'Bangladesh', code: 'BD' },
-        { value: 'Barbados', code: 'BB' },
-        { value: 'Belarus', code: 'BY' },
-        { value: 'Belgium', code: 'BE' },
-        { value: 'Belize', code: 'BZ' },
-        { value: 'Benin', code: 'BJ' },
-        { value: 'Bermuda', code: 'BM' },
-        { value: 'Bhutan', code: 'BT' },
-        { value: 'Bolivia', code: 'BO' },
-        { value: 'Bosnia and Herzegovina', code: 'BA' },
-        { value: 'Botswana', code: 'BW' },
-        { value: 'Bouvet Island', code: 'BV' },
-        { value: 'Brazil', code: 'BR' },
-        { value: 'British Indian Ocean Territory', code: 'IO' },
-        { value: 'Brunei Darussalam', code: 'BN' },
-        { value: 'Bulgaria', code: 'BG' },
-        { value: 'Burkina Faso', code: 'BF' },
-        { value: 'Burundi', code: 'BI' },
-        { value: 'Cambodia', code: 'KH' },
-        { value: 'Cameroon', code: 'CM' },
-        { value: 'Canada', code: 'CA' },
-        { value: 'Cape Verde', code: 'CV' },
-        { value: 'Cayman Islands', code: 'KY' },
-        { value: 'Central African Republic', code: 'CF' },
-        { value: 'Chad', code: 'TD' },
-        { value: 'Chile', code: 'CL' },
-        { value: 'China', code: 'CN' },
-        { value: 'Christmas Island', code: 'CX' },
-        { value: 'Cocos (Keeling) Islands', code: 'CC' },
-        { value: 'Colombia', code: 'CO' },
-        { value: 'Comoros', code: 'KM' },
-        { value: 'Congo', code: 'CG' },
-        { value: 'Congo, The Democratic Republic of the', code: 'CD' },
-        { value: 'Cook Islands', code: 'CK' },
-        { value: 'Costa Rica', code: 'CR' },
-        { value: 'Cote D\'Ivoire', code: 'CI' },
-        { value: 'Croatia', code: 'HR' },
-        { value: 'Cuba', code: 'CU' },
-        { value: 'Cyprus', code: 'CY' },
-        { value: 'Czech Republic', code: 'CZ' },
-        { value: 'Denmark', code: 'DK' },
-        { value: 'Djibouti', code: 'DJ' },
-        { value: 'Dominica', code: 'DM' },
-        { value: 'Dominican Republic', code: 'DO' },
-        { value: 'Ecuador', code: 'EC' },
-        { value: 'Egypt', code: 'EG' },
-        { value: 'El Salvador', code: 'SV' },
-        { value: 'Equatorial Guinea', code: 'GQ' },
-        { value: 'Eritrea', code: 'ER' },
-        { value: 'Estonia', code: 'EE' },
-        { value: 'Ethiopia', code: 'ET' },
-        { value: 'Falkland Islands (Malvinas)', code: 'FK' },
-        { value: 'Faroe Islands', code: 'FO' },
-        { value: 'Fiji', code: 'FJ' },
-        { value: 'Finland', code: 'FI' },
-        { value: 'France', code: 'FR' },
-        { value: 'French Guiana', code: 'GF' },
-        { value: 'French Polynesia', code: 'PF' },
-        { value: 'French Southern Territories', code: 'TF' },
-        { value: 'Gabon', code: 'GA' },
-        { value: 'Gambia', code: 'GM' },
-        { value: 'Georgia', code: 'GE' },
-        { value: 'Germany', code: 'DE' },
-        { value: 'Ghana', code: 'GH' },
-        { value: 'Gibraltar', code: 'GI' },
-        { value: 'Greece', code: 'GR' },
-        { value: 'Greenland', code: 'GL' },
-        { value: 'Grenada', code: 'GD' },
-        { value: 'Guadeloupe', code: 'GP' },
-        { value: 'Guam', code: 'GU' },
-        { value: 'Guatemala', code: 'GT' },
-        { value: 'Guernsey', code: 'GG' },
-        { value: 'Guinea', code: 'GN' },
-        { value: 'Guinea-Bissau', code: 'GW' },
-        { value: 'Guyana', code: 'GY' },
-        { value: 'Haiti', code: 'HT' },
-        { value: 'Heard Island and Mcdonald Islands', code: 'HM' },
-        { value: 'Holy See (Vatican City State)', code: 'VA' },
-        { value: 'Honduras', code: 'HN' },
-        { value: 'Hong Kong', code: 'HK' },
-        { value: 'Hungary', code: 'HU' },
-        { value: 'Iceland', code: 'IS' },
-        { value: 'India', code: 'IN' },
-        { value: 'Indonesia', code: 'ID' },
-        { value: 'Iran, Islamic Republic Of', code: 'IR' },
-        { value: 'Iraq', code: 'IQ' },
-        { value: 'Ireland', code: 'IE' },
-        { value: 'Isle of Man', code: 'IM' },
-        { value: 'Israel', code: 'IL', searchBy: 'holy land, desert' },
-        { value: 'Italy', code: 'IT' },
-        { value: 'Jamaica', code: 'JM' },
-        { value: 'Japan', code: 'JP' },
-        { value: 'Jersey', code: 'JE' },
-        { value: 'Jordan', code: 'JO' },
-        { value: 'Kazakhstan', code: 'KZ' },
-        { value: 'Kenya', code: 'KE' },
-        { value: 'Kiribati', code: 'KI' },
-        { value: 'Korea, Democratic People\'S Republic of', code: 'KP' },
-        { value: 'Korea, Republic of', code: 'KR' },
-        { value: 'Kuwait', code: 'KW' },
-        { value: 'Kyrgyzstan', code: 'KG' },
-        { value: 'Lao People\'S Democratic Republic', code: 'LA' },
-        { value: 'Latvia', code: 'LV' },
-        { value: 'Lebanon', code: 'LB' },
-        { value: 'Lesotho', code: 'LS' },
-        { value: 'Liberia', code: 'LR' },
-        { value: 'Libyan Arab Jamahiriya', code: 'LY' },
-        { value: 'Liechtenstein', code: 'LI' },
-        { value: 'Lithuania', code: 'LT' },
-        { value: 'Luxembourg', code: 'LU' },
-        { value: 'Macao', code: 'MO' },
-        { value: 'Macedonia, The Former Yugoslav Republic of', code: 'MK' },
-        { value: 'Madagascar', code: 'MG' },
-        { value: 'Malawi', code: 'MW' },
-        { value: 'Malaysia', code: 'MY' },
-        { value: 'Maldives', code: 'MV' },
-        { value: 'Mali', code: 'ML' },
-        { value: 'Malta', code: 'MT' },
-        { value: 'Marshall Islands', code: 'MH' },
-        { value: 'Martinique', code: 'MQ' },
-        { value: 'Mauritania', code: 'MR' },
-        { value: 'Mauritius', code: 'MU' },
-        { value: 'Mayotte', code: 'YT' },
-        { value: 'Mexico', code: 'MX' },
-        { value: 'Micronesia, Federated States of', code: 'FM' },
-        { value: 'Moldova, Republic of', code: 'MD' },
-        { value: 'Monaco', code: 'MC' },
-        { value: 'Mongolia', code: 'MN' },
-        { value: 'Montserrat', code: 'MS' },
-        { value: 'Morocco', code: 'MA' },
-        { value: 'Mozambique', code: 'MZ' },
-        { value: 'Myanmar', code: 'MM' },
-        { value: 'Namibia', code: 'NA' },
-        { value: 'Nauru', code: 'NR' },
-        { value: 'Nepal', code: 'NP' },
-        { value: 'Netherlands', code: 'NL' },
-        { value: 'Netherlands Antilles', code: 'AN' },
-        { value: 'New Caledonia', code: 'NC' },
-        { value: 'New Zealand', code: 'NZ' },
-        { value: 'Nicaragua', code: 'NI' },
-        { value: 'Niger', code: 'NE' },
-        { value: 'Nigeria', code: 'NG' },
-        { value: 'Niue', code: 'NU' },
-        { value: 'Norfolk Island', code: 'NF' },
-        { value: 'Northern Mariana Islands', code: 'MP' },
-        { value: 'Norway', code: 'NO' },
-        { value: 'Oman', code: 'OM' },
-        { value: 'Pakistan', code: 'PK' },
-        { value: 'Palau', code: 'PW' },
-        { value: 'Palestinian Territory, Occupied', code: 'PS' },
-        { value: 'Panama', code: 'PA' },
-        { value: 'Papua New Guinea', code: 'PG' },
-        { value: 'Paraguay', code: 'PY' },
-        { value: 'Peru', code: 'PE' },
-        { value: 'Philippines', code: 'PH' },
-        { value: 'Pitcairn', code: 'PN' },
-        { value: 'Poland', code: 'PL' },
-        { value: 'Portugal', code: 'PT' },
-        { value: 'Puerto Rico', code: 'PR' },
-        { value: 'Qatar', code: 'QA' },
-        { value: 'Reunion', code: 'RE' },
-        { value: 'Romania', code: 'RO' },
-        { value: 'Russian Federation', code: 'RU' },
-        { value: 'RWANDA', code: 'RW' },
-        { value: 'Saint Helena', code: 'SH' },
-        { value: 'Saint Kitts and Nevis', code: 'KN' },
-        { value: 'Saint Lucia', code: 'LC' },
-        { value: 'Saint Pierre and Miquelon', code: 'PM' },
-        { value: 'Saint Vincent and the Grenadines', code: 'VC' },
-        { value: 'Samoa', code: 'WS' },
-        { value: 'San Marino', code: 'SM' },
-        { value: 'Sao Tome and Principe', code: 'ST' },
-        { value: 'Saudi Arabia', code: 'SA' },
-        { value: 'Senegal', code: 'SN' },
-        { value: 'Serbia and Montenegro', code: 'CS' },
-        { value: 'Seychelles', code: 'SC' },
-        { value: 'Sierra Leone', code: 'SL' },
-        { value: 'Singapore', code: 'SG' },
-        { value: 'Slovakia', code: 'SK' },
-        { value: 'Slovenia', code: 'SI' },
-        { value: 'Solomon Islands', code: 'SB' },
-        { value: 'Somalia', code: 'SO' },
-        { value: 'South Africa', code: 'ZA' },
-        { value: 'South Georgia and the South Sandwich Islands', code: 'GS' },
-        { value: 'Spain', code: 'ES' },
-        { value: 'Sri Lanka', code: 'LK' },
-        { value: 'Sudan', code: 'SD' },
-        { value: 'Suriname', code: 'SR' },
-        { value: 'Svalbard and Jan Mayen', code: 'SJ' },
-        { value: 'Swaziland', code: 'SZ' },
-        { value: 'Sweden', code: 'SE' },
-        { value: 'Switzerland', code: 'CH' },
-        { value: 'Syrian Arab Republic', code: 'SY' },
-        { value: 'Taiwan', code: 'TW' },
-        { value: 'Tajikistan', code: 'TJ' },
-        { value: 'Tanzania, United Republic of', code: 'TZ' },
-        { value: 'Thailand', code: 'TH' },
-        { value: 'Timor-Leste', code: 'TL' },
-        { value: 'Togo', code: 'TG' },
-        { value: 'Tokelau', code: 'TK' },
-        { value: 'Tonga', code: 'TO' },
-        { value: 'Trinidad and Tobago', code: 'TT' },
-        { value: 'Tunisia', code: 'TN' },
-        { value: 'Turkey', code: 'TR' },
-        { value: 'Turkmenistan', code: 'TM' },
-        { value: 'Turks and Caicos Islands', code: 'TC' },
-        { value: 'Tuvalu', code: 'TV' },
-        { value: 'Uganda', code: 'UG' },
-        { value: 'Ukraine', code: 'UA' },
-        { value: 'United Arab Emirates', code: 'AE' },
-        { value: 'United Kingdom', code: 'GB' },
-        { value: 'United States', code: 'US' },
-        { value: 'United States Minor Outlying Islands', code: 'UM' },
-        { value: 'Uruguay', code: 'UY' },
-        { value: 'Uzbekistan', code: 'UZ' },
-        { value: 'Vanuatu', code: 'VU' },
-        { value: 'Venezuela', code: 'VE' },
-        { value: 'Viet Nam', code: 'VN' },
-        { value: 'Virgin Islands, British', code: 'VG' },
-        { value: 'Virgin Islands, U.S.', code: 'VI' },
-        { value: 'Wallis and Futuna', code: 'WF' },
-        { value: 'Western Sahara', code: 'EH' },
-        { value: 'Yemen', code: 'YE' },
-        { value: 'Zambia', code: 'ZM' },
-        { value: 'Zimbabwe', code: 'ZW' }
+        { value: &#39;Afghanistan&#39;, code: &#39;AF&#39; },
+        { value: &#39;Åland Islands&#39;, code: &#39;AX&#39; },
+        { value: &#39;Albania&#39;, code: &#39;AL&#39; },
+        { value: &#39;Algeria&#39;, code: &#39;DZ&#39; },
+        { value: &#39;American Samoa&#39;, code: &#39;AS&#39; },
+        { value: &#39;Andorra&#39;, code: &#39;AD&#39; },
+        { value: &#39;Angola&#39;, code: &#39;AO&#39; },
+        { value: &#39;Anguilla&#39;, code: &#39;AI&#39; },
+        { value: &#39;Antarctica&#39;, code: &#39;AQ&#39; },
+        { value: &#39;Antigua and Barbuda&#39;, code: &#39;AG&#39; },
+        { value: &#39;Argentina&#39;, code: &#39;AR&#39; },
+        { value: &#39;Armenia&#39;, code: &#39;AM&#39; },
+        { value: &#39;Aruba&#39;, code: &#39;AW&#39; },
+        { value: &#39;Australia&#39;, code: &#39;AU&#39;, searchBy: &#39;beach, sub-tropical&#39; },
+        { value: &#39;Austria&#39;, code: &#39;AT&#39; },
+        { value: &#39;Azerbaijan&#39;, code: &#39;AZ&#39; },
+        { value: &#39;Bahamas&#39;, code: &#39;BS&#39; },
+        { value: &#39;Bahrain&#39;, code: &#39;BH&#39; },
+        { value: &#39;Bangladesh&#39;, code: &#39;BD&#39; },
+        { value: &#39;Barbados&#39;, code: &#39;BB&#39; },
+        { value: &#39;Belarus&#39;, code: &#39;BY&#39; },
+        { value: &#39;Belgium&#39;, code: &#39;BE&#39; },
+        { value: &#39;Belize&#39;, code: &#39;BZ&#39; },
+        { value: &#39;Benin&#39;, code: &#39;BJ&#39; },
+        { value: &#39;Bermuda&#39;, code: &#39;BM&#39; },
+        { value: &#39;Bhutan&#39;, code: &#39;BT&#39; },
+        { value: &#39;Bolivia&#39;, code: &#39;BO&#39; },
+        { value: &#39;Bosnia and Herzegovina&#39;, code: &#39;BA&#39; },
+        { value: &#39;Botswana&#39;, code: &#39;BW&#39; },
+        { value: &#39;Bouvet Island&#39;, code: &#39;BV&#39; },
+        { value: &#39;Brazil&#39;, code: &#39;BR&#39; },
+        { value: &#39;British Indian Ocean Territory&#39;, code: &#39;IO&#39; },
+        { value: &#39;Brunei Darussalam&#39;, code: &#39;BN&#39; },
+        { value: &#39;Bulgaria&#39;, code: &#39;BG&#39; },
+        { value: &#39;Burkina Faso&#39;, code: &#39;BF&#39; },
+        { value: &#39;Burundi&#39;, code: &#39;BI&#39; },
+        { value: &#39;Cambodia&#39;, code: &#39;KH&#39; },
+        { value: &#39;Cameroon&#39;, code: &#39;CM&#39; },
+        { value: &#39;Canada&#39;, code: &#39;CA&#39; },
+        { value: &#39;Cape Verde&#39;, code: &#39;CV&#39; },
+        { value: &#39;Cayman Islands&#39;, code: &#39;KY&#39; },
+        { value: &#39;Central African Republic&#39;, code: &#39;CF&#39; },
+        { value: &#39;Chad&#39;, code: &#39;TD&#39; },
+        { value: &#39;Chile&#39;, code: &#39;CL&#39; },
+        { value: &#39;China&#39;, code: &#39;CN&#39; },
+        { value: &#39;Christmas Island&#39;, code: &#39;CX&#39; },
+        { value: &#39;Cocos (Keeling) Islands&#39;, code: &#39;CC&#39; },
+        { value: &#39;Colombia&#39;, code: &#39;CO&#39; },
+        { value: &#39;Comoros&#39;, code: &#39;KM&#39; },
+        { value: &#39;Congo&#39;, code: &#39;CG&#39; },
+        { value: &#39;Congo, The Democratic Republic of the&#39;, code: &#39;CD&#39; },
+        { value: &#39;Cook Islands&#39;, code: &#39;CK&#39; },
+        { value: &#39;Costa Rica&#39;, code: &#39;CR&#39; },
+        { value: &#39;Cote D&#92;&#39;Ivoire&#39;, code: &#39;CI&#39; },
+        { value: &#39;Croatia&#39;, code: &#39;HR&#39; },
+        { value: &#39;Cuba&#39;, code: &#39;CU&#39; },
+        { value: &#39;Cyprus&#39;, code: &#39;CY&#39; },
+        { value: &#39;Czech Republic&#39;, code: &#39;CZ&#39; },
+        { value: &#39;Denmark&#39;, code: &#39;DK&#39; },
+        { value: &#39;Djibouti&#39;, code: &#39;DJ&#39; },
+        { value: &#39;Dominica&#39;, code: &#39;DM&#39; },
+        { value: &#39;Dominican Republic&#39;, code: &#39;DO&#39; },
+        { value: &#39;Ecuador&#39;, code: &#39;EC&#39; },
+        { value: &#39;Egypt&#39;, code: &#39;EG&#39; },
+        { value: &#39;El Salvador&#39;, code: &#39;SV&#39; },
+        { value: &#39;Equatorial Guinea&#39;, code: &#39;GQ&#39; },
+        { value: &#39;Eritrea&#39;, code: &#39;ER&#39; },
+        { value: &#39;Estonia&#39;, code: &#39;EE&#39; },
+        { value: &#39;Ethiopia&#39;, code: &#39;ET&#39; },
+        { value: &#39;Falkland Islands (Malvinas)&#39;, code: &#39;FK&#39; },
+        { value: &#39;Faroe Islands&#39;, code: &#39;FO&#39; },
+        { value: &#39;Fiji&#39;, code: &#39;FJ&#39; },
+        { value: &#39;Finland&#39;, code: &#39;FI&#39; },
+        { value: &#39;France&#39;, code: &#39;FR&#39; },
+        { value: &#39;French Guiana&#39;, code: &#39;GF&#39; },
+        { value: &#39;French Polynesia&#39;, code: &#39;PF&#39; },
+        { value: &#39;French Southern Territories&#39;, code: &#39;TF&#39; },
+        { value: &#39;Gabon&#39;, code: &#39;GA&#39; },
+        { value: &#39;Gambia&#39;, code: &#39;GM&#39; },
+        { value: &#39;Georgia&#39;, code: &#39;GE&#39; },
+        { value: &#39;Germany&#39;, code: &#39;DE&#39; },
+        { value: &#39;Ghana&#39;, code: &#39;GH&#39; },
+        { value: &#39;Gibraltar&#39;, code: &#39;GI&#39; },
+        { value: &#39;Greece&#39;, code: &#39;GR&#39; },
+        { value: &#39;Greenland&#39;, code: &#39;GL&#39; },
+        { value: &#39;Grenada&#39;, code: &#39;GD&#39; },
+        { value: &#39;Guadeloupe&#39;, code: &#39;GP&#39; },
+        { value: &#39;Guam&#39;, code: &#39;GU&#39; },
+        { value: &#39;Guatemala&#39;, code: &#39;GT&#39; },
+        { value: &#39;Guernsey&#39;, code: &#39;GG&#39; },
+        { value: &#39;Guinea&#39;, code: &#39;GN&#39; },
+        { value: &#39;Guinea-Bissau&#39;, code: &#39;GW&#39; },
+        { value: &#39;Guyana&#39;, code: &#39;GY&#39; },
+        { value: &#39;Haiti&#39;, code: &#39;HT&#39; },
+        { value: &#39;Heard Island and Mcdonald Islands&#39;, code: &#39;HM&#39; },
+        { value: &#39;Holy See (Vatican City State)&#39;, code: &#39;VA&#39; },
+        { value: &#39;Honduras&#39;, code: &#39;HN&#39; },
+        { value: &#39;Hong Kong&#39;, code: &#39;HK&#39; },
+        { value: &#39;Hungary&#39;, code: &#39;HU&#39; },
+        { value: &#39;Iceland&#39;, code: &#39;IS&#39; },
+        { value: &#39;India&#39;, code: &#39;IN&#39; },
+        { value: &#39;Indonesia&#39;, code: &#39;ID&#39; },
+        { value: &#39;Iran, Islamic Republic Of&#39;, code: &#39;IR&#39; },
+        { value: &#39;Iraq&#39;, code: &#39;IQ&#39; },
+        { value: &#39;Ireland&#39;, code: &#39;IE&#39; },
+        { value: &#39;Isle of Man&#39;, code: &#39;IM&#39; },
+        { value: &#39;Israel&#39;, code: &#39;IL&#39;, searchBy: &#39;holy land, desert&#39; },
+        { value: &#39;Italy&#39;, code: &#39;IT&#39; },
+        { value: &#39;Jamaica&#39;, code: &#39;JM&#39; },
+        { value: &#39;Japan&#39;, code: &#39;JP&#39; },
+        { value: &#39;Jersey&#39;, code: &#39;JE&#39; },
+        { value: &#39;Jordan&#39;, code: &#39;JO&#39; },
+        { value: &#39;Kazakhstan&#39;, code: &#39;KZ&#39; },
+        { value: &#39;Kenya&#39;, code: &#39;KE&#39; },
+        { value: &#39;Kiribati&#39;, code: &#39;KI&#39; },
+        { value: &#39;Korea, Democratic People&#92;&#39;S Republic of&#39;, code: &#39;KP&#39; },
+        { value: &#39;Korea, Republic of&#39;, code: &#39;KR&#39; },
+        { value: &#39;Kuwait&#39;, code: &#39;KW&#39; },
+        { value: &#39;Kyrgyzstan&#39;, code: &#39;KG&#39; },
+        { value: &#39;Lao People&#92;&#39;S Democratic Republic&#39;, code: &#39;LA&#39; },
+        { value: &#39;Latvia&#39;, code: &#39;LV&#39; },
+        { value: &#39;Lebanon&#39;, code: &#39;LB&#39; },
+        { value: &#39;Lesotho&#39;, code: &#39;LS&#39; },
+        { value: &#39;Liberia&#39;, code: &#39;LR&#39; },
+        { value: &#39;Libyan Arab Jamahiriya&#39;, code: &#39;LY&#39; },
+        { value: &#39;Liechtenstein&#39;, code: &#39;LI&#39; },
+        { value: &#39;Lithuania&#39;, code: &#39;LT&#39; },
+        { value: &#39;Luxembourg&#39;, code: &#39;LU&#39; },
+        { value: &#39;Macao&#39;, code: &#39;MO&#39; },
+        { value: &#39;Macedonia, The Former Yugoslav Republic of&#39;, code: &#39;MK&#39; },
+        { value: &#39;Madagascar&#39;, code: &#39;MG&#39; },
+        { value: &#39;Malawi&#39;, code: &#39;MW&#39; },
+        { value: &#39;Malaysia&#39;, code: &#39;MY&#39; },
+        { value: &#39;Maldives&#39;, code: &#39;MV&#39; },
+        { value: &#39;Mali&#39;, code: &#39;ML&#39; },
+        { value: &#39;Malta&#39;, code: &#39;MT&#39; },
+        { value: &#39;Marshall Islands&#39;, code: &#39;MH&#39; },
+        { value: &#39;Martinique&#39;, code: &#39;MQ&#39; },
+        { value: &#39;Mauritania&#39;, code: &#39;MR&#39; },
+        { value: &#39;Mauritius&#39;, code: &#39;MU&#39; },
+        { value: &#39;Mayotte&#39;, code: &#39;YT&#39; },
+        { value: &#39;Mexico&#39;, code: &#39;MX&#39; },
+        { value: &#39;Micronesia, Federated States of&#39;, code: &#39;FM&#39; },
+        { value: &#39;Moldova, Republic of&#39;, code: &#39;MD&#39; },
+        { value: &#39;Monaco&#39;, code: &#39;MC&#39; },
+        { value: &#39;Mongolia&#39;, code: &#39;MN&#39; },
+        { value: &#39;Montserrat&#39;, code: &#39;MS&#39; },
+        { value: &#39;Morocco&#39;, code: &#39;MA&#39; },
+        { value: &#39;Mozambique&#39;, code: &#39;MZ&#39; },
+        { value: &#39;Myanmar&#39;, code: &#39;MM&#39; },
+        { value: &#39;Namibia&#39;, code: &#39;NA&#39; },
+        { value: &#39;Nauru&#39;, code: &#39;NR&#39; },
+        { value: &#39;Nepal&#39;, code: &#39;NP&#39; },
+        { value: &#39;Netherlands&#39;, code: &#39;NL&#39; },
+        { value: &#39;Netherlands Antilles&#39;, code: &#39;AN&#39; },
+        { value: &#39;New Caledonia&#39;, code: &#39;NC&#39; },
+        { value: &#39;New Zealand&#39;, code: &#39;NZ&#39; },
+        { value: &#39;Nicaragua&#39;, code: &#39;NI&#39; },
+        { value: &#39;Niger&#39;, code: &#39;NE&#39; },
+        { value: &#39;Nigeria&#39;, code: &#39;NG&#39; },
+        { value: &#39;Niue&#39;, code: &#39;NU&#39; },
+        { value: &#39;Norfolk Island&#39;, code: &#39;NF&#39; },
+        { value: &#39;Northern Mariana Islands&#39;, code: &#39;MP&#39; },
+        { value: &#39;Norway&#39;, code: &#39;NO&#39; },
+        { value: &#39;Oman&#39;, code: &#39;OM&#39; },
+        { value: &#39;Pakistan&#39;, code: &#39;PK&#39; },
+        { value: &#39;Palau&#39;, code: &#39;PW&#39; },
+        { value: &#39;Palestinian Territory, Occupied&#39;, code: &#39;PS&#39; },
+        { value: &#39;Panama&#39;, code: &#39;PA&#39; },
+        { value: &#39;Papua New Guinea&#39;, code: &#39;PG&#39; },
+        { value: &#39;Paraguay&#39;, code: &#39;PY&#39; },
+        { value: &#39;Peru&#39;, code: &#39;PE&#39; },
+        { value: &#39;Philippines&#39;, code: &#39;PH&#39; },
+        { value: &#39;Pitcairn&#39;, code: &#39;PN&#39; },
+        { value: &#39;Poland&#39;, code: &#39;PL&#39; },
+        { value: &#39;Portugal&#39;, code: &#39;PT&#39; },
+        { value: &#39;Puerto Rico&#39;, code: &#39;PR&#39; },
+        { value: &#39;Qatar&#39;, code: &#39;QA&#39; },
+        { value: &#39;Reunion&#39;, code: &#39;RE&#39; },
+        { value: &#39;Romania&#39;, code: &#39;RO&#39; },
+        { value: &#39;Russian Federation&#39;, code: &#39;RU&#39; },
+        { value: &#39;RWANDA&#39;, code: &#39;RW&#39; },
+        { value: &#39;Saint Helena&#39;, code: &#39;SH&#39; },
+        { value: &#39;Saint Kitts and Nevis&#39;, code: &#39;KN&#39; },
+        { value: &#39;Saint Lucia&#39;, code: &#39;LC&#39; },
+        { value: &#39;Saint Pierre and Miquelon&#39;, code: &#39;PM&#39; },
+        { value: &#39;Saint Vincent and the Grenadines&#39;, code: &#39;VC&#39; },
+        { value: &#39;Samoa&#39;, code: &#39;WS&#39; },
+        { value: &#39;San Marino&#39;, code: &#39;SM&#39; },
+        { value: &#39;Sao Tome and Principe&#39;, code: &#39;ST&#39; },
+        { value: &#39;Saudi Arabia&#39;, code: &#39;SA&#39; },
+        { value: &#39;Senegal&#39;, code: &#39;SN&#39; },
+        { value: &#39;Serbia and Montenegro&#39;, code: &#39;CS&#39; },
+        { value: &#39;Seychelles&#39;, code: &#39;SC&#39; },
+        { value: &#39;Sierra Leone&#39;, code: &#39;SL&#39; },
+        { value: &#39;Singapore&#39;, code: &#39;SG&#39; },
+        { value: &#39;Slovakia&#39;, code: &#39;SK&#39; },
+        { value: &#39;Slovenia&#39;, code: &#39;SI&#39; },
+        { value: &#39;Solomon Islands&#39;, code: &#39;SB&#39; },
+        { value: &#39;Somalia&#39;, code: &#39;SO&#39; },
+        { value: &#39;South Africa&#39;, code: &#39;ZA&#39; },
+        { value: &#39;South Georgia and the South Sandwich Islands&#39;, code: &#39;GS&#39; },
+        { value: &#39;Spain&#39;, code: &#39;ES&#39; },
+        { value: &#39;Sri Lanka&#39;, code: &#39;LK&#39; },
+        { value: &#39;Sudan&#39;, code: &#39;SD&#39; },
+        { value: &#39;Suriname&#39;, code: &#39;SR&#39; },
+        { value: &#39;Svalbard and Jan Mayen&#39;, code: &#39;SJ&#39; },
+        { value: &#39;Swaziland&#39;, code: &#39;SZ&#39; },
+        { value: &#39;Sweden&#39;, code: &#39;SE&#39; },
+        { value: &#39;Switzerland&#39;, code: &#39;CH&#39; },
+        { value: &#39;Syrian Arab Republic&#39;, code: &#39;SY&#39; },
+        { value: &#39;Taiwan&#39;, code: &#39;TW&#39; },
+        { value: &#39;Tajikistan&#39;, code: &#39;TJ&#39; },
+        { value: &#39;Tanzania, United Republic of&#39;, code: &#39;TZ&#39; },
+        { value: &#39;Thailand&#39;, code: &#39;TH&#39; },
+        { value: &#39;Timor-Leste&#39;, code: &#39;TL&#39; },
+        { value: &#39;Togo&#39;, code: &#39;TG&#39; },
+        { value: &#39;Tokelau&#39;, code: &#39;TK&#39; },
+        { value: &#39;Tonga&#39;, code: &#39;TO&#39; },
+        { value: &#39;Trinidad and Tobago&#39;, code: &#39;TT&#39; },
+        { value: &#39;Tunisia&#39;, code: &#39;TN&#39; },
+        { value: &#39;Turkey&#39;, code: &#39;TR&#39; },
+        { value: &#39;Turkmenistan&#39;, code: &#39;TM&#39; },
+        { value: &#39;Turks and Caicos Islands&#39;, code: &#39;TC&#39; },
+        { value: &#39;Tuvalu&#39;, code: &#39;TV&#39; },
+        { value: &#39;Uganda&#39;, code: &#39;UG&#39; },
+        { value: &#39;Ukraine&#39;, code: &#39;UA&#39; },
+        { value: &#39;United Arab Emirates&#39;, code: &#39;AE&#39; },
+        { value: &#39;United Kingdom&#39;, code: &#39;GB&#39; },
+        { value: &#39;United States&#39;, code: &#39;US&#39; },
+        { value: &#39;United States Minor Outlying Islands&#39;, code: &#39;UM&#39; },
+        { value: &#39;Uruguay&#39;, code: &#39;UY&#39; },
+        { value: &#39;Uzbekistan&#39;, code: &#39;UZ&#39; },
+        { value: &#39;Vanuatu&#39;, code: &#39;VU&#39; },
+        { value: &#39;Venezuela&#39;, code: &#39;VE&#39; },
+        { value: &#39;Viet Nam&#39;, code: &#39;VN&#39; },
+        { value: &#39;Virgin Islands, British&#39;, code: &#39;VG&#39; },
+        { value: &#39;Virgin Islands, U.S.&#39;, code: &#39;VI&#39; },
+        { value: &#39;Wallis and Futuna&#39;, code: &#39;WF&#39; },
+        { value: &#39;Western Sahara&#39;, code: &#39;EH&#39; },
+        { value: &#39;Yemen&#39;, code: &#39;YE&#39; },
+        { value: &#39;Zambia&#39;, code: &#39;ZM&#39; },
+        { value: &#39;Zimbabwe&#39;, code: &#39;ZW&#39; }
     ],
     dropdown: {
         enabled: 1, // suggest tags after a single character input
-        classname: 'extra-properties' // custom class for the suggestions dropdown
-    } // map tags' values to this property name, so this property will be the actual value and not the printed value on the screen
+        classname: &#39;extra-properties&#39; // custom class for the suggestions dropdown
+    } // map tags&#39; values to this property name, so this property will be the actual value and not the printed value on the screen
 })
 
-tagify.on('click', function (e) {
+tagify.on(&#39;click&#39;, function (e) {
     console.log(e.detail);
 });
 
-tagify.on('remove', function (e) {
+tagify.on(&#39;remove&#39;, function (e) {
     console.log(e.detail);
 });
 
-tagify.on('add', function (e) {
-    console.log("original Input:", tagify.DOM.originalInput);
-    console.log("original Input's value:", tagify.DOM.originalInput.value);
-    console.log("event detail:", e.detail);
+tagify.on(&#39;add&#39;, function (e) {
+    console.log(&quot;original Input:&quot;, tagify.DOM.originalInput);
+    console.log(&quot;original Input&#39;s value:&quot;, tagify.DOM.originalInput.value);
+    console.log(&quot;event detail:&quot;, e.detail);
 });
 
 // add the first 2 tags and makes them readonly
@@ -3262,9 +3262,9 @@ tagify.addTags(tagsToAdd)
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input readonly value=&#39;tag1, tag 2, another tag&#39;&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input readonly value=&#39;tag1, tag 2, another tag&#39;&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('input[readonly]'),
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;input[readonly]&#39;),
     tagify = new Tagify(input);</code></pre>
             
         </details>
@@ -3309,7 +3309,7 @@ tagify.addTags(tagsToAdd)
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input
+            <pre><code  class="language-markup">&lt;input
     name=&#39;readonly-mix&#39;
     placeholder=&#39;Type something&#39;
     value=&#39;[
@@ -3329,7 +3329,7 @@ tagify.addTags(tagsToAdd)
     ]&#39;
 /&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('input[name=readonly-mix]'),
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;input[name=readonly-mix]&#39;),
     tagify = new Tagify(input)</code></pre>
             
         </details>
@@ -3392,9 +3392,9 @@ tagify.addTags(tagsToAdd)
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input disabled value=&#39;tag1, tag 2, another tag&#39;&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input disabled value=&#39;tag1, tag 2, another tag&#39;&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('input[disabled]'),
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;input[disabled]&#39;),
     tagify = new Tagify(input);</code></pre>
             
         </details>
@@ -3444,15 +3444,15 @@ tagify.addTags(tagsToAdd)
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input name=&#39;drag-sort&#39; value=&#39;tag 1, tag 2, tag 3, tag 4, tag 5, tag 6&#39;/&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input name=&#39;drag-sort&#39; value=&#39;tag 1, tag 2, tag 3, tag 4, tag 5, tag 6&#39;/&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('input[name=drag-sort]'),
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;input[name=drag-sort]&#39;),
     tagify = new Tagify(input);
 
-// using 3-party script "dragsort"
+// using 3-party script &quot;dragsort&quot;
 // https://github.com/yairEO/dragsort
 var dragsort = new DragSort(tagify.DOM.scope, {
-    selector:'.' + tagify.settings.classNames.tag,
+    selector:&#39;.&#39; + tagify.settings.classNames.tag,
     callbacks: {
         dragEnd: onDragEnd
     }
@@ -3521,19 +3521,19 @@ function onDragEnd(elm){
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>&lt;input name=&#39;mode-select&#39; placeholder=&quot;Please select&quot; /&gt;</code></pre>
+            <pre><code  class="language-markup">&lt;input name=&#39;mode-select&#39; placeholder=&quot;Please select&quot; /&gt;</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>var input = document.querySelector('input[name=mode-select]'),
+            <pre><code class="language-javascript">var input = document.querySelector(&#39;input[name=mode-select]&#39;),
     tagify = new Tagify(input, {
         enforceWhitelist: true,
-        mode : "select",
-        whitelist: ["first option", "second option", "third option"],
-        blacklist: ['foo', 'bar'],
+        mode : &quot;select&quot;,
+        whitelist: [&quot;first option&quot;, &quot;second option&quot;, &quot;third option&quot;],
+        blacklist: [&#39;foo&#39;, &#39;bar&#39;],
     })
 
 // bind events
-tagify.on('add', onAddTag)
-tagify.DOM.input.addEventListener('focus', onSelectFocus)
+tagify.on(&#39;add&#39;, onAddTag)
+tagify.DOM.input.addEventListener(&#39;focus&#39;, onSelectFocus)
 
 function onAddTag(e){
     console.log(e.detail)
@@ -3604,8 +3604,8 @@ function onSelectFocus(e){
     }, 500)
 </script>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
-<script src='https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js'></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.min.css">
+<script src='https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js'></script>
 
 <script src='https://unpkg.com/@yaireo/knobs'></script>
 <script>
