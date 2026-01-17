@@ -110,7 +110,7 @@ tagify.on('change', () => {
 inputElm && inputElm.addEventListener('change', () => console.log("CHANGED!")  )
 
 setTimeout(() => {
-    tagify.loadOriginalValues(["ac", {value: "aab", editable:false}, "aaa", "b", "bb", "ccc"])
+    tagify.loadOriginalValues(["ac", {value: "foo <bar> baz", editable:false}, "aaa", "b", "bb", "ccc"])
 
     tagify.setDisabled(false)
 }, 500);
