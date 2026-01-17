@@ -1090,6 +1090,9 @@ export default {
          * @param {Object} m an object representing the observed DOM changes
          */
         onInputDOMChange(m){
+            // get the last child BEFORE processing mutations
+            var lastInputChild = this.DOM.input.lastChild;
+
             // iterate all DOM mutation
             m.forEach(record => {
                 // only the ADDED nodes
@@ -1155,7 +1158,7 @@ export default {
             // 1. after a single line, press ENTER once - should add only 1 BR
             // 2. presss ENTER right before a tag
             // 3. press enter within a text node before a tag
-            var lastInputChild = this.DOM.input.lastChild;
+
 
             if( lastInputChild && lastInputChild.nodeValue == '' )
                 lastInputChild.remove()
