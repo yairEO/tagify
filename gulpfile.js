@@ -304,6 +304,10 @@ function watchExamples() {
     gulp.watch(['./docs/examples/src/*.*']).on('change', compileAllExamples)
 }
 
+function watchHomepage() {
+    gulp.watch('./docs/homepage/**/*.*').on('change', compileHomepage)
+}
+
 function watch(){
     gulp.watch('./src/*.scss', scss)
     gulp.watch(['./src/tagify.js', './src/parts/*.js'], gulp.series([js]))
@@ -313,7 +317,7 @@ function watch(){
 // remove the "react" task as it was unneeded because the react-wrapper is served unbundled
 const build = gulp.series(gulp.parallel(js, scss, polyfills), esm, compileAllExamples, compileHomepage) // deprecated the "react" task as i believe it's not needed to consume a pre-bundled version.
 
-exports.default = gulp.parallel(build, watch, watchExamples)
+exports.default = gulp.parallel(build, watch, watchExamples, watchHomepage)
 exports.js = js
 exports.esm = esm
 exports.build = build
