@@ -14,9 +14,9 @@
         <details>
             <summary>Code</summary>
             <h3>HTML</h3>
-            <pre class="language-markup"><code>{% filter escape %}{% include assetPath + '.html' %}{% endfilter %}</code></pre>
+            <pre><code  class="language-markup">{% filter escape %}{% include assetPath + '.html' %}{% endfilter %}</code></pre>
             <h3>JAVASCRIPT</h3>
-            <pre class='language-js'><code>{% include assetPath + '.js' %}</code></pre>
+            <pre><code class="language-javascript">{% filter escape %}{% include assetPath + '.js' %}{% endfilter %}</code></pre>
             {% if opts.withCSS %}
             <h3>CSS</h3>
             <style contenteditable>{% include assetPath + '.css' %}</style>
