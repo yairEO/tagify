@@ -1071,8 +1071,13 @@ export default {
                     break
                 }
                 case 'Enter' :
-                case 'Tab' : {
                     e.preventDefault()
+                case 'Tab' : {
+                    // select mode: prevent dropdown from showing twice when user clicks inside the input and then use "Tab" to get out
+                    if(this.settings.mode !== 'select')
+                        e.preventDefault();
+                    else
+                        this.toggleFocusClass(false);
 
                     var EDITED_TAG_BLUR_DELAY = 0;
 
