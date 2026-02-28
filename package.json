@@ -105,7 +105,7 @@
     "gulp-util": "^3.0.8",
     "gulp-watch": "^5.0.1",
     "path": "^0.12.7",
-    "rollup": "2.79.2",
+    "rollup": "2.80.0",
     "rollup-plugin-banner2": "^1.2.3",
     "rollup-plugin-swc3": "^0.11.0",
     "run-sequence": "^2.2.1",
