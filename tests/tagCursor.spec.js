@@ -202,6 +202,7 @@ test.describe('TagCursor', () => {
             await page.keyboard.type('mid')
             expect(await getCaretIdx(page)).toBe(1)
             await page.keyboard.press('Enter')
+            await page.waitForFunction(() => window.tagify.value.length === 3)
 
             const values = await getValues(page)
             expect(values[0]).toBe('a')
