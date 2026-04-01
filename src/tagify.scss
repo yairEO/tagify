@@ -433,7 +433,7 @@
         $placeholder-width : 110px;
         flex-grow: 1;
         display: inline-block;
-        margin: $tagMargin;
+        margin: $tagMargin 0 $tagMargin $tagMargin;
         padding: var(--tag-pad);
         line-height: normal;
         min-width: $placeholder-width;
@@ -443,6 +443,14 @@
         color: var(--input-color);
         box-sizing: inherit;
         overflow: hidden;
+
+        // When acting as a tag cursor (positioned between tags), shrink to
+        // content width so it doesn't break the tag row layout.
+        &--caret {
+            flex-grow: 0;
+            min-width: 1ch;
+            width: auto;
+        }
 
         &:empty{
             @include firefox {

@@ -59,7 +59,7 @@ export default {
 
         // setup callback references so events could be removed later
         _CBR = (this.listeners.main = this.listeners.main || {
-            keydown          : ['input', _CB.onKeydown.bind(this)],
+            keydown          : [this.settings.tagCursor?.enabled ? 'scope' : 'input', _CB.onKeydown.bind(this)],
             click            : ['scope', _CB.onClickScope.bind(this)],
             dblclick         : _s.mode != 'select' && ['scope', _CB.onDoubleClickScope.bind(this)],
             paste            : ['input', _CB.onPaste.bind(this)],
@@ -231,6 +231,8 @@ export default {
 
             if( isFocused ){
                 if( !_s.focusable ) return;
+
+                if( this.state.tagCursorIndex !== null ) return;
 
                 // if( !targetIsTagNode && _s.mode != 'select' ){
                 //     this.DOM.input.focus()
@@ -497,7 +499,16 @@ export default {
                     var isManualDropdown = _s.dropdown.position == 'manual';
 
                     switch( e.key ){
-                        case 'Backspace' :
+                        case 'Backspace' : {
+                            const cursorIndex = this.state.tagCursorIndex
+
+                            if(cursorIndex !== null && !e.target.textContent) {
+                                e.preventDefault()
+                                if(cursorIndex > 0)
+                                    this.tagCursor?.deleteLeft()?.catch(e => console.warn('[Tagify] tagCursor deleteLeft error', e))
+                                break
+                            }
+
                             if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length)
                                 this.removeTags()
 
@@ -510,6 +521,19 @@ export default {
                                 }
                             }
                             break;
+                        }
+
+                        case 'Delete': {
+                            const cursorIndex = this.state.tagCursorIndex
+
+                            if(cursorIndex !== null && !e.target.textContent) {
+                                e.preventDefault()
+                                if(cursorIndex < this.value.length)
+                                    this.tagCursor?.deleteRight()?.catch(e => console.warn('[Tagify] tagCursor deleteRight error', e))
+                                break
+                            }
+                            break
+                        }
 
                         case 'Esc' :
                         case 'Escape' :
@@ -524,7 +548,41 @@ export default {
                                 this.dropdown.show()
                             break;
 
+                        case 'Left':
+                        case 'ArrowLeft': {
+                            const isInputEmpty = !this.DOM.input.textContent.trim()
+                            const hasTagCursor = this.state.tagCursorIndex !== null
+
+                            if(hasTagCursor) {
+                                e.preventDefault()
+                                this.tagCursor?.moveLeft()
+                            }
+                            else if(isInputEmpty && this.value.length) {
+                                e.preventDefault()
+                                if(this.tagCursor) {
+                                    this.tagCursor.index = this.value.length
+                                    this.tagCursor.moveLeft()
+                                }
+                            }
+                            break
+                        }
+
                         case 'ArrowRight' : {
+                            const hasTagCursor = this.state.tagCursorIndex !== null
+
+                            if(hasTagCursor) {
+                                e.preventDefault()
+                                if(this.state.tagCursorIndex >= this.value.length) {
+                                    this.state.tagCursorIndex = null
+                                    this.tagCursor?.render()
+                                    this.DOM.input.focus()
+                                }
+                                else {
+                                    this.tagCursor?.moveRight()
+                                }
+                                break
+                            }
+
                             let tagData = this.state.inputSuggestion || this.state.ddItemData
                             if( tagData && _s.autoComplete.rightKey ){
                                 this.addTags([tagData], true)
@@ -777,7 +835,7 @@ export default {
                 isScope = e.target === this.DOM.scope,
                 timeDiffFocus = +new Date() - this.state.hasFocus;
 
-            if( e.target.classList.contains(_s.classNames.tagX) ){
+            if( e.target.classList.contains(_s.classNames.tagX) ) {
                 this.removeTags( e.target.parentNode )
                 return
             }
@@ -785,7 +843,17 @@ export default {
             else if( tagElm && !this.state.editing ){
                 this.trigger("click", { tag:tagElm, index:this.getNodeIndex(tagElm), data:getSetTagData(tagElm), event:e })
 
-                if( _s.editTags === 1 || _s.editTags.clicks === 1 || _s.mode == 'select' )
+                // position caret before or after the clicked tag based on click x-coordinate
+                if( this.tagCursor && _s.mode != 'select' && _s.mode != 'mix' ){
+                    var tagNodes = this.getTagElms(),
+                        tagIndex = tagNodes.indexOf(tagElm),
+                        tagRect = tagElm.getBoundingClientRect(),
+                        isAfter = e.clientX > tagRect.left + tagRect.width / 2
+
+                    this.tagCursor.index = isAfter ? tagIndex + 1 : tagIndex
+                }
+
+                if(_s.editTags === 1 || _s.editTags.clicks === 1 || _s.mode == 'select')
                     this.events.callbacks.onDoubleClickScope.call(this, e)
 
                 return
@@ -808,7 +876,29 @@ export default {
                 }
             }
 
-            if( _s.mode == 'select' && _s.dropdown.enabled === 0 && !this.state.dropdown.visible) {
+            if( isScope && this.tagCursor && _s.mode != 'select' && _s.mode != 'mix' ){
+                var tagNodes = this.getTagElms()
+
+                // clicking scope (not a tag): move caret to the boundary of the nearest tag
+                if(tagNodes.length) {
+                    var clickX = e.clientX,
+                        closest = tagNodes.reduce((best, node) => {
+                            var rect = node.getBoundingClientRect(),
+                                dist = Math.min(
+                                    Math.abs(clickX - rect.left),
+                                    Math.abs(clickX - rect.right)
+                                )
+                            return dist < best.dist ? { node, dist } : best
+                        }, { node: tagNodes[0], dist: Infinity }),
+                        closestRect = closest.node.getBoundingClientRect(),
+                        tagIndex = tagNodes.indexOf(closest.node),
+                        isAfter = clickX > closestRect.left + closestRect.width / 2
+
+                    this.tagCursor.index = isAfter ? tagIndex + 1 : tagIndex
+                }
+            }
+
+            if(_s.mode == 'select' && _s.dropdown.enabled === 0 && !this.state.dropdown.visible) {
                 this.events.callbacks.onDoubleClickScope.call(this, {...e, target: this.getTagElms()[0]})
 
                 !_s.userInput && this.dropdown.show()
@@ -1100,6 +1190,9 @@ export default {
             isReadyOnlyTag = tagElm.hasAttribute('readonly')
 
             if( !_s.readonly && !isEditingTag && !isReadyOnlyTag && this.settings.editTags && _s.userInput ) {
+                if(this.tagCursor) {
+                    this.tagCursor._deactivate()
+                }
                 this.events.callbacks.onEditTagFocus.call(this, tagElm)
                 this.editTag(tagElm)
             }

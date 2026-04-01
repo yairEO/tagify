@@ -98,5 +98,9 @@ export default {
         beforePaste: () => Promise.resolve(),
         suggestionClick: () => Promise.resolve(),
         beforeKeyDown: () => Promise.resolve(),
+    },
+
+    tagCursor: {
+        enabled: false,   // enables keyboard/mouse caret navigation between tags
     }
 }

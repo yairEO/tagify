@@ -1,6 +1,7 @@
 import { sameStr, removeCollectionProp, omit, isObject, parseHTML, removeTextChildNodes, escapeHTML, extend, concatWithoutDups, getUID, isNodeTag, injectAtCaret, placeCaretAfterNode, getSetTagData, fixCaretBetweenTags, logger } from './parts/helpers'
 import DEFAULTS from './parts/defaults'
 import _dropdown, { initDropdown } from './parts/dropdown'
+import { initTagCursor } from './parts/tagCursor'
 import { getPersistedData, setPersistedData, clearPersistedData } from './parts/persist'
 import TEXTS from './parts/texts'
 import templates from './parts/templates'
@@ -44,7 +45,8 @@ function Tagify( input, settings ){
         actions : {},   // UI actions for state-locking
         mixMode : {},
         dropdown: {},
-        flaggedTags: {} // in mix-mode, when a string is detetced as potential tag, and the user has chocen to close the suggestions dropdown, keep the record of the tasg here
+        flaggedTags: {}, // in mix-mode, when a string is detetced as potential tag, and the user has chocen to close the suggestions dropdown, keep the record of the tasg here
+        tagCursorIndex: null // null = caret in input; number (0..tags.length) = position between tags
     }
 
     this.value = [] // tags' data
@@ -59,6 +61,7 @@ function Tagify( input, settings ){
 
     this.getCSSVars()
     this.loadOriginalValues()
+    initTagCursor.call(this)
 
     this.events.customBinding.call(this)
     this.events.binding.call(this)
@@ -311,6 +314,8 @@ Tagify.prototype = {
      */
     destroy(){
         this.events.unbindGlobal.call(this)
+        this.tagCursor?.destroy()
+        this.tagCursor = null
         this.DOM.scope.parentNode?.removeChild(this.DOM.scope)
         this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex
         delete this.DOM.originalInput.__tagify
@@ -1498,7 +1503,15 @@ Tagify.prototype = {
 
         if( isValid && isValid === true ){
             // update state
-            this.value.push(tagData)
+            var cursorIndex = this.state.tagCursorIndex;
+            if( cursorIndex !== null ){
+                this.value.splice(cursorIndex, 0, tagData)
+                this.state.tagCursorIndex = cursorIndex + 1
+                this.tagCursor?.render()
+            }
+            else{
+                this.value.push(tagData)
+            }
         }
         else{
             this.trigger('invalid', {data:tagData, index:this.value.length, tag:tagElm, message:isValid})
@@ -1607,9 +1620,20 @@ Tagify.prototype = {
                 return this.selectTag(tagElm, tagData)
             }
 
-            // add the tag to the component's DOM
-            // this.appendTag(tagElm)
-            frag.appendChild(tagElm)
+            // When the tag cursor is active the input element already sits at
+            // the correct insertion position in the DOM.  Insert the tag directly
+            // so that postProcessNewTagNode → tagCursor.render() can query the
+            // live tag list and move DOM.input to the correct updated position.
+            // Without this, render() would see stale tagNodes (the new tag is still
+            // in the fragment) and move the input one slot too far to the right.
+            //
+            // When no tag cursor is active, batch into the fragment as usual
+            // for efficient multi-tag insertion.
+            if (this.state.tagCursorIndex !== null) {
+                this.appendTag(tagElm)
+            } else {
+                frag.appendChild(tagElm)
+            }
             this.postProcessNewTagNode(tagElm, tagData)
             addedTags.push({tagElm, tagData})
         })
@@ -1748,13 +1772,7 @@ Tagify.prototype = {
      * appened (validated) tag to the component's DOM scope
      */
     appendTag(tagElm){
-        var DOM = this.DOM,
-            insertBeforeNode = DOM.input;
-
-        //if( insertBeforeNode === DOM.input )
-            DOM.scope.insertBefore(tagElm, insertBeforeNode)
-        //else
-        //    DOM.scope.appendChild(tagElm)
+        this.DOM.scope.insertBefore(tagElm, this.DOM.input)
     },
 
     /**

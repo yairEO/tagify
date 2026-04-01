@@ -78,6 +78,7 @@
   - [Full list of Tagify's SCSS variables](#full-list-of-tagifys-scss-variables)
 - [Methods](#methods)
 - [Events](#events)
+- [Tag Cursor](#tag-cursor)
 - [Hooks](#hooks)
 - [Settings](#settings)
 <!--te-->
@@ -1062,6 +1063,75 @@ dropdown:scroll    | Tells the percentage scrolled. (`event.detail.percentage`)
 dropdown:noMatch   | No whitelist suggestion item matched for the typed input. At this point it is possible to manually set `tagify.suggestedListItems` to any possible custom value, for example: `[{ value:"default" }]`
 dropdown:updated   | Fired when the dropdown list is re-filtered while suggestions list is visible and a tag was removed so it was re-added as a suggestion
 
+## Tag Cursor
+
+An opt-in plugin that enables keyboard and mouse navigation between tags.
+Instead of a decorative element, the plugin physically repositions the real input field between tags so users can type, insert, and delete at any position without leaving the tags field.
+
+### Enabling
+
+```javascript
+var tagify = new Tagify(input, {
+    tagCursor: { enabled: true }
+})
+```
+
+### Keyboard interactions
+
+| Key | Behaviour |
+|-----|-----------|
+| `←` (empty input) | Activates caret after the last tag, then steps left |
+| `←` (caret active) | Moves caret one position to the left |
+| `→` (caret active) | Moves caret one position to the right |
+| `→` at end | Deactivates caret and returns focus to the end of the field |
+| `Backspace` (caret active, **empty input**) | Removes the tag **before** the caret |
+| `Delete` (caret active, **empty input**) | Removes the tag **after** the caret |
+| `Backspace` / `Delete` (caret active, input has text) | Deletes typed characters — standard browser behaviour |
+| `Enter` / `Tab` (caret active) | Commits the typed text as a new tag at the caret position |
+
+Typing while the caret is active is fully supported. The caret stays in position until the user navigates away with `→` or presses `Escape`.
+
+### Mouse interactions
+
+- **Click left half of a tag** — places caret before that tag
+- **Click right half of a tag** — places caret after that tag
+- **Click the container background** — places caret nearest to the click position
+
+### Programmatic API
+
+The `TagCursor` instance is available at `tagify.tagCursor` (only when `enabled: true`):
+
+```javascript
+var tagifyTagCursor = tagify.tagCursor
+
+tagifyTagCursor.moveLeft()           // move caret left by one position
+tagifyTagCursor.moveRight()          // move caret right by one position
+tagifyTagCursor.index = 2            // jump directly to position 2
+tagifyTagCursor.index = null         // deactivate and return input to end of field
+tagifyTagCursor.deleteLeft()         // remove tag before caret (input must be empty)
+tagifyTagCursor.deleteRight()        // remove tag after caret (input must be empty)
+tagifyTagCursor.destroy()            // reset all state and return input to end of field
+```
+
+`tagify.state.tagCursorIndex` always reflects the current position:
+`null` when inactive, `0…tags.length` when active.
+
+### Appearance
+
+When the caret is active the input receives the class `tagify__input--caret`, which shrinks it to an inline cursor width. Override it to match your design:
+
+```css
+.tagify__input--caret {
+    min-width  : 2px;
+    background : rgba(108, 71, 255, 0.25);
+}
+```
+
+> **Live example:** [`docs/examples/dist/tag-cursor.html`](docs/examples/dist/tag-cursor.html)
+
+
+---
+
 ## Hooks
 
 **Promise**-based hooks for *async* program flow scenarios.
@@ -1162,3 +1232,4 @@ dropdown.*mapValueTo*          | <sub>Function/String</sub>   |                 
 dropdown.*searchKeys*          | <sub>Array</sub>             | <sub>`["value", "searchBy"]`</sub>          | When a user types something and trying to match the whitelist items for suggestions, this setting allows matching other keys of a whitelist objects
 dropdown.*appendTarget*        | <sub>HTMLNode/Function</sub> | `document.body`                             | Target-Node which the *suggestions dropdown* is appended to (*only when rendered*). If used as a function, should return a DOM node.
 dropdown.*placeAbove*          | <sub>Boolean</sub>           |                                             | If defined, will force the placement of the dropdown in respect to the Boolean value: `true` will always show the suggestions dropdown above the input field and `false` will always show it below. By default this setting it not defined and the placement of the dropdown is automatically decided according to the space availble, where opening it *below* the input is preferred.
+tagCursor.*enabled*            | <sub>Boolean</sub>           | `false`                                     | Opt-in plugin that repositions the real input between tags for keyboard/mouse navigation. When `true`, pressing `←` on an empty input activates the cursor; `→` at the end returns the input to the end of the field. Typing at any cursor position creates tags there. See [Tag Cursor](#tag-cursor) for full documentation.
