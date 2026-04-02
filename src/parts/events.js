@@ -845,7 +845,7 @@ export default {
 
                 // position caret before or after the clicked tag based on click x-coordinate
                 if( this.tagCursor && _s.mode != 'select' && _s.mode != 'mix' ){
-                    var tagNodes = this.getTagElms(),
+                    const tagNodes = this.getTagElms(),
                         tagIndex = tagNodes.indexOf(tagElm),
                         tagRect = tagElm.getBoundingClientRect(),
                         isAfter = e.clientX > tagRect.left + tagRect.width / 2
@@ -877,13 +877,13 @@ export default {
             }
 
             if( isScope && this.tagCursor && _s.mode != 'select' && _s.mode != 'mix' ){
-                var tagNodes = this.getTagElms()
+                const tagNodes = this.getTagElms()
 
                 // clicking scope (not a tag): move caret to the boundary of the nearest tag
                 if(tagNodes.length) {
-                    var clickX = e.clientX,
+                    const clickX = e.clientX,
                         closest = tagNodes.reduce((best, node) => {
-                            var rect = node.getBoundingClientRect(),
+                            const rect = node.getBoundingClientRect(),
                                 dist = Math.min(
                                     Math.abs(clickX - rect.left),
                                     Math.abs(clickX - rect.right)
