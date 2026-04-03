@@ -1,4 +1,4 @@
-Create `{filename}.context.md` documenting session learnings:
+Create `{filename}.context.md` documenting everything you have learned in this chat session:
 
 ## Structure
 1. **Decisions** - choices made + rationale (why > what)
@@ -15,7 +15,9 @@ Create `{filename}.context.md` documenting session learnings:
 - Prefer enums/lists over sentences
 - Include decision trees for conditional logic
 
-## Graph (if complex relationships exist)
+## Graph (if relationships exists between individual aspects)
+- use "mermaid" diagrams only
+
 graph:
   nodes: [A, B, C]
   edges:
