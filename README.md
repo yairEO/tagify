@@ -175,7 +175,16 @@ var tagify = new Tagify(...)
 * Original input/textarea element values kept in sync with Tagify
 
 ## Building the project
-Simply run `gulp` in your terminal, from the project's path ([Gulp](https://gulpjs.com) should be installed first).
+Building this repository requires **Node.js 22+** and **pnpm 10+** (see `package.json` `engines`). From the project root, install dependencies and run the build:
+
+```sh
+pnpm install
+pnpm run build
+```
+
+For local development with watch mode, use `pnpm start` (runs Gulp with `--dev`). [Gulp](https://gulpjs.com) is used under the hood; you do not need a global Gulp install if you use the pnpm scripts above.
+
+*(Installing the published package in your app — e.g. `npm i @yaireo/tagify` — is unchanged; the Node/pnpm requirements apply to **contributors** building Tagify from source.)*
 
 Source files are this path: `/src/`
 
@@ -971,6 +980,8 @@ Name                       | Parameters                                         
 `parseMixTags`             | `String`                                                                                | Converts a String argument (`[[foo]]⁠ and [[bar]]⁠ are..`) into HTML with mixed tags & texts
 `getTagElms`               |                                                                                         | Returns a DOM nodes list of all the tags
 `getTagElmByValue`         | `String`                                                                                | Returns a specific tag DOM node by value
+`getTagElmBeforeInput`     |                                                                                         | Returns the tag element immediately before the contenteditable input in the scope (sibling order), or `undefined`. See JSDoc on `getTagElmBeforeInput` in [`src/tagify.js`](https://github.com/yairEO/tagify/blob/master/src/tagify.js).
+`repositionScopeInput`     | `direction`, optional `options`                                                         | Moves the input among tag siblings (`'left'` \| `'right'` \| `'ArrowLeft'` \| `'ArrowRight'`) or after the last tag (`'reset'`). Optional `{ focus?: boolean }`; returns `true` if the input’s DOM position changed. See JSDoc on `repositionScopeInput` in [`src/tagify.js`](https://github.com/yairEO/tagify/blob/master/src/tagify.js).
 `getSetTagData`            | `HTMLElement`, `Object`                                                                 | set/get tag data on a tag element (has`.tagify__tag` class by default)
 `editTag`                  | `HTMLElement`                                                                           | Goes to edit-mode in a specific tag
 `getTagTextNode`           | `HTMLElement`                                                                           | Get the node which has the actual tag's content
@@ -1120,7 +1131,7 @@ userInput                      | <sub>Boolean</sub>           | true            
 focusable                      | <sub>Boolean</sub>           | true                                        | Allow the component as a whole to recieve focus. Implementations of Tagify without an external border should not allow 'focusability' which causes unwanted behaviour. ([use-case example](file:///C:/Users/vsync/projects/tagify/index.html#section-different-look))
 focusInputOnRemove             | <sub>Boolean</sub>           | true                                        | Refocus the input when a tag is removed
 autoComplete.enabled           | <sub>Boolean</sub>           | true                                        | Tries to suggest the input's value while typing (match from whitelist) by adding the rest of term as grayed-out text
-autoComplete.rightKey          | <sub>Boolean</sub>           | false                                       | If `true`, when `→` is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true"
+autoComplete.rightKey          | <sub>Boolean</sub>           | false                                       | If `true`, when `→` is pressed, use the suggested value to create a tag, else just auto-completes the input. In mixed-mode this is ignored and treated as "true". When **`allowCaretBetweenTags`** is `true`, <kbd>→</kbd> first moves the input past the next tag if possible; accepting a suggestion with <kbd>→</kbd> applies when the input does not move. Arrow behavior also interacts with the suggestions dropdown in that mode.
 autoComplete.tabKey            | <sub>Boolean</sub>           | false                                       | If `true`, pressing `tab` key would only auto-complete (if a suggestion is highlighted) but will not convert to a tag (like `rightKey` does) also, unless clicked again (considering the `addTagOn` setting).
 whitelist                      | <sub>Array</sub>             | `[]`                                        | An array of allowed tags (*Strings* or *Objects*). When using *Objects* in the *whitelist* array a `value` property is a must & should be unique. <br/>Also, the *whitelist used for auto-completion when `autoCompletion.enabled` is `true`
 blacklist                      | <sub>Array</sub>             | `[]`                                        | An array of tags which aren't allowed
@@ -1139,7 +1150,8 @@ transformTag                   | <sub>Function</sub>          |                 
 keepInvalidTags                | <sub>Boolean</sub>           | false                                       | If `true`, do not remove tags which did not pass validation
 createInvalidTags              | <sub>Boolean</sub>           | true                                        | If `true`, create invalid-tags. Otherwise, keep the editable input and do not create tags from it
 skipInvalid                    | <sub>Boolean</sub>           | false                                       | If `true`, do not add invalid, temporary, tags before automatically removing them
-backspace                      | <sub>*</sub>                 | true                                        | On pressing backspace key:<br> `true` - remove last tag <br>`edit` - edit last tag<br>`false` - do nothing (useful for outside style)
+backspace                      | <sub>*</sub>                 | true                                        | On pressing backspace key while the input is **empty** (incl. zero-width space):<br> `true` - remove the **tag immediately before the input** <br>`edit` - edit that tag<br>`false` - do nothing (useful for outside style)
+allowCaretBetweenTags          | <sub>Boolean</sub>           | true                                        | When `true` (non-`mix` modes), <kbd>←</kbd> / <kbd>→</kbd> reposition the internal input among tags so new tags can be added between existing ones. No effect in **`mix`** mode. On **blur**, the input returns **after the last tag** unless focus moves into the suggestions dropdown. See also `repositionScopeInput` and `getTagElmBeforeInput` in [Methods](#methods). Full behavior is documented in JSDoc on `Tagify.prototype.repositionScopeInput` in the source.
 originalInputValueFormat       | <sub>Function</sub>          |                                             | If you wish your original input/textarea `value` property format to other than the default (which I recommend keeping) you may use this and make sure it returns a *string*.
 mixMode.*insertAfterTag*       | <sub>Node/String</sub>       | `\u00A0`                                    | `node` or `string` to add after a tag added |
 a11y.*focusableTags*           | <sub>Boolean</sub>           | false                                       | allows tags to get focus, and also to be deleted via <kbd>Backspace</kbd>
