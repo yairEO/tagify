@@ -19,8 +19,8 @@
     "not op_mini all"
   ],
   "engines": {
-    "npm": ">=9.0.0",
-    "node": ">=16.15.0"
+    "pnpm": ">=10",
+    "node": ">=22"
   },
   "np": {
     "yarn": false,
@@ -74,11 +74,11 @@
     "react-dom": "*"
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
+    "@playwright/test": "^1.59.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/stream": "^3.0.1",
-    "@swc/core": "^1.4.12",
-    "@types/node": "^22.19.7",
+    "@swc/core": "^1.15.21",
+    "@types/node": "^22.19.17",
     "beepbeep": "^1.3.0",
     "gulp": "^5.0.1",
     "gulp-autoprefixer": "^8.0.0",
@@ -106,11 +106,11 @@
     "gulp-watch": "^5.0.1",
     "path": "^0.12.7",
     "rollup": "2.80.0",
-    "rollup-plugin-banner2": "^1.2.3",
-    "rollup-plugin-swc3": "^0.11.0",
+    "rollup-plugin-banner2": "^1.3.1",
+    "rollup-plugin-swc3": "^0.11.2",
     "run-sequence": "^2.2.1",
     "sass": "^1.74.1",
-    "semver": "^7.7.3",
+    "semver": "^7.7.4",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   }
