@@ -188,6 +188,13 @@ export default {
                 shouldAddTags;
 
             if( lostFocus ){
+                // normalize input to end of scope; skip while focus moves into the portaled dropdown (avoid layout jump mid-selection)
+                if( _s.mode != 'mix' ){
+                    var focusWentToDropdown = e.relatedTarget && this.DOM.dropdown?.contains(e.relatedTarget);
+                    if( !focusWentToDropdown )
+                        this.repositionScopeInput('reset', { focus: false })
+                }
+
                 if( e.relatedTarget === this.DOM.scope ){
                     this.dropdown.hide()
                     this.DOM.input.focus()
@@ -524,13 +531,23 @@ export default {
                                 this.dropdown.show()
                             break;
 
+                        case 'ArrowLeft' : {
+                            if( this.repositionScopeInput('left') )
+                                e.preventDefault();
+                            break;
+                        }
+
                         case 'ArrowRight' : {
+                            if( this.repositionScopeInput('right') ){
+                                e.preventDefault();
+                                break;
+                            }
                             let tagData = this.state.inputSuggestion || this.state.ddItemData
                             if( tagData && _s.autoComplete.rightKey ){
                                 this.addTags([tagData], true)
                                 return;
                             }
-                            break
+                            break;
                         }
 
                         case 'Tab' : {

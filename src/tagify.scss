@@ -229,6 +229,11 @@
         cursor       : default;
         transition   : .13s ease-out;
 
+        // needed when "allowCaretBetweenTags" an the input has been moved (by the user) so it's not the last element
+        &:last-child {
+            margin-right: $tagMargin;
+        }
+
         > div{  // :not([contenteditable])
             display        : flex;
             flex           : 1;
@@ -436,7 +441,7 @@
         margin: $tagMargin;
         padding: var(--tag-pad);
         line-height: normal;
-        min-width: $placeholder-width;
+        min-width: fit-content;
         min-height: 1.5lh;
         position: relative;
         white-space: pre-wrap; // #160 Line break (\n) as delimeter
@@ -444,47 +449,53 @@
         box-sizing: inherit;
         overflow: hidden;
 
+        &:focus{
+            outline:none;
+        }
+
+        &:last-child {
+            min-width: $placeholder-width;
+
+            &:focus{
+                &::before{
+                    @include placeholder(false);
+
+                    /* ALL MS BROWSERS: hide placeholder (on focus) otherwise the caret is placed after it, which is weird */
+                    /* IE Edge 12+ CSS styles go here */
+                    @supports ( -ms-ime-align:auto ) {
+                        display: none;
+                    }
+                }
+
+                &:empty{
+                    &::before{
+                        @include placeholder(true);
+
+                        // Seems to be fixed! no need for the below hack
+                        // @include firefox {
+                        //     // remove ":after" pseudo element: https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
+                        //     content: unset;
+                        //     // display:inline-block;
+                        // }
+
+                        color: $placeholder-color-focus;
+                        color: var(--placeholder-color-focus);
+                    }
+
+                     &::after{
+                        @include firefox {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+
         &:empty{
             @include firefox {
               // clicking twice on the input (not fast) disallows typing (bug) only when the input has "display:flex".
               // disabled the below rule for the above reason:
               //  display: flex; // https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
-            }
-        }
-
-        &:focus{
-            outline:none;
-
-            &::before{
-                @include placeholder(false);
-
-                /* ALL MS BROWSERS: hide placeholder (on focus) otherwise the caret is placed after it, which is weird */
-                /* IE Edge 12+ CSS styles go here */
-                @supports ( -ms-ime-align:auto ) {
-                    display: none;
-                }
-            }
-
-            &:empty{
-                &::before{
-                    @include placeholder(true);
-
-                    // Seems to be fixed! no need for the below hack
-                    // @include firefox {
-                    //     // remove ":after" pseudo element: https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45
-                    //     content: unset;
-                    //     // display:inline-block;
-                    // }
-
-                    color: $placeholder-color-focus;
-                    color: var(--placeholder-color-focus);
-                }
-
-                 &::after{
-                    @include firefox {
-                        display: none;
-                    }
-                }
             }
         }
 

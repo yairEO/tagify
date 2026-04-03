@@ -1758,6 +1758,68 @@ Tagify.prototype = {
     },
 
     /**
+     * Moves the contenteditable input among tag siblings (when `allowCaretBetweenTags`), or places it immediately
+     * after the last tag (`reset`). No-op in `mix` mode, wrong parent, `reset` with no tags or input already after
+     * last tag, or when `left`/`right` but `allowCaretBetweenTags` is off.
+     * @param {'left'|'right'|'ArrowLeft'|'ArrowRight'|'reset'} direction
+     * @param {{focus?: boolean}} [options] - Whether to call `focus()` on the input after a successful move. Defaults to `true` for `left`/`right`, `false` for `reset` (e.g. blur should not steal focus back).
+     * @returns {boolean} `true` if the input’s position in the DOM changed
+     */
+    repositionScopeInput(direction, options = {}){
+        var input = this.DOM.input,
+            scope = this.DOM.scope,
+            _s = this.settings,
+            parent = input && input.parentNode,
+            isReset = direction === 'reset',
+            focus = options.focus !== undefined ? options.focus : !isReset;
+
+        // mix-mode layout is not “tags + input siblings”; moving the input would corrupt the DOM
+        if( _s.mode == 'mix' )
+            return false;
+
+        if( !input || !scope || parent != scope )
+            return false;
+
+        if( isReset ){
+            var tagElms = this.getTagElms(),
+                lastTag = tagElms[tagElms.length - 1];
+
+            if( !lastTag )
+                return false;
+
+            if( lastTag.nextElementSibling === input )
+                return false;
+
+            lastTag.after(input);
+            focus && input.focus();
+            return true;
+        }
+
+        if( !_s.allowCaretBetweenTags )
+            return false;
+
+        if( direction === 'left' || direction === 'ArrowLeft' ){
+            var previousSibling = input.previousElementSibling;
+            if( !isNodeTag.call(this, previousSibling) )
+                return false;
+            scope.insertBefore(input, previousSibling);
+            focus && input.focus();
+            return true;
+        }
+
+        if( direction === 'right' || direction === 'ArrowRight' ){
+            var nextSibling = input.nextElementSibling;
+            if( !isNodeTag.call(this, nextSibling) )
+                return false;
+            nextSibling.after(input);
+            focus && input.focus();
+            return true;
+        }
+
+        return false;
+    },
+
+    /**
      * creates a DOM tag element and injects it into the component (this.DOM.scope)
      * @param  {Object}  tagData [text value & properties for the created tag]
      * @param  {Object}  extraData [properties which are for the HTML template only]

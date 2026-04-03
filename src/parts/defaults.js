@@ -19,9 +19,9 @@ export default {
     mixTagsAllowedAfter : /,|\.|\:|\s/,   // RegEx - Define conditions in which mix-tags content allows a tag to be added after
     mixTagsInterpolator : ['[[', ']]'],   // Interpolation for mix mode. Everything between these will become a tag, if is a valid Object
     backspace           : true,           // false / true / "edit"
+    allowCaretBetweenTags : true,         // if true, allows for caret between tags
     skipInvalid         : false,          // If `true`, do not add invalid, temporary, tags before automatically removing them
     pasteAsTags         : true,           // automatically converts pasted text into tags. if "false", allows for further text editing
-
     editTags            : {
         clicks      : 2,                  // clicks to enter "edit-mode": 1 for single click. any other value is considered as double-click
         keepInvalid : true                // keeps invalid edits as-is until `esc` is pressed while in focus
