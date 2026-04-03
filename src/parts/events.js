@@ -504,19 +504,22 @@ export default {
                     var isManualDropdown = _s.dropdown.position == 'manual';
 
                     switch( e.key ){
-                        case 'Backspace' :
+                        case 'Backspace' : {
+                            var tagBefore = this.getTagElmBeforeInput();
+
                             if( _s.mode == 'select' && _s.enforceWhitelist && this.value.length)
-                                this.removeTags()
+                                tagBefore && this.removeTags(tagBefore)
 
                             else if( !this.state.dropdown.visible || _s.dropdown.position == 'manual' ){
                                 if( e.target.textContent == "" || s.charCodeAt(0) == 8203 ){  // 8203: ZERO WIDTH SPACE unicode
                                     if( _s.backspace === true )
-                                        this.removeTags()
+                                        tagBefore && this.removeTags(tagBefore)
                                     else if( _s.backspace == 'edit' )
-                                        setTimeout(this.editTag.bind(this), 0) // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
+                                        tagBefore && setTimeout(() => this.editTag(tagBefore), 0) // timeout reason: when edited tag gets focused and the caret is placed at the end, the last character gets deletec (because of backspace)
                                 }
                             }
                             break;
+                        }
 
                         case 'Esc' :
                         case 'Escape' :

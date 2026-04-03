@@ -905,6 +905,16 @@ Tagify.prototype = {
     },
 
     /**
+     * Tag element immediately before {@link Tagify#DOM.input} in the scope (sibling order).
+     * Used for Backspace and for ArrowLeft in {@link Tagify#repositionScopeInput} when the input may sit between tags.
+     * @returns {HTMLElement|undefined}
+     */
+    getTagElmBeforeInput(){
+        var prev = this.DOM.input && this.DOM.input.previousElementSibling;
+        return isNodeTag.call(this, prev) ? prev : undefined;
+    },
+
+    /**
      * Searches if any tag with a certain value already exis
      * @param  {String/Object} value [text value / tag data object]
      * @param  {Boolean} caseSensitive
@@ -1799,10 +1809,10 @@ Tagify.prototype = {
             return false;
 
         if( direction === 'left' || direction === 'ArrowLeft' ){
-            var previousSibling = input.previousElementSibling;
-            if( !isNodeTag.call(this, previousSibling) )
+            var tagBefore = this.getTagElmBeforeInput();
+            if( !tagBefore )
                 return false;
-            scope.insertBefore(input, previousSibling);
+            scope.insertBefore(input, tagBefore);
             focus && input.focus();
             return true;
         }
