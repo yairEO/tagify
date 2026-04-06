@@ -648,6 +648,66 @@
         --tags-border-color : #{$tag-invalid-color};
     }
 
+    &--scroll-container{
+        flex-wrap      : nowrap;
+        overflow-x     : auto;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar{
+            display: none;
+        }
+
+        #{$self}__input{
+            display    : inline-block;
+            align-self : center;
+            flex-shrink: 0;
+            flex-grow  : 0;
+            flex-basis : auto;
+            min-width  : 1ch;
+            width      : auto;
+            white-space: nowrap;
+
+            & + #{$self}__tag{
+                margin-inline: 0;
+            }
+        }
+    }
+
+    &__scrollBtn{
+        position        : sticky;
+        top             : 0;
+        bottom          : 0;
+        align-self      : stretch;
+        z-index         : 1;
+        flex-shrink     : 0;
+        display         : flex;
+
+        &[hidden]{ display: none; }
+        align-items     : center;
+        justify-content : center;
+        width           : 1.6em;
+        padding         : 0;
+        border          : none;
+        background      : none;
+        cursor          : pointer;
+        font-size       : 1em;
+        color           : inherit;
+        pointer-events  : all;
+
+        &--back{
+            left      : 0;
+            z-index   : 2;
+            background: var(--tags-bg, white);
+            box-shadow: 2px 0 5px rgba(0,0,0,.15);
+        }
+
+        &--forward{
+            right     : 0;
+            background: var(--tags-bg, white);
+            box-shadow: -2px 0 5px rgba(0,0,0,.15);
+        }
+    }
+
     // Since the dropdown is an external element, which is positioned directly on the body element
     // it cannot inherit the CSS variables applied on the ".Tagify" element
     &__dropdown{

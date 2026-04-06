@@ -108,6 +108,18 @@ export default {
         if( !this.listeners || (!unbind  && this.listeners.global) ) return; // do not re-bind
 
         // these events are global and should never be unbinded, unless the instance is destroyed:
+        const scrollListeners = this.settings.scrollContainer?.enabled
+            ? [
+                // scroll always tracked regardless of buttons, to keep button state in sync
+                { target: this.DOM.scope, type: 'scroll', cb: _CB.onScroll.bind(this), useCapture: false },
+                // button clicks only registered when buttons are rendered
+                ...(this.settings.scrollContainer.buttons ? [
+                    { target: this.DOM.scrollBtnBack,    type: 'click', cb: _CB.onScrollBtnBack.bind(this) },
+                    { target: this.DOM.scrollBtnForward, type: 'click', cb: _CB.onScrollBtnForward.bind(this) },
+                ] : []),
+              ]
+            : []
+
         this.listeners.global = this.listeners.global || [
             {
                 type: this.isIE ? 'keydown' : 'input',  // IE cannot register "input" events on contenteditable elements, so the "keydown" should be used instead..
@@ -135,6 +147,7 @@ export default {
                 cb: _CB.onClickAnywhere.bind(this),
                 useCapture: true
             },
+            ...scrollListeners,
         ]
 
         for( e of this.listeners.global )
@@ -627,6 +640,9 @@ export default {
             }
 
             this.trigger('input', eventData) // "input" event must be triggered at this point, before the dropdown is shown
+
+            if( _s.scrollContainer?.enabled )
+                this.scrollInputIntoView()
         },
 
         onMixTagsInput( e ){
@@ -1212,6 +1228,18 @@ export default {
             if( !lastInputChild || lastInputChild.nodeName != 'BR' ){
                 this.DOM.input.appendChild(document.createElement('br'))
             }
+        },
+
+        onScrollBtnBack(){
+            this.DOM.scope.scrollBy({ left: -(this.DOM.scope.clientWidth * 0.6), behavior: 'smooth' })
+        },
+
+        onScrollBtnForward(){
+            this.DOM.scope.scrollBy({ left: this.DOM.scope.clientWidth * 0.6, behavior: 'smooth' })
+        },
+
+        onScroll(){
+            this.updateScrollButtons()
         },
     }
 }

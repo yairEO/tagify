@@ -98,5 +98,10 @@ export default {
         beforePaste: () => Promise.resolve(),
         suggestionClick: () => Promise.resolve(),
         beforeKeyDown: () => Promise.resolve(),
+    },
+
+    scrollContainer: {
+        enabled: false,  // enables horizontal scrolling of the tags container (single-row, no wrap)
+        buttons: false,  // renders ← → navigation buttons inside the container
     }
 }

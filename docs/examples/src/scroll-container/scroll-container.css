@@ -1,0 +1,18 @@
+.demo-group {
+    width: 380px;
+    margin-bottom: 2em;
+}
+
+.demo-group label {
+    display: block;
+    margin-bottom: .4em;
+    font-size: .85em;
+    color: #666;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.demo-group .tagify {
+    width: 100%;
+}

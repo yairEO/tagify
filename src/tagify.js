@@ -304,6 +304,9 @@ Tagify.prototype = {
         // fixes tagify nested inside a <label> tag from getting focus when clicked on
         if( labelWrapper )
             labelWrapper.setAttribute('for', '')
+
+        if( this.settings.scrollContainer?.enabled )
+            this.initScrollContainer()
     },
 
     /**
@@ -311,6 +314,7 @@ Tagify.prototype = {
      */
     destroy(){
         this.events.unbindGlobal.call(this)
+        this.destroyScrollContainer()
         this.DOM.scope.parentNode?.removeChild(this.DOM.scope)
         this.DOM.originalInput.tabIndex = this.DOM.originalInput_tabIndex
         delete this.DOM.originalInput.__tagify
@@ -1630,6 +1634,9 @@ Tagify.prototype = {
             this.trigger('add', {tag:tagElm, index:this.getTagIdx(tagData), data:tagData})
         )
 
+        if( _s.scrollContainer?.enabled )
+            requestAnimationFrame(() => this.scrollInputIntoView('instant'))
+
         this.update()
 
 
@@ -1814,6 +1821,10 @@ Tagify.prototype = {
                 return false;
             scope.insertBefore(input, tagBefore);
             focus && input.focus();
+            if( _s.scrollContainer?.enabled ){
+                this.scrollInputIntoView();
+                this.updateScrollButtons();
+            }
             return true;
         }
 
@@ -1823,6 +1834,10 @@ Tagify.prototype = {
                 return false;
             nextSibling.after(input);
             focus && input.focus();
+            if( _s.scrollContainer?.enabled ){
+                this.scrollInputIntoView();
+                this.updateScrollButtons();
+            }
             return true;
         }
 
@@ -2172,7 +2187,83 @@ Tagify.prototype = {
         iterateChildren(this.DOM.input)
 
         return result;
-    }
+    },
+
+    initScrollContainer(){
+        const { scope } = this.DOM
+
+        scope.classList.add(this.settings.classNames.namespace + '--scroll-container')
+
+        if( !this.settings.scrollContainer.buttons ) return
+
+        const btnBack    = parseHTML(`<button type="button" class="tagify__scrollBtn tagify__scrollBtn--back"    aria-label="Scroll left">&#8592;</button>`)
+        const btnForward = parseHTML(`<button type="button" class="tagify__scrollBtn tagify__scrollBtn--forward" aria-label="Scroll right">&#8594;</button>`)
+
+        scope.insertBefore(btnBack, scope.firstChild)
+        scope.appendChild(btnForward)
+
+        this.DOM.scrollBtnBack    = btnBack
+        this.DOM.scrollBtnForward = btnForward
+
+        // listeners are registered via bindGlobal() (scrollListeners) — no manual binding needed here
+        // scroll to end and update button state after layout is complete
+        requestAnimationFrame(() => {
+            this.DOM.scope.scrollLeft = this.DOM.scope.scrollWidth
+            this.updateScrollButtons()
+        })
+    },
+
+    destroyScrollContainer(){
+        const { scrollBtnBack, scrollBtnForward } = this.DOM
+        if( !scrollBtnBack ) return
+
+        // DOM event listeners are already removed by unbindGlobal() before this runs
+        scrollBtnBack.remove()
+        scrollBtnForward.remove()
+
+        delete this.DOM.scrollBtnBack
+        delete this.DOM.scrollBtnForward
+    },
+
+    scrollInputIntoView( behavior = 'instant' ){
+        const { scope, input, scrollBtnBack, scrollBtnForward } = this.DOM
+        const btnBackWidth    = scrollBtnBack    ? scrollBtnBack.offsetWidth    : 0
+        const btnForwardWidth = scrollBtnForward ? scrollBtnForward.offsetWidth : 0
+
+        const inputRight   = input.offsetLeft + input.offsetWidth
+        const visibleLeft  = scope.scrollLeft  + btnBackWidth
+        const visibleRight = scope.scrollLeft  + scope.clientWidth - btnForwardWidth
+
+        if( inputRight > visibleRight )
+            scope.scrollBy({ left: inputRight - scope.clientWidth + btnForwardWidth - scope.scrollLeft, behavior })
+        else if( input.offsetLeft < visibleLeft )
+            scope.scrollBy({ left: input.offsetLeft - btnBackWidth - scope.scrollLeft, behavior })
+    },
+
+    updateScrollButtons(){
+        const { scrollBtnBack, scrollBtnForward, scope, input } = this.DOM
+        if( !scrollBtnBack ) return
+
+        const { scrollLeft, clientWidth } = scope
+
+        // back: hide when scrolled all the way to the start
+        const atStart = Math.round(scrollLeft) <= 0
+        scrollBtnBack.hidden = atStart
+
+        // forward: hide when the input's left edge is already visible inside the viewport
+        // (meaning there's nothing meaningful further right to scroll to),
+        // but show again if the last tag is being clipped by the right edge
+        const fwdWidth       = scrollBtnForward.hidden ? 0 : scrollBtnForward.offsetWidth
+        const inputVisible   = input.offsetLeft >= scrollLeft && input.offsetLeft <= scrollLeft + clientWidth - fwdWidth
+
+        // walk backwards from scope's last child to find the last tag without a full DOM query
+        let lastTag = scrollBtnForward.previousElementSibling
+        if( lastTag === input ) lastTag = lastTag.previousElementSibling
+        if( lastTag && !isNodeTag.call(this, lastTag) ) lastTag = null
+        const lastTagClipped = lastTag && (lastTag.offsetLeft + lastTag.offsetWidth) > (scrollLeft + clientWidth - fwdWidth)
+
+        scrollBtnForward.hidden = inputVisible && !lastTagClipped
+    },
 }
 
 // legacy support for changed methods names
