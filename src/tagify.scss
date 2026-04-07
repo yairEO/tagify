@@ -671,6 +671,10 @@
                 margin-inline: 0;
             }
         }
+
+        &:not(:has(#{$self}__tag)) #{$self}__input{
+            min-width: 110px;
+        }
     }
 
     &__scrollIcon{

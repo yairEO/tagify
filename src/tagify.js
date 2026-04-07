@@ -2222,7 +2222,7 @@ Tagify.prototype = {
                 scope.style.setProperty('--tagify-scroll-icon-width', this.DOM.scrollIcon.offsetWidth + 'px')
 
             scope.scrollLeft = scope.scrollWidth
-            this.updateScrollButtons()
+            requestAnimationFrame(() => this.updateScrollButtons())
         })
     },
 
@@ -2265,16 +2265,21 @@ Tagify.prototype = {
         const { scrollBtnBack, scrollBtnForward, scope, input } = this.DOM
         if( !scrollBtnBack ) return
 
-        const { scrollLeft, clientWidth } = scope
-        const { left: leftFixed, right: rightFixed } = this._scrollFixedWidths()
-        const visibleRight = scrollLeft + clientWidth - rightFixed
+        const { scrollLeft, clientWidth, scrollWidth } = scope
+        const { left: leftFixed } = this._scrollFixedWidths()
 
         scrollBtnBack.hidden = Math.round(scrollLeft) <= 0
+
+        if( Math.round(scrollLeft + clientWidth) >= scrollWidth ){
+            scrollBtnForward.hidden = true
+            return
+        }
 
         let lastTag = scrollBtnForward.previousElementSibling
         if( lastTag === input ) lastTag = lastTag.previousElementSibling
         if( lastTag && !isNodeTag.call(this, lastTag) ) lastTag = null
 
+        const visibleRight   = scrollLeft + clientWidth - scrollBtnForward.offsetWidth
         const inputVisible   = input.offsetLeft >= scrollLeft + leftFixed && input.offsetLeft <= visibleRight
         const lastTagClipped = lastTag && (lastTag.offsetLeft + lastTag.offsetWidth) > visibleRight
 
