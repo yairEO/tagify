@@ -2207,7 +2207,6 @@ Tagify.prototype = {
         const btnBack    = parseHTML(`<button type="button" class="tagify__scrollBtn tagify__scrollBtn--back"    aria-label="Scroll left">${customBtns.back    || '&#8592;'}</button>`)
         const btnForward = parseHTML(`<button type="button" class="tagify__scrollBtn tagify__scrollBtn--forward" aria-label="Scroll right">${customBtns.forward || '&#8594;'}</button>`)
 
-        // back button sits immediately after the icon (or at the very start if no icon)
         if( this.DOM.scrollIcon )
             this.DOM.scrollIcon.after(btnBack)
         else
@@ -2218,8 +2217,6 @@ Tagify.prototype = {
         this.DOM.scrollBtnBack    = btnBack
         this.DOM.scrollBtnForward = btnForward
 
-        // listeners are registered via bindGlobal() (scrollListeners) — no manual binding needed here
-        // scroll to end and update button state after layout is complete
         requestAnimationFrame(() => {
             if( this.DOM.scrollIcon )
                 scope.style.setProperty('--tagify-scroll-icon-width', this.DOM.scrollIcon.offsetWidth + 'px')
@@ -2232,7 +2229,6 @@ Tagify.prototype = {
     destroyScrollContainer(){
         const { scrollBtnBack, scrollBtnForward, scrollIcon, scope } = this.DOM
 
-        // DOM event listeners are already removed by unbindGlobal() before this runs
         scrollBtnBack?.remove()
         scrollBtnForward?.remove()
         scrollIcon?.remove()
@@ -2244,7 +2240,6 @@ Tagify.prototype = {
         delete this.DOM.scrollIcon
     },
 
-    // returns the widths of all fixed (non-scrolling) elements on each side
     _scrollFixedWidths(){
         const { scrollBtnBack, scrollBtnForward, scrollIcon } = this.DOM
         const left  = (scrollIcon ? scrollIcon.offsetWidth : 0) + (scrollBtnBack ? scrollBtnBack.offsetWidth : 0)
@@ -2274,10 +2269,8 @@ Tagify.prototype = {
         const { left: leftFixed, right: rightFixed } = this._scrollFixedWidths()
         const visibleRight = scrollLeft + clientWidth - rightFixed
 
-        // back: hide when scrolled all the way to the start
         scrollBtnBack.hidden = Math.round(scrollLeft) <= 0
 
-        // walk backwards from the forward button to find the last tag (avoids full DOM query)
         let lastTag = scrollBtnForward.previousElementSibling
         if( lastTag === input ) lastTag = lastTag.previousElementSibling
         if( lastTag && !isNodeTag.call(this, lastTag) ) lastTag = null
@@ -2285,7 +2278,6 @@ Tagify.prototype = {
         const inputVisible   = input.offsetLeft >= scrollLeft + leftFixed && input.offsetLeft <= visibleRight
         const lastTagClipped = lastTag && (lastTag.offsetLeft + lastTag.offsetWidth) > visibleRight
 
-        // forward: hide when input is visible and no tag is clipped on the right
         scrollBtnForward.hidden = inputVisible && !lastTagClipped
     },
 }

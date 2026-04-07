@@ -703,7 +703,7 @@
         z-index         : 1;
         flex-shrink     : 0;
         display         : flex;
-        overflow        : visible; // required for ::after/::before fade gradients to bleed outside the button bounds
+        overflow        : visible;
 
         &[hidden]{ display: none; }
         align-items     : center;
@@ -720,22 +720,20 @@
             display : block;
             width   : 1em;
             height  : 1em;
-            position: relative; // stack above the ::after/::before gradient pseudo-elements
+            position: relative;
             z-index : 1;
         }
 
         &--back{
-            // offset by icon width so the back button never slides under the icon
             left      : var(--tagify-scroll-icon-width, 0px);
             z-index   : 2;
-            // no background here — the ::after covers the button area + the fade
+            
             &::after{
                 content   : '';
                 position  : absolute;
                 top       : 0;
                 bottom    : 0;
                 left      : 0;
-                // spans the button width (solid) + 2em fade trail to the right
                 width     : calc(100% + 2em);
                 background: linear-gradient(to right, var(--tags-bg, white) 0%, var(--tags-bg, white) 50%, transparent 100%);
                 pointer-events: none;
@@ -745,14 +743,13 @@
 
         &--forward{
             right     : 0;
-            // no background here — the ::before covers the button area + the fade
+
             &::before{
                 content   : '';
                 position  : absolute;
                 top       : 0;
                 bottom    : 0;
                 right     : 0;
-                // spans the button width (solid) + 2em fade trail to the left
                 width     : calc(100% + 2em);
                 background: linear-gradient(to left, var(--tags-bg, white) 0%, var(--tags-bg, white) 50%, transparent 100%);
                 pointer-events: none;
