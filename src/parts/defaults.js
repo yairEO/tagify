@@ -102,6 +102,7 @@ export default {
 
     scrollContainer: {
         enabled: false,  // enables horizontal scrolling of the tags container (single-row, no wrap)
-        buttons: false,  // renders ← → navigation buttons inside the container
+        buttons: false,  // true for default ← → arrows, or {back:'<svg>…</svg>', forward:'<svg>…</svg>'} for custom HTML content
+        icon   : null,   // String (text or HTML/SVG) to render as a fixed icon before the back button / tags area
     }
 }

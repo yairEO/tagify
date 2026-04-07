@@ -2191,15 +2191,28 @@ Tagify.prototype = {
 
     initScrollContainer(){
         const { scope } = this.DOM
+        const sc = this.settings.scrollContainer
 
         scope.classList.add(this.settings.classNames.namespace + '--scroll-container')
 
-        if( !this.settings.scrollContainer.buttons ) return
+        if( sc.icon ){
+            const iconElm = parseHTML(`<span class="tagify__scrollIcon" aria-hidden="true">${sc.icon}</span>`)
+            scope.insertBefore(iconElm, scope.firstChild)
+            this.DOM.scrollIcon = iconElm
+        }
 
-        const btnBack    = parseHTML(`<button type="button" class="tagify__scrollBtn tagify__scrollBtn--back"    aria-label="Scroll left">&#8592;</button>`)
-        const btnForward = parseHTML(`<button type="button" class="tagify__scrollBtn tagify__scrollBtn--forward" aria-label="Scroll right">&#8594;</button>`)
+        if( !sc.buttons ) return
 
-        scope.insertBefore(btnBack, scope.firstChild)
+        const customBtns = sc.buttons && typeof sc.buttons === 'object' ? sc.buttons : {}
+        const btnBack    = parseHTML(`<button type="button" class="tagify__scrollBtn tagify__scrollBtn--back"    aria-label="Scroll left">${customBtns.back    || '&#8592;'}</button>`)
+        const btnForward = parseHTML(`<button type="button" class="tagify__scrollBtn tagify__scrollBtn--forward" aria-label="Scroll right">${customBtns.forward || '&#8594;'}</button>`)
+
+        // back button sits immediately after the icon (or at the very start if no icon)
+        if( this.DOM.scrollIcon )
+            this.DOM.scrollIcon.after(btnBack)
+        else
+            scope.insertBefore(btnBack, scope.firstChild)
+
         scope.appendChild(btnForward)
 
         this.DOM.scrollBtnBack    = btnBack
@@ -2208,36 +2221,49 @@ Tagify.prototype = {
         // listeners are registered via bindGlobal() (scrollListeners) — no manual binding needed here
         // scroll to end and update button state after layout is complete
         requestAnimationFrame(() => {
-            this.DOM.scope.scrollLeft = this.DOM.scope.scrollWidth
+            if( this.DOM.scrollIcon )
+                scope.style.setProperty('--tagify-scroll-icon-width', this.DOM.scrollIcon.offsetWidth + 'px')
+
+            scope.scrollLeft = scope.scrollWidth
             this.updateScrollButtons()
         })
     },
 
     destroyScrollContainer(){
-        const { scrollBtnBack, scrollBtnForward } = this.DOM
-        if( !scrollBtnBack ) return
+        const { scrollBtnBack, scrollBtnForward, scrollIcon, scope } = this.DOM
 
         // DOM event listeners are already removed by unbindGlobal() before this runs
-        scrollBtnBack.remove()
-        scrollBtnForward.remove()
+        scrollBtnBack?.remove()
+        scrollBtnForward?.remove()
+        scrollIcon?.remove()
+
+        scope.style.removeProperty('--tagify-scroll-icon-width')
 
         delete this.DOM.scrollBtnBack
         delete this.DOM.scrollBtnForward
+        delete this.DOM.scrollIcon
+    },
+
+    // returns the widths of all fixed (non-scrolling) elements on each side
+    _scrollFixedWidths(){
+        const { scrollBtnBack, scrollBtnForward, scrollIcon } = this.DOM
+        const left  = (scrollIcon ? scrollIcon.offsetWidth : 0) + (scrollBtnBack ? scrollBtnBack.offsetWidth : 0)
+        const right = scrollBtnForward && !scrollBtnForward.hidden ? scrollBtnForward.offsetWidth : 0
+        return { left, right }
     },
 
     scrollInputIntoView( behavior = 'instant' ){
-        const { scope, input, scrollBtnBack, scrollBtnForward } = this.DOM
-        const btnBackWidth    = scrollBtnBack    ? scrollBtnBack.offsetWidth    : 0
-        const btnForwardWidth = scrollBtnForward ? scrollBtnForward.offsetWidth : 0
+        const { scope, input } = this.DOM
+        const { left, right }  = this._scrollFixedWidths()
 
         const inputRight   = input.offsetLeft + input.offsetWidth
-        const visibleLeft  = scope.scrollLeft  + btnBackWidth
-        const visibleRight = scope.scrollLeft  + scope.clientWidth - btnForwardWidth
+        const visibleLeft  = scope.scrollLeft + left
+        const visibleRight = scope.scrollLeft + scope.clientWidth - right
 
         if( inputRight > visibleRight )
-            scope.scrollBy({ left: inputRight - scope.clientWidth + btnForwardWidth - scope.scrollLeft, behavior })
+            scope.scrollBy({ left: inputRight - scope.clientWidth + right - scope.scrollLeft, behavior })
         else if( input.offsetLeft < visibleLeft )
-            scope.scrollBy({ left: input.offsetLeft - btnBackWidth - scope.scrollLeft, behavior })
+            scope.scrollBy({ left: input.offsetLeft - left - scope.scrollLeft, behavior })
     },
 
     updateScrollButtons(){
@@ -2245,23 +2271,21 @@ Tagify.prototype = {
         if( !scrollBtnBack ) return
 
         const { scrollLeft, clientWidth } = scope
+        const { left: leftFixed, right: rightFixed } = this._scrollFixedWidths()
+        const visibleRight = scrollLeft + clientWidth - rightFixed
 
         // back: hide when scrolled all the way to the start
-        const atStart = Math.round(scrollLeft) <= 0
-        scrollBtnBack.hidden = atStart
+        scrollBtnBack.hidden = Math.round(scrollLeft) <= 0
 
-        // forward: hide when the input's left edge is already visible inside the viewport
-        // (meaning there's nothing meaningful further right to scroll to),
-        // but show again if the last tag is being clipped by the right edge
-        const fwdWidth       = scrollBtnForward.hidden ? 0 : scrollBtnForward.offsetWidth
-        const inputVisible   = input.offsetLeft >= scrollLeft && input.offsetLeft <= scrollLeft + clientWidth - fwdWidth
-
-        // walk backwards from scope's last child to find the last tag without a full DOM query
+        // walk backwards from the forward button to find the last tag (avoids full DOM query)
         let lastTag = scrollBtnForward.previousElementSibling
         if( lastTag === input ) lastTag = lastTag.previousElementSibling
         if( lastTag && !isNodeTag.call(this, lastTag) ) lastTag = null
-        const lastTagClipped = lastTag && (lastTag.offsetLeft + lastTag.offsetWidth) > (scrollLeft + clientWidth - fwdWidth)
 
+        const inputVisible   = input.offsetLeft >= scrollLeft + leftFixed && input.offsetLeft <= visibleRight
+        const lastTagClipped = lastTag && (lastTag.offsetLeft + lastTag.offsetWidth) > visibleRight
+
+        // forward: hide when input is visible and no tag is clipped on the right
         scrollBtnForward.hidden = inputVisible && !lastTagClipped
     },
 }

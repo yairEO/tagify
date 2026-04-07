@@ -673,6 +673,28 @@
         }
     }
 
+    &__scrollIcon{
+        position        : sticky;
+        left            : 0;
+        top             : 0;
+        bottom          : 0;
+        align-self      : stretch;
+        z-index         : 3;
+        flex-shrink     : 0;
+        display         : flex;
+        align-items     : center;
+        justify-content : center;
+        padding-inline  : .5em;
+        background      : var(--tags-bg, white);
+        pointer-events  : none;
+
+        svg, img{
+            display : block;
+            width   : 1em;
+            height  : 1em;
+        }
+    }
+
     &__scrollBtn{
         position        : sticky;
         top             : 0;
@@ -681,6 +703,7 @@
         z-index         : 1;
         flex-shrink     : 0;
         display         : flex;
+        overflow        : visible; // required for ::after/::before fade gradients to bleed outside the button bounds
 
         &[hidden]{ display: none; }
         align-items     : center;
@@ -690,21 +713,51 @@
         border          : none;
         background      : none;
         cursor          : pointer;
-        font-size       : 1em;
         color           : inherit;
         pointer-events  : all;
 
+        svg, img{
+            display : block;
+            width   : 1em;
+            height  : 1em;
+            position: relative; // stack above the ::after/::before gradient pseudo-elements
+            z-index : 1;
+        }
+
         &--back{
-            left      : 0;
+            // offset by icon width so the back button never slides under the icon
+            left      : var(--tagify-scroll-icon-width, 0px);
             z-index   : 2;
-            background: var(--tags-bg, white);
-            box-shadow: 2px 0 5px rgba(0,0,0,.15);
+            // no background here — the ::after covers the button area + the fade
+            &::after{
+                content   : '';
+                position  : absolute;
+                top       : 0;
+                bottom    : 0;
+                left      : 0;
+                // spans the button width (solid) + 2em fade trail to the right
+                width     : calc(100% + 2em);
+                background: linear-gradient(to right, var(--tags-bg, white) 0%, var(--tags-bg, white) 50%, transparent 100%);
+                pointer-events: none;
+                z-index   : 0;
+            }
         }
 
         &--forward{
             right     : 0;
-            background: var(--tags-bg, white);
-            box-shadow: -2px 0 5px rgba(0,0,0,.15);
+            // no background here — the ::before covers the button area + the fade
+            &::before{
+                content   : '';
+                position  : absolute;
+                top       : 0;
+                bottom    : 0;
+                right     : 0;
+                // spans the button width (solid) + 2em fade trail to the left
+                width     : calc(100% + 2em);
+                background: linear-gradient(to left, var(--tags-bg, white) 0%, var(--tags-bg, white) 50%, transparent 100%);
+                pointer-events: none;
+                z-index   : 0;
+            }
         }
     }
 
