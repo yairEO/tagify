@@ -1821,10 +1821,8 @@ Tagify.prototype = {
                 return false;
             scope.insertBefore(input, tagBefore);
             focus && input.focus();
-            if( _s.scrollContainer?.enabled ){
-                this.scrollInputIntoView();
-                this.updateScrollButtons();
-            }
+            if( _s.scrollContainer?.enabled )
+                this._syncScrollView()
             return true;
         }
 
@@ -1834,10 +1832,8 @@ Tagify.prototype = {
                 return false;
             nextSibling.after(input);
             focus && input.focus();
-            if( _s.scrollContainer?.enabled ){
-                this.scrollInputIntoView();
-                this.updateScrollButtons();
-            }
+            if( _s.scrollContainer?.enabled )
+                this._syncScrollView()
             return true;
         }
 
@@ -2203,7 +2199,7 @@ Tagify.prototype = {
 
         if( !sc.buttons ) return
 
-        const customBtns = sc.buttons && typeof sc.buttons === 'object' ? sc.buttons : {}
+        const customBtns = typeof sc.buttons === 'object' ? sc.buttons : {}
         const btnBack    = parseHTML(`<button type="button" class="tagify__scrollBtn tagify__scrollBtn--back"    aria-label="Scroll left">${customBtns.back    || '&#8592;'}</button>`)
         const btnForward = parseHTML(`<button type="button" class="tagify__scrollBtn tagify__scrollBtn--forward" aria-label="Scroll right">${customBtns.forward || '&#8594;'}</button>`)
 
@@ -2217,17 +2213,28 @@ Tagify.prototype = {
         this.DOM.scrollBtnBack    = btnBack
         this.DOM.scrollBtnForward = btnForward
 
-        requestAnimationFrame(() => {
+        this._initScrollObserver(scope)
+    },
+
+    _initScrollObserver( scope ){
+        this._scrollResizeObserver = new ResizeObserver(() => {
+            if( !scope.clientWidth ) return
+
             if( this.DOM.scrollIcon )
                 scope.style.setProperty('--tagify-scroll-icon-width', this.DOM.scrollIcon.offsetWidth + 'px')
 
             scope.scrollLeft = scope.scrollWidth
-            requestAnimationFrame(() => this.updateScrollButtons())
+            this.updateScrollButtons()
         })
+
+        this._scrollResizeObserver.observe(scope)
     },
 
     destroyScrollContainer(){
         const { scrollBtnBack, scrollBtnForward, scrollIcon, scope } = this.DOM
+
+        this._scrollResizeObserver?.disconnect()
+        delete this._scrollResizeObserver
 
         scrollBtnBack?.remove()
         scrollBtnForward?.remove()
@@ -2247,6 +2254,11 @@ Tagify.prototype = {
         return { left, right }
     },
 
+    _syncScrollView(){
+        this.scrollInputIntoView()
+        this.updateScrollButtons()
+    },
+
     scrollInputIntoView( behavior = 'instant' ){
         const { scope, input } = this.DOM
         const { left, right }  = this._scrollFixedWidths()
@@ -2264,6 +2276,7 @@ Tagify.prototype = {
     updateScrollButtons(){
         const { scrollBtnBack, scrollBtnForward, scope, input } = this.DOM
         if( !scrollBtnBack ) return
+        if( !scope.clientWidth ) return
 
         const { scrollLeft, clientWidth, scrollWidth } = scope
         const { left: leftFixed } = this._scrollFixedWidths()

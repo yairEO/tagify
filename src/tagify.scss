@@ -673,7 +673,7 @@
         }
 
         &:not(:has(#{$self}__tag)) #{$self}__input{
-            min-width: 110px;
+            flex-grow: 1;
         }
     }
 
