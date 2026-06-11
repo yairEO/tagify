@@ -298,17 +298,14 @@ export function getSetTagData(tagElm, data, override){
 export function placeCaretAfterNode( node ){
     if( !node || !node.parentNode ) return
 
-    var nextSibling = node,
-        sel = window.getSelection(),
-        range = sel.getRangeAt(0);
+    var sel = window.getSelection()
+    if( !sel || !sel.rangeCount ) return
 
-    if (sel.rangeCount) {
-        range.setStartAfter(nextSibling);
-        range.collapse(true)
-        // range.setEndBefore(nextSibling || node);
-        sel.removeAllRanges();
-        sel.addRange(range);
-    }
+    var range = sel.getRangeAt(0)
+    range.setStartAfter(node)
+    range.collapse(true)
+    sel.removeAllRanges()
+    sel.addRange(range)
 }
 
 /**
