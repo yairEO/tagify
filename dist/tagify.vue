@@ -1,27 +1,39 @@
 <template v-once>
-  <textarea v-if="mode === 'textarea'" v-bind="value"/>
-  <input v-else :value="value" v-on:change="onChange">
+  <textarea v-if="mode === 'textarea'" ref="textarea" v-model="tags" />
+  <input v-else ref="input" v-model="tags" />
 </template>
 
-<script>
-import Tagify from "./tagify.js"
-import "./tagify.css"
+<script setup>
+import Tagify from './tagify.js'
+import './tagify.css'
 
-export default {
-  name: "Tags",
-  props: {
-    mode: String,
-    settings: Object,
-    value: [String, Array],
-    onChange: Function
-  },
-  watch: {
-    value(newVal, oldVal) {
-      this.tagify.loadOriginalValues(newVal)
-    },
-  },
-  mounted() {
-    this.tagify = new Tagify(this.$el, this.settings)
-  }
-};
+import { onMounted, useTemplateRef, watch } from 'vue'
+
+defineOptions({
+  name: 'Tags',
+})
+
+const tags = defineModel()
+
+const { mode, settings } = defineProps({
+  mode: String,
+  settings: Object,
+})
+
+let tagify
+let el
+
+if (mode === 'textarea') {
+  el = useTemplateRef('textarea')
+} else {
+  el = useTemplateRef('input')
+}
+
+onMounted(() => {
+  tagify = new Tagify(el.value, settings)
+})
+
+watch(tags, (newVal) => {
+  tagify.loadOriginalValues(newVal)
+})
 </script>
