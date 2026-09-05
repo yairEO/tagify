@@ -1,4 +1,4 @@
-<template v-once>
+<template>
   <textarea v-if="mode === 'textarea'" ref="textarea" v-model="tags" />
   <input v-else ref="input" v-model="tags" />
 </template>
