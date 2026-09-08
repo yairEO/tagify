@@ -1,13 +1,13 @@
 <template>
   <textarea v-if="mode === 'textarea'" ref="textarea" v-model="tags" />
-  <input v-else ref="input" v-model="tags" />
+  <input v-else ref="input" v-model="tags" type="text" />
 </template>
 
 <script setup>
 import Tagify from './tagify.js'
 import './tagify.css'
 
-import { onMounted, useTemplateRef, watch } from 'vue'
+import { onMounted, useTemplateRef } from 'vue'
 
 defineOptions({
   name: 'Tags',
@@ -31,9 +31,15 @@ if (mode === 'textarea') {
 
 onMounted(() => {
   tagify = new Tagify(el.value, settings)
+  eventCallbacks()
 })
 
-watch(tags, (newVal) => {
-  tagify.loadOriginalValues(newVal)
-})
+const eventCallbacks = () => {
+  tagify.on('add', () => {
+    tags.value = tagify.value.map((v) => v.value)
+  })
+  tagify.on('remove', () => {
+    tags.value = tagify.value.map((v) => v.value)
+  })
+}
 </script>
