@@ -1,6 +1,6 @@
 <template>
-  <textarea v-if="mode === 'textarea'" ref="textarea" v-model="tags" />
-  <input v-else ref="input" v-model="tags" type="text" />
+  <textarea v-if="mode === 'textarea'" ref="textarea" />
+  <input v-else ref="input" type="text" />
 </template>
 
 <script setup>
@@ -31,6 +31,7 @@ if (mode === 'textarea') {
 
 onMounted(() => {
   tagify = new Tagify(el.value, settings)
+  tagify.loadOriginalValues(tags.value)
   eventCallbacks()
 })
 
