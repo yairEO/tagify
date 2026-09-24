@@ -11,6 +11,8 @@ var gulp = require('gulp'),
     fs = require('fs'),
     path = require('path'),
     buffer = require('vinyl-buffer'),
+    { pipeline } = require('stream/promises'),
+    { Transform } = require('stream'),
     rollupStream = require("@rollup/stream"),
     browserslist = require('browserslist'),
     pkg = require('./package.json'),
@@ -22,8 +24,6 @@ var gulp = require('gulp'),
     }, {});
 
 const LICENSE = fs.readFileSync("./LICENSE", "utf8");
-
-var rollupCache = {};
 
 const swcOptions = {
     sourceMaps: true,
@@ -126,12 +126,11 @@ function react(done){
         .pipe( gulp.dest('./dist/', { sourcemaps: '.' }) )
 }
 
-function js(done){
+function js(){
     return bundle({
         entry: 'src/tagify.js',
         outputName: 'tagify.js'
     })
-        .on('end', done)
 }
 
 function esm(done){
@@ -142,7 +141,6 @@ function esm(done){
         outputName: 'tagify.esm.js',
         format: 'es'
     })
-        .on('end', done)
 }
 
 /**
@@ -175,34 +173,89 @@ function bundle({ entry, outputName, dest, plugins=[], format='umd' }){
     plugins.push( rollupBanner(() => `/*${banner}*/\n\n`) )
 
     // https://github.com/rollup/stream
-    return rollupStream({
+    const output = {
+        sourcemap: true,
+        format: format
+    }
+    if (format === 'umd') {
+        output.name = 'Tagify'  // UMD only: https://rollupjs.org/configuration-options/#output-name
+    }
+
+    const rs = rollupStream({
         input: entry,
         plugins,
-        cache: rollupCache[entry],
-        output: {
-            sourcemap: true,
-            name: 'Tagify',  // used only for UMD: https://rollupjs.org/configuration-options/#output-name
-            format: format
-        }
-    })
-    .on('bundle', function(bundle) {
-        rollupCache[entry] = bundle;
+        output
     })
 
-    // give the file the name you want to output with
-    .pipe($.vinylSourceStream(outputName))
-    .pipe(buffer())
-    .on('error', handleError)
-
-    // NOTE - `$.sourcemaps` only works with Rollup v2. not 3 or 4!!! I've wasted a whole day over this
-    .pipe($.sourcemaps.init({ loadMaps: true }))
-    .pipe($.sourcemaps.write('./'))
-    .pipe(gulp.dest('./dist'));
+    // pipeline forwards errors from any stage; gulp sees a rejected promise
+    return pipeline(
+        rs,
+        $.vinylSourceStream(outputName),
+        buffer(),
+        emitJsAndMap(outputName),
+        gulp.dest('./dist')
+    );
 }
 
-function handleError(err) {
-    console.log( err.toString() );
-    this.emit('end');
+/** Split @rollup/stream inline data: map into JS + sibling .map vinyls (gulp-sourcemaps throws on Rollup 3). */
+function parseInlineSourceMap(url) {
+    if (!url.startsWith('data:')) {
+        throw new Error('expected inline data: sourcemap');
+    }
+    const comma = url.indexOf(',');
+    const payload = url.slice(comma + 1);
+    const decoded = /;base64/i.test(url.slice(0, comma))
+        ? Buffer.from(payload, 'base64').toString('utf8')
+        : decodeURIComponent(payload);
+    const start = decoded.indexOf('{');
+    const end = decoded.lastIndexOf('}');
+    if (start < 0 || end < 0) {
+        throw new Error('inline sourcemap is not JSON');
+    }
+    return JSON.parse(decoded.slice(start, end + 1));
+}
+
+function emitJsAndMap(outputName) {
+    const marker = '//# sourceMappingURL=';
+    return new Transform({
+        objectMode: true,
+        transform(file, _enc, cb) {
+            try {
+                if (file.isNull()) return cb(null, file);
+                const text = file.contents.toString('utf8');
+                const last = Math.max(text.lastIndexOf(marker), text.lastIndexOf('//@ sourceMappingURL='));
+                if (last < 0) {
+                    return cb(new Error('bundle missing sourceMappingURL'));
+                }
+                const eq = text.indexOf('=', last);
+                const url = text.slice(eq + 1).trim();
+                const map = parseInlineSourceMap(url);
+                map.file = outputName;
+                if (Array.isArray(map.sources)) {
+                    map.sources = map.sources.map(s => String(s).replace(/\\/g, '/'));
+                }
+
+                let body = text.slice(0, last);
+                for (;;) {
+                    const i = Math.max(body.lastIndexOf(marker), body.lastIndexOf('//@ sourceMappingURL='));
+                    if (i < 0) break;
+                    body = body.slice(0, i);
+                }
+                body = body.replace(/\s+$/, '');
+                const mapName = outputName + '.map';
+                file.contents = Buffer.from(body + '\n' + marker + mapName + '\n');
+
+                const mapFile = file.clone({ contents: false });
+                mapFile.path = file.path + '.map';
+                mapFile.contents = Buffer.from(JSON.stringify(map));
+                this.push(file);
+                this.push(mapFile);
+                cb();
+            } catch (err) {
+                cb(err);
+            }
+        }
+    });
 }
 
 
