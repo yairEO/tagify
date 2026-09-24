@@ -72,3 +72,5 @@ Temporary Items
 .cursor/plans
 .repowise
 .mcp.json
+.vscode/extensions.json
+.vscode/mcp.json
