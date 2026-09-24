@@ -130,7 +130,7 @@ export default {
                 cb: _CB.onFocusBlur.bind(this)
             },
             {
-                type: 'click',
+                type: 'mousedown',
                 target: document,
                 cb: _CB.onClickAnywhere.bind(this),
                 useCapture: true
