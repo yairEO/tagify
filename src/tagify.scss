@@ -1,4 +1,5 @@
 @use "sass:math";
+@use "sass:color";
 
 // The suggestions list (dropdown) is appended to the document's body so the CSS variables should be defined at root-level
 :root {
@@ -27,7 +28,7 @@
     $tag-remove              : #D39494 !default;
     $tag-remove-btn-color    : $tag-text-color !default;
     $tag-remove-btn-bg       : none !default;
-    $tag-remove-btn-bg--hover: darken($tag-remove, 8) !default;
+    $tag-remove-btn-bg--hover: color.adjust($tag-remove, $lightness: -8%) !default;
     $tag-invalid-color       : $tag-remove !default;
     $tag-invalid-bg          : rgba($tag-remove, .5) !default;
     $tag-inset-shadow-size   : 1.2em !default;
