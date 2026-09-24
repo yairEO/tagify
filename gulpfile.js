@@ -4,6 +4,8 @@ var gulp = require('gulp'),
     } }),
     rollupTerser = require("@rollup/plugin-terser"),
     swc = require('gulp-swc'),
+    // v10 is ESM-only; CJS require() returns { default }
+    autoprefixer = require('gulp-autoprefixer').default,
     rollupSwc = require('rollup-plugin-swc3').swc,
     rollupBanner = require("rollup-plugin-banner2"),
     fs = require('fs'),
@@ -82,7 +84,7 @@ function scss(){
             sass().on('error', sass.logError)
         )
         // .pipe($.combineMq()) // combine media queries
-        .pipe($.autoprefixer({ overrideBrowserslist: pkg.browserslist }) )
+        .pipe(autoprefixer({ overrideBrowserslist: pkg.browserslist }) )
         .pipe($.cleanCss())
         .pipe(gulp.dest('./dist'))
 }
