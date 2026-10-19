@@ -1,58 +1,36 @@
 var gulp = require('gulp'),
-    $ = require( "gulp-load-plugins" )({ lazy: true, pattern:['*', 'gulp-'], rename: {
-        'sass': 'xsass' // map to some other name because 'gulp-sass' already loads "sass", so avoid collusion
-    } }),
+    $ = require( "gulp-load-plugins" )({ lazy: true, pattern:['*', 'gulp-'] }),
     rollupTerser = require("@rollup/plugin-terser"),
-    swc = require('gulp-swc'),
-    // v10 is ESM-only; CJS require() returns { default }
-    autoprefixer = require('gulp-autoprefixer').default,
-    rollupSwc = require('rollup-plugin-swc3').swc,
     rollupBanner = require("rollup-plugin-banner2"),
     fs = require('fs'),
     path = require('path'),
+    { execFileSync } = require('child_process'),
+    semver = require('semver'),
     buffer = require('vinyl-buffer'),
     { pipeline } = require('stream/promises'),
     { Transform } = require('stream'),
     rollupStream = require("@rollup/stream"),
-    browserslist = require('browserslist'),
     pkg = require('./package.json'),
-    sass = require('gulp-sass')(require('sass')),
     opts = process.argv.reduce((result, item) => {
         if( item.indexOf('--') == 0 )
             result[item.replace('--','')] = 1
         return result;
     }, {});
 
-const LICENSE = fs.readFileSync("./LICENSE", "utf8");
+// normalized to LF: a CRLF checkout of LICENSE would otherwise leak into the banner of the published dist files
+const LICENSE = fs.readFileSync("./LICENSE", "utf8").replace(/\r\n/g, '\n');
 
-const swcOptions = {
-    sourceMaps: true,
-    env: {
-        targets: browserslist(),
-    },
-    jsc: {
-        parser: {
-            syntax: 'ecmascript',
-            jsx: true, // Enable JSX
-            decorators: true, // Optionally enable decorators
-        },
-        transform: {
-            react: {
-                runtime: 'automatic', // Choose 'automatic' or 'classic'
-                pragma: 'React.createElement',  // Customize if needed
-                pragmaFrag: 'React.Fragment', // Customize if needed
-            }
-        }
-    }
-};
-
-var banner = `
-Tagify v${process.env.npm_package_version} - tags input component
+// the only banner definition: the build (rollup) and the post-bump refresh (addBanner) must emit the same text
+const makeBanner = version => `
+Tagify v${version} - tags input component
 By: ${pkg.author}
 ${pkg.homepage}
 
 ${LICENSE}
 `;
+
+// pkg.version, not npm_package_version: the latter is undefined when gulp is run directly (npx gulp build)
+var banner = makeBanner(pkg.version);
 
 var jQueryPluginWrap = [`;(function($){
     // just a jQuery wrapper for the vanilla version of this component
@@ -73,23 +51,24 @@ var jQueryPluginWrap = [`;(function($){
 ` , ` })(jQuery); `];
 
 ////////////////////////////////////////////////////
-// Compile main app SCSS to CSS
+// The main CSS source is native modern CSS (nesting, custom properties) and is shipped as-is: no preprocessing or minification.
+// Keep "src/tagify.css" ASCII-only (use escapes such as "\2713" in `content`), so it needs no "@charset" rule.
 
-function scss(){
-    return gulp.src('src/*.scss')
-        .pipe($.cssGlobbing({
-            extensions: '.scss'
-        }))
-        .pipe(
-            sass().on('error', sass.logError)
-        )
-        // .pipe($.combineMq()) // combine media queries
-        .pipe(autoprefixer({ overrideBrowserslist: pkg.browserslist }) )
-        .pipe($.cleanCss())
+function css(){
+    return gulp.src('src/tagify.css')
         .pipe(gulp.dest('./dist'))
 }
 
 // https://medium.com/recraftrelic/building-a-react-component-as-a-npm-module-18308d4ccde9
+/**
+ * DEAD CODE - kept for reference only; this task is not exported and cannot run:
+ *  - it throws on its very first statement (`bundle()` returns a Promise, which has no `.on()`),
+ *    so everything after that `return` is unreachable.
+ *  - SWC was removed in favor of fewer 3rd-party packages (`gulp-swc`, `rollup-plugin-swc3` and `@swc/core`
+ *    are no longer dependencies, and the `swcOptions` config is gone). The `swc(swcOptions)` calls below are
+ *    left untouched on purpose and would throw a ReferenceError if this code were ever reached.
+ *  - the React wrapper is shipped as-is, unbundled, from "src/react.tagify.js" (see "exports" in package.json).
+ */
 function react(done){
     return bundle({
         entry: 'src/react.tagify.jsx',
@@ -109,7 +88,7 @@ function react(done){
     // .pipe(
     //     swc(swcOptions)
     // )
-    // .pipe($.headerComment(banner))
+    // .pipe(headerComment(banner))
     //     .pipe($.concat('react.tagify.jsx'))
     //     .pipe($.sourcemaps.write('.'))
     //     .pipe( gulp.dest('./dist/') )
@@ -118,9 +97,10 @@ function react(done){
 
     return gulp.src('src/react.tagify.jsx', { sourcemaps: true })
         // .pipe($.sourcemaps.init({ loadMaps: true }))
+        // DEAD: unreachable, and `swc`/`swcOptions` no longer exist (SWC was removed, see the note above react())
         .pipe(swc(swcOptions))
         // .pipe(opts.dev ? $.tap(()=>{}) : $.terser())
-        .pipe($.headerComment(banner))
+        .pipe(headerComment(banner))
         .pipe($.concat('react.tagify.jsx'))
         // .pipe($.sourcemaps.write('.'))
         .pipe( gulp.dest('./dist/', { sourcemaps: '.' }) )
@@ -156,15 +136,14 @@ function jquery(){
         .pipe($.insert.wrap(jQueryPluginWrap[0], jQueryPluginWrap[1]))
         .pipe($.rename('jQuery.tagify.min.js'))
         .pipe(opts.dev ? $.tap(()=>{}) : $.terser())
-        .pipe($.headerComment(banner))
+        .pipe(headerComment(banner))
         .pipe(gulp.dest('./dist/'))
 }
 
 function bundle({ entry, outputName, dest, plugins=[], format='umd' }){
-    plugins = [
-        rollupSwc(swcOptions),
-        ...plugins
-    ]
+    // SWC (@swc/core, rollup-plugin-swc3, gulp-swc) was removed in favor of fewer 3rd-party packages:
+    // the built bundles were byte-identical without it, since no browserslist target needed any downleveling.
+    plugins = [...plugins] // copy: the push() calls below must not mutate the caller's array
 
     if( !opts.dev ) {
         plugins.push(rollupTerser())
@@ -258,6 +237,22 @@ function emitJsAndMap(outputName) {
     });
 }
 
+// a banner this gulpfile wrote earlier: a leading "/* Tagify v... */" block
+const BANNER_RE = /^\/\*\s*Tagify v\d[\s\S]*?\*\/\s*/;
+
+// replaces gulp-header-comment; unlike it, the text is NOT run through lodash templating,
+// and it replaces our own earlier banner instead of stacking a second one on top (keeps sourcemap line offsets valid)
+const headerComment = text => new Transform({
+    objectMode: true,
+    transform(file, _enc, cb) {
+        if (file.isNull()) return cb(null, file);
+        if (file.isStream()) return cb(new Error('headerComment: streams not supported'));
+        const body = file.contents.toString('utf8').replace(BANNER_RE, '');
+        file.contents = Buffer.from(`/*${text}*/\n\n${body}`);
+        cb(null, file);
+    }
+});
+
 
 /**
  * Bumping version number and tagging the repository with it.
@@ -273,31 +268,38 @@ function emitJsAndMap(outputName) {
  * introduced a feature or made a backwards-incompatible release.
  */
 
-const inc = importance => () =>
-    // get all the files to bump version in
-    gulp.src('./package.json')
-        // bump the version number in those files
-        .pipe($.bump({type: importance}))
-        // save it back to filesystem
-        .pipe(gulp.dest('./'))
+const inc = importance => done => {
+    const file = './package.json';
+    const text = fs.readFileSync(file, 'utf8');
+    const next = semver.inc(JSON.parse(text).version, importance);
+    if (!next) return done(new Error(`cannot bump version by "${importance}"`));
+    // raw-text replace keeps formatting/line endings; JSON.stringify would rewrite the whole file
+    const out = text.replace(/("version"\s*:\s*")[^"]+/, (_m, prefix) => prefix + next);
+    // the regex hits the first "version" key: refuse to write if that wasn't the top-level one
+    if (JSON.parse(out).version !== next) return done(new Error('bump hit the wrong "version" key'));
+    fs.writeFileSync(file, out);
+    done();
+};
 
 
-function gitTag(){
-    return gulp.src('./package.json')
-        // commit the changed version number
-        .pipe($.git.commit('bumps package version'))
-        .pipe($.tagVersion());
+function gitTag(done){
+    const { version } = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+    // same two git calls gulp-git + gulp-tag-version made; an args array avoids shell escaping
+    try {
+        execFileSync('git', ['commit', '-m', 'bumps package version', '--', 'package.json'], { stdio: 'inherit' });
+        execFileSync('git', ['tag', '-a', `v${version}`, '-m', `Tagging as v${version}`], { stdio: 'inherit' });
+    } catch (err) {
+        return done(err);
+    }
+    done();
 }
 
 function addBanner(){
-    var packageJson = JSON.parse(fs.readFileSync('./package.json'))
-    var banner = `Tagify (v${packageJson.version}) - tags input component
-By ${pkg.author.name}
-${pkg.homepage}
-${LICENSE}`;
+    // read from disk: `pkg` was loaded before `inc` bumped the version
+    const { version } = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
     return gulp.src('dist/*.js')
-        .pipe($.headerComment(banner))
+        .pipe(headerComment(makeBanner(version)))
         .pipe(gulp.dest('./dist/'))
 }
 
@@ -360,13 +362,13 @@ function watchHomepage() {
 }
 
 function watch(){
-    gulp.watch('./src/*.scss', scss)
+    gulp.watch('./src/*.css', css)
     gulp.watch(['./src/tagify.js', './src/parts/*.js'], gulp.series([js]))
     // gulp.watch('./src/react.tagify.jsx', react)
 }
 
 // remove the "react" task as it was unneeded because the react-wrapper is served unbundled
-const build = gulp.series(gulp.parallel(js, scss), esm, compileAllExamples, compileHomepage) // deprecated the "react" task as i believe it's not needed to consume a pre-bundled version.
+const build = gulp.series(gulp.parallel(js, css), esm, compileAllExamples, compileHomepage) // deprecated the "react" task as i believe it's not needed to consume a pre-bundled version.
 
 exports.default = gulp.parallel(build, watch, watchExamples, watchHomepage)
 exports.js = js

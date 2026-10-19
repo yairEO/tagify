@@ -75,7 +75,7 @@
 - [FAQ](#faq)
 - [CSS Variables](#css-variables)
   - [Suggestions Dropdown CSS variables](#suggestions-dropdown-css-variables)
-  - [Full list of Tagify's SCSS variables](#full-list-of-tagifys-scss-variables)
+  - [Migrating from the SCSS variables](#migrating-from-the-scss-variables)
 - [Methods](#methods)
 - [Events](#events)
 - [Hooks](#hooks)
@@ -132,9 +132,12 @@ For selected tags to show a different text than what is defined in `value` for a
 
 ⚠️ Important:
 Don't forget to **include `tagify.css`** file in your project.
-CSS location: `@yaireo/tagify/dist/tagify.css`
-SCSS location: `@yaireo/tagify/src/tagify.scss`
-[See SCSS usecase & example](https://github.com/yairEO/tagify/pull/282)
+CSS location (minified): `@yaireo/tagify/dist/tagify.css`
+CSS source (readable, uses native [CSS nesting](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting)): `@yaireo/tagify/src/tagify.css`
+
+> The SCSS source (`src/tagify.scss` and its `$variables`) no longer exists, the component is styled with plain CSS and [CSS variables](#css-variables) only.
+> `@yaireo/tagify/src/tagify.scss` is kept as an alias of `src/tagify.css` for now, so an existing SCSS `@import` keeps working,
+> but overriding the old SCSS `$variables` does not. See [Migrating from the SCSS variables](#migrating-from-the-scss-variables).
 
 ### Debugging
 There are several places in the source code which emits `console.warn` logs to help identify issues.
@@ -593,8 +596,7 @@ There is no more `e.target`, and to access the original DOM input element, do th
 
 ----
 
-> Note: You will need to import Tagify's CSS also, either by JavaScript or by SCSS `@import` (which is preferable)
-> Also note that you will need to use [*dart-sass*](https://www.npmjs.com/package/sass) and not *node-sass* in order to compile the file.
+> Note: You will need to import Tagify's CSS also, either by JavaScript (`import '@yaireo/tagify/dist/tagify.css'`) or by CSS `@import`
 
 ```javascript
 import { useCallback, useRef } from 'react'
@@ -941,6 +943,7 @@ Name                            | Info
 --tags-border-color             | The outer border color which surrounds tagify
 --tags-hover-border-color       | *hover* state
 --tags-focus-border-color       | *focus* state
+--tag-margin                    | The space around each tag (and the input), default is `5px`
 --tag-border-radius             | Tag border radius
 --tag-bg                        | Tag background color
 --tag-hover                     | Tag background color on hover (mouse)
@@ -950,12 +953,13 @@ Name                            | Info
 --tag--min-width                | Minimum Tag width
 --tag--max-width                | Maximum tag width, which gets trimmed with *hellip* after
 --tag-inset-shadow-size         | This is the inner shadow size, which dictates the color of the Tags.<br>It's important the size fits *exactly* to the tag.<br>Change this if you change the `--tag-pad` or fontsize.
---tag-invalid-color             | For border color of edited tags with invalid value being typed into them
---tag-invalid-bg                | Background color for invalid Tags.
---tag-remove-bg                 | Tag background color when hovering the `×` button.
+--tag-remove-color              | Base color (default `#D39494`) which the *invalid*, *remove* and *remove button hover* colors below are derived from. Changing only this variable re-colors all of them.
+--tag-invalid-color             | For border color of the whole component and of edited tags, with an invalid value. Default is `var(--tag-remove-color)`
+--tag-invalid-bg                | Background color for invalid Tags. Default is `--tag-remove-color` at 50% opacity
+--tag-remove-bg                 | Tag background color when hovering the `×` button. Default is `--tag-remove-color` at 30% opacity
 --tag-remove-btn-color          | Remove (`×`) button text color
 --tag-remove-btn-bg             | Remove (`×`) button background color
---tag-remove-btn-bg--hover      | Remove (`×`) button hover background color
+--tag-remove-btn-bg--hover      | Remove (`×`) button hover background color. Default is `--tag-remove-color`, darkened
 --input-color                   | Input text color
 --tag-hide-transition           | Controls the transition property when a tag is removed. default is '.3s'
 --placeholder-color             | Placeholder text color
@@ -976,7 +980,51 @@ Name                              | Info
 --tagify-dd-item-pad              | Suggestion item padding
 --tagify-dd-max-height            | Maximum height of the suggestions dropdown (`300px` by default)
 
-### Full list of Tagify's [SCSS variables](https://github.com/yairEO/tagify/blob/master/src/tagify.scss#L9-L24)
+### Migrating from the SCSS variables
+
+Tagify used to be compiled from SCSS and could be customized by setting `$variables` (`!default`) before importing `tagify.scss`.
+It is now plain CSS, so set the matching *CSS variable* on the `.tagify` selector instead (the dropdown ones on `:root`):
+
+```scss
+// before
+$tags-border-color: red;
+@import '@yaireo/tagify/src/tagify.scss';
+```
+
+```css
+/* after */
+.tagify { --tags-border-color: red; }
+```
+
+SCSS variable                | CSS variable
+---------------------------- | --------------------------------
+`$tags-border-color`         | `--tags-border-color`
+`$tags-hover-border-color`   | `--tags-hover-border-color`
+`$tags-focus-border-color`   | `--tags-focus-border-color`
+`$tagMargin`                 | `--tag-margin`
+`$tag-pad`                   | `--tag-pad`
+`$tag-min-width`             | `--tag--min-width`
+`$tag-max-width`             | `--tag--max-width`
+`$tag-text-color`            | `--tag-text-color`
+`$tag-text-color--edit`      | `--tag-text-color--edit`
+`$tag-bg`                    | `--tag-bg`
+`$tag-hover`                 | `--tag-hover`
+`$tag-remove`                | `--tag-remove-color`
+`$tag-remove-btn-color`      | `--tag-remove-btn-color`
+`$tag-remove-btn-bg`         | `--tag-remove-btn-bg`
+`$tag-remove-btn-bg--hover`  | `--tag-remove-btn-bg--hover`
+`$tag-invalid-color`         | `--tag-invalid-color`
+`$tag-invalid-bg`            | `--tag-invalid-bg`
+`$tag-inset-shadow-size`     | `--tag-inset-shadow-size`
+`$tag-hide-transition`       | `--tag-hide-transition`
+`$placeholder-color`         | `--placeholder-color`
+`$placeholder-color-focus`   | `--placeholder-color-focus`
+`$input-color`               | `--input-color`
+`$tagify-dd-bg-color`        | `--tagify-dd-bg-color` (on `:root`)
+`$tagify-dd-color-primary`   | `--tagify-dd-color-primary` (on `:root`)
+
+> The SCSS `$tag-text-color` used to also be the default of the remove button color and of the placeholder colors.
+> These are now independent variables: set `--tag-remove-btn-color`, `--placeholder-color` and `--placeholder-color-focus` yourself if you need them to follow `--tag-text-color`.
 
 
 ## Methods

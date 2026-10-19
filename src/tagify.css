@@ -1,0 +1,736 @@
+/*
+ * Tagify - plain CSS source (native nesting, no preprocessor).
+ *
+ * Native CSS nesting cannot concatenate "&__suffix", so BEM blocks & modifiers are written as top-level rules
+ * (".tagify__tag", ".tagify__tag--hide", ...); only states, pseudo-elements and descendants are nested.
+ *
+ * Theming: override the CSS variables declared on ".tagify" (and the dropdown ones on ":root").
+ * Variables prefixed with "--_" are private implementation details and may change at any time.
+ */
+
+/* ==========================================================================
+   Dropdown variables
+   The suggestions list (dropdown) is appended to the document's body so these variables must be defined
+   at root-level. It cannot inherit variables declared on the ".tagify" element.
+   ========================================================================== */
+:root {
+    --tagify-dd-color-primary: rgb(53,149,246); /* should be same as "--tags-focus-border-color" */
+    --tagify-dd-text-color: black;
+    --tagify-dd-bg-color: white;
+    --tagify-dd-item-pad: .3em .5em; /* should be same as "--tag-pad" */
+    --tagify-dd-max-height: 300px;
+}
+
+/* ==========================================================================
+   Keyframes
+   ========================================================================== */
+@keyframes tags--bump {
+    30% { transform: scale(1.2); }
+}
+
+@keyframes rotateLoader {
+    to { transform: rotate(1turn); }
+}
+
+/* striped background for "readonly" tags. Played "paused" at a negative delay, so "--readonly-striped: 0" disables it */
+@keyframes readonlyStyles {
+    0% {
+        background: linear-gradient(45deg, var(--tag-bg)  25%,
+                                   transparent    25%,
+                                   transparent    50%,
+                                   var(--tag-bg)  50%,
+                                   var(--tag-bg)  75%,
+                                   transparent    75%,
+                                   transparent)   0/5px 5px;
+        box-shadow: none;
+        filter: brightness(.95);
+    }
+}
+
+@keyframes dd-wrapper-show {
+    to { overflow-y: auto; }
+}
+
+/* ==========================================================================
+   Component (".tagify")
+   ========================================================================== */
+.tagify {
+    /* --- borders --- */
+    --tags-disabled-bg         : #F1F1F1;
+    --tags-border-color        : #DDD;
+    --tags-hover-border-color  : #CCC;
+    --tags-focus-border-color  : #3595f6;
+
+    /* --- tag --- */
+    --tag-margin               : 5px;
+    --tag-border-radius        : 3px;
+    --tag-bg                   : #E5E5E5;
+    --tag-hover                : #D3E2E2;
+    --tag-text-color           : black;
+    --tag-text-color--edit     : black;
+    --tag-pad                  : .3em .5em;
+    --tag-inset-shadow-size    : 1.2em;
+    --tag--min-width           : 1ch;
+    --tag--max-width           : 100%;
+    --tag-hide-transition      : .3s; /* read (and parsed) by the JS, keep it a plain "<number>s|ms" literal */
+
+    /* --- "remove" & "invalid" colors, all derived from a single base color --- */
+    --tag-remove-color         : #D39494;
+    --tag-invalid-color        : var(--tag-remove-color);
+    --tag-invalid-bg           : color-mix(in srgb, var(--tag-remove-color) 50%, transparent);
+    --tag-remove-bg            : color-mix(in srgb, var(--tag-remove-color) 30%, transparent);
+
+    /* --- tag "remove" button --- */
+    --tag-remove-btn-color     : black;
+    --tag-remove-btn-bg        : none;
+    --tag-remove-btn-bg--hover : color-mix(in hsl, var(--tag-remove-color), black 10%);
+
+    /* --- input & placeholder (the placeholder sits on the page, not on a tag, so it is NOT derived from "--tag-text-color") --- */
+    --input-color              : inherit;
+    --placeholder-color        : rgba(0, 0, 0, .4);
+    --placeholder-color-focus  : rgba(0, 0, 0, .25);
+
+    --loader-size              : .8em;
+    --readonly-striped         : 1;
+
+    display       : inline-flex;
+    align-items   : flex-start;
+    align-content : baseline;
+    flex-wrap     : wrap;
+    border        : 1px solid var(--tags-border-color);
+    padding       : 0;
+    line-height   : 0;
+    outline       : none;
+    position      : relative;
+    box-sizing    : border-box;
+    transition    : .1s;
+
+    &:has([contenteditable='true']) {
+        cursor: text;
+    }
+
+    &:hover:not(.tagify--focus):not(.tagify--invalid) {
+        --tags-border-color : var(--tags-hover-border-color);
+    }
+
+    &[disabled] {
+        background: var(--tags-disabled-bg);
+        filter: saturate(0);
+        opacity: .5;
+        pointer-events: none;
+
+        &.tagify--empty > .tagify__input::before {
+            position: relative;
+        }
+    }
+
+    /* Global "read-only" mode (no input button) */
+    &[readonly], &[disabled] {
+        &.tagify--select {
+            pointer-events: none;
+        }
+
+        &:not(.tagify--mix):not(.tagify--select):not(.tagify--empty) {
+            cursor: default;
+
+            & > .tagify__input {
+                visibility: hidden;
+                width: 0;
+                margin: var(--tag-margin) 0;
+            }
+
+            & .tagify__tag > div {
+                padding: var(--tag-pad);
+
+                &::before {
+                    animation: readonlyStyles 1s calc(-1s * (var(--readonly-striped) - 1)) paused;
+                }
+            }
+        }
+
+        & .tagify__tag__removeBtn { display: none; }
+    }
+
+    /* Hides originals */
+    & + input,
+    & + textarea {
+        position: absolute !important;
+        left: -9999em !important;
+        transform: scale(0) !important;
+    }
+}
+
+/* Loader (spinner): used by the whole input (".tagify--loading") and by a single tag. Each sets its own "--loader-size" */
+.tagify--loading .tagify__input::after,
+.tagify__tag--loading::after {
+    content: '';
+    vertical-align: middle;
+    opacity: 1;
+    width: var(--loader-size);
+    height: var(--loader-size);
+    min-width: 0;
+    border: 3px solid;
+    border-color: #EEE #BBB #888 transparent;
+    border-radius: 50%;
+    animation: rotateLoader .4s infinite linear;
+}
+
+.tagify--loading {
+    & .tagify__input {
+        & > br:last-child { display: none; }
+
+        &::before { content: none; }
+
+        &::after {
+            content: '' !important;
+            margin: -2px 0 -2px .5em;
+        }
+
+        &:empty::after {
+            margin-left: 0;
+        }
+    }
+}
+
+/* ==========================================================================
+   Tag (".tagify__tag")
+   ========================================================================== */
+.tagify__tag {
+    display      : inline-flex;
+    align-items  : center;
+    max-width    : var(--tag--max-width);
+    margin-inline: var(--tag-margin) 0;
+    margin-block : var(--tag-margin);
+    position     : relative;
+    z-index      : 1;
+    outline      : none;
+    line-height  : normal;
+    cursor       : default;
+    transition   : .13s ease-out;
+
+    /* needed when "allowCaretBetweenTags" an the input has been moved (by the user) so it's not the last element */
+    &:last-child {
+        margin-right: var(--tag-margin);
+    }
+
+    & > div {
+        display        : flex;
+        flex           : 1;
+        vertical-align : top;
+        box-sizing     : border-box;
+        max-width      : 100%;
+        padding        : var(--tag-pad);
+        color          : var(--tag-text-color);
+        line-height    : inherit;
+        border-radius  : var(--tag-border-radius);
+        /* "user-select: none" is intentionally not set: the user should be able to select & copy the text */
+        white-space    : nowrap;
+        transition     : .13s ease-out;
+
+        & > * {
+            white-space    : pre-wrap;
+            overflow       : hidden;
+            text-overflow  : ellipsis;
+            display        : inline-block;
+            vertical-align : top;
+            min-width      : var(--tag--min-width);
+            max-width      : var(--tag--max-width);
+            transition     : .8s ease, .1s color;
+
+            &[contenteditable] {
+                display: block; /* solves similar issue to this: https://stackoverflow.com/q/34354085/104380 (but with <span> because of its default `inline-block` display) */
+                outline: none;
+                user-select: text;
+                cursor: text;
+                /* fix: sometimes the caret after the last character wasn't visible (when setting {backspace:"edit"}) */
+                margin: -2px;
+                padding: 2px;
+                max-width: 350px;
+            }
+
+            &:only-child {
+                width: 100%;
+            }
+        }
+
+        /* the tag's background, drawn as an inset shadow so it can animate & be swapped with a single variable */
+        &::before {
+            content: '';
+            position: absolute;
+            border-radius: inherit;
+            inset: var(--tag-bg-inset, 0);
+            z-index: -1;
+            pointer-events: none;
+            transition: 120ms ease;
+            animation: tags--bump .3s ease-out 1;
+            box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-bg) inset;
+        }
+    }
+
+    &:hover:not([readonly]),
+    &:focus {
+        & div::before {
+            --tag-bg-inset: calc(var(--tag-margin) / -2);
+            --tag-bg: var(--tag-hover);
+        }
+    }
+}
+
+.tagify__tag--loading {
+    pointer-events: none;
+
+    & .tagify__tag__removeBtn {
+        display: none;
+    }
+
+    /* see the shared loader rule above */
+    &::after {
+        --loader-size: .4em;
+        margin: 0 .5em 0 -.1em;
+    }
+}
+
+.tagify__tag--flash {
+    & div::before { animation: none; }
+}
+
+.tagify__tag--hide {
+    width          : 0 !important;
+    padding-left   : 0;
+    padding-right  : 0;
+    margin-left    : 0;
+    margin-right   : 0;
+    opacity        : 0;
+    transform      : scale(0);
+    transition     : var(--tag-hide-transition);
+    pointer-events : none;
+
+    & > div > * {
+        white-space: nowrap;
+    }
+}
+
+.tagify__tag.tagify--noAnim {
+    & > div::before {
+        animation: none;
+    }
+}
+
+.tagify__tag.tagify--notAllowed:not(.tagify__tag--editable) {
+    & div > span { opacity: .5; }
+
+    & div::before {
+        --tag-bg: var(--tag-invalid-bg);
+        transition: .2s;
+    }
+}
+
+.tagify__tag[readonly] {
+    & .tagify__tag__removeBtn { display: none; }
+
+    & > div::before {
+        animation: readonlyStyles 1s calc(-1s * (var(--readonly-striped) - 1)) paused;
+    }
+}
+
+.tagify__tag--editable {
+    & > div {
+        color : var(--tag-text-color--edit);
+
+        &::before {
+            box-shadow: 0 0 0 2px var(--tag-hover) inset !important;
+        }
+    }
+
+    & > .tagify__tag__removeBtn {
+        pointer-events: none;
+        opacity: 0;
+        transform: translateX(100%) translateX(5px);
+    }
+
+    &.tagify--invalid {
+        & > div::before {
+            box-shadow: 0 0 0 2px var(--tag-invalid-color) inset !important;
+        }
+    }
+}
+
+/* ==========================================================================
+   Tag "remove" button
+   ========================================================================== */
+.tagify__tag__removeBtn {
+    --_size: 14px;
+
+    order          : 5;
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    border-radius  : 50px;
+    cursor         : pointer;
+    font           : var(--_size)/1 Arial;
+    background     : var(--tag-remove-btn-bg);
+    color          : var(--tag-remove-btn-color);
+
+    width          : var(--_size);
+    height         : var(--_size);
+    margin-inline  : auto calc(var(--_size) / 3);
+
+    overflow       : hidden;
+    transition     : .2s ease-out;
+
+    &::after {
+        content: "\00D7";
+        transition: .3s, color 0s;
+    }
+
+    &:hover {
+        color: white;
+        background: var(--tag-remove-btn-bg--hover);
+
+        & + div {
+            & > span { opacity: .5; }
+
+            &::before {
+                box-shadow: 0 0 0 var(--tag-inset-shadow-size) var(--tag-remove-bg) inset !important;
+                transition: box-shadow .2s;
+            }
+        }
+    }
+}
+
+/* ==========================================================================
+   Input (holds the placeholder & the tags input)
+   ========================================================================== */
+.tagify:not(.tagify--mix) {
+    & .tagify__input {
+        /* https://stackoverflow.com/a/13470210/104380 */
+        & br { display: none; }
+        & * { display: inline; white-space: nowrap; }
+    }
+}
+
+.tagify__input {
+    display: inline-block;
+    margin: var(--tag-margin);
+    padding: var(--tag-pad);
+    line-height: normal;
+    min-width: fit-content;
+    min-height: 1.5lh;
+    position: relative;
+    white-space: pre-wrap; /* #160 Line break (\n) as delimeter */
+    color: var(--input-color);
+    box-sizing: inherit;
+    overflow: hidden;
+
+    &:focus {
+        outline: none;
+    }
+
+    &:last-child {
+        flex-grow: 1;
+        min-width: 110px; /* room for the placeholder */
+
+        /* hide the placeholder on focus, otherwise the caret is placed after it, which is weird */
+        &:focus {
+            &::before {
+                transition: .2s ease-out;
+                opacity: 0;
+                transform: translateX(6px);
+            }
+
+            &:empty {
+                &::before {
+                    transition: .2s ease-out;
+                    opacity: 1;
+                    transform: none;
+                    color: var(--placeholder-color-focus);
+                }
+
+                /* Firefox: remove the ":after" pseudo element https://bugzilla.mozilla.org/show_bug.cgi?id=904846#c45 */
+                &::after {
+                    @supports (-moz-appearance: none) {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        &::before {
+            content: attr(data-placeholder);
+        }
+    }
+
+    /* placeholder */
+    &::before {
+        width: 100%;
+        height: 100%;
+        margin: auto 0;
+        z-index: 1;
+        color: var(--placeholder-color);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        pointer-events: none;
+        opacity: 0;
+        position: absolute;
+    }
+
+    /* tries to suggest the rest of the value from the first item in the whitelist which matches it */
+    &::after {
+        content: attr(data-suggest);
+        display: inline-block;
+        vertical-align: middle;
+
+        position: absolute;
+        min-width: calc(100% - 1.5em);
+        text-overflow: ellipsis;
+        overflow: hidden;
+
+        white-space: pre; /* allows spaces at the beginning */
+        color: var(--tag-text-color);
+        opacity: .3;
+        pointer-events: none;
+        max-width: 100px;
+    }
+
+    /* in "mix mode" the tags might be next to plain text, so spread things a bit */
+    & .tagify__tag {
+        margin: 0 1px;
+    }
+}
+
+/* ==========================================================================
+   Modes
+   ========================================================================== */
+.tagify--mix {
+    display: block; /* display:flex makes Chrome generates <div><br></div> when pressing ENTER key */
+
+    & .tagify__input {
+        padding: var(--tag-margin);
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        line-height: 1.5;
+        display: block; /* needed to resolve this bug: https://bugs.chromium.org/p/chromium/issues/detail?id=1182621 */
+
+        &::before {
+            height: auto;
+            display: none;
+            line-height: inherit;
+        }
+
+        /* no suggested-complete are shown in mix-mode while higilighting dropdown options */
+        &::after { content: none; }
+    }
+}
+
+.tagify--select {
+    cursor: default;
+
+    &::after {
+        --_size: 16px;
+
+        content: '>';
+        opacity: .5;
+        position: absolute;
+        top: 50%;
+        right: 0;
+        bottom: 0;
+        font: var(--_size) monospace;
+        line-height: calc(var(--_size) / 2);
+        height: calc(var(--_size) / 2);
+        pointer-events: none;
+        transform: translate(-150%, -50%) scaleX(1.2) rotate(90deg);
+        transition: .2s ease-in-out;
+    }
+
+    &[aria-expanded=true] {
+        &::after {
+            transform: translate(-150%, -50%) rotate(270deg) scaleY(1.2);
+        }
+
+        & .tagify__tag__removeBtn {
+            pointer-events: none;
+            opacity: 0;
+            transform: translateX(100%) translateX(5px);
+        }
+    }
+
+    & .tagify__tag {
+        flex: 1;
+        max-width: none;
+        margin-inline-end: 2em;
+        margin-block: 0;
+        padding-block: var(--tag-margin);
+        cursor: text;
+
+        & div::before {
+            display: none;
+        }
+
+        & + .tagify__input {
+            display: none;
+        }
+    }
+}
+
+/* ==========================================================================
+   States
+   ========================================================================== */
+.tagify--empty {
+    & .tagify__input {
+        &::before {
+            transition: .2s ease-out;
+            opacity: 1;
+            transform: none;
+            display: inline-block;
+            width: auto;
+        }
+    }
+}
+
+.tagify--focus {
+    --tags-border-color: var(--tags-focus-border-color);
+    transition: 0s;
+}
+
+.tagify--invalid {
+    --tags-border-color : var(--tag-invalid-color);
+}
+
+/* ==========================================================================
+   Suggestions dropdown
+   ========================================================================== */
+.tagify__dropdown {
+    position: absolute;
+    z-index: 9999;
+    transform: translateY(-1px);
+    border-top: 1px solid var(--tagify-dd-color-primary);
+    overflow: hidden;
+
+    &[dir='rtl'] {
+        transform: translate(-100%, -1px);
+    }
+
+    &[placement="top"] {
+        margin-top: 0;
+        transform: translateY(-100%);
+
+        & .tagify__dropdown__wrapper {
+            border-top-width: 1.1px; /* fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523 */
+            border-bottom-width: 0;
+        }
+    }
+
+    /* when the dropdown is shown next to the caret while typing */
+    &[position="text"] {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--tagify-dd-color-primary) 10%, transparent);
+        font-size: .9em;
+
+        & .tagify__dropdown__wrapper {
+            border-width: 1px;
+        }
+    }
+}
+
+.tagify__dropdown__wrapper {
+    --_trans: .3s;
+    --_trans-curve: cubic-bezier(.5, 0, .3, 1);
+
+    scroll-behavior: auto; /* keep up/down arrow pressed to see the effect without this */
+    max-height: var(--tagify-dd-max-height);
+    overflow: hidden;
+    color: var(--tagify-dd-text-color);
+    background: var(--tagify-dd-bg-color);
+    border: 1px solid;
+    border-color: var(--tagify-dd-color-primary);
+    border-bottom-width: 1.5px; /* fixes - https://bugs.chromium.org/p/chromium/issues/detail?id=1147523 */
+    border-top-width: 0;
+    box-shadow: 0 2px 4px -2px rgba(0, 0, 0, .2);
+    transition: var(--_trans) var(--_trans-curve), transform calc(var(--_trans) / 2);
+    animation: dd-wrapper-show 0s var(--_trans) forwards; /* scrollbar only after the transition ended */
+}
+
+.tagify__dropdown__header {
+    &:empty { display: none; }
+}
+
+.tagify__dropdown__footer {
+    display: inline-block;
+    margin-top: .5em;
+    padding: var(--tagify-dd-item-pad);
+    font-size: 0.7em;
+    font-style: italic;
+    opacity: .5;
+
+    &:empty { display: none; }
+}
+
+/* intial state, pre-rendered */
+.tagify__dropdown--initial {
+    & .tagify__dropdown__wrapper {
+        max-height: 20px;
+        transform: translateY(-1em);
+    }
+
+    &[placement="top"] {
+        & .tagify__dropdown__wrapper {
+            transform: translateY(2em);
+        }
+    }
+}
+
+.tagify__dropdown__item {
+    box-sizing: border-box;
+    padding: var(--tagify-dd-item-pad);
+    margin: 1px;
+    white-space: pre-wrap;
+    cursor: pointer;
+    border-radius: 2px;
+    position: relative;
+    outline: none;
+    max-height: 60px;
+    max-width: 100%;
+    line-height: normal;
+
+    &:active {
+        filter: brightness(105%);
+    }
+}
+
+.tagify__dropdown__item--active {
+    background: var(--tagify-dd-color-primary);
+    color: white;
+}
+
+/* custom hidden transition effect is needed for horizontal-layout suggestions */
+.tagify__dropdown__item--hidden {
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0 1px;
+    pointer-events: none;
+    overflow: hidden;
+    max-height: 0;
+    transition: var(--tagify-dd-item--hidden-duration, .3s) !important;
+
+    & > * {
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: inherit;
+    }
+}
+
+.tagify__dropdown__item--selected {
+    &::before {
+        content: "\2713"; /* checkmark */
+        font-family: monospace;
+        position: absolute;
+        inset-inline-start: 6px;
+        text-indent: 0;
+        line-height: 1.1;
+    }
+}
+
+.tagify__dropdown:has(.tagify__dropdown__item--selected) .tagify__dropdown__item {
+    text-indent: 1em;
+}
