@@ -1078,7 +1078,12 @@ Tagify.prototype = {
             // re-bind all events
             this.events.binding.call(this)
 
-            _s.dropdown.enabled = this.origSettings.dropdown.enabled;
+            // same value `applySettings` sets for an editable field. `dropdown` or
+            // `dropdown.enabled` may be missing from the original settings
+            var origDropdownEnabled = this.origSettings.dropdown?.enabled
+            _s.dropdown.enabled = _s.mode == 'select' && !origDropdownEnabled
+                ? 0
+                : origDropdownEnabled ?? DEFAULTS.dropdown.enabled
         }
     },
 
