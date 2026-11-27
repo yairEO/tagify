@@ -78,11 +78,16 @@ export default function EventDispatcher( instance ){
                     if( data.event )
                         eventData.event = this.cloneEvent(data.event)
 
+                    // "extend" deep-clones DOM elements into plain objects, so restore the original element references.
+                    // Only own properties are read (no "for...in"), otherwise payloads which are DOM elements
+                    // (like the dropdown) would have all their inherited props read, including deprecated ones
+                    // such as Firefox's "onmozfullscreenchange" which triggers deprecation warnings (issue #1513)
                     // TODO: move the below to the "extend" function
-                    if( data instanceof Object )
-                        for( var prop in data )
-                            if(data[prop] instanceof HTMLElement)
+                    if( opts.cloneData && data instanceof Object )
+                        Object.keys(data).forEach(prop => {
+                            if( data[prop] instanceof HTMLElement )
                                 eventData[prop] = data[prop]
+                        })
 
                     e = new CustomEvent(eventName, {"detail":eventData})
                 }
