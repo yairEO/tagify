@@ -67,6 +67,7 @@ Temporary Items
 /playwright/.cache/
 
 # user files
+.agents
 .vscode/virtualTab.json
 .cursor/commands
 .cursor/plans
