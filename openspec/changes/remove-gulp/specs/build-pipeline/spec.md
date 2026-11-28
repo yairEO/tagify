@@ -80,7 +80,11 @@ For every directory `docs/examples/src/<name>/` the build SHALL write `docs/exam
 - **THEN** no page is generated for `example-template.html` or for any other file that is a direct child of `docs/examples/src/`
 
 ### Requirement: Demo homepage
-The build SHALL write `index.html` at the project root as the rendering of `docs/homepage/index.html` as a Nunjucks template, with `docs/` as the root for template paths and an empty rendering context.
+The build SHALL write `index.html` at the project root as the rendering of `docs/homepage/index.html` as a Nunjucks template, with `docs/` as the root for template paths and a rendering context whose only variable is `version`, the `version` field of `package.json` at build time.
+
+#### Scenario: Homepage header carries the current version
+- **WHEN** `package.json` has `"version": "4.39.0"` and the build runs
+- **THEN** the header of `index.html` contains `<span class='version'>v4.39.0</span>`
 
 #### Scenario: Homepage rendered
 - **WHEN** the build runs

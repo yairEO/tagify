@@ -43,9 +43,10 @@ const staticFiles = () => ({
                 }));
         }
 
-        // index.html: the demo page, which embeds every example
+        // index.html: the demo page, which embeds every example. `np` bumps package.json before it runs the "version"
+        // script (this build), so a release commit carries a homepage that shows the version being released
         const env = new nunjucks.Environment(new nunjucks.FileSystemLoader('docs'));
-        writeFileSync('index.html', env.renderString(readFileSync('docs/homepage/index.html', 'utf8'), {}));
+        writeFileSync('index.html', env.renderString(readFileSync('docs/homepage/index.html', 'utf8'), { version: pkg.version }));
     }
 });
 

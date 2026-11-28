@@ -134,6 +134,16 @@
             drop-shadow(4px 0px 0px white)
             drop-shadow(0px 3px 1px rgba(0,0,0,.15));
   }
+  /* sits on the logo's baseline, past its right edge. ".repoLink" is its containing block because of its transform */
+  .repoLink .version{
+    position: absolute;
+    left: 100%;
+    bottom: 33%;
+    margin-left: .5em;
+    font: bold 12px/1 Monaco, monospace;
+    color: #888;
+    white-space: nowrap;
+  }
   body > header .liveLink{ color:#333; text-decoration:none; font-size:1.4em; position:relative; line-height:1; }
   body > header .liveLink::before{ content:'✎'; text-decoration:none; transform:translateX(-150%); position:absolute; top:1px; left:0; }
   body > header .liveLink:hover{ text-decoration: underline; }
