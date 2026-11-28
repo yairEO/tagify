@@ -2,7 +2,6 @@
 
 import {memo, useMemo, useEffect, useRef, useCallback, createElement} from 'react';
 import {renderToStaticMarkup} from "react-dom/server"
-// import {string, array, func, bool, object, oneOfType} from "prop-types"
 import Tagify from "./tagify.js"
 
 const noop = _ => _
@@ -239,45 +238,6 @@ const TagifyWrapper = ({
         createElement(InputMode, inputAttrs)
     )
 }
-
-// TagifyWrapper.propTypes = {
-//     name: string,
-//     value: oneOfType([string, array]),
-//     loading: bool,
-//     children: oneOfType([string, array]),
-//     onChange: func,
-//     readOnly: bool,
-//     disabled: bool,
-//     userInput: bool,
-//     settings: object,
-//     InputMode: string,
-//     autoFocus: bool,
-//     className: string,
-//     tagifyRef: object,
-//     whitelist: array,
-//     placeholder: string,
-//     defaultValue: oneOfType([string, array]),
-//     showDropdown: oneOfType([string, bool]),
-//     onInput: func,
-//     onAdd: func,
-//     onRemove: func,
-//     onEditInput: func,
-//     onEditBeforeUpdate: func,
-//     onEditUpdated: func,
-//     onEditStart: func,
-//     onEditKeydown: func,
-//     onInvalid: func,
-//     onClick: func,
-//     onKeydown: func,
-//     onFocus: func,
-//     onBlur: func,
-//     onDropdownShow: func,
-//     onDropdownHide: func,
-//     onDropdownSelect: func,
-//     onDropdownScroll: func,
-//     onDropdownNoMatch: func,
-//     onDropdownUpdated: func,
-// }
 
 const Tags = memo(TagifyWrapper)
 Tags.displayName = "Tags"
